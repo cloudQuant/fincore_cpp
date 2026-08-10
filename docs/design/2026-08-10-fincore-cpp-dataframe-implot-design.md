@@ -74,9 +74,11 @@ pairing.
 
 All numeric missing values use IEEE `NaN`. Empty series, absent columns,
 non-finite sample handling, zero variance, and insufficient observations are
-defined on each public metric. Structural errors throw `input_error`;
-mathematically undefined scalar metrics return `NaN`, mirroring the Python
-analytics conventions.
+defined on each public metric. Structural errors throw `input_error`; scalar
+results otherwise preserve the Python oracle's metric-specific behavior. Most
+undefined values are `NaN`, while the reference Sharpe and Sortino formulas
+intentionally yield signed infinity for a nonzero numerator and zero risk
+denominator.
 
 ## Core analytics architecture
 

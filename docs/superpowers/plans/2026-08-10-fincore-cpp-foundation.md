@@ -365,6 +365,37 @@ TEST(AlphaBeta, MatchesReferenceAlphaAfterAlignment) {
     EXPECT_NEAR(fincore::alpha(returns, benchmark), -0.3431833620809164,
                 1e-12);
 }
+
+TEST(Ratios, PreservesReferenceZeroRiskDenominatorBehavior) {
+    const auto flat = fincore::make_series({1, 2}, "returns", {0.01, 0.01});
+    const auto sparse = fincore::make_series(
+        {1, 2}, "returns", {0.01, std::numeric_limits<double>::quiet_NaN()});
+    EXPECT_TRUE(std::isinf(fincore::sharpe_ratio(flat)));
+    EXPECT_TRUE(std::isinf(fincore::sortino_ratio(flat)));
+    EXPECT_TRUE(std::isinf(fincore::sortino_ratio(sparse)));
+}
+
+TEST(Ratios, CountsNanPeriodsInCalmarAnnualization) {
+    const auto returns = fincore::make_series(
+        {1, 2, 3}, "returns",
+        {-0.02, std::numeric_limits<double>::quiet_NaN(), 0.01});
+    EXPECT_NEAR(fincore::calmar_ratio(returns), -28.86726241438432, 1e-12);
+}
+
+TEST(Risk, SupportsHistoricalRiskCutoffEndpoints) {
+    const auto returns = fincore::make_series({1, 2, 3}, "returns",
+                                              {-0.10, 0.00, 0.10});
+    EXPECT_DOUBLE_EQ(fincore::historical_value_at_risk(returns, 0.0), -0.10);
+    EXPECT_DOUBLE_EQ(fincore::historical_value_at_risk(returns, 1.0), 0.10);
+    EXPECT_DOUBLE_EQ(fincore::conditional_value_at_risk(returns, 0.0), -0.10);
+    EXPECT_DOUBLE_EQ(fincore::conditional_value_at_risk(returns, 1.0), 0.00);
+}
+
+TEST(AlphaBeta, ReturnsNanForZeroBenchmarkVariance) {
+    const auto returns = fincore::make_series({1, 2}, "returns", {0.01, 0.02});
+    const auto benchmark = fincore::make_series({1, 2}, "benchmark", {0.01, 0.01});
+    EXPECT_TRUE(std::isnan(fincore::beta(returns, benchmark)));
+}
 ```
 
 - [ ] **Step 2: Run focused tests to verify they fail**
@@ -375,12 +406,17 @@ Expected: compilation fails because the metric APIs do not exist.
 
 - [ ] **Step 3: Implement the tested metric contract**
 
-The ratio and annual-volatility family ignore `NaN` samples and require at
-least two valid observations. `sharpe_ratio` uses mean excess return divided
-by sample standard deviation and annualizes by `sqrt(annualization)`.
-`sortino_ratio` uses root-mean-square downside deviation relative to the
-required return. `calmar_ratio` is annual return divided by absolute maximum
-drawdown. VaR and CVaR return `NaN` when any input is non-finite.
+`sharpe_ratio` ignores `NaN` samples, requires at least two valid samples, and
+uses mean excess return divided by sample standard deviation, annualized by
+`sqrt(annualization)`. A zero standard deviation preserves the Python
+reference's signed-infinity result. `sortino_ratio` requires at least two
+input rows, computes a `NaN`-ignoring mean excess return and root-mean-square
+downside deviation, and likewise preserves signed infinity for a zero
+downside denominator. `calmar_ratio` delegates to `annual_return` and
+`max_drawdown` on the original frame: a `NaN` is neutral in compounding but
+still counts in annualization length. It returns `NaN` for a nonnegative
+drawdown or an infinite quotient. VaR and CVaR return `NaN` when any input is
+non-finite.
 `historical_value_at_risk` uses the same linearly interpolated percentile as
 `numpy.percentile`; its `cutoff` is a left-tail probability in `[0, 1]`, not a
 confidence level. CVaR averages observations at or below that interpolated
