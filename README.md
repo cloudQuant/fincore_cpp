@@ -15,6 +15,77 @@ statistics, alpha/beta, and timing APIs. The Phase 2A acceptance record,
 including tested boundaries and explicitly deferred work, is available at
 [`docs/acceptance/2026-08-10-phase-2a-scalar-metrics-acceptance.md`](docs/acceptance/2026-08-10-phase-2a-scalar-metrics-acceptance.md).
 
+## Accepted Phase 2B calendar/yearly metric slice
+
+The Phase 2B slice adds UTC calendar-year result DataFrames for yearly return,
+volatility, Sharpe, drawdown, active-return, and information-ratio metrics,
+along with per-year `annual_alpha` and `annual_beta`. The metric façade now
+exports the yearly APIs:
+
+```cpp
+#include <fincore/calendar.hpp>  // utc_timestamp for the DataFrame index
+#include <fincore/metrics.hpp>   // scalar, yearly, annual alpha/beta metrics
+```
+
+`calendar.hpp` intentionally remains a separate public dependency. The metric
+façade includes `metrics/yearly.hpp`, but does not add calendar, detail,
+analysis-context, rolling-engine, or ImPlot headers.
+
+The accepted implementation chain uses these full commit IDs:
+
+- Task 15 calendar helper: `e062ae70628575fe1e71524cc7fd36aa36619869`
+  (follow-up boundary hardening:
+  `70abe149772cebd0a40eb10c82367f9b5aeaeae3`).
+- Task 16 yearly metrics: `b47d7c30c9035b96fde6aa7ca42ef253070bcad9`
+  (follow-up alignment coverage:
+  `466d8d84d85b0474f45737be8e3a711f478ef63e`).
+- Task 17 annual alpha/beta: `f4fae66d237bf01ca13df4f75abdef5b94f97997`.
+
+Fresh Phase 2B acceptance evidence from 2026-08-10 is:
+
+- AppleClang `17.0.0.17000603`, in a new `/tmp` Ninja build with
+  `FINCORE_BUILD_IMPLOT=OFF`: `cmake -S . -B
+  /tmp/fincore-task18-core.rg1AFn/build -G Ninja
+  -DFINCORE_BUILD_TESTING=ON -DFINCORE_BUILD_IMPLOT=OFF`, then `cmake --build
+  /tmp/fincore-task18-core.rg1AFn/build --parallel 4`, then `ctest --test-dir
+  /tmp/fincore-task18-core.rg1AFn/build --output-on-failure`; all exited `0`
+  and CTest passed `108/108`.
+- Homebrew LLVM `clang++ 22.1.8`, in a separate new `/tmp` Ninja build with
+  `FINCORE_ENABLE_ASAN=ON` and `FINCORE_ENABLE_UBSAN=ON`: `cmake -S . -B
+  /tmp/fincore-task18-sanitize.lEkSlr/build -G Ninja
+  -DFINCORE_BUILD_TESTING=ON -DFINCORE_BUILD_IMPLOT=OFF
+  -DFINCORE_ENABLE_ASAN=ON -DFINCORE_ENABLE_UBSAN=ON
+  -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++`, then `cmake --build
+  /tmp/fincore-task18-sanitize.lEkSlr/build --parallel 4`, then `ctest
+  --test-dir /tmp/fincore-task18-sanitize.lEkSlr/build --output-on-failure`;
+  all exited `0` and CTest passed `108/108` with no ASan or UBSan diagnostic.
+  The build emitted one third-party GoogleTest `-Wcharacter-conversion`
+  warning, which is not a sanitizer finding.
+- A fresh ImPlot-enabled configure using a nonexistent
+  `FINCORE_IMGUI_SOURCE_DIR` ran `cmake -S . -B
+  /tmp/fincore-task18-invalid-imgui.wSq1cj/build -G Ninja
+  -DFINCORE_BUILD_TESTING=OFF -DFINCORE_BUILD_IMPLOT=ON
+  -DFINCORE_IMGUI_SOURCE_DIR=/tmp/fincore-task18-invalid-imgui.wSq1cj/not-a-dear-imgui-checkout`
+  and exited `1` with:
+
+  ```text
+  FINCORE_IMGUI_SOURCE_DIR must name a Dear ImGui checkout with all required
+  files; received
+  '/tmp/fincore-task18-invalid-imgui.wSq1cj/not-a-dear-imgui-checkout'
+  ```
+
+  No Dear ImGui source was fetched, cloned, vendored, fabricated, or
+  substituted.
+
+This accepts only the calendar/yearly metric slice, not full fincore parity or
+project completion. Weekly/monthly/quarterly aggregation, deep
+drawdown/consecutive metrics, positions/transactions/round trips,
+Bayesian/bootstrap/attribution metrics, and the full façade remain deferred.
+The positive `fincore_implot` and `fincore_implot_demo` build gate is still
+open until the user supplies a real local Dear ImGui checkout; it was not
+claimed from the negative configuration check. See the complete record in
+[`docs/acceptance/2026-08-10-phase-2b-calendar-metrics-acceptance.md`](docs/acceptance/2026-08-10-phase-2b-calendar-metrics-acceptance.md).
+
 ## Headless core verification
 
 The core target is headless. It links `DataFrame::DataFrame` and does not

@@ -9,3 +9,4 @@
 #include <fincore/metrics/stats.hpp>
 #include <fincore/metrics/alpha_beta.hpp>
 #include <fincore/metrics/timing.hpp>
+#include <fincore/metrics/yearly.hpp>

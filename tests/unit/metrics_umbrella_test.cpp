@@ -1,3 +1,4 @@
+#include <fincore/calendar.hpp>
 #include <fincore/metrics.hpp>
 
 #include <gtest/gtest.h>
@@ -31,6 +32,17 @@ std::vector<double> return_values() {
   return result;
 }
 
+std::vector<fincore::timestamp> calendar_indices() {
+  return {
+      fincore::utc_timestamp(2020, 1, 2),
+      fincore::utc_timestamp(2020, 1, 3),
+      fincore::utc_timestamp(2020, 1, 6),
+      fincore::utc_timestamp(2021, 1, 4),
+      fincore::utc_timestamp(2021, 1, 5),
+      fincore::utc_timestamp(2021, 1, 6),
+  };
+}
+
 TEST(MetricsUmbrella, ExposesOnlyImplementedDataframeNativeMetrics) {
   const auto returns =
       fincore::make_series(twelve_indices(), "returns", return_values());
@@ -49,6 +61,20 @@ TEST(MetricsUmbrella, ExposesOnlyImplementedDataframeNativeMetrics) {
   EXPECT_TRUE(std::isfinite(alpha));
   EXPECT_TRUE(std::isfinite(beta));
   EXPECT_TRUE(std::isfinite(fincore::treynor_mazuy_timing(returns, benchmark)));
+
+  const auto calendar_returns = fincore::make_series(
+      calendar_indices(), "returns", {.01, -.01, .02, .015, -.005, .01});
+  const auto calendar_benchmark = fincore::make_series(
+      calendar_indices(), "benchmark", {.005, -.01, .01, .006, -.004, .008});
+  const std::vector<fincore::timestamp> expected_year_index{
+      fincore::utc_timestamp(2020), fincore::utc_timestamp(2021)};
+
+  EXPECT_EQ(fincore::annual_return_by_year(calendar_returns).get_index(),
+            expected_year_index);
+  EXPECT_EQ(fincore::annual_alpha(calendar_returns, calendar_benchmark).get_index(),
+            expected_year_index);
+  EXPECT_EQ(fincore::annual_beta(calendar_returns, calendar_benchmark).get_index(),
+            expected_year_index);
 }
 
 }  // namespace
