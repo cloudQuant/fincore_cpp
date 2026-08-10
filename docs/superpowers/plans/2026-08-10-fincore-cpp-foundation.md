@@ -464,8 +464,10 @@ TEST(AnalysisContext, CachesAndPublishesCoreSummary) {
     fincore::analysis_context context{
         fincore::make_series({1, 2, 3}, "returns", {0.01, -0.02, 0.03})};
     const auto summary = context.summary();
+    const auto repeated_summary = context.summary();
     EXPECT_TRUE(summary.contains("Sharpe ratio"));
     EXPECT_NEAR(summary.at("Max drawdown"), -0.02, 1e-12);
+    EXPECT_EQ(summary, repeated_summary);
     EXPECT_EQ(context.computation_count("Max drawdown"), 1U);
 }
 
@@ -477,6 +479,19 @@ TEST(RollingEngine, PreservesWindowEndIndex) {
     const auto result = engine.compute(metrics);
     EXPECT_EQ(result.at("mean_return").get_index(),
               (std::vector<fincore::timestamp>{3, 4}));
+    const auto& mean_values = result.at("mean_return").get_column<double>(
+        fincore::returns_column.data());
+    EXPECT_NEAR(mean_values[0], 1.68, 1e-12);
+    EXPECT_NEAR(mean_values[1], 3.36, 1e-12);
+}
+
+TEST(RollingEngine, RejectsInvalidWindowAndMissingBetaBenchmark) {
+    const auto returns = fincore::make_series({1, 2}, "returns", {0.01, 0.02});
+    EXPECT_THROW((fincore::rolling_engine{returns, std::nullopt, 1U}),
+                 fincore::input_error);
+    const fincore::rolling_engine engine{returns, std::nullopt, 2U};
+    const std::array metrics{fincore::rolling_metric::beta};
+    EXPECT_THROW(engine.compute(metrics), fincore::input_error);
 }
 ```
 
@@ -492,8 +507,10 @@ Expected: compilation fails because these classes do not exist.
 `std::unordered_map<std::string, double>`; `summary()` returns a
 `std::map<std::string, double>` with stable keys. `rolling_engine` validates
 `window >= 2`, returns only complete windows, uses each window's last index,
-and delegates to the non-rolling public metric functions. Its valid enum values
-are `mean_return`, `volatility`, `sharpe`, `max_drawdown`, and `beta`.
+and delegates to the non-rolling public metric functions. `mean_return` is
+the Python engine's annualized arithmetic mean (`mean(window) * annualization`).
+The engine rejects `beta` when no benchmark frame was supplied. Its valid enum
+values are `mean_return`, `volatility`, `sharpe`, `max_drawdown`, and `beta`.
 
 - [ ] **Step 4: Re-run focused tests**
 
