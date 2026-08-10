@@ -264,9 +264,77 @@ Run: `git add include/fincore/metrics/ratios.hpp src/metrics/ratios.cpp tests/un
 - Modify: `CMakeLists.txt`
 - Modify: `tests/CMakeLists.txt`
 
+**Public interfaces and numerical contract:**
+
+```cpp
+double skewness(const dataframe& returns,
+                std::string_view column = returns_column);
+double kurtosis(const dataframe& returns,
+                std::string_view column = returns_column);
+double serial_correlation(const dataframe& returns, std::ptrdiff_t lag = 1,
+                          std::string_view column = returns_column);
+double win_rate(const dataframe& returns,
+                std::string_view column = returns_column);
+double loss_rate(const dataframe& returns,
+                 std::string_view column = returns_column);
+double safe_correlation(const dataframe& returns, const dataframe& benchmark,
+                        std::string_view returns_column_name = returns_column,
+                        std::string_view benchmark_column_name = benchmark_column);
+double relative_win_rate(const dataframe& returns, const dataframe& benchmark,
+                         std::string_view returns_column_name = returns_column,
+                         std::string_view benchmark_column_name = benchmark_column);
+double capm_r_squared(const dataframe& returns, const dataframe& benchmark,
+                      std::string_view returns_column_name = returns_column,
+                      std::string_view benchmark_column_name = benchmark_column);
+double tracking_difference(const dataframe& returns, const dataframe& benchmark,
+                           std::string_view returns_column_name = returns_column,
+                           std::string_view benchmark_column_name = benchmark_column);
+```
+
+The public name is `capm_r_squared`, matching the actual Python public API;
+do not invent a generic `r_squared` alias. All functions validate their named
+double columns through the DataFrame boundary. Scalar one-series metrics retain
+only finite values. Thus `skewness` requires three finite values and
+`kurtosis` four; each uses the SciPy-default biased standardized central
+moment (with Fisher/excess kurtosis), and returns `NaN` for zero/non-finite
+variance. `serial_correlation` accepts only `lag >= 1`, removes non-finite
+observations before forming the lagged sequences, needs at least two resulting
+pairs, and delegates its Pearson calculation to the same private primitive.
+`win_rate`/`loss_rate` are the fractions of finite observations strictly above/
+below zero and return `NaN` for no finite observations.
+
+Each paired operation must use `align_on_common_index`, retain left timestamp
+order, and drop a pair if either component is non-finite. `safe_correlation`
+requires at least two pairs and rejects either population standard deviation
+below `1e-15`. `relative_win_rate` requires at least one pair and counts only
+strict `returns > benchmark` outcomes. `capm_r_squared` is the squared Pearson
+correlation (equivalent to the Python beta/sigma CAPM formula), clamps a finite
+result to `[0, 1]`, and returns `NaN` for constant/insufficient pairs.
+`tracking_difference` materializes finite aligned pairs and composes accepted
+`cumulative_return`; it returns the strategy cumulative return minus the
+benchmark cumulative return, or `NaN` for no usable pairs/non-finite result.
+
+For daily fixture returns `{.01, -.02, .03, -.01, .02}` and benchmark
+`{.005, -.01, .02, -.005, .015}` at index `{1,2,3,4,5}`, Python gives
+skewness `-0.15798755143759596`, excess kurtosis `-1.4908058409951324`, serial
+correlation (lag one) `-0.8525371202334078`, win/loss rates `.6`/`.4`, safe
+correlation `.9930437840630139`, relative win rate `.6`, CAPM R-squared
+`.9861359570661897`, and tracking difference `.004563664875000262`. With the
+same value vectors but benchmark index `{2,3,4,5,6}`, native common-index
+pairing yields safe correlation `-.7938841860374447`, relative win rate `.5`,
+CAPM R-squared `.6302521008403359`, and tracking difference
+`.009517365000000222`. A finite-pair fixture returns `{.01, NaN, -.02, .03}`
+and benchmark `{.005, .01, NaN, -.01}` yields correlation `-1`, relative win
+rate `1`, CAPM R-squared `1`, and tracking difference `.04535000000000011`.
+
 **Step 1: Write failing tests**
 
-Add fixture tests for `skewness`, excess `kurtosis`, `serial_correlation`, `win_rate`, `loss_rate`, `safe_correlation`, `relative_win_rate`, `r_squared`, and `tracking_difference`. Include fewer-than-required observations, constant series, unequal index sequences, and `NaN` pairs.
+Add exact fixture tests for `skewness`, excess `kurtosis`,
+`serial_correlation`, `win_rate`, `loss_rate`, `safe_correlation`,
+`relative_win_rate`, `capm_r_squared`, and `tracking_difference`. Include
+fewer-than-required observations, constant series, invalid lag, zero-only
+rates, unequal index sequences, `NaN`/infinity filtering, no common pairs, and
+named-column structural errors.
 
 **Step 2: Run it to verify failure**
 
@@ -276,7 +344,12 @@ Expected: missing `fincore/metrics/stats.hpp` compilation error.
 
 **Step 3: Implement sample semantics**
 
-Implement the Python reference's finite-observation/sample-moment formulas, not a dependency-specific alternative. A paired function must call `align_on_common_index`; `safe_correlation` and `r_squared` return `NaN` for constant or insufficient samples. Preserve the original input index only for future materialized results; these APIs are scalar.
+Implement the Python reference's finite-observation formulas, not a
+dependency-specific alternative. Reproduce SciPy's default biased skew and
+Fisher/excess kurtosis directly from central moments. A paired function must
+call `align_on_common_index`; `safe_correlation` and `capm_r_squared` return
+`NaN` for constant or insufficient samples. Preserve the original input index
+only for temporary composition; these APIs are scalar.
 
 **Step 4: Verify**
 

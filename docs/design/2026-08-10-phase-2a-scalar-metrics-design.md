@@ -28,8 +28,8 @@ claiming full Python API parity.
    capture ratios. Paired ratio and capture APIs use the existing common-index
    finite-pair boundary rather than pandas `Series` outer-index arithmetic.
    Existing Sharpe, Sortino and Calmar behavior remains unchanged.
-4. `metrics/stats.hpp`: sample skewness/excess kurtosis, serial correlation,
-   win/loss rates, safe Pearson correlation, relative win rate, R-squared, and
+4. `metrics/stats.hpp`: skewness/excess kurtosis, serial correlation, win/loss
+   rates, safe Pearson correlation, relative win rate, CAPM R-squared, and
    tracking difference.
 5. `metrics/alpha_beta.hpp` and `metrics/timing.hpp`: a paired alpha/beta
    result, up/down alpha/beta, annual beta, and the scalar timing regression
