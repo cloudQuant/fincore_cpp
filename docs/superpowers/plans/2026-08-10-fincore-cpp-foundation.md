@@ -339,6 +339,32 @@ TEST(AlphaBeta, AlignsDataframesBeforeEstimatingBeta) {
                                                 {0.04, 0.06, 0.08});
     EXPECT_NEAR(fincore::beta(returns, benchmark), 0.5, 1e-12);
 }
+
+TEST(Ratios, MatchesReferenceSharpeSortinoAndCalmar) {
+    const auto returns = fincore::make_series({1, 2, 3, 4}, "returns",
+                                              {0.01, -0.02, 0.03, -0.01});
+    EXPECT_NEAR(fincore::sharpe_ratio(returns), 1.789801617640478, 1e-12);
+    EXPECT_NEAR(fincore::sortino_ratio(returns), 3.549647869859768, 1e-12);
+    EXPECT_NEAR(fincore::calmar_ratio(returns), 39.58220278509036, 1e-12);
+}
+
+TEST(Risk, RejectsNonFiniteHistoricalRiskInput) {
+    const auto returns = fincore::make_series(
+        {1, 2, 3}, "returns",
+        {-0.10, std::numeric_limits<double>::quiet_NaN(), 0.10});
+    EXPECT_TRUE(std::isnan(fincore::historical_value_at_risk(returns, 0.20)));
+    EXPECT_TRUE(std::isnan(fincore::conditional_value_at_risk(returns, 0.20)));
+}
+
+TEST(AlphaBeta, MatchesReferenceAlphaAfterAlignment) {
+    const auto returns = fincore::make_series({1, 2, 3, 4}, "returns",
+                                              {0.01, -0.02, 0.03, -0.01});
+    const auto benchmark = fincore::make_series({1, 2, 3, 4}, "benchmark",
+                                                {0.005, -0.01, 0.02, -0.005});
+    EXPECT_NEAR(fincore::beta(returns, benchmark), 1.6666666666666667, 1e-12);
+    EXPECT_NEAR(fincore::alpha(returns, benchmark), -0.3431833620809164,
+                1e-12);
+}
 ```
 
 - [ ] **Step 2: Run focused tests to verify they fail**
