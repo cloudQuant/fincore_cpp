@@ -1,5 +1,6 @@
 #include <fincore/metrics/drawdown.hpp>
 
+#include <algorithm>
 #include <cmath>
 #include <limits>
 #include <optional>
@@ -77,6 +78,81 @@ std::vector<underwater_event> scan_underwater_events(
         events.push_back(*active);
     }
     return events;
+}
+
+double elapsed_utc_days(const fincore::timestamp start,
+                        const fincore::timestamp end) {
+    constexpr __int128 nanoseconds_per_day =
+        static_cast<__int128>(86'400) * 1'000'000'000;
+    const __int128 elapsed =
+        static_cast<__int128>(end) - static_cast<__int128>(start);
+    __int128 days = elapsed / nanoseconds_per_day;
+    if (elapsed < 0 && elapsed % nanoseconds_per_day != 0) {
+        --days;
+    }
+    return static_cast<double>(days);
+}
+
+const underwater_event* maximum_event(
+    const std::vector<underwater_event>& events) {
+    if (events.empty()) {
+        return nullptr;
+    }
+    const underwater_event* result = &events.front();
+    for (const auto& event : events) {
+        if (event.value < result->value) {
+            result = &event;
+        }
+    }
+    return result;
+}
+
+const underwater_event* ranked_event(
+    const std::vector<underwater_event>& events,
+    const std::size_t rank) {
+    if (events.size() <= rank) {
+        return nullptr;
+    }
+    std::vector<const underwater_event*> ranked;
+    ranked.reserve(events.size());
+    for (const auto& event : events) {
+        ranked.push_back(&event);
+    }
+    std::stable_sort(ranked.begin(), ranked.end(),
+                     [](const auto* left, const auto* right) {
+                         return left->value < right->value;
+                     });
+    return ranked[rank];
+}
+
+double ranked_drawdown(const fincore::dataframe& returns,
+                       const std::string_view column,
+                       const std::size_t rank) {
+    const auto events = scan_underwater_events(returns, column);
+    const auto* event = ranked_event(events, rank);
+    return event == nullptr ? std::numeric_limits<double>::quiet_NaN()
+                            : event->value;
+}
+
+double ranked_drawdown_days(const fincore::dataframe& returns,
+                            const std::string_view column,
+                            const std::size_t rank) {
+    const auto events = scan_underwater_events(returns, column);
+    const auto* event = ranked_event(events, rank);
+    return event == nullptr
+               ? std::numeric_limits<double>::quiet_NaN()
+               : elapsed_utc_days(event->start, event->valley);
+}
+
+double ranked_recovery_days(const fincore::dataframe& returns,
+                            const std::string_view column,
+                            const std::size_t rank) {
+    const auto events = scan_underwater_events(returns, column);
+    const auto* event = ranked_event(events, rank);
+    if (event == nullptr || !event->recovery.has_value()) {
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+    return elapsed_utc_days(event->valley, *event->recovery);
 }
 
 }  // namespace
@@ -160,6 +236,81 @@ std::optional<drawdown_window> max_drawdown_window(
     }
     return drawdown_window{maximum->peak, maximum->valley,
                            maximum->recovery};
+}
+
+double max_drawdown_days(const dataframe& returns, std::string_view column) {
+    const auto values = require_double_column(returns, column);
+    if (values.empty()) {
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+    const auto events = scan_underwater_events(returns, column);
+    const auto* event = maximum_event(events);
+    return event == nullptr ? 0.0
+                            : elapsed_utc_days(event->peak, event->valley);
+}
+
+double max_drawdown_weeks(const dataframe& returns, std::string_view column) {
+    return max_drawdown_days(returns, column) / 7.0;
+}
+
+double max_drawdown_months(const dataframe& returns, std::string_view column) {
+    return max_drawdown_days(returns, column) / 30.0;
+}
+
+double max_drawdown_recovery_days(const dataframe& returns,
+                                  std::string_view column) {
+    const auto values = require_double_column(returns, column);
+    if (values.empty()) {
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+    const auto events = scan_underwater_events(returns, column);
+    const auto* event = maximum_event(events);
+    if (event == nullptr) {
+        return 0.0;
+    }
+    if (!event->recovery.has_value()) {
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+    return elapsed_utc_days(event->valley, *event->recovery);
+}
+
+double max_drawdown_recovery_weeks(const dataframe& returns,
+                                   std::string_view column) {
+    return max_drawdown_recovery_days(returns, column) / 7.0;
+}
+
+double max_drawdown_recovery_months(const dataframe& returns,
+                                    std::string_view column) {
+    return max_drawdown_recovery_days(returns, column) / 30.0;
+}
+
+double second_max_drawdown(const dataframe& returns,
+                           std::string_view column) {
+    return ranked_drawdown(returns, column, 1U);
+}
+
+double third_max_drawdown(const dataframe& returns, std::string_view column) {
+    return ranked_drawdown(returns, column, 2U);
+}
+
+double second_max_drawdown_days(const dataframe& returns,
+                                std::string_view column) {
+    return ranked_drawdown_days(returns, column, 1U);
+}
+
+double second_max_drawdown_recovery_days(const dataframe& returns,
+                                         std::string_view column) {
+    return ranked_recovery_days(returns, column, 1U);
+}
+
+double third_max_drawdown_days(const dataframe& returns,
+                               std::string_view column) {
+    return ranked_drawdown_days(returns, column, 2U);
+}
+
+double third_max_drawdown_recovery_days(const dataframe& returns,
+                                        std::string_view column) {
+    return ranked_recovery_days(returns, column, 2U);
 }
 
 }  // namespace fincore

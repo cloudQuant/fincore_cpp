@@ -42,4 +42,36 @@ std::optional<drawdown_window> max_drawdown_window(
     const dataframe& returns,
     std::string_view column = returns_column);
 
+double max_drawdown_days(const dataframe& returns,
+                         std::string_view column = returns_column);
+double max_drawdown_weeks(const dataframe& returns,
+                          std::string_view column = returns_column);
+double max_drawdown_months(const dataframe& returns,
+                           std::string_view column = returns_column);
+double max_drawdown_recovery_days(
+    const dataframe& returns,
+    std::string_view column = returns_column);
+double max_drawdown_recovery_weeks(
+    const dataframe& returns,
+    std::string_view column = returns_column);
+double max_drawdown_recovery_months(
+    const dataframe& returns,
+    std::string_view column = returns_column);
+double second_max_drawdown(const dataframe& returns,
+                           std::string_view column = returns_column);
+double third_max_drawdown(const dataframe& returns,
+                          std::string_view column = returns_column);
+double second_max_drawdown_days(
+    const dataframe& returns,
+    std::string_view column = returns_column);
+double second_max_drawdown_recovery_days(
+    const dataframe& returns,
+    std::string_view column = returns_column);
+double third_max_drawdown_days(
+    const dataframe& returns,
+    std::string_view column = returns_column);
+double third_max_drawdown_recovery_days(
+    const dataframe& returns,
+    std::string_view column = returns_column);
+
 }  // namespace fincore

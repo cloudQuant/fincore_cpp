@@ -203,6 +203,129 @@ TEST(Drawdown, RejectsInvalidColumnsForDetailedApis) {
                  fincore::input_error);
 }
 
+TEST(Drawdown, MatchesPythonDurationAndSeverityRankGoldens) {
+    constexpr fincore::timestamp day = 86'400'000'000'000LL;
+    std::vector<fincore::timestamp> dates;
+    for (std::int64_t position = 0; position < 10; ++position) {
+        dates.push_back(1'577'836'800'000'000'000LL + position * day);
+    }
+    const auto returns = fincore::make_series(
+        dates, "returns",
+        {0.10, -0.10, -0.10, 0.25, -0.05, -0.05, 0.11, -0.20, 0.30,
+         -0.10});
+
+    EXPECT_DOUBLE_EQ(fincore::max_drawdown_days(returns), 1.0);
+    EXPECT_DOUBLE_EQ(fincore::max_drawdown_weeks(returns), 1.0 / 7.0);
+    EXPECT_DOUBLE_EQ(fincore::max_drawdown_months(returns), 1.0 / 30.0);
+    EXPECT_DOUBLE_EQ(fincore::max_drawdown_recovery_days(returns), 1.0);
+    EXPECT_DOUBLE_EQ(fincore::max_drawdown_recovery_weeks(returns),
+                     1.0 / 7.0);
+    EXPECT_DOUBLE_EQ(fincore::max_drawdown_recovery_months(returns),
+                     1.0 / 30.0);
+    EXPECT_NEAR(fincore::second_max_drawdown(returns), -0.19, 1e-12);
+    EXPECT_NEAR(fincore::third_max_drawdown(returns), -0.10, 1e-12);
+    EXPECT_DOUBLE_EQ(fincore::second_max_drawdown_days(returns), 1.0);
+    EXPECT_DOUBLE_EQ(fincore::second_max_drawdown_recovery_days(returns),
+                     1.0);
+    EXPECT_DOUBLE_EQ(fincore::third_max_drawdown_days(returns), 0.0);
+    EXPECT_TRUE(
+        std::isnan(fincore::third_max_drawdown_recovery_days(returns)));
+}
+
+TEST(Drawdown, ReturnsNanForEmptyDurationAndRankInputsAfterValidation) {
+    const auto empty = fincore::make_series({}, "returns", {});
+
+    EXPECT_TRUE(std::isnan(fincore::max_drawdown_days(empty)));
+    EXPECT_TRUE(std::isnan(fincore::max_drawdown_weeks(empty)));
+    EXPECT_TRUE(std::isnan(fincore::max_drawdown_months(empty)));
+    EXPECT_TRUE(std::isnan(fincore::max_drawdown_recovery_days(empty)));
+    EXPECT_TRUE(std::isnan(fincore::max_drawdown_recovery_weeks(empty)));
+    EXPECT_TRUE(std::isnan(fincore::max_drawdown_recovery_months(empty)));
+    EXPECT_TRUE(std::isnan(fincore::second_max_drawdown(empty)));
+    EXPECT_TRUE(std::isnan(fincore::third_max_drawdown(empty)));
+    EXPECT_TRUE(std::isnan(fincore::second_max_drawdown_days(empty)));
+    EXPECT_TRUE(
+        std::isnan(fincore::second_max_drawdown_recovery_days(empty)));
+    EXPECT_TRUE(std::isnan(fincore::third_max_drawdown_days(empty)));
+    EXPECT_TRUE(
+        std::isnan(fincore::third_max_drawdown_recovery_days(empty)));
+    EXPECT_THROW(fincore::max_drawdown_days(empty, "missing"),
+                 fincore::input_error);
+    EXPECT_THROW(fincore::second_max_drawdown(empty, "missing"),
+                 fincore::input_error);
+}
+
+TEST(Drawdown, ReturnsZeroDurationsWhenAPathNeverGoesUnderwater) {
+    constexpr fincore::timestamp day = 86'400'000'000'000LL;
+    const auto positive = fincore::make_series(
+        {0, day, 2 * day}, "returns", {0.10, 0.0, 0.05});
+    const auto initial_loss =
+        fincore::make_series({0}, "returns", {-0.01});
+
+    EXPECT_DOUBLE_EQ(fincore::max_drawdown_days(positive), 0.0);
+    EXPECT_DOUBLE_EQ(fincore::max_drawdown_recovery_days(positive), 0.0);
+    EXPECT_DOUBLE_EQ(fincore::max_drawdown_weeks(positive), 0.0);
+    EXPECT_DOUBLE_EQ(fincore::max_drawdown_recovery_months(positive), 0.0);
+    EXPECT_DOUBLE_EQ(fincore::max_drawdown_days(initial_loss), 0.0);
+    EXPECT_DOUBLE_EQ(fincore::max_drawdown_recovery_days(initial_loss), 0.0);
+}
+
+TEST(Drawdown, UsesElapsedUtcDaysAndReportsOpenRecoveryAsNan) {
+    constexpr fincore::timestamp hour = 3'600'000'000'000LL;
+    const auto recovered = fincore::make_series(
+        {0, 47 * hour, 70 * hour}, "returns", {0.0, -0.20, 0.25});
+    const auto open =
+        fincore::make_series({0, 10 * 24 * hour}, "returns", {0.0, -0.20});
+
+    EXPECT_DOUBLE_EQ(fincore::max_drawdown_days(recovered), 1.0);
+    EXPECT_DOUBLE_EQ(fincore::max_drawdown_weeks(recovered), 1.0 / 7.0);
+    EXPECT_DOUBLE_EQ(fincore::max_drawdown_months(recovered), 1.0 / 30.0);
+    EXPECT_DOUBLE_EQ(fincore::max_drawdown_recovery_days(recovered), 0.0);
+    EXPECT_DOUBLE_EQ(fincore::max_drawdown_days(open), 10.0);
+    EXPECT_TRUE(std::isnan(fincore::max_drawdown_recovery_days(open)));
+    EXPECT_TRUE(std::isnan(fincore::max_drawdown_recovery_weeks(open)));
+    EXPECT_TRUE(std::isnan(fincore::max_drawdown_recovery_months(open)));
+}
+
+TEST(Drawdown, ComputesElapsedDaysWithoutTimestampSubtractionOverflow) {
+    const auto returns = fincore::make_series(
+        {std::numeric_limits<fincore::timestamp>::min(),
+         std::numeric_limits<fincore::timestamp>::max()},
+        "returns", {0.0, -0.20});
+
+    EXPECT_DOUBLE_EQ(fincore::max_drawdown_days(returns), 213503.0);
+}
+
+TEST(Drawdown, UsesUtcElapsedDaysForRankedEpisodeDurations) {
+    constexpr fincore::timestamp hour = 3'600'000'000'000LL;
+    const auto returns = fincore::make_series(
+        {0, 24 * hour, 48 * hour, 72 * hour, 119 * hour, 168 * hour,
+         192 * hour, 216 * hour},
+        "returns", {0.0, -0.50, 1.0, -0.20, -0.0625, 1.0 / 3.0, -0.10,
+                    1.0 / 9.0});
+
+    EXPECT_NEAR(fincore::second_max_drawdown(returns), -0.25, 1e-12);
+    EXPECT_DOUBLE_EQ(fincore::second_max_drawdown_days(returns), 1.0);
+    EXPECT_DOUBLE_EQ(fincore::second_max_drawdown_recovery_days(returns),
+                     2.0);
+    EXPECT_DOUBLE_EQ(fincore::third_max_drawdown_days(returns), 0.0);
+    EXPECT_DOUBLE_EQ(fincore::third_max_drawdown_recovery_days(returns),
+                     1.0);
+}
+
+TEST(Drawdown, KeepsChronologicalOrderWhenSeverityRanksTie) {
+    constexpr fincore::timestamp day = 86'400'000'000'000LL;
+    const auto returns = fincore::make_series(
+        {0, day, 2 * day, 3 * day, 8 * day, 9 * day}, "returns",
+        {0.0, -0.20, 0.25, -0.20, 0.25, -0.10});
+
+    EXPECT_NEAR(fincore::second_max_drawdown(returns), -0.20, 1e-12);
+    EXPECT_DOUBLE_EQ(fincore::second_max_drawdown_days(returns), 0.0);
+    EXPECT_DOUBLE_EQ(fincore::second_max_drawdown_recovery_days(returns),
+                     5.0);
+    EXPECT_NEAR(fincore::third_max_drawdown(returns), -0.10, 1e-12);
+}
+
 static_assert(std::is_same_v<decltype(fincore::drawdown_period::start),
                              fincore::timestamp>);
 static_assert(std::is_same_v<decltype(fincore::drawdown_period::valley),
