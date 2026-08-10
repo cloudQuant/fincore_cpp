@@ -241,6 +241,87 @@ positive `fincore_implot` / `fincore_implot_demo` build/demo. Phase 3A is not
 full fincore parity or project completion. The complete acceptance evidence is
 in [`docs/acceptance/2026-08-10-phase-3a-rolling-scalar-metrics-acceptance.md`](docs/acceptance/2026-08-10-phase-3a-rolling-scalar-metrics-acceptance.md).
 
+## Accepted Phase 3B rolling paired metrics
+
+The public metric umbrella now adds the five paired rolling endpoint functions
+through the already-exposed `metrics/rolling.hpp`:
+
+```cpp
+#include <fincore/metrics.hpp>
+
+// One strategy series and one benchmark series in, one endpoint series out.
+const auto a = fincore::roll_alpha(returns, benchmark, 252U);
+const auto b = fincore::roll_beta(returns, benchmark, 252U);
+const auto up = fincore::roll_up_capture(returns, benchmark, 252U);
+const auto down = fincore::roll_down_capture(returns, benchmark, 252U);
+const auto up_down = fincore::roll_up_down_capture(returns, benchmark, 252U);
+```
+
+Each result is a one-column double series named by the requested returns
+column, indexed at the final timestamp of every complete aligned window. The
+two inputs are aligned exactly once through `align_on_common_index`, retaining
+common timestamps in the left/strategy frame's supplied order, and every
+window delegates to the corresponding accepted public scalar function.
+`roll_alpha` resolves its annualization once; `roll_beta` forwards `risk_free`
+and intentionally ignores `period`/`annualization`, matching scalar beta; the
+three capture functions resolve their period-derived annualization once. No
+two-column `roll_alpha_beta`, `rolling_regression`, full-index `rolling_beta`,
+multi-factor DataFrame, or `rolling_engine` change is exposed.
+
+The accepted implementation chain is Task 25
+`7c779a131435960d4bb215762970fe37a1db500a` (`feat: add paired rolling
+metrics`) followed by `091f9173433468c7ee70dc564ace2e5fcd0e52f2` (`fix:
+validate paired rolling annualization`), and its Task 26 public-umbrella
+acceptance commit `a0c130d815cb1d18f85e1c01b73cfc8e6d59d32a` (`test: cover
+paired rolling metrics in umbrella`). The registered Python-golden tests cover
+all five endpoint vectors, left-order alignment, empty/short/no-common-index
+behavior, `window == 0` rejection, custom columns, beta's ignored
+annualization, and a NaN fixture compared directly against the public scalar
+window delegate.
+
+Fresh Phase 3B acceptance evidence from 2026-08-10 is:
+
+- A public-only umbrella RED was the genuine public-header absence recorded
+  during Task 25: before `7c779a1`, all five paired declarations were absent
+  from `<fincore/metrics.hpp>`, so a public-only consumer failed with `no
+  member named` errors. After `7c779a1`, the Task 26 GREEN
+  `a0c130d815cb1d18f85e1c01b73cfc8e6d59d32a` extended `MetricsUmbrella` to
+  call all five APIs and assert the `{3}` endpoint index, the `strategy`
+  column, and a single double column.
+- AppleClang `17.0.0.17000603` (`/usr/bin/c++`: Apple clang `17.0.0`) ran the
+  fresh preserved command set `cmake -S . -B
+  /tmp/fincore-task26-core.VfIPiv/build -G Ninja
+  -DFINCORE_BUILD_TESTING=ON -DFINCORE_BUILD_IMPLOT=OFF`, `cmake --build
+  /tmp/fincore-task26-core.VfIPiv/build --parallel 4`, and `ctest --test-dir
+  /tmp/fincore-task26-core.VfIPiv/build --output-on-failure`; all exited `0`
+  and CTest passed `146/146`.
+- Homebrew LLVM `clang++ 22.1.8` (`/opt/homebrew/opt/llvm/bin/clang++`) ran a
+  separate fresh preserved command set: `cmake -S . -B
+  /tmp/fincore-task26-sanitize.TjdgSE/build -G Ninja
+  -DFINCORE_BUILD_TESTING=ON -DFINCORE_BUILD_IMPLOT=OFF
+  -DFINCORE_ENABLE_ASAN=ON -DFINCORE_ENABLE_UBSAN=ON
+  -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++`, `cmake --build
+  /tmp/fincore-task26-sanitize.TjdgSE/build --parallel 4`, and `ctest
+  --test-dir /tmp/fincore-task26-sanitize.TjdgSE/build --output-on-failure`.
+  All exited `0`; CTest passed `146/146` with no ASan or UBSan diagnostic.
+- The independent invalid-ImGui gate ran `cmake -S . -B
+  /tmp/fincore-task26-invalid-imgui.cqhcsc/build -G Ninja
+  -DFINCORE_BUILD_TESTING=OFF -DFINCORE_BUILD_IMPLOT=ON
+  -DFINCORE_IMGUI_SOURCE_DIR=/tmp/fincore-task26-invalid-imgui.cqhcsc/not-a-dear-imgui-checkout`
+  and exited `1` at `cmake/fincore_implot.cmake:47` with `FINCORE_IMGUI_SOURCE_DIR
+  must name a Dear ImGui checkout with all required files`. No Dear ImGui
+  source was fetched, cloned, vendored, fabricated, or substituted; no
+  positive ImPlot build was attempted.
+
+Deferred work remains multi-column `roll_alpha_beta` and `rolling_regression`;
+full-index `rolling_beta` (including multi-factor inputs); portfolio positions
+and transactions; round trips; performance attribution/stats; Bayesian/
+bootstrap functions; optimization; simulation; reports/tearsheets; a full
+native facade; packaging/release; and a positive `fincore_implot` /
+`fincore_implot_demo` build/demo. Phase 3B is not full fincore parity or
+project completion. The complete acceptance evidence is in
+[`docs/acceptance/2026-08-10-phase-3b-rolling-paired-metrics-acceptance.md`](docs/acceptance/2026-08-10-phase-3b-rolling-paired-metrics-acceptance.md).
+
 ## Headless core verification
 
 The core target is headless. It links `DataFrame::DataFrame` and does not
