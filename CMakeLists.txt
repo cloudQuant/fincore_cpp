@@ -38,6 +38,15 @@ target_include_directories(fincore PUBLIC
 
 fincore_enable_sanitizers(fincore)
 
+if (FINCORE_BUILD_IMPLOT_DEMO AND NOT FINCORE_BUILD_IMPLOT)
+    message(FATAL_ERROR
+        "FINCORE_BUILD_IMPLOT_DEMO requires FINCORE_BUILD_IMPLOT=ON")
+endif()
+
+if (FINCORE_BUILD_IMPLOT)
+    include(cmake/fincore_implot.cmake)
+endif()
+
 if(FINCORE_BUILD_TESTING)
     enable_testing()
     add_subdirectory(tests)
