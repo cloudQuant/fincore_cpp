@@ -57,6 +57,15 @@ TEST(MetricsUmbrella, ExposesOnlyImplementedDataframeNativeMetrics) {
   EXPECT_TRUE(std::isfinite(fincore::downside_risk(returns)));
   EXPECT_TRUE(std::isfinite(fincore::win_rate(returns)));
 
+  const std::vector<fincore::drawdown_period> detailed_drawdowns =
+      fincore::get_all_drawdowns_detailed(returns);
+  EXPECT_FALSE(detailed_drawdowns.empty());
+
+  const fincore::daily_consecutive_statistics consecutive =
+      fincore::daily_consecutive_stats(returns);
+  EXPECT_DOUBLE_EQ(consecutive.max_consecutive_up_days, 7.0);
+  EXPECT_DOUBLE_EQ(consecutive.max_consecutive_down_days, 5.0);
+
   const auto [alpha, beta] = fincore::alpha_beta(returns, benchmark, 0.0, 1.0);
   EXPECT_TRUE(std::isfinite(alpha));
   EXPECT_TRUE(std::isfinite(beta));

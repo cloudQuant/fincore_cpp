@@ -4,6 +4,7 @@
 #include <fincore/metrics/basic.hpp>
 #include <fincore/metrics/returns.hpp>
 #include <fincore/metrics/drawdown.hpp>
+#include <fincore/metrics/consecutive.hpp>
 #include <fincore/metrics/ratios.hpp>
 #include <fincore/metrics/risk.hpp>
 #include <fincore/metrics/stats.hpp>
