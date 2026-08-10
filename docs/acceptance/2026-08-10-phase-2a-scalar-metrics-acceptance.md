@@ -2,6 +2,8 @@
 
 Base: `db3b6c5e4554f9d2f96b646e063cdf281e286b97`
 
+Accepted commit: `a646017f28b4ebb9f3a88aa40a80bf6098467807`
+
 ## Accepted native surface
 
 `#include <fincore/metrics.hpp>` is the accepted C++23, DataFrame-native
