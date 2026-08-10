@@ -8,7 +8,10 @@ namespace {
 
 TEST(BasicMetrics, UsesNativeFrequencyAnnualization) {
     EXPECT_EQ(fincore::annualization_factor(fincore::frequency::daily), 252.0);
+    EXPECT_EQ(fincore::annualization_factor(fincore::frequency::weekly), 52.0);
     EXPECT_EQ(fincore::annualization_factor(fincore::frequency::monthly), 12.0);
+    EXPECT_EQ(fincore::annualization_factor(fincore::frequency::quarterly), 4.0);
+    EXPECT_EQ(fincore::annualization_factor(fincore::frequency::yearly), 1.0);
     EXPECT_EQ(fincore::annualization_factor(fincore::frequency::daily, 365.0), 365.0);
 }
 
@@ -39,6 +42,22 @@ TEST(BasicMetrics, ValidatesRequestedColumn) {
     const auto returns = fincore::make_series({10}, "returns", {0.03});
 
     EXPECT_THROW(fincore::adjust_returns(returns, 0.01, "missing"),
+                 fincore::input_error);
+}
+
+TEST(BasicMetrics, RejectsANonDoubleRequestedColumn) {
+    fincore::dataframe returns;
+    returns.load_index(std::vector<fincore::timestamp>{10});
+    returns.load_column<int>("returns", std::vector<int>{1},
+                             hmdf::nan_policy::dont_pad_with_nans);
+
+    EXPECT_THROW(fincore::adjust_returns(returns, 0.01), fincore::input_error);
+}
+
+TEST(BasicMetrics, RejectsAnEmptyRequestedColumnName) {
+    const auto returns = fincore::make_series({10}, "returns", {0.03});
+
+    EXPECT_THROW(fincore::adjust_returns(returns, 0.01, ""),
                  fincore::input_error);
 }
 
