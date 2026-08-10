@@ -134,8 +134,10 @@ Expected: missing `yearly.hpp`/API declarations cause a compile failure.
 
 **Step 3: Implement grouped delegation**
 
-Add the eight APIs from the Phase 2B design. Resolve the annualization once
-through `annualization_factor`; group a validated one-column frame by
+Add the seven new APIs from the Phase 2B design. Together with the already
+accepted scalar `annual_return`, these cover the eight Python `yearly.py`
+functions in scope; do not duplicate or change `annual_return`. Resolve the
+annualization once through `annualization_factor`; group a validated one-column frame by
 `utc_year(index)` in sorted-year buckets while retaining row sequence;
 materialize each bucket through `make_series`; call accepted `annual_return`,
 `annual_volatility`, `sharpe_ratio`, or `max_drawdown`.
