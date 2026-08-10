@@ -1,7 +1,10 @@
 #include <fincore/metrics/alpha_beta.hpp>
 
+#include <fincore/calendar.hpp>
+
 #include <cmath>
 #include <limits>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -17,6 +20,12 @@ struct paired_returns {
 };
 
 struct finite_aligned_pairs {
+    std::vector<timestamp> index;
+    std::vector<double> returns;
+    std::vector<double> benchmark;
+};
+
+struct yearly_paired_returns {
     std::vector<timestamp> index;
     std::vector<double> returns;
     std::vector<double> benchmark;
@@ -126,6 +135,57 @@ double beta_from_pairs(const paired_returns& pairs) {
     return std::isfinite(result) ? result : nan;
 }
 
+std::map<int, yearly_paired_returns> group_aligned_by_utc_year(
+    const dataframe& returns,
+    const dataframe& benchmark,
+    std::string_view returns_column_name,
+    std::string_view benchmark_column_name) {
+    const auto return_values =
+        require_double_column(returns, returns_column_name);
+    const auto benchmark_values =
+        require_double_column(benchmark, benchmark_column_name);
+    const auto& index = returns.get_index();
+
+    std::map<int, yearly_paired_returns> buckets;
+    for (std::size_t position = 0; position < index.size(); ++position) {
+        auto& bucket = buckets[utc_year(index[position])];
+        bucket.index.push_back(index[position]);
+        bucket.returns.push_back(return_values[position]);
+        bucket.benchmark.push_back(benchmark_values[position]);
+    }
+    return buckets;
+}
+
+template <typename Metric>
+dataframe aggregate_aligned_by_utc_year(
+    const dataframe& aligned_returns,
+    const dataframe& aligned_benchmark,
+    std::string_view returns_column_name,
+    std::string_view benchmark_column_name,
+    std::string_view output_column_name,
+    Metric metric) {
+    auto buckets = group_aligned_by_utc_year(
+        aligned_returns, aligned_benchmark, returns_column_name,
+        benchmark_column_name);
+    std::vector<timestamp> result_index;
+    std::vector<double> result_values;
+    result_index.reserve(buckets.size());
+    result_values.reserve(buckets.size());
+    for (auto& [year, bucket] : buckets) {
+        result_index.push_back(utc_timestamp(year));
+        auto benchmark_index = bucket.index;
+        const auto group_returns =
+            make_series(std::move(bucket.index), returns_column_name,
+                        std::move(bucket.returns));
+        const auto group_benchmark =
+            make_series(std::move(benchmark_index), benchmark_column_name,
+                        std::move(bucket.benchmark));
+        result_values.push_back(metric(group_returns, group_benchmark));
+    }
+    return make_series(std::move(result_index), output_column_name,
+                       std::move(result_values));
+}
+
 std::pair<double, double> selected_alpha_beta(
     const dataframe& returns,
     const dataframe& benchmark,
@@ -187,6 +247,49 @@ double alpha(const dataframe& returns,
     const double result = std::pow(1.0 + total_alpha / static_cast<double>(pairs.returns.size()),
                                    annualization) - 1.0;
     return std::isfinite(result) ? result : nan;
+}
+
+dataframe annual_alpha(const dataframe& returns,
+                       const dataframe& benchmark,
+                       double risk_free,
+                       frequency period,
+                       std::optional<double> annualization,
+                       std::string_view returns_column_name,
+                       std::string_view benchmark_column_name) {
+    const auto [aligned_returns, aligned_benchmark] = align_on_common_index(
+        returns, returns_column_name, benchmark, benchmark_column_name);
+    const double factor = annualization_factor(period, annualization);
+    return aggregate_aligned_by_utc_year(
+        aligned_returns, aligned_benchmark, returns_column_name,
+        benchmark_column_name, "alpha",
+        [risk_free, factor, returns_column_name,
+         benchmark_column_name](const dataframe& group_returns,
+                                const dataframe& group_benchmark) {
+            return alpha(group_returns, group_benchmark, risk_free, factor,
+                         returns_column_name, benchmark_column_name);
+        });
+}
+
+dataframe annual_beta(const dataframe& returns,
+                      const dataframe& benchmark,
+                      double risk_free,
+                      frequency period,
+                      std::optional<double> annualization,
+                      std::string_view returns_column_name,
+                      std::string_view benchmark_column_name) {
+    const auto [aligned_returns, aligned_benchmark] = align_on_common_index(
+        returns, returns_column_name, benchmark, benchmark_column_name);
+    static_cast<void>(period);
+    static_cast<void>(annualization);
+    return aggregate_aligned_by_utc_year(
+        aligned_returns, aligned_benchmark, returns_column_name,
+        benchmark_column_name, "beta",
+        [risk_free, returns_column_name,
+         benchmark_column_name](const dataframe& group_returns,
+                                const dataframe& group_benchmark) {
+            return beta(group_returns, group_benchmark, risk_free,
+                        returns_column_name, benchmark_column_name);
+        });
 }
 
 std::pair<double, double> alpha_beta(

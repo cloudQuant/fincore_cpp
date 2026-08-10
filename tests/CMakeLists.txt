@@ -21,6 +21,7 @@ add_executable(fincore_tests
     unit/extended_risk_test.cpp
     unit/alpha_beta_test.cpp
     unit/extended_alpha_beta_test.cpp
+    unit/annual_alpha_beta_test.cpp
     unit/timing_test.cpp
     unit/yearly_test.cpp
     unit/metrics_umbrella_test.cpp
