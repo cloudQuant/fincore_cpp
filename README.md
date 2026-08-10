@@ -162,6 +162,81 @@ full native/Python-style façade, packaging and release work, and the positive
 configuration check is not a positive ImPlot build or demo result. See the complete record in
 [`docs/acceptance/2026-08-10-phase-2c-path-metrics-acceptance.md`](docs/acceptance/2026-08-10-phase-2c-path-metrics-acceptance.md).
 
+## Accepted Phase 3A rolling scalar metrics
+
+The public metric umbrella now adds only the accepted scalar rolling façade:
+
+```cpp
+#include <fincore/metrics.hpp>
+
+// One requested double column in, preserving its name in each result.
+const auto endpoint_sharpe = fincore::roll_sharpe_ratio(returns, 252U);
+const auto endpoint_drawdown = fincore::roll_max_drawdown(returns, 252U);
+const auto full_index_volatility = fincore::rolling_volatility(returns, 252U);
+const auto full_index_sharpe = fincore::rolling_sharpe(returns, 252U);
+```
+
+`roll_sharpe_ratio` and `roll_max_drawdown` return only completed-window
+endpoint indices. `rolling_volatility` and `rolling_sharpe` retain the full
+input index and use the established NaN values before a complete window. All
+four preserve the requested column name. The umbrella adds only
+`metrics/rolling.hpp`; it does not export `rolling_engine.hpp`, calendar,
+detail, analysis-context, or ImPlot headers, and it exposes no paired or
+multi-column rolling APIs.
+
+The accepted implementation chain is Task 23
+`4e0394b15a9d8beaac2ee6ebdeb80c29a31042a1` (`feat: add scalar rolling
+metrics`) followed by `82fb69c883bc19bb3993961fb673b0bc177ef03b` (`fix:
+include initial rolling drawdown point`). The registered Python-golden tests
+cover the two output shapes, requested names, and the corrected completed
+window NaN fixture, whose `roll_sharpe_ratio` result is `0.0`.
+
+Fresh Phase 3A acceptance evidence from 2026-08-10 is:
+
+- A public-only umbrella RED in preserved
+  `/tmp/fincore-task24-checklist-red.NioYmC/build` used
+  `cmake -S . -B /tmp/fincore-task24-checklist-red.NioYmC/build -G Ninja
+  -DFINCORE_BUILD_TESTING=ON -DFINCORE_BUILD_IMPLOT=OFF`, then `cmake --build
+  /tmp/fincore-task24-checklist-red.NioYmC/build --parallel 4`. It exited `1`
+  before publication because all four rolling declarations were absent from
+  `<fincore/metrics.hpp>`. After adding only
+  `#include <fincore/metrics/rolling.hpp>`, that same preserved build and
+  `ctest --test-dir /tmp/fincore-task24-checklist-red.NioYmC/build -R
+  MetricsUmbrella --output-on-failure` exited `0` and passed `1/1`.
+- AppleClang `17.0.0.17000603` (`/usr/bin/c++`: Apple clang `17.0.0`) ran the
+  fresh preserved command set `cmake -S . -B
+  /tmp/fincore-task24-core.yrdcIb/build -G Ninja
+  -DFINCORE_BUILD_TESTING=ON -DFINCORE_BUILD_IMPLOT=OFF`, `cmake --build
+  /tmp/fincore-task24-core.yrdcIb/build --parallel 4`, and `ctest --test-dir
+  /tmp/fincore-task24-core.yrdcIb/build --output-on-failure`; all exited `0`
+  and CTest passed `139/139`.
+- Homebrew LLVM `clang++ 22.1.8` (`/opt/homebrew/opt/llvm/bin/clang++`) ran a
+  separate fresh preserved command set: `cmake -S . -B
+  /tmp/fincore-task24-sanitize.OSfL0y/build -G Ninja
+  -DFINCORE_BUILD_TESTING=ON -DFINCORE_BUILD_IMPLOT=OFF
+  -DFINCORE_ENABLE_ASAN=ON -DFINCORE_ENABLE_UBSAN=ON
+  -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++`, `cmake --build
+  /tmp/fincore-task24-sanitize.OSfL0y/build --parallel 4`, and `ctest
+  --test-dir /tmp/fincore-task24-sanitize.OSfL0y/build --output-on-failure`.
+  All exited `0`; CTest passed `139/139` with no ASan or UBSan diagnostic. One
+  `-Wcharacter-conversion` warning arose from third-party GoogleTest and was
+  not a sanitizer finding.
+- The independent invalid-ImGui gate ran `cmake -S . -B
+  /tmp/fincore-task24-invalid-imgui.wPV832/build -G Ninja
+  -DFINCORE_BUILD_TESTING=OFF -DFINCORE_BUILD_IMPLOT=ON
+  -DFINCORE_IMGUI_SOURCE_DIR=/tmp/fincore-task24-invalid-imgui.wPV832/not-a-dear-imgui-checkout`
+  and exited `1` at `cmake/fincore_implot.cmake:47` with `FINCORE_IMGUI_SOURCE_DIR
+  must name a Dear ImGui checkout with all required files`. No Dear ImGui
+  source was fetched, cloned, vendored, fabricated, or substituted; no
+  positive ImPlot build was attempted.
+
+Deferred work remains the paired `roll_alpha`, `roll_beta`, and capture
+functions, `roll_alpha_beta`, `rolling_beta`, `rolling_regression`,
+portfolio-wide tables, reports, optimization, simulation, packaging/release,
+and a positive `fincore_implot` / `fincore_implot_demo` build. Phase 3A is not
+full fincore parity or project completion. The complete acceptance evidence is
+in [`docs/acceptance/2026-08-10-phase-3a-rolling-scalar-metrics-acceptance.md`](docs/acceptance/2026-08-10-phase-3a-rolling-scalar-metrics-acceptance.md).
+
 ## Headless core verification
 
 The core target is headless. It links `DataFrame::DataFrame` and does not

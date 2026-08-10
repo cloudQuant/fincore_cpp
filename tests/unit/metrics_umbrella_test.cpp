@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 
 #include <cmath>
+#include <optional>
 #include <vector>
 
 namespace {
@@ -84,6 +85,34 @@ TEST(MetricsUmbrella, ExposesOnlyImplementedDataframeNativeMetrics) {
             expected_year_index);
   EXPECT_EQ(fincore::annual_beta(calendar_returns, calendar_benchmark).get_index(),
             expected_year_index);
+
+  const auto rolling_returns = fincore::make_series(
+      std::vector<fincore::timestamp>{1, 2, 3}, "strategy",
+      std::vector<double>{.01, -.02, .03});
+  const std::vector<fincore::timestamp> expected_rolling_endpoint_index{3};
+
+  const auto rolling_sharpe_ratio =
+      fincore::roll_sharpe_ratio(rolling_returns, 3U, 0.0,
+                                 fincore::frequency::daily, std::nullopt,
+                                 "strategy");
+  const auto rolling_drawdown =
+      fincore::roll_max_drawdown(rolling_returns, 3U, "strategy");
+  const auto rolling_volatility =
+      fincore::rolling_volatility(rolling_returns, 3U,
+                                  fincore::frequency::daily, std::nullopt,
+                                  "strategy");
+  const auto rolling_sharpe =
+      fincore::rolling_sharpe(rolling_returns, 3U, fincore::frequency::daily,
+                              std::nullopt, "strategy");
+
+  EXPECT_EQ(rolling_sharpe_ratio.get_index(), expected_rolling_endpoint_index);
+  EXPECT_EQ(rolling_drawdown.get_index(), expected_rolling_endpoint_index);
+  EXPECT_EQ(rolling_volatility.get_index(), rolling_returns.get_index());
+  EXPECT_EQ(rolling_sharpe.get_index(), rolling_returns.get_index());
+  EXPECT_TRUE(rolling_sharpe_ratio.has_column("strategy"));
+  EXPECT_TRUE(rolling_drawdown.has_column("strategy"));
+  EXPECT_TRUE(rolling_volatility.has_column("strategy"));
+  EXPECT_TRUE(rolling_sharpe.has_column("strategy"));
 }
 
 }  // namespace
