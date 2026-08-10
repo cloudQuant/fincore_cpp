@@ -51,6 +51,25 @@ TEST(Dataframe, RejectsANamedColumnWithTheWrongType) {
                  fincore::input_error);
 }
 
+TEST(Dataframe, RejectsAnEmptyNamedColumnWithTheWrongType) {
+    fincore::dataframe series;
+    series.load_index(std::vector<fincore::timestamp>{});
+    series.load_column<int>("returns", std::vector<int>{},
+                            hmdf::nan_policy::dont_pad_with_nans);
+
+    EXPECT_THROW(fincore::require_double_column(series, "returns"),
+                 fincore::input_error);
+}
+
+TEST(Dataframe, AcceptsAnEmptyNamedDoubleColumn) {
+    fincore::dataframe series;
+    series.load_index(std::vector<fincore::timestamp>{});
+    series.load_column<double>("returns", std::vector<double>{},
+                               hmdf::nan_policy::dont_pad_with_nans);
+
+    EXPECT_TRUE(fincore::require_double_column(series, "returns").empty());
+}
+
 TEST(Dataframe, RejectsAMalformedDoubleColumn) {
     fincore::dataframe series;
     series.load_index(std::vector<fincore::timestamp>{10, 20});

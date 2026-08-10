@@ -1,6 +1,10 @@
 #include <fincore/dataframe.hpp>
 
+#include <algorithm>
+#include <ranges>
 #include <string>
+#include <tuple>
+#include <typeindex>
 #include <unordered_map>
 
 namespace fincore {
@@ -35,6 +39,15 @@ std::span<const double> require_double_column(const dataframe& frame,
     const std::string name = checked_column_name(column_name);
     if (!frame.has_column(name.c_str())) {
         throw input_error{"required double column is absent"};
+    }
+
+    const auto columns = frame.get_columns_info<double>();
+    const auto column = std::ranges::find_if(
+        columns, [&name](const auto& info) {
+            return std::get<0>(info) == name.c_str();
+        });
+    if (column == columns.end() || std::get<2>(*column) != typeid(double)) {
+        throw input_error{"required column is not a double column"};
     }
 
     const auto& values = frame.get_column<double>(name.c_str());
