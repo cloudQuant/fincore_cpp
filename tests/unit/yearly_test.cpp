@@ -186,14 +186,64 @@ TEST(Yearly, AlignsPairedInputsBeforeCreatingYearBuckets) {
     const auto benchmark = fincore::make_series(
         std::move(benchmark_index), "benchmark", std::move(benchmark_values));
 
+    const auto [aligned_returns, aligned_benchmark] =
+        fincore::align_on_common_index(returns, "returns", benchmark,
+                                      "benchmark");
+    auto expected_common_index = fixture.index;
+    expected_common_index.erase(expected_common_index.begin() + 4);
+    EXPECT_EQ(aligned_returns.get_index(), expected_common_index);
+    EXPECT_EQ(aligned_benchmark.get_index(), expected_common_index);
+
+    const double delegated_scalar =
+        fincore::annual_return(aligned_returns) -
+        fincore::annual_return(aligned_benchmark, fincore::daily_annualization,
+                               "benchmark");
+    EXPECT_DOUBLE_EQ(fincore::annual_active_return(returns, benchmark),
+                     delegated_scalar);
+    EXPECT_NEAR(delegated_scalar, 8.315217623098048, tolerance);
+
+    const auto active_by_year =
+        fincore::annual_active_return_by_year(returns, benchmark);
+    const auto information_by_year =
+        fincore::information_ratio_by_year(returns, benchmark);
     expect_result_frame(
-        fincore::annual_active_return_by_year(returns, benchmark),
-        "annual_active_return",
+        active_by_year, "annual_active_return",
         {.8225693616072098, 19.18046753276349, 25.694341618778655});
     expect_result_frame(
-        fincore::information_ratio_by_year(returns, benchmark),
-        "information_ratio",
+        information_by_year, "information_ratio",
         {4.205259864302773, 9.16515138991168, 64.15605972938177});
+
+    const auto aligned_return_values =
+        fincore::require_double_column(aligned_returns, "returns");
+    const auto aligned_benchmark_values =
+        fincore::require_double_column(aligned_benchmark, "benchmark");
+    const auto& active_values =
+        active_by_year.get_column<double>("annual_active_return");
+    const auto& information_values =
+        information_by_year.get_column<double>("information_ratio");
+    constexpr std::size_t group_boundaries[]{0, 3, 6, 9};
+    for (std::size_t year_position = 0; year_position < 3; ++year_position) {
+        const std::size_t begin = group_boundaries[year_position];
+        const std::size_t end = group_boundaries[year_position + 1];
+        std::vector<fincore::timestamp> group_index{
+            expected_common_index.begin() + begin,
+            expected_common_index.begin() + end};
+        const auto group_returns = fincore::make_series(
+            group_index, "returns",
+            {aligned_return_values.begin() + begin,
+             aligned_return_values.begin() + end});
+        const auto group_benchmark = fincore::make_series(
+            std::move(group_index), "benchmark",
+            {aligned_benchmark_values.begin() + begin,
+             aligned_benchmark_values.begin() + end});
+
+        EXPECT_DOUBLE_EQ(
+            active_values[year_position],
+            fincore::annual_active_return(group_returns, group_benchmark));
+        EXPECT_DOUBLE_EQ(
+            information_values[year_position],
+            fincore::information_ratio(group_returns, group_benchmark));
+    }
 }
 
 TEST(Yearly, IsolatesNonFinitePairsToTheirCalendarYear) {
@@ -296,6 +346,10 @@ TEST(Yearly, RejectsMissingEmptyAndWronglyTypedColumns) {
     EXPECT_THROW(fincore::annual_active_return(
                      returns, benchmark, fincore::frequency::daily,
                      std::nullopt, "missing", "benchmark"),
+                 fincore::input_error);
+    EXPECT_THROW(fincore::annual_active_return(
+                     returns, benchmark, fincore::frequency::daily,
+                     std::nullopt, "", "benchmark"),
                  fincore::input_error);
     EXPECT_THROW(fincore::annual_active_return_by_year(
                      returns, benchmark, fincore::frequency::daily,
