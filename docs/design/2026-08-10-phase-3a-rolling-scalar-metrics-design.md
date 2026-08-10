@@ -73,8 +73,10 @@ column name and `rolling_*` returns a same-index all-`NaN` series.
 
 Each public function validates the one double column once, preserves supplied
 row order, rejects `window == 0` with `input_error`, and does not sort, align,
-deduplicate, or apply a global finite filter. Empty/malformed columns retain
-the established native `input_error` boundary.
+deduplicate, or apply a global finite filter. An empty but genuine double
+column is valid and produces an empty result for all four APIs, matching the
+Python empty-Series shape; missing, wrong-typed, and index-length-mismatched
+columns retain the established `input_error` boundary.
 
 `roll_sharpe_ratio` materializes each complete window and delegates to the
 accepted `sharpe_ratio` with `annualization_factor(period, annualization)`.

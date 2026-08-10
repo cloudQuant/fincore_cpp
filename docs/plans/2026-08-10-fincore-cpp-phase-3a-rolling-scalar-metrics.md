@@ -24,8 +24,9 @@ python`, and Homebrew LLVM for ASan+UBSan verification.
 - `fincore::dataframe` remains `hmdf::StdDataFrame<fincore::timestamp>` and
   timestamps remain signed UTC Unix nanoseconds. No second DataFrame alias,
   local-time conversion, or timezone dependency is allowed.
-- Public inputs call `require_double_column` exactly at their boundary. Empty,
-  missing, wrong-typed, and short columns preserve `input_error` behavior.
+- Public inputs call `require_double_column` exactly at their boundary. An
+  empty genuine double column is valid and returns an empty result; missing,
+  wrong-typed, and short columns preserve `input_error` behavior.
 - Preserve row order. Do not sort, align, deduplicate, or add a global
   finite-only filter. NaN behavior is function-specific as documented in the
   design; infinity uses ordinary C++ arithmetic/comparison.
@@ -70,7 +71,8 @@ for function in (rolling.roll_sharpe_ratio, rolling.roll_max_drawdown,
 
 Record the goldens from the design, endpoint/full-index shapes, custom
 annualization/frequency behavior, short and one-window behavior, named columns,
-original unsorted index preservation, and all structural errors. Add the
+original unsorted index preservation, empty genuine double columns, and all
+missing/wrong-typed/short structural errors. Add the
 critical NaN fixtures:
 
 ```cpp
