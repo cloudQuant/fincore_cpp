@@ -66,10 +66,11 @@ index and maps losslessly to Python `DatetimeIndex`. A Series is represented by
 a one-column DataFrame, retaining the requested DataFrame-native public model.
 Algorithms receiving two time series call an explicit
 `align_on_common_index` boundary helper before calculation. It retains only
-common timestamps in the left series' chronological order and returns two
+common timestamps in the left series' original index order and returns two
 one-column DataFrames with the same index. This makes the reference library's
-pairwise alignment behavior visible and testable rather than requiring callers
-to pre-align inputs or silently relying on positional pairing.
+pairwise `pd.concat(..., sort=False)` behavior visible and testable rather
+than requiring callers to pre-align inputs or silently relying on positional
+pairing.
 
 All numeric missing values use IEEE `NaN`. Empty series, absent columns,
 non-finite sample handling, zero variance, and insufficient observations are

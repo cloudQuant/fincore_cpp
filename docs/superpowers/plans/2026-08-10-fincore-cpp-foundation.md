@@ -171,7 +171,8 @@ The implementation moves equal-length index/value vectors into
 empty column names, non-equal vector lengths, absent typed columns, and
 invalid alignment column requests with `input_error`.
 `align_on_common_index` returns the intersection of two named columns' index
-values in the left series' chronological order. Return `std::span` over the
+values in the left series' original index order, matching the Python
+`pd.concat(..., sort=False)` oracle. Return `std::span` over the
 DataFrame-owned vector only for the duration of the call.
 
 - [ ] **Step 4: Re-run focused tests**
