@@ -9,7 +9,9 @@ FetchContent_MakeAvailable(googletest)
 
 add_executable(fincore_tests
     unit/build_contract_test.cpp
-    unit/dataframe_test.cpp)
+    unit/dataframe_test.cpp
+    unit/returns_test.cpp
+    unit/drawdown_test.cpp)
 target_link_libraries(fincore_tests PRIVATE
     fincore::fincore
     GTest::gtest_main)
