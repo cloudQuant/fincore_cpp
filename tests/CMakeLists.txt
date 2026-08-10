@@ -27,7 +27,8 @@ add_executable(fincore_tests
     unit/yearly_test.cpp
     unit/metrics_umbrella_test.cpp
     unit/analysis_context_test.cpp
-    unit/rolling_engine_test.cpp)
+    unit/rolling_engine_test.cpp
+    unit/rolling_metrics_test.cpp)
 target_link_libraries(fincore_tests PRIVATE
     fincore::fincore
     GTest::gtest_main)
