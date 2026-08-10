@@ -89,6 +89,9 @@ TEST(MetricsUmbrella, ExposesOnlyImplementedDataframeNativeMetrics) {
   const auto rolling_returns = fincore::make_series(
       std::vector<fincore::timestamp>{1, 2, 3}, "strategy",
       std::vector<double>{.01, -.02, .03});
+  const auto rolling_benchmark = fincore::make_series(
+      std::vector<fincore::timestamp>{1, 2, 3}, "market",
+      std::vector<double>{.005, -.01, .02});
   const std::vector<fincore::timestamp> expected_rolling_endpoint_index{3};
 
   const auto rolling_sharpe_ratio =
@@ -104,6 +107,21 @@ TEST(MetricsUmbrella, ExposesOnlyImplementedDataframeNativeMetrics) {
   const auto rolling_sharpe =
       fincore::rolling_sharpe(rolling_returns, 3U, fincore::frequency::daily,
                               std::nullopt, "strategy");
+  const auto rolling_alpha = fincore::roll_alpha(
+      rolling_returns, rolling_benchmark, 3U, 0.0, fincore::frequency::daily,
+      std::nullopt, "strategy", "market");
+  const auto rolling_beta = fincore::roll_beta(
+      rolling_returns, rolling_benchmark, 3U, 0.0, fincore::frequency::daily,
+      std::nullopt, "strategy", "market");
+  const auto rolling_up_capture = fincore::roll_up_capture(
+      rolling_returns, rolling_benchmark, 3U, fincore::frequency::daily,
+      "strategy", "market");
+  const auto rolling_down_capture = fincore::roll_down_capture(
+      rolling_returns, rolling_benchmark, 3U, fincore::frequency::daily,
+      "strategy", "market");
+  const auto rolling_up_down_capture = fincore::roll_up_down_capture(
+      rolling_returns, rolling_benchmark, 3U, fincore::frequency::daily,
+      "strategy", "market");
 
   EXPECT_EQ(rolling_sharpe_ratio.get_index(), expected_rolling_endpoint_index);
   EXPECT_EQ(rolling_drawdown.get_index(), expected_rolling_endpoint_index);
@@ -113,6 +131,14 @@ TEST(MetricsUmbrella, ExposesOnlyImplementedDataframeNativeMetrics) {
   EXPECT_TRUE(rolling_drawdown.has_column("strategy"));
   EXPECT_TRUE(rolling_volatility.has_column("strategy"));
   EXPECT_TRUE(rolling_sharpe.has_column("strategy"));
+
+  for (const auto* paired_endpoint : {&rolling_alpha, &rolling_beta,
+                                      &rolling_up_capture, &rolling_down_capture,
+                                      &rolling_up_down_capture}) {
+    EXPECT_EQ(paired_endpoint->get_index(), expected_rolling_endpoint_index);
+    EXPECT_TRUE(paired_endpoint->has_column("strategy"));
+    EXPECT_EQ(paired_endpoint->get_columns_info<double>().size(), 1U);
+  }
 }
 
 }  // namespace
