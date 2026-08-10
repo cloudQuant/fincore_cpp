@@ -233,6 +233,12 @@ comparison behavior, earliest ties, empty input (`NaN` numeric results and
 empty optional dates), no-up/no-down behavior, order preservation, named
 columns, and structural errors.
 
+For the typed C++ date accessors, skip NaN single-day candidates.  A nonempty
+all-NaN column therefore returns `std::nullopt` for both single-day extrema
+dates (rather than reproducing current pandas `idxmax`/`idxmin`'s `ValueError`);
+its numeric extrema remain `NaN` and its run dates remain empty.  Zero and
+infinity are eligible single-day candidates and retain first-occurrence ties.
+
 The public surface is:
 
 ```cpp

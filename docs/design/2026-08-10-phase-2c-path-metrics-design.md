@@ -100,6 +100,13 @@ and equal-value ties select the earliest run/sample, matching pandas
 deferred because it promises weekly and monthly fields that this phase does
 not yet implement.
 
+Single-day date extrema skip NaN samples.  If a nonempty input has no
+non-NaN sample, the native accessor returns `std::nullopt`; this makes the
+typed optional API total, rather than propagating the `ValueError` raised by
+current pandas `idxmax`/`idxmin` for an all-NaN Series.  Zeros and infinities
+remain ordinary eligible comparison values, so a zero-only input selects the
+first timestamp and signed infinities select their first extrema timestamp.
+
 ## Validation and acceptance boundary
 
 Every public function calls `require_double_column`, preserving existing
