@@ -77,7 +77,7 @@ critical NaN fixtures:
 
 ```cpp
 // [0.01, NaN, -0.01], window 3
-// roll_sharpe_ratio: 22.449944320643652
+// roll_sharpe_ratio: 0.0
 // roll_max_drawdown: 0.0
 // rolling_volatility / rolling_sharpe last output: NaN
 ```

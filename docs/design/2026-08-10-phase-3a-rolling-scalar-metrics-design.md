@@ -107,7 +107,7 @@ rolling Sharpe `[4.205259864302774, 2.1026299321513866,
 `[NaN, NaN, .3994996871087636, .3994996871087636,
 .3304542328371662, .24248711305964288]`. Tests also pin the critical NaN
 distinction: for `[.01, NaN, -.01]` at window `3`, `roll_sharpe_ratio` is
-`22.449944320643652`, `roll_max_drawdown` is `0.0`, and both full-index
+`0.0`, `roll_max_drawdown` is `0.0`, and both full-index
 `rolling_*` results remain `NaN` at the completed window.
 
 Consumer tests must use public headers only and cover short/window-one paths,
