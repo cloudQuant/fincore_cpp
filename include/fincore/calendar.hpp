@@ -5,8 +5,8 @@
 namespace fincore {
 
 timestamp utc_timestamp(int year,
-                        unsigned month,
-                        unsigned day,
+                        unsigned month = 1,
+                        unsigned day = 1,
                         unsigned hour = 0,
                         unsigned minute = 0,
                         unsigned second = 0,

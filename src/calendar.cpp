@@ -22,6 +22,36 @@ void reject_invalid_components(unsigned hour,
     }
 }
 
+timestamp checked_timestamp(std::int64_t day_count,
+                            std::int64_t time_of_day) {
+    constexpr auto minimum_timestamp = std::numeric_limits<timestamp>::min();
+    constexpr auto maximum_timestamp = std::numeric_limits<timestamp>::max();
+    constexpr auto minimum_day = minimum_timestamp / nanoseconds_per_day;
+    constexpr auto maximum_day = maximum_timestamp / nanoseconds_per_day;
+
+    if (day_count < minimum_day - 1 || day_count > maximum_day) {
+        throw input_error{"UTC timestamp is outside the representable range"};
+    }
+
+    if (day_count == minimum_day - 1) {
+        constexpr auto minimum_time_of_day =
+            nanoseconds_per_day + minimum_timestamp % nanoseconds_per_day;
+        if (time_of_day < minimum_time_of_day) {
+            throw input_error{"UTC timestamp is outside the representable range"};
+        }
+
+        return (day_count + 1) * nanoseconds_per_day +
+               (time_of_day - nanoseconds_per_day);
+    }
+
+    if (day_count == maximum_day &&
+        time_of_day > maximum_timestamp % nanoseconds_per_day) {
+        throw input_error{"UTC timestamp is outside the representable range"};
+    }
+
+    return day_count * nanoseconds_per_day + time_of_day;
+}
+
 }  // namespace
 
 timestamp utc_timestamp(int year_value,
@@ -38,6 +68,10 @@ timestamp utc_timestamp(int year_value,
     if (year_value < minimum_year || year_value > maximum_year) {
         throw input_error{"UTC timestamp year is outside the supported range"};
     }
+    if (month_value < 1 || month_value > 12 || day_value < 1 ||
+        day_value > 31) {
+        throw input_error{"UTC timestamp contains an invalid calendar date"};
+    }
 
     const year_month_day calendar_day{
         year{year_value}, month{month_value}, day{day_value}};
@@ -48,23 +82,11 @@ timestamp utc_timestamp(int year_value,
 
     const sys_days midnight{calendar_day};
     const std::int64_t day_count = midnight.time_since_epoch().count();
-    constexpr auto minimum_timestamp = std::numeric_limits<timestamp>::min();
-    constexpr auto maximum_timestamp = std::numeric_limits<timestamp>::max();
-    if (day_count < minimum_timestamp / nanoseconds_per_day ||
-        day_count > maximum_timestamp / nanoseconds_per_day) {
-        throw input_error{"UTC timestamp is outside the representable range"};
-    }
-
     const std::int64_t time_of_day =
         static_cast<std::int64_t>(hour) * nanoseconds_per_hour +
         static_cast<std::int64_t>(minute) * nanoseconds_per_minute +
         static_cast<std::int64_t>(second) * nanoseconds_per_second + nanosecond;
-    const timestamp timestamp_at_midnight = day_count * nanoseconds_per_day;
-    if (timestamp_at_midnight > maximum_timestamp - time_of_day) {
-        throw input_error{"UTC timestamp is outside the representable range"};
-    }
-
-    return timestamp_at_midnight + time_of_day;
+    return checked_timestamp(day_count, time_of_day);
 }
 
 int utc_year(timestamp value) noexcept {
