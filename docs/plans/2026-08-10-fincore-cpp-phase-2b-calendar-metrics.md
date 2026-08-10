@@ -121,7 +121,10 @@ within-year path. Include:
 - paired returns/benchmark timestamp mismatch, where only common timestamps
   participate;
 - pairwise NaN/+infinity isolation across years;
-- named-column, missing-column, wrong-type, and invalid annualization paths.
+- named-column, missing-column, wrong-type, unrecognized-frequency, and
+  delegated invalid-annualization paths. Explicit custom annualization must
+  remain pass-through, matching the accepted/native `annualization_factor` and
+  Python reference; do not change `basic.*` in this task.
 
 **Step 2: Run it to verify failure**
 

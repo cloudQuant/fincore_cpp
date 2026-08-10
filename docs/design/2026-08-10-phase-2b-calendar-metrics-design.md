@@ -151,9 +151,13 @@ so non-finite pairs from one year cannot affect another year.
 
 - Missing, wrongly typed, malformed, or empty column names retain
   `input_error` behavior from `require_double_column` and alignment helpers.
-- Invalid `frequency`, non-finite/non-positive explicit annualization, and
-  invalid date components follow `annualization_factor` / `utc_timestamp`
-  structural validation; no arbitrary fallback period is inferred.
+- An unrecognized `frequency` and invalid date components retain
+  `annualization_factor` / `utc_timestamp` structural validation. An explicit
+  annualization is intentionally passed through exactly as the existing native
+  and Python `annualization_factor` contracts do; the delegated scalar metric
+  determines its numerical result (for example, information ratio returns
+  `NaN` for non-finite or non-positive annualization). No new global validation
+  rule is inferred.
 - Numerical underdetermination within a group is delegated to the accepted
   scalar metric and remains `NaN` or intentionally signed infinity exactly as
   that metric defines.
