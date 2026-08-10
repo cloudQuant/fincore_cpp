@@ -225,6 +225,33 @@ TEST(Drawdown, UsesPeakToTroughCompoundedReturns) {
                                               {0.10, -0.20, 0.05});
     EXPECT_NEAR(fincore::max_drawdown(returns), -0.20, 1e-12);
 }
+
+TEST(Returns, TreatsNanAsZeroDuringCumulativeCompounding) {
+    const auto returns = fincore::make_series(
+        {1, 2, 3}, "returns",
+        {0.01, std::numeric_limits<double>::quiet_NaN(), 0.02});
+    const auto cumulative = fincore::cumulative_returns(returns);
+    const auto values = cumulative.get_column<double>(
+        fincore::returns_column.data());
+    EXPECT_NEAR(values[0], 0.01, 1e-12);
+    EXPECT_NEAR(values[1], 0.01, 1e-12);
+    EXPECT_NEAR(values[2], 0.0302, 1e-12);
+}
+
+TEST(Returns, HandlesEmptyAndNonPositiveEndingWealth) {
+    const auto wiped_out = fincore::make_series({1}, "returns", {-1.0});
+    const auto empty = fincore::make_series({}, "returns", {});
+    EXPECT_DOUBLE_EQ(fincore::annual_return(wiped_out), -1.0);
+    EXPECT_TRUE(std::isnan(fincore::annual_return(empty)));
+}
+
+TEST(Returns, IgnoresNanSamplesForAnnualVolatility) {
+    const auto returns = fincore::make_series(
+        {1, 2, 3}, "returns",
+        {0.01, std::numeric_limits<double>::quiet_NaN(), 0.03});
+    EXPECT_NEAR(fincore::annual_volatility(returns),
+                0.2244994432064365, 1e-12);
+}
 ```
 
 - [ ] **Step 2: Run focused tests to verify they fail**
