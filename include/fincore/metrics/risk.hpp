@@ -1,17 +1,37 @@
 #pragma once
 
-#include <fincore/metrics/returns.hpp>
+#include <fincore/metrics/alpha_beta.hpp>
 
 #include <string_view>
 
 namespace fincore {
 
-double historical_value_at_risk(const dataframe& returns,
-                                double cutoff = 0.05,
+double historical_value_at_risk(const dataframe &returns, double cutoff = 0.05,
                                 std::string_view column = returns_column);
 
-double conditional_value_at_risk(const dataframe& returns,
-                                 double cutoff = 0.05,
+double conditional_value_at_risk(const dataframe &returns, double cutoff = 0.05,
                                  std::string_view column = returns_column);
 
-}  // namespace fincore
+double downside_risk(const dataframe &returns, double required_return = 0.0,
+                     double annualization = daily_annualization,
+                     std::string_view column = returns_column);
+
+double tail_ratio(const dataframe &returns,
+                  std::string_view column = returns_column);
+
+double
+tracking_error(const dataframe &returns, const dataframe &benchmark,
+               double annualization = daily_annualization,
+               std::string_view returns_column_name = returns_column,
+               std::string_view benchmark_column_name = benchmark_column);
+
+double residual_risk(const dataframe &returns, const dataframe &benchmark,
+                     double risk_free = 0.0,
+                     double annualization = daily_annualization,
+                     std::string_view returns_column_name = returns_column,
+                     std::string_view benchmark_column_name = benchmark_column);
+
+double var_cov_var_normal(double portfolio_value, double confidence,
+                          double mean = 0.0, double standard_deviation = 1.0);
+
+} // namespace fincore
