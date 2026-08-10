@@ -26,6 +26,14 @@ TEST(Risk, ValidatesCutoffAndNamedReturnColumn) {
     const auto returns = fincore::make_series({1, 2}, "strategy", {-0.1, 0.1});
     EXPECT_NEAR(fincore::historical_value_at_risk(returns, 0.5, "strategy"),
                 0.0, 1e-12);
+    EXPECT_NEAR(fincore::historical_value_at_risk(returns, 0.0, "strategy"),
+                -0.1, 1e-12);
+    EXPECT_NEAR(fincore::conditional_value_at_risk(returns, 0.0, "strategy"),
+                -0.1, 1e-12);
+    EXPECT_NEAR(fincore::historical_value_at_risk(returns, 1.0, "strategy"),
+                0.1, 1e-12);
+    EXPECT_NEAR(fincore::conditional_value_at_risk(returns, 1.0, "strategy"),
+                0.0, 1e-12);
     EXPECT_TRUE(std::isnan(fincore::historical_value_at_risk(returns, -0.1, "strategy")));
     EXPECT_TRUE(std::isnan(fincore::conditional_value_at_risk(returns, 1.1, "strategy")));
     EXPECT_THROW(fincore::historical_value_at_risk(returns, 0.5, "missing"),

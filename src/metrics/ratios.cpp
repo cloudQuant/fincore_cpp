@@ -28,18 +28,6 @@ double mean(const std::vector<double>& values) {
     return total / static_cast<double>(values.size());
 }
 
-double annual_return_from_valid(const std::vector<double>& values,
-                                double annualization) {
-    double wealth = 1.0;
-    for (const double value : values) {
-        wealth *= 1.0 + value;
-    }
-    if (wealth <= 0.0) {
-        return -1.0;
-    }
-    return std::pow(wealth, annualization / static_cast<double>(values.size())) - 1.0;
-}
-
 double finite_quotient(double numerator, double denominator) {
     if (denominator == 0.0) {
         return nan;
@@ -72,16 +60,19 @@ double sharpe_ratio(const dataframe& returns,
     }
     const double sample_standard_deviation =
         std::sqrt(squared_deviations / static_cast<double>(excess.size() - 1));
-    return finite_quotient(average * std::sqrt(annualization),
-                           sample_standard_deviation);
+    return average * std::sqrt(annualization) / sample_standard_deviation;
 }
 
 double sortino_ratio(const dataframe& returns,
                      double required_return,
                      double annualization,
                      std::string_view column) {
-    const auto values = valid_values(require_double_column(returns, column));
-    if (values.size() < 2) {
+    const auto original_values = require_double_column(returns, column);
+    if (original_values.size() < 2) {
+        return nan;
+    }
+    const auto values = valid_values(original_values);
+    if (values.empty()) {
         return nan;
     }
 
@@ -98,30 +89,18 @@ double sortino_ratio(const dataframe& returns,
     const double annualized_mean = mean(excess) * annualization;
     const double annualized_downside = std::sqrt(
         squared_downside / static_cast<double>(excess.size())) * std::sqrt(annualization);
-    return finite_quotient(annualized_mean, annualized_downside);
+    return annualized_mean / annualized_downside;
 }
 
 double calmar_ratio(const dataframe& returns,
                     double risk_free,
                     double annualization,
                     std::string_view column) {
-    const auto values = valid_values(require_double_column(returns, column));
-    if (values.size() < 2) {
-        return nan;
-    }
-
-    double wealth = 100.0;
-    double peak = wealth;
-    double maximum_drawdown = 0.0;
-    for (const double value : values) {
-        wealth *= 1.0 + value;
-        peak = std::fmax(peak, wealth);
-        maximum_drawdown = std::fmin(maximum_drawdown, (wealth - peak) / peak);
-    }
+    const double maximum_drawdown = max_drawdown(returns, column);
     if (!(maximum_drawdown < 0.0)) {
         return nan;
     }
-    return finite_quotient(annual_return_from_valid(values, annualization) - risk_free,
+    return finite_quotient(annual_return(returns, annualization, column) - risk_free,
                            std::fabs(maximum_drawdown));
 }
 

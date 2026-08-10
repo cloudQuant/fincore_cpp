@@ -43,4 +43,13 @@ TEST(AlphaBeta, IgnoresPairwiseNanAndSupportsNamedColumns) {
                  fincore::input_error);
 }
 
+TEST(AlphaBeta, ReturnsNanForFlatBenchmarkWithMultipleValidPairs) {
+    const auto returns =
+        fincore::make_series({1, 2, 3}, "returns", {0.01, 0.02, 0.03});
+    const auto benchmark =
+        fincore::make_series({1, 2, 3}, "benchmark", {0.02, 0.02, 0.02});
+
+    EXPECT_TRUE(std::isnan(fincore::beta(returns, benchmark)));
+}
+
 }  // namespace
