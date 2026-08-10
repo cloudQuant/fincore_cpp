@@ -22,6 +22,7 @@ include(cmake/fincore_sanitizers.cmake)
 
 add_library(fincore
     src/dataframe.cpp
+    src/metrics/basic.cpp
     src/metrics/returns.cpp
     src/metrics/drawdown.cpp
     src/metrics/ratios.cpp
