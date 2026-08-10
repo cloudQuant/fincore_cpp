@@ -176,6 +176,17 @@ TEST(Drawdown, ReturnsEmptyDetailedResultsWithoutASyntheticInitialPeak) {
     EXPECT_EQ(fincore::max_drawdown_window(initial_loss), std::nullopt);
 }
 
+TEST(Drawdown, DoesNotInvertUnderwaterSignWhenInitialWealthIsNegative) {
+    const auto returns = fincore::make_series(
+        {1577836800000000000LL, 1577923200000000000LL,
+         1578009600000000000LL},
+        "returns", {-1.5, 0.0, -0.2});
+
+    EXPECT_TRUE(fincore::get_all_drawdowns(returns).empty());
+    EXPECT_TRUE(fincore::get_all_drawdowns_detailed(returns).empty());
+    EXPECT_EQ(fincore::max_drawdown_window(returns), std::nullopt);
+}
+
 TEST(Drawdown, RejectsInvalidColumnsForDetailedApis) {
     fincore::dataframe missing;
     const auto empty = fincore::make_series({}, "returns", {});

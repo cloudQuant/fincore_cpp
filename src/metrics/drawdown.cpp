@@ -40,8 +40,19 @@ std::vector<underwater_event> scan_underwater_events(
 
     for (std::size_t position = 1; position < values.size(); ++position) {
         wealth *= 1.0 + adjusted_return(values[position]);
-        const double drawdown = (wealth - peak_wealth) / peak_wealth;
+        if (wealth >= peak_wealth) {
+            if (active.has_value()) {
+                active->recovery = index[position];
+                active->recovery_duration_periods =
+                    position - active->valley_position;
+                events.push_back(*active);
+                active.reset();
+            }
+            peak_wealth = wealth;
+            peak = index[position];
+        }
 
+        const double drawdown = (wealth - peak_wealth) / peak_wealth;
         if (drawdown < 0.0) {
             if (!active.has_value()) {
                 active = underwater_event{peak,
@@ -59,19 +70,6 @@ std::vector<underwater_event> scan_underwater_events(
                 active->duration_periods = position - active->start_position;
                 active->valley_position = position;
             }
-            continue;
-        }
-
-        if (drawdown >= 0.0) {
-            if (active.has_value()) {
-                active->recovery = index[position];
-                active->recovery_duration_periods =
-                    position - active->valley_position;
-                events.push_back(*active);
-                active.reset();
-            }
-            peak_wealth = wealth;
-            peak = index[position];
         }
     }
 
