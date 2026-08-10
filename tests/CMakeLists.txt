@@ -11,7 +11,10 @@ add_executable(fincore_tests
     unit/build_contract_test.cpp
     unit/dataframe_test.cpp
     unit/returns_test.cpp
-    unit/drawdown_test.cpp)
+    unit/drawdown_test.cpp
+    unit/ratios_test.cpp
+    unit/risk_test.cpp
+    unit/alpha_beta_test.cpp)
 target_link_libraries(fincore_tests PRIVATE
     fincore::fincore
     GTest::gtest_main)

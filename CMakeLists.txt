@@ -23,7 +23,10 @@ include(cmake/fincore_sanitizers.cmake)
 add_library(fincore
     src/dataframe.cpp
     src/metrics/returns.cpp
-    src/metrics/drawdown.cpp)
+    src/metrics/drawdown.cpp
+    src/metrics/ratios.cpp
+    src/metrics/risk.cpp
+    src/metrics/alpha_beta.cpp)
 add_library(fincore::fincore ALIAS fincore)
 
 target_compile_features(fincore PUBLIC cxx_std_23)
