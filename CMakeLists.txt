@@ -20,11 +20,13 @@ option(FINCORE_ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer for fincore targe
 include(cmake/fincore_dependencies.cmake)
 include(cmake/fincore_sanitizers.cmake)
 
-add_library(fincore INTERFACE)
+add_library(fincore
+    src/dataframe.cpp)
 add_library(fincore::fincore ALIAS fincore)
 
-target_link_libraries(fincore INTERFACE DataFrame::DataFrame)
-target_include_directories(fincore INTERFACE
+target_compile_features(fincore PUBLIC cxx_std_23)
+target_link_libraries(fincore PUBLIC DataFrame::DataFrame)
+target_include_directories(fincore PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
 fincore_enable_sanitizers(fincore)
