@@ -31,10 +31,13 @@ claiming full Python API parity.
 4. `metrics/stats.hpp`: skewness/excess kurtosis, serial correlation, win/loss
    rates, safe Pearson correlation, relative win rate, CAPM R-squared, and
    tracking difference.
-5. `metrics/alpha_beta.hpp` and `metrics/timing.hpp`: a paired alpha/beta
-   result, up/down alpha/beta, annual beta, and the scalar timing regression
-   metrics that can be implemented without a new numerical dependency.
-6. `fincore/metrics.hpp`: a small native umbrella header that exposes only
+5. `metrics/alpha_beta.hpp`: a paired alpha/beta result and up/down
+   alpha/beta. Calendar-year `annual_beta` remains deferred because the
+   Phase 2A integer timestamp boundary deliberately has no calendar grouping
+   semantics.
+6. `metrics/timing.hpp`: scalar Treynor–Mazuy, Henriksson–Merton, market timing
+   return, and Cornell timing regressions using a private fixed-size solver.
+7. `fincore/metrics.hpp`: a small native umbrella header that exposes only
    implemented DataFrame-native APIs; it is not a compatibility wrapper for
    Python's dynamic `Empyrical` class.
 

@@ -361,43 +361,170 @@ Expected: all tests pass.
 
 Run: `git add include/fincore/metrics/stats.hpp src/metrics/stats.cpp tests/unit/stats_test.cpp CMakeLists.txt tests/CMakeLists.txt && git commit -m "feat: add descriptive statistics metrics"`
 
-### Task 12: Paired alpha/beta extensions and timing regressions
+### Task 12: Paired alpha/beta extensions
 
 **Files:**
 - Modify: `include/fincore/metrics/alpha_beta.hpp`
 - Modify: `src/metrics/alpha_beta.cpp`
-- Create: `include/fincore/metrics/timing.hpp`
-- Create: `src/metrics/timing.cpp`
 - Create: `tests/unit/extended_alpha_beta_test.cpp`
-- Create: `tests/unit/timing_test.cpp`
-- Modify: `CMakeLists.txt`
 - Modify: `tests/CMakeLists.txt`
+
+**Public interfaces and boundary:**
+
+```cpp
+std::pair<double, double> alpha_beta(
+    const dataframe& returns, const dataframe& benchmark,
+    double risk_free = 0.0, double annualization = daily_annualization,
+    std::string_view returns_column_name = returns_column,
+    std::string_view benchmark_column_name = benchmark_column);
+std::pair<double, double> up_alpha_beta(
+    const dataframe& returns, const dataframe& benchmark,
+    double risk_free = 0.0, double annualization = daily_annualization,
+    std::string_view returns_column_name = returns_column,
+    std::string_view benchmark_column_name = benchmark_column);
+std::pair<double, double> down_alpha_beta(
+    const dataframe& returns, const dataframe& benchmark,
+    double risk_free = 0.0, double annualization = daily_annualization,
+    std::string_view returns_column_name = returns_column,
+    std::string_view benchmark_column_name = benchmark_column);
+```
+
+All three return `{alpha, beta}`. They validate named double columns, align on
+common timestamps in left order, discard any non-finite pair, and return
+`{NaN, NaN}` if fewer than two selected pairs remain or risk-free/annualization
+is non-finite or non-positive. The convenience operation materializes the
+finite aligned data and delegates to the accepted public `alpha`/`beta`
+operations, so it cannot create a positional alternative. Up selection uses
+raw benchmark `> 0`; down selection uses raw benchmark `<= 0`, matching the
+Python conditional functions before risk-free adjustment.
+
+For factor values `[-.04, -.03, -.02, -.01, -.005, .005, .01, .02, .03,
+.04, .05, .06]` and strategy values `0.0007 + 1.1 * factor + .35 * factor^2`
+at index `{1..12}`, with annualization one and zero risk-free, Python gives
+overall `{.00098825261780111084, 1.1072133507853401}`, up-market
+`{.00047044263456097468, 1.1223286118980171}`, and down-market
+`{.00058368902439021042, 1.0843780487804882}`. With strategy index `{1..12}`
+and the same factor vector at `{2..13}`, common-index pairing gives overall
+`{.01094515223921344, 1.1199165073730202}`, up-market
+`{.0086816438356165371, 1.2019041095890413}`, and down-market
+`{.0089735137195121606, 1.0177149390243903}`. The zero-risk-free fixture with
+`risk_free=.001` gives overall `{.001095465968586451,
+1.1072133507853401}` at annualization one.
+
+`annual_beta` is not included: the Python function groups a `DatetimeIndex` by
+calendar year, while this Phase 2A DataFrame boundary intentionally provides
+only opaque integer timestamps. It remains explicitly deferred with the
+calendar/yearly APIs rather than being reinterpreted as an annualized beta.
 
 **Step 1: Write failing tests**
 
-Test a `std::pair<double, double>` `alpha_beta` convenience operation, up/down pair filtering, annual beta, and Python golden values for Treynor–Mazuy, Henriksson–Merton, market-timing return, and Cornell timing. Add singular-design, fewer-than-ten-pairs, and mismatched-index cases returning `NaN`.
+Test each `std::pair<double, double>` operation against the exact fixtures
+above. Cover common-index rather than positional pairing, NaN/infinity
+filtering, insufficient selected up/down samples, constant benchmark,
+non-finite/invalid annualization, and named-column structural errors.
 
 **Step 2: Run it to verify failure**
 
-Run: `ctest --test-dir build -R "ExtendedAlphaBeta|Timing" --output-on-failure`
+Run: `ctest --test-dir build -R ExtendedAlphaBeta --output-on-failure`
 
 Expected: missing declarations/target sources fail compilation.
 
-**Step 3: Implement fixed-size regression needs**
+**Step 3: Implement by composition**
 
-Extend the existing aligned-pair path rather than creating positional overloads. Use a pivoted dense solve for two/three independent variables; on singular or ill-conditioned input, return `NaN`. Preserve the Python minimum-observation contracts and make annualization explicit in public signatures.
+Extend the existing aligned-pair path rather than creating positional
+overloads. Materialize the finite selection before invoking accepted
+`alpha`/`beta`; do not change the behavior of existing standalone functions.
 
 **Step 4: Verify**
 
-Run: `ctest --test-dir build -R "ExtendedAlphaBeta|Timing" --output-on-failure && ctest --test-dir build --output-on-failure`
+Run: `ctest --test-dir build -R ExtendedAlphaBeta --output-on-failure && ctest --test-dir build --output-on-failure`
 
 Expected: new and existing paired metrics pass.
 
 **Step 5: Commit**
 
-Run: `git add include/fincore/metrics/alpha_beta.hpp include/fincore/metrics/timing.hpp src/metrics/alpha_beta.cpp src/metrics/timing.cpp tests/unit/extended_alpha_beta_test.cpp tests/unit/timing_test.cpp CMakeLists.txt tests/CMakeLists.txt && git commit -m "feat: add paired benchmark and timing metrics"`
+Run: `git add include/fincore/metrics/alpha_beta.hpp src/metrics/alpha_beta.cpp tests/unit/extended_alpha_beta_test.cpp tests/CMakeLists.txt && git commit -m "feat: add paired alpha beta metrics"`
 
-### Task 13: Native metric umbrella and Phase 2A acceptance
+### Task 13: Timing regression metrics
+
+**Files:**
+- Create: `include/fincore/metrics/timing.hpp`
+- Create: `src/metrics/timing.cpp`
+- Create: `tests/unit/timing_test.cpp`
+- Modify: `CMakeLists.txt`
+- Modify: `tests/CMakeLists.txt`
+
+**Public interfaces and regression contract:**
+
+```cpp
+double treynor_mazuy_timing(const dataframe& returns, const dataframe& benchmark,
+                            double risk_free = 0.0,
+                            std::string_view returns_column_name = returns_column,
+                            std::string_view benchmark_column_name = benchmark_column);
+double henriksson_merton_timing(const dataframe& returns, const dataframe& benchmark,
+                                double risk_free = 0.0,
+                                std::string_view returns_column_name = returns_column,
+                                std::string_view benchmark_column_name = benchmark_column);
+double market_timing_return(const dataframe& returns, const dataframe& benchmark,
+                            double risk_free = 0.0,
+                            std::string_view returns_column_name = returns_column,
+                            std::string_view benchmark_column_name = benchmark_column);
+double cornell_timing(const dataframe& returns, const dataframe& benchmark,
+                      double risk_free = 0.0,
+                      std::string_view returns_column_name = returns_column,
+                      std::string_view benchmark_column_name = benchmark_column);
+```
+
+Each operation aligns common timestamps, drops non-finite pairs, requires a
+finite risk-free value and at least ten pairs, and returns `NaN` when the
+design is singular or ill-conditioned. Implement a private partial-pivoted
+fixed 3×3 least-squares solve; no numerical dependency is added. Treynor–Mazuy
+regresses excess strategy return on `{1, excess market, excess market^2}` and
+returns the quadratic coefficient. Henriksson–Merton uses `{1, excess market,
+indicator(excess market < 0)}` and returns the indicator coefficient. Cornell
+uses `{1, max(0, excess market), min(0, excess market)}` and returns beta-up
+minus beta-down. `market_timing_return` reuses the same finite sample and
+Treynor–Mazuy gamma multiplied by the mean squared excess market return.
+
+For the 12-point factor/strategy fixture in Task 12, Python yields Treynor–
+Mazuy `.34999999999999637`, Henriksson–Merton `.0004285816588285324`, market
+timing return `.0003543749999999964`, and Cornell `.039162486406123742` at
+zero risk-free. If the common-index pair with factor `.005` is non-finite and
+removed, the finite 11-pair Python goldens are `.35000000000000175`,
+`.00033602950713341572`, `.00038579545454545648`, and
+`.040857423359513145`, respectively. A mismatched input leaving fewer than
+ten common pairs and a constant/rank-deficient factor design must return
+`NaN` for all four metrics.
+
+**Step 1: Write failing tests**
+
+Add exact main and finite-filter oracle fixtures plus insufficient/singular,
+non-finite risk-free, common-index mismatch, and named-column structural
+error tests.
+
+**Step 2: Run it to verify failure**
+
+Run: `ctest --test-dir build -R Timing --output-on-failure`
+
+Expected: missing timing header/API/target sources fail compilation.
+
+**Step 3: Implement the fixed-size regression path**
+
+Keep the solver and aligned finite-pair representation private to the timing
+module. Validate numerical rank before exposing any coefficient; do not use
+the existing beta path as a positional substitute.
+
+**Step 4: Verify**
+
+Run: `ctest --test-dir build -R Timing --output-on-failure && ctest --test-dir build --output-on-failure`
+
+Expected: timing golden fixtures and all existing tests pass.
+
+**Step 5: Commit**
+
+Run: `git add include/fincore/metrics/timing.hpp src/metrics/timing.cpp tests/unit/timing_test.cpp CMakeLists.txt tests/CMakeLists.txt && git commit -m "feat: add timing regression metrics"`
+
+### Task 14: Native metric umbrella and Phase 2A acceptance
 
 **Files:**
 - Create: `include/fincore/metrics.hpp`
@@ -443,4 +570,8 @@ Run: `git add include/fincore/metrics.hpp tests/unit/metrics_umbrella_test.cpp d
 
 ## Deferred after this plan
 
-Calendar/yearly APIs, extended drawdown/consecutive dates, positions, transactions, round trips, Bayesian/bootstrap/performance-attribution modules, and the comprehensive native Empyrical facade remain separate, explicitly planned work. Do not represent this plan's completion as full Phase 2 or full project completion.
+Calendar/yearly APIs (including `annual_alpha` and `annual_beta`), extended
+drawdown/consecutive dates, positions, transactions, round trips,
+Bayesian/bootstrap/performance-attribution modules, and the comprehensive
+native Empyrical facade remain separate, explicitly planned work. Do not
+represent this plan's completion as full Phase 2 or full project completion.
