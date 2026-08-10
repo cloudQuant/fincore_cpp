@@ -14,6 +14,7 @@ add_executable(fincore_tests
     unit/returns_test.cpp
     unit/drawdown_test.cpp
     unit/ratios_test.cpp
+    unit/extended_ratios_test.cpp
     unit/risk_test.cpp
     unit/extended_risk_test.cpp
     unit/alpha_beta_test.cpp

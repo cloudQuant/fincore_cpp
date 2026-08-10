@@ -1,5 +1,6 @@
 #pragma once
 
+#include <fincore/metrics/alpha_beta.hpp>
 #include <fincore/metrics/drawdown.hpp>
 
 #include <string_view>
@@ -20,5 +21,49 @@ double calmar_ratio(const dataframe& returns,
                     double risk_free = 0.0,
                     double annualization = daily_annualization,
                     std::string_view column = returns_column);
+
+double excess_sharpe(const dataframe& returns,
+                     const dataframe& benchmark,
+                     std::string_view returns_column_name = returns_column,
+                     std::string_view benchmark_column_name = benchmark_column);
+
+double information_ratio(const dataframe& returns,
+                         const dataframe& benchmark,
+                         double annualization = daily_annualization,
+                         std::string_view returns_column_name = returns_column,
+                         std::string_view benchmark_column_name = benchmark_column);
+
+double omega_ratio(const dataframe& returns,
+                   double risk_free = 0.0,
+                   double required_return = 0.0,
+                   double annualization = daily_annualization,
+                   std::string_view column = returns_column);
+
+double stability_of_timeseries(const dataframe& returns,
+                               std::string_view column = returns_column);
+
+double capture(const dataframe& returns,
+               const dataframe& benchmark,
+               double annualization = daily_annualization,
+               std::string_view returns_column_name = returns_column,
+               std::string_view benchmark_column_name = benchmark_column);
+
+double up_capture(const dataframe& returns,
+                  const dataframe& benchmark,
+                  double annualization = daily_annualization,
+                  std::string_view returns_column_name = returns_column,
+                  std::string_view benchmark_column_name = benchmark_column);
+
+double down_capture(const dataframe& returns,
+                    const dataframe& benchmark,
+                    double annualization = daily_annualization,
+                    std::string_view returns_column_name = returns_column,
+                    std::string_view benchmark_column_name = benchmark_column);
+
+double up_down_capture(const dataframe& returns,
+                       const dataframe& benchmark,
+                       double annualization = daily_annualization,
+                       std::string_view returns_column_name = returns_column,
+                       std::string_view benchmark_column_name = benchmark_column);
 
 }  // namespace fincore

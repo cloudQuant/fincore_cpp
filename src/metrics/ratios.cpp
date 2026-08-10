@@ -1,13 +1,23 @@
 #include <fincore/metrics/ratios.hpp>
 
+#include <fincore/detail/numeric.hpp>
+
 #include <cmath>
 #include <limits>
+#include <span>
 #include <vector>
 
 namespace fincore {
 namespace {
 
 constexpr double nan = std::numeric_limits<double>::quiet_NaN();
+constexpr double minimum_tracking_error = 1.0e-15;
+
+struct finite_aligned_pairs {
+    std::vector<timestamp> index;
+    std::vector<double> returns;
+    std::vector<double> benchmark;
+};
 
 std::vector<double> valid_values(std::span<const double> values) {
     std::vector<double> result;
@@ -34,6 +44,96 @@ double finite_quotient(double numerator, double denominator) {
     }
     const double result = numerator / denominator;
     return std::isfinite(result) ? result : nan;
+}
+
+finite_aligned_pairs align_finite_pairs(
+    const dataframe& returns,
+    const dataframe& benchmark,
+    std::string_view returns_column_name,
+    std::string_view benchmark_column_name) {
+    auto [aligned_returns, aligned_benchmark] = align_on_common_index(
+        returns, returns_column_name, benchmark, benchmark_column_name);
+    const auto return_values =
+        require_double_column(aligned_returns, returns_column_name);
+    const auto benchmark_values =
+        require_double_column(aligned_benchmark, benchmark_column_name);
+    const auto& index = aligned_returns.get_index();
+
+    finite_aligned_pairs pairs;
+    pairs.index.reserve(index.size());
+    pairs.returns.reserve(return_values.size());
+    pairs.benchmark.reserve(benchmark_values.size());
+    for (std::size_t position = 0; position < return_values.size(); ++position) {
+        if (std::isfinite(return_values[position]) &&
+            std::isfinite(benchmark_values[position])) {
+            pairs.index.push_back(index[position]);
+            pairs.returns.push_back(return_values[position]);
+            pairs.benchmark.push_back(benchmark_values[position]);
+        }
+    }
+    return pairs;
+}
+
+std::vector<double> active_returns(const finite_aligned_pairs& pairs) {
+    std::vector<double> active;
+    active.reserve(pairs.returns.size());
+    for (std::size_t position = 0; position < pairs.returns.size(); ++position) {
+        active.push_back(pairs.returns[position] - pairs.benchmark[position]);
+    }
+    return active;
+}
+
+double sample_standard_deviation(std::span<const double> values) {
+    if (values.size() < 2) {
+        return nan;
+    }
+    const double variance = detail::sample_variance(values);
+    if (!(variance >= 0.0) || !std::isfinite(variance)) {
+        return nan;
+    }
+    const double result = std::sqrt(variance);
+    return std::isfinite(result) ? result : nan;
+}
+
+finite_aligned_pairs select_benchmark_sign(const finite_aligned_pairs& pairs,
+                                            bool positive) {
+    finite_aligned_pairs selected;
+    selected.index.reserve(pairs.index.size());
+    selected.returns.reserve(pairs.returns.size());
+    selected.benchmark.reserve(pairs.benchmark.size());
+    for (std::size_t position = 0; position < pairs.index.size(); ++position) {
+        const bool include = positive ? pairs.benchmark[position] > 0.0
+                                      : pairs.benchmark[position] < 0.0;
+        if (include) {
+            selected.index.push_back(pairs.index[position]);
+            selected.returns.push_back(pairs.returns[position]);
+            selected.benchmark.push_back(pairs.benchmark[position]);
+        }
+    }
+    return selected;
+}
+
+double capture_from_pairs(const finite_aligned_pairs& pairs,
+                          double annualization,
+                          std::string_view returns_column_name,
+                          std::string_view benchmark_column_name) {
+    if (pairs.index.empty()) {
+        return nan;
+    }
+
+    const auto paired_returns =
+        make_series(pairs.index, returns_column_name, pairs.returns);
+    const auto paired_benchmark =
+        make_series(pairs.index, benchmark_column_name, pairs.benchmark);
+    const double annual_returns =
+        annual_return(paired_returns, annualization, returns_column_name);
+    const double annual_benchmark =
+        annual_return(paired_benchmark, annualization, benchmark_column_name);
+    if (!std::isfinite(annual_returns) || !std::isfinite(annual_benchmark) ||
+        annual_benchmark == 0.0) {
+        return nan;
+    }
+    return finite_quotient(annual_returns, annual_benchmark);
 }
 
 }  // namespace
@@ -102,6 +202,175 @@ double calmar_ratio(const dataframe& returns,
     }
     return finite_quotient(annual_return(returns, annualization, column) - risk_free,
                            std::fabs(maximum_drawdown));
+}
+
+double excess_sharpe(const dataframe& returns,
+                     const dataframe& benchmark,
+                     std::string_view returns_column_name,
+                     std::string_view benchmark_column_name) {
+    const auto pairs = align_finite_pairs(returns, benchmark, returns_column_name,
+                                          benchmark_column_name);
+    const auto active = active_returns(pairs);
+    const double tracking_error = sample_standard_deviation(active);
+    if (!(tracking_error >= minimum_tracking_error)) {
+        return nan;
+    }
+    return finite_quotient(mean(active), tracking_error);
+}
+
+double information_ratio(const dataframe& returns,
+                         const dataframe& benchmark,
+                         double annualization,
+                         std::string_view returns_column_name,
+                         std::string_view benchmark_column_name) {
+    const auto pairs = align_finite_pairs(returns, benchmark, returns_column_name,
+                                          benchmark_column_name);
+    const auto active = active_returns(pairs);
+    if (active.size() < 2 || !std::isfinite(annualization) || annualization <= 0.0) {
+        return nan;
+    }
+
+    const double sample_deviation = sample_standard_deviation(active);
+    const double annualized_tracking_error =
+        sample_deviation * std::sqrt(annualization);
+    if (!(annualized_tracking_error > 0.0) ||
+        !std::isfinite(annualized_tracking_error)) {
+        return nan;
+    }
+    return finite_quotient(mean(active) * annualization, annualized_tracking_error);
+}
+
+double omega_ratio(const dataframe& returns,
+                   double risk_free,
+                   double required_return,
+                   double annualization,
+                   std::string_view column) {
+    const auto values = detail::finite_values(require_double_column(returns, column));
+    if (values.size() < 2 || !std::isfinite(risk_free) ||
+        !std::isfinite(required_return) || !std::isfinite(annualization) ||
+        annualization <= 0.0) {
+        return nan;
+    }
+
+    double return_threshold = required_return;
+    if (annualization != 1.0) {
+        if (required_return <= -1.0) {
+            return nan;
+        }
+        return_threshold = std::pow(1.0 + required_return, 1.0 / annualization) - 1.0;
+    }
+    const double threshold = risk_free + return_threshold;
+    if (!std::isfinite(return_threshold) || !std::isfinite(threshold)) {
+        return nan;
+    }
+
+    double gains = 0.0;
+    double losses = 0.0;
+    for (const double value : values) {
+        const double excess = value - threshold;
+        if (excess > 0.0) {
+            gains += excess;
+        } else if (excess < 0.0) {
+            losses -= excess;
+        }
+    }
+    if (!(losses > 0.0) || !std::isfinite(gains) || !std::isfinite(losses)) {
+        return nan;
+    }
+    return finite_quotient(gains, losses);
+}
+
+double stability_of_timeseries(const dataframe& returns, std::string_view column) {
+    const auto values = detail::finite_values(require_double_column(returns, column));
+    if (values.size() < 2) {
+        return nan;
+    }
+
+    std::vector<double> cumulative_log_returns;
+    cumulative_log_returns.reserve(values.size());
+    double cumulative = 0.0;
+    for (const double value : values) {
+        const double log_return = std::log1p(value);
+        if (!std::isfinite(log_return)) {
+            return nan;
+        }
+        cumulative += log_return;
+        if (!std::isfinite(cumulative)) {
+            return nan;
+        }
+        cumulative_log_returns.push_back(cumulative);
+    }
+
+    const double count = static_cast<double>(cumulative_log_returns.size());
+    const double mean_time = (count - 1.0) / 2.0;
+    const double mean_response = mean(cumulative_log_returns);
+    double time_sum_of_squares = 0.0;
+    double response_sum_of_squares = 0.0;
+    double cross_sum = 0.0;
+    for (std::size_t position = 0; position < cumulative_log_returns.size(); ++position) {
+        const double time_residual = static_cast<double>(position) - mean_time;
+        const double response_residual = cumulative_log_returns[position] - mean_response;
+        time_sum_of_squares += time_residual * time_residual;
+        response_sum_of_squares += response_residual * response_residual;
+        cross_sum += time_residual * response_residual;
+    }
+    if (!(time_sum_of_squares > 0.0) || !(response_sum_of_squares > 0.0) ||
+        !std::isfinite(cross_sum)) {
+        return nan;
+    }
+    const double result = cross_sum * cross_sum /
+                          (time_sum_of_squares * response_sum_of_squares);
+    return std::isfinite(result) ? result : nan;
+}
+
+double capture(const dataframe& returns,
+               const dataframe& benchmark,
+               double annualization,
+               std::string_view returns_column_name,
+               std::string_view benchmark_column_name) {
+    const auto pairs = align_finite_pairs(returns, benchmark, returns_column_name,
+                                          benchmark_column_name);
+    return capture_from_pairs(pairs, annualization, returns_column_name,
+                              benchmark_column_name);
+}
+
+double up_capture(const dataframe& returns,
+                  const dataframe& benchmark,
+                  double annualization,
+                  std::string_view returns_column_name,
+                  std::string_view benchmark_column_name) {
+    const auto pairs = align_finite_pairs(returns, benchmark, returns_column_name,
+                                          benchmark_column_name);
+    return capture_from_pairs(select_benchmark_sign(pairs, true), annualization,
+                              returns_column_name, benchmark_column_name);
+}
+
+double down_capture(const dataframe& returns,
+                    const dataframe& benchmark,
+                    double annualization,
+                    std::string_view returns_column_name,
+                    std::string_view benchmark_column_name) {
+    const auto pairs = align_finite_pairs(returns, benchmark, returns_column_name,
+                                          benchmark_column_name);
+    return capture_from_pairs(select_benchmark_sign(pairs, false), annualization,
+                              returns_column_name, benchmark_column_name);
+}
+
+double up_down_capture(const dataframe& returns,
+                       const dataframe& benchmark,
+                       double annualization,
+                       std::string_view returns_column_name,
+                       std::string_view benchmark_column_name) {
+    const auto pairs = align_finite_pairs(returns, benchmark, returns_column_name,
+                                          benchmark_column_name);
+    const double up = capture_from_pairs(select_benchmark_sign(pairs, true), annualization,
+                                         returns_column_name, benchmark_column_name);
+    const double down = capture_from_pairs(select_benchmark_sign(pairs, false), annualization,
+                                           returns_column_name, benchmark_column_name);
+    if (!std::isfinite(up) || !std::isfinite(down) || down == 0.0) {
+        return nan;
+    }
+    return finite_quotient(up, down);
 }
 
 }  // namespace fincore
