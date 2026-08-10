@@ -2,6 +2,39 @@
 
 The C++23, DataFrame-native foundation for fincore analytics.
 
+## Headless core verification
+
+The core target is headless. It links `DataFrame::DataFrame` and does not
+configure Dear ImGui, ImPlot, GLFW, or OpenGL unless the optional adapter is
+explicitly enabled:
+
+```bash
+cmake -S . -B build-core -G Ninja \
+  -DFINCORE_BUILD_TESTING=ON \
+  -DFINCORE_BUILD_IMPLOT=OFF
+cmake --build build-core --parallel 4
+ctest --test-dir build-core --output-on-failure
+```
+
+For the core's ASan/UBSan gate, use Homebrew LLVM on this host:
+
+```bash
+cmake -S . -B build-sanitize -G Ninja \
+  -DFINCORE_BUILD_TESTING=ON \
+  -DFINCORE_BUILD_IMPLOT=OFF \
+  -DFINCORE_ENABLE_ASAN=ON \
+  -DFINCORE_ENABLE_UBSAN=ON \
+  -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++
+cmake --build build-sanitize --parallel 4
+ctest --test-dir build-sanitize --output-on-failure
+```
+
+Sanitizer compilation remains target-scoped. When `fincore` is a static
+library, its sanitizer link options are usage requirements of the final
+consumer so the sanitizer runtimes are linked without mutating unrelated
+targets. The current commands and observed results are recorded in
+[`docs/acceptance/2026-08-10-foundation-acceptance.md`](docs/acceptance/2026-08-10-foundation-acceptance.md).
+
 ## Optional ImPlot adapter
 
 `fincore` is headless and never links Dear ImGui, ImPlot, GLFW, or OpenGL. Set
@@ -23,6 +56,11 @@ cmake -S . -B build-implot -G Ninja \
   -DFINCORE_IMGUI_SOURCE_DIR=/absolute/path/to/imgui
 cmake --build build-implot --target fincore_implot
 ```
+
+The missing-ImGui configuration diagnostic is verified, but it is not a
+positive adapter-build result. The positive `fincore_implot` and demo gates
+remain open until a real local `FINCORE_IMGUI_SOURCE_DIR` is supplied; do not
+fetch, clone, vendor, or fabricate Dear ImGui to satisfy them.
 
 Use the compile contract with that same, known configured binary directory:
 

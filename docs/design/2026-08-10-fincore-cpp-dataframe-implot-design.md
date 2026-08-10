@@ -15,6 +15,12 @@ therefore staged for reviewable, usable releases, but the final scope remains:
 metrics, analysis context, rolling calculations, visualization, optimization,
 simulation, attribution, risk models, reports, data providers, and tearsheets.
 
+The 2026-08-10 foundation acceptance is deliberately narrower than full phase
+or product acceptance. It verifies the headless C++ core and its sanitizer
+gate; the optional ImPlot positive-build gate remains open until a valid local
+Dear ImGui checkout is supplied. The evidence and C++/Python correspondence
+inventory live in `docs/acceptance/2026-08-10-foundation-acceptance.md`.
+
 ## Design goals
 
 1. Public time-series and table inputs/outputs are native
@@ -161,6 +167,19 @@ The top-level project requires CMake 3.25 and C++23. It accepts:
 expose DataFrame implementation headers indirectly without declaring it as a
 public target dependency. The repository carries Apache-2.0 notices for its
 own source and records third-party dependency provenance.
+
+Sanitizer flags remain target-scoped. For a static target, CMake has no link
+step for the archive itself, so instrumentation compile options are private to
+the archive's objects while sanitizer link options are propagated through its
+interface to the final executable. This supplies the ASan/UBSan runtimes where
+they are required without imposing global flags or enabling an optional
+graphics dependency.
+
+A failing configuration for a missing `FINCORE_IMGUI_SOURCE_DIR` proves only
+the dependency diagnostic. It never substitutes for the independent positive
+`fincore_implot` or demo build gate, which requires a real local Dear ImGui
+checkout and must not acquire one by fetching, cloning, vendoring, or
+fabricating source.
 
 ## Verification strategy
 
