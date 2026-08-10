@@ -22,6 +22,7 @@ add_executable(fincore_tests
     unit/alpha_beta_test.cpp
     unit/extended_alpha_beta_test.cpp
     unit/timing_test.cpp
+    unit/yearly_test.cpp
     unit/metrics_umbrella_test.cpp
     unit/analysis_context_test.cpp
     unit/rolling_engine_test.cpp)

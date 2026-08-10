@@ -31,6 +31,7 @@ add_library(fincore
     src/metrics/risk.cpp
     src/metrics/alpha_beta.cpp
     src/metrics/timing.cpp
+    src/metrics/yearly.cpp
     src/analysis_context.cpp
     src/rolling_engine.cpp)
 add_library(fincore::fincore ALIAS fincore)
