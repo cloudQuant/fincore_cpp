@@ -21,6 +21,7 @@ include(cmake/fincore_dependencies.cmake)
 include(cmake/fincore_sanitizers.cmake)
 
 add_library(fincore
+    src/calendar.cpp
     src/dataframe.cpp
     src/metrics/basic.cpp
     src/metrics/returns.cpp

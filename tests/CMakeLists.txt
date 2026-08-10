@@ -9,6 +9,7 @@ FetchContent_MakeAvailable(googletest)
 
 add_executable(fincore_tests
     unit/build_contract_test.cpp
+    unit/calendar_test.cpp
     unit/dataframe_test.cpp
     unit/basic_test.cpp
     unit/returns_test.cpp
