@@ -5,6 +5,7 @@
 #include <fincore/metrics/ratios.hpp>
 #include <fincore/metrics/returns.hpp>
 
+#include <optional>
 #include <string_view>
 #include <utility>
 #include <vector>
@@ -59,11 +60,6 @@ rolling_engine::rolling_engine(dataframe returns, std::optional<dataframe> bench
 std::map<std::string, dataframe> rolling_engine::compute(
     std::span<const rolling_metric> metrics) const {
     std::map<std::string, dataframe> result;
-    const auto returns_values = require_double_column(returns_, returns_column);
-    const auto& returns_index = returns_.get_index();
-    const std::size_t complete_windows = returns_values.size() < window_
-                                             ? 0U
-                                             : returns_values.size() - window_ + 1U;
 
     for (const auto metric : metrics) {
         const std::string name{metric_name(metric)};
@@ -71,12 +67,29 @@ std::map<std::string, dataframe> rolling_engine::compute(
             throw input_error{"benchmark is required to compute rolling beta"};
         }
 
+        const dataframe* metric_returns = &returns_;
+        const dataframe* metric_benchmark = nullptr;
+        std::optional<std::pair<dataframe, dataframe>> aligned_frames;
+        if (metric == rolling_metric::beta) {
+            aligned_frames.emplace(align_on_common_index(
+                returns_, returns_column, *benchmark_, benchmark_column));
+            metric_returns = &aligned_frames->first;
+            metric_benchmark = &aligned_frames->second;
+        }
+
+        const auto returns_values = require_double_column(*metric_returns, returns_column);
+        const auto& returns_index = metric_returns->get_index();
+        const std::size_t complete_windows = returns_values.size() < window_
+                                                 ? 0U
+                                                 : returns_values.size() - window_ + 1U;
+
         std::vector<timestamp> output_index;
         std::vector<double> output_values;
         output_index.reserve(complete_windows);
         output_values.reserve(complete_windows);
         for (std::size_t begin = 0; begin < complete_windows; ++begin) {
-            const auto returns_window = slice_frame(returns_, returns_column, begin, window_);
+            const auto returns_window =
+                slice_frame(*metric_returns, returns_column, begin, window_);
             double value = 0.0;
             switch (metric) {
                 case rolling_metric::mean_return: {
@@ -98,7 +111,8 @@ std::map<std::string, dataframe> rolling_engine::compute(
                     value = max_drawdown(returns_window);
                     break;
                 case rolling_metric::beta:
-                    value = beta(returns_window, *benchmark_);
+                    value = beta(returns_window,
+                                 slice_frame(*metric_benchmark, benchmark_column, begin, window_));
                     break;
             }
             output_index.push_back(returns_index[begin + window_ - 1U]);

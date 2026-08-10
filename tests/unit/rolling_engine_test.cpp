@@ -30,6 +30,21 @@ TEST(RollingEngine, RejectsInvalidWindowAndMissingBetaBenchmark) {
     EXPECT_THROW(static_cast<void>(engine.compute(metrics)), fincore::input_error);
 }
 
+TEST(RollingEngine, AlignsBetaWindowsBeforeChoosingTheirEndIndex) {
+    const auto returns = fincore::make_series(
+        {1, 2, 3, 4}, "returns", {0.01, 0.02, 0.03, 0.04});
+    const auto benchmark = fincore::make_series(
+        {2, 3, 4, 5}, "benchmark", {0.01, 0.02, 0.03, 0.04});
+    const fincore::rolling_engine engine{returns, benchmark, 3U};
+    const std::array metrics{fincore::rolling_metric::beta};
+
+    const auto result = engine.compute(metrics);
+    const auto& beta_result = result.at("beta");
+
+    EXPECT_EQ(beta_result.get_index(), (std::vector<fincore::timestamp>{4}));
+    EXPECT_NEAR(beta_result.get_column<double>("returns")[0], 1.0, 1e-12);
+}
+
 TEST(RollingEngine, ComputesAllSupportedMetricsAndRejectsUnknownEnumValues) {
     const auto returns =
         fincore::make_series({1, 2, 3}, "returns", {0.01, -0.02, 0.03});
