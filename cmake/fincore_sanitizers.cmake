@@ -1,0 +1,20 @@
+include_guard(GLOBAL)
+
+function(fincore_enable_sanitizers target)
+    get_target_property(target_type ${target} TYPE)
+    if(target_type STREQUAL "INTERFACE_LIBRARY")
+        set(scope INTERFACE)
+    else()
+        set(scope PRIVATE)
+    endif()
+
+    if(FINCORE_ENABLE_ASAN)
+        target_compile_options(${target} ${scope} -fsanitize=address)
+        target_link_options(${target} ${scope} -fsanitize=address)
+    endif()
+
+    if(FINCORE_ENABLE_UBSAN)
+        target_compile_options(${target} ${scope} -fsanitize=undefined)
+        target_link_options(${target} ${scope} -fsanitize=undefined)
+    endif()
+endfunction()
