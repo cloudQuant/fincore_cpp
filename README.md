@@ -2,6 +2,19 @@
 
 The C++23, DataFrame-native foundation for fincore analytics.
 
+## Accepted Phase 2A scalar metrics
+
+Use the native scalar-metric surface through one public header:
+
+```cpp
+#include <fincore/metrics.hpp>
+```
+
+It exposes the accepted DataFrame-native basic, return, drawdown, ratio, risk,
+statistics, alpha/beta, and timing APIs. The Phase 2A acceptance record,
+including tested boundaries and explicitly deferred work, is available at
+[`docs/acceptance/2026-08-10-phase-2a-scalar-metrics-acceptance.md`](docs/acceptance/2026-08-10-phase-2a-scalar-metrics-acceptance.md).
+
 ## Headless core verification
 
 The core target is headless. It links `DataFrame::DataFrame` and does not
