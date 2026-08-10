@@ -29,6 +29,7 @@ bool valid_risk_input(std::span<const double> values, double cutoff) {
 }
 
 struct paired_returns {
+  std::vector<timestamp> index;
   std::vector<double> returns;
   std::vector<double> benchmark;
 };
@@ -45,11 +46,14 @@ paired_returns aligned_finite_pairs(const dataframe &returns,
       require_double_column(aligned_benchmark, benchmark_column_name);
 
   paired_returns result;
+  const auto &aligned_index = aligned_returns.get_index();
+  result.index.reserve(return_values.size());
   result.returns.reserve(return_values.size());
   result.benchmark.reserve(benchmark_values.size());
   for (std::size_t position = 0; position < return_values.size(); ++position) {
     if (std::isfinite(return_values[position]) &&
         std::isfinite(benchmark_values[position])) {
+      result.index.push_back(aligned_index[position]);
       result.returns.push_back(return_values[position]);
       result.benchmark.push_back(benchmark_values[position]);
     }
@@ -155,7 +159,11 @@ double residual_risk(const dataframe &returns, const dataframe &benchmark,
     return nan;
   }
 
-  const double beta_value = beta(returns, benchmark, risk_free,
+  const auto finite_returns =
+      make_series(pairs.index, returns_column_name, pairs.returns);
+  const auto finite_benchmark =
+      make_series(pairs.index, benchmark_column_name, pairs.benchmark);
+  const double beta_value = beta(finite_returns, finite_benchmark, risk_free,
                                  returns_column_name, benchmark_column_name);
   if (!std::isfinite(beta_value)) {
     return nan;

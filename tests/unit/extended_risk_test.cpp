@@ -61,6 +61,17 @@ TEST(ExtendedRisk, FiltersNanPairsAndRejectsInsufficientPairs) {
   EXPECT_TRUE(std::isnan(fincore::residual_risk(returns, one_pair_benchmark)));
 }
 
+TEST(ExtendedRisk, ComputesResidualRiskFromFiniteAlignedPairsOnly) {
+  const auto returns = fincore::make_series(
+      {1, 2, 3, 4}, "returns",
+      {0.01, -0.02, 0.03, std::numeric_limits<double>::infinity()});
+  const auto benchmark = fincore::make_series({1, 2, 3, 4}, "benchmark",
+                                              {0.005, -0.01, 0.02, 0.1});
+
+  EXPECT_NEAR(fincore::residual_risk(returns, benchmark), 0.04582575694955841,
+              1e-12);
+}
+
 TEST(ExtendedRisk, ReturnsNanForUndefinedTailAndResidualRisk) {
   const auto zero_tail = fincore::make_series({1, 2}, "returns", {0.0, 0.0});
   const auto returns =
