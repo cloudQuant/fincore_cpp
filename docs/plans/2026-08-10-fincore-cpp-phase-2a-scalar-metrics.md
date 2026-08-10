@@ -146,6 +146,75 @@ Run: `git add include/fincore/metrics/risk.hpp src/metrics/risk.cpp tests/unit/e
 - Create: `tests/unit/extended_ratios_test.cpp`
 - Modify: `tests/CMakeLists.txt`
 
+**Public interfaces and native boundary:**
+
+```cpp
+double excess_sharpe(const dataframe& returns, const dataframe& benchmark,
+                     std::string_view returns_column_name = returns_column,
+                     std::string_view benchmark_column_name = benchmark_column);
+double information_ratio(const dataframe& returns, const dataframe& benchmark,
+                         double annualization = daily_annualization,
+                         std::string_view returns_column_name = returns_column,
+                         std::string_view benchmark_column_name = benchmark_column);
+double omega_ratio(const dataframe& returns, double risk_free = 0.0,
+                   double required_return = 0.0,
+                   double annualization = daily_annualization,
+                   std::string_view column = returns_column);
+double stability_of_timeseries(const dataframe& returns,
+                               std::string_view column = returns_column);
+double capture(const dataframe& returns, const dataframe& benchmark,
+               double annualization = daily_annualization,
+               std::string_view returns_column_name = returns_column,
+               std::string_view benchmark_column_name = benchmark_column);
+double up_capture(const dataframe& returns, const dataframe& benchmark,
+                  double annualization = daily_annualization,
+                  std::string_view returns_column_name = returns_column,
+                  std::string_view benchmark_column_name = benchmark_column);
+double down_capture(const dataframe& returns, const dataframe& benchmark,
+                    double annualization = daily_annualization,
+                    std::string_view returns_column_name = returns_column,
+                    std::string_view benchmark_column_name = benchmark_column);
+double up_down_capture(const dataframe& returns, const dataframe& benchmark,
+                       double annualization = daily_annualization,
+                       std::string_view returns_column_name = returns_column,
+                       std::string_view benchmark_column_name = benchmark_column);
+```
+
+Every paired operation calls `align_on_common_index` and retains only pairs
+whose return and benchmark are both finite; it neither pairs positions nor
+models pandas `Series` outer-index arithmetic. `excess_sharpe` needs two
+finite active samples and returns `NaN` when its sample tracking error is
+smaller than `1e-15` or its quotient is non-finite. `information_ratio` also
+needs two finite active samples, a finite positive annualization, and returns
+`NaN` for zero/non-finite tracking error. `omega_ratio` retains finite return
+samples, needs at least two, requires finite positive annualization and finite
+threshold inputs, deannualizes the required return as the Python reference
+does, and returns `NaN` for an invalid `required_return <= -1` (unless the
+annualization is one) or a zero loss denominator. `stability_of_timeseries`
+uses at least two finite observations and the squared correlation of a
+least-squares line through cumulative `log1p` returns; any non-finite log
+input or zero fitted-response variance returns `NaN`. Capture functions use
+the finite aligned pairs to materialize inputs for accepted `annual_return`;
+they return `NaN` for no applicable pairs, zero/non-finite benchmark annual
+return, or an undefined quotient. Up/down variants select strictly positive/
+negative benchmark returns after this filtering, and `up_down_capture` also
+rejects a zero down-capture result.
+
+For the finite aligned daily fixture returns `{.01, -.02, .03, -.01}` and
+benchmark `{.005, -.01, .02, -.005}` at index `{1,2,3,4}`, the Python oracle
+gives excess Sharpe `-4.750735894131342e-17`, information ratio
+`-7.541559432251765e-16`, omega `1.3333333333333335`, stability
+`0.08154934149362057`, capture `0.9361616468408038`, up capture
+`6.637108874074204`, down capture `1.150300078888413`, and up/down capture
+`5.769893435535484`. With the same values but benchmark index `{2,3,4,5}`,
+the native common-index pairs produce excess Sharpe `-0.12803687993289598`,
+information ratio `-2.0325224576824743`, capture `-0.023129239097150745`, up
+capture `-0.045007856456753544`, down capture `-1864.997304577222`, and
+up/down capture `2.4132933782956014e-05`. A two-finite-pair fixture
+`returns={.01, NaN, -.02, .03}`, `benchmark={.005, .01, NaN, -.01}` validates
+the paired missing-data rule with excess Sharpe `0.9091372900969896` and
+information ratio `14.432107063270918` after common-index finite filtering.
+
 **Step 1: Write failing oracle tests**
 
 ```cpp
@@ -156,7 +225,11 @@ EXPECT_NEAR(fincore::stability_of_timeseries(returns), expected_stability, 1e-12
 EXPECT_TRUE(std::isnan(fincore::capture(returns, zero_benchmark)));
 ```
 
-Use deterministic fixtures calculated by the Python reference. Cover pairwise timestamp alignment, `NaN` pairs, zero denominator, too-few samples, and the reference's different finite/infinite conventions for each metric.
+Use the exact fixtures above. Cover structural selected-column validation,
+common-timestamp rather than positional pairing, finite-pair `NaN`/infinity
+filtering, zero denominators, no up/down periods, fewer-than-required samples,
+omega's required-return/annualization domain, and `stability` zero/log-domain
+behavior.
 
 **Step 2: Run it to verify failure**
 
@@ -166,7 +239,11 @@ Expected: compilation failure for absent declarations.
 
 **Step 3: Implement by composing accepted metrics**
 
-Add `excess_sharpe`, `information_ratio`, `omega_ratio`, `stability_of_timeseries`, `capture`, `up_capture`, `down_capture`, and `up_down_capture`. Reuse explicit alignment and accepted `annual_return` calculations; do not copy or change established Sharpe/Sortino/Calmar formulas.
+Add `excess_sharpe`, `information_ratio`, `omega_ratio`,
+`stability_of_timeseries`, `capture`, `up_capture`, `down_capture`, and
+`up_down_capture`. Reuse explicit alignment, private finite-pair helpers, and
+accepted `annual_return` calculations; do not copy or change established
+Sharpe/Sortino/Calmar formulas.
 
 **Step 4: Verify**
 

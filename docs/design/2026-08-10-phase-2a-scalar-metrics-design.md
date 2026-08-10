@@ -25,8 +25,9 @@ claiming full Python API parity.
    risk, and normal variance-covariance VaR in addition to the accepted
    historical VaR/CVaR APIs.
 3. `metrics/ratios.hpp`: excess Sharpe, information, omega, stability, and
-   capture ratios. Existing Sharpe, Sortino and Calmar behavior remains
-   unchanged.
+   capture ratios. Paired ratio and capture APIs use the existing common-index
+   finite-pair boundary rather than pandas `Series` outer-index arithmetic.
+   Existing Sharpe, Sortino and Calmar behavior remains unchanged.
 4. `metrics/stats.hpp`: sample skewness/excess kurtosis, serial correlation,
    win/loss rates, safe Pearson correlation, relative win rate, R-squared, and
    tracking difference.
@@ -49,7 +50,10 @@ claiming full Python API parity.
   policy is inferred.
 - A pair-dependent metric uses `align_on_common_index` first, then removes
   only pairs whose required observations are non-finite. It never pairs by
-  position after different timestamp sequences are supplied.
+  position after different timestamp sequences are supplied. This is the
+  explicit native contract for Phase 2A paired ratios as well: it avoids the
+  pandas `Series` outer-index/implicit-`NaN` behavior while preserving the
+  Python formulas on their valid aligned data domain.
 - Internal moment, percentile, and small least-squares helpers are private to
   the library. They accept spans/vectors but never replace `dataframe` in the
   public API.
