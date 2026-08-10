@@ -57,15 +57,12 @@ Expected: basic tests and all existing tests pass.
 
 Run: `git add include/fincore/detail/numeric.hpp include/fincore/metrics/basic.hpp src/metrics/basic.cpp tests/unit/basic_test.cpp CMakeLists.txt tests/CMakeLists.txt && git commit -m "feat: add numeric primitives and basic metrics"`
 
-### Task 9: Extended risk and risk-adjusted ratios
+### Task 9: Extended scalar risk metrics
 
 **Files:**
 - Modify: `include/fincore/metrics/risk.hpp`
-- Modify: `include/fincore/metrics/ratios.hpp`
 - Modify: `src/metrics/risk.cpp`
-- Modify: `src/metrics/ratios.cpp`
 - Create: `tests/unit/extended_risk_test.cpp`
-- Create: `tests/unit/extended_ratios_test.cpp`
 - Modify: `tests/CMakeLists.txt`
 
 **Step 1: Write failing oracle tests**
@@ -74,8 +71,6 @@ Run: `git add include/fincore/detail/numeric.hpp include/fincore/metrics/basic.h
 EXPECT_NEAR(fincore::downside_risk(returns), expected_downside, 1e-12);
 EXPECT_NEAR(fincore::tail_ratio(returns), expected_tail, 1e-12);
 EXPECT_NEAR(fincore::tracking_error(returns, benchmark), expected_te, 1e-12);
-EXPECT_NEAR(fincore::information_ratio(returns, benchmark), expected_ir, 1e-12);
-EXPECT_NEAR(fincore::omega_ratio(returns, 0.0), expected_omega, 1e-12);
 EXPECT_TRUE(std::isnan(fincore::residual_risk(flat, benchmark)));
 ```
 
@@ -83,25 +78,65 @@ Use deterministic fixtures calculated by the Python reference. Also cover pairwi
 
 **Step 2: Run it to verify failure**
 
-Run: `ctest --test-dir build -R "ExtendedRisk|ExtendedRatios" --output-on-failure`
+Run: `ctest --test-dir build -R ExtendedRisk --output-on-failure`
 
 Expected: compilation failure for absent declarations.
 
 **Step 3: Implement by composing Task 8 helpers**
 
-Add `downside_risk`, `tail_ratio`, `tracking_error`, `residual_risk`, and `var_cov_var_normal`. Add `excess_sharpe`, `information_ratio`, `omega_ratio`, `stability_of_timeseries`, `capture`, `up_capture`, `down_capture`, and `up_down_capture`. Every benchmark operation reuses explicit alignment. Do not rewrite accepted Sharpe/Sortino/Calmar formulas; share only semantics-preserving private primitives.
+Add `downside_risk`, `tail_ratio`, `tracking_error`, `residual_risk`, and `var_cov_var_normal`. Every benchmark operation reuses explicit alignment. Do not rewrite accepted Sharpe/Sortino/Calmar formulas; share only semantics-preserving private primitives.
 
 **Step 4: Verify**
 
-Run: `ctest --test-dir build -R "ExtendedRisk|ExtendedRatios" --output-on-failure && ctest --test-dir build --output-on-failure`
+Run: `ctest --test-dir build -R ExtendedRisk --output-on-failure && ctest --test-dir build --output-on-failure`
 
 Expected: focused oracle fixtures and the complete suite pass.
 
 **Step 5: Commit**
 
-Run: `git add include/fincore/metrics/risk.hpp include/fincore/metrics/ratios.hpp src/metrics/risk.cpp src/metrics/ratios.cpp tests/unit/extended_risk_test.cpp tests/unit/extended_ratios_test.cpp tests/CMakeLists.txt && git commit -m "feat: add extended risk and ratio metrics"`
+Run: `git add include/fincore/metrics/risk.hpp src/metrics/risk.cpp tests/unit/extended_risk_test.cpp tests/CMakeLists.txt && git commit -m "feat: add extended scalar risk metrics"`
 
-### Task 10: Descriptive and benchmark statistics
+### Task 10: Extended risk-adjusted ratios
+
+**Files:**
+- Modify: `include/fincore/metrics/ratios.hpp`
+- Modify: `src/metrics/ratios.cpp`
+- Create: `tests/unit/extended_ratios_test.cpp`
+- Modify: `tests/CMakeLists.txt`
+
+**Step 1: Write failing oracle tests**
+
+```cpp
+EXPECT_NEAR(fincore::excess_sharpe(returns, benchmark), expected_excess_sharpe, 1e-12);
+EXPECT_NEAR(fincore::information_ratio(returns, benchmark), expected_information, 1e-12);
+EXPECT_NEAR(fincore::omega_ratio(returns, 0.0), expected_omega, 1e-12);
+EXPECT_NEAR(fincore::stability_of_timeseries(returns), expected_stability, 1e-12);
+EXPECT_TRUE(std::isnan(fincore::capture(returns, zero_benchmark)));
+```
+
+Use deterministic fixtures calculated by the Python reference. Cover pairwise timestamp alignment, `NaN` pairs, zero denominator, too-few samples, and the reference's different finite/infinite conventions for each metric.
+
+**Step 2: Run it to verify failure**
+
+Run: `ctest --test-dir build -R ExtendedRatios --output-on-failure`
+
+Expected: compilation failure for absent declarations.
+
+**Step 3: Implement by composing accepted metrics**
+
+Add `excess_sharpe`, `information_ratio`, `omega_ratio`, `stability_of_timeseries`, `capture`, `up_capture`, `down_capture`, and `up_down_capture`. Reuse explicit alignment and accepted `annual_return` calculations; do not copy or change established Sharpe/Sortino/Calmar formulas.
+
+**Step 4: Verify**
+
+Run: `ctest --test-dir build -R ExtendedRatios --output-on-failure && ctest --test-dir build --output-on-failure`
+
+Expected: focused oracle fixtures and the complete suite pass.
+
+**Step 5: Commit**
+
+Run: `git add include/fincore/metrics/ratios.hpp src/metrics/ratios.cpp tests/unit/extended_ratios_test.cpp tests/CMakeLists.txt && git commit -m "feat: add extended risk-adjusted ratios"`
+
+### Task 11: Descriptive and benchmark statistics
 
 **Files:**
 - Create: `include/fincore/metrics/stats.hpp`
@@ -134,7 +169,7 @@ Expected: all tests pass.
 
 Run: `git add include/fincore/metrics/stats.hpp src/metrics/stats.cpp tests/unit/stats_test.cpp CMakeLists.txt tests/CMakeLists.txt && git commit -m "feat: add descriptive statistics metrics"`
 
-### Task 11: Paired alpha/beta extensions and timing regressions
+### Task 12: Paired alpha/beta extensions and timing regressions
 
 **Files:**
 - Modify: `include/fincore/metrics/alpha_beta.hpp`
@@ -170,7 +205,7 @@ Expected: new and existing paired metrics pass.
 
 Run: `git add include/fincore/metrics/alpha_beta.hpp include/fincore/metrics/timing.hpp src/metrics/alpha_beta.cpp src/metrics/timing.cpp tests/unit/extended_alpha_beta_test.cpp tests/unit/timing_test.cpp CMakeLists.txt tests/CMakeLists.txt && git commit -m "feat: add paired benchmark and timing metrics"`
 
-### Task 12: Native metric umbrella and Phase 2A acceptance
+### Task 13: Native metric umbrella and Phase 2A acceptance
 
 **Files:**
 - Create: `include/fincore/metrics.hpp`
