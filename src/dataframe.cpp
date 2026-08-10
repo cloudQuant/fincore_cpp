@@ -37,12 +37,12 @@ std::span<const double> require_double_column(const dataframe& frame,
         throw input_error{"required double column is absent"};
     }
 
-    try {
-        const auto& values = frame.get_column<double>(name.c_str());
-        return values;
-    } catch (const std::exception&) {
-        throw input_error{"required column is not a double column"};
+    const auto& values = frame.get_column<double>(name.c_str());
+    if (values.size() != frame.get_index().size()) {
+        throw input_error{
+            "required double column must match the frame index length"};
     }
+    return values;
 }
 
 std::pair<dataframe, dataframe> align_on_common_index(

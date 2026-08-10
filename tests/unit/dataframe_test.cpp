@@ -41,6 +41,26 @@ TEST(Dataframe, RejectsMissingDoubleColumn) {
                  fincore::input_error);
 }
 
+TEST(Dataframe, RejectsANamedColumnWithTheWrongType) {
+    fincore::dataframe series;
+    series.load_index(std::vector<fincore::timestamp>{10});
+    series.load_column<int>("returns", std::vector<int>{1},
+                            hmdf::nan_policy::dont_pad_with_nans);
+
+    EXPECT_THROW(fincore::require_double_column(series, "returns"),
+                 fincore::input_error);
+}
+
+TEST(Dataframe, RejectsAMalformedDoubleColumn) {
+    fincore::dataframe series;
+    series.load_index(std::vector<fincore::timestamp>{10, 20});
+    series.load_column<double>("returns", std::vector<double>{0.01},
+                               hmdf::nan_policy::dont_pad_with_nans);
+
+    EXPECT_THROW(fincore::require_double_column(series, "returns"),
+                 fincore::input_error);
+}
+
 TEST(Dataframe, AlignsBenchmarkPairsOnTheirCommonTimestampIndex) {
     const auto left =
         fincore::make_series({1, 2, 3}, "returns", {0.01, 0.02, 0.03});
@@ -57,4 +77,30 @@ TEST(Dataframe, AlignsBenchmarkPairsOnTheirCommonTimestampIndex) {
               (std::vector<double>{0.02, 0.03}));
     EXPECT_EQ(aligned_right.get_column<double>("benchmark"),
               (std::vector<double>{0.04, 0.06}));
+}
+
+TEST(Dataframe, RejectsMissingAlignmentColumns) {
+    const auto left = fincore::make_series({1}, "returns", {0.01});
+    const auto right = fincore::make_series({1}, "benchmark", {0.04});
+
+    EXPECT_THROW(fincore::align_on_common_index(left, "missing", right,
+                                                 "benchmark"),
+                 fincore::input_error);
+    EXPECT_THROW(fincore::align_on_common_index(left, "returns", right,
+                                                 "missing"),
+                 fincore::input_error);
+}
+
+TEST(Dataframe, RetainsCommonTimestampsInLeftInputOrder) {
+    const auto left =
+        fincore::make_series({3, 1, 2}, "returns", {0.03, 0.01, 0.02});
+    const auto right =
+        fincore::make_series({2, 3, 4}, "benchmark", {0.02, 0.03, 0.04});
+    const auto [aligned_left, aligned_right] =
+        fincore::align_on_common_index(left, "returns", right, "benchmark");
+
+    EXPECT_EQ(aligned_left.get_index(),
+              (std::vector<fincore::timestamp>{3, 2}));
+    EXPECT_EQ(aligned_right.get_index(),
+              (std::vector<fincore::timestamp>{3, 2}));
 }
