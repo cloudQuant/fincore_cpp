@@ -101,14 +101,18 @@ analysis-context, rolling-engine, or ImPlot headers.
 
 The accepted implementation chain is:
 
-- Task 19 detailed drawdown episodes: `cccc59ed1e239c55cc2bf8a9bd25f7485d8acd28`.
+- Task 19 detailed drawdown episodes: initial
+  `1c38c227d4c63edb2efb6be761ec6e06bbee0970`
+  (`feat: add detailed drawdown episodes`); accepted follow-up
+  `cccc59ed1e239c55cc2bf8a9bd25f7485d8acd28`
+  (`fix: maintain drawdown peaks in wealth space`).
 - Task 20 drawdown durations and ranks:
   `481ced0ce64ce4948b7f5dc3d4f7bc8dd99ff55f`.
 - Task 21 daily consecutive metrics:
   `be9b7ad2f41eda6472b999827ae6fdd443a6a2a5`.
-- Task 22's full post-commit object ID is recorded in its ignored SDD report
-  after Git creates the acceptance commit; a commit cannot contain its own
-  object ID.
+- Task 22 public umbrella and acceptance:
+  `7e3c781030058c6c9a6660600c035ea0b2643564`
+  (`docs: accept phase 2C path metrics`).
 
 Fresh Phase 2C acceptance evidence from 2026-08-10 is:
 
@@ -152,10 +156,10 @@ Phase 2C is not complete fincore parity or project completion. Only daily
 consecutive indicators are accepted: weekly/monthly aggregation and Python's
 `consecutive_stats` remain deferred. `get_top_drawdowns` and
 `gen_drawdown_table`, positions, transactions, round trips, attribution,
-Bayesian/bootstrap metrics, a full native/Python-style façade, packaging and
-release work, and the positive `fincore_implot` / `fincore_implot_demo` build
-remain open. The negative ImGui configuration check is not a positive ImPlot
-build or demo result. See the complete record in
+Bayesian/bootstrap metrics, optimization, simulation, reports, tearsheets, a
+full native/Python-style façade, packaging and release work, and the positive
+`fincore_implot` / `fincore_implot_demo` build remain open. The negative ImGui
+configuration check is not a positive ImPlot build or demo result. See the complete record in
 [`docs/acceptance/2026-08-10-phase-2c-path-metrics-acceptance.md`](docs/acceptance/2026-08-10-phase-2c-path-metrics-acceptance.md).
 
 ## Headless core verification
