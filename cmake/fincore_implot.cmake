@@ -16,6 +16,32 @@ set(_fincore_imgui_required_headers
 set(_fincore_implot_sources
     implot.cpp
     implot_items.cpp)
+set(_fincore_implot_required_headers
+    implot.h
+    implot_internal.h)
+
+if (NOT IS_DIRECTORY "${FINCORE_IMPLOT_SOURCE_DIR}")
+    message(FATAL_ERROR
+        "FINCORE_IMPLOT_SOURCE_DIR must name a local ImPlot checkout containing "
+        "implot.h, implot_internal.h, implot.cpp, and implot_items.cpp; received "
+        "'${FINCORE_IMPLOT_SOURCE_DIR}'")
+endif()
+foreach (_fincore_source IN LISTS _fincore_implot_sources)
+    if (NOT EXISTS "${FINCORE_IMPLOT_SOURCE_DIR}/${_fincore_source}")
+        message(FATAL_ERROR
+            "FINCORE_IMPLOT_SOURCE_DIR must name a local ImPlot checkout containing "
+            "implot.h, implot_internal.h, implot.cpp, and implot_items.cpp; missing "
+            "'${FINCORE_IMPLOT_SOURCE_DIR}/${_fincore_source}'")
+    endif()
+endforeach()
+foreach (_fincore_header IN LISTS _fincore_implot_required_headers)
+    if (NOT EXISTS "${FINCORE_IMPLOT_SOURCE_DIR}/${_fincore_header}")
+        message(FATAL_ERROR
+            "FINCORE_IMPLOT_SOURCE_DIR must name a local ImPlot checkout containing "
+            "implot.h, implot_internal.h, implot.cpp, and implot_items.cpp; missing "
+            "'${FINCORE_IMPLOT_SOURCE_DIR}/${_fincore_header}'")
+    endif()
+endforeach()
 
 if (NOT IS_DIRECTORY "${FINCORE_IMGUI_SOURCE_DIR}")
     message(FATAL_ERROR
@@ -23,7 +49,6 @@ if (NOT IS_DIRECTORY "${FINCORE_IMGUI_SOURCE_DIR}")
         "required files; "
         "received '${FINCORE_IMGUI_SOURCE_DIR}'")
 endif()
-
 foreach (_fincore_source IN LISTS _fincore_imgui_sources)
     if (NOT EXISTS "${FINCORE_IMGUI_SOURCE_DIR}/${_fincore_source}")
         message(FATAL_ERROR
@@ -40,26 +65,6 @@ foreach (_fincore_header IN LISTS _fincore_imgui_required_headers)
             "missing '${FINCORE_IMGUI_SOURCE_DIR}/${_fincore_header}'")
     endif()
 endforeach()
-
-if (NOT IS_DIRECTORY "${FINCORE_IMPLOT_SOURCE_DIR}")
-    message(FATAL_ERROR
-        "FINCORE_IMPLOT_SOURCE_DIR must name a local ImPlot checkout containing "
-        "implot.h, implot.cpp, and implot_items.cpp; received "
-        "'${FINCORE_IMPLOT_SOURCE_DIR}'")
-endif()
-foreach (_fincore_source IN LISTS _fincore_implot_sources)
-    if (NOT EXISTS "${FINCORE_IMPLOT_SOURCE_DIR}/${_fincore_source}")
-        message(FATAL_ERROR
-            "FINCORE_IMPLOT_SOURCE_DIR must name a local ImPlot checkout containing "
-            "implot.h, implot.cpp, and implot_items.cpp; missing "
-            "'${FINCORE_IMPLOT_SOURCE_DIR}/${_fincore_source}'")
-    endif()
-endforeach()
-if (NOT EXISTS "${FINCORE_IMPLOT_SOURCE_DIR}/implot.h")
-    message(FATAL_ERROR
-        "FINCORE_IMPLOT_SOURCE_DIR must name a local ImPlot checkout containing "
-        "implot.h; missing '${FINCORE_IMPLOT_SOURCE_DIR}/implot.h'")
-endif()
 
 if (TARGET imgui)
     message(FATAL_ERROR
@@ -103,11 +108,21 @@ if (FINCORE_BUILD_IMPLOT_DEMO)
     set(_fincore_imgui_backend_sources
         backends/imgui_impl_glfw.cpp
         backends/imgui_impl_opengl3.cpp)
+    set(_fincore_imgui_backend_headers
+        backends/imgui_impl_glfw.h
+        backends/imgui_impl_opengl3.h)
     foreach (_fincore_source IN LISTS _fincore_imgui_backend_sources)
         if (NOT EXISTS "${FINCORE_IMGUI_SOURCE_DIR}/${_fincore_source}")
             message(FATAL_ERROR
                 "FINCORE_BUILD_IMPLOT_DEMO requires Dear ImGui backend source "
                 "'${FINCORE_IMGUI_SOURCE_DIR}/${_fincore_source}'")
+        endif()
+    endforeach()
+    foreach (_fincore_header IN LISTS _fincore_imgui_backend_headers)
+        if (NOT EXISTS "${FINCORE_IMGUI_SOURCE_DIR}/${_fincore_header}")
+            message(FATAL_ERROR
+                "FINCORE_BUILD_IMPLOT_DEMO requires Dear ImGui backend header "
+                "'${FINCORE_IMGUI_SOURCE_DIR}/${_fincore_header}'")
         endif()
     endforeach()
 

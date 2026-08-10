@@ -7,7 +7,7 @@ The C++23, DataFrame-native foundation for fincore analytics.
 `fincore` is headless and never links Dear ImGui, ImPlot, GLFW, or OpenGL. Set
 `FINCORE_BUILD_IMPLOT=ON` to build the separate `fincore_implot` rendering
 adapter. It consumes DataFrame columns while the application owns the active
-Dear ImGui context and its rendering lifecycle.
+Dear ImGui and ImPlot contexts and their rendering lifecycle.
 
 The adapter uses only local source checkouts; CMake does not fetch dependencies.
 The supplied ImPlot checkout is the default. Dear ImGui must be supplied
