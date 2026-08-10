@@ -23,6 +23,7 @@ paired or multi-column rolling API is exposed.
 | --- | --- |
 | Task 23 — scalar rolling metrics | `4e0394b15a9d8beaac2ee6ebdeb80c29a31042a1` (`feat: add scalar rolling metrics`) |
 | Task 23 follow-up — initial rolling drawdown point | `82fb69c883bc19bb3993961fb673b0bc177ef03b` (`fix: include initial rolling drawdown point`) |
+| Task 24 — public umbrella and acceptance | `c110d173499dca4ab31a1c020c4562d413335e06` (`docs: accept phase 3A rolling scalar metrics`) |
 
 The Task 23 NaN-oracle correction is already present in
 `59f4b638ee8194ab78e64517f193b9d233934b93`: the completed-window
@@ -162,8 +163,10 @@ no positive attempt was made.
 
 ## Deferred/open work
 
-The paired `roll_alpha`, `roll_beta`, and capture functions; `roll_alpha_beta`;
-`rolling_beta`; `rolling_regression`; portfolio-wide tables; reports;
-optimization; simulation; packaging/release; and a positive
-`fincore_implot` / `fincore_implot_demo` build remain separate work. Phase 3A
-does not claim full fincore parity or project completion.
+The paired rolling `roll_alpha`, `roll_beta`, and capture functions;
+multi-column `roll_alpha_beta` and `rolling_regression`; `rolling_beta`;
+portfolio positions and transactions; round trips; performance
+attribution/stats; Bayesian/bootstrap functions; optimization; simulation;
+reports/tearsheets; a full native facade; packaging/release; and a positive
+`fincore_implot` / `fincore_implot_demo` build/demo remain separate work.
+Phase 3A does not claim full fincore parity or project completion.

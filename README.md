@@ -187,9 +187,11 @@ multi-column rolling APIs.
 The accepted implementation chain is Task 23
 `4e0394b15a9d8beaac2ee6ebdeb80c29a31042a1` (`feat: add scalar rolling
 metrics`) followed by `82fb69c883bc19bb3993961fb673b0bc177ef03b` (`fix:
-include initial rolling drawdown point`). The registered Python-golden tests
-cover the two output shapes, requested names, and the corrected completed
-window NaN fixture, whose `roll_sharpe_ratio` result is `0.0`.
+include initial rolling drawdown point`), and its Task 24 public-umbrella
+acceptance commit `c110d173499dca4ab31a1c020c4562d413335e06` (`docs: accept
+phase 3A rolling scalar metrics`). The registered Python-golden tests cover
+the two output shapes, requested names, and the corrected completed-window NaN
+fixture, whose `roll_sharpe_ratio` result is `0.0`.
 
 Fresh Phase 3A acceptance evidence from 2026-08-10 is:
 
@@ -230,10 +232,12 @@ Fresh Phase 3A acceptance evidence from 2026-08-10 is:
   source was fetched, cloned, vendored, fabricated, or substituted; no
   positive ImPlot build was attempted.
 
-Deferred work remains the paired `roll_alpha`, `roll_beta`, and capture
-functions, `roll_alpha_beta`, `rolling_beta`, `rolling_regression`,
-portfolio-wide tables, reports, optimization, simulation, packaging/release,
-and a positive `fincore_implot` / `fincore_implot_demo` build. Phase 3A is not
+Deferred work remains the paired rolling `roll_alpha`, `roll_beta`, and
+capture functions; multi-column `roll_alpha_beta` and `rolling_regression`;
+`rolling_beta`; portfolio positions and transactions; round trips;
+performance attribution/stats; Bayesian/bootstrap functions; optimization;
+simulation; reports/tearsheets; a full native facade; packaging/release; and a
+positive `fincore_implot` / `fincore_implot_demo` build/demo. Phase 3A is not
 full fincore parity or project completion. The complete acceptance evidence is
 in [`docs/acceptance/2026-08-10-phase-3a-rolling-scalar-metrics-acceptance.md`](docs/acceptance/2026-08-10-phase-3a-rolling-scalar-metrics-acceptance.md).
 
