@@ -58,6 +58,43 @@ dataframe endpoint_output(const dataframe& returns,
     return make_series(std::move(output_index), column, std::move(output_values));
 }
 
+template <typename MetricFactory>
+dataframe paired_endpoint_output(
+    const dataframe& returns,
+    const dataframe& benchmark,
+    const std::size_t window,
+    const std::string_view returns_column_name,
+    const std::string_view benchmark_column_name,
+    MetricFactory&& metric_factory) {
+    validate_window(window);
+    auto [aligned_returns, aligned_benchmark] = align_on_common_index(
+        returns, returns_column_name, benchmark, benchmark_column_name);
+    const auto returns_values =
+        require_double_column(aligned_returns, returns_column_name);
+    const auto benchmark_values =
+        require_double_column(aligned_benchmark, benchmark_column_name);
+    if (returns_values.size() < window) {
+        return make_series({}, returns_column_name, {});
+    }
+
+    const auto metric = metric_factory();
+    const auto& index = aligned_returns.get_index();
+    std::vector<timestamp> output_index;
+    std::vector<double> output_values;
+    output_index.reserve(returns_values.size() - window + 1U);
+    output_values.reserve(returns_values.size() - window + 1U);
+    for (std::size_t start = 0U; start + window <= returns_values.size(); ++start) {
+        const auto returns_window = materialize_complete_window(
+            aligned_returns, returns_values, start, window, returns_column_name);
+        const auto benchmark_window = materialize_complete_window(
+            aligned_benchmark, benchmark_values, start, window, benchmark_column_name);
+        output_index.push_back(index[start + window - 1U]);
+        output_values.push_back(metric(returns_window, benchmark_window));
+    }
+    return make_series(std::move(output_index), returns_column_name,
+                       std::move(output_values));
+}
+
 bool contains_nan(const dataframe& returns, const std::string_view column) {
     for (const double value : require_double_column(returns, column)) {
         if (std::isnan(value)) {
@@ -155,6 +192,107 @@ dataframe rolling_sharpe(const dataframe& returns,
             return contains_nan(complete, column)
                        ? nan
                        : sharpe_ratio(complete, 0.0, factor, column);
+        });
+}
+
+dataframe roll_alpha(const dataframe& returns,
+                     const dataframe& benchmark,
+                     const std::size_t window,
+                     const double risk_free,
+                     const frequency period,
+                     const std::optional<double> annualization,
+                     const std::string_view returns_column_name,
+                     const std::string_view benchmark_column_name) {
+    return paired_endpoint_output(
+        returns, benchmark, window, returns_column_name, benchmark_column_name,
+        [risk_free, period, annualization, returns_column_name,
+         benchmark_column_name] {
+            const double factor = annualization_factor(period, annualization);
+            return [risk_free, factor, returns_column_name,
+                    benchmark_column_name](const dataframe& complete_returns,
+                                           const dataframe& complete_benchmark) {
+                return alpha(complete_returns, complete_benchmark, risk_free, factor,
+                             returns_column_name, benchmark_column_name);
+            };
+        });
+}
+
+dataframe roll_beta(const dataframe& returns,
+                    const dataframe& benchmark,
+                    const std::size_t window,
+                    const double risk_free,
+                    const frequency period,
+                    const std::optional<double> annualization,
+                    const std::string_view returns_column_name,
+                    const std::string_view benchmark_column_name) {
+    static_cast<void>(period);
+    static_cast<void>(annualization);
+    return paired_endpoint_output(
+        returns, benchmark, window, returns_column_name, benchmark_column_name,
+        [risk_free, returns_column_name, benchmark_column_name] {
+            return [risk_free, returns_column_name,
+                    benchmark_column_name](const dataframe& complete_returns,
+                                           const dataframe& complete_benchmark) {
+                return beta(complete_returns, complete_benchmark, risk_free,
+                            returns_column_name, benchmark_column_name);
+            };
+        });
+}
+
+dataframe roll_up_capture(const dataframe& returns,
+                          const dataframe& benchmark,
+                          const std::size_t window,
+                          const frequency period,
+                          const std::string_view returns_column_name,
+                          const std::string_view benchmark_column_name) {
+    return paired_endpoint_output(
+        returns, benchmark, window, returns_column_name, benchmark_column_name,
+        [period, returns_column_name, benchmark_column_name] {
+            const double factor = annualization_factor(period, std::nullopt);
+            return [factor, returns_column_name,
+                    benchmark_column_name](const dataframe& complete_returns,
+                                           const dataframe& complete_benchmark) {
+                return up_capture(complete_returns, complete_benchmark, factor,
+                                  returns_column_name, benchmark_column_name);
+            };
+        });
+}
+
+dataframe roll_down_capture(const dataframe& returns,
+                            const dataframe& benchmark,
+                            const std::size_t window,
+                            const frequency period,
+                            const std::string_view returns_column_name,
+                            const std::string_view benchmark_column_name) {
+    return paired_endpoint_output(
+        returns, benchmark, window, returns_column_name, benchmark_column_name,
+        [period, returns_column_name, benchmark_column_name] {
+            const double factor = annualization_factor(period, std::nullopt);
+            return [factor, returns_column_name,
+                    benchmark_column_name](const dataframe& complete_returns,
+                                           const dataframe& complete_benchmark) {
+                return down_capture(complete_returns, complete_benchmark, factor,
+                                    returns_column_name, benchmark_column_name);
+            };
+        });
+}
+
+dataframe roll_up_down_capture(const dataframe& returns,
+                               const dataframe& benchmark,
+                               const std::size_t window,
+                               const frequency period,
+                               const std::string_view returns_column_name,
+                               const std::string_view benchmark_column_name) {
+    return paired_endpoint_output(
+        returns, benchmark, window, returns_column_name, benchmark_column_name,
+        [period, returns_column_name, benchmark_column_name] {
+            const double factor = annualization_factor(period, std::nullopt);
+            return [factor, returns_column_name,
+                    benchmark_column_name](const dataframe& complete_returns,
+                                           const dataframe& complete_benchmark) {
+                return up_down_capture(complete_returns, complete_benchmark, factor,
+                                       returns_column_name, benchmark_column_name);
+            };
         });
 }
 
