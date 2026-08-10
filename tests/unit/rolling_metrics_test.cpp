@@ -187,6 +187,21 @@ TEST(RollingMetrics, AppliesTheRequiredNanPolicies) {
                    std::numeric_limits<double>::quiet_NaN()});
 }
 
+TEST(RollingMetrics, IncludesInitialWealthPointForNanPoisonedDrawdowns) {
+    const auto leading_nan = fincore::make_series(
+        {1, 2, 3}, "returns",
+        {std::numeric_limits<double>::quiet_NaN(), .01, -.01});
+    const auto all_nan = fincore::make_series(
+        {1, 2, 3}, "returns",
+        {std::numeric_limits<double>::quiet_NaN(),
+         std::numeric_limits<double>::quiet_NaN(),
+         std::numeric_limits<double>::quiet_NaN()});
+
+    expect_values(fincore::roll_max_drawdown(leading_nan, 3U), "returns",
+                  {0.0});
+    expect_values(fincore::roll_max_drawdown(all_nan, 3U), "returns", {0.0});
+}
+
 TEST(RollingMetrics, AcceptsEmptyDoubleColumnsAndRejectsInvalidInputs) {
     const auto empty = fincore::make_series({}, "returns", {});
     expect_empty_typed_series(fincore::roll_sharpe_ratio(empty, 3U), "returns");

@@ -70,7 +70,7 @@ bool contains_nan(const dataframe& returns, const std::string_view column) {
 double raw_window_max_drawdown(std::span<const double> values) {
     double wealth = 1.0;
     double running_maximum = 1.0;
-    double result = nan;
+    double result = 0.0;
     for (const double value : values) {
         wealth *= 1.0 + value;
         if (wealth > running_maximum) {
