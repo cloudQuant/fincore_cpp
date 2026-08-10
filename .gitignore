@@ -67,3 +67,6 @@ vcpkg_installed/
 # test output & cache
 Testing/
 .cache/
+
+# Per-plan isolated worktrees created by the development workflow
+.worktrees/
