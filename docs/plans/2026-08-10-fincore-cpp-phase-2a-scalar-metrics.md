@@ -62,8 +62,48 @@ Run: `git add include/fincore/detail/numeric.hpp include/fincore/metrics/basic.h
 **Files:**
 - Modify: `include/fincore/metrics/risk.hpp`
 - Modify: `src/metrics/risk.cpp`
+- Modify: `include/fincore/detail/numeric.hpp`
 - Create: `tests/unit/extended_risk_test.cpp`
 - Modify: `tests/CMakeLists.txt`
+
+**Interfaces and Python-oracle fixture:**
+
+```cpp
+double downside_risk(const dataframe& returns, double required_return = 0.0,
+                     double annualization = daily_annualization,
+                     std::string_view column = returns_column);
+double tail_ratio(const dataframe& returns,
+                  std::string_view column = returns_column);
+double tracking_error(const dataframe& returns, const dataframe& benchmark,
+                      double annualization = daily_annualization,
+                      std::string_view returns_column_name = returns_column,
+                      std::string_view benchmark_column_name = benchmark_column);
+double residual_risk(const dataframe& returns, const dataframe& benchmark,
+                     double risk_free = 0.0,
+                     double annualization = daily_annualization,
+                     std::string_view returns_column_name = returns_column,
+                     std::string_view benchmark_column_name = benchmark_column);
+double var_cov_var_normal(double portfolio_value, double confidence,
+                          double mean = 0.0, double standard_deviation = 1.0);
+```
+
+For returns `{.01, -.02, .03, -.01}` and benchmark
+`{.005, -.01, .02, -.005}` at index `{1,2,3,4}`, Python yields: downside
+`0.1774823934929885`, tail ratio `1.4594594594594592`, tracking error
+`0.14491376746189438`, and residual risk `0.03741657386773943` at daily
+annualization. For the same return values at `{1,2,3,4}` and benchmark values
+at `{2,3,4,5}`, tracking error is `0.6199193495931548` and residual risk is
+`0.2749545416973504`, proving timestamp alignment rather than positional
+pairing. `downside_risk({.01, NaN, -.02})` is `0.2244994432064365` and
+`tail_ratio({.01, NaN, -.02, .03})` is `1.6470588235294115`; `tail_ratio` is
+`NaN` when the fifth-percentile magnitude is zero. `residual_risk` with a
+flat benchmark is `NaN`. `var_cov_var_normal(100000, .99, .001, .02)` is
+`4552.695748081678` (within 1e-9). Implement the normal inverse CDF as a
+private, deterministic rational approximation in `detail/numeric.hpp`; do not
+add a statistics dependency. Its reference domain behavior is: confidence
+`0` returns negative infinity, confidence `1` returns positive infinity,
+confidence outside `[0, 1]` or non-finite returns `NaN`, and a non-positive or
+non-finite standard deviation returns `NaN`.
 
 **Step 1: Write failing oracle tests**
 
@@ -74,7 +114,9 @@ EXPECT_NEAR(fincore::tracking_error(returns, benchmark), expected_te, 1e-12);
 EXPECT_TRUE(std::isnan(fincore::residual_risk(flat, benchmark)));
 ```
 
-Use deterministic fixtures calculated by the Python reference. Also cover pairwise timestamp alignment, `NaN` rules, invalid percentile or annualization arguments, and signed-infinity behavior where the reference preserves it.
+Use the exact fixture above. Also cover pairwise timestamp alignment, `NaN`
+rules, empty/short inputs, invalid selected columns, and the normal-VaR
+confidence/standard-deviation domain behavior observed in the Python oracle.
 
 **Step 2: Run it to verify failure**
 
