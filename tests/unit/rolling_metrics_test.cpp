@@ -569,6 +569,43 @@ TEST(RollingMetrics, PairedEndpointsReturnTypedEmptyForEmptyNoCommonAndShort) {
                      fincore::make_series({2, 3, 4}, "benchmark", {-.01, .02, .01}));
 }
 
+TEST(RollingMetrics,
+     PairedEndpointsValidateAnnualizationBeforeReturningEmptyAlignedResults) {
+    const auto populated_benchmark =
+        fincore::make_series({1, 2, 3}, "benchmark", {.005, -.01, .02});
+    const auto empty_returns = fincore::make_series({}, "returns", {});
+    const auto short_returns =
+        fincore::make_series({1, 2, 3}, "returns", {.01, -.02, .03});
+    const auto short_benchmark =
+        fincore::make_series({2, 3, 4}, "benchmark", {-.01, .02, .01});
+    const auto unknown_frequency = static_cast<fincore::frequency>(999);
+    const auto expect_validation_before_empty =
+        [unknown_frequency](const fincore::dataframe& returns,
+                            const fincore::dataframe& benchmark) {
+            EXPECT_THROW(fincore::roll_alpha(returns, benchmark, 3U, 0.0,
+                                             unknown_frequency),
+                         fincore::input_error);
+            EXPECT_THROW(fincore::roll_up_capture(returns, benchmark, 3U,
+                                                  unknown_frequency),
+                         fincore::input_error);
+            EXPECT_THROW(fincore::roll_down_capture(returns, benchmark, 3U,
+                                                    unknown_frequency),
+                         fincore::input_error);
+            EXPECT_THROW(fincore::roll_up_down_capture(returns, benchmark, 3U,
+                                                       unknown_frequency),
+                         fincore::input_error);
+
+            expect_empty_typed_series(
+                fincore::roll_beta(returns, benchmark, 3U, 0.0,
+                                   unknown_frequency,
+                                   std::numeric_limits<double>::quiet_NaN()),
+                "returns");
+        };
+
+    expect_validation_before_empty(empty_returns, populated_benchmark);
+    expect_validation_before_empty(short_returns, short_benchmark);
+}
+
 TEST(RollingMetrics, PairedEndpointsHandleOneWindowZeroWindowAndInputErrors) {
     const auto returns =
         fincore::make_series({1, 2, 3}, "returns", {.01, -.02, .03});

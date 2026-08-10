@@ -73,11 +73,11 @@ dataframe paired_endpoint_output(
         require_double_column(aligned_returns, returns_column_name);
     const auto benchmark_values =
         require_double_column(aligned_benchmark, benchmark_column_name);
+    const auto metric = metric_factory();
     if (returns_values.size() < window) {
         return make_series({}, returns_column_name, {});
     }
 
-    const auto metric = metric_factory();
     const auto& index = aligned_returns.get_index();
     std::vector<timestamp> output_index;
     std::vector<double> output_values;
