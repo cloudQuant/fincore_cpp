@@ -118,12 +118,16 @@ git commit -m "feat: add paired rolling metrics"
 - Create: `docs/acceptance/2026-08-10-phase-3b-rolling-paired-metrics-acceptance.md`
 - Modify: `README.md`
 
-**Step 1: Add a public umbrella RED regression**
+**Step 1: Add a public umbrella consumer regression**
 
 Extend `MetricsUmbrella` through only `<fincore/metrics.hpp>` to call all five
-new APIs. The initial build must fail on their absent declarations. Start an
-unchecked tracked acceptance checklist covering the public API/output contract,
-oracle, fresh core/sanitizer CTest, and retained ImPlot dependency gate.
+new APIs. Task 25 already supplied the genuine public-header RED for their
+then-absent declarations, while Phase 3A already added `metrics/rolling.hpp`
+to the umbrella. Therefore record the prior RED evidence and add a consumer
+GREEN without removing accepted functionality to manufacture another failure.
+Start an unchecked tracked acceptance checklist covering the public
+API/output contract, oracle, fresh core/sanitizer CTest, and retained ImPlot
+dependency gate.
 
 **Step 2: Publish and document only accepted behavior**
 
