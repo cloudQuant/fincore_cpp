@@ -50,8 +50,11 @@ TEST(Stats, FiltersNonFiniteObservationsAndPairs) {
   const auto returns = fincore::make_series(
       {1, 2, 3, 4, 5}, "returns",
       {0.01, nan, -0.02, 0.03, std::numeric_limits<double>::infinity()});
-  const auto benchmark = fincore::make_series(
-      {1, 2, 3, 4}, "benchmark", {0.005, 0.1, -0.01, -0.01});
+  const auto infinity_pair_returns = fincore::make_series(
+      {1, 2, 3, 4}, "returns",
+      {0.01, std::numeric_limits<double>::infinity(), -0.02, 0.03});
+  const auto infinity_pair_benchmark =
+      fincore::make_series({1, 2, 3, 4}, "benchmark", {0.005, 0.1, -0.01, -0.01});
   const auto finite_pair_returns =
       fincore::make_series({1, 2, 3, 4}, "returns", {0.01, nan, -0.02, 0.03});
   const auto finite_pair_benchmark =
@@ -63,12 +66,14 @@ TEST(Stats, FiltersNonFiniteObservationsAndPairs) {
   EXPECT_NEAR(fincore::win_rate(returns), 2.0 / 3.0, 1e-12);
   EXPECT_NEAR(fincore::loss_rate(returns), 1.0 / 3.0, 1e-12);
 
-  EXPECT_NEAR(fincore::safe_correlation(returns, benchmark),
+  EXPECT_NEAR(fincore::safe_correlation(infinity_pair_returns, infinity_pair_benchmark),
               0.11470786693528093, 1e-12);
-  EXPECT_NEAR(fincore::relative_win_rate(returns, benchmark), 2.0 / 3.0, 1e-12);
-  EXPECT_NEAR(fincore::capm_r_squared(returns, benchmark),
+  EXPECT_NEAR(fincore::relative_win_rate(infinity_pair_returns, infinity_pair_benchmark),
+              2.0 / 3.0, 1e-12);
+  EXPECT_NEAR(fincore::capm_r_squared(infinity_pair_returns, infinity_pair_benchmark),
               0.013157894736842115, 1e-12);
-  EXPECT_NEAR(fincore::tracking_difference(returns, benchmark),
+  EXPECT_NEAR(fincore::tracking_difference(infinity_pair_returns,
+                                            infinity_pair_benchmark),
               0.03449350000000029, 1e-12);
 
   EXPECT_NEAR(fincore::safe_correlation(finite_pair_returns, finite_pair_benchmark),
