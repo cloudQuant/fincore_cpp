@@ -149,6 +149,13 @@ For active and information APIs, align both frames first and only then group.
 Use annual-start timestamps and the fixed result-column names from the design.
 Do not copy numeric formulas from the existing metric implementations.
 
+For mismatched `Series` inputs, the native common-index contract governs over
+the Python helper's outer-concat implementation: unmatched rows are removed
+before annual-return path length is measured. For non-finite paired inputs,
+the yearly wrapper supplies the aligned yearly DataFrames unchanged to the
+accepted scalar function; it must not add a second filtering policy merely to
+force a Python edge golden.
+
 **Step 4: Run focused verification**
 
 Run all `Yearly` tests and existing `Returns|Ratios|Risk|Drawdown` tests.
