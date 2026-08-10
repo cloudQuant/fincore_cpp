@@ -26,7 +26,9 @@ add_library(fincore
     src/metrics/drawdown.cpp
     src/metrics/ratios.cpp
     src/metrics/risk.cpp
-    src/metrics/alpha_beta.cpp)
+    src/metrics/alpha_beta.cpp
+    src/analysis_context.cpp
+    src/rolling_engine.cpp)
 add_library(fincore::fincore ALIAS fincore)
 
 target_compile_features(fincore PUBLIC cxx_std_23)

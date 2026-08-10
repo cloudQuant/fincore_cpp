@@ -14,7 +14,9 @@ add_executable(fincore_tests
     unit/drawdown_test.cpp
     unit/ratios_test.cpp
     unit/risk_test.cpp
-    unit/alpha_beta_test.cpp)
+    unit/alpha_beta_test.cpp
+    unit/analysis_context_test.cpp
+    unit/rolling_engine_test.cpp)
 target_link_libraries(fincore_tests PRIVATE
     fincore::fincore
     GTest::gtest_main)
