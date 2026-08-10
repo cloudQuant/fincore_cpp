@@ -26,6 +26,7 @@ add_library(fincore
     src/metrics/returns.cpp
     src/metrics/drawdown.cpp
     src/metrics/ratios.cpp
+    src/metrics/stats.cpp
     src/metrics/risk.cpp
     src/metrics/alpha_beta.cpp
     src/analysis_context.cpp
