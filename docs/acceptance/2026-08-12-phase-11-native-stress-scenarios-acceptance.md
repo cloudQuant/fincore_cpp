@@ -8,6 +8,12 @@ subset of Python `fincore.simulation.scenarios`. Task 57 implementation is
 scenarios`); Task 58 exports it through `<fincore/simulation.hpp>`. This is not
 full simulation/Python parity, a release, or project completion.
 
+Commit trace: Task 57 implementation is
+`bfe5dc549b080b57be13d62bb2abcd68712add00`; Task 58 initial acceptance is
+`08d8fd9f1c554a2cf5dbf86b7eb181f8ef3a7921` (`docs: accept phase 11 stress
+scenarios`). Task 59 is documentation-only, does not amend Task 58, and neither
+lists nor anticipates its own SHA.
+
 The umbrella has exactly this content:
 
 ```cpp
