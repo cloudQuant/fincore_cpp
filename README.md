@@ -784,3 +784,50 @@ sector mappings, dynamic summary tables, attribution, reports/tearsheets,
 interactive GUI validation, packaging/release validation, and full Python
 public-API parity remain deferred. Phase 8 is not a full-project or release
 readiness claim.
+
+## Accepted Phase 9 performance attribution core
+
+`<fincore/metrics.hpp>` now re-exports the deterministic DataFrame-native
+performance-attribution surface; callers need no leaf-header include:
+
+```cpp
+#include <fincore/calendar.hpp>
+#include <fincore/metrics.hpp>
+
+const auto result = fincore::perf_attrib(
+    returns, positions, factor_returns, factor_loadings);
+const auto statistics = fincore::create_perf_attrib_stats(result);
+```
+
+| Public operation | Native input/output contract |
+| --- | --- |
+| `normalize_attribution_positions` | Removes an optional `double` cash column and, for dollar holdings, divides each row by its absolute non-cash gross exposure. |
+| `compute_exposures` | Combines wide timestamp-indexed asset weights with long-form loadings to return ordered factor exposure columns. |
+| `perf_attrib_core`, `perf_attrib` | Produce `perf_attribution_result` with `risk_exposures` and `attribution`; attribution orders factor contributions before `total_returns`, `common_returns`, `specific_returns`, `tilt_returns`, and `timing_returns`. |
+| `create_perf_attrib_stats` | Produces seven scalar summary labels and an ordinal-indexed factor-summary table with `factor`, average exposure, annualized return, and cumulative return. |
+| `cumulative_returns_less_costs` | Provides no-cost delegation and exact-index cost subtraction before the accepted cumulative-return calculation. |
+
+Loadings are a long-form `dataframe`: timestamp index plus a genuine
+`std::string` `symbol` column and genuine `double` factor columns. Wide
+timestamp-indexed positions use `double` asset-symbol columns; each required
+`(timestamp, symbol)` loading key is unique and required. The returned tables
+preserve the input returns index and ordered factor columns. This is deliberately
+not a synthetic pandas `MultiIndex` API.
+
+Task 50 implementation and Task 51 regression hardening are
+`3e6b1623d39c3913462c236283acefdf00f5a8c7` and
+`566ce45c41c6e36a549cafb41ee90fd8462da2e8`. The public-umbrella fixture,
+fresh AppleClang headless build, and fresh Homebrew LLVM 22 ASan/UBSan build
+each passed `231/231` CTest tests; the fresh default-local ImPlot/demo
+compile-and-link boundary passed `232/232`, including `ImPlotAdapterCompile`.
+The LLVM build emitted the third-party GoogleTest
+`-Wcharacter-conversion` warning. The ImPlot demo build emitted macOS OpenGL
+deprecation warnings for `glViewport`, `glClearColor`, and `glClear`. These
+are warning records, not a warning-free claim; no GUI was launched.
+
+The accepted numeric/oracle boundary and exact fresh-build commands are in
+[`docs/acceptance/2026-08-11-phase-9-performance-attribution-core-acceptance.md`](docs/acceptance/2026-08-11-phase-9-performance-attribution-core-acceptance.md).
+Warning-producing Python alignment/drop behavior, transaction-turnover
+diagnostics, market-data/factor-provider adapters, reports/tearsheets, full
+Python API parity, packaging/release, and GUI-runtime validation remain
+deferred.

@@ -349,6 +349,47 @@ TEST(MetricsUmbrella, ConsumesRoundTripsThroughPublicHeadersOnly) {
   EXPECT_EQ(std::get<2>(columns[6]), std::type_index(typeid(fincore::timestamp)));
 }
 
+TEST(MetricsUmbrella, ExposesPerformanceAttributionThroughPublicHeadersOnly) {
+  const std::vector<fincore::timestamp> index{
+      fincore::utc_timestamp(2024, 1, 2),
+      fincore::utc_timestamp(2024, 1, 3)};
+  const auto returns =
+      fincore::make_series(index, "returns", std::vector<double>{.02, -.01});
+
+  fincore::dataframe positions;
+  positions.load_index(std::vector<fincore::timestamp>(index));
+  positions.load_column<double>("A", {.6, .5},
+                                hmdf::nan_policy::dont_pad_with_nans);
+  positions.load_column<double>("B", {.4, .5},
+                                hmdf::nan_policy::dont_pad_with_nans);
+
+  fincore::dataframe factor_returns;
+  factor_returns.load_index(std::vector<fincore::timestamp>(index));
+  factor_returns.load_column<double>("market", {.01, .02},
+                                     hmdf::nan_policy::dont_pad_with_nans);
+  factor_returns.load_column<double>("value", {.03, -.01},
+                                     hmdf::nan_policy::dont_pad_with_nans);
+
+  fincore::dataframe factor_loadings;
+  factor_loadings.load_index({index[0], index[0], index[1], index[1]});
+  factor_loadings.load_column<std::string>("symbol", {"A", "B", "A", "B"},
+                                           hmdf::nan_policy::dont_pad_with_nans);
+  factor_loadings.load_column<double>("market", {.2, .4, .1, .3},
+                                      hmdf::nan_policy::dont_pad_with_nans);
+  factor_loadings.load_column<double>("value", {.5, -.5, .2, .4},
+                                      hmdf::nan_policy::dont_pad_with_nans);
+
+  const auto attribution = fincore::perf_attrib(
+      returns, positions, factor_returns, factor_loadings, false);
+  EXPECT_NEAR(attribution.risk_exposures.get_column<double>("market")[0], .28,
+              1.0e-12);
+  EXPECT_NEAR(attribution.attribution.get_column<double>("common_returns")[0],
+              .0058, 1.0e-12);
+
+  const auto cumulative = fincore::cumulative_returns_less_costs(returns);
+  EXPECT_NEAR(cumulative.get_column<double>("returns")[1], .0098, 1.0e-12);
+}
+
 TEST(MetricsUmbrella, ExposesNativePositionMetrics) {
   fincore::dataframe positions;
   const auto expected_index = calendar_indices();
