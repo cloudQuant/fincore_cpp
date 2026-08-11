@@ -175,3 +175,11 @@ synthetic closing transactions, sector mappings, dynamic summary tables,
 attribution, reports/tearsheets, interactive GUI or visual validation,
 packaging/release validation, or full Python public-API parity. It is not a
 full-project, GUI-runtime, or release-readiness claim.
+
+## Immutable Task 48 acceptance trace
+
+The direct parent of this documentation follow-up is Task 48's initial
+acceptance commit `26c1790cba7db31c67f5c8f698d5d7afd5c5b617` (`docs: accept
+phase 8 round-trip core`). This Task 49 commit is documentation-only: it does
+not amend Task 48 and it does not self-reference. In particular, this record
+intentionally does not contain the SHA of the commit that adds this trace.
