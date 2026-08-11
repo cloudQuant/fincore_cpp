@@ -43,6 +43,7 @@ add_library(fincore
     src/attribution/brinson.cpp
     src/attribution/factor_regression.cpp
     src/attribution/factor_exposures.cpp
+    src/attribution/factor_attribution.cpp
     src/simulation/scenarios.cpp
     src/analysis_context.cpp
     src/rolling_engine.cpp)
