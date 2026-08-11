@@ -17,6 +17,10 @@ other impact models, packaging/release, or a GUI runtime.
 This initial Task 42 acceptance record intentionally does not self-reference
 its own commit.
 
+Task 42 initial acceptance SHA: `929614f1be789a3041c1d8338a52ba50904fe7e2`.
+The following Task 43 trace commit is documentation-only, records no SHA for
+itself, and neither self-references nor amends Task 42.
+
 ## Acceptance checklist
 
 - [x] Retain Task 41's genuine missing-declaration public API RED; do not
