@@ -41,6 +41,7 @@ add_library(fincore
     src/metrics/round_trips.cpp
     src/metrics/perf_attrib.cpp
     src/attribution/brinson.cpp
+    src/attribution/factor_regression.cpp
     src/simulation/scenarios.cpp
     src/analysis_context.cpp
     src/rolling_engine.cpp)

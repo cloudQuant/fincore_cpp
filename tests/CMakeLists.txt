@@ -36,6 +36,7 @@ add_executable(fincore_tests
     unit/round_trips_test.cpp
     unit/perf_attrib_test.cpp
     unit/brinson_test.cpp
+    unit/factor_regression_test.cpp
     unit/attribution_umbrella_test.cpp
     unit/stress_scenarios_test.cpp
     unit/simulation_umbrella_test.cpp)
