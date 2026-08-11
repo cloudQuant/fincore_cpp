@@ -237,9 +237,11 @@ Fresh Phase 3A acceptance evidence from 2026-08-10 is:
 Deferred work remains the paired rolling `roll_alpha`, `roll_beta`, and
 capture functions; multi-column `roll_alpha_beta` and `rolling_regression`;
 `rolling_beta`; portfolio positions and transactions; round trips;
-performance attribution/stats; Bayesian/bootstrap functions; optimization;
-simulation; reports/tearsheets; a full native facade; packaging/release; and
-the then-unaccepted `fincore_implot` / `fincore_implot_demo` build/demo in
+performance attribution; remaining bootstrap/distribution statistics (the
+deterministic `perf_stats` facade is accepted later in Phase 4A); Bayesian
+functions; optimization; simulation; reports/tearsheets; a full native
+facade; packaging/release; and the then-unaccepted `fincore_implot` /
+`fincore_implot_demo` build/demo in
 that dated Phase 3A observation. Its former positive-ImPlot item is superseded
 by the Phase 3C compile acceptance below. Phase 3A is not full fincore parity
 or project completion. The complete acceptance evidence is
@@ -335,9 +337,11 @@ Fresh Phase 3B acceptance evidence from 2026-08-10 is:
 
 Deferred work remains multi-column `roll_alpha_beta` and `rolling_regression`;
 full-index `rolling_beta` (including multi-factor inputs); portfolio positions
-and transactions; round trips; performance attribution/stats; Bayesian/
-bootstrap functions; optimization; simulation; reports/tearsheets; a full
-native facade; packaging/release; and the then-unaccepted `fincore_implot` /
+and transactions; round trips; performance attribution; remaining
+bootstrap/distribution statistics (the deterministic `perf_stats` facade is
+accepted later in Phase 4A); Bayesian functions; optimization; simulation;
+reports/tearsheets; a full native facade; packaging/release; and the
+then-unaccepted `fincore_implot` /
 `fincore_implot_demo` build/demo in that dated Phase 3B observation. Its
 former positive-ImPlot item is superseded by the Phase 3C compile acceptance
 below. Phase 3B is not full fincore parity or project completion. The complete
