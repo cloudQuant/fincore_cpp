@@ -47,6 +47,7 @@ add_library(fincore
     src/attribution/factor_prediction.cpp
     src/simulation/scenarios.cpp
     src/simulation/correlation.cpp
+    src/simulation/parameters.cpp
     src/analysis_context.cpp
     src/rolling_engine.cpp)
 add_library(fincore::fincore ALIAS fincore)
