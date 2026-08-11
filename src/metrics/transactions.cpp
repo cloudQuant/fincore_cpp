@@ -167,6 +167,42 @@ std::vector<timestamp> normalized_position_days(const dataframe& positions) {
     return result;
 }
 
+std::map<timestamp, double> normalized_return_values(
+    const dataframe& returns, const std::string_view returns_column_name) {
+    const auto values = require_double_column(returns, returns_column_name);
+    const auto& index = returns.get_index();
+
+    std::map<timestamp, double> result;
+    timestamp previous_day{};
+    bool has_previous_day = false;
+    for (std::size_t row = 0U; row < index.size(); ++row) {
+        const timestamp day = utc_midnight(index[row]);
+        if (has_previous_day && day <= previous_day) {
+            throw input_error{
+                "return dates must be strictly increasing unique UTC days"};
+        }
+        result.emplace(day, values[row]);
+        previous_day = day;
+        has_previous_day = true;
+    }
+    return result;
+}
+
+double sum_skipping_nan(const std::vector<numeric_column>& columns,
+                        std::size_t row);
+
+std::map<timestamp, double> daily_portfolio_values(
+    const dataframe& positions) {
+    const auto columns = numeric_position_columns(positions);
+    const auto days = normalized_position_days(positions);
+
+    std::map<timestamp, double> result;
+    for (std::size_t row = 0U; row < days.size(); ++row) {
+        result.emplace(days[row], sum_skipping_nan(columns, row));
+    }
+    return result;
+}
+
 const numeric_column& required_cash_column(
     const std::vector<numeric_column>& columns,
     const std::string_view cash_column_name) {
@@ -259,6 +295,75 @@ dataframe get_txn_vol(const dataframe& transactions,
                       const std::string_view price_column_name) {
     return daily_transaction_frame(aggregate_transactions(
         transactions, amount_column_name, price_column_name));
+}
+
+dataframe adjust_returns_for_slippage(
+    const dataframe& returns,
+    const dataframe& positions,
+    const dataframe& transactions,
+    const double slippage_bps,
+    const std::string_view returns_column_name,
+    const std::string_view amount_column_name,
+    const std::string_view price_column_name) {
+    const auto return_values =
+        normalized_return_values(returns, returns_column_name);
+    const auto portfolio_values = daily_portfolio_values(positions);
+    const auto daily_transactions =
+        get_txn_vol(transactions, amount_column_name, price_column_name);
+    const auto transaction_volumes =
+        require_double_column(daily_transactions, "txn_volume");
+
+    std::map<timestamp, double> transaction_values;
+    const auto& transaction_days = daily_transactions.get_index();
+    for (std::size_t row = 0U; row < transaction_days.size(); ++row) {
+        transaction_values.emplace(transaction_days[row], transaction_volumes[row]);
+    }
+
+    std::map<timestamp, double> union_days;
+    for (const auto& [day, ignored] : return_values) {
+        static_cast<void>(ignored);
+        union_days.emplace(day, 0.0);
+    }
+    for (const auto& [day, ignored] : portfolio_values) {
+        static_cast<void>(ignored);
+        union_days.emplace(day, 0.0);
+    }
+    for (const auto& [day, ignored] : transaction_values) {
+        static_cast<void>(ignored);
+        union_days.emplace(day, 0.0);
+    }
+
+    std::vector<timestamp> index;
+    std::vector<double> values;
+    index.reserve(union_days.size());
+    values.reserve(union_days.size());
+    for (const auto& [day, ignored] : union_days) {
+        static_cast<void>(ignored);
+        const auto return_value = return_values.find(day);
+        const auto portfolio_value = portfolio_values.find(day);
+        const auto transaction_value = transaction_values.find(day);
+        const double pnl =
+            return_value != return_values.end() && portfolio_value != portfolio_values.end()
+                ? return_value->second * portfolio_value->second
+                : nan;
+        const double transaction_cost =
+            transaction_value == transaction_values.end()
+                ? nan
+                : transaction_value->second * (slippage_bps / 10000.0);
+        const double adjusted_pnl = (std::isnan(pnl) ? 0.0 : pnl) -
+                                    (std::isnan(transaction_cost) ? 0.0
+                                                                  : transaction_cost);
+        const double pnl_safe = pnl == 0.0 ? nan : pnl;
+        double adjusted_return = return_value == return_values.end()
+                                     ? nan
+                                     : return_value->second * adjusted_pnl / pnl_safe;
+        if (std::isnan(adjusted_return)) {
+            adjusted_return = 0.0;
+        }
+        index.push_back(day);
+        values.push_back(adjusted_return);
+    }
+    return make_series(std::move(index), returns_column_name, std::move(values));
 }
 
 dataframe get_turnover(const dataframe& positions,

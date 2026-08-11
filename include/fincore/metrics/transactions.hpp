@@ -1,6 +1,7 @@
 #pragma once
 
 #include <fincore/metrics/positions.hpp>
+#include <fincore/metrics/returns.hpp>
 
 #include <string_view>
 
@@ -16,6 +17,15 @@ enum class turnover_denominator {
 
 dataframe get_txn_vol(
     const dataframe& transactions,
+    std::string_view amount_column_name = transaction_amount_column,
+    std::string_view price_column_name = transaction_price_column);
+
+dataframe adjust_returns_for_slippage(
+    const dataframe& returns,
+    const dataframe& positions,
+    const dataframe& transactions,
+    double slippage_bps,
+    std::string_view returns_column_name = returns_column,
     std::string_view amount_column_name = transaction_amount_column,
     std::string_view price_column_name = transaction_price_column);
 
