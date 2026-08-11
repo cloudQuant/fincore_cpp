@@ -404,6 +404,7 @@ TEST(MetricsUmbrella, ExposesSlippageAdjustedReturns) {
 
   EXPECT_EQ(adjusted.get_index(), (std::vector<fincore::timestamp>{
                                       jan_2, jan_3, jan_4, jan_5, jan_6}));
+  ASSERT_EQ(adjusted.shape().second, 1U);
   const auto columns = adjusted.get_columns_info<double>();
   ASSERT_EQ(columns.size(), 1U);
   EXPECT_EQ(std::get<0>(columns[0]), "returns");
