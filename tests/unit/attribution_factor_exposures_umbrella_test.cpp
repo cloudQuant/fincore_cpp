@@ -26,6 +26,8 @@ TEST(AttributionFactorExposuresUmbrella, ExportsRollingFactorExposuresSurface) {
     const auto exposures =
         fincore::rolling_factor_exposures(returns, factors, factor_names);
 
+    ASSERT_EQ(exposures.shape().second, 2U);
+    EXPECT_EQ(exposures.get_index(), (std::vector<fincore::timestamp>{1, 2, 3}));
     const auto columns = exposures.get_columns_info<double>();
     ASSERT_EQ(columns.size(), 2U);
     EXPECT_STREQ(std::get<0>(columns[0]).c_str(),

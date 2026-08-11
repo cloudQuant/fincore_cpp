@@ -80,6 +80,7 @@ factor_fixture oracle_fixture() {
 void expect_exposure_schema(const fincore::dataframe& exposures,
                             const std::span<const std::string_view> expected_names,
                             const std::vector<timestamp>& expected_index) {
+    ASSERT_EQ(exposures.shape().second, expected_names.size() + 1U);
     const auto columns = exposures.get_columns_info<double>();
     ASSERT_EQ(columns.size(), expected_names.size() + 1U);
     EXPECT_STREQ(std::get<0>(columns[0]).c_str(),
