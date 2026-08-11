@@ -183,3 +183,33 @@ acceptance commit `26c1790cba7db31c67f5c8f698d5d7afd5c5b617` (`docs: accept
 phase 8 round-trip core`). This Task 49 commit is documentation-only: it does
 not amend Task 48 and it does not self-reference. In particular, this record
 intentionally does not contain the SHA of the commit that adds this trace.
+
+## Post-acceptance correction
+
+The final whole-phase correction is code/test commit
+`6b83bc424066de63e315c5d2914051c3a4c539a3` (`fix: preserve round-trip
+boundary semantics`). It preserves Python-equivalent signed-zero VWAP/FIFO
+direction, deterministically rejects with `fincore::input_error` when a
+nonnegative FIFO duration cannot be represented by `timestamp`, and adds the
+required populated one-direction typed-empty extraction coverage. The compact
+negative-`max_delta` regression also matches the Python oracle by splitting
+same-timestamp same-direction rows.
+
+The focused `RoundTrips` selection passed `11/11`, the relevant
+`RoundTrips|Transactions|Positions|Dataframe` selection passed `61/61`, and
+the complete existing headless build-tree CTest passed `223/223`.
+
+Fresh offline correction gates used the existing local GoogleTest source with
+`FETCHCONTENT_FULLY_DISCONNECTED=ON` and ImPlot disabled. AppleClang 17 in
+`/tmp/fincore-phase8-fix-apple.R1PqSJ` configured and built without compiler
+warnings, then passed `223/223`. Homebrew LLVM 22.1.8 with ASan+UBSan in
+`/tmp/fincore-phase8-fix-llvm.BxSbDO` passed `223/223` with no AddressSanitizer,
+UndefinedBehaviorSanitizer, or runtime-error diagnostic. Its only build warning
+was the third-party GoogleTest `gtest-printers.h:524` implicit `char8_t` to
+`char32_t` conversion warning.
+
+These correction gates were headless; no GUI executable was built or launched.
+All deferred scope listed above remains deferred, including interactive GUI or
+visual validation, packaging/release validation, and full Python public-API
+parity. This section does not alter the historical Task 48 gate claims and does
+not contain the SHA of its own documentation commit.
