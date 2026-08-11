@@ -789,6 +789,39 @@ TEST(Transactions, AppliesQuadraticVolumeSharePenaltyGoldens) {
         {.99995, .99999375, .9999986111111111});
 }
 
+TEST(Transactions, UsesAbsoluteSignedSimulatedSharesForQuadraticPenalty) {
+    const auto returns =
+        fincore::make_series({fincore::utc_timestamp(2024, 1, 2)}, "returns", {.1});
+
+    fincore::dataframe negative_amount;
+    negative_amount.load_index({fincore::utc_timestamp(2024, 1, 2, 15)});
+    negative_amount.load_column<double>("amount", {-10.0},
+                                        hmdf::nan_policy::dont_pad_with_nans);
+    negative_amount.load_column<double>("price", {10.0},
+                                        hmdf::nan_policy::dont_pad_with_nans);
+    negative_amount.load_column<double>("volume", {100.0},
+                                        hmdf::nan_policy::dont_pad_with_nans);
+    expect_values(
+        fincore::apply_slippage_penalty(returns, negative_amount, 1000.0, 1000.0,
+                                        .1)
+            .get_column<double>("returns"),
+        {.09990909090909092});
+
+    fincore::dataframe negative_simulation;
+    negative_simulation.load_index({fincore::utc_timestamp(2024, 1, 2, 15)});
+    negative_simulation.load_column<double>("amount", {10.0},
+                                            hmdf::nan_policy::dont_pad_with_nans);
+    negative_simulation.load_column<double>("price", {10.0},
+                                            hmdf::nan_policy::dont_pad_with_nans);
+    negative_simulation.load_column<double>("volume", {100.0},
+                                            hmdf::nan_policy::dont_pad_with_nans);
+    expect_values(
+        fincore::apply_slippage_penalty(returns, negative_simulation, -1000.0,
+                                        1000.0, .1)
+            .get_column<double>("returns"),
+        {.10009090909090909});
+}
+
 TEST(Transactions, AggregatesUnorderedDuplicateIntradayQuadraticPenalties) {
     const auto returns = fincore::make_series(
         {fincore::utc_timestamp(2024, 1, 2, 8), fincore::utc_timestamp(2024, 1, 3, 8),
