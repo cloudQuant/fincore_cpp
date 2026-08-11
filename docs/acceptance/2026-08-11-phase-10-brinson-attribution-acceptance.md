@@ -91,3 +91,18 @@ Fama-French attribution, providers, warning/drop alignment behavior, reports,
 tearsheets, packaging, release validation, full Python attribution parity, and
 GUI-runtime validation. A caller must supply already-sectorized wide tables;
 the ImPlot result proves compile/link integration only.
+
+## Commit traceability
+
+- Task 54 implementation: `acd4d06000b59b3ed10ba7b51d60bddef8c717dc`
+  (`feat: add native Brinson attribution`).
+- Task 55 initial acceptance: `a46374c0159881473013093c17394975f8e4f178`
+  (`docs: accept phase 10 Brinson attribution`).
+- Evidence-preservation correction:
+  `49dea0f4aea8c83a0dc7ee40be8be18b4fc5f357`
+  (`docs: preserve phase 10 gate evidence`) corrects log preservation for this
+  same acceptance record; it does not introduce a new attribution behavior.
+
+Task 56 is documentation-only traceability for this acceptance record. It
+does not amend Task 55 or the evidence-preservation correction, and it
+intentionally neither lists nor anticipates its own commit SHA.
