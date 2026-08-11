@@ -189,13 +189,13 @@ TEST(FactorRegression, PreservesRequestedFactorOrderAndAcceptsExactFits) {
 }
 
 TEST(FactorRegression, ReportsZeroRSquaredForConstantReturnsWithFullRankDesign) {
-    const auto returns = make_returns({1, 2, 3}, {.04, .04, .04});
+    const auto returns = make_returns({1, 2, 3}, {.1, .1, .1});
     const auto factors = make_factors({1, 2, 3}, {1.0, 2.0, 3.0},
                                       {0.0, 1.0, 0.0}, {1.0, 0.0, 1.0});
     constexpr std::array<std::string_view, 1U> one_factor{"MKT"};
     const auto result = fincore::fit_factor_regression(returns, factors, one_factor);
     EXPECT_DOUBLE_EQ(result.r_squared, .0);
-    EXPECT_NEAR(result.alpha, .04, 1.0e-12);
+    EXPECT_NEAR(result.alpha, .1, 1.0e-12);
     EXPECT_NEAR(result.coefficients.get_column<double>(
                     fincore::factor_regression_coefficient_column.data())[1],
                 .0, 1.0e-12);

@@ -75,6 +75,16 @@ void require_finite_values(const std::span<const double> values) {
     }
 }
 
+bool values_are_exactly_constant(const std::span<const double> values) {
+    const double first_value = values.front();
+    for (const double value : values) {
+        if (value != first_value) {
+            return false;
+        }
+    }
+    return true;
+}
+
 void require_finite_intermediate(const double value) {
     if (!std::isfinite(value)) {
         throw input_error{"factor regression numerical intermediate is not finite"};
@@ -297,7 +307,9 @@ factor_regression_result fit_factor_regression(
         require_finite_intermediate(sse);
         require_finite_intermediate(sst);
     }
-    const double r_squared = sst > 0.0 ? 1.0 - sse / sst : 0.0;
+    const double r_squared = values_are_exactly_constant(inputs.returns)
+                                 ? 0.0
+                                 : (sst > 0.0 ? 1.0 - sse / sst : 0.0);
     require_finite_intermediate(r_squared);
 
     return {coefficients[0], r_squared,
