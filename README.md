@@ -921,6 +921,58 @@ The source-derived Python finite oracle, public-umbrella RED/GREEN, and fresh
 AppleClang, LLVM ASan+UBSan, ImPlot, and invalid-ImGui evidence are retained in
 [`docs/acceptance/2026-08-12-phase-12-factor-regression-core-acceptance.md`](docs/acceptance/2026-08-12-phase-12-factor-regression-core-acceptance.md).
 
+## Accepted Phase 13 rolling factor exposures
+
+`<fincore/attribution.hpp>` exports the bounded, deterministic, no-state,
+DataFrame-native rolling factor-exposure operation:
+
+```cpp
+#include <fincore/attribution.hpp>
+
+const fincore::dataframe exposures = fincore::rolling_factor_exposures(
+    returns, factor_returns, factor_names,
+    /* rolling_window = */ std::nullopt,
+    /* returns_column_name = */ fincore::returns_column);
+```
+
+An omitted `rolling_window` uses the expanding raw history from row zero through
+each endpoint; a positive value uses the trailing raw-row window ending at that
+endpoint. `0` is an `input_error`. The independently owned result always keeps
+the complete validated raw returns index and has genuine-`double` columns in
+insertion order `alpha`, then the caller's factor names. Rows with fewer than
+`K + 1` selected observations contain only ordinary `NaN`, including every row
+for a valid positive width below `K + 1`; valid empty inputs retain that typed
+empty schema. Every eligible raw window delegates to public
+`fit_factor_regression`; an eligible rank-deficient window therefore raises
+`input_error` rather than yielding a minimum-norm or fit-failure-`NaN` result.
+
+The factor span must be nonempty, contain nonempty distinct names, and must not
+contain reserved `alpha`. Selected return/factor columns must exist, be genuine
+`double`, have exact owning index lengths, and be finite across the whole input
+even when a row would otherwise be in the insufficient-history prefix. The two
+raw timestamp indexes must be duplicate-free and exactly equal in length,
+value, and supplied order. Inputs are not positional-zipped, aligned on common
+timestamps, sorted, resampled, deduplicated, or otherwise repaired; unrelated
+metadata is ignored and factor names are never inferred from it.
+
+This is no-state rolling regression over caller-supplied data, not a full
+Fama-French model or provider. It excludes a stateful model receiver,
+Newey-West/standard errors/p-values, risk-free adjustment, factor
+provider/fetch/cache, factor prediction, attribution decomposition,
+idiosyncratic risk, generic rolling metrics, external numerical dependencies,
+reports/releases, full Python parity, and GUI runtime. It does not change the
+Phase 12 solver or duplicate its QR implementation. Any ImPlot evidence is
+compile/link only; no GUI executable is launched.
+
+The implementation is Task 63 commit
+`fe4319be60052f6963a31e341ffc3fac8803184b`; its post-review request-order
+test hardening is `504487779b8c283535c3e66d0dfc1726e81a7c5e`. Historical Task
+63 evidence remains distinct: the initial leaf suite/full configured CTest
+passed `7/7` and `262/262`, while the hardening revision passed `8/8` and
+`263/263`. The source-derived finite Python oracle, public umbrella RED/GREEN,
+and current fresh gate evidence are recorded in
+[`docs/acceptance/2026-08-12-phase-13-rolling-factor-exposures-acceptance.md`](docs/acceptance/2026-08-12-phase-13-rolling-factor-exposures-acceptance.md).
+
 ## Accepted Phase 11 native stress scenarios
 
 `<fincore/simulation.hpp>` exports only the deterministic, DataFrame-native
