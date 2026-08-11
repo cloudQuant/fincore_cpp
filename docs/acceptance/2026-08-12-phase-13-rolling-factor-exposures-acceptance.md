@@ -204,3 +204,11 @@ consumer and CMake registration, README, and this acceptance record. It does
 not expand accepted scope to providers/models, numerical solver changes,
 interactive GUI validation, packaging/release validation, or full Python API
 parity.
+
+## Task 65 traceability
+
+- Complete Task 63 implementation commit: `fe4319be60052f6963a31e341ffc3fac8803184b`.
+- Task 64 initial-acceptance commit: `f57bd479c276b95348e48647a5f2fc31d4e539a3`.
+
+Task 65 is documentation-only traceability work and does not amend either
+prior commit.
