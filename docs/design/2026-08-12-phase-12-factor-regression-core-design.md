@@ -88,8 +88,10 @@ being claimed.
 
 The solver adds an intercept column of ones, computes coefficients through
 Householder QR, then generates fitted values and residuals in original row
-order.  It calculates `r_squared = 1 - SSE/SST` when `SST > 0`; a constant
-return vector has `r_squared == 0.0`, matching the current Python fit path.
+order.  It calculates `r_squared = 1 - SSE/SST` when `SST > 0`; an exactly
+constant return vector has `r_squared == 0.0` as an explicit native policy.
+This avoids a floating mean-rounding artifact in which Python's otherwise
+equivalent formula can observe a tiny nonzero `SST` for some decimal values.
 No Newey-West adjustment, standard errors, p-values, weighting, GLS, risk-free
 adjustment, factor fetching/caching, model state, prediction, rolling
 exposures, attribution decomposition, or idiosyncratic-risk convenience

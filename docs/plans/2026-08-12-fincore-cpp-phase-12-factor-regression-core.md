@@ -60,9 +60,10 @@ compile/link verification.
   column.  Fitted and residual outputs preserve the raw return index and each
   contain exactly one genuine-double column: `fitted_returns` or `residuals`.
   Results own their values after the source frames are changed or destroyed.
-- `r_squared` is `1 - SSE/SST` when `SST > 0`; constant returns report exactly
-  `0.0`, matching the relevant Python fit path.  `alpha` repeats coefficient
-  row zero for direct C++ use.
+- `r_squared` is `1 - SSE/SST` when `SST > 0`; an exactly constant selected
+  return vector reports exactly `0.0` as explicit native policy.  This avoids
+  Python's floating mean-rounding artifact for some otherwise constant decimal
+  values.  `alpha` repeats coefficient row zero for direct C++ use.
 - Exclude Newey-West/standard errors/p-values, weighting/GLS, risk-free
   adjustment, standard Fama-French enum/factor lists, provider fetching or
   caching, stateful model objects, prediction, rolling exposures, attribution
