@@ -159,7 +159,37 @@ TEST(FactorRegression, MatchesFamaFrenchFitOracleAndOwnsTypedResults) {
     fixture.returns.get_column<double>("returns")[0] = 99.0;
     fixture.factors.get_column<double>("MKT")[0] = -99.0;
     EXPECT_NEAR(coefficients[0], .0005694444444444665, 1.0e-12);
+    EXPECT_NEAR(fitted[0], .006820358021494268, 1.0e-12);
     EXPECT_NEAR(residuals[0], expected_residuals[0], 1.0e-12);
+}
+
+TEST(FactorRegression,
+     PreservesSameNonMonotonicUniqueRawTimestampOrderInOutputSeries) {
+    const std::vector<timestamp> source_order{
+        1704240000000000000LL, 1704067200000000000LL,
+        1704412800000000000LL, 1704153600000000000LL,
+        1704326400000000000LL};
+    const std::vector<double> source_returns{.071, .028, .1215, .049, .0985};
+    const auto returns = make_returns(source_order, source_returns);
+    const auto factors = make_factors(
+        source_order, {.03, .01, .05, .02, .04}, {.02, .01, .03, .00, .04},
+        {.00, .02, -.01, .01, -.02});
+    constexpr std::array<std::string_view, 1U> one_factor{"MKT"};
+
+    const auto result =
+        fincore::fit_factor_regression(returns, factors, one_factor);
+
+    EXPECT_EQ(result.fitted_returns.get_index(), source_order);
+    EXPECT_EQ(result.residuals.get_index(), source_order);
+    const auto& fitted = result.fitted_returns.get_column<double>(
+        fincore::factor_regression_fitted_column.data());
+    const auto& residuals = result.residuals.get_column<double>(
+        fincore::factor_regression_residual_column.data());
+    ASSERT_EQ(fitted.size(), source_returns.size());
+    ASSERT_EQ(residuals.size(), source_returns.size());
+    for (std::size_t row = 0; row < source_returns.size(); ++row) {
+        EXPECT_NEAR(fitted[row] + residuals[row], source_returns[row], 1.0e-12);
+    }
 }
 
 TEST(FactorRegression, PreservesRequestedFactorOrderAndAcceptsExactFits) {
@@ -328,10 +358,16 @@ TEST(FactorRegression, RejectsInsufficientNonfiniteAndRankDeficientInputs) {
 TEST(FactorRegression, ResultsSurviveSourceDestruction) {
     const auto result = [] {
         auto fixture = oracle_fixture();
-        auto output = fincore::fit_factor_regression(fixture.returns, fixture.factors,
-                                                     factor_names);
+        std::array<std::string, 3U> source_factor_names{"MKT", "SMB", "HML"};
+        const std::array<std::string_view, 3U> source_factor_name_views{
+            source_factor_names[0], source_factor_names[1], source_factor_names[2]};
+        auto output = fincore::fit_factor_regression(
+            fixture.returns, fixture.factors, source_factor_name_views);
         fixture.returns.get_column<double>("returns")[0] = 123.0;
         fixture.factors.get_column<double>("MKT")[0] = -123.0;
+        fixture.returns.load_index({11, 12, 13, 14, 15, 16, 17, 18});
+        fixture.factors.load_index({21, 22, 23, 24, 25, 26, 27, 28});
+        source_factor_names[0] = "mutated-market";
         return output;
     }();
     EXPECT_NEAR(result.alpha, .0005694444444444665, 1.0e-12);
@@ -341,6 +377,22 @@ TEST(FactorRegression, ResultsSurviveSourceDestruction) {
     EXPECT_NEAR(result.residuals.get_column<double>(
                     fincore::factor_regression_residual_column.data())[0],
                 -.0003203580214942679, 1.0e-12);
+    EXPECT_NEAR(result.fitted_returns.get_column<double>(
+                    fincore::factor_regression_fitted_column.data())[0],
+                .006820358021494268, 1.0e-12);
+    const std::vector<timestamp> expected_raw_index{oracle_index.begin(),
+                                                     oracle_index.end()};
+    const std::vector<timestamp> expected_coefficient_index{0, 1, 2, 3};
+    EXPECT_EQ(result.fitted_returns.get_index(), expected_raw_index);
+    EXPECT_EQ(result.residuals.get_index(), expected_raw_index);
+    EXPECT_EQ(result.coefficients.get_index(), expected_coefficient_index);
+    const auto& labels = result.coefficients.get_column<std::string>(
+        fincore::factor_regression_factor_column.data());
+    ASSERT_EQ(labels.size(), 4U);
+    EXPECT_EQ(labels[0], fincore::factor_regression_alpha_name);
+    EXPECT_EQ(labels[1], "MKT");
+    EXPECT_EQ(labels[2], "SMB");
+    EXPECT_EQ(labels[3], "HML");
 }
 
 }  // namespace
