@@ -135,6 +135,13 @@ TEST(RoundTrips, HonorsMaxDeltaAndStableTimestampTieOrdering) {
               (std::vector<std::string>{"A", "A", "B", "B"}));
     expect_double_values(blocks.get_column<double>("amount"), {2.0, 1.0, 1.0, -1.0});
     expect_double_values(blocks.get_column<double>("price"), {15.0, 30.0, 40.0, 50.0});
+
+    const auto negative_delta = fincore::groupby_consecutive_transactions(
+        transactions({at(0ns), at(0ns)}, {"A", "A"}, {1.0, 1.0}, {10.0, 20.0}),
+        -1ns);
+    EXPECT_EQ(negative_delta.get_index(),
+              (std::vector<fincore::timestamp>{at(0ns), at(0ns)}));
+    expect_double_values(negative_delta.get_column<double>("price"), {10.0, 20.0});
 }
 
 TEST(RoundTrips, HandlesCrossingsAndPartialFillsAsSeparateEvents) {
@@ -168,6 +175,62 @@ TEST(RoundTrips, PreservesZeroAndNonfiniteArithmeticAndSkipsNegativePrices) {
         {at(0ns), at(hour), at(2 * hour), at(3 * hour)}, {"A", "A", "B", "B"},
         {1.0, 1.0, 1.0, 1.0}, {nan, 1.0, infinity, 1.0}));
     expect_double_values(nonfinite.get_column<double>("price"), {nan, infinity});
+}
+
+TEST(RoundTrips, PreservesPythonSignedZeroVwapAndFifoDirection) {
+    const auto zero_sell = transactions({at(0ns), at(9 * hour)}, {"A", "A"},
+                                        {1.0, -1.0}, {10.0, 0.0});
+    const auto sell_blocks = fincore::groupby_consecutive_transactions(zero_sell);
+    const auto& sell_prices = sell_blocks.get_column<double>("price");
+    ASSERT_EQ(sell_prices.size(), 2U);
+    EXPECT_EQ(sell_prices[1], 0.0);
+    EXPECT_TRUE(std::signbit(sell_prices[1]));
+    const auto sell_events = fincore::extract_round_trips(zero_sell);
+    EXPECT_TRUE(sell_events.get_index().empty());
+    expect_schema(sell_events, {{"pnl", typeid(double)},
+                                {"open_dt", typeid(fincore::timestamp)},
+                                {"close_dt", typeid(fincore::timestamp)},
+                                {"long", typeid(bool)},
+                                {"rt_returns", typeid(double)},
+                                {"symbol", typeid(std::string)},
+                                {"duration", typeid(fincore::timestamp)}});
+
+    const auto zero_buy = transactions({at(0ns), at(9 * hour)}, {"A", "A"},
+                                       {-1.0, 1.0}, {10.0, 0.0});
+    const auto buy_blocks = fincore::groupby_consecutive_transactions(zero_buy);
+    const auto& buy_prices = buy_blocks.get_column<double>("price");
+    ASSERT_EQ(buy_prices.size(), 2U);
+    EXPECT_EQ(buy_prices[1], 0.0);
+    EXPECT_FALSE(std::signbit(buy_prices[1]));
+    const auto buy_events = fincore::extract_round_trips(zero_buy);
+    EXPECT_EQ(buy_events.get_index(), (std::vector<fincore::timestamp>{0}));
+    expect_double_values(buy_events.get_column<double>("pnl"), {10.0});
+    EXPECT_EQ(buy_events.get_column<bool>("long"), (std::vector<bool>{false}));
+    expect_double_values(buy_events.get_column<double>("rt_returns"), {1.0});
+}
+
+TEST(RoundTrips, RejectsUnrepresentableDuration) {
+    const auto earliest = std::numeric_limits<fincore::timestamp>::min() + 1;
+    const auto latest = std::numeric_limits<fincore::timestamp>::max();
+    EXPECT_THROW(fincore::extract_round_trips(
+                     transactions({earliest, latest}, {"A", "A"}, {1.0, -1.0},
+                                  {10.0, 20.0})),
+                 fincore::input_error);
+}
+
+TEST(RoundTrips, PopulatedOneDirectionInputReturnsTypedEmptyEvents) {
+    const auto result = fincore::extract_round_trips(transactions(
+        {at(0ns), at(hour), at(10 * hour)}, {"A", "A", "A"}, {1.0, 2.0, 3.0},
+        {10.0, 20.0, 30.0}));
+
+    EXPECT_TRUE(result.get_index().empty());
+    expect_schema(result, {{"pnl", typeid(double)},
+                           {"open_dt", typeid(fincore::timestamp)},
+                           {"close_dt", typeid(fincore::timestamp)},
+                           {"long", typeid(bool)},
+                           {"rt_returns", typeid(double)},
+                           {"symbol", typeid(std::string)},
+                           {"duration", typeid(fincore::timestamp)}});
 }
 
 TEST(RoundTrips, SupportsTypedEmptyCustomColumnsAndZeroVwap) {

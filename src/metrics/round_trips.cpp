@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <deque>
+#include <limits>
 #include <span>
 #include <string>
 #include <tuple>
@@ -146,16 +147,16 @@ std::vector<transaction_block> consolidated_blocks(
     std::vector<transaction_block> blocks;
     for (std::size_t position = 0U; position < rows.size();) {
         const raw_transaction& first = rows[position];
-        double amount = first.amount;
-        double notional = first.amount * first.price;
-        std::size_t end = position + 1U;
-        while (end < rows.size() && rows[end].symbol == first.symbol &&
-               same_direction(rows[end - 1U].amount, rows[end].amount) &&
-               !gap_exceeds(rows[end - 1U].datetime, rows[end].datetime, max_delta)) {
+        double amount = 0.0;
+        double notional = 0.0;
+        std::size_t end = position;
+        do {
             amount += rows[end].amount;
             notional += rows[end].amount * rows[end].price;
             ++end;
-        }
+        } while (end < rows.size() && rows[end].symbol == first.symbol &&
+                 same_direction(rows[end - 1U].amount, rows[end].amount) &&
+                 !gap_exceeds(rows[end - 1U].datetime, rows[end].datetime, max_delta));
         blocks.push_back({first.symbol, amount, notional / amount, first.datetime});
         position = end;
     }
@@ -207,6 +208,16 @@ double amount_sign(const double amount) {
 
 bool same_lot_direction(const double signed_price, const double amount) {
     return std::signbit(signed_price) == std::signbit(amount);
+}
+
+timestamp checked_duration(const timestamp earlier, const timestamp later) {
+    const auto difference = static_cast<std::uint64_t>(later) -
+                            static_cast<std::uint64_t>(earlier);
+    if (difference >
+        static_cast<std::uint64_t>(std::numeric_limits<timestamp>::max())) {
+        throw input_error{"round-trip duration cannot be represented by timestamp"};
+    }
+    return static_cast<timestamp>(difference);
 }
 
 std::vector<round_trip> fifo_round_trips(
@@ -262,7 +273,7 @@ std::vector<round_trip> fifo_round_trips(
                               signed_price < 0.0,
                               invested != 0.0 ? pnl / invested : 0.0,
                               block.symbol,
-                              block.datetime - first_open_datetime});
+                              checked_duration(first_open_datetime, block.datetime)});
         }
         if (remaining > 0.0) {
             lots.push_back({signed_price, remaining, block.datetime});
