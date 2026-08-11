@@ -50,13 +50,30 @@ dataframe aggregate_returns(
     const dataframe& returns,
     return_aggregation_period period = return_aggregation_period::monthly,
     std::string_view column = returns_column);
+
+// Compatibility forwarding only: preserves existing calls such as
+// cumulative_returns(frame, {}) and cumulative_return(frame, {}).
+dataframe cumulative_returns(
+    const dataframe& returns,
+    std::initializer_list<std::string_view> legacy_column);
+
+double cumulative_return(
+    const dataframe& returns,
+    std::initializer_list<std::string_view> legacy_column);
 ~~~
 
 The old `cumulative_returns(const dataframe&, std::string_view)` and
 `cumulative_return(const dataframe&, std::string_view)` overloads remain
 unchanged and retain their zero-starting-value behavior. The numeric overloads
 are intentionally separate so existing calls with a column name cannot change
-meaning or become ambiguous.
+meaning or become ambiguous. In particular, C++ value-initialized braced calls
+such as `cumulative_returns(frame, {})` and `cumulative_return(frame, {})`
+were valid calls to the old empty `std::string_view` parameter and reached
+normal required-column validation. The narrow initializer-list forwarding
+overloads retain that behavior: an empty list forwards an empty column name,
+a one-element list forwards its column name, and a longer list raises
+`input_error`. They are a source-compatibility shim, not another starting-value
+form.
 
 `metrics.hpp` already includes `returns.hpp`; no umbrella-header change is
 needed. The phase uses no new dependency and no ImPlot API.
@@ -106,13 +123,17 @@ three-column DataFrame:
 
 The index is a canonical UTC timestamp for the start of the group represented
 by that label. Monthly, quarterly, and yearly rows use the first day of the
-month, quarter, and year. Weekly rows use the start of the actual ISO week,
-clamped to January 1 of the *calendar-year label*. This makes the two Python
-groups `(2020, 53)` and `(2021, 53)` distinct at a year boundary while keeping
-the index a real timestamp. Results are ordered lexicographically by the
-explicit `(year, period)` label, matching pandas `groupby` default ordering;
-the weekly timestamp may therefore not be globally monotonic at an ISO
-year-boundary edge.
+month, quarter, and year. A weekly `(calendar year, ISO week)` label is not
+always a unique physical week: for example, both 2018-01-01 and 2018-12-31
+have the Python label `(2018, 1)`. Therefore its native index is derived from
+the label, never the first observation: scan from January 1 through December
+31 of the label year, take the earliest date carrying that ISO week number,
+then take its ISO Monday clamped to January 1. This makes the row index stable
+under input permutations while retaining a real timestamp. It also makes the
+two Python groups `(2020, 53)` and `(2021, 53)` distinct at a year boundary.
+Results are ordered lexicographically by the explicit `(year, period)` label,
+matching pandas `groupby` default ordering; the weekly timestamp may therefore
+not be globally monotonic at an ISO year-boundary edge.
 
 The input column may not be named `year` or `period`, because those names are
 reserved for the output label columns. Empty input emits an empty DataFrame
@@ -134,9 +155,12 @@ not an ISO-year/week pair.
 Anaconda-base oracle fixtures will cover nonzero/negative starting values,
 NaN and infinity boundaries, zero normalization bases, custom column names,
 typed empties, all four aggregation periods, leap-year/quarter boundaries,
-and the weekly calendar-year/ISO-week boundary. Public-header RED tests will
-first prove the declarations are absent, then public-only umbrella use will
-prove the accepted facade and complete schema.
+the weekly calendar-year/ISO-week boundary, the within-calendar-year
+`(2018, 1)` collision, and IEEE order-sensitive group compounding. They will
+also pin the old braced-empty cumulative calls and the previously accepted
+`annual_return` arithmetic path. Public-header RED tests will first prove the
+declarations are absent, then public-only umbrella use will prove the accepted
+facade and complete schema.
 
 Implementation stays in `returns.hpp` and `returns.cpp`, using private C++23
 chrono helpers for UTC labels. It must not change `calendar.hpp`, DataFrame

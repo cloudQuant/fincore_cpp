@@ -11,11 +11,11 @@
 ## Global Constraints
 
 - Keep dataframe as hmdf::StdDataFrame<timestamp> and use only the local cloudQuant/DataFrame source; add no pandas, Python runtime, third-party date, or MultiIndex dependency.
-- Keep the old cumulative-return overloads source-compatible and semantically unchanged. Numeric starting-value overloads must be distinct from input-column overloads.
+- Keep the old cumulative-return overloads source-compatible and semantically unchanged, including previously valid braced-empty calls such as cumulative_returns(frame, {}) and cumulative_return(frame, {}). Numeric starting-value overloads must be distinct from input-column overloads; narrow initializer-list forwarding overloads may preserve the braced source form by forwarding it to the old string-view validation path.
 - Add return_aggregation_period only in returns.hpp, with weekly, monthly, quarterly, and yearly values. Invalid enum values must throw input_error; daily aggregation is deliberately not an alias.
 - aggregate_returns must represent Python labels with output integer columns year and period, followed by the requested output double column. Reject an input column name that collides with either reserved label column.
 - Aggregation consumes raw input timestamps as UTC; unordered, duplicate, and intraday observations are legal. Preserve their original order within each group and emit groups sorted lexicographically by (year, period).
-- Weekly grouping must be exactly Python's (observation calendar year, ISO week number), not ISO year/week. The weekly index is the ISO Monday clamped to January 1 of the label year.
+- Weekly grouping must be exactly Python's (observation calendar year, ISO week number), not ISO year/week. The weekly index is label-derived: scan from January 1 through December 31 of the label year for the earliest date with that ISO week number, then take its ISO Monday clamped to January 1. This is deliberately independent of raw input order because one calendar-year label can occur at both sides of an ISO boundary, such as (2018, 1).
 - Compound only NaN return observations as zero. Do not finite-filter or globally sanitize infinity in cumulative or aggregation paths.
 - normalize preserves the requested input-column name, original index, ordinary IEEE propagation, and maps an exact +0.0 or -0.0 first value to a full NaN output without a warning channel.
 - Do not change calendar.hpp, basic.hpp, DataFrame aliases, CMake/dependency settings, positions/transactions/yearly semantics, ImPlot adapter, or any previously accepted public API. Do not launch a GUI.
@@ -62,6 +62,14 @@ dataframe aggregate_returns(
     const dataframe& returns,
     return_aggregation_period period = return_aggregation_period::monthly,
     std::string_view column = returns_column);
+
+dataframe cumulative_returns(
+    const dataframe& returns,
+    std::initializer_list<std::string_view> legacy_column);
+
+double cumulative_return(
+    const dataframe& returns,
+    std::initializer_list<std::string_view> legacy_column);
 ~~~
 
 - [ ] **Step 1: Write exact public-header RED tests and record Python oracle**
@@ -93,6 +101,14 @@ EXPECT_NEAR(fincore::cumulative_return(returns, -2.0), -1.98, 1e-12);
 Keep assertions that the original no-number overload still emits pure returns
 [.1, .1, -.01] and scalar -.01. Assert empty nonzero frame output is
 typed-empty and scalar output remains NaN.
+
+Add public-header regression assertions that `cumulative_returns(returns, {})`
+and `cumulative_return(returns, {})` still reach the old empty-column
+validation path and throw `input_error`; the numeric `double` overload must
+not reinterpret those previously valid braced calls as zero starting values.
+Pin the accepted `annual_return` arithmetic for six `-.999` returns and
+annualization `.1`, which is exactly `-1.0` through the prior
+`(compound_returns(values) + 1)` path.
 
 Add normalization tests:
 
@@ -136,6 +152,14 @@ This intentionally proves label sorting rather than global timestamp sorting
 at the (2021, 52) / (2021, 53) boundary. Assert shape().second == 3,
 the exact column order {year, period, strategy}, and genuine types
 int, int, and double.
+
+Add the weekly collision fixture with Jan 1 and Dec 31 of 2018, both labelled
+`(2018, 1)`, in both input orders. Python compounds both rows to `.32`; both
+native outputs must use the label-derived canonical index
+`utc_timestamp(2018, 1, 1)`, not either input row's incidental ISO Monday.
+Also use an IEEE order-sensitive same-group fixture (for example factors
+created by `{1e160, 1e160, -.9999999999999999}` and its reorder) to prove
+the group consumes original row order rather than sorting within the key.
 
 Also assert:
 
@@ -185,7 +209,9 @@ In returns.cpp:
    at 1.0, substitutes only NaN return observations with 0.0, and leaves all
    other IEEE arithmetic intact. Keep existing no-number overloads routed
    through the same zero-start transformation so their values and fixed
-   returns_column output name do not change.
+   returns_column output name do not change. Retain the old compound_returns
+   wrapper for annual_return so annual_return continues its accepted
+   `(wealth - 1) + 1` arithmetic path exactly.
 2. Implement numeric cumulative frame/scalar overloads with
    starting_value == 0.0 ? wealth - 1.0 : wealth * starting_value; retain
    empty typed frame and NaN scalar behavior.
@@ -197,12 +223,15 @@ In returns.cpp:
    calendar year/month/day, calculate ISO weekday/week number, and create a
    canonical bucket-start timestamp through utc_timestamp. ISO-week number
    must use the observation's calendar year for its first label and the
-   standard 52/53-week rule for its second label.
+   standard 52/53-week rule for its second label. For weekly output, derive
+   the canonical index from that `(calendar year, ISO week)` label by finding
+   the earliest matching day within the label year, not from any raw
+   observation or map insertion order.
 5. Add a private comparable (year, period) key and group state with
-   bucket_start plus wealth. Iterate input index/value positions in original
-   order; lookup/create the key in std::map, then compound its wealth. Resolve
-   buckets as weekly calendar-year plus ISO-week, monthly month, quarterly
-   (month - 1) / 3 + 1, and yearly period 1.
+   label-derived bucket_start plus wealth. Iterate input index/value positions
+   in original order; lookup/create the key in std::map, then compound its
+   wealth. Resolve buckets as weekly calendar-year plus ISO-week, monthly
+   month, quarterly (month - 1) / 3 + 1, and yearly period 1.
 6. Reject the two reserved input names before loading output, and reject an
    unknown enum with input_error. Emit map rows in key order by manually
    loading one index, int year, int period, and requested-name double result
