@@ -14,6 +14,12 @@ The exact three-SHA implementation trace is:
    clarification.
 3. `feaae2c7fd5e2747c300582d09e76d09de55ace2` — Task 44 compatibility
    stabilization.
+4. `5ae7a85744fee2f97f5c898ff4c5af9d464c11e8` — Task 45 initial acceptance
+   record.
+
+This Task 46 commit is documentation-only and non-self-referential: it records
+the direct Task 45 acceptance SHA without amending Task 45's initial acceptance
+record.
 
 ## Acceptance checklist
 
