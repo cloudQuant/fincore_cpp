@@ -8,7 +8,11 @@ umbrella visibility, typed long-form loading schemas, deterministic arithmetic,
 and build/test evidence. It is not a release, full Python-parity, provider, or
 GUI-runtime acceptance.
 
-- Task 50 implementation: `3e6b1623d39c3913462c236283acefdf00f5a8c7`
+- Task 50 factor exposure metrics:
+  `3e6991919ecbe02ad70ab0e8ddd1cb5f5b123571`
+  (`feat: add native factor exposure metrics`).
+- Task 51 performance-attribution implementation:
+  `3e6b1623d39c3913462c236283acefdf00f5a8c7`
   (`feat: add performance attribution core`).
 - Task 51 regression hardening:
   `566ce45c41c6e36a549cafb41ee90fd8462da2e8`
@@ -22,11 +26,14 @@ GUI-runtime acceptance.
 
 | Public API | Native schema / result |
 | --- | --- |
-| `normalize_attribution_positions` | Timestamp index; preserves ordered genuine `double` asset columns, removes optional genuine `double` cash, and dollar-normalizes by per-row absolute asset gross exposure. |
-| `compute_exposures` | Wide weight frame plus long-form loading frame yields timestamp-indexed ordered factor `double` columns. |
-| `perf_attrib_core` / `perf_attrib` | `perf_attribution_result{risk_exposures, attribution}`. `risk_exposures` has factor columns; `attribution` has factor-contribution columns, then `total_returns`, `common_returns`, `specific_returns`, `tilt_returns`, `timing_returns`. |
-| `create_perf_attrib_stats` | Seven-label `std::map<std::string, double>` and ordinal-indexed factor summary with `factor` (`std::string`), `Average Risk Factor Exposure`, `Annualized Return`, and `Cumulative Return` (`double`). |
-| `cumulative_returns_less_costs` | One-frame delegates to accepted `cumulative_returns`; two-frame requires the exact same index sequence and subtracts selected cost returns first. |
+| Column constants | `attribution_symbol_column="symbol"`, `attribution_total_returns_column="total_returns"`, `attribution_common_returns_column="common_returns"`, `attribution_specific_returns_column="specific_returns"`, `attribution_tilt_returns_column="tilt_returns"`, `attribution_timing_returns_column="timing_returns"`, and `attribution_factor_column="factor"`. |
+| Result records | `perf_attribution_result{dataframe risk_exposures, dataframe attribution}`; `perf_attribution_statistics{std::map<std::string, double> summary, dataframe factor_summary}`. |
+| `normalize_attribution_positions` | `positions_in_dollars=true`, `cash_column_name=cash_column`; timestamp index, ordered genuine-`double` assets, optional genuine-`double` cash removal, and per-row absolute-gross dollar normalization. |
+| `compute_exposures` | Explicit nonempty ordered `std::span<const std::string_view>` factor selectors; defaults `cash_column_name=cash_column`, `symbol_column_name=attribution_symbol_column`; wide weights plus long-form loadings yield ordered factor `double` columns. |
+| `perf_attrib_core` | Accepts already-normalized positions; defaults `returns_column_name=returns_column`, `cash_column_name=cash_column`, and `symbol_column_name=attribution_symbol_column`. |
+| `perf_attrib` | Same return/cash/symbol defaults plus `positions_in_dollars=true`; it returns `perf_attribution_result`. `risk_exposures` has factor columns; `attribution` has factor-contribution columns then `total_returns`, `common_returns`, `specific_returns`, `tilt_returns`, `timing_returns`. |
+| `create_perf_attrib_stats` | `annualization=daily_annualization`; returns the statistics record whose ordinal-indexed factor summary has `factor` (`std::string`), `Average Risk Factor Exposure`, `Annualized Return`, and `Cumulative Return` (`double`). |
+| `cumulative_returns_less_costs` | One-frame `returns_column_name=returns_column` delegates to accepted `cumulative_returns`; two-frame additionally defaults `costs_column_name=returns_column`, requires the exact same index sequence, then subtracts selected cost returns. |
 
 The loading model is intentionally long-form: each loading row has the date as
 the DataFrame index, `symbol` as a genuine `std::string` column, and all
@@ -70,20 +77,67 @@ tests, and the existing configured build passed `231/231` CTest tests.
 
 ## Numeric oracle evidence
 
-The source Python oracle was run with the mandated Anaconda command from
-`/Users/yunjinqi/Documents/new_projects/fincore`, using the Task 50 three-date,
-two-asset, two-factor long/short dollar-position fixture:
+The following complete command was independently rerun from the source Python
+checkout. It uses the mandated Anaconda base interpreter and the Phase 9
+three-date, two-asset, two-factor long/short dollar-position fixture. It is
+kept inline so the evidence does not depend on an ignored report or a transient
+terminal log:
 
 ```bash
-/Users/yunjinqi/opt/anaconda3/bin/conda run -n base python -c '<fixture importing fincore.metrics.perf_attrib>'
+cd /Users/yunjinqi/Documents/new_projects/fincore
+/Users/yunjinqi/opt/anaconda3/bin/conda run -n base python -c '
+import pandas as pd
+from fincore.metrics.perf_attrib import normalize_and_stack_positions, perf_attrib_core, create_perf_attrib_stats, cumulative_returns_less_costs
+pd.set_option("display.precision", 15)
+dates = pd.to_datetime(["2024-01-02", "2024-01-03", "2024-01-04"])
+returns = pd.Series([.02, -.01, .03], index=dates)
+positions = pd.DataFrame({"A": [20., 30., -20.], "B": [50., -10., 20.], "cash": [30., 10., 10.]}, index=dates)
+factor_returns = pd.DataFrame({"market": [.01, .02, -.01], "value": [.03, -.02, .04]}, index=dates)
+loading_index = pd.MultiIndex.from_tuples([(dates[0], "A"), (dates[0], "B"), (dates[1], "A"), (dates[1], "B"), (dates[2], "A"), (dates[2], "B")], names=["dt", "ticker"])
+loadings = pd.DataFrame({"market": [.2, .4, .5, .2, .1, .6], "value": [.4, -.2, .1, .3, .5, -.1]}, index=loading_index)
+risk, attribution = perf_attrib_core(returns, normalize_and_stack_positions(positions), factor_returns, loadings)
+summary, factor_summary = create_perf_attrib_stats(attribution, risk)
+cost_adjusted = cumulative_returns_less_costs(returns, pd.Series([.001, .002, .003], index=dates))
+for name, value in (("risk_exposures", risk), ("attribution", attribution), ("summary", summary), ("factor_summary", factor_summary), ("cost_adjusted", cost_adjusted)):
+    print(name)
+    print(value.to_csv(float_format="%.15g"), end="")
+'
 ```
 
-It produced exposures `(market, value)` of
-`(0.342857142857143, -0.028571428571429)`, `(0.325, 0.0)`, and
-`(0.25, -0.3)`; common returns of `0.002571428571429`, `0.0065`, and
-`-0.0145`; and cost-adjusted cumulative returns of `0.019`, `0.006772`, and
-`0.033954844`. The seven summary values and ordered factor-summary values
-match the tolerance-bounded C++ assertions in
+The complete printed goldens were:
+
+```text
+risk_exposures
+,market,value
+2024-01-02,0.342857142857143,-0.0285714285714286
+2024-01-03,0.325,1.38777878078145e-17
+2024-01-04,0.25,-0.3
+attribution
+,market,value,total_returns,common_returns,specific_returns,tilt_returns,timing_returns
+2024-01-02,0.00342857142857143,-0.000857142857142858,0.02,0.00257142857142857,0.0174285714285714,-0.000226190476190476,0.00279761904761905
+2024-01-03,0.0065,-2.77555756156289e-19,-0.01,0.0065,-0.0165,0.00830952380952381,-0.00180952380952381
+2024-01-04,-0.0025,-0.012,0.03,-0.0145,0.0445,-0.00744047619047619,-0.00705952380952381
+summary
+,
+Annualized Specific Return,39.8964850633999
+Annualized Common Return,-0.37309539033531
+Annualized Total Return,26.1705011834329
+Specific Sharpe Ratio,7.86494186919736
+Cumulative Specific Return,0.0451695244999999
+Cumulative Common Return,-0.00554363521428558
+Total Returns,0.0400940000000001
+factor_summary
+,Average Risk Factor Exposure,Annualized Return,Cumulative Return
+market,0.305952380952381,0.861676871127715,0.00742598000000005
+value,-0.10952380952381,-0.662479050655964,-0.0128468571428572
+cost_adjusted
+,0
+2024-01-02,0.0189999999999999
+2024-01-03,0.006772
+2024-01-04,0.0339548439999999
+```
+
+These values match the tolerance-bounded C++ assertions in
 `PerfAttrib.ProducesCoreAttributionStatisticsAndCostAdjustedReturns`.
 Task 51 additionally covers NaN/zero-gross/non-finite arithmetic, typed-empty
 and custom schemas, malformed/misaligned inputs, missing/duplicate loadings,

@@ -801,11 +801,13 @@ const auto statistics = fincore::create_perf_attrib_stats(result);
 
 | Public operation | Native input/output contract |
 | --- | --- |
-| `normalize_attribution_positions` | Removes an optional `double` cash column and, for dollar holdings, divides each row by its absolute non-cash gross exposure. |
-| `compute_exposures` | Combines wide timestamp-indexed asset weights with long-form loadings to return ordered factor exposure columns. |
-| `perf_attrib_core`, `perf_attrib` | Produce `perf_attribution_result` with `risk_exposures` and `attribution`; attribution orders factor contributions before `total_returns`, `common_returns`, `specific_returns`, `tilt_returns`, and `timing_returns`. |
-| `create_perf_attrib_stats` | Produces seven scalar summary labels and an ordinal-indexed factor-summary table with `factor`, average exposure, annualized return, and cumulative return. |
-| `cumulative_returns_less_costs` | Provides no-cost delegation and exact-index cost subtraction before the accepted cumulative-return calculation. |
+| `attribution_symbol_column`, `attribution_total_returns_column`, `attribution_common_returns_column`, `attribution_specific_returns_column`, `attribution_tilt_returns_column`, `attribution_timing_returns_column`, `attribution_factor_column` | Public `std::string_view` labels: `symbol`, `total_returns`, `common_returns`, `specific_returns`, `tilt_returns`, `timing_returns`, and `factor`. |
+| `normalize_attribution_positions` | `positions_in_dollars=true`, `cash_column_name=cash_column`; removes optional genuine-`double` cash and, for dollars, divides each row by absolute non-cash gross exposure. |
+| `compute_exposures` | Takes explicit ordered `std::span<const std::string_view>` factor selectors; `cash_column_name=cash_column`, `symbol_column_name=attribution_symbol_column`; returns ordered factor exposures. |
+| `perf_attrib_core` | Accepts already-normalized positions; defaults return/cash/symbol selectors to `returns_column`, `cash_column`, and `attribution_symbol_column`. |
+| `perf_attrib` | Has the same return/cash/symbol defaults and `positions_in_dollars=true`; returns `perf_attribution_result{risk_exposures, attribution}`. Attribution orders factor contributions before `total_returns`, `common_returns`, `specific_returns`, `tilt_returns`, and `timing_returns`. |
+| `create_perf_attrib_stats` | Returns `perf_attribution_statistics{summary, factor_summary}` with `annualization=daily_annualization`; `summary` is `std::map<std::string, double>` and `factor_summary` is ordinal-indexed with `factor`, average exposure, annualized return, and cumulative return. |
+| `cumulative_returns_less_costs` | The one-frame overload defaults `returns_column_name=returns_column`; the two-frame overload additionally defaults `costs_column_name=returns_column` and requires exact-index cost subtraction before cumulative calculation. |
 
 Loadings are a long-form `dataframe`: timestamp index plus a genuine
 `std::string` `symbol` column and genuine `double` factor columns. Wide
@@ -814,12 +816,14 @@ timestamp-indexed positions use `double` asset-symbol columns; each required
 preserve the input returns index and ordered factor columns. This is deliberately
 not a synthetic pandas `MultiIndex` API.
 
-Task 50 implementation and Task 51 regression hardening are
-`3e6b1623d39c3913462c236283acefdf00f5a8c7` and
-`566ce45c41c6e36a549cafb41ee90fd8462da2e8`. The public-umbrella fixture,
-fresh AppleClang headless build, and fresh Homebrew LLVM 22 ASan/UBSan build
-each passed `231/231` CTest tests; the fresh default-local ImPlot/demo
-compile-and-link boundary passed `232/232`, including `ImPlotAdapterCompile`.
+The implementation lineage is Task 50 factor exposure metrics
+`3e6991919ecbe02ad70ab0e8ddd1cb5f5b123571`, Task 51 performance-attribution
+implementation `3e6b1623d39c3913462c236283acefdf00f5a8c7`, and Task 51
+regression hardening `566ce45c41c6e36a549cafb41ee90fd8462da2e8`. The focused
+public-umbrella fixture passed `8/8`; the configured/full suite, fresh
+AppleClang headless build, and fresh Homebrew LLVM 22 ASan/UBSan headless build
+each passed `231/231`; the fresh default-local ImPlot/demo compile-and-link
+boundary passed `232/232`, including `ImPlotAdapterCompile`.
 The LLVM build emitted the third-party GoogleTest
 `-Wcharacter-conversion` warning. The ImPlot demo build emitted macOS OpenGL
 deprecation warnings for `glViewport`, `glClearColor`, and `glClear`. These
