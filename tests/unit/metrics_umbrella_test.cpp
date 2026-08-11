@@ -5,6 +5,7 @@
 
 #include <array>
 #include <cmath>
+#include <limits>
 #include <optional>
 #include <set>
 #include <string>
@@ -212,6 +213,73 @@ TEST(MetricsUmbrella, ExposesOnlyImplementedDataframeNativeMetrics) {
             expected_benchmark_statistic_keys);
   EXPECT_EQ(unary_statistics.size(), 13U);
   EXPECT_EQ(benchmark_statistics.size(), 15U);
+}
+
+TEST(MetricsUmbrella, ExposesNativePositionMetrics) {
+  fincore::dataframe positions;
+  const auto expected_index = calendar_indices();
+  positions.load_index(calendar_indices());
+  positions.load_column<double>(
+      "equity", std::vector<double>{10.0, -5.0,
+                                    std::numeric_limits<double>::quiet_NaN(),
+                                    0.0, 5.0, -2.0},
+      hmdf::nan_policy::dont_pad_with_nans);
+  positions.load_column<int>("metadata", std::vector<int>{1, 2, 3, 4, 5, 6},
+                             hmdf::nan_policy::dont_pad_with_nans);
+  positions.load_column<double>("bond",
+                                std::vector<double>{-5.0, -2.0, 3.0,
+                                                    0.0, -5.0, 3.0},
+                                hmdf::nan_policy::dont_pad_with_nans);
+  positions.load_column<double>("cash",
+                                std::vector<double>{95.0, 100.0, 0.0,
+                                                    100.0, 100.0, 99.0},
+                                hmdf::nan_policy::dont_pad_with_nans);
+
+  const auto allocations = fincore::get_percent_alloc(positions);
+  const auto long_short = fincore::get_long_short_pos(positions);
+  const auto leverage = fincore::gross_lev(positions);
+  const auto concentration =
+      fincore::get_max_median_position_concentration(positions);
+
+  for (const auto* result : {&allocations, &long_short, &leverage,
+                             &concentration}) {
+    EXPECT_EQ(result->get_index(), expected_index);
+  }
+
+  const auto allocation_columns = allocations.get_columns_info<double>();
+  ASSERT_EQ(allocation_columns.size(), 3U);
+  EXPECT_EQ(std::get<0>(allocation_columns[0]), "equity");
+  EXPECT_EQ(std::get<0>(allocation_columns[1]), "bond");
+  EXPECT_EQ(std::get<0>(allocation_columns[2]), "cash");
+  EXPECT_FALSE(allocations.has_column("metadata"));
+  EXPECT_DOUBLE_EQ(allocations.get_column<double>("equity")[0], 0.1);
+  EXPECT_TRUE(std::isnan(allocations.get_column<double>("equity")[2]));
+  EXPECT_DOUBLE_EQ(allocations.get_column<double>("bond")[2], 1.0);
+
+  const auto long_short_columns = long_short.get_columns_info<double>();
+  ASSERT_EQ(long_short_columns.size(), 2U);
+  EXPECT_EQ(std::get<0>(long_short_columns[0]), "long");
+  EXPECT_EQ(std::get<0>(long_short_columns[1]), "short");
+  EXPECT_DOUBLE_EQ(long_short.get_column<double>("long")[0], 10.0);
+  EXPECT_DOUBLE_EQ(long_short.get_column<double>("short")[1], 7.0);
+
+  const auto leverage_columns = leverage.get_columns_info<double>();
+  ASSERT_EQ(leverage_columns.size(), 1U);
+  EXPECT_EQ(std::get<0>(leverage_columns[0]), "gross_lev");
+  EXPECT_DOUBLE_EQ(leverage.get_column<double>("gross_lev")[0], 0.15);
+  EXPECT_DOUBLE_EQ(leverage.get_column<double>("gross_lev")[2], 1.0);
+
+  const auto concentration_columns = concentration.get_columns_info<double>();
+  ASSERT_EQ(concentration_columns.size(), 4U);
+  EXPECT_EQ(std::get<0>(concentration_columns[0]), "max_long");
+  EXPECT_EQ(std::get<0>(concentration_columns[1]), "median_long");
+  EXPECT_EQ(std::get<0>(concentration_columns[2]), "median_short");
+  EXPECT_EQ(std::get<0>(concentration_columns[3]), "max_short");
+  EXPECT_DOUBLE_EQ(concentration.get_column<double>("max_long")[0], 0.1);
+  EXPECT_DOUBLE_EQ(concentration.get_column<double>("median_short")[1],
+                   -0.03763440860215054);
+  EXPECT_TRUE(
+      std::isnan(concentration.get_column<double>("max_short")[2]));
 }
 
 }  // namespace

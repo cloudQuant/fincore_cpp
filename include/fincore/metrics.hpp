@@ -13,3 +13,4 @@
 #include <fincore/metrics/yearly.hpp>
 #include <fincore/metrics/rolling.hpp>
 #include <fincore/metrics/perf_stats.hpp>
+#include <fincore/metrics/positions.hpp>

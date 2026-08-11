@@ -430,6 +430,51 @@ optimization; simulation; reports/tearsheets; a full native facade;
 packaging/release; and interactive ImPlot visual smoke testing remain separate
 work.
 
+## Accepted Phase 5A numeric position metrics
+
+The DataFrame-native numeric core of Python's position analysis is now
+available through the existing public umbrella:
+
+```cpp
+#include <fincore/metrics.hpp>
+
+const auto allocation = fincore::get_percent_alloc(positions);
+const auto exposure = fincore::get_long_short_pos(positions);
+const auto concentration =
+    fincore::get_max_median_position_concentration(positions);
+const auto leverage = fincore::gross_lev(positions);
+```
+
+A positions frame consists of its timestamp index and every genuine `double`
+column, in the DataFrame's deterministic insertion order. Non-`double`
+metadata is deliberately excluded, and missing or malformed numeric columns
+are rejected. `get_percent_alloc` preserves that ordered numeric schema while
+normalizing each row; its signed-infinity results become NaN.
+
+`get_long_short_pos` returns a native two-column DataFrame, exactly `long` and
+`short`, rather than Python's pair of Series. Its named cash field is optional:
+when present it is excluded from exposure, and when absent all numeric columns
+participate. In contrast, `gross_lev` and
+`get_max_median_position_concentration` require a genuine named `double` cash
+field. Gross leverage returns one `gross_lev` column and likewise replaces
+signed-infinity results with NaN. Concentration returns exactly `max_long`,
+`median_long`, `median_short`, and `max_short`; a side with no eligible holding
+is NaN.
+
+Task 33's implementation is
+`4d32d076240e12022959d237f2baabe6682f1298` (`feat: add native position
+metrics`). Fresh public-consumer, headless, sanitizer, and optional ImPlot
+compile-boundary evidence is in
+[`docs/acceptance/2026-08-11-phase-5a-position-metrics-acceptance.md`](docs/acceptance/2026-08-11-phase-5a-position-metrics-acceptance.md).
+
+Top holdings; string/SID schemas; position extraction and stacking;
+sector/style/cap/volume mappings; transactions, liquidation, round trips, and
+reports; performance attribution; bootstrap/distribution statistics; Bayesian
+and advanced-risk models; optimization; simulation; reports/tearsheets; a full
+native facade; packaging/release; and interactive ImPlot visual smoke testing
+remain separate work. This phase is not complete fincore parity or a GUI
+runtime result.
+
 ## Headless core verification
 
 The core target is headless. It links `DataFrame::DataFrame` and does not
