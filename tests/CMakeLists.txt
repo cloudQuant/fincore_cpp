@@ -35,3 +35,11 @@ target_link_libraries(fincore_tests PRIVATE
 
 include(GoogleTest)
 gtest_discover_tests(fincore_tests)
+
+if (TARGET fincore_implot)
+    add_test(
+        NAME ImPlotAdapterCompile
+        COMMAND "${CMAKE_COMMAND}"
+            "-DBINARY_DIR=${CMAKE_BINARY_DIR}"
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/compile/implot_adapter_compile_test.cmake")
+endif()

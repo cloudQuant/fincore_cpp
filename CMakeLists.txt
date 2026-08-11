@@ -10,7 +10,8 @@ set(FINCORE_DATAFRAME_SOURCE_DIR "/Users/yunjinqi/Documents/new_projects/DataFra
     CACHE PATH "Path to the local DataFrame source tree")
 set(FINCORE_IMPLOT_SOURCE_DIR "/Users/yunjinqi/Documents/new_projects/implot"
     CACHE PATH "Path to the local ImPlot source tree")
-set(FINCORE_IMGUI_SOURCE_DIR "" CACHE PATH "Path to the Dear ImGui source tree")
+set(FINCORE_IMGUI_SOURCE_DIR "/Users/yunjinqi/Documents/new_projects/imgui"
+    CACHE PATH "Path to the Dear ImGui source tree")
 option(FINCORE_BUILD_TESTING "Build fincore tests" ON)
 option(FINCORE_BUILD_IMPLOT "Build the ImPlot adapter" OFF)
 option(FINCORE_BUILD_IMPLOT_DEMO "Build the ImPlot demo" OFF)
