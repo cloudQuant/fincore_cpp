@@ -378,9 +378,10 @@ behavior.
 
 Task 29's accepted implementation and public-header repair are
 `a1caa4bc8bd2496ff67c7728a7368e8214a6a1fd` and
-`1cd7cccc9cc5b78c417f8d0452d463357d4d0e4b`. The complete Phase 4A
-contract, Python-oracle/delegation coverage, full fresh core and sanitizer
-evidence, and optional graphics boundary are recorded in
+`1cd7cccc9cc5b78c417f8d0452d463357d4d0e4b`; the Task 30 acceptance
+publication is `5600dbb2bc2c21a29833d0020e58f8d2154e2a68`. The complete
+Phase 4A contract, Python-oracle/delegation coverage, full fresh core and
+sanitizer evidence, and optional graphics boundary are recorded in
 [`docs/acceptance/2026-08-11-phase-4a-performance-statistics-acceptance.md`](docs/acceptance/2026-08-11-phase-4a-performance-statistics-acceptance.md).
 
 The supplied local ImGui/ImPlot path still has a positive adapter/demo

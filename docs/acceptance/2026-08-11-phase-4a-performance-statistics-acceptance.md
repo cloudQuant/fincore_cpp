@@ -13,9 +13,10 @@ outer-shaped pair intermediate, or an interactive visual result.
 - Task 29 public-header repair:
   `1cd7cccc9cc5b78c417f8d0452d463357d4d0e4b`
   (`test: prove performance statistics public header`).
-- Task 30 first acceptance/documentation commit is recorded by a later
-  documentation-only traceability follow-up. This record does not
-  self-reference or amend history.
+- Task 30 acceptance/documentation publication:
+  `5600dbb2bc2c21a29833d0020e58f8d2154e2a68`
+  (`docs: accept phase 4A performance statistics`). This documentation-only
+  traceability follow-up does not self-reference or amend history.
 
 ## Accepted public contract
 
