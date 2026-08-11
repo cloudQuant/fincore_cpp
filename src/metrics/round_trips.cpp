@@ -162,7 +162,10 @@ std::vector<transaction_block> consolidated_blocks(
     return blocks;
 }
 
-dataframe make_block_frame(const std::vector<transaction_block>& blocks) {
+dataframe make_block_frame(const std::vector<transaction_block>& blocks,
+                           const std::string_view amount_column_name,
+                           const std::string_view symbol_column_name,
+                           const std::string_view price_column_name) {
     std::vector<timestamp> index;
     std::vector<std::string> symbols;
     std::vector<double> amounts;
@@ -180,11 +183,14 @@ dataframe make_block_frame(const std::vector<transaction_block>& blocks) {
 
     dataframe result;
     result.load_index(std::move(index));
-    result.load_column<double>(transaction_amount_column.data(), std::move(amounts),
+    const std::string amount_name{amount_column_name};
+    const std::string symbol_name{symbol_column_name};
+    const std::string price_name{price_column_name};
+    result.load_column<double>(amount_name.c_str(), std::move(amounts),
                                hmdf::nan_policy::dont_pad_with_nans);
-    result.load_column<std::string>(transaction_symbol_column.data(), std::move(symbols),
+    result.load_column<std::string>(symbol_name.c_str(), std::move(symbols),
                                     hmdf::nan_policy::dont_pad_with_nans);
-    result.load_column<double>(transaction_price_column.data(), std::move(prices),
+    result.load_column<double>(price_name.c_str(), std::move(prices),
                                hmdf::nan_policy::dont_pad_with_nans);
     return result;
 }
@@ -325,7 +331,8 @@ dataframe groupby_consecutive_transactions(
     const std::string_view price_column_name) {
     return make_block_frame(consolidated_blocks(transactions, symbol_column_name,
                                                 amount_column_name, price_column_name,
-                                                max_delta));
+                                                max_delta),
+                            amount_column_name, symbol_column_name, price_column_name);
 }
 
 dataframe extract_round_trips(

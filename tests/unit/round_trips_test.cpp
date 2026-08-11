@@ -198,7 +198,13 @@ TEST(RoundTrips, SupportsTypedEmptyCustomColumnsAndZeroVwap) {
                                hmdf::nan_policy::dont_pad_with_nans);
     const auto blocks = fincore::groupby_consecutive_transactions(
         custom, fincore::default_round_trip_max_delta, "ticker", "quantity", "execution");
-    expect_double_values(blocks.get_column<double>("price"), {0.0});
+    expect_schema(blocks, {{"quantity", typeid(double)},
+                           {"ticker", typeid(std::string)},
+                           {"execution", typeid(double)}});
+    EXPECT_EQ(blocks.get_column<std::string>("ticker"),
+              (std::vector<std::string>{"A"}));
+    expect_double_values(blocks.get_column<double>("quantity"), {2.0});
+    expect_double_values(blocks.get_column<double>("execution"), {0.0});
 
     const auto zero_vwap = fincore::groupby_consecutive_transactions(transactions(
         {at(2 * hour), at(3 * hour)}, {"B", "B"}, {0.0, 0.0}, {10.0, 20.0}));
