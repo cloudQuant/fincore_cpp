@@ -9,6 +9,7 @@ namespace fincore {
 
 inline constexpr std::string_view transaction_amount_column{"amount"};
 inline constexpr std::string_view transaction_price_column{"price"};
+inline constexpr std::string_view transaction_bar_volume_column{"volume"};
 
 enum class turnover_denominator {
     actual_gross_book,
@@ -28,6 +29,17 @@ dataframe adjust_returns_for_slippage(
     std::string_view returns_column_name = returns_column,
     std::string_view amount_column_name = transaction_amount_column,
     std::string_view price_column_name = transaction_price_column);
+
+dataframe apply_slippage_penalty(
+    const dataframe& returns,
+    const dataframe& transactions_with_bar_data,
+    double simulate_starting_capital,
+    double backtest_starting_capital,
+    double impact = 0.1,
+    std::string_view returns_column_name = returns_column,
+    std::string_view amount_column_name = transaction_amount_column,
+    std::string_view price_column_name = transaction_price_column,
+    std::string_view volume_column_name = transaction_bar_volume_column);
 
 dataframe get_turnover(
     const dataframe& positions,

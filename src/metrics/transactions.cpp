@@ -27,6 +27,12 @@ struct transaction_columns {
     std::span<const double> prices;
 };
 
+struct transaction_bar_columns {
+    std::span<const double> amounts;
+    std::span<const double> prices;
+    std::span<const double> volumes;
+};
+
 struct transaction_totals {
     double volume{0.0};
     double shares{0.0};
@@ -61,6 +67,25 @@ transaction_columns required_transaction_columns(
     }
     return {require_double_column(transactions, amount_column_name),
             require_double_column(transactions, price_column_name)};
+}
+
+transaction_bar_columns required_transaction_bar_columns(
+    const dataframe& transactions,
+    const std::string_view amount_column_name,
+    const std::string_view price_column_name,
+    const std::string_view volume_column_name) {
+    if (amount_column_name.empty() || price_column_name.empty() ||
+        volume_column_name.empty()) {
+        throw input_error{"transaction column names must not be empty"};
+    }
+    if (amount_column_name == price_column_name ||
+        amount_column_name == volume_column_name ||
+        price_column_name == volume_column_name) {
+        throw input_error{"transaction columns must be distinct"};
+    }
+    return {require_double_column(transactions, amount_column_name),
+            require_double_column(transactions, price_column_name),
+            require_double_column(transactions, volume_column_name)};
 }
 
 timestamp utc_midnight(const timestamp value) {
@@ -365,6 +390,68 @@ dataframe adjust_returns_for_slippage(
         }
         index.push_back(day);
         values.push_back(adjusted_return);
+    }
+    return make_series(std::move(index), returns_column_name, std::move(values));
+}
+
+dataframe apply_slippage_penalty(
+    const dataframe& returns,
+    const dataframe& transactions_with_bar_data,
+    const double simulate_starting_capital,
+    const double backtest_starting_capital,
+    const double impact,
+    const std::string_view returns_column_name,
+    const std::string_view amount_column_name,
+    const std::string_view price_column_name,
+    const std::string_view volume_column_name) {
+    if (backtest_starting_capital == 0.0) {
+        throw input_error{"backtest starting capital must not be zero"};
+    }
+
+    const auto columns = required_transaction_bar_columns(
+        transactions_with_bar_data, amount_column_name, price_column_name,
+        volume_column_name);
+    const double mult = simulate_starting_capital / backtest_starting_capital;
+    std::map<timestamp, double> daily_penalties;
+    const auto& transaction_index = transactions_with_bar_data.get_index();
+    for (std::size_t row = 0U; row < transaction_index.size(); ++row) {
+        const double shares = std::abs(mult * columns.amounts[row]);
+        const double dollars = columns.prices[row] * shares;
+        const double volume_share = shares / columns.volumes[row];
+        const double penalty = volume_share * volume_share * impact * dollars;
+        if (!std::isnan(penalty)) {
+            daily_penalties[utc_midnight(transaction_index[row])] += penalty;
+        }
+    }
+
+    const auto return_values =
+        normalized_return_values(returns, returns_column_name);
+    std::vector<timestamp> index;
+    std::vector<double> values;
+    index.reserve(return_values.size());
+    values.reserve(return_values.size());
+    double wealth = 1.0;
+    for (const auto& [day, return_value] : return_values) {
+        wealth *= 1.0 + (std::isnan(return_value) ? 0.0 : return_value);
+        double portfolio_value =
+            (wealth * backtest_starting_capital) * mult;
+        if (portfolio_value == 0.0) {
+            portfolio_value = nan;
+        }
+
+        const auto penalty_value = daily_penalties.find(day);
+        double daily_penalty = penalty_value == daily_penalties.end()
+                                   ? 0.0
+                                   : penalty_value->second;
+        if (std::isnan(daily_penalty)) {
+            daily_penalty = 0.0;
+        }
+        double adjusted = return_value - daily_penalty / portfolio_value;
+        if (std::isnan(adjusted)) {
+            adjusted = return_value;
+        }
+        index.push_back(day);
+        values.push_back(adjusted);
     }
     return make_series(std::move(index), returns_column_name, std::move(values));
 }

@@ -752,4 +752,361 @@ TEST(Transactions, RejectsInvalidSlippageAdjustedReturnInputs) {
                  fincore::input_error);
 }
 
+TEST(Transactions, AppliesQuadraticVolumeSharePenaltyGoldens) {
+    const auto returns = fincore::make_series({fincore::utc_timestamp(2024, 1, 1, 9),
+                                               fincore::utc_timestamp(2024, 1, 2, 9),
+                                               fincore::utc_timestamp(2024, 1, 3, 9)},
+                                              "returns", {1.0, 1.0, 1.0});
+    fincore::dataframe transactions;
+    transactions.load_index({fincore::utc_timestamp(2024, 1, 1, 15),
+                             fincore::utc_timestamp(2024, 1, 2, 15),
+                             fincore::utc_timestamp(2024, 1, 3, 15)});
+    transactions.load_column<double>("amount", {100000.0, 100000.0, 100000.0},
+                                     hmdf::nan_policy::dont_pad_with_nans);
+    transactions.load_column<double>("price", {1.0, 1.0, 1.0},
+                                     hmdf::nan_policy::dont_pad_with_nans);
+    transactions.load_column<double>("volume", {1000000.0, 2000000.0, 3000000.0},
+                                     hmdf::nan_policy::dont_pad_with_nans);
+
+    EXPECT_EQ(fincore::transaction_bar_volume_column, "volume");
+    const auto equal_capitals = fincore::apply_slippage_penalty(
+        returns, transactions, 1000000.0, 1000000.0, 1.0);
+    EXPECT_EQ(equal_capitals.get_index(),
+              (std::vector<fincore::timestamp>{fincore::utc_timestamp(2024, 1, 1),
+                                               fincore::utc_timestamp(2024, 1, 2),
+                                               fincore::utc_timestamp(2024, 1, 3)}));
+    expect_double_columns(equal_capitals, {"returns"});
+    expect_values(equal_capitals.get_column<double>("returns"),
+                  {.9995, .9999375, .9999861111111111});
+
+    expect_values(fincore::apply_slippage_penalty(returns, transactions, 10000000.0,
+                                                  1000000.0, 1.0)
+                      .get_column<double>("returns"),
+                  {.95, .99375, .9986111111111111});
+    expect_values(
+        fincore::apply_slippage_penalty(returns, transactions, 1000000.0, 1000000.0, .1)
+            .get_column<double>("returns"),
+        {.99995, .99999375, .9999986111111111});
+}
+
+TEST(Transactions, AggregatesUnorderedDuplicateIntradayQuadraticPenalties) {
+    const auto returns = fincore::make_series(
+        {fincore::utc_timestamp(2024, 1, 2, 8), fincore::utc_timestamp(2024, 1, 3, 8),
+         fincore::utc_timestamp(2024, 1, 4, 8), fincore::utc_timestamp(2024, 1, 5, 8),
+         fincore::utc_timestamp(2024, 1, 6, 8)},
+        "returns", {.1, .2, nan, -1.0, .3});
+    fincore::dataframe transactions;
+    transactions.load_index({fincore::utc_timestamp(2024, 1, 6, 15),
+                             fincore::utc_timestamp(2024, 1, 2, 15),
+                             fincore::utc_timestamp(2024, 1, 3, 12),
+                             fincore::utc_timestamp(2024, 1, 2, 9)});
+    transactions.load_column<double>("amount", {10.0, 10.0, 10.0, 10.0},
+                                     hmdf::nan_policy::dont_pad_with_nans);
+    transactions.load_column<double>("price", {10.0, 10.0, 10.0, 10.0},
+                                     hmdf::nan_policy::dont_pad_with_nans);
+    transactions.load_column<double>("volume", {100.0, 100.0, 200.0, 100.0},
+                                     hmdf::nan_policy::dont_pad_with_nans);
+
+    const auto adjusted =
+        fincore::apply_slippage_penalty(returns, transactions, 1000.0, 1000.0, .1);
+
+    EXPECT_EQ(adjusted.get_index(),
+              (std::vector<fincore::timestamp>{fincore::utc_timestamp(2024, 1, 2),
+                                               fincore::utc_timestamp(2024, 1, 3),
+                                               fincore::utc_timestamp(2024, 1, 4),
+                                               fincore::utc_timestamp(2024, 1, 5),
+                                               fincore::utc_timestamp(2024, 1, 6)}));
+    expect_values(adjusted.get_column<double>("returns"),
+                  {.09981818181818182, .1999810606060606, nan, -1.0, .3});
+}
+
+TEST(Transactions, SupportsCustomQuadraticPenaltyColumnNamesAndTypedEmptyOutput) {
+    const auto custom_returns =
+        fincore::make_series({fincore::utc_timestamp(2024, 1, 2, 9)}, "strategy", {.1});
+    fincore::dataframe custom_transactions;
+    custom_transactions.load_index({fincore::utc_timestamp(2024, 1, 2, 15)});
+    custom_transactions.load_column<double>("quantity", {10.0},
+                                            hmdf::nan_policy::dont_pad_with_nans);
+    custom_transactions.load_column<double>("execution_price", {10.0},
+                                            hmdf::nan_policy::dont_pad_with_nans);
+    custom_transactions.load_column<double>("bar_liquidity", {100.0},
+                                            hmdf::nan_policy::dont_pad_with_nans);
+    custom_transactions.load_column<int>("metadata", {42},
+                                         hmdf::nan_policy::dont_pad_with_nans);
+
+    const auto adjusted = fincore::apply_slippage_penalty(
+        custom_returns, custom_transactions, 1000.0, 1000.0, .1, "strategy", "quantity",
+        "execution_price", "bar_liquidity");
+    expect_double_columns(adjusted, {"strategy"});
+    expect_values(adjusted.get_column<double>("strategy"), {.09990909090909091});
+
+    fincore::dataframe empty_bar_data;
+    empty_bar_data.load_index({});
+    empty_bar_data.load_column<double>("amount", {},
+                                       hmdf::nan_policy::dont_pad_with_nans);
+    empty_bar_data.load_column<double>("price", {},
+                                       hmdf::nan_policy::dont_pad_with_nans);
+    empty_bar_data.load_column<double>("volume", {},
+                                       hmdf::nan_policy::dont_pad_with_nans);
+    const auto empty = fincore::apply_slippage_penalty(
+        fincore::make_series({}, "returns", {}), empty_bar_data, 1000.0, 1000.0);
+    EXPECT_TRUE(empty.get_index().empty());
+    expect_double_columns(empty, {"returns"});
+}
+
+TEST(Transactions, EmitsOnlyReturnDaysAndPreservesNanPenaltyBoundaries) {
+    const auto returns =
+        fincore::make_series({fincore::utc_timestamp(2024, 1, 2, 9)}, "returns", {.1});
+    fincore::dataframe outside_transactions;
+    outside_transactions.load_index({fincore::utc_timestamp(2024, 1, 1, 15),
+                                     fincore::utc_timestamp(2024, 1, 3, 15)});
+    outside_transactions.load_column<double>("amount", {10.0, 10.0},
+                                             hmdf::nan_policy::dont_pad_with_nans);
+    outside_transactions.load_column<double>("price", {10.0, 10.0},
+                                             hmdf::nan_policy::dont_pad_with_nans);
+    outside_transactions.load_column<double>("volume", {100.0, 100.0},
+                                             hmdf::nan_policy::dont_pad_with_nans);
+    const auto outside = fincore::apply_slippage_penalty(returns, outside_transactions,
+                                                         1000.0, 1000.0, .1);
+    EXPECT_EQ(outside.get_index(),
+              (std::vector<fincore::timestamp>{fincore::utc_timestamp(2024, 1, 2)}));
+    expect_values(outside.get_column<double>("returns"), {.1});
+
+    fincore::dataframe nan_transactions;
+    nan_transactions.load_index({fincore::utc_timestamp(2024, 1, 2, 9),
+                                 fincore::utc_timestamp(2024, 1, 2, 12),
+                                 fincore::utc_timestamp(2024, 1, 2, 15)});
+    nan_transactions.load_column<double>("amount", {nan, 10.0, 10.0},
+                                         hmdf::nan_policy::dont_pad_with_nans);
+    nan_transactions.load_column<double>("price", {10.0, nan, 10.0},
+                                         hmdf::nan_policy::dont_pad_with_nans);
+    nan_transactions.load_column<double>("volume", {100.0, 100.0, nan},
+                                         hmdf::nan_policy::dont_pad_with_nans);
+    expect_values(
+        fincore::apply_slippage_penalty(returns, nan_transactions, 1000.0, 1000.0, .1)
+            .get_column<double>("returns"),
+        {.1});
+
+    fincore::dataframe matching_transaction;
+    matching_transaction.load_index({fincore::utc_timestamp(2024, 1, 2, 15)});
+    matching_transaction.load_column<double>("amount", {10.0},
+                                             hmdf::nan_policy::dont_pad_with_nans);
+    matching_transaction.load_column<double>("price", {10.0},
+                                             hmdf::nan_policy::dont_pad_with_nans);
+    matching_transaction.load_column<double>("volume", {100.0},
+                                             hmdf::nan_policy::dont_pad_with_nans);
+    expect_values(fincore::apply_slippage_penalty(returns, matching_transaction, 1000.0,
+                                                  1000.0, nan)
+                      .get_column<double>("returns"),
+                  {.1});
+    expect_values(fincore::apply_slippage_penalty(returns, matching_transaction, nan,
+                                                  1000.0, .1)
+                      .get_column<double>("returns"),
+                  {.1});
+    expect_values(fincore::apply_slippage_penalty(returns, matching_transaction,
+                                                  infinity, 1000.0, .1)
+                      .get_column<double>("returns"),
+                  {.1});
+    expect_values(fincore::apply_slippage_penalty(returns, matching_transaction, 1000.0,
+                                                  1000.0, infinity)
+                      .get_column<double>("returns"),
+                  {-infinity});
+}
+
+TEST(Transactions, PreservesOriginalReturnAtZeroPortfolioValueAndComputedInfinity) {
+    const auto total_loss =
+        fincore::make_series({fincore::utc_timestamp(2024, 1, 2)}, "returns", {-1.0});
+    fincore::dataframe transactions;
+    transactions.load_index({fincore::utc_timestamp(2024, 1, 2, 10)});
+    transactions.load_column<double>("amount", {10.0},
+                                     hmdf::nan_policy::dont_pad_with_nans);
+    transactions.load_column<double>("price", {10.0},
+                                     hmdf::nan_policy::dont_pad_with_nans);
+    transactions.load_column<double>("volume", {100.0},
+                                     hmdf::nan_policy::dont_pad_with_nans);
+    expect_values(
+        fincore::apply_slippage_penalty(total_loss, transactions, 1000.0, 1000.0, .1)
+            .get_column<double>("returns"),
+        {-1.0});
+
+    transactions.load_column<double>("volume", {0.0},
+                                     hmdf::nan_policy::dont_pad_with_nans);
+    expect_values(
+        fincore::apply_slippage_penalty(
+            fincore::make_series({fincore::utc_timestamp(2024, 1, 2)}, "returns", {.1}),
+            transactions, 1000.0, 1000.0, .1)
+            .get_column<double>("returns"),
+        {-infinity});
+
+    fincore::dataframe nan_daily_penalty;
+    nan_daily_penalty.load_index({fincore::utc_timestamp(2024, 1, 2, 9),
+                                  fincore::utc_timestamp(2024, 1, 2, 15)});
+    nan_daily_penalty.load_column<double>("amount", {10.0, 10.0},
+                                          hmdf::nan_policy::dont_pad_with_nans);
+    nan_daily_penalty.load_column<double>("price", {10.0, -10.0},
+                                          hmdf::nan_policy::dont_pad_with_nans);
+    nan_daily_penalty.load_column<double>("volume", {0.0, 0.0},
+                                          hmdf::nan_policy::dont_pad_with_nans);
+    expect_values(
+        fincore::apply_slippage_penalty(
+            fincore::make_series({fincore::utc_timestamp(2024, 1, 2)}, "returns", {.1}),
+            nan_daily_penalty, 1000.0, 1000.0, .1)
+            .get_column<double>("returns"),
+        {.1});
+}
+
+TEST(Transactions, RejectsInvalidQuadraticPenaltyReturnInputsAndCapital) {
+    const auto valid_returns =
+        fincore::make_series({fincore::utc_timestamp(2024, 1, 2)}, "returns", {.1});
+    fincore::dataframe valid_transactions;
+    valid_transactions.load_index({fincore::utc_timestamp(2024, 1, 2, 10)});
+    valid_transactions.load_column<double>("amount", {1.0},
+                                           hmdf::nan_policy::dont_pad_with_nans);
+    valid_transactions.load_column<double>("price", {1.0},
+                                           hmdf::nan_policy::dont_pad_with_nans);
+    valid_transactions.load_column<double>("volume", {10.0},
+                                           hmdf::nan_policy::dont_pad_with_nans);
+
+    EXPECT_THROW(
+        fincore::apply_slippage_penalty(valid_returns, valid_transactions, 1000.0, 0.0),
+        fincore::input_error);
+    EXPECT_THROW(fincore::apply_slippage_penalty(valid_returns, valid_transactions,
+                                                 1000.0, -0.0),
+                 fincore::input_error);
+    EXPECT_THROW(fincore::apply_slippage_penalty(valid_returns, valid_transactions,
+                                                 1000.0, 1000.0, .1, ""),
+                 fincore::input_error);
+    EXPECT_THROW(
+        fincore::apply_slippage_penalty(
+            fincore::make_series({fincore::utc_timestamp(2024, 1, 2)}, "other", {.1}),
+            valid_transactions, 1000.0, 1000.0),
+        fincore::input_error);
+
+    fincore::dataframe wrong_returns;
+    wrong_returns.load_index({fincore::utc_timestamp(2024, 1, 2)});
+    wrong_returns.load_column<int>("returns", {1},
+                                   hmdf::nan_policy::dont_pad_with_nans);
+    EXPECT_THROW(fincore::apply_slippage_penalty(wrong_returns, valid_transactions,
+                                                 1000.0, 1000.0),
+                 fincore::input_error);
+    fincore::dataframe malformed_returns;
+    malformed_returns.load_index(
+        {fincore::utc_timestamp(2024, 1, 2), fincore::utc_timestamp(2024, 1, 3)});
+    malformed_returns.load_column<double>("returns", {.1},
+                                          hmdf::nan_policy::dont_pad_with_nans);
+    EXPECT_THROW(fincore::apply_slippage_penalty(malformed_returns, valid_transactions,
+                                                 1000.0, 1000.0),
+                 fincore::input_error);
+    fincore::dataframe duplicate_return_days;
+    duplicate_return_days.load_index({fincore::utc_timestamp(2024, 1, 2, 9),
+                                      fincore::utc_timestamp(2024, 1, 2, 15)});
+    duplicate_return_days.load_column<double>("returns", {.1, .2},
+                                              hmdf::nan_policy::dont_pad_with_nans);
+    EXPECT_THROW(fincore::apply_slippage_penalty(duplicate_return_days,
+                                                 valid_transactions, 1000.0, 1000.0),
+                 fincore::input_error);
+    fincore::dataframe out_of_order_returns;
+    out_of_order_returns.load_index({fincore::utc_timestamp(2024, 1, 3, 9),
+                                     fincore::utc_timestamp(2024, 1, 2, 15)});
+    out_of_order_returns.load_column<double>("returns", {.1, .2},
+                                             hmdf::nan_policy::dont_pad_with_nans);
+    EXPECT_THROW(fincore::apply_slippage_penalty(out_of_order_returns,
+                                                 valid_transactions, 1000.0, 1000.0),
+                 fincore::input_error);
+}
+
+TEST(Transactions, RejectsInvalidQuadraticPenaltyTransactionFields) {
+    const auto returns =
+        fincore::make_series({fincore::utc_timestamp(2024, 1, 2)}, "returns", {.1});
+    fincore::dataframe valid;
+    valid.load_index({fincore::utc_timestamp(2024, 1, 2, 10)});
+    valid.load_column<double>("amount", {1.0}, hmdf::nan_policy::dont_pad_with_nans);
+    valid.load_column<double>("price", {1.0}, hmdf::nan_policy::dont_pad_with_nans);
+    valid.load_column<double>("volume", {10.0}, hmdf::nan_policy::dont_pad_with_nans);
+
+    EXPECT_THROW(fincore::apply_slippage_penalty(returns, valid, 1000.0, 1000.0, .1,
+                                                 "returns", "", "price", "volume"),
+                 fincore::input_error);
+    EXPECT_THROW(fincore::apply_slippage_penalty(returns, valid, 1000.0, 1000.0, .1,
+                                                 "returns", "amount", "", "volume"),
+                 fincore::input_error);
+    EXPECT_THROW(fincore::apply_slippage_penalty(returns, valid, 1000.0, 1000.0, .1,
+                                                 "returns", "amount", "price", ""),
+                 fincore::input_error);
+    EXPECT_THROW(fincore::apply_slippage_penalty(returns, valid, 1000.0, 1000.0, .1,
+                                                 "returns", "amount", "amount",
+                                                 "volume"),
+                 fincore::input_error);
+    EXPECT_THROW(fincore::apply_slippage_penalty(returns, valid, 1000.0, 1000.0, .1,
+                                                 "returns", "amount", "price",
+                                                 "amount"),
+                 fincore::input_error);
+    EXPECT_THROW(fincore::apply_slippage_penalty(returns, valid, 1000.0, 1000.0, .1,
+                                                 "returns", "amount", "price", "price"),
+                 fincore::input_error);
+
+    EXPECT_THROW(fincore::apply_slippage_penalty(returns, valid, 1000.0, 1000.0, .1,
+                                                 "returns", "missing", "price",
+                                                 "volume"),
+                 fincore::input_error);
+    EXPECT_THROW(fincore::apply_slippage_penalty(returns, valid, 1000.0, 1000.0, .1,
+                                                 "returns", "amount", "missing",
+                                                 "volume"),
+                 fincore::input_error);
+    EXPECT_THROW(fincore::apply_slippage_penalty(returns, valid, 1000.0, 1000.0, .1,
+                                                 "returns", "amount", "price",
+                                                 "missing"),
+                 fincore::input_error);
+
+    fincore::dataframe wrong = valid;
+    wrong.load_column<int>("wrong", {1}, hmdf::nan_policy::dont_pad_with_nans);
+    EXPECT_THROW(fincore::apply_slippage_penalty(returns, wrong, 1000.0, 1000.0, .1,
+                                                 "returns", "wrong", "price", "volume"),
+                 fincore::input_error);
+    EXPECT_THROW(fincore::apply_slippage_penalty(returns, wrong, 1000.0, 1000.0, .1,
+                                                 "returns", "amount", "wrong",
+                                                 "volume"),
+                 fincore::input_error);
+    EXPECT_THROW(fincore::apply_slippage_penalty(returns, wrong, 1000.0, 1000.0, .1,
+                                                 "returns", "amount", "price", "wrong"),
+                 fincore::input_error);
+
+    fincore::dataframe malformed_amount;
+    malformed_amount.load_index(
+        {fincore::utc_timestamp(2024, 1, 2), fincore::utc_timestamp(2024, 1, 3)});
+    malformed_amount.load_column<double>("amount", {1.0},
+                                         hmdf::nan_policy::dont_pad_with_nans);
+    malformed_amount.load_column<double>("price", {1.0, 1.0},
+                                         hmdf::nan_policy::dont_pad_with_nans);
+    malformed_amount.load_column<double>("volume", {10.0, 10.0},
+                                         hmdf::nan_policy::dont_pad_with_nans);
+    EXPECT_THROW(
+        fincore::apply_slippage_penalty(returns, malformed_amount, 1000.0, 1000.0),
+        fincore::input_error);
+    fincore::dataframe malformed_price;
+    malformed_price.load_index(
+        {fincore::utc_timestamp(2024, 1, 2), fincore::utc_timestamp(2024, 1, 3)});
+    malformed_price.load_column<double>("amount", {1.0, 1.0},
+                                        hmdf::nan_policy::dont_pad_with_nans);
+    malformed_price.load_column<double>("price", {1.0},
+                                        hmdf::nan_policy::dont_pad_with_nans);
+    malformed_price.load_column<double>("volume", {10.0, 10.0},
+                                        hmdf::nan_policy::dont_pad_with_nans);
+    EXPECT_THROW(
+        fincore::apply_slippage_penalty(returns, malformed_price, 1000.0, 1000.0),
+        fincore::input_error);
+    fincore::dataframe malformed_volume;
+    malformed_volume.load_index(
+        {fincore::utc_timestamp(2024, 1, 2), fincore::utc_timestamp(2024, 1, 3)});
+    malformed_volume.load_column<double>("amount", {1.0, 1.0},
+                                         hmdf::nan_policy::dont_pad_with_nans);
+    malformed_volume.load_column<double>("price", {1.0, 1.0},
+                                         hmdf::nan_policy::dont_pad_with_nans);
+    malformed_volume.load_column<double>("volume", {10.0},
+                                         hmdf::nan_policy::dont_pad_with_nans);
+    EXPECT_THROW(
+        fincore::apply_slippage_penalty(returns, malformed_volume, 1000.0, 1000.0),
+        fincore::input_error);
+}
+
 }  // namespace
