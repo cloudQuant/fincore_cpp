@@ -38,6 +38,7 @@ add_executable(fincore_tests
     unit/brinson_test.cpp
     unit/factor_regression_test.cpp
     unit/attribution_umbrella_test.cpp
+    unit/attribution_factor_regression_umbrella_test.cpp
     unit/stress_scenarios_test.cpp
     unit/simulation_umbrella_test.cpp)
 target_link_libraries(fincore_tests PRIVATE

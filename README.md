@@ -886,6 +886,41 @@ Python-attribution parity, or GUI runtime. The public-only umbrella consumer,
 Anaconda Python oracle, and fresh compiler/build evidence are recorded in
 [`docs/acceptance/2026-08-11-phase-10-brinson-attribution-acceptance.md`](docs/acceptance/2026-08-11-phase-10-brinson-attribution-acceptance.md).
 
+## Accepted Phase 12 factor-regression core
+
+`<fincore/attribution.hpp>` also exports the deterministic, no-state,
+DataFrame-native factor-regression leaf:
+
+```cpp
+#include <fincore/attribution.hpp>
+
+const fincore::factor_regression_result result =
+    fincore::fit_factor_regression(returns, factor_returns, factor_names);
+```
+
+`factor_regression_result` owns scalar `alpha` and `r_squared`, an
+ordinal-indexed `coefficients` table, and return-indexed `fitted_returns` and
+`residuals` tables. `coefficients` has genuine `std::string factor` and
+genuine `double coefficient` columns with `alpha` first and then the explicit
+requested factor names in supplied order; the other two tables each contain
+one genuine `double` column, `fitted_returns` or `residuals`, and preserve the
+raw returns index. The selected return and factor columns must be genuine,
+finite `double` values with owning lengths; factor names must be nonempty,
+distinct, and not `alpha`. Both indexes must be duplicate-free and exactly
+equal in value and order, the observation count must be at least `K + 1`, and
+the intercept-plus-factor design must be full rank. Inputs are neither
+aligned, sorted, dropped, nor otherwise repaired. An exactly constant selected
+return vector has `r_squared == 0.0` after full input and rank validation.
+
+This is a generic OLS core, not a Fama-French model/provider or a stateful
+surface. It excludes standard factor selection/fetching, p-values, standard
+errors, Newey-West, weighting/GLS, prediction, rolling exposure, attribution
+decomposition, reports/tearsheets, release validation, full Python parity, and
+GUI runtime. Any ImPlot evidence is compile/link only; no GUI was launched.
+The source-derived Python finite oracle, public-umbrella RED/GREEN, and fresh
+AppleClang, LLVM ASan+UBSan, ImPlot, and invalid-ImGui evidence are retained in
+[`docs/acceptance/2026-08-12-phase-12-factor-regression-core-acceptance.md`](docs/acceptance/2026-08-12-phase-12-factor-regression-core-acceptance.md).
+
 ## Accepted Phase 11 native stress scenarios
 
 `<fincore/simulation.hpp>` exports only the deterministic, DataFrame-native
