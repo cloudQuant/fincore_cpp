@@ -130,3 +130,19 @@ phrasing in this record.
 
 Task 62 appends this documentation-only trace. It does not amend any earlier
 commit and intentionally does not state or anticipate its own SHA.
+
+## Post-Task 62 test-hardening trace
+
+Post-Task 62 test-hardening commit
+`90196bb291f4e964cc1363f7a61e7c9bc443d599` (`test: strengthen factor
+regression output coverage`) changes only
+`tests/unit/factor_regression_test.cpp`. It adds positive coverage for
+non-monotonic raw-index retention and fitted-output/ownership assertions.
+Its recorded evidence is `FactorRegression` `8/8` and the configured full
+suite `255/255`; the independent scoped review is PASS with no C/I/M findings.
+The `255/255` result is hardening-commit evidence and does not revise the
+Task 61 initial acceptance's historical `254/254` count.
+
+This post-review entry is traceability only: it does not amend or reinterpret
+Tasks 60, 61, or 62, and it intentionally does not state or anticipate its own
+SHA.
