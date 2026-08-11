@@ -211,3 +211,46 @@ surface, or prior phase material.
 
 Task 74 is reserved for documentation-only, non-self-referential traceability;
 it does not amend the Task 72 leaf chain or this Task 73 acceptance scope.
+
+## Task 74 non-self-referential traceability
+
+The accepted Phase 16 history is deliberately split into three auditable
+revisions with distinct responsibilities:
+
+1. Task 72 initial implementation
+   `1e94efb0aa9365db592fa8845dec9ed3677d541a` (parent
+   `0e3c9eabe58286f7425c800a1faef69e60b6867a`) creates the correlation leaf,
+   its leaf-only public-header tests, and exactly the root/test CMake
+   registrations: `CMakeLists.txt`,
+   `include/fincore/simulation/correlation.hpp`,
+   `src/simulation/correlation.cpp`, `tests/CMakeLists.txt`, and
+   `tests/unit/correlation_breakdown_test.cpp`.
+2. The new, review-driven Task 72 test-only correction
+   `c1ffef2a5276d706d88eba02664f41f1e4b977f4` (parent
+   `1e94efb0aa9365db592fa8845dec9ed3677d541a`) removes only the invalid
+   oversized `std::span` test probe from
+   `tests/unit/correlation_breakdown_test.cpp`. It is a separate correction
+   commit, not an amendment of the implementation revision; it changes no
+   leaf source or public contract.
+3. Task 73 initial acceptance
+   `9e5b903a0581571fbe4496f598441f0fadac3540` (parent
+   `c1ffef2a5276d706d88eba02664f41f1e4b977f4`) exports the leaf through the
+   simulation umbrella and records its consumer, CMake registration, README,
+   and acceptance evidence. Its five-path scope is `README.md`, this
+   acceptance record, `include/fincore/simulation.hpp`,
+   `tests/CMakeLists.txt`, and
+   `tests/unit/simulation_correlation_umbrella_test.cpp`.
+
+Task 74 starts from the Task 73 initial acceptance revision and changes only
+this acceptance document to make that history explicit. It is
+documentation-only, does not amend Task 72 or Task 73, and intentionally does
+not state or anticipate its own commit SHA.
+
+Its focused documentary gate ran before this edit:
+
+```sh
+ctest --test-dir build -R 'CorrelationBreakdown|SimulationCorrelationUmbrella' --output-on-failure
+```
+
+It passed all `8/8` selected tests. The pre-edit `git diff --check` produced
+no output; the post-edit check is retained in the ignored Task 74 report.
