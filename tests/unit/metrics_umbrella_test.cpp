@@ -287,6 +287,68 @@ TEST(MetricsUmbrella, ConsumesReturnTransformationsThroughPublicHeadersOnly) {
   EXPECT_NEAR(weekly_values[2], .03, 1.0e-12);
 }
 
+TEST(MetricsUmbrella, ConsumesRoundTripsThroughPublicHeadersOnly) {
+  constexpr fincore::timestamp jan_2_2024_09 = 1704186000000000000LL;
+  constexpr auto hour = std::chrono::hours{1};
+  const auto at = [](const std::chrono::nanoseconds offset) {
+    return jan_2_2024_09 + offset.count();
+  };
+
+  fincore::dataframe transactions;
+  transactions.load_index(
+      std::vector<fincore::timestamp>{at(std::chrono::nanoseconds{0}),
+                                       at(8 * hour), at(10 * hour), at(hour),
+                                       at(3 * hour)});
+  transactions.load_column<std::string>(
+      "symbol", std::vector<std::string>{"A", "A", "A", "B", "B"},
+      hmdf::nan_policy::dont_pad_with_nans);
+  transactions.load_column<double>(
+      "amount", std::vector<double>{2.0, 2.0, -4.0, -2.0, 2.0},
+      hmdf::nan_policy::dont_pad_with_nans);
+  transactions.load_column<double>(
+      "price", std::vector<double>{10.0, 20.0, 25.0, 30.0, 20.0},
+      hmdf::nan_policy::dont_pad_with_nans);
+
+  const auto blocks = fincore::groupby_consecutive_transactions(transactions);
+  EXPECT_EQ(blocks.get_index(),
+            (std::vector<fincore::timestamp>{at(std::chrono::nanoseconds{0}),
+                                              at(10 * hour), at(hour),
+                                              at(3 * hour)}));
+  EXPECT_EQ(blocks.get_column<double>("amount"),
+            (std::vector<double>{4.0, -4.0, -2.0, 2.0}));
+  EXPECT_EQ(blocks.get_column<std::string>("symbol"),
+            (std::vector<std::string>{"A", "A", "B", "B"}));
+  EXPECT_EQ(blocks.get_column<double>("price"),
+            (std::vector<double>{15.0, 25.0, 30.0, 20.0}));
+
+  const auto round_trips = fincore::extract_round_trips(transactions);
+  EXPECT_EQ(round_trips.get_index(), (std::vector<fincore::timestamp>{0, 1}));
+  EXPECT_DOUBLE_EQ(round_trips.get_column<double>("pnl").at(0), 40.0);
+  EXPECT_EQ(round_trips.get_column<fincore::timestamp>("open_dt").at(0),
+            at(std::chrono::nanoseconds{0}));
+  EXPECT_EQ(round_trips.get_column<fincore::timestamp>("close_dt").at(0),
+            at(10 * hour));
+  EXPECT_TRUE(round_trips.get_column<bool>("long").at(0));
+  EXPECT_NEAR(round_trips.get_column<double>("rt_returns").at(0), 2.0 / 3.0,
+              1.0e-12);
+  EXPECT_EQ(round_trips.get_column<std::string>("symbol").at(0), "A");
+  EXPECT_EQ(round_trips.get_column<fincore::timestamp>("duration").at(0),
+            std::chrono::duration_cast<std::chrono::nanoseconds>(10 * hour)
+                .count());
+
+  const auto columns = round_trips.get_columns_info<
+      double, std::string, bool, fincore::timestamp>();
+  ASSERT_EQ(columns.size(), 7U);
+  EXPECT_EQ(std::get<0>(columns[1]), "open_dt");
+  EXPECT_EQ(std::get<2>(columns[1]), std::type_index(typeid(fincore::timestamp)));
+  EXPECT_EQ(std::get<0>(columns[3]), "long");
+  EXPECT_EQ(std::get<2>(columns[3]), std::type_index(typeid(bool)));
+  EXPECT_EQ(std::get<0>(columns[5]), "symbol");
+  EXPECT_EQ(std::get<2>(columns[5]), std::type_index(typeid(std::string)));
+  EXPECT_EQ(std::get<0>(columns[6]), "duration");
+  EXPECT_EQ(std::get<2>(columns[6]), std::type_index(typeid(fincore::timestamp)));
+}
+
 TEST(MetricsUmbrella, ExposesNativePositionMetrics) {
   fincore::dataframe positions;
   const auto expected_index = calendar_indices();

@@ -751,3 +751,36 @@ This is a bounded native slice, not pandas parity or a full-project release:
 pandas `MultiIndex` representation, local-timezone bucketing, additional
 return-transformation scope, packaging, and release validation remain
 deferred. GUI programs were not run as part of this acceptance.
+
+## Accepted Phase 8 round-trip core
+
+The public metric umbrella now exports the deterministic transaction
+consolidation and FIFO round-trip extraction surface:
+
+```cpp
+#include <fincore/calendar.hpp>  // public UTC timestamp construction
+#include <fincore/metrics.hpp>
+
+const auto blocks = fincore::groupby_consecutive_transactions(transactions);
+const auto round_trips = fincore::extract_round_trips(transactions);
+```
+
+Transactions require genuine `std::string` symbol and `double` amount/price
+columns that match their timestamp index. Consolidation stable-sorts by symbol,
+timestamp, and original row order; equal-direction executions remain together
+at the default eight-hour boundary and use signed VWAP. Extraction then matches
+consolidated lots FIFO, preserving partial fills and crossings. Its typed,
+ordinal-indexed result contains `pnl`, `open_dt`, `close_dt`, `long`,
+`rt_returns`, `symbol`, and nanosecond `duration` columns.
+
+Task 47's accepted implementation and targeted correction are
+`4b0046675872f2cd463677647a70776254154921` and
+`61caa9c209f050bdd4fac2256707297ffd08fa2e`. Fresh public-consumer,
+headless, sanitizer, and optional ImPlot compile/link evidence is in
+[docs/acceptance/2026-08-11-phase-8-round-trip-core-acceptance.md](docs/acceptance/2026-08-11-phase-8-round-trip-core-acceptance.md).
+
+Portfolio-value-normalized return joins, synthetic closing transactions,
+sector mappings, dynamic summary tables, attribution, reports/tearsheets,
+interactive GUI validation, packaging/release validation, and full Python
+public-API parity remain deferred. Phase 8 is not a full-project or release
+readiness claim.
