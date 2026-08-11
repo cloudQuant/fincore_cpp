@@ -34,7 +34,8 @@ add_executable(fincore_tests
     unit/positions_test.cpp
     unit/transactions_test.cpp
     unit/round_trips_test.cpp
-    unit/perf_attrib_test.cpp)
+    unit/perf_attrib_test.cpp
+    unit/brinson_test.cpp)
 target_link_libraries(fincore_tests PRIVATE
     fincore::fincore
     GTest::gtest_main)
