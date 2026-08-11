@@ -17,10 +17,15 @@ GUI-runtime acceptance.
 - Task 51 regression hardening:
   `566ce45c41c6e36a549cafb41ee90fd8462da2e8`
   (`test: strengthen performance attribution regressions`).
-- Task 52 acceptance change exports only
+- Task 52 initial acceptance:
+  `24f3111afde93feed5bb0994fa3476cb664bc79a`
+  (`docs: accept phase 9 performance attribution core`). It exports only
   `<fincore/metrics/perf_attrib.hpp>` from the existing public
-  `<fincore/metrics.hpp>` umbrella. It does not change the attribution
+  `<fincore/metrics.hpp>` umbrella and does not change the attribution
   implementation.
+
+Task 53 is documentation-only: it records this direct Task 52 acceptance
+commit, does not amend Task 52, and does not state or anticipate its own SHA.
 
 ## Public API and schema mapping
 
