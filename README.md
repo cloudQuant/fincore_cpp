@@ -1011,6 +1011,47 @@ isolated umbrella RED/GREEN, and fresh AppleClang, LLVM ASan+UBSan, ImPlot, and
 invalid-ImGui evidence are retained in
 [`docs/acceptance/2026-08-12-phase-14-factor-attribution-decomposition-acceptance.md`](docs/acceptance/2026-08-12-phase-14-factor-attribution-decomposition-acceptance.md).
 
+## Accepted Phase 15 factor-regression predictions
+
+`<fincore/attribution.hpp>` now also exports a deterministic, stateless,
+DataFrame-native factor-regression prediction consumer:
+
+```cpp
+#include <fincore/attribution.hpp>
+
+const fincore::dataframe predictions = fincore::factor_regression_predictions(
+    regression, factor_returns, factor_names);
+```
+
+The supplied `fincore::factor_regression_result` is a caller-owned model value,
+not mutable model state. Its consumed finite `alpha` must exactly equal row zero
+of an exact two-column, ordinal-indexed coefficient table: genuine
+`std::string factor` and genuine `double coefficient`, labeled `alpha` then the
+explicit requested factors in order. The predictor deliberately does not
+consume `r_squared`, fitted returns, or residuals. Selectors are nonempty,
+distinct, NUL-free, and cannot be `alpha`; each selected prediction-factor
+column must be a finite genuine `double` column with its owning raw-index
+length. Unselected metadata is irrelevant.
+
+The independently owned output retains the supplied factor frame's raw index
+and row order exactly, including duplicates and nonmonotonic timestamps. It
+has exactly one genuine-`double` `predicted_returns` column whose rows are
+`alpha + sum(beta[j] * factor[j])` in the caller's requested factor order. A
+valid model with a selected typed-empty factor frame yields a typed-empty
+output. Nonfinite products, running sums, or results raise `input_error`; no
+index matching, sorting, training-history lookup, or refit occurs.
+
+This is the narrow native analogue of consuming Python
+`FamaFrenchModel.predict` after a fit, rather than a stateful Python model,
+standard-factor selector, provider/cache, QR/OLS implementation, attribution
+or rolling calculation, residual/idiosyncratic-risk surface, statistical
+output suite, full Python parity, release claim, or GUI-runtime feature.
+ImPlot evidence is compile/link only and no GUI executable was launched. The
+Task 69 implementation is `539de95ce8d2475dc018e61d331bf56f78c75b27`; source
+oracle, isolated umbrella RED/GREEN, and fresh build-gate evidence are retained
+in
+[`docs/acceptance/2026-08-12-phase-15-factor-regression-prediction-acceptance.md`](docs/acceptance/2026-08-12-phase-15-factor-regression-prediction-acceptance.md).
+
 ## Accepted Phase 11 native stress scenarios
 
 `<fincore/simulation.hpp>` exports only the deterministic, DataFrame-native
