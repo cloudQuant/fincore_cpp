@@ -31,7 +31,8 @@ add_executable(fincore_tests
     unit/rolling_metrics_test.cpp
     unit/perf_stats_test.cpp
     unit/perf_stats_public_header_test.cpp
-    unit/positions_test.cpp)
+    unit/positions_test.cpp
+    unit/transactions_test.cpp)
 target_link_libraries(fincore_tests PRIVATE
     fincore::fincore
     GTest::gtest_main)
