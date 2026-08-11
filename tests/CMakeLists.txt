@@ -29,7 +29,8 @@ add_executable(fincore_tests
     unit/analysis_context_test.cpp
     unit/rolling_engine_test.cpp
     unit/rolling_metrics_test.cpp
-    unit/perf_stats_test.cpp)
+    unit/perf_stats_test.cpp
+    unit/perf_stats_public_header_test.cpp)
 target_link_libraries(fincore_tests PRIVATE
     fincore::fincore
     GTest::gtest_main)
