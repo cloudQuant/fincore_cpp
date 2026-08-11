@@ -885,3 +885,41 @@ attribution, providers, reports/tearsheets, packaging/release validation, full
 Python-attribution parity, or GUI runtime. The public-only umbrella consumer,
 Anaconda Python oracle, and fresh compiler/build evidence are recorded in
 [`docs/acceptance/2026-08-11-phase-10-brinson-attribution-acceptance.md`](docs/acceptance/2026-08-11-phase-10-brinson-attribution-acceptance.md).
+
+## Accepted Phase 11 native stress scenarios
+
+`<fincore/simulation.hpp>` exports only the deterministic, DataFrame-native
+return-stress leaf. It declares `enum class predefined_stress_scenario { crash,
+spike, volatility_crush, volatility_spike }`,
+`custom_stress_scenario{std::string name, double return_shift = 0.0, double
+return_multiplier = 1.0}`, and
+`stress_scenario_result{std::string name, dataframe stressed_returns, double
+cumulative_return, double max_drawdown, double volatility, double final_value}`.
+The overloads are `stress_test(const dataframe&, std::string_view column =
+returns_column)` and `stress_test(const dataframe&,
+std::span<const predefined_stress_scenario>,
+std::span<const custom_stress_scenario> = {}, std::string_view column =
+returns_column)`, plus `scenario_table(std::span<const stress_scenario_result>)`.
+
+Default order is `crash`, `spike`, `vol_crush`, `vol_spike`; explicit
+predefined then custom spans preserve supplied order. Crash/spike replace the
+midpoint return with `-0.20`/`0.10`; crush/spike multiply returns by `0.5`/`2.0`;
+custom applies `(return + return_shift) * return_multiplier`. The selected
+column must be named, genuine `double`, index-length-correct, and nonempty.
+Raw unsorted/duplicate timestamp order is preserved. Selected NaN is rejected
+before output construction, so timestamps are never removed; signed infinity
+uses ordinary IEEE arithmetic. `scenario_table` is numeric model data, not
+Python's formatted pandas display: ordinal index `0..N-1`, genuine
+`std::string scenario`, then genuine-double `cumulative_return`,
+`max_drawdown`, `volatility`, and `final_value`, including typed-empty output.
+
+Task 57 is `bfe5dc549b080b57be13d62bb2abcd68712add00`. Its Anaconda oracle on
+`[.01, -.02, .03, -.01]`, public-header RED, and GREEN are recorded in the
+acceptance record; Task 58's umbrella consumer passed `1/1`, focused tests
+`97/97`, and full configured tests `247/247`.
+
+This is not correlation-matrix support; random simulations/bootstrap/GBM;
+EVT/GARCH; Fama-French/style attribution; providers; reports/tearsheets;
+release validation; full Python parity; or GUI runtime validation. ImPlot
+evidence is compile/link only. See
+[`docs/acceptance/2026-08-12-phase-11-native-stress-scenarios-acceptance.md`](docs/acceptance/2026-08-12-phase-11-native-stress-scenarios-acceptance.md).

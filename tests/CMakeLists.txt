@@ -37,7 +37,8 @@ add_executable(fincore_tests
     unit/perf_attrib_test.cpp
     unit/brinson_test.cpp
     unit/attribution_umbrella_test.cpp
-    unit/stress_scenarios_test.cpp)
+    unit/stress_scenarios_test.cpp
+    unit/simulation_umbrella_test.cpp)
 target_link_libraries(fincore_tests PRIVATE
     fincore::fincore
     GTest::gtest_main)
