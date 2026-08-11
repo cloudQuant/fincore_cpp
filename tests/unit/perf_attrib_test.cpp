@@ -195,6 +195,45 @@ TEST(PerfAttrib, RejectsInvalidExposureSchemas) {
                fincore::input_error);
 }
 
+TEST(PerfAttrib, RejectsDuplicatePositionIndexesInPublicPrimitives) {
+  fincore::dataframe duplicate_positions;
+  duplicate_positions.load_index({dates()[0], dates()[0]});
+  duplicate_positions.load_column<double>("A", {.5, .5},
+                                          hmdf::nan_policy::dont_pad_with_nans);
+  constexpr std::array<std::string_view, 1U> market{"market"};
+
+  EXPECT_THROW(fincore::normalize_attribution_positions(duplicate_positions),
+               fincore::input_error);
+  EXPECT_THROW(fincore::compute_exposures(duplicate_positions,
+                                          factor_loadings(), market),
+               fincore::input_error);
+}
+
+TEST(PerfAttrib, RejectsEmptyPositionAssetNamesAndLoadingSymbols) {
+  fincore::dataframe empty_asset_positions;
+  empty_asset_positions.load_index({dates()[0]});
+  empty_asset_positions.load_column<double>(
+      "", {.5}, hmdf::nan_policy::dont_pad_with_nans);
+  EXPECT_THROW(fincore::normalize_attribution_positions(empty_asset_positions),
+               fincore::input_error);
+
+  fincore::dataframe loadings_with_empty_symbol;
+  loadings_with_empty_symbol.load_index({dates()[0], dates()[0], dates()[1],
+                                         dates()[1], dates()[2], dates()[2],
+                                         dates()[0]});
+  loadings_with_empty_symbol.load_column<std::string>(
+      "symbol", {"A", "B", "A", "B", "A", "B", ""},
+      hmdf::nan_policy::dont_pad_with_nans);
+  loadings_with_empty_symbol.load_column<double>(
+      "market", {.2, .4, .5, .2, .1, .6, .0},
+      hmdf::nan_policy::dont_pad_with_nans);
+  constexpr std::array<std::string_view, 1U> market{"market"};
+  EXPECT_THROW(fincore::compute_exposures(
+                   fincore::normalize_attribution_positions(dollar_positions()),
+                   loadings_with_empty_symbol, market),
+               fincore::input_error);
+}
+
 TEST(PerfAttrib, NormalizesNanPositionsAndSumsAllNanProductsToZero) {
   fincore::dataframe positions;
   positions.load_index(std::vector<timestamp>(dates()));

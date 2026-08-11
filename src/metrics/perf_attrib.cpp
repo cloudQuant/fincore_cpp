@@ -79,6 +79,9 @@ position_assets(const dataframe &positions,
       continue;
     }
     std::string name{std::get<0>(info).c_str()};
+    if (name.empty()) {
+      throw input_error{"position asset column names must not be empty"};
+    }
     const auto &values = positions.get_column<double>(name.c_str());
     if (values.size() != index.size()) {
       throw input_error{
@@ -226,6 +229,8 @@ dataframe
 normalize_attribution_positions(const dataframe &positions,
                                 const bool positions_in_dollars,
                                 const std::string_view cash_column_name) {
+  require_unique_index(positions,
+                       "positions index must not contain duplicates");
   const auto assets = position_assets(positions, cash_column_name);
   const auto &index = positions.get_index();
   std::vector<output_column> normalized;
@@ -259,11 +264,18 @@ compute_exposures(const dataframe &positions, const dataframe &factor_loadings,
                   const std::string_view symbol_column_name) {
   const auto factors =
       checked_factor_names(factor_column_names, symbol_column_name);
+  require_unique_index(positions,
+                       "positions index must not contain duplicates");
   const auto assets = position_assets(positions, cash_column_name);
   const std::string symbol_name =
       checked_name(symbol_column_name, "symbol column name must not be empty");
   const auto symbols = require_string_column(factor_loadings, symbol_name);
   const auto &loading_index = factor_loadings.get_index();
+  for (const auto &symbol : symbols) {
+    if (symbol.empty()) {
+      throw input_error{"factor-loading symbol values must not be empty"};
+    }
+  }
 
   std::vector<std::span<const double>> factor_values;
   factor_values.reserve(factors.size());
