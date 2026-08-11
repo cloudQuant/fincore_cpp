@@ -9,6 +9,10 @@ or whole-project fincore-parity claim.
 
 - Task 33 implementation: `4d32d076240e12022959d237f2baabe6682f1298`
   (`feat: add native position metrics`).
+- Initial Task 34 acceptance publication:
+  `dd99b3e28a8c80be47b0d5bbf419f40b6d426f49`
+  (`docs: accept phase 5A position metrics`). This docs-only traceability
+  update records that SHA without self-reference.
 
 ## Accepted public contract
 
