@@ -10,10 +10,11 @@ oracle during migration. The local `cloudQuant/DataFrame` checkout is the
 tabular data implementation, and the local `cloudQuant/implot` checkout is
 the plotting implementation.
 
-The repository is starting from an empty C++ implementation. The migration is
-therefore staged for reviewable, usable releases, but the final scope remains:
-metrics, analysis context, rolling calculations, visualization, optimization,
-simulation, attribution, risk models, reports, data providers, and tearsheets.
+The repository began from an empty C++ implementation and now contains the
+accepted Phase 2A–3C slices. The migration remains staged for reviewable,
+usable releases, but the final scope remains: metrics, analysis context,
+rolling calculations, visualization, optimization, simulation, attribution,
+risk models, reports, data providers, and tearsheets.
 
 The 2026-08-10 foundation acceptance is deliberately narrower than full phase
 or product acceptance. It is a dated record of the headless C++ core and its
