@@ -109,3 +109,24 @@ attribution decomposition, idiosyncratic-risk helpers, Python embedding,
 warning/drop alignment behavior, reports/tearsheets, packaging/release
 validation, full Python API parity, and GUI runtime validation. ImPlot proof
 is explicitly compile/link only.
+
+## Task 62 traceability
+
+The Task 60 implementation chain is
+`ff3a0defdbb4cee9419f0b8dc4aec3d3181ae66f` (`feat: add native factor
+regression`) followed by its direct review fix
+`c18a87010218324c43b773e11bd0e8340f68a7e6` (`fix: preserve zero r squared
+for constant returns`). Documentation-only clarifications
+`d6714e0016e8bc1ea7979fcc1284692a4d62d9ad` and
+`a919ad122bd8e99fed7b00a50d027212f741f7ba` precede Task 61's initial
+acceptance; they are not part of the Task 60 implementation chain.
+
+Task 61's initial acceptance is
+`4f3d575200b7eb8d5c13671cc12640e991217d48` (`docs: accept phase 12 factor
+regression`). Its evidence-wording correction is
+`c61beecaa0be74f8f6d4d9d76bb71078fa4cb1aa` (`docs: clarify ImGui scanner
+evidence`), a direct child that changes only the ImGui scanner evidence
+phrasing in this record.
+
+Task 62 appends this documentation-only trace. It does not amend any earlier
+commit and intentionally does not state or anticipate its own SHA.
