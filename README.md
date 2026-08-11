@@ -1092,6 +1092,45 @@ are retained in
 [`docs/acceptance/2026-08-12-phase-16-correlation-breakdown-acceptance.md`](docs/acceptance/2026-08-12-phase-16-correlation-breakdown-acceptance.md).
 The ImPlot demo was compiled and linked only; it was never launched.
 
+## Accepted Phase 17 simulation parameter estimation
+
+The simulation umbrella now exports the deterministic, DataFrame-native
+calibration counterpart to Python's estimate_parameters helper:
+
+~~~cpp
+#include <fincore/simulation.hpp>
+
+const fincore::simulation_parameters parameters =
+    fincore::estimate_simulation_parameters(returns);
+// parameters.drift and parameters.volatility are owned double scalars.
+~~~
+
+The native adaptation accepts one selected, named genuine-double return column
+from a fincore dataframe and returns the two values in a self-describing
+value struct rather than Python's anonymous array/tuple result. For retained
+observations it uses the sample denominator n - 1, annualizes drift by
+periods_per_year, and annualizes volatility by sqrt(periods_per_year). The
+timestamp index is validated through the established dataframe boundary but
+does not change the positional calculation.
+
+The source fixture [0.01, NaN, -0.02, 0.03, 0.0] at 252 periods per year
+returns drift 1.2599999999999998 and volatility 0.3304542328371662. As in
+Python, NaNs alone are removed in source order. Native code intentionally
+rejects positive/negative infinity, fewer than two retained observations,
+zero periods per year, malformed or non-double selected columns, and
+nonfinite intermediate/final arithmetic (including overflow) with
+fincore::input_error. It neither sorts, aligns, resamples, clips, compounds,
+nor transforms finite returns.
+
+Task 76's leaf implementation is
+6e7ad34e1ce1cd49ea46408aaebad0079283b013. This acceptance is not a random
+engine, GBM/path generator, bootstrap or Monte Carlo API, antithetic/LHS
+sampler, SimResult replacement, provider, full Python simulation-parity, or
+GUI-runtime claim. The retained public-umbrella RED/GREEN, AppleClang,
+Homebrew LLVM ASan+UBSan, ImPlot compile/link-only, and invalid-ImGui evidence
+is in
+[the Phase 17 acceptance record](docs/acceptance/2026-08-12-phase-17-simulation-parameter-estimation-acceptance.md).
+
 ## Accepted Phase 11 native stress scenarios
 
 `<fincore/simulation.hpp>` exports only the deterministic, DataFrame-native
