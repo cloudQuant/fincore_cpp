@@ -784,7 +784,7 @@ TEST(Transactions, AppliesQuadraticVolumeSharePenaltyGoldens) {
                       .get_column<double>("returns"),
                   {.95, .99375, .9986111111111111});
     expect_values(
-        fincore::apply_slippage_penalty(returns, transactions, 1000000.0, 1000000.0, .1)
+        fincore::apply_slippage_penalty(returns, transactions, 1000000.0, 1000000.0)
             .get_column<double>("returns"),
         {.99995, .99999375, .9999986111111111});
 }
