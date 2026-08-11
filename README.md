@@ -157,9 +157,11 @@ consecutive indicators are accepted: weekly/monthly aggregation and Python's
 `consecutive_stats` remain deferred. `get_top_drawdowns` and
 `gen_drawdown_table`, positions, transactions, round trips, attribution,
 Bayesian/bootstrap metrics, optimization, simulation, reports, tearsheets, a
-full native/Python-style façade, packaging and release work, and the positive
-`fincore_implot` / `fincore_implot_demo` build remain open. The negative ImGui
-configuration check is not a positive ImPlot build or demo result. See the complete record in
+full native/Python-style façade, packaging and release work, and the
+then-unaccepted `fincore_implot` / `fincore_implot_demo` build were open in
+that dated Phase 2C record. Its former positive-ImPlot item is superseded by
+the Phase 3C compile acceptance below. The negative ImGui configuration check
+is not a positive ImPlot build or demo result. See the complete record in
 [`docs/acceptance/2026-08-10-phase-2c-path-metrics-acceptance.md`](docs/acceptance/2026-08-10-phase-2c-path-metrics-acceptance.md).
 
 ## Accepted Phase 3A rolling scalar metrics
@@ -236,9 +238,11 @@ Deferred work remains the paired rolling `roll_alpha`, `roll_beta`, and
 capture functions; multi-column `roll_alpha_beta` and `rolling_regression`;
 `rolling_beta`; portfolio positions and transactions; round trips;
 performance attribution/stats; Bayesian/bootstrap functions; optimization;
-simulation; reports/tearsheets; a full native facade; packaging/release; and a
-positive `fincore_implot` / `fincore_implot_demo` build/demo. Phase 3A is not
-full fincore parity or project completion. The complete acceptance evidence is
+simulation; reports/tearsheets; a full native facade; packaging/release; and
+the then-unaccepted `fincore_implot` / `fincore_implot_demo` build/demo in
+that dated Phase 3A observation. Its former positive-ImPlot item is superseded
+by the Phase 3C compile acceptance below. Phase 3A is not full fincore parity
+or project completion. The complete acceptance evidence is
 in [`docs/acceptance/2026-08-10-phase-3a-rolling-scalar-metrics-acceptance.md`](docs/acceptance/2026-08-10-phase-3a-rolling-scalar-metrics-acceptance.md).
 
 ## Accepted Phase 3B rolling paired metrics
@@ -333,9 +337,11 @@ Deferred work remains multi-column `roll_alpha_beta` and `rolling_regression`;
 full-index `rolling_beta` (including multi-factor inputs); portfolio positions
 and transactions; round trips; performance attribution/stats; Bayesian/
 bootstrap functions; optimization; simulation; reports/tearsheets; a full
-native facade; packaging/release; and a positive `fincore_implot` /
-`fincore_implot_demo` build/demo. Phase 3B is not full fincore parity or
-project completion. The complete acceptance evidence is in
+native facade; packaging/release; and the then-unaccepted `fincore_implot` /
+`fincore_implot_demo` build/demo in that dated Phase 3B observation. Its
+former positive-ImPlot item is superseded by the Phase 3C compile acceptance
+below. Phase 3B is not full fincore parity or project completion. The complete
+acceptance evidence is in
 [`docs/acceptance/2026-08-10-phase-3b-rolling-paired-metrics-acceptance.md`](docs/acceptance/2026-08-10-phase-3b-rolling-paired-metrics-acceptance.md).
 
 ## Headless core verification
@@ -371,48 +377,68 @@ consumer so the sanitizer runtimes are linked without mutating unrelated
 targets. The current commands and observed results are recorded in
 [`docs/acceptance/2026-08-10-foundation-acceptance.md`](docs/acceptance/2026-08-10-foundation-acceptance.md).
 
-## Optional ImPlot adapter
+## Optional ImPlot adapter — accepted compile boundary
 
-`fincore` is headless and never links Dear ImGui, ImPlot, GLFW, or OpenGL. Set
-`FINCORE_BUILD_IMPLOT=ON` to build the separate `fincore_implot` rendering
-adapter. It consumes DataFrame columns while the application owns the active
-Dear ImGui and ImPlot contexts and their rendering lifecycle.
+`fincore` remains headless by default: `FINCORE_BUILD_IMPLOT` and
+`FINCORE_BUILD_IMPLOT_DEMO` are both `OFF`, so the core does not link Dear
+ImGui, ImPlot, GLFW, or OpenGL. Enable the separate `fincore_implot` adapter
+only when graphics are wanted. Its caller owns current Dear ImGui and ImPlot
+contexts and their frame/render lifecycle.
 
-The adapter uses only local source checkouts; CMake does not fetch dependencies.
-The supplied ImPlot checkout is the default. Dear ImGui must be supplied
-explicitly as a complete checkout containing `imgui.h`, `imgui_internal.h`,
-the `imstb_*.h` headers, `imgui.cpp`, `imgui_draw.cpp`, `imgui_tables.cpp`,
-and `imgui_widgets.cpp`:
+The cache default for `FINCORE_IMGUI_SOURCE_DIR` is the user-supplied local
+checkout `/Users/yunjinqi/Documents/new_projects/imgui`. It must be complete
+(`imgui.h`, `imgui_internal.h`, the `imstb_*.h` headers, `imgui.cpp`,
+`imgui_draw.cpp`, `imgui_tables.cpp`, and `imgui_widgets.cpp`). CMake uses only
+local sources here and does not fetch, clone, vendor, fabricate, or substitute
+Dear ImGui. Callers can override the cache path when their own complete
+checkout should be used.
+
+The normal local positive build deliberately does **not** pass
+`FINCORE_IMGUI_SOURCE_DIR`, proving the cache default:
 
 ```bash
 cmake -S . -B build-implot -G Ninja \
-  -DFINCORE_BUILD_TESTING=OFF \
-  -DFINCORE_BUILD_IMPLOT=ON \
-  -DFINCORE_IMPLOT_SOURCE_DIR=/Users/yunjinqi/Documents/new_projects/implot \
-  -DFINCORE_IMGUI_SOURCE_DIR=/absolute/path/to/imgui
-cmake --build build-implot --target fincore_implot
-```
-
-The missing-ImGui configuration diagnostic is verified, but it is not a
-positive adapter-build result. The positive `fincore_implot` and demo gates
-remain open until a real local `FINCORE_IMGUI_SOURCE_DIR` is supplied; do not
-fetch, clone, vendor, or fabricate Dear ImGui to satisfy them.
-
-Use the compile contract with that same, known configured binary directory:
-
-```bash
-cmake -DBINARY_DIR="$(pwd)/build-implot" \
-  -P tests/compile/implot_adapter_compile_test.cmake
-```
-
-The GLFW/OpenGL dashboard is deliberately opt-in and is not a CTest dependency:
-
-```bash
-cmake -S . -B build-implot-demo -G Ninja \
-  -DFINCORE_BUILD_TESTING=OFF \
+  -DFINCORE_BUILD_TESTING=ON \
   -DFINCORE_BUILD_IMPLOT=ON \
   -DFINCORE_BUILD_IMPLOT_DEMO=ON \
-  -DFINCORE_IMPLOT_SOURCE_DIR=/Users/yunjinqi/Documents/new_projects/implot \
-  -DFINCORE_IMGUI_SOURCE_DIR=/absolute/path/to/imgui
-cmake --build build-implot-demo --target fincore_implot_demo
+  -DFINCORE_IMPLOT_SOURCE_DIR=/Users/yunjinqi/Documents/new_projects/implot
+cmake --build build-implot --parallel 4
+ctest --test-dir build-implot --output-on-failure
 ```
+
+To override only the local Dear ImGui cache value, add (or set in CMake's
+cache UI):
+
+```bash
+-DFINCORE_IMGUI_SOURCE_DIR=/absolute/path/to/another/complete/imgui
+```
+
+With ImPlot enabled, CTest registers `ImPlotAdapterCompile`; it is a compile
+contract for `fincore_implot`, not a GUI test. It is absent from a headless
+`FINCORE_BUILD_IMPLOT=OFF` configuration along with graphics dependencies.
+Fresh Phase 3C evidence accepted the default-path adapter and
+`fincore_implot_demo` compilation on AppleClang and on Homebrew LLVM 22 with
+ASan/UBSan, each at `147/147` CTest tests; the fresh headless build passed
+`146/146` without `ImPlotAdapterCompile`. See the complete commands, compiler
+versions, warnings, and invalid-override diagnostic in
+[`docs/acceptance/2026-08-11-phase-3c-implot-activation-acceptance.md`](docs/acceptance/2026-08-11-phase-3c-implot-activation-acceptance.md).
+
+The GLFW/OpenGL demo compiles and links, but its GUI runtime was not launched
+by automation. Interactive visual smoke testing requires a user display. The
+accepted macOS builds emitted three OpenGL deprecation warnings (`glViewport`,
+`glClearColor`, and `glClear`); this is a warning record, not a no-warning
+claim. An explicit invalid `FINCORE_IMGUI_SOURCE_DIR` remains an expected
+negative CMake diagnostic, not evidence against the positive default path.
+
+Task 27's optional-build contract is
+`e60d64ec65560e80e079f89e3d433007b8d3f688`
+(`test: register ImPlot adapter build contract`). The dated foundation and
+Phase 2C/3A/3B records retain their former positive-ImPlot OPEN observations;
+that historical item is superseded by Phase 3C rather than rewritten.
+
+This boundary is not full fincore parity or a project-release claim. Still-open
+work includes interactive visual smoke testing; multi-series and tearsheet
+visualizations; unimplemented multi-column and full-index rolling APIs;
+positions and transactions; round trips; attribution; Bayesian/bootstrap and
+advanced risk models; optimization; simulation; reports; data providers;
+packaging and release; and full Python public-API parity.
