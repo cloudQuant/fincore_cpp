@@ -27,6 +27,14 @@ contracts, metadata exclusion, ownership, and direct public regression parity
 for every eligible window. Task 64 does not alter the Task 63 leaf, source,
 or hardening test.
 
+A final phase-review boundary correction is recorded in
+`44e143fb9d0175a77e5b9158bb99a37f80cd0b88`
+(`fix: harden factor exposure selectors`). It retains the normal numerical
+behavior while owning a valid bounded return selector before passing it to the
+public regression leaf, and rejects embedded-NUL return or factor selectors
+before DataFrame C-string name boundaries. This corrects the Task 63 boundary
+contract without changing the historical numerical or gate claims above.
+
 ## Accepted public contract
 
 `<fincore/attribution.hpp>` now exports:
