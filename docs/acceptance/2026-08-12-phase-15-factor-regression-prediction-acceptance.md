@@ -213,3 +213,33 @@ The tracked Task 70 scope is limited to the attribution umbrella, this
 isolated consumer and its registration, README, and this acceptance record.
 It does not alter the Task 69 leaf, factor-regression solver, previous phase
 implementations, third-party configuration, or ImPlot source.
+
+## Commit traceability
+
+Task 69 is the implementation revision
+`539de95ce8d2475dc018e61d331bf56f78c75b27`
+(`feat: add factor regression predictions`). Its direct parent is the Phase 15
+plan revision `8513c211ed42ef4f7bec385b5f4f3233defef10f`, and its exact tracked
+path scope is:
+
+- `CMakeLists.txt`
+- `tests/CMakeLists.txt`
+- `include/fincore/attribution/factor_prediction.hpp`
+- `src/attribution/factor_prediction.cpp`
+- `tests/unit/factor_prediction_test.cpp`
+
+Task 70 is the initial acceptance revision
+`1632b043a229181fd11b635afd43da0bbe8113d0`
+(`docs: accept phase 15 factor regression predictions`), whose direct parent
+is Task 69. Its distinct exact tracked path scope is:
+
+- `include/fincore/attribution.hpp`
+- `tests/CMakeLists.txt`
+- `tests/unit/attribution_factor_prediction_umbrella_test.cpp`
+- `README.md`
+- `docs/acceptance/2026-08-12-phase-15-factor-regression-prediction-acceptance.md`
+
+Task 71 is documentation-only traceability. It does not amend either prior
+revision, and this record deliberately neither states nor anticipates Task
+71's own commit SHA. No review-correction revision is represented by this
+trace entry.
