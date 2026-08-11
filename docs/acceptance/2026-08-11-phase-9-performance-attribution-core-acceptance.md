@@ -23,6 +23,9 @@ GUI-runtime acceptance.
   `<fincore/metrics/perf_attrib.hpp>` from the existing public
   `<fincore/metrics.hpp>` umbrella and does not change the attribution
   implementation.
+- Post-whole-phase key-contract correction:
+  `e886a64cb8705acd5eff9e285233ce349b3b1400`
+  (`fix: validate performance attribution key contracts`).
 
 Task 53 is documentation-only: it records this direct Task 52 acceptance
 commit, does not amend Task 52, and does not state or anticipate its own SHA.
@@ -78,7 +81,34 @@ is the public-consumer RED proof.
 Adding the single public include
 `#include <fincore/metrics/perf_attrib.hpp>` to `metrics.hpp` made the exact
 fixture compile and pass. The focused GREEN command passed `8/8` umbrella
-tests, and the existing configured build passed `231/231` CTest tests.
+tests, and the current configured build passed `233/233` CTest tests.
+
+## Post-whole-phase key-contract correction
+
+The whole-phase review supplied the factual RED finding: before
+`e886a64cb8705acd5eff9e285233ce349b3b1400`, both
+`normalize_attribution_positions` and `compute_exposures` accepted duplicate
+position timestamps, and the public loading path accepted an empty genuine
+`double` asset-column name and an empty factor-loading `symbol` value. This
+correction is deliberately narrow: it does not reject the valid repeated
+loading date carried by distinct nonempty symbols.
+
+The correction's GREEN evidence is two public `PerfAttrib` regressions:
+`RejectsDuplicatePositionIndexesInPublicPrimitives` requires `input_error` in
+both primitives, and `RejectsEmptyPositionAssetNamesAndLoadingSymbols` requires
+`input_error` for both empty-name cases. The current focused public run
+
+```bash
+cmake --build build --parallel 4
+ctest --test-dir build -R 'MetricsUmbrella|PerfAttrib' --output-on-failure
+```
+
+passed `17/17`. The scoped re-review of
+`f7b53d543f7d9884d35bfac5c2e0c34f8976557d..e886a64cb8705acd5eff9e285233ce349b3b1400`
+passed: duplicate position timestamps are rejected in both public primitives,
+empty asset/loading symbols are rejected, and valid duplicate loading dates
+across different symbols remain accepted. This is an input-contract correction,
+not a new data provider, report, warning/drop, or GUI capability.
 
 ## Numeric oracle evidence
 
@@ -159,15 +189,15 @@ explicitly negative configure states otherwise. The explicitly shown sanitizer
 
 ### AppleClang headless core
 
-Fresh root: `/tmp/fincore-phase9-apple.aZppsy`.
+Fresh root: `/tmp/fincore-phase9-contract-apple.C57p9l`.
 
 ```bash
-cmake -S . -B /tmp/fincore-phase9-apple.aZppsy -DCMAKE_BUILD_TYPE=Debug -DFINCORE_BUILD_IMPLOT=OFF
-cmake --build /tmp/fincore-phase9-apple.aZppsy --parallel 4
-ctest --test-dir /tmp/fincore-phase9-apple.aZppsy --output-on-failure
+cmake -S . -B /tmp/fincore-phase9-contract-apple.C57p9l -DCMAKE_BUILD_TYPE=Debug -DFINCORE_BUILD_IMPLOT=OFF
+cmake --build /tmp/fincore-phase9-contract-apple.C57p9l --parallel 4
+ctest --test-dir /tmp/fincore-phase9-contract-apple.C57p9l --output-on-failure
 ```
 
-CMake identified AppleClang `17.0.0.17000603`; CTest passed `231/231`.
+CMake identified AppleClang `17.0.0.17000603`; CTest passed `233/233`.
 
 ### Homebrew LLVM 22 ASan/UBSan headless core
 
@@ -177,17 +207,17 @@ exact warning `Manually-specified variables were not used by the project:
 FINCORE_ENABLE_SANITIZERS`; it therefore is not sanitizer evidence. The project
 defines the separate `FINCORE_ENABLE_ASAN` and `FINCORE_ENABLE_UBSAN` options,
 so the actual sanitizer gate used this fresh root:
-`/tmp/fincore-phase9-llvm-asan.CMMQNA`.
+`/tmp/fincore-phase9-contract-llvm-asan.A9NAtH`.
 
 ```bash
-cmake -S . -B /tmp/fincore-phase9-llvm-asan.CMMQNA -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++ -DCMAKE_BUILD_TYPE=Debug -DFINCORE_ENABLE_ASAN=ON -DFINCORE_ENABLE_UBSAN=ON -DFINCORE_BUILD_IMPLOT=OFF
-cmake --build /tmp/fincore-phase9-llvm-asan.CMMQNA --parallel 4
-ctest --test-dir /tmp/fincore-phase9-llvm-asan.CMMQNA --output-on-failure
-rg -n 'AddressSanitizer|UndefinedBehaviorSanitizer|runtime error' /tmp/fincore-phase9-llvm-asan.CMMQNA/configure.log /tmp/fincore-phase9-llvm-asan.CMMQNA/build.log /tmp/fincore-phase9-llvm-asan.CMMQNA/ctest.log
+cmake -S . -B /tmp/fincore-phase9-contract-llvm-asan.A9NAtH -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++ -DCMAKE_BUILD_TYPE=Debug -DFINCORE_ENABLE_ASAN=ON -DFINCORE_ENABLE_UBSAN=ON -DFINCORE_BUILD_IMPLOT=OFF
+cmake --build /tmp/fincore-phase9-contract-llvm-asan.A9NAtH --parallel 4
+ctest --test-dir /tmp/fincore-phase9-contract-llvm-asan.A9NAtH --output-on-failure
+rg -n 'AddressSanitizer|UndefinedBehaviorSanitizer|runtime error' /tmp/fincore-phase9-contract-llvm-asan.A9NAtH/configure.log /tmp/fincore-phase9-contract-llvm-asan.A9NAtH/build.log /tmp/fincore-phase9-contract-llvm-asan.A9NAtH/ctest.log
 ```
 
 `/opt/homebrew/opt/llvm/bin/clang++ --version` reported Homebrew clang
-`22.1.8`; CTest passed `231/231`. The sanitizer scan had no matches for
+`22.1.8`; CTest passed `233/233`. The sanitizer scan had no matches for
 `AddressSanitizer`, `UndefinedBehaviorSanitizer`, or `runtime error`. The
 evidence-based absence is limited to these logs. The build did emit the
 third-party GoogleTest warning:
@@ -200,19 +230,19 @@ warning: implicit conversion from 'char8_t' to 'char32_t' may change the meaning
 
 `FINCORE_BUILD_IMPLOT` and `FINCORE_BUILD_IMPLOT_DEMO` default to `OFF` in this
 project. To exercise the requested default *local source paths* rather than a
-headless default, the fresh root `/tmp/fincore-phase9-implot.DA613y` explicitly
+headless default, the fresh root `/tmp/fincore-phase9-contract-implot.VAf008` explicitly
 enabled both options while intentionally omitting `FINCORE_IMGUI_SOURCE_DIR`
 and `FINCORE_IMPLOT_SOURCE_DIR`:
 
 ```bash
-cmake -S . -B /tmp/fincore-phase9-implot.DA613y -DCMAKE_BUILD_TYPE=Debug -DFINCORE_BUILD_IMPLOT=ON -DFINCORE_BUILD_IMPLOT_DEMO=ON
-cmake --build /tmp/fincore-phase9-implot.DA613y --parallel 4
-ctest --test-dir /tmp/fincore-phase9-implot.DA613y -N
-ctest --test-dir /tmp/fincore-phase9-implot.DA613y --output-on-failure
+cmake -S . -B /tmp/fincore-phase9-contract-implot.VAf008 -DCMAKE_BUILD_TYPE=Debug -DFINCORE_BUILD_IMPLOT=ON -DFINCORE_BUILD_IMPLOT_DEMO=ON
+cmake --build /tmp/fincore-phase9-contract-implot.VAf008 --parallel 4
+ctest --test-dir /tmp/fincore-phase9-contract-implot.VAf008 -N
+ctest --test-dir /tmp/fincore-phase9-contract-implot.VAf008 --output-on-failure
 ```
 
 The build compiled and linked `fincore_implot_demo`. `ctest -N` listed
-`ImPlotAdapterCompile`; the full run passed `232/232`. No GUI executable was
+`ImPlotAdapterCompile`; the full run passed `234/234`. No GUI executable was
 launched. The build emitted exactly these macOS OpenGL deprecation warnings:
 
 ```text
@@ -225,10 +255,10 @@ These results are not a no-warning claim.
 
 ### Fresh invalid ImGui override
 
-Fresh root: `/tmp/fincore-phase9-invalid-imgui.5RlNC8`.
+Fresh root: `/tmp/fincore-phase9-contract-invalid-imgui.JKKbYE`.
 
 ```bash
-cmake -S . -B /tmp/fincore-phase9-invalid-imgui.5RlNC8 -DCMAKE_BUILD_TYPE=Debug -DFINCORE_BUILD_IMPLOT=ON -DFINCORE_IMGUI_SOURCE_DIR=/tmp/fincore-phase9-invalid-imgui.5RlNC8/not-a-dear-imgui-checkout
+cmake -S . -B /tmp/fincore-phase9-contract-invalid-imgui.JKKbYE -DCMAKE_BUILD_TYPE=Debug -DFINCORE_BUILD_IMPLOT=ON -DFINCORE_IMGUI_SOURCE_DIR=/tmp/fincore-phase9-contract-invalid-imgui.JKKbYE/not-a-dear-imgui-checkout
 ```
 
 The configure exited `1`, as expected, at `cmake/fincore_implot.cmake:47`:
@@ -236,7 +266,7 @@ The configure exited `1`, as expected, at `cmake/fincore_implot.cmake:47`:
 ```text
 FINCORE_IMGUI_SOURCE_DIR must name a Dear ImGui checkout with all required
 files; received
-'/tmp/fincore-phase9-invalid-imgui.5RlNC8/not-a-dear-imgui-checkout'
+'/tmp/fincore-phase9-contract-invalid-imgui.JKKbYE/not-a-dear-imgui-checkout'
 ```
 
 No dependency was fetched, cloned, vendored, fabricated, or substituted.

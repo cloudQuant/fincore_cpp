@@ -819,11 +819,17 @@ not a synthetic pandas `MultiIndex` API.
 The implementation lineage is Task 50 factor exposure metrics
 `3e6991919ecbe02ad70ab0e8ddd1cb5f5b123571`, Task 51 performance-attribution
 implementation `3e6b1623d39c3913462c236283acefdf00f5a8c7`, and Task 51
-regression hardening `566ce45c41c6e36a549cafb41ee90fd8462da2e8`. The focused
-public-umbrella fixture passed `8/8`; the configured/full suite, fresh
-AppleClang headless build, and fresh Homebrew LLVM 22 ASan/UBSan headless build
-each passed `231/231`; the fresh default-local ImPlot/demo compile-and-link
-boundary passed `232/232`, including `ImPlotAdapterCompile`.
+regression hardening `566ce45c41c6e36a549cafb41ee90fd8462da2e8`. Post-whole-
+phase correction `e886a64cb8705acd5eff9e285233ce349b3b1400` rejects duplicate
+position timestamps in both public primitives, empty asset-column names, and
+empty loading-symbol values, while preserving valid repeated loading dates for
+distinct symbols; its scoped review passed.
+
+The current focused `MetricsUmbrella|PerfAttrib` gate passed `17/17`; the
+configured/full suite, fresh AppleClang headless build, and fresh Homebrew LLVM
+22 ASan/UBSan headless build each passed `233/233`; the fresh default-local
+ImPlot/demo compile-and-link boundary passed `234/234`, including
+`ImPlotAdapterCompile`.
 The LLVM build emitted the third-party GoogleTest
 `-Wcharacter-conversion` warning. The ImPlot demo build emitted macOS OpenGL
 deprecation warnings for `glViewport`, `glClearColor`, and `glClear`. These
