@@ -12,9 +12,11 @@ interactive ImPlot result.
 - Task 31 follow-up delegation coverage:
   `9e82194c9cca72b7e6755c85d6c7e7c6e47f8848`
   (`test: cover custom roll alpha beta delegation`).
-- Task 32 acceptance publication: recorded by the subsequent docs-only
-  traceability commit after this initial acceptance commit; this document does
-  not self-reference or amend history.
+- Task 32 initial acceptance publication:
+  `7ecb127f248066c0364147b45f0395fd7b5f2397`
+  (`docs: accept phase 4B multicolumn rolling metrics`). This subsequent
+  docs-only traceability update records that SHA without self-reference or a
+  history amendment.
 
 ## Accepted public contract
 
@@ -54,7 +56,7 @@ overloads, and `rolling_regression` through the existing rolling header.
 - [x] An explicit invalid-ImGui configure exited `1` with the expected CMake
   diagnostic and without fetching, cloning, vendoring, fabricating, or
   substituting dependencies.
-- [ ] Commit SHAs, warnings, remaining scope, and owned-path audit are based
+- [x] Commit SHAs, warnings, remaining scope, and owned-path audit are based
   only on completed commands and commits.
 
 ## Fresh verification

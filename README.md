@@ -420,6 +420,9 @@ Task 31 implementation and follow-up coverage are
 `9e82194c9cca72b7e6755c85d6c7e7c6e47f8848`. Fresh Task 32 public-consumer,
 headless, sanitizer, and ImPlot compile-boundary evidence is recorded in
 [`docs/acceptance/2026-08-11-phase-4b-multicolumn-rolling-acceptance.md`](docs/acceptance/2026-08-11-phase-4b-multicolumn-rolling-acceptance.md).
+Its initial Task 32 acceptance commit is
+`7ecb127f248066c0364147b45f0395fd7b5f2397`; this subsequent docs-only
+traceability update records that SHA without self-referencing or amending it.
 
 Portfolio positions and transactions; round trips; performance attribution;
 bootstrap/distribution statistics; Bayesian and advanced-risk models;
