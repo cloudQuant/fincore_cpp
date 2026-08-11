@@ -417,4 +417,44 @@ TEST(MetricsUmbrella, ExposesSlippageAdjustedReturns) {
   EXPECT_DOUBLE_EQ(values[4], 0.0);
 }
 
+TEST(MetricsUmbrella, ExposesQuadraticVolumeShareSlippagePenalty) {
+  const auto jan_1 = fincore::utc_timestamp(2024, 1, 1);
+  const auto jan_2 = fincore::utc_timestamp(2024, 1, 2);
+  const auto jan_3 = fincore::utc_timestamp(2024, 1, 3);
+  const auto returns = fincore::make_series(
+      std::vector<fincore::timestamp>{fincore::utc_timestamp(2024, 1, 1, 9),
+                                       fincore::utc_timestamp(2024, 1, 2, 9),
+                                       fincore::utc_timestamp(2024, 1, 3, 9)},
+      "returns", std::vector<double>{1.0, 1.0, 1.0});
+
+  fincore::dataframe transactions;
+  transactions.load_index(
+      std::vector<fincore::timestamp>{fincore::utc_timestamp(2024, 1, 1, 15),
+                                       fincore::utc_timestamp(2024, 1, 2, 15),
+                                       fincore::utc_timestamp(2024, 1, 3, 15)});
+  transactions.load_column<double>(
+      "amount", std::vector<double>{100000.0, 100000.0, 100000.0},
+      hmdf::nan_policy::dont_pad_with_nans);
+  transactions.load_column<double>("price", std::vector<double>{1.0, 1.0, 1.0},
+                                   hmdf::nan_policy::dont_pad_with_nans);
+  transactions.load_column<double>(
+      "volume", std::vector<double>{1000000.0, 2000000.0, 3000000.0},
+      hmdf::nan_policy::dont_pad_with_nans);
+
+  const auto adjusted = fincore::apply_slippage_penalty(
+      returns, transactions, 1000000.0, 1000000.0, 1.0);
+
+  EXPECT_EQ(adjusted.get_index(),
+            (std::vector<fincore::timestamp>{jan_1, jan_2, jan_3}));
+  ASSERT_EQ(adjusted.shape().second, 1U);
+  const auto columns = adjusted.get_columns_info<double>();
+  ASSERT_EQ(columns.size(), 1U);
+  EXPECT_EQ(std::get<0>(columns[0]), "returns");
+  const auto& values = adjusted.get_column<double>("returns");
+  ASSERT_EQ(values.size(), 3U);
+  EXPECT_DOUBLE_EQ(values[0], .9995);
+  EXPECT_DOUBLE_EQ(values[1], .9999375);
+  EXPECT_DOUBLE_EQ(values[2], .9999861111111111);
+}
+
 }  // namespace

@@ -560,6 +560,52 @@ round trips and attribution; advanced analytics; visualization runtime;
 packaging/release; and full Python public-API parity remain deferred. Phase 6A
 is not a whole-project completion, release, or GUI visual-validation claim.
 
+## Accepted Phase 6B quadratic volume-share slippage penalty
+
+The transaction module also exposes the bounded quadratic penalty surface
+through the same public umbrella:
+
+~~~cpp
+#include <fincore/metrics.hpp>
+
+const auto adjusted = fincore::apply_slippage_penalty(
+    returns, transactions_with_bar_data,
+    simulate_starting_capital, backtest_starting_capital, impact);
+~~~
+
+`transactions_with_bar_data` is deliberately a prejoined raw transaction and
+daily-bar-volume table: it has distinct, genuine `double` `amount`, `price`,
+and `volume` fields, each matching its timestamp index. It may contain
+unordered, duplicate, and intraday rows, which are normalized and aggregated
+by UTC day. This operation does not join transactions to market data.
+
+With `m = simulate_starting_capital / backtest_starting_capital`, each raw row
+contributes `((abs(m * amount) / volume)^2) * impact * (price * abs(m * amount))`
+to its day. NaN contributions are skipped while ordinary signed infinities
+remain IEEE values. Return input needs a requested genuine `double` column and
+strictly increasing, unique UTC days. The output has exactly that one return
+column and only the normalized return-day index; transaction-only days are not
+emitted.
+
+The return path compounds private wealth, treating a NaN return as zero only
+for that wealth calculation. Its simulated portfolio value is
+`(wealth * backtest_starting_capital) * m`. An absent or NaN daily penalty is
+zero; an exact-zero portfolio value makes the adjusted division NaN and so
+recovers the original return. Exact zero `backtest_starting_capital` is
+rejected, while simulated capital and impact retain ordinary IEEE behavior.
+
+Task 41's implementation and signed-simulation coverage are
+`da9387aa80a2586753ad51b4cbb45a8670500829` and
+`2c15648f26e7263a08ccfe7bc16e890f38c646d1`. Fresh public-consumer,
+headless, sanitizer, and optional compile-boundary evidence is in
+[docs/acceptance/2026-08-11-phase-6b-quadratic-slippage-acceptance.md](docs/acceptance/2026-08-11-phase-6b-quadratic-slippage-acceptance.md).
+
+Daily transaction/bar-data joins, symbols/SIDs, liquidity and liquidation
+metrics, external market-data providers, alternative impact models, round
+trips and attribution, reports/tearsheets, packaging/release, and interactive
+ImPlot visual smoke testing remain deferred. Phase 6B is neither full fincore
+parity nor a GUI-runtime or whole-project-completion claim.
+
 ## Headless core verification
 
 The core target is headless. It links `DataFrame::DataFrame` and does not
