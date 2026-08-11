@@ -207,3 +207,19 @@ to the attribution umbrella, this isolated consumer and CMake registration,
 README, and this acceptance record. It does not expand accepted scope to a
 provider/model, solver change, interactive visual validation, packaging or
 release validation, or full Python API parity.
+
+## Phase 14 traceability
+
+Task 66 is the implementation revision
+`43c65fd50784988ac41dacff894ee66ab2038259`
+(`feat: add factor attribution decomposition`). Its scope is the native
+factor-attribution leaf, its CMake registrations, and its leaf-isolated test.
+
+Task 67 is the direct initial-acceptance child revision
+`b39db7c387ab653b2e856d9d0a3689e7c7eab5a7`
+(`docs: accept phase 14 factor attribution decomposition`). Its scope is the
+attribution umbrella export, isolated consumer and registration, README, and
+this initial acceptance record.
+
+Task 68 appends this documentation-only trace and does not amend either prior
+commit. This record intentionally makes no statement about its own revision.
