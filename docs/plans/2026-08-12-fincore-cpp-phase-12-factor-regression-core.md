@@ -364,7 +364,8 @@ retained fresh-gate convention.
     echo 'expected invalid ImGui configure to fail' >&2
     exit 1
   fi
-  rg -n 'FINCORE_IMGUI_SOURCE_DIR must name a Dear ImGui checkout with all required files' \
+  # CMake may wrap "required files" across physical output lines.
+  rg -n -U 'FINCORE_IMGUI_SOURCE_DIR must name a Dear ImGui checkout with all required\s+files' \
     "$INVALID_DIR/configure.log"
   ~~~
 
@@ -372,7 +373,8 @@ retained fresh-gate convention.
   warnings, no-match sanitizer scan, invalid-ImGui diagnostic, and the
   compile/link-only/no-GUI boundary in both the ignored Task 61 report and the
   acceptance record.  The invalid configuration must exit nonzero and show the
-  complete Dear-ImGui diagnostic.
+  complete Dear-ImGui diagnostic, allowing CMake's physical line wrapping in
+  the retained-log scanner.
 
 - [ ] **Step 5: Commit only Task 61 tracked paths**
 
