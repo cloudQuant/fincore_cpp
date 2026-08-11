@@ -41,6 +41,7 @@ add_library(fincore
     src/metrics/round_trips.cpp
     src/metrics/perf_attrib.cpp
     src/attribution/brinson.cpp
+    src/simulation/scenarios.cpp
     src/analysis_context.cpp
     src/rolling_engine.cpp)
 add_library(fincore::fincore ALIAS fincore)
