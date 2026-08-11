@@ -9,9 +9,11 @@ test, whole-project completion, or full Python public-API parity.
 - Task 27 implementation commit:
   `e60d64ec65560e80e079f89e3d433007b8d3f688`
   (`test: register ImPlot adapter build contract`).
-- Task 28 initial documentation commit: recorded by the documentation-only
-  traceability follow-up after the initial acceptance commit is created; that
-  follow-up does not amend history or need to self-reference.
+- Task 28 initial evidence-first documentation commit:
+  `61aee786a01abf8cd97e7d58f841c1441116aa83`
+  (`docs: accept positive ImPlot build`). This documentation-only traceability
+  follow-up records that first Task 28 SHA, does not amend history, and does
+  not self-reference.
 - Local, user-supplied dependencies used by the positive builds:
   - Dear ImGui: `/Users/yunjinqi/Documents/new_projects/imgui`
   - ImPlot: `/Users/yunjinqi/Documents/new_projects/implot`

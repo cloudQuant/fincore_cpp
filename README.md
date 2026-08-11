@@ -432,9 +432,14 @@ negative CMake diagnostic, not evidence against the positive default path.
 
 Task 27's optional-build contract is
 `e60d64ec65560e80e079f89e3d433007b8d3f688`
-(`test: register ImPlot adapter build contract`). The dated foundation and
-Phase 2C/3A/3B records retain their former positive-ImPlot OPEN observations;
-that historical item is superseded by Phase 3C rather than rewritten.
+(`test: register ImPlot adapter build contract`). Task 28's initial
+evidence-first documentation commit is
+`61aee786a01abf8cd97e7d58f841c1441116aa83`
+(`docs: accept positive ImPlot build`); this documentation-only traceability
+follow-up records that first Task 28 SHA and intentionally does not
+self-reference. The dated foundation and Phase 2C/3A/3B records retain their
+former positive-ImPlot OPEN observations; that historical item is superseded
+by Phase 3C rather than rewritten.
 
 This boundary is not full fincore parity or a project-release claim. Still-open
 work includes interactive visual smoke testing; multi-series and tearsheet
