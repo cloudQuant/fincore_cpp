@@ -13,6 +13,13 @@ not a whole-project fincore-parity, packaging/release, or GUI-runtime claim.
 - Task 38 accepted fill-value correction:
   `b87266bf20eff1e985988d1c8c1bdb443c4d4870`
   (`fix: preserve slippage fill-value semantics`).
+- Task 39 immutable initial acceptance evidence:
+  `a03a9601db98e7e7bb0e851a47cbcbd3145c9985`
+  (`docs: accept phase 6A slippage adjustment`). This Task 40 docs-only trace
+  neither self-references nor amends Task 39.
+- Task 39 accepted test-only coverage correction:
+  `bac6683d0ea5d513a23839cc574581ff7ebdb5bd`
+  (`test: assert slippage umbrella schema`).
 
 This initial Task 39 acceptance record intentionally does not self-reference
 its own commit.
