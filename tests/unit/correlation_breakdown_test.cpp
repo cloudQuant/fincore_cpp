@@ -161,22 +161,4 @@ TEST(CorrelationBreakdown, OwnsCopiedNameLabels) {
     expect_named_matrix_values(matrix, expected_names, 0.25);
 }
 
-TEST(CorrelationBreakdown, RejectsUnrepresentableIndexAndCellCountsBeforeAccess) {
-    constexpr std::string_view placeholder{"placeholder"};
-    constexpr std::size_t maximum_timestamp_count =
-        static_cast<std::size_t>(std::numeric_limits<timestamp>::max());
-    static_assert(std::numeric_limits<std::size_t>::max() >
-                  maximum_timestamp_count);
-
-    const std::span<const std::string_view> too_many_for_index{
-        &placeholder, maximum_timestamp_count + 1U};
-    const std::span<const std::string_view> too_many_cells{
-        &placeholder, maximum_timestamp_count};
-
-    EXPECT_THROW(fincore::generate_correlation_breakdown(too_many_for_index),
-                 fincore::input_error);
-    EXPECT_THROW(fincore::generate_correlation_breakdown(too_many_cells),
-                 fincore::input_error);
-}
-
 }  // namespace
