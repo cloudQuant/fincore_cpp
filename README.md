@@ -1052,6 +1052,46 @@ oracle, isolated umbrella RED/GREEN, and fresh build-gate evidence are retained
 in
 [`docs/acceptance/2026-08-12-phase-15-factor-regression-prediction-acceptance.md`](docs/acceptance/2026-08-12-phase-15-factor-regression-prediction-acceptance.md).
 
+## Accepted Phase 16 named correlation-breakdown matrix
+
+`<fincore/simulation.hpp>` now also exports a deterministic, named
+DataFrame-native adaptation of Python's integer-dimension
+`generate_correlation_breakdown` helper:
+
+```cpp
+#include <fincore/simulation.hpp>
+
+const std::array<std::string_view, 3U> assets{"equity", "credit", "commodity"};
+const fincore::dataframe matrix =
+    fincore::generate_correlation_breakdown(assets, 0.25);
+```
+
+The native operation accepts explicit asset names so its result can be a named
+table rather than Python's anonymous nested list. For `N` names it returns an
+independently owned `N x N` `fincore::dataframe`: ordinal timestamp index
+`0..N-1`, exactly `N` genuine `double` columns in supplied asset order, and no
+extras. The diagonal is exactly `1.0`; every off-diagonal cell is the literal
+finite target. An empty name span yields a valid `0x0` result with an empty
+index and no data columns.
+
+Names must be nonempty, distinct, and free of embedded NUL; bounded
+non-NUL-terminated views are copied safely and remain valid. The target must
+be finite. There is intentionally no PSD check, repair, covariance conversion,
+or clamping: finite values outside conventional correlation bounds are retained
+unchanged off diagonal. No input time-series index, alignment, estimator,
+random engine, simulation path, stress scenario, provider, or GUI runtime is
+introduced.
+
+The leaf began at Task 72 commit
+`1e94efb0aa9365db592fa8845dec9ed3677d541a`; its standards-valid test correction
+is `c1ffef2a5276d706d88eba02664f41f1e4b977f4`, which removes only an invalid
+oversized `std::span` test probe and does not alter production behavior. The
+source oracle, public-header RED/GREEN, isolated umbrella RED/GREEN, and fresh
+AppleClang, LLVM ASan+UBSan, ImPlot compile/link, and invalid-ImGui evidence
+are retained in
+[`docs/acceptance/2026-08-12-phase-16-correlation-breakdown-acceptance.md`](docs/acceptance/2026-08-12-phase-16-correlation-breakdown-acceptance.md).
+The ImPlot demo was compiled and linked only; it was never launched.
+
 ## Accepted Phase 11 native stress scenarios
 
 `<fincore/simulation.hpp>` exports only the deterministic, DataFrame-native
