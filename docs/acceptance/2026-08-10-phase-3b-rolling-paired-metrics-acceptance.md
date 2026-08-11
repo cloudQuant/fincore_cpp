@@ -15,6 +15,14 @@ Phase 3A):
   their period-derived annualization once and delegate to the corresponding
   scalar capture function.
 
+Validation ordering is deliberately asymmetric for empty or short aligned
+inputs: alpha and the three capture endpoints resolve their frequency-derived
+annualization first, so an invalid frequency throws before a typed-empty result
+is returned. Beta ignores `period`/`annualization`; for the same empty or short
+inputs and invalid frequency, it returns its normal typed-empty result. The
+registered `PairedEndpointsValidateAnnualizationBeforeReturningEmptyAlignedResults`
+test covers both cases.
+
 Each result is a one-column double series named by the requested returns
 column, indexed at the final timestamp of every complete aligned window. The
 two inputs are aligned exactly once through `align_on_common_index`, retaining
@@ -29,6 +37,7 @@ no two-column `roll_alpha_beta`, no `rolling_regression`, no full-index
 | Task 25 - paired rolling metrics | `7c779a131435960d4bb215762970fe37a1db500a` (`feat: add paired rolling metrics`) |
 | Task 25 follow-up - annualization validation ordering | `091f9173433468c7ee70dc564ace2e5fcd0e52f2` (`fix: validate paired rolling annualization`) |
 | Task 26 - public umbrella consumer regression | `a0c130d815cb1d18f85e1c01b73cfc8e6d59d32a` (`test: cover paired rolling metrics in umbrella`) |
+| Task 26 - final acceptance documentation | `32157fbfd190a2a83ad12d104e3cc1fdcc1658e7` (`docs: accept phase 3B paired rolling metrics`) |
 
 The Phase 3B plan was authored at `b7a85ba9c8724935e305b623302a9219b9b19903`
 and clarified at `1c90cab1dd5bc447e8e13cf8b1c56b0236ff3765`.
@@ -67,6 +76,16 @@ the `{1, 2, 3}` `strategy`/`market` pair at window `3` and assert, for each
 paired endpoint, the index `{3}`, the `strategy` column name, and a single
 double column (`get_columns_info<double>().size() == 1`). The accepted
 umbrella regression is `a0c130d815cb1d18f85e1c01b73cfc8e6d59d32a`.
+
+Focused replays of that public consumer passed `1/1` in both preserved Task 26
+builds:
+
+```sh
+ctest --test-dir /tmp/fincore-task26-core.VfIPiv/build -R MetricsUmbrella --output-on-failure
+ctest --test-dir /tmp/fincore-task26-sanitize.TjdgSE/build -R MetricsUmbrella --output-on-failure
+```
+
+The recorded complete CTest runs remain `146/146` in each respective build.
 
 ## Python-oracle and endpoint evidence
 

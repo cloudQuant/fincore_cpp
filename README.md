@@ -268,12 +268,22 @@ three capture functions resolve their period-derived annualization once. No
 two-column `roll_alpha_beta`, `rolling_regression`, full-index `rolling_beta`,
 multi-factor DataFrame, or `rolling_engine` change is exposed.
 
+Validation ordering is deliberately asymmetric for empty or short aligned
+inputs: alpha and the three capture endpoints resolve their frequency-derived
+annualization first, so an invalid frequency throws before a typed-empty result
+is returned. Beta ignores `period`/`annualization`; for the same empty or short
+inputs and invalid frequency, it returns its normal typed-empty result. The
+registered `PairedEndpointsValidateAnnualizationBeforeReturningEmptyAlignedResults`
+test covers both cases.
+
 The accepted implementation chain is Task 25
 `7c779a131435960d4bb215762970fe37a1db500a` (`feat: add paired rolling
 metrics`) followed by `091f9173433468c7ee70dc564ace2e5fcd0e52f2` (`fix:
 validate paired rolling annualization`), and its Task 26 public-umbrella
 acceptance commit `a0c130d815cb1d18f85e1c01b73cfc8e6d59d32a` (`test: cover
-paired rolling metrics in umbrella`). The registered Python-golden tests cover
+paired rolling metrics in umbrella`), followed by the Task 26 final
+acceptance-document commit `32157fbfd190a2a83ad12d104e3cc1fdcc1658e7` (`docs:
+accept phase 3B paired rolling metrics`). The registered Python-golden tests cover
 all five endpoint vectors, left-order alignment, empty/short/no-common-index
 behavior, `window == 0` rejection, custom columns, beta's ignored
 annualization, and a NaN fixture compared directly against the public scalar
@@ -288,6 +298,12 @@ Fresh Phase 3B acceptance evidence from 2026-08-10 is:
   `a0c130d815cb1d18f85e1c01b73cfc8e6d59d32a` extended `MetricsUmbrella` to
   call all five APIs and assert the `{3}` endpoint index, the `strategy`
   column, and a single double column.
+- Focused replays of that public consumer passed `1/1` in both preserved Task
+  26 builds: `ctest --test-dir /tmp/fincore-task26-core.VfIPiv/build -R
+  MetricsUmbrella --output-on-failure` and `ctest --test-dir
+  /tmp/fincore-task26-sanitize.TjdgSE/build -R MetricsUmbrella
+  --output-on-failure`. The recorded complete CTest runs below remain
+  `146/146`.
 - AppleClang `17.0.0.17000603` (`/usr/bin/c++`: Apple clang `17.0.0`) ran the
   fresh preserved command set `cmake -S . -B
   /tmp/fincore-task26-core.VfIPiv/build -G Ninja
