@@ -42,6 +42,7 @@ add_executable(fincore_tests
     unit/attribution_umbrella_test.cpp
     unit/attribution_factor_regression_umbrella_test.cpp
     unit/attribution_factor_exposures_umbrella_test.cpp
+    unit/attribution_factor_attribution_umbrella_test.cpp
     unit/stress_scenarios_test.cpp
     unit/simulation_umbrella_test.cpp)
 target_link_libraries(fincore_tests PRIVATE

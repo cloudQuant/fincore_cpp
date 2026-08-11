@@ -973,6 +973,44 @@ passed `7/7` and `262/262`, while the hardening revision passed `8/8` and
 and current fresh gate evidence are recorded in
 [`docs/acceptance/2026-08-12-phase-13-rolling-factor-exposures-acceptance.md`](docs/acceptance/2026-08-12-phase-13-rolling-factor-exposures-acceptance.md).
 
+## Accepted Phase 14 factor-attribution decomposition
+
+`<fincore/attribution.hpp>` now also exports the bounded, deterministic,
+one-shot DataFrame-native factor-attribution decomposition:
+
+```cpp
+#include <fincore/attribution.hpp>
+
+const fincore::dataframe summary = fincore::factor_attribution_decomposition(
+    returns, factor_returns, factor_names,
+    /* risk_free_rate = */ 0.0,
+    /* returns_column_name = */ fincore::returns_column);
+```
+
+The independently owned result has synthetic ordinal index `0..K+3`, exactly
+one genuine `std::string` `component` column followed by one genuine `double`
+`contribution` column, and rows in this exact order: `alpha`, caller-ordered
+`<factor>_attribution` rows, `specific_return`, `common_return`, and
+`unexplained`. `specific_return` intentionally means the sum of the factor
+contributions; `common_return` is the arithmetic mean of the selected returns
+minus only the supplied finite risk-free rate; and `unexplained` is
+`common_return - alpha - specific_return`.
+
+The operation owns and NUL-validates all selectors, then invokes the public
+factor-regression leaf once. That leaf remains the authority for selected
+genuine-double, finite, exact-index, observation-count, and full-rank
+contracts; inputs are not aligned, sorted, dropped, or repaired. This is not a
+stateful Fama-French model/provider, standard-factor selector, prediction,
+rolling calculation, statistical-output suite, external numerical dependency,
+full Python dict-parity claim, or GUI-runtime feature. ImPlot evidence is
+compile/link only and no GUI executable was launched.
+
+The Task 66 implementation is
+`43c65fd50784988ac41dacff894ee66ab2038259`. The source-derived Python oracle,
+isolated umbrella RED/GREEN, and fresh AppleClang, LLVM ASan+UBSan, ImPlot, and
+invalid-ImGui evidence are retained in
+[`docs/acceptance/2026-08-12-phase-14-factor-attribution-decomposition-acceptance.md`](docs/acceptance/2026-08-12-phase-14-factor-attribution-decomposition-acceptance.md).
+
 ## Accepted Phase 11 native stress scenarios
 
 `<fincore/simulation.hpp>` exports only the deterministic, DataFrame-native
