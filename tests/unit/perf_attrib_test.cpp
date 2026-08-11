@@ -1,4 +1,5 @@
 #include <fincore/metrics/perf_attrib.hpp>
+#include <fincore/metrics/ratios.hpp>
 #include <fincore/metrics/returns.hpp>
 
 #include <gtest/gtest.h>
@@ -64,8 +65,9 @@ fincore::dataframe strategy_returns() {
                               {.02, -.01, .03});
 }
 
+template <std::size_t count>
 void expect_columns(const fincore::dataframe &frame,
-                    const std::array<std::string_view, 2U> &expected) {
+                    const std::array<std::string_view, count> &expected) {
   const auto columns = frame.get_columns_info<double>();
   ASSERT_EQ(columns.size(), expected.size());
   for (std::size_t position = 0U; position < expected.size(); ++position) {
@@ -75,13 +77,32 @@ void expect_columns(const fincore::dataframe &frame,
   }
 }
 
+void expect_same_double_frame(const fincore::dataframe &actual,
+                              const fincore::dataframe &expected) {
+  EXPECT_EQ(actual.get_index(), expected.get_index());
+  const auto actual_columns = actual.get_columns_info<double>();
+  const auto expected_columns = expected.get_columns_info<double>();
+  ASSERT_EQ(actual_columns.size(), expected_columns.size());
+  for (std::size_t position = 0U; position < expected_columns.size();
+       ++position) {
+    EXPECT_STREQ(std::get<0>(actual_columns[position]).c_str(),
+                 std::get<0>(expected_columns[position]).c_str());
+    EXPECT_EQ(std::get<2>(actual_columns[position]), typeid(double));
+    EXPECT_EQ(std::get<2>(actual_columns[position]),
+              std::get<2>(expected_columns[position]));
+    const auto name = std::get<0>(expected_columns[position]);
+    EXPECT_EQ(actual.get_column<double>(name.c_str()),
+              expected.get_column<double>(name.c_str()));
+  }
+}
+
 TEST(PerfAttrib, NormalizesDollarPositionsAndComputesOrderedExposures) {
   const auto normalized =
       fincore::normalize_attribution_positions(dollar_positions());
   EXPECT_EQ(normalized.get_index(), dates());
   ASSERT_FALSE(normalized.has_column("cash"));
   ASSERT_FALSE(normalized.has_column("metadata"));
-  expect_columns(normalized, {"A", "B"});
+  expect_columns(normalized, std::array<std::string_view, 2U>{"A", "B"});
   EXPECT_EQ(normalized.get_column<double>("A"),
             (std::vector<double>{2.0 / 7.0, 3.0 / 4.0, -1.0 / 2.0}));
   EXPECT_EQ(normalized.get_column<double>("B"),
@@ -229,7 +250,8 @@ TEST(PerfAttrib, ProducesCoreAttributionStatisticsAndCostAdjustedReturns) {
 
   EXPECT_EQ(core.risk_exposures.get_index(), dates());
   EXPECT_EQ(core.attribution.get_index(), dates());
-  expect_columns(core.risk_exposures, {"market", "value"});
+  expect_columns(core.risk_exposures,
+                 std::array<std::string_view, 2U>{"market", "value"});
   const auto attribution_columns = core.attribution.get_columns_info<double>();
   const std::array<std::string_view, 7U> expected_attribution_columns{
       "market", "value", "total_returns", "common_returns", "specific_returns",
@@ -242,10 +264,8 @@ TEST(PerfAttrib, ProducesCoreAttributionStatisticsAndCostAdjustedReturns) {
     EXPECT_EQ(std::get<2>(attribution_columns[position]), typeid(double));
   }
   for (const auto *result : {&dollar, &weights}) {
-    EXPECT_EQ(result->risk_exposures.get_column<double>("market"),
-              core.risk_exposures.get_column<double>("market"));
-    EXPECT_EQ(result->attribution.get_column<double>("common_returns"),
-              core.attribution.get_column<double>("common_returns"));
+    expect_same_double_frame(result->risk_exposures, core.risk_exposures);
+    expect_same_double_frame(result->attribution, core.attribution);
   }
 
   const auto &market = core.attribution.get_column<double>("market");
@@ -285,8 +305,47 @@ TEST(PerfAttrib, ProducesCoreAttributionStatisticsAndCostAdjustedReturns) {
     ASSERT_TRUE(statistics.summary.contains(std::string{name}));
     EXPECT_NEAR(statistics.summary.at(std::string{name}), expected, 1.0e-12);
   }
+  const auto total_frame = fincore::make_series(
+      std::vector<timestamp>(core.attribution.get_index()), "returns",
+      std::vector<double>(core.attribution.get_column<double>("total_returns").begin(),
+                          core.attribution.get_column<double>("total_returns").end()));
+  const auto common_frame = fincore::make_series(
+      std::vector<timestamp>(core.attribution.get_index()), "returns",
+      std::vector<double>(core.attribution.get_column<double>("common_returns").begin(),
+                          core.attribution.get_column<double>("common_returns").end()));
+  const auto specific_frame = fincore::make_series(
+      std::vector<timestamp>(core.attribution.get_index()), "returns",
+      std::vector<double>(core.attribution.get_column<double>("specific_returns").begin(),
+                          core.attribution.get_column<double>("specific_returns").end()));
+  EXPECT_NEAR(statistics.summary.at("Annualized Specific Return"),
+              fincore::annual_return(specific_frame), 1.0e-12);
+  EXPECT_NEAR(statistics.summary.at("Annualized Common Return"),
+              fincore::annual_return(common_frame), 1.0e-12);
+  EXPECT_NEAR(statistics.summary.at("Annualized Total Return"),
+              fincore::annual_return(total_frame), 1.0e-12);
+  EXPECT_NEAR(statistics.summary.at("Specific Sharpe Ratio"),
+              fincore::sharpe_ratio(specific_frame), 1.0e-12);
+  EXPECT_NEAR(statistics.summary.at("Cumulative Specific Return"),
+              fincore::cumulative_return(specific_frame), 1.0e-12);
+  EXPECT_NEAR(statistics.summary.at("Cumulative Common Return"),
+              fincore::cumulative_return(common_frame), 1.0e-12);
+  EXPECT_NEAR(statistics.summary.at("Total Returns"),
+              fincore::cumulative_return(total_frame), 1.0e-12);
   EXPECT_EQ(statistics.factor_summary.get_index(),
             (std::vector<timestamp>{0, 1}));
+  const auto factor_summary_columns =
+      statistics.factor_summary.get_columns_info<std::string, double>();
+  const std::array<std::string_view, 4U> expected_factor_summary_columns{
+      "factor", "Average Risk Factor Exposure", "Annualized Return",
+      "Cumulative Return"};
+  ASSERT_EQ(factor_summary_columns.size(), expected_factor_summary_columns.size());
+  for (std::size_t position = 0U; position < expected_factor_summary_columns.size();
+       ++position) {
+    EXPECT_STREQ(std::get<0>(factor_summary_columns[position]).c_str(),
+                 std::string{expected_factor_summary_columns[position]}.c_str());
+    EXPECT_EQ(std::get<2>(factor_summary_columns[position]),
+              position == 0U ? typeid(std::string) : typeid(double));
+  }
   EXPECT_EQ(statistics.factor_summary.get_column<std::string>("factor"),
             (std::vector<std::string>{"market", "value"}));
   const auto &average = statistics.factor_summary.get_column<double>(
@@ -335,6 +394,12 @@ TEST(PerfAttrib, ValidatesCoreSchemasAndSupportsEmptyAndCustomInputs) {
                                                 empty_factors, empty_loadings);
   EXPECT_TRUE(empty.risk_exposures.get_index().empty());
   EXPECT_TRUE(empty.attribution.get_index().empty());
+  expect_columns(empty.risk_exposures,
+                 std::array<std::string_view, 1U>{"market"});
+  expect_columns(empty.attribution,
+                 std::array<std::string_view, 6U>{
+                     "market", "total_returns", "common_returns",
+                     "specific_returns", "tilt_returns", "timing_returns"});
   EXPECT_EQ(empty.risk_exposures.get_column<double>("market").size(), 0U);
 
   fincore::dataframe positions;
@@ -378,6 +443,15 @@ TEST(PerfAttrib, ValidatesCoreSchemasAndSupportsEmptyAndCustomInputs) {
                                              dollar_positions()),
                                          reserved_factors, factor_loadings()),
                fincore::input_error);
+  auto symbol_factor = factor_returns();
+  symbol_factor.remove_column<double>("market");
+  symbol_factor.load_column<double>("symbol", {.01, .02, -.01},
+                                   hmdf::nan_policy::dont_pad_with_nans);
+  EXPECT_THROW(fincore::perf_attrib_core(strategy_returns(),
+                                         fincore::normalize_attribution_positions(
+                                             dollar_positions()),
+                                         symbol_factor, factor_loadings()),
+               fincore::input_error);
   auto missing_factor_loading = factor_loadings();
   missing_factor_loading.remove_column<double>("market");
   EXPECT_THROW(fincore::perf_attrib_core(strategy_returns(),
@@ -400,6 +474,45 @@ TEST(PerfAttrib, RejectsMisalignedOrMalformedCostFrames) {
                               hmdf::nan_policy::dont_pad_with_nans);
   EXPECT_THROW(fincore::cumulative_returns_less_costs(returns, wrong_type),
                fincore::input_error);
+  fincore::dataframe malformed;
+  malformed.load_index(std::vector<timestamp>(dates()));
+  malformed.load_column<double>("returns", {.001, .002},
+                                hmdf::nan_policy::dont_pad_with_nans);
+  EXPECT_THROW(fincore::cumulative_returns_less_costs(returns, malformed),
+               fincore::input_error);
+}
+
+TEST(PerfAttrib, PreservesUnsortedDailyOrderAndPropagatesNegativeInfinity) {
+  const std::vector<timestamp> unsorted{dates()[2], dates()[0], dates()[1]};
+  auto returns = strategy_returns();
+  auto positions = fincore::normalize_attribution_positions(dollar_positions());
+  auto factors = factor_returns();
+  returns.load_index(std::vector<timestamp>(unsorted));
+  positions.load_index(std::vector<timestamp>(unsorted));
+  factors.load_index(std::vector<timestamp>(unsorted));
+  const auto unsorted_result =
+      fincore::perf_attrib_core(returns, positions, factors, factor_loadings());
+  EXPECT_EQ(unsorted_result.risk_exposures.get_index(), unsorted);
+  EXPECT_EQ(unsorted_result.attribution.get_index(), unsorted);
+
+  auto loadings = factor_loadings();
+  loadings.remove_column<double>("market");
+  loadings.load_column<double>(
+      "market", {-std::numeric_limits<double>::infinity(), .4, .5, .2, .1, .6},
+      hmdf::nan_policy::dont_pad_with_nans);
+  const auto result = fincore::perf_attrib_core(
+      strategy_returns(), fincore::normalize_attribution_positions(dollar_positions()),
+      factor_returns(), loadings);
+  EXPECT_TRUE(std::isinf(result.risk_exposures.get_column<double>("market")[0]));
+  EXPECT_LT(result.risk_exposures.get_column<double>("market")[0], 0.0);
+  EXPECT_TRUE(std::isinf(result.attribution.get_column<double>("market")[0]));
+  EXPECT_LT(result.attribution.get_column<double>("market")[0], 0.0);
+  EXPECT_TRUE(
+      std::isinf(result.attribution.get_column<double>("common_returns")[0]));
+  EXPECT_LT(result.attribution.get_column<double>("common_returns")[0], 0.0);
+  EXPECT_TRUE(
+      std::isinf(result.attribution.get_column<double>("specific_returns")[0]));
+  EXPECT_GT(result.attribution.get_column<double>("specific_returns")[0], 0.0);
 }
 
 } // namespace
