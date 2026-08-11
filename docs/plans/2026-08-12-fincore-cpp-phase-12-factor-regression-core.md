@@ -143,10 +143,11 @@ factor_regression_result fit_factor_regression(
             .25 * factor_data["HML"] + residual)
   result = FamaFrenchModel("3factor").fit(
       pd.Series(values, index=index), factor_data, newey_west_lags=0)
-  print("alpha", repr(result.alpha))
-  print("betas", {name: repr(value) for name, value in result.betas.items()})
-  print("r_squared", repr(result.r_squared))
-  print("residuals", [repr(value) for value in result.residuals.tolist()])
+  # The source annotation is TypedDict and fit() returns this mapping.
+  print("alpha", repr(result["alpha"]))
+  print("betas", {name: repr(value) for name, value in result["betas"].items()})
+  print("r_squared", repr(result["r_squared"]))
+  print("residuals", [repr(value) for value in result["residuals"].tolist()])
   '
   ~~~
 
