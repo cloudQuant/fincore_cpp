@@ -62,6 +62,8 @@ fincore::dataframe reference_transactions() {
     transactions.load_column<double>(
         "price", std::vector<double>{10.0, infinity, 5.0, 7.0},
         hmdf::nan_policy::dont_pad_with_nans);
+    transactions.load_column<double>("unrelated_malformed", std::vector<double>{42.0},
+                                     hmdf::nan_policy::dont_pad_with_nans);
     return transactions;
 }
 
@@ -71,6 +73,20 @@ fincore::dataframe empty_transactions() {
     transactions.load_column<double>("amount", std::vector<double>{},
                                      hmdf::nan_policy::dont_pad_with_nans);
     transactions.load_column<double>("price", std::vector<double>{},
+                                     hmdf::nan_policy::dont_pad_with_nans);
+    return transactions;
+}
+
+fincore::dataframe full_volume_transactions() {
+    fincore::dataframe transactions;
+    transactions.load_index(std::vector<fincore::timestamp>{
+        fincore::utc_timestamp(2024, 1, 3, 10),
+        fincore::utc_timestamp(2024, 1, 4, 10),
+        fincore::utc_timestamp(2024, 1, 2, 10),
+    });
+    transactions.load_column<double>("amount", std::vector<double>{10.0, 10.0, 10.0},
+                                     hmdf::nan_policy::dont_pad_with_nans);
+    transactions.load_column<double>("price", std::vector<double>{10.0, 10.0, 10.0},
                                      hmdf::nan_policy::dont_pad_with_nans);
     return transactions;
 }
@@ -117,6 +133,23 @@ TEST(Transactions, AggregatesUnorderedIntradayRowsToSortedDailySchema) {
     EXPECT_FALSE(daily.has_column("metadata"));
 }
 
+TEST(Transactions, IgnoresMalformedUnrelatedDoubleTransactionColumns) {
+    const auto transactions = reference_transactions();
+    EXPECT_EQ(transactions.get_column<double>("unrelated_malformed").size(), 1U);
+    EXPECT_NE(transactions.get_column<double>("unrelated_malformed").size(),
+              transactions.get_index().size());
+
+    const auto daily = fincore::get_txn_vol(transactions);
+    expect_double_columns(daily, {"txn_volume", "txn_shares"});
+    expect_values(daily.get_column<double>("txn_volume"), {90.0, 0.0, infinity});
+    expect_values(daily.get_column<double>("txn_shares"), {14.0, 0.0, 3.0});
+
+    const auto turnover = fincore::get_turnover(reference_positions(), transactions);
+    expect_double_columns(turnover, {"turnover"});
+    expect_values(turnover.get_column<double>("turnover"),
+                  {1.8, 0.0, 0.0, 0.0});
+}
+
 TEST(Transactions, PreservesPriceSignAndSkipsOnlyNaNContributions) {
     fincore::dataframe transactions;
     transactions.load_index(
@@ -157,6 +190,18 @@ TEST(Transactions, ComputesActualGrossBookAndPortfolioValueTurnoverOnDateUnion) 
     expect_double_columns(portfolio_value, {"turnover"});
     expect_values(portfolio_value.get_column<double>("turnover"),
                   {.09, 0.0, 0.0, 0.0});
+}
+
+TEST(Transactions, UsesPreviousAndCurrentGrossBookForLaterTurnoverDays) {
+    const auto turnover =
+        fincore::get_turnover(reference_positions(), full_volume_transactions());
+
+    EXPECT_EQ(turnover.get_index(),
+              (std::vector<fincore::timestamp>{fincore::utc_timestamp(2024, 1, 2),
+                                                fincore::utc_timestamp(2024, 1, 3),
+                                                fincore::utc_timestamp(2024, 1, 4)}));
+    expect_values(turnover.get_column<double>("turnover"),
+                  {2.0, 100.0 / 75.0, 100.0 / 35.0});
 }
 
 TEST(Transactions, SupportsCustomAmountPriceAndCashNames) {
@@ -313,7 +358,12 @@ TEST(Transactions, EnforcesNumericPositionAndActualGrossBookCashContracts) {
                                    hmdf::nan_policy::dont_pad_with_nans);
     wrong_cash.load_column<int>("cash", std::vector<int>{90},
                                 hmdf::nan_policy::dont_pad_with_nans);
-    EXPECT_THROW(fincore::get_turnover(wrong_cash, transactions), fincore::input_error);
+    EXPECT_THROW(fincore::get_turnover(wrong_cash, cashless_transactions),
+                 fincore::input_error);
+    const auto wrong_cash_portfolio_value = fincore::get_turnover(
+        wrong_cash, cashless_transactions,
+        fincore::turnover_denominator::portfolio_value, "cash");
+    expect_values(wrong_cash_portfolio_value.get_column<double>("turnover"), {.5});
     EXPECT_THROW(fincore::get_turnover(reference_positions(), transactions,
                                        fincore::turnover_denominator::actual_gross_book,
                                        ""),
