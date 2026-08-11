@@ -805,6 +805,63 @@ TEST(RollingMetrics, AlphaBetaAndBetaFacadesMatchNativeRollingGoldens) {
                    .8461538461538458, .6666666666666666});
 }
 
+TEST(RollingMetrics,
+     RollAlphaBetaDelegatesEveryCustomParameterizedWindowToPublicAlphaBeta) {
+    const auto returns = reference_series("strategy");
+    const auto benchmark = reference_benchmark_series("market");
+    constexpr double risk_free = .001;
+    constexpr double requested_annualization = 7.0;
+    constexpr auto period = fincore::frequency::weekly;
+    constexpr std::size_t window = 3U;
+    const double factor = fincore::annualization_factor(period, requested_annualization);
+    const auto actual = fincore::roll_alpha_beta(
+        returns, benchmark, window, risk_free, period, requested_annualization,
+        "strategy", "market");
+    const auto [aligned_returns, aligned_benchmark] = fincore::align_on_common_index(
+        returns, "strategy", benchmark, "market");
+    const auto return_values =
+        fincore::require_double_column(aligned_returns, "strategy");
+    const auto benchmark_values =
+        fincore::require_double_column(aligned_benchmark, "market");
+
+    ASSERT_EQ(actual.get_index(),
+              (std::vector<fincore::timestamp>{3, 4, 5, 6}));
+    for (std::size_t start = 0U; start + window <= return_values.size(); ++start) {
+        const auto first = static_cast<std::ptrdiff_t>(start);
+        const auto last = static_cast<std::ptrdiff_t>(start + window);
+        const std::vector<fincore::timestamp> index(
+            aligned_returns.get_index().begin() + first,
+            aligned_returns.get_index().begin() + last);
+        const auto complete_returns = fincore::make_series(
+            index, "strategy",
+            {return_values.begin() + first, return_values.begin() + last});
+        const auto complete_benchmark = fincore::make_series(
+            index, "market",
+            {benchmark_values.begin() + first, benchmark_values.begin() + last});
+        const auto expected = fincore::alpha_beta(
+            complete_returns, complete_benchmark, risk_free, factor,
+            "strategy", "market");
+        EXPECT_NEAR(actual.get_column<double>("alpha")[start], expected.first,
+                    tolerance);
+        EXPECT_NEAR(actual.get_column<double>("beta")[start], expected.second,
+                    tolerance);
+
+        if (start == 0U) {
+            const auto without_risk_free = fincore::alpha_beta(
+                complete_returns, complete_benchmark, 0.0, factor,
+                "strategy", "market");
+            const auto with_daily_annualization = fincore::alpha_beta(
+                complete_returns, complete_benchmark, risk_free,
+                fincore::annualization_factor(fincore::frequency::daily,
+                                               std::nullopt),
+                "strategy", "market");
+            EXPECT_GT(std::abs(expected.first - without_risk_free.first), tolerance);
+            EXPECT_GT(std::abs(expected.first - with_daily_annualization.first),
+                      tolerance);
+        }
+    }
+}
+
 TEST(RollingMetrics, NewRollingFacadesAlignAndPreserveSpecifiedShapes) {
     const auto returns = fincore::make_series(
         {30, 10, 20, 5, 50}, "strategy", {.01, -.02, .03, -.01, .02});
