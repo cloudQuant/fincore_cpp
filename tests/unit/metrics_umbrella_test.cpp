@@ -352,4 +352,68 @@ TEST(MetricsUmbrella, ExposesNativeTransactionMetrics) {
   EXPECT_DOUBLE_EQ(portfolio_value.get_column<double>("turnover")[0], 0.09);
 }
 
+TEST(MetricsUmbrella, ExposesSlippageAdjustedReturns) {
+  const auto jan_2 = fincore::utc_timestamp(2024, 1, 2);
+  const auto jan_3 = fincore::utc_timestamp(2024, 1, 3);
+  const auto jan_4 = fincore::utc_timestamp(2024, 1, 4);
+  const auto jan_5 = fincore::utc_timestamp(2024, 1, 5);
+  const auto jan_6 = fincore::utc_timestamp(2024, 1, 6);
+
+  const auto returns = fincore::make_series(
+      std::vector<fincore::timestamp>{
+          fincore::utc_timestamp(2024, 1, 2, 14),
+          fincore::utc_timestamp(2024, 1, 3, 14),
+          fincore::utc_timestamp(2024, 1, 5, 14),
+          fincore::utc_timestamp(2024, 1, 6, 14),
+      },
+      "returns",
+      std::vector<double>{.1, .2, std::numeric_limits<double>::quiet_NaN(),
+                          .3});
+
+  fincore::dataframe positions;
+  positions.load_index(std::vector<fincore::timestamp>{
+      fincore::utc_timestamp(2024, 1, 2, 16),
+      fincore::utc_timestamp(2024, 1, 4, 16),
+      fincore::utc_timestamp(2024, 1, 5, 16),
+  });
+  positions.load_column<double>("asset",
+                                std::vector<double>{100.0, 200.0, 300.0},
+                                hmdf::nan_policy::dont_pad_with_nans);
+  positions.load_column<double>("cash",
+                                std::vector<double>{900.0, 800.0, 700.0},
+                                hmdf::nan_policy::dont_pad_with_nans);
+  positions.load_column<int>("metadata", std::vector<int>{1, 2, 3},
+                             hmdf::nan_policy::dont_pad_with_nans);
+
+  fincore::dataframe transactions;
+  transactions.load_index(std::vector<fincore::timestamp>{
+      fincore::utc_timestamp(2024, 1, 5, 10),
+      fincore::utc_timestamp(2024, 1, 2, 10),
+      fincore::utc_timestamp(2024, 1, 4, 10),
+      fincore::utc_timestamp(2024, 1, 3, 10),
+  });
+  transactions.load_column<double>("amount",
+                                   std::vector<double>{10.0, 10.0, 10.0, 10.0},
+                                   hmdf::nan_policy::dont_pad_with_nans);
+  transactions.load_column<double>("price",
+                                   std::vector<double>{10.0, 10.0, 10.0, 10.0},
+                                   hmdf::nan_policy::dont_pad_with_nans);
+
+  const auto adjusted = fincore::adjust_returns_for_slippage(
+      returns, positions, transactions, 10.0);
+
+  EXPECT_EQ(adjusted.get_index(), (std::vector<fincore::timestamp>{
+                                      jan_2, jan_3, jan_4, jan_5, jan_6}));
+  const auto columns = adjusted.get_columns_info<double>();
+  ASSERT_EQ(columns.size(), 1U);
+  EXPECT_EQ(std::get<0>(columns[0]), "returns");
+  const auto& values = adjusted.get_column<double>("returns");
+  ASSERT_EQ(values.size(), 5U);
+  EXPECT_DOUBLE_EQ(values[0], .0999);
+  EXPECT_DOUBLE_EQ(values[1], 0.0);
+  EXPECT_DOUBLE_EQ(values[2], 0.0);
+  EXPECT_DOUBLE_EQ(values[3], 0.0);
+  EXPECT_DOUBLE_EQ(values[4], 0.0);
+}
+
 }  // namespace

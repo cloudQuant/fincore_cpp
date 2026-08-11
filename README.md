@@ -513,12 +513,52 @@ Task 35's implementation and its accepted boundary correction are
 headless, sanitizer, and optional ImPlot compile-boundary evidence is in
 [docs/acceptance/2026-08-11-phase-5b-transaction-metrics-acceptance.md](docs/acceptance/2026-08-11-phase-5b-transaction-metrics-acceptance.md).
 
-Transaction mapping and symbols/SIDs; daily bar joins; liquidity,
-liquidation, and slippage; round trips and attribution; performance
+Transaction mapping and symbols/SIDs; daily bar joins; liquidity, liquidation,
+and market-impact or other execution-cost models beyond the bounded
+basis-point adjustment below; round trips and attribution; performance
 attribution; bootstrap/distribution statistics; Bayesian and advanced-risk
 models; optimization; simulation; reports/tearsheets; a full native facade;
 packaging/release; and interactive ImPlot visual smoke testing remain deferred.
 This phase is not full fincore parity or a GUI runtime result.
+
+## Accepted Phase 6A basis-point slippage adjustment
+
+The transaction module now exposes the bounded native basis-point return
+adjustment through the existing public umbrella:
+
+~~~cpp
+#include <fincore/metrics.hpp>
+
+const auto adjusted = fincore::adjust_returns_for_slippage(
+    returns, positions, transactions, 10.0);
+~~~
+
+Return and position timestamps are normalized to UTC midnight and must remain
+strictly increasing and unique after normalization. Raw transactions retain
+their existing unordered, duplicate, and intraday aggregation contract. The
+result index is the sorted union of return, position, and transaction UTC days,
+without date forward-fill, and the result contains exactly the requested
+return column.
+
+The operation computes daily portfolio value from every genuine `double`
+position column while skipping NaN values, with no cash-column requirement.
+It applies `abs(amount) * price * slippage_bps / 10000` through the established
+daily transaction-volume aggregation and reproduces pandas-style one-sided
+`fill_value=0` arithmetic for adjusted PnL. Exact zero PnL becomes a NaN
+denominator. Only NaN in the final adjusted return is replaced with `0.0`;
+computed positive or negative infinity is preserved, and `slippage_bps` is not
+validated or clamped.
+
+Task 38's implementation and accepted fill-value correction are
+`e49befe52581f719a426e28c4462b2efbfa9e130` and
+`b87266bf20eff1e985988d1c8c1bdb443c4d4870`. Fresh public-consumer,
+headless, sanitizer, and optional ImPlot compile-boundary evidence is in
+[docs/acceptance/2026-08-11-phase-6a-slippage-adjustment-acceptance.md](docs/acceptance/2026-08-11-phase-6a-slippage-adjustment-acceptance.md).
+
+Future market-impact, liquidity, liquidation, and other execution-cost models;
+round trips and attribution; advanced analytics; visualization runtime;
+packaging/release; and full Python public-API parity remain deferred. Phase 6A
+is not a whole-project completion, release, or GUI visual-validation claim.
 
 ## Headless core verification
 
