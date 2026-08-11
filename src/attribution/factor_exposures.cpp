@@ -16,6 +16,7 @@ namespace {
 
 struct validated_inputs {
     std::vector<std::string> factor_names;
+    std::string returns_column_name;
     std::span<const double> returns;
     std::vector<std::span<const double>> factors;
 };
@@ -34,6 +35,9 @@ std::vector<std::string> checked_factor_names(
         if (name.empty()) {
             throw input_error{"factor column names must not contain an empty name"};
         }
+        if (name.find('\0') != std::string_view::npos) {
+            throw input_error{"factor column names must not contain an embedded NUL"};
+        }
         if (name == factor_regression_alpha_name) {
             throw input_error{"factor column names must not contain alpha"};
         }
@@ -45,6 +49,13 @@ std::vector<std::string> checked_factor_names(
         names.push_back(owned_name);
     }
     return names;
+}
+
+std::string checked_returns_column_name(const std::string_view returns_column_name) {
+    if (returns_column_name.find('\0') != std::string_view::npos) {
+        throw input_error{"returns column name must not contain an embedded NUL"};
+    }
+    return std::string{returns_column_name};
 }
 
 void require_unique_index(const dataframe& frame) {
@@ -80,9 +91,10 @@ validated_inputs validate_inputs(
     const std::span<const std::string_view> factor_column_names,
     const std::string_view returns_column_name) {
     auto factor_names = checked_factor_names(factor_column_names);
+    auto owned_returns_column_name = checked_returns_column_name(returns_column_name);
     require_matching_indexes(returns, factor_returns);
 
-    const auto return_values = require_double_column(returns, returns_column_name);
+    const auto return_values = require_double_column(returns, owned_returns_column_name);
     std::vector<std::span<const double>> factor_values;
     factor_values.reserve(factor_names.size());
     for (const std::string& name : factor_names) {
@@ -93,20 +105,20 @@ validated_inputs validate_inputs(
     for (const std::span<const double> values : factor_values) {
         require_finite_values(values);
     }
-    return {std::move(factor_names), return_values, std::move(factor_values)};
+    return {std::move(factor_names), std::move(owned_returns_column_name), return_values,
+            std::move(factor_values)};
 }
 
 dataframe materialize_returns_slice(const std::vector<timestamp>& index,
                                     const std::span<const double> values,
                                     const std::size_t start,
                                     const std::size_t count,
-                                    const std::string_view returns_column_name) {
-    const std::string owned_returns_column_name{returns_column_name};
+                                    const std::string& returns_column_name) {
     dataframe result;
     result.load_index(std::vector<timestamp>{index.begin() + start,
                                              index.begin() + start + count});
     result.load_column<double>(
-        owned_returns_column_name.c_str(),
+        returns_column_name.c_str(),
         std::vector<double>{values.begin() + start, values.begin() + start + count},
         hmdf::nan_policy::dont_pad_with_nans);
     return result;
@@ -174,11 +186,12 @@ dataframe rolling_factor_exposures(
         }
 
         const auto selected_returns = materialize_returns_slice(
-            index, inputs.returns, start, observation_count, returns_column_name);
+            index, inputs.returns, start, observation_count, inputs.returns_column_name);
         const auto selected_factors = materialize_factor_slice(
             index, inputs.factor_names, inputs.factors, start, observation_count);
         const auto regression = fit_factor_regression(
-            selected_returns, selected_factors, factor_name_views, returns_column_name);
+            selected_returns, selected_factors, factor_name_views,
+            inputs.returns_column_name);
         const auto& coefficients = regression.coefficients.get_column<double>(
             factor_regression_coefficient_column.data());
         exposure_values[0][row] = regression.alpha;

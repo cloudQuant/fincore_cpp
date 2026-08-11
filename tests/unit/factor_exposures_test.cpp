@@ -245,6 +245,23 @@ TEST(FactorExposures, SupportsAnExplicitSelectedReturnsColumn) {
                                -.45298603018400957, .23286251744428613});
 }
 
+TEST(FactorExposures, SupportsBoundedNonTerminatedReturnsSelector) {
+    const auto fixture = oracle_fixture();
+    const auto& source_values = fixture.returns.get_column<double>("returns");
+    const auto named_returns = make_returns(
+        std::vector<timestamp>{oracle_index.begin(), oracle_index.end()},
+        std::vector<double>{source_values.begin(), source_values.end()}, "strategy");
+    std::array<char, 8U> selector_storage{'s', 't', 'r', 'a', 't', 'e', 'g', 'y'};
+    const std::string_view selector{selector_storage.data(), selector_storage.size()};
+
+    const auto exposures = fincore::rolling_factor_exposures(
+        named_returns, fixture.factors, factor_names, std::nullopt, selector);
+
+    expect_exposure_schema(exposures, factor_names, named_returns.get_index());
+    expect_row(exposures, 7U, {.0005694444444444665, 1.5310634180729992,
+                               -.45298603018400957, .23286251744428613});
+}
+
 TEST(FactorExposures, DelegatesEachEligibleRawWindowToPublicFactorRegression) {
     const auto fixture = oracle_fixture();
     const auto expanding = fincore::rolling_factor_exposures(
@@ -427,6 +444,27 @@ TEST(FactorExposures, RejectsInvalidNamesWindowsIndexesAndSelectedValues) {
     EXPECT_THROW(fincore::rolling_factor_exposures(fixture.returns,
                                                    rank_deficient_factors,
                                                    factor_names),
+                 fincore::input_error);
+}
+
+TEST(FactorExposures, RejectsEmbeddedNulSelectorsBeforeDataframeBoundary) {
+    const auto fixture = oracle_fixture();
+    constexpr std::array<char, 8U> embedded_factor_storage{
+        'M', 'K', 'T', '\0', 'e', 'v', 'i', 'l'};
+    const std::array<std::string_view, 3U> embedded_factor_names{
+        std::string_view{embedded_factor_storage.data(), embedded_factor_storage.size()},
+        "SMB", "HML"};
+    EXPECT_THROW(fincore::rolling_factor_exposures(fixture.returns, fixture.factors,
+                                                   embedded_factor_names),
+                 fincore::input_error);
+
+    constexpr std::array<char, 12U> embedded_returns_storage{
+        'r', 'e', 't', 'u', 'r', 'n', 's', '\0', 'e', 'v', 'i', 'l'};
+    const std::string_view embedded_returns_name{embedded_returns_storage.data(),
+                                                 embedded_returns_storage.size()};
+    EXPECT_THROW(fincore::rolling_factor_exposures(fixture.returns, fixture.factors,
+                                                   factor_names, std::nullopt,
+                                                   embedded_returns_name),
                  fincore::input_error);
 }
 
