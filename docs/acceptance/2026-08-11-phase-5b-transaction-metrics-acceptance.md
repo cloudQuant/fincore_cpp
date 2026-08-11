@@ -12,6 +12,10 @@ attribution, GUI-runtime, or whole-project fincore-parity claim.
 - Task 35 accepted boundary correction:
   12ec9a0368ea4dd54b6f6669f2118a204947370d
   (test: cover transaction turnover boundaries).
+- Task 36 initial acceptance evidence:
+  5da9f1608a776153e9fcca1059ea0fb064266fd5
+  (docs: accept phase 5B transaction metrics). This docs-only trace commit
+  intentionally neither self-references nor amends that initial acceptance.
 
 ## Acceptance checklist
 
