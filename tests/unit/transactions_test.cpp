@@ -91,6 +91,23 @@ fincore::dataframe full_volume_transactions() {
     return transactions;
 }
 
+fincore::dataframe slippage_volume_transactions() {
+    fincore::dataframe transactions;
+    transactions.load_index(std::vector<fincore::timestamp>{
+        fincore::utc_timestamp(2024, 1, 5, 10),
+        fincore::utc_timestamp(2024, 1, 2, 10),
+        fincore::utc_timestamp(2024, 1, 4, 10),
+        fincore::utc_timestamp(2024, 1, 3, 10),
+    });
+    transactions.load_column<double>("amount", std::vector<double>{10.0, 10.0, 10.0,
+                                                                     10.0},
+                                     hmdf::nan_policy::dont_pad_with_nans);
+    transactions.load_column<double>("price", std::vector<double>{10.0, 10.0, 10.0,
+                                                                    10.0},
+                                     hmdf::nan_policy::dont_pad_with_nans);
+    return transactions;
+}
+
 fincore::dataframe reference_positions() {
     fincore::dataframe positions;
     positions.load_index(std::vector<fincore::timestamp>{
@@ -445,7 +462,7 @@ TEST(Transactions, AdjustsReturnsForSlippageOnTheSortedDailyUnion) {
     positions.load_column<int>("metadata", {1, 2, 3},
                                hmdf::nan_policy::dont_pad_with_nans);
 
-    const auto transactions = full_volume_transactions();
+    const auto transactions = slippage_volume_transactions();
     const auto adjusted = fincore::adjust_returns_for_slippage(
         returns, positions, transactions, 10.0);
 
@@ -458,6 +475,29 @@ TEST(Transactions, AdjustsReturnsForSlippageOnTheSortedDailyUnion) {
     expect_double_columns(adjusted, {"returns"});
     expect_values(adjusted.get_column<double>("returns"), {.0999, 0.0, 0.0, 0.0,
                                                             0.0});
+}
+
+TEST(Transactions, AggregatesDuplicateIntradayTransactionsForSlippage) {
+    const auto returns = fincore::make_series(
+        {fincore::utc_timestamp(2024, 1, 2, 9)}, "returns", {.1});
+    fincore::dataframe positions;
+    positions.load_index({fincore::utc_timestamp(2024, 1, 2, 16)});
+    positions.load_column<double>("asset", {100.0},
+                                  hmdf::nan_policy::dont_pad_with_nans);
+    positions.load_column<double>("cash", {900.0},
+                                  hmdf::nan_policy::dont_pad_with_nans);
+    fincore::dataframe transactions;
+    transactions.load_index({fincore::utc_timestamp(2024, 1, 2, 15),
+                             fincore::utc_timestamp(2024, 1, 2, 9)});
+    transactions.load_column<double>("amount", {5.0, 10.0},
+                                     hmdf::nan_policy::dont_pad_with_nans);
+    transactions.load_column<double>("price", {10.0, 5.0},
+                                     hmdf::nan_policy::dont_pad_with_nans);
+
+    const auto adjusted = fincore::adjust_returns_for_slippage(
+        returns, positions, transactions, 10.0);
+
+    expect_values(adjusted.get_column<double>("returns"), {.0999});
 }
 
 TEST(Transactions, AdjustsReturnsForSlippageWithCustomColumnNames) {

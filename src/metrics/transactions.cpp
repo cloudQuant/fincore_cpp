@@ -350,9 +350,12 @@ dataframe adjust_returns_for_slippage(
             transaction_value == transaction_values.end()
                 ? nan
                 : transaction_value->second * (slippage_bps / 10000.0);
-        const double adjusted_pnl = (std::isnan(pnl) ? 0.0 : pnl) -
-                                    (std::isnan(transaction_cost) ? 0.0
-                                                                  : transaction_cost);
+        const double adjusted_pnl = std::isnan(pnl) && std::isnan(transaction_cost)
+                                        ? nan
+                                        : (std::isnan(pnl) ? 0.0 : pnl) -
+                                              (std::isnan(transaction_cost)
+                                                   ? 0.0
+                                                   : transaction_cost);
         const double pnl_safe = pnl == 0.0 ? nan : pnl;
         double adjusted_return = return_value == return_values.end()
                                      ? nan
