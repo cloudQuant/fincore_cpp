@@ -19,8 +19,22 @@ double compound_wealth(const std::span<const double> returns) {
     return wealth;
 }
 
+double compound_returns(const std::span<const double> returns) {
+    return compound_wealth(returns) - 1.0;
+}
+
 double cumulative_value(const double wealth, const double starting_value) {
     return starting_value == 0.0 ? wealth - 1.0 : wealth * starting_value;
+}
+
+std::string_view legacy_column_or_throw(
+    const std::initializer_list<std::string_view> legacy_column) {
+    if (legacy_column.size() > 1U) {
+        throw input_error{
+            "legacy cumulative column list must contain at most one value"};
+    }
+    return legacy_column.size() == 0U ? std::string_view{} :
+                                       *legacy_column.begin();
 }
 
 std::chrono::sys_days utc_day(const timestamp value) {
@@ -53,6 +67,36 @@ int iso_week_number(const std::chrono::sys_days day_value) {
     const sys_days first_monday =
         january_fourth - days{static_cast<int>(iso_weekday(january_fourth)) - 1};
     return static_cast<int>((day_value - first_monday).count() / 7 + 1);
+}
+
+timestamp timestamp_for_day(const std::chrono::sys_days day_value) {
+    const auto calendar_day = std::chrono::year_month_day{day_value};
+    return utc_timestamp(static_cast<int>(calendar_day.year()),
+                         static_cast<unsigned>(calendar_day.month()),
+                         static_cast<unsigned>(calendar_day.day()));
+}
+
+timestamp canonical_weekly_bucket_start(const int calendar_year_value,
+                                        const int iso_week) {
+    using namespace std::chrono;
+
+    const sys_days january_first{year{calendar_year_value} / January / day{1}};
+    const sys_days december_thirty_first{
+        year{calendar_year_value} / December / day{31}};
+    for (sys_days candidate = january_first;
+         candidate <= december_thirty_first; candidate += days{1}) {
+        if (iso_week_number(candidate) != iso_week) {
+            continue;
+        }
+
+        const sys_days monday =
+            candidate - days{static_cast<int>(iso_weekday(candidate)) - 1};
+        const sys_days bucket_day =
+            monday < january_first ? january_first : monday;
+        return timestamp_for_day(bucket_day);
+    }
+
+    throw input_error{"return aggregation week is invalid for calendar year"};
 }
 
 struct aggregation_key {
@@ -104,16 +148,7 @@ aggregation_bucket bucket_for(const timestamp value,
     switch (period) {
         case return_aggregation_period::weekly: {
             const int week = iso_week_number(day_value);
-            const sys_days actual_monday =
-                day_value - days{static_cast<int>(iso_weekday(day_value)) - 1};
-            const sys_days january_first{std::chrono::year{year} / January / day{1}};
-            const sys_days bucket_day =
-                actual_monday < january_first ? january_first : actual_monday;
-            const auto bucket_calendar = year_month_day{bucket_day};
-            return {{year, week},
-                    utc_timestamp(static_cast<int>(bucket_calendar.year()),
-                                  static_cast<unsigned>(bucket_calendar.month()),
-                                  static_cast<unsigned>(bucket_calendar.day()))};
+            return {{year, week}, canonical_weekly_bucket_start(year, week)};
         }
         case return_aggregation_period::monthly:
             return {{year, month},
@@ -154,6 +189,12 @@ dataframe cumulative_returns(const dataframe& returns, std::string_view column) 
     return cumulative_returns(returns, 0.0, column);
 }
 
+dataframe cumulative_returns(
+    const dataframe& returns,
+    const std::initializer_list<std::string_view> legacy_column) {
+    return cumulative_returns(returns, legacy_column_or_throw(legacy_column));
+}
+
 dataframe cumulative_returns(const dataframe& returns,
                              const double starting_value,
                              const std::string_view column) {
@@ -172,6 +213,12 @@ dataframe cumulative_returns(const dataframe& returns,
 
 double cumulative_return(const dataframe& returns, std::string_view column) {
     return cumulative_return(returns, 0.0, column);
+}
+
+double cumulative_return(
+    const dataframe& returns,
+    const std::initializer_list<std::string_view> legacy_column) {
+    return cumulative_return(returns, legacy_column_or_throw(legacy_column));
 }
 
 double cumulative_return(const dataframe& returns,
@@ -261,7 +308,7 @@ double annual_return(const dataframe& returns,
         return std::numeric_limits<double>::quiet_NaN();
     }
 
-    const double ending_wealth = compound_wealth(values);
+    const double ending_wealth = compound_returns(values) + 1.0;
     if (ending_wealth <= 0.0) {
         return -1.0;
     }

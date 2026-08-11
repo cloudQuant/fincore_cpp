@@ -3,6 +3,7 @@
 #include <fincore/calendar.hpp>
 #include <fincore/dataframe.hpp>
 
+#include <initializer_list>
 #include <string_view>
 
 namespace fincore {
@@ -24,12 +25,20 @@ dataframe simple_returns(const dataframe& prices, std::string_view price_column)
 dataframe cumulative_returns(const dataframe& returns,
                              std::string_view column = returns_column);
 
+dataframe cumulative_returns(
+    const dataframe& returns,
+    std::initializer_list<std::string_view> legacy_column);
+
 dataframe cumulative_returns(const dataframe& returns,
                              double starting_value,
                              std::string_view column = returns_column);
 
 double cumulative_return(const dataframe& returns,
                          std::string_view column = returns_column);
+
+double cumulative_return(
+    const dataframe& returns,
+    std::initializer_list<std::string_view> legacy_column);
 
 double cumulative_return(const dataframe& returns,
                          double starting_value,

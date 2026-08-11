@@ -200,6 +200,35 @@ TEST(Returns, PreservesZeroStartingValueCompatibilityAndSupportsNumericStarts) {
         std::isnan(fincore::cumulative_return(empty, 100.0, "strategy")));
 }
 
+TEST(Returns, PreservesBracedEmptyCumulativeColumnValidation) {
+    const auto returns = fincore::make_series({1}, "returns", {.01});
+
+    EXPECT_THROW(fincore::cumulative_returns(returns, {}), fincore::input_error);
+    EXPECT_THROW(fincore::cumulative_return(returns, {}), fincore::input_error);
+}
+
+TEST(Returns, ForwardsNarrowLegacyCumulativeColumnInitializerLists) {
+    const auto returns = fincore::make_series({1}, "strategy", {.01});
+
+    expect_values(fincore::cumulative_returns(returns, {"strategy"})
+                      .get_column<double>(fincore::returns_column.data()),
+                  {.01});
+    EXPECT_NEAR(fincore::cumulative_return(returns, {"strategy"}), .01,
+                1.0e-12);
+    EXPECT_THROW(fincore::cumulative_returns(returns, {"strategy", "other"}),
+                 fincore::input_error);
+    EXPECT_THROW(fincore::cumulative_return(returns, {"strategy", "other"}),
+                 fincore::input_error);
+}
+
+TEST(Returns, PreservesAnnualReturnCancellationArithmetic) {
+    const auto returns = fincore::make_series({1, 2, 3, 4, 5, 6}, "returns",
+                                               {-.999, -.999, -.999,
+                                                -.999, -.999, -.999});
+
+    EXPECT_DOUBLE_EQ(fincore::annual_return(returns, .1), -1.0);
+}
+
 TEST(Returns, NormalizesSingleDoubleSeriesWithPythonBoundarySemantics) {
     const auto values =
         fincore::make_series({11, 12, 13}, "equity", {100.0, 110.0, 90.0});
@@ -255,6 +284,58 @@ TEST(Returns, AggregatesWeeklyReturnsWithCalendarYearAndIsoWeekLabels) {
                               {53, 1, 13, 52, 53, 52});
     expect_values(actual.get_column<double>("strategy"),
                   {.122, -.1, .32, .01, .03, .02});
+}
+
+TEST(Returns, AggregatesWeeklyCollisionWithLabelDerivedCanonicalIndex) {
+    const auto january_then_december = fincore::make_series(
+        {fincore::utc_timestamp(2018, 1, 1),
+         fincore::utc_timestamp(2018, 12, 31)},
+        "strategy", {.1, .2});
+    const auto december_then_january = fincore::make_series(
+        {fincore::utc_timestamp(2018, 12, 31),
+         fincore::utc_timestamp(2018, 1, 1)},
+        "strategy", {.2, .1});
+
+    for (const fincore::dataframe* input :
+         {&january_then_december, &december_then_january}) {
+        const auto actual = fincore::aggregate_returns(
+            *input, fincore::return_aggregation_period::weekly, "strategy");
+
+        expect_aggregation_schema(actual, "strategy");
+        EXPECT_EQ(actual.get_index(),
+                  (std::vector<fincore::timestamp>{
+                      fincore::utc_timestamp(2018, 1, 1)}));
+        expect_aggregation_labels(actual, {2018}, {1});
+        expect_values(actual.get_column<double>("strategy"), {.32});
+    }
+}
+
+TEST(Returns, AggregationPreservesOriginalInputOrderWithinEachGroup) {
+    const auto overflow_first = fincore::make_series(
+        {fincore::utc_timestamp(2021, 1, 3),
+         fincore::utc_timestamp(2021, 1, 2),
+         fincore::utc_timestamp(2021, 1, 1)},
+        "strategy", {1.0e160, 1.0e160, -.9999999999999999});
+    const auto cancellation_first = fincore::make_series(
+        {fincore::utc_timestamp(2021, 1, 1),
+         fincore::utc_timestamp(2021, 1, 2),
+         fincore::utc_timestamp(2021, 1, 3)},
+        "strategy", {-.9999999999999999, 1.0e160, 1.0e160});
+
+    const auto overflow_result = fincore::aggregate_returns(
+        overflow_first, fincore::return_aggregation_period::monthly, "strategy");
+    const auto cancellation_result = fincore::aggregate_returns(
+        cancellation_first, fincore::return_aggregation_period::monthly,
+        "strategy");
+
+    const auto& overflow_values = overflow_result.get_column<double>("strategy");
+    const auto& cancellation_values =
+        cancellation_result.get_column<double>("strategy");
+    ASSERT_EQ(overflow_values.size(), 1U);
+    ASSERT_EQ(cancellation_values.size(), 1U);
+    EXPECT_EQ(overflow_values.front(), infinity);
+    EXPECT_TRUE(std::isfinite(cancellation_values.front()));
+    EXPECT_GT(cancellation_values.front(), 0.0);
 }
 
 TEST(Returns, AggregatesMonthlyReturnsWithCanonicalUtcBucketStarts) {
