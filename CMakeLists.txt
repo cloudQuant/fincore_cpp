@@ -36,6 +36,7 @@ add_library(fincore
     src/metrics/yearly.cpp
     src/metrics/rolling.cpp
     src/metrics/perf_stats.cpp
+    src/metrics/positions.cpp
     src/analysis_context.cpp
     src/rolling_engine.cpp)
 add_library(fincore::fincore ALIAS fincore)
