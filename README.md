@@ -391,8 +391,41 @@ sanitizer evidence, and optional graphics boundary are recorded in
 The supplied local ImGui/ImPlot path still has a positive adapter/demo
 compile-and-link boundary, but no GUI runtime was launched. Bootstrap and
 distribution helpers, positions/transactions/round trips, attribution,
-reporting, the broader facade, packaging, and release remain deferred. This
-is not a complete fincore-parity or release claim.
+reporting, the broader facade, packaging, and release remain deferred. The
+Phase 4B rolling API acceptance below replaces the former deferred
+multi-column/full-index rolling claim. This is not a complete fincore-parity
+or release claim.
+
+## Accepted Phase 4B multi-column rolling metrics
+
+Phase 4B completes the public function list in Python `metrics/rolling.py` for
+the native DataFrame API; it is not whole-project parity. Through the existing
+`<fincore/metrics.hpp>` umbrella, `roll_alpha_beta` returns two compact
+endpoint columns, exactly `"alpha"` then `"beta"`, and delegates each complete
+window to public `alpha_beta`. `rolling_regression` returns the same compact
+two-column endpoint shape with a nonannualized regression intercept and beta.
+
+The single-factor `rolling_beta` returns one full aligned index column named
+by the requested returns column. The explicit multi-factor overload accepts a
+non-empty, ordered list of selected factor names and returns one full aligned
+index column for each selected factor in that supplied order. It does not
+infer all numeric columns. All native paired alignment retains only common
+timestamps in the left/returns supplied order; it does not claim Python
+Series outer-shaped pairing. Fixed-width beta/regression windows containing a
+nonfinite pair, or a zero-variance factor, produce NaN rather than changing a
+scalar/global nonfinite policy.
+
+Task 31 implementation and follow-up coverage are
+`9bfedc0ea6c401366009c13e0b44a05dacb37ca9` and
+`9e82194c9cca72b7e6755c85d6c7e7c6e47f8848`. Fresh Task 32 public-consumer,
+headless, sanitizer, and ImPlot compile-boundary evidence is recorded in
+[`docs/acceptance/2026-08-11-phase-4b-multicolumn-rolling-acceptance.md`](docs/acceptance/2026-08-11-phase-4b-multicolumn-rolling-acceptance.md).
+
+Portfolio positions and transactions; round trips; performance attribution;
+bootstrap/distribution statistics; Bayesian and advanced-risk models;
+optimization; simulation; reports/tearsheets; a full native facade;
+packaging/release; and interactive ImPlot visual smoke testing remain separate
+work.
 
 ## Headless core verification
 
@@ -493,7 +526,6 @@ by Phase 3C rather than rewritten.
 
 This boundary is not full fincore parity or a project-release claim. Still-open
 work includes interactive visual smoke testing; multi-series and tearsheet
-visualizations; unimplemented multi-column and full-index rolling APIs;
-positions and transactions; round trips; attribution; Bayesian/bootstrap and
-advanced risk models; optimization; simulation; reports; data providers;
-packaging and release; and full Python public-API parity.
+visualizations; positions and transactions; round trips; attribution;
+Bayesian/bootstrap and advanced risk models; optimization; simulation; reports;
+data providers; packaging and release; and full Python public-API parity.

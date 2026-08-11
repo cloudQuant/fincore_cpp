@@ -3,10 +3,12 @@
 
 #include <gtest/gtest.h>
 
+#include <array>
 #include <cmath>
 #include <optional>
 #include <set>
 #include <string>
+#include <tuple>
 #include <vector>
 
 namespace {
@@ -151,6 +153,44 @@ TEST(MetricsUmbrella, ExposesOnlyImplementedDataframeNativeMetrics) {
     EXPECT_TRUE(paired_endpoint->has_column("strategy"));
     EXPECT_EQ(paired_endpoint->get_columns_info<double>().size(), 1U);
   }
+
+  fincore::dataframe rolling_factors;
+  rolling_factors.load_index(std::vector<fincore::timestamp>{1, 2, 3});
+  rolling_factors.load_column<double>(
+      "market", std::vector<double>{.005, -.01, .02},
+      hmdf::nan_policy::dont_pad_with_nans);
+  rolling_factors.load_column<double>(
+      "inverse", std::vector<double>{-.005, .01, -.02},
+      hmdf::nan_policy::dont_pad_with_nans);
+  const std::array<std::string_view, 2U> factor_names{"market", "inverse"};
+
+  const auto rolling_alpha_beta = fincore::roll_alpha_beta(
+      rolling_returns, rolling_benchmark, 3U, 0.0, fincore::frequency::daily,
+      std::nullopt, "strategy", "market");
+  const auto single_factor_beta = fincore::rolling_beta(
+      rolling_returns, rolling_benchmark, 3U, "strategy", "market");
+  const auto multi_factor_beta = fincore::rolling_beta(
+      rolling_returns, rolling_factors, factor_names, 3U, "strategy");
+  const auto rolling_regression = fincore::rolling_regression(
+      rolling_returns, rolling_benchmark, 3U, "strategy", "market");
+
+  EXPECT_EQ(rolling_alpha_beta.get_index(), expected_rolling_endpoint_index);
+  EXPECT_EQ(rolling_regression.get_index(), expected_rolling_endpoint_index);
+  EXPECT_EQ(single_factor_beta.get_index(), rolling_returns.get_index());
+  EXPECT_EQ(multi_factor_beta.get_index(), rolling_returns.get_index());
+  EXPECT_TRUE(single_factor_beta.has_column("strategy"));
+
+  for (const auto* two_column_result : {&rolling_alpha_beta,
+                                        &rolling_regression}) {
+    const auto columns = two_column_result->get_columns_info<double>();
+    ASSERT_EQ(columns.size(), 2U);
+    EXPECT_EQ(std::get<0>(columns[0]), "alpha");
+    EXPECT_EQ(std::get<0>(columns[1]), "beta");
+  }
+  const auto multi_factor_columns = multi_factor_beta.get_columns_info<double>();
+  ASSERT_EQ(multi_factor_columns.size(), 2U);
+  EXPECT_EQ(std::get<0>(multi_factor_columns[0]), "market");
+  EXPECT_EQ(std::get<0>(multi_factor_columns[1]), "inverse");
 
   const auto unary_statistics = fincore::perf_stats(
       rolling_returns, fincore::frequency::daily, "strategy");
