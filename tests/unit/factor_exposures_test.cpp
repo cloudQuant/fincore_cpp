@@ -256,6 +256,22 @@ TEST(FactorExposures, DelegatesEachEligibleRawWindowToPublicFactorRegression) {
     expect_direct_fit_parity(fixed, fixture, factor_names, 4U);
 }
 
+TEST(FactorExposures, PreservesCallerPermutedFactorRequestOrder) {
+    constexpr std::array<std::string_view, 3U> permuted_factor_names{
+        "HML", "MKT", "SMB"};
+    const auto fixture = oracle_fixture();
+    const auto expanding = fincore::rolling_factor_exposures(
+        fixture.returns, fixture.factors, permuted_factor_names);
+    const auto fixed = fincore::rolling_factor_exposures(
+        fixture.returns, fixture.factors, permuted_factor_names, 4U);
+
+    expect_exposure_schema(expanding, permuted_factor_names,
+                           fixture.returns.get_index());
+    expect_exposure_schema(fixed, permuted_factor_names, fixture.returns.get_index());
+    expect_direct_fit_parity(expanding, fixture, permuted_factor_names);
+    expect_direct_fit_parity(fixed, fixture, permuted_factor_names, 4U);
+}
+
 TEST(FactorExposures,
      RetainsNonmonotonicUniqueRawOrderAndRowwiseExposureCorrespondence) {
     constexpr std::array<std::string_view, 1U> one_factor{"MKT"};
