@@ -841,3 +841,47 @@ Warning-producing Python alignment/drop behavior, transaction-turnover
 diagnostics, market-data/factor-provider adapters, reports/tearsheets, full
 Python API parity, packaging/release, and GUI-runtime validation remain
 deferred.
+
+## Accepted Phase 10 Brinson attribution core
+
+`<fincore/attribution.hpp>` exports the bounded, deterministic,
+DataFrame-native BHB Brinson core:
+
+```cpp
+#include <fincore/attribution.hpp>
+
+const fincore::brinson_period_result period = fincore::brinson_attribution(
+    portfolio_returns, benchmark_returns, portfolio_weights,
+    benchmark_weights, sectors);
+const fincore::dataframe results = fincore::brinson_results(
+    portfolio_returns, benchmark_returns, portfolio_weights,
+    benchmark_weights, sectors);
+const fincore::brinson_cumulative_result cumulative =
+    fincore::brinson_cumulative(portfolio_returns, benchmark_returns,
+                                 portfolio_weights, benchmark_weights, sectors);
+```
+
+`brinson_period_result` owns `allocation`, `selection`, `interaction`,
+`total`, `portfolio_return`, and `benchmark_return`. Its cumulative counterpart
+owns the first four effects plus `portfolio_cumulative` and
+`benchmark_cumulative`. Each operation accepts four `fincore::dataframe`
+inputs and a nonempty, distinct `std::span<const std::string_view>` of sector
+names. Every selected column must be a genuine `double` on all four frames;
+the frames must have duplicate-free, exactly equal raw timestamp sequences.
+Nonselected metadata, including numeric metadata, is ignored. No sector is
+inferred, and no input is sorted, aligned, normalized, or silently intersected.
+
+`brinson_results` preserves the portfolio-return index and returns exactly six
+ordered genuine-`double` columns: `allocation`, `selection`, `interaction`,
+`total`, `portfolio_return`, and `benchmark_return`. Single-period attribution
+requires exactly one row; valid empty multi-period input returns that typed
+empty schema and cumulative attribution returns zero effects and zero
+cumulative returns. The accepted implementation is Task 54 commit
+`acd4d06000b59b3ed10ba7b51d60bddef8c717dc`.
+
+This acceptance is only the BHB core. It does not include stateful sector
+mapping or equal-weight fallbacks, Brinson-Hood, style or Fama-French
+attribution, providers, reports/tearsheets, packaging/release validation, full
+Python-attribution parity, or GUI runtime. The public-only umbrella consumer,
+Anaconda Python oracle, and fresh compiler/build evidence are recorded in
+[`docs/acceptance/2026-08-11-phase-10-brinson-attribution-acceptance.md`](docs/acceptance/2026-08-11-phase-10-brinson-attribution-acceptance.md).
