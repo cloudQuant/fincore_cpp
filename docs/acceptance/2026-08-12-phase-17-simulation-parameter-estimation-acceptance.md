@@ -193,8 +193,32 @@ The retry diagnostic scan exits 0 and matches CMake's complete validation
 error. This is dependency-validation evidence only; it neither substitutes a
 dependency nor replaces the positive ImPlot compile/link proof.
 
-## Next trace boundary
+## Task 78 non-self-referential traceability
 
-Task 78 is reserved for documentation-only, non-self-referential traceability.
-It will record the initial Task 77 acceptance revision with its own distinct
-scope; it does not amend the Task 76 leaf or this acceptance scope.
+Task 76 is the implementation revision
+`6e7ad34e1ce1cd49ea46408aaebad0079283b013`
+(`feat: add simulation parameter estimation`). Its exact tracked scope is the
+five leaf paths:
+
+- CMakeLists.txt
+- tests/CMakeLists.txt
+- include/fincore/simulation/parameters.hpp
+- src/simulation/parameters.cpp
+- tests/unit/simulation_parameters_test.cpp
+
+The initial Task 77 acceptance revision is
+`b07dcf94aa9be5514b737d17d621588d2cd6c4e9`
+(`docs: accept phase 17 simulation parameter estimation`). Its direct parent
+is Task 76's full revision above. Its distinct exact tracked scope is the five
+acceptance paths:
+
+- README.md
+- docs/acceptance/2026-08-12-phase-17-simulation-parameter-estimation-acceptance.md
+- include/fincore/simulation.hpp
+- tests/CMakeLists.txt
+- tests/unit/simulation_parameters_umbrella_test.cpp
+
+Task 78 changes this acceptance record only, solely to make that ancestry and
+the two prior scopes explicit. It is documentation-only, does not amend either
+Task 76 or Task 77, and neither writes nor anticipates the SHA of the commit
+that records this trace.
