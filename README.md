@@ -344,6 +344,51 @@ below. Phase 3B is not full fincore parity or project completion. The complete
 acceptance evidence is in
 [`docs/acceptance/2026-08-10-phase-3b-rolling-paired-metrics-acceptance.md`](docs/acceptance/2026-08-10-phase-3b-rolling-paired-metrics-acceptance.md).
 
+## Accepted Phase 4A performance statistics
+
+The public metric umbrella now exposes the bounded deterministic
+`perf_stats` facade:
+
+```cpp
+#include <fincore/metrics.hpp>
+
+const auto unary = fincore::perf_stats(returns, fincore::frequency::weekly,
+                                        "strategy");
+const auto paired = fincore::perf_stats(returns, benchmark,
+                                         fincore::frequency::weekly,
+                                         "strategy", "market");
+```
+
+Both calls return `std::map<std::string, double>` keyed by metric name, not a
+synthetic string-indexed timestamp DataFrame. The unary overload has exactly
+13 keys: `Annual return`, `Cumulative returns`, `Annual volatility`, `Sharpe
+ratio`, `Calmar ratio`, `Stability`, `Max drawdown`, `Omega ratio`, `Sortino
+ratio`, `Skew`, `Kurtosis`, `Tail ratio`, and `Daily value at risk`. The
+benchmark overload adds exactly `Alpha` and `Beta`, for 15 keys. The requested
+return and benchmark double-column names are public arguments, so callers need
+not rename native DataFrame columns to the defaults.
+
+The selected `period` applies to annual return, annual volatility, Sharpe,
+Calmar, and Sortino. Alpha/Beta remain delegated to daily `alpha_beta`, while
+Omega retains its zero-threshold daily delegate behavior. Column validation,
+nonfinite behavior, and benchmark handling remain owned by the existing public
+scalar delegates; native Alpha/Beta uses common timestamps in the
+left/returns-frame order rather than claiming Python outer-shaped pair
+behavior.
+
+Task 29's accepted implementation and public-header repair are
+`a1caa4bc8bd2496ff67c7728a7368e8214a6a1fd` and
+`1cd7cccc9cc5b78c417f8d0452d463357d4d0e4b`. The complete Phase 4A
+contract, Python-oracle/delegation coverage, full fresh core and sanitizer
+evidence, and optional graphics boundary are recorded in
+[`docs/acceptance/2026-08-11-phase-4a-performance-statistics-acceptance.md`](docs/acceptance/2026-08-11-phase-4a-performance-statistics-acceptance.md).
+
+The supplied local ImGui/ImPlot path still has a positive adapter/demo
+compile-and-link boundary, but no GUI runtime was launched. Bootstrap and
+distribution helpers, positions/transactions/round trips, attribution,
+reporting, the broader facade, packaging, and release remain deferred. This
+is not a complete fincore-parity or release claim.
+
 ## Headless core verification
 
 The core target is headless. It links `DataFrame::DataFrame` and does not

@@ -5,6 +5,8 @@
 
 #include <cmath>
 #include <optional>
+#include <set>
+#include <string>
 #include <vector>
 
 namespace {
@@ -42,6 +44,16 @@ std::vector<fincore::timestamp> calendar_indices() {
       fincore::utc_timestamp(2021, 1, 5),
       fincore::utc_timestamp(2021, 1, 6),
   };
+}
+
+template <typename statistics_type>
+std::set<std::string> statistic_keys(const statistics_type& statistics) {
+  std::set<std::string> result;
+  for (const auto& [key, value] : statistics) {
+    static_cast<void>(value);
+    result.insert(key);
+  }
+  return result;
 }
 
 TEST(MetricsUmbrella, ExposesOnlyImplementedDataframeNativeMetrics) {
@@ -139,6 +151,27 @@ TEST(MetricsUmbrella, ExposesOnlyImplementedDataframeNativeMetrics) {
     EXPECT_TRUE(paired_endpoint->has_column("strategy"));
     EXPECT_EQ(paired_endpoint->get_columns_info<double>().size(), 1U);
   }
+
+  const auto unary_statistics = fincore::perf_stats(
+      rolling_returns, fincore::frequency::daily, "strategy");
+  const auto benchmark_statistics = fincore::perf_stats(
+      rolling_returns, rolling_benchmark, fincore::frequency::daily,
+      "strategy", "market");
+  const std::set<std::string> expected_unary_statistic_keys{
+      "Annual return",       "Cumulative returns", "Annual volatility",
+      "Sharpe ratio",        "Calmar ratio",       "Stability",
+      "Max drawdown",        "Omega ratio",        "Sortino ratio",
+      "Skew",                "Kurtosis",           "Tail ratio",
+      "Daily value at risk"};
+  auto expected_benchmark_statistic_keys = expected_unary_statistic_keys;
+  expected_benchmark_statistic_keys.insert("Alpha");
+  expected_benchmark_statistic_keys.insert("Beta");
+
+  EXPECT_EQ(statistic_keys(unary_statistics), expected_unary_statistic_keys);
+  EXPECT_EQ(statistic_keys(benchmark_statistics),
+            expected_benchmark_statistic_keys);
+  EXPECT_EQ(unary_statistics.size(), 13U);
+  EXPECT_EQ(benchmark_statistics.size(), 15U);
 }
 
 }  // namespace
