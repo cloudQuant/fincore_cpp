@@ -475,6 +475,51 @@ native facade; packaging/release; and interactive ImPlot visual smoke testing
 remain separate work. This phase is not complete fincore parity or a GUI
 runtime result.
 
+## Accepted Phase 5B transaction metrics
+
+The bounded native transaction aggregation and turnover surface is available
+through the existing public umbrella:
+
+~~~cpp
+#include <fincore/metrics.hpp>
+
+const auto daily = fincore::get_txn_vol(transactions);
+const auto actual_gross_book = fincore::get_turnover(
+    positions, transactions, fincore::turnover_denominator::actual_gross_book);
+const auto portfolio_value = fincore::get_turnover(
+    positions, transactions, fincore::turnover_denominator::portfolio_value);
+~~~
+
+Raw transaction inputs require distinct genuine double amount and price
+columns, both matched to the timestamp index. Duplicate and intraday
+timestamps are normalized to UTC midnight and aggregated into sorted daily
+rows. The result is exactly the double columns txn_volume and txn_shares:
+shares are absolute amounts, while volume is absolute amount times the signed
+price. A NaN contribution is skipped; signed infinity remains ordinary
+arithmetic in the daily aggregate.
+
+Turnover returns one double column named turnover on the sorted union of
+position days and transaction days. Position days must already be strictly
+increasing and unique after UTC-day normalization. Actual-gross-book turnover
+requires a genuine named double cash column: its first denominator is half of
+the first non-cash gross book, and later denominators are the average of the
+previous and current gross books. Portfolio-value turnover needs no cash
+column and instead divides by each row's all-numeric position sum. In either
+mode, a final nonfinite turnover value is emitted as 0.0.
+
+Task 35's implementation and its accepted boundary correction are
+87472e42bfa6802e0275af1bf0c3b3058a4f5f23 and
+12ec9a0368ea4dd54b6f6669f2118a204947370d. Fresh public-consumer,
+headless, sanitizer, and optional ImPlot compile-boundary evidence is in
+[docs/acceptance/2026-08-11-phase-5b-transaction-metrics-acceptance.md](docs/acceptance/2026-08-11-phase-5b-transaction-metrics-acceptance.md).
+
+Transaction mapping and symbols/SIDs; daily bar joins; liquidity,
+liquidation, and slippage; round trips and attribution; performance
+attribution; bootstrap/distribution statistics; Bayesian and advanced-risk
+models; optimization; simulation; reports/tearsheets; a full native facade;
+packaging/release; and interactive ImPlot visual smoke testing remain deferred.
+This phase is not full fincore parity or a GUI runtime result.
+
 ## Headless core verification
 
 The core target is headless. It links `DataFrame::DataFrame` and does not

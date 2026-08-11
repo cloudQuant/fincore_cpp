@@ -282,4 +282,74 @@ TEST(MetricsUmbrella, ExposesNativePositionMetrics) {
       std::isnan(concentration.get_column<double>("max_short")[2]));
 }
 
+TEST(MetricsUmbrella, ExposesNativeTransactionMetrics) {
+  const auto jan_2 = fincore::utc_timestamp(2024, 1, 2);
+  const auto jan_3 = fincore::utc_timestamp(2024, 1, 3);
+  const auto jan_4 = fincore::utc_timestamp(2024, 1, 4);
+  const auto transaction_only_jan_5 = fincore::utc_timestamp(2024, 1, 5);
+
+  fincore::dataframe transactions;
+  transactions.load_index(std::vector<fincore::timestamp>{
+      fincore::utc_timestamp(2024, 1, 5, 11),
+      fincore::utc_timestamp(2024, 1, 2, 15, 45),
+      fincore::utc_timestamp(2024, 1, 3, 10),
+      fincore::utc_timestamp(2024, 1, 2, 9, 30),
+  });
+  transactions.load_column<double>(
+      "amount",
+      std::vector<double>{3.0, -4.0, std::numeric_limits<double>::quiet_NaN(),
+                          10.0},
+      hmdf::nan_policy::dont_pad_with_nans);
+  transactions.load_column<double>(
+      "price",
+      std::vector<double>{std::numeric_limits<double>::infinity(), 10.0, 7.0,
+                          5.0},
+      hmdf::nan_policy::dont_pad_with_nans);
+
+  fincore::dataframe positions;
+  positions.load_index(std::vector<fincore::timestamp>{
+      fincore::utc_timestamp(2024, 1, 2, 17),
+      fincore::utc_timestamp(2024, 1, 3, 11),
+      fincore::utc_timestamp(2024, 1, 4, 7),
+  });
+  positions.load_column<double>("asset", std::vector<double>{100.0, -50.0, 20.0},
+                                hmdf::nan_policy::dont_pad_with_nans);
+  positions.load_column<int>("metadata", std::vector<int>{1, 2, 3},
+                             hmdf::nan_policy::dont_pad_with_nans);
+  positions.load_column<double>("cash", std::vector<double>{900.0, 1050.0, 980.0},
+                                hmdf::nan_policy::dont_pad_with_nans);
+
+  const auto daily = fincore::get_txn_vol(transactions);
+  const auto actual_gross_book = fincore::get_turnover(
+      positions, transactions, fincore::turnover_denominator::actual_gross_book);
+  const auto portfolio_value = fincore::get_turnover(
+      positions, transactions, fincore::turnover_denominator::portfolio_value);
+
+  const std::vector<fincore::timestamp> expected_daily_index{
+      jan_2, jan_3, transaction_only_jan_5};
+  EXPECT_EQ(daily.get_index(), expected_daily_index);
+  const auto daily_columns = daily.get_columns_info<double>();
+  ASSERT_EQ(daily_columns.size(), 2U);
+  EXPECT_EQ(std::get<0>(daily_columns[0]), "txn_volume");
+  EXPECT_EQ(std::get<0>(daily_columns[1]), "txn_shares");
+  EXPECT_DOUBLE_EQ(daily.get_column<double>("txn_volume")[0], 90.0);
+  EXPECT_DOUBLE_EQ(daily.get_column<double>("txn_shares")[0], 14.0);
+  EXPECT_DOUBLE_EQ(daily.get_column<double>("txn_volume")[1], 0.0);
+  EXPECT_EQ(daily.get_column<double>("txn_volume")[2],
+            std::numeric_limits<double>::infinity());
+
+  const std::vector<fincore::timestamp> expected_turnover_index{
+      jan_2, jan_3, jan_4, transaction_only_jan_5};
+  for (const auto* turnover : {&actual_gross_book, &portfolio_value}) {
+    EXPECT_EQ(turnover->get_index(), expected_turnover_index);
+    const auto columns = turnover->get_columns_info<double>();
+    ASSERT_EQ(columns.size(), 1U);
+    EXPECT_EQ(std::get<0>(columns[0]), "turnover");
+    EXPECT_EQ(turnover->get_index().back(), transaction_only_jan_5);
+    EXPECT_DOUBLE_EQ(turnover->get_column<double>("turnover").back(), 0.0);
+  }
+  EXPECT_DOUBLE_EQ(actual_gross_book.get_column<double>("turnover")[0], 1.8);
+  EXPECT_DOUBLE_EQ(portfolio_value.get_column<double>("turnover")[0], 0.09);
+}
+
 }  // namespace
