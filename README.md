@@ -708,3 +708,46 @@ work includes interactive visual smoke testing; multi-series and tearsheet
 visualizations; positions and transactions; round trips; attribution;
 Bayesian/bootstrap and advanced risk models; optimization; simulation; reports;
 data providers; packaging and release; and full Python public-API parity.
+
+## Accepted Phase 7 return transformations
+
+The public metric umbrella re-exports the native return-transformation surface;
+calendar fixtures use the separately public UTC helper:
+
+```cpp
+#include <fincore/calendar.hpp>
+#include <fincore/metrics.hpp>
+
+const auto wealth = fincore::cumulative_returns(returns, 100.0, "strategy");
+const double ending_wealth =
+    fincore::cumulative_return(returns, 100.0, "strategy");
+const auto indexed = fincore::normalize(values, 1.0, "equity");
+const auto weekly = fincore::aggregate_returns(
+    returns, fincore::return_aggregation_period::weekly, "strategy");
+```
+
+With a nonzero start value, cumulative transformations return wealth levels;
+the legacy zero start preserves return-space output. `normalize` divides by
+the first value and scales by its requested start value. Aggregation returns
+three columns in this order: integer `year`, integer `period`, then the
+requested double return column. Its labels are explicit: weekly aggregation
+uses the calendar year of each timestamp together with its ISO week number;
+the resulting index is a canonical UTC bucket start. Groups emit
+lexicographically by `(year, period)`, while observations within each bucket
+retain raw input order. The weekly collision rule is label-derived and
+permutation-stable: find the earliest matching day in the label year, take its
+ISO Monday, and clamp it to January 1. Thus weekly timestamp indices can be
+nonmonotonic even though their `(year, period)` labels are sorted.
+
+Task 44's accepted compatibility implementation is
+`feaae2c7fd5e2747c300582d09e76d09de55ace2`
+(`fix: stabilize return transformation compatibility`). The public-only
+consumer exercises the four transformations through `<fincore/metrics.hpp>`
+without including the leaf returns header. Fresh acceptance commands and their
+bounded evidence are in
+[`docs/acceptance/2026-08-11-phase-7-return-transformations-acceptance.md`](docs/acceptance/2026-08-11-phase-7-return-transformations-acceptance.md).
+
+This is a bounded native slice, not pandas parity or a full-project release:
+pandas `MultiIndex` representation, local-timezone bucketing, additional
+return-transformation scope, packaging, and release validation remain
+deferred. GUI programs were not run as part of this acceptance.

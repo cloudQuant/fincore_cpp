@@ -10,6 +10,7 @@
 #include <set>
 #include <string>
 #include <tuple>
+#include <typeindex>
 #include <vector>
 
 namespace {
@@ -213,6 +214,77 @@ TEST(MetricsUmbrella, ExposesOnlyImplementedDataframeNativeMetrics) {
             expected_benchmark_statistic_keys);
   EXPECT_EQ(unary_statistics.size(), 13U);
   EXPECT_EQ(benchmark_statistics.size(), 15U);
+}
+
+TEST(MetricsUmbrella, ConsumesReturnTransformationsThroughPublicHeadersOnly) {
+  const std::vector<fincore::timestamp> return_index{
+      fincore::utc_timestamp(2020, 12, 28, 15),
+      fincore::utc_timestamp(2020, 12, 31, 9),
+      fincore::utc_timestamp(2021, 1, 1, 11),
+      fincore::utc_timestamp(2021, 1, 3, 18),
+      fincore::utc_timestamp(2021, 1, 4, 8)};
+  const auto returns = fincore::make_series(
+      return_index, "strategy",
+      std::vector<double>{.1, .02, .03,
+                          std::numeric_limits<double>::quiet_NaN(), -.1});
+  const auto values = fincore::make_series(
+      std::vector<fincore::timestamp>{fincore::utc_timestamp(2020, 12, 28),
+                                       fincore::utc_timestamp(2021, 1, 4),
+                                       fincore::utc_timestamp(2021, 1, 11)},
+      "equity", std::vector<double>{100.0, 110.0, 90.0});
+
+  EXPECT_EQ(fincore::returns_column, "returns");
+  EXPECT_DOUBLE_EQ(fincore::daily_annualization, 252.0);
+  EXPECT_EQ(fincore::return_aggregation_year_column, "year");
+  EXPECT_EQ(fincore::return_aggregation_period_column, "period");
+
+  const auto cumulative =
+      fincore::cumulative_returns(returns, 100.0, "strategy");
+  EXPECT_EQ(cumulative.get_index(), return_index);
+  EXPECT_TRUE(cumulative.has_column(fincore::returns_column.data()));
+  const auto& cumulative_values =
+      cumulative.get_column<double>(fincore::returns_column.data());
+  ASSERT_EQ(cumulative_values.size(), 5U);
+  EXPECT_NEAR(cumulative_values[0], 110.0, 1.0e-12);
+  EXPECT_NEAR(cumulative_values[1], 112.2, 1.0e-12);
+  EXPECT_NEAR(cumulative_values[2], 115.566, 1.0e-12);
+  EXPECT_NEAR(cumulative_values[3], 115.566, 1.0e-12);
+  EXPECT_NEAR(cumulative_values[4], 104.0094, 1.0e-12);
+  EXPECT_NEAR(fincore::cumulative_return(returns, 100.0, "strategy"),
+              104.0094, 1.0e-12);
+
+  const auto normalized = fincore::normalize(values, 1.0, "equity");
+  EXPECT_EQ(normalized.get_index(), values.get_index());
+  const auto& normalized_values = normalized.get_column<double>("equity");
+  ASSERT_EQ(normalized_values.size(), 3U);
+  EXPECT_DOUBLE_EQ(normalized_values[0], 1.0);
+  EXPECT_DOUBLE_EQ(normalized_values[1], 1.1);
+  EXPECT_DOUBLE_EQ(normalized_values[2], .9);
+
+  const auto weekly = fincore::aggregate_returns(
+      returns, fincore::return_aggregation_period::weekly, "strategy");
+  EXPECT_EQ(weekly.get_index(),
+            (std::vector<fincore::timestamp>{fincore::utc_timestamp(2020, 12, 28),
+                                              fincore::utc_timestamp(2021, 1, 4),
+                                              fincore::utc_timestamp(2021, 1, 1)}));
+  EXPECT_EQ(weekly.shape().second, 3U);
+  const auto weekly_columns = weekly.get_columns_info<int, double>();
+  ASSERT_EQ(weekly_columns.size(), 3U);
+  EXPECT_EQ(std::get<0>(weekly_columns[0]), "year");
+  EXPECT_EQ(std::get<0>(weekly_columns[1]), "period");
+  EXPECT_EQ(std::get<0>(weekly_columns[2]), "strategy");
+  EXPECT_EQ(std::get<2>(weekly_columns[0]), std::type_index(typeid(int)));
+  EXPECT_EQ(std::get<2>(weekly_columns[1]), std::type_index(typeid(int)));
+  EXPECT_EQ(std::get<2>(weekly_columns[2]), std::type_index(typeid(double)));
+  EXPECT_EQ(weekly.get_column<int>("year"),
+            (std::vector<int>{2020, 2021, 2021}));
+  EXPECT_EQ(weekly.get_column<int>("period"),
+            (std::vector<int>{53, 1, 53}));
+  const auto& weekly_values = weekly.get_column<double>("strategy");
+  ASSERT_EQ(weekly_values.size(), 3U);
+  EXPECT_NEAR(weekly_values[0], .122, 1.0e-12);
+  EXPECT_NEAR(weekly_values[1], -.1, 1.0e-12);
+  EXPECT_NEAR(weekly_values[2], .03, 1.0e-12);
 }
 
 TEST(MetricsUmbrella, ExposesNativePositionMetrics) {
