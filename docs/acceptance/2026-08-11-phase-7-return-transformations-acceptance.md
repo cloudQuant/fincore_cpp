@@ -6,7 +6,7 @@ release readiness, or a GUI runtime/visual result.
 
 ## Implementation trace
 
-The exact three-SHA implementation trace is:
+The exact three-SHA Task 44 implementation chain is:
 
 1. `e81a876e7d5f17f4e8a61a3bbb2907e0107d61d9` — initial native return
    transformations.
@@ -14,8 +14,9 @@ The exact three-SHA implementation trace is:
    clarification.
 3. `feaae2c7fd5e2747c300582d09e76d09de55ace2` — Task 44 compatibility
    stabilization.
-4. `5ae7a85744fee2f97f5c898ff4c5af9d464c11e8` — Task 45 initial acceptance
-   record.
+
+The direct Task 45 initial acceptance SHA is
+`5ae7a85744fee2f97f5c898ff4c5af9d464c11e8`.
 
 This Task 46 commit is documentation-only and non-self-referential: it records
 the direct Task 45 acceptance SHA without amending Task 45's initial acceptance
