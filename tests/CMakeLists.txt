@@ -57,6 +57,7 @@ add_executable(fincore_tests
     unit/simulation_latin_hypercube_umbrella_test.cpp
     unit/antithetic_variates_test.cpp
     unit/simulation_antithetic_variates_umbrella_test.cpp
+    unit/simulation_result_test.cpp
     unit/simulation_gbm_from_returns_umbrella_test.cpp
     unit/simulation_bootstrap_umbrella_test.cpp
     unit/simulation_bootstrap_confidence_interval_umbrella_test.cpp

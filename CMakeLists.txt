@@ -48,6 +48,7 @@ add_library(fincore
     src/simulation/scenarios.cpp
     src/simulation/correlation.cpp
     src/simulation/parameters.cpp
+    src/simulation/result.cpp
     src/simulation/paths.cpp
     src/simulation/bootstrap.cpp
     src/analysis_context.cpp
