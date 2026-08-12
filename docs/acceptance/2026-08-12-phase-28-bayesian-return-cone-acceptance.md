@@ -275,3 +275,25 @@ metrics-façade export. It does not add PyMC, posterior fitting or sampling, a
 providers, packaging/release work, or GUI runtime behavior. ImPlot evidence is
 strictly compile/link, CTest registration, and build-root executable existence;
 the GUI executable was not launched.
+
+## Accepted implementation and acceptance trace
+
+The implementation chain begins with Task 121 commit
+`7790aa169a843a4837c91936b8ce21fa6a4f8d22`
+(`feat: add bayesian posterior return cone`), whose parent is the Phase 28
+plan commit `5dac47d580745af5264cf438da08a8cf8a6b6876`. Its exact scope is the
+five leaf paths listed in [Accepted leaf baseline](#accepted-leaf-baseline):
+the library CMake registration, Bayesian public header and implementation,
+test registration, and leaf-only test.
+
+Task 122's initial acceptance is direct child
+`1b977575fe30acd6a0ac921ec8d33afb54d216c6`
+(`docs: accept phase 28 bayesian return cone`). Its exact five-path scope is
+`README.md`, this acceptance document, `include/fincore/metrics.hpp`,
+`tests/CMakeLists.txt`, and
+`tests/unit/metrics_bayesian_cone_umbrella_test.cpp`. It exports only the
+accepted leaf through the metrics façade and records the façade/gate evidence;
+it does not change the Task 121 implementation paths.
+
+Task 123 is documentation-only traceability. It does not amend either earlier
+commit, change production behavior, or claim any additional acceptance scope.
