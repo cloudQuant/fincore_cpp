@@ -42,12 +42,12 @@ and materializes an independently owned table with ordinal index
 zero resample count is a valid typed-empty output. The source index is
 observational only: it is not sorted, aligned, deduplicated, or resampled.
 
-Task 88 ran the source oracle through the mandated Anaconda environment. Its
-all-equal fixture confirms deterministic mean/median/min/max values, zero
-sample standard deviation, and positive-infinite ratio cases; its singleton
-fixture confirms the specified `NaN` sample-standard-deviation, Sharpe, and
-Sortino cases; its zero-count fixture confirms the empty shape. The C++ seed
-uses a fresh local rejection-mapped `std::mt19937_64` stream. It guarantees
+Task 88 ran the prescribed source oracle through the mandated Anaconda
+environment. It records all seven nonconstant seeded outputs, the all-equal
+standard-deviation output, the singleton Sharpe output, the NaN-drop mean, and
+the zero-count output. Broader all-equal and singleton IEEE semantics are
+native behavioral-test evidence rather than source-oracle evidence. The C++
+seed uses a fresh local rejection-mapped `std::mt19937_64` stream. It guarantees
 repeatability within a supported native build, not equality to Python/NumPy's
 generator stream for the same seed.
 

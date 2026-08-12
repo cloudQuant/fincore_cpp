@@ -77,13 +77,6 @@ TEST(BootstrapDistribution, MatchesDeterministicConstantAndNaNDropSourceCases) {
     for (const double value : bootstrap_values(standard_deviation)) {
         EXPECT_DOUBLE_EQ(value, 0.0);
     }
-    for (const auto statistic : {fincore::bootstrap_statistic::sharpe_ratio,
-                                 fincore::bootstrap_statistic::sortino_ratio}) {
-        const auto result = fincore::bootstrap_distribution(constant, 4U, statistic, 42U);
-        for (const double value : bootstrap_values(result)) {
-            EXPECT_EQ(value, std::numeric_limits<double>::infinity());
-        }
-    }
 
     const auto nan_drop = fincore::make_series(
         {7, 8, 9}, "returns", {0.01, std::numeric_limits<double>::quiet_NaN(), 0.01});
@@ -104,51 +97,77 @@ TEST(BootstrapDistribution, PreservesDegenerateSingletonAndZeroCountSemantics) {
         }
     }
 
+    const auto zero_mean_constant =
+        fincore::make_series({1, 2}, "returns", {0.0, 0.0});
+    const auto nonzero_mean_constant =
+        fincore::make_series({1, 2}, "returns", {0.01, 0.01});
+    for (const auto statistic : {fincore::bootstrap_statistic::sharpe_ratio,
+                                 fincore::bootstrap_statistic::sortino_ratio}) {
+        const auto zero_mean = fincore::bootstrap_distribution(
+            zero_mean_constant, 3U, statistic, 42U);
+        for (const double value : bootstrap_values(zero_mean)) {
+            EXPECT_TRUE(std::isnan(value));
+        }
+
+        const auto nonzero_mean = fincore::bootstrap_distribution(
+            nonzero_mean_constant, 3U, statistic, 42U);
+        for (const double value : bootstrap_values(nonzero_mean)) {
+            EXPECT_EQ(value, std::numeric_limits<double>::infinity());
+        }
+    }
+
     const auto zero = fincore::bootstrap_distribution(
         singleton, 0U, fincore::bootstrap_statistic::mean, 42U);
     expect_schema(zero, 0U);
     EXPECT_TRUE(bootstrap_values(zero).empty());
 }
 
-TEST(BootstrapDistribution, SupportsEveryStatisticWithRowWiseRelationships) {
-    const auto values = nonconstant_returns();
+TEST(BootstrapDistribution, ComputesEveryStatisticForAnEmpiricallyKnownMixedSample) {
+    // Empirically, the native engine with seed 2 draws {-0.01, 0.03} from this
+    // two-value input for its first resample. This is native-seed evidence only,
+    // not a claim of NumPy stream parity.
+    const auto values = fincore::make_series({7, -9}, "returns", {-0.01, 0.03});
     const auto mean = fincore::bootstrap_distribution(
-        values, 11U, fincore::bootstrap_statistic::mean, 81U);
+        values, 1U, fincore::bootstrap_statistic::mean, 2U);
     const auto standard_deviation = fincore::bootstrap_distribution(
-        values, 11U, fincore::bootstrap_statistic::sample_standard_deviation, 81U);
+        values, 1U, fincore::bootstrap_statistic::sample_standard_deviation, 2U);
     const auto median = fincore::bootstrap_distribution(
-        values, 11U, fincore::bootstrap_statistic::median, 81U);
+        values, 1U, fincore::bootstrap_statistic::median, 2U);
     const auto sharpe = fincore::bootstrap_distribution(
-        values, 11U, fincore::bootstrap_statistic::sharpe_ratio, 81U);
+        values, 1U, fincore::bootstrap_statistic::sharpe_ratio, 2U);
     const auto sortino = fincore::bootstrap_distribution(
-        values, 11U, fincore::bootstrap_statistic::sortino_ratio, 81U);
+        values, 1U, fincore::bootstrap_statistic::sortino_ratio, 2U);
     const auto minimum = fincore::bootstrap_distribution(
-        values, 11U, fincore::bootstrap_statistic::minimum, 81U);
+        values, 1U, fincore::bootstrap_statistic::minimum, 2U);
     const auto maximum = fincore::bootstrap_distribution(
-        values, 11U, fincore::bootstrap_statistic::maximum, 81U);
+        values, 1U, fincore::bootstrap_statistic::maximum, 2U);
 
-    for (std::size_t row = 0U; row < 11U; ++row) {
-        const double mean_value = bootstrap_values(mean)[row];
-        const double deviation_value = bootstrap_values(standard_deviation)[row];
-        const double median_value = bootstrap_values(median)[row];
-        const double minimum_value = bootstrap_values(minimum)[row];
-        const double maximum_value = bootstrap_values(maximum)[row];
-        EXPECT_LE(minimum_value, median_value);
-        EXPECT_LE(median_value, maximum_value);
-        EXPECT_LE(minimum_value, mean_value);
-        EXPECT_LE(mean_value, maximum_value);
-        EXPECT_GE(deviation_value, 0.0);
-        if (deviation_value == 0.0) {
-            EXPECT_TRUE(std::isinf(bootstrap_values(sharpe)[row]) ||
-                        std::isnan(bootstrap_values(sharpe)[row]));
-        } else {
-            EXPECT_NEAR(bootstrap_values(sharpe)[row],
-                        mean_value / deviation_value * std::sqrt(252.0), tolerance);
-        }
-        EXPECT_TRUE(std::isfinite(bootstrap_values(sortino)[row]) ||
-                    std::isinf(bootstrap_values(sortino)[row]) ||
-                    std::isnan(bootstrap_values(sortino)[row]));
-    }
+    constexpr double expected_mean = 0.01;
+    const double expected_sample_standard_deviation = std::sqrt(0.0008);
+    constexpr double expected_median = 0.01;
+    const double expected_sharpe =
+        expected_mean / expected_sample_standard_deviation * std::sqrt(252.0);
+    // The strictly positive +0.03 becomes zero, so the downside sample is
+    // {-0.01, 0.0}; its ddof=1 variance is 0.00005.
+    const double expected_sortino =
+        expected_mean / std::sqrt(0.00005) * std::sqrt(252.0);
+
+    ASSERT_EQ(bootstrap_values(mean).size(), 1U);
+    ASSERT_EQ(bootstrap_values(standard_deviation).size(), 1U);
+    ASSERT_EQ(bootstrap_values(median).size(), 1U);
+    ASSERT_EQ(bootstrap_values(sharpe).size(), 1U);
+    ASSERT_EQ(bootstrap_values(sortino).size(), 1U);
+    ASSERT_EQ(bootstrap_values(minimum).size(), 1U);
+    ASSERT_EQ(bootstrap_values(maximum).size(), 1U);
+    EXPECT_NEAR(bootstrap_values(mean)[0], expected_mean, tolerance);
+    EXPECT_NEAR(bootstrap_values(standard_deviation)[0],
+                expected_sample_standard_deviation, tolerance);
+    EXPECT_NE(bootstrap_values(standard_deviation)[0], 0.02);
+    EXPECT_NEAR(bootstrap_values(median)[0], expected_median, tolerance);
+    EXPECT_NEAR(bootstrap_values(sharpe)[0], expected_sharpe, tolerance);
+    EXPECT_NEAR(bootstrap_values(sortino)[0], expected_sortino, tolerance);
+    EXPECT_NEAR(bootstrap_values(minimum)[0], -0.01, tolerance);
+    EXPECT_NEAR(bootstrap_values(maximum)[0], 0.03, tolerance);
 }
 
 TEST(BootstrapDistribution, RepeatsNativeSeedButDoesNotRequireNumPyParity) {
