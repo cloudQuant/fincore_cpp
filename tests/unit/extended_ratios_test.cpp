@@ -7,6 +7,7 @@
 #include <limits>
 #include <string_view>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 namespace {
@@ -44,6 +45,8 @@ TEST(ExtendedRatios, PreservesCommonSenseRatioRawLengthAndBoundaryBranches) {
   const auto one_finite_two_raw =
       fincore::make_series({1, 2}, "returns", {.01, nan});
   const auto all_nan = fincore::make_series({1, 2}, "returns", {nan, nan});
+  const auto undefined_tail_with_win =
+      fincore::make_series({1, 2, 3}, "returns", {0., 0., .01});
   const auto no_win =
       fincore::make_series({1, 2, 3}, "returns", {-.01, 0., -.02});
   const auto all_win =
@@ -52,6 +55,8 @@ TEST(ExtendedRatios, PreservesCommonSenseRatioRawLengthAndBoundaryBranches) {
   EXPECT_TRUE(std::isnan(fincore::common_sense_ratio(zero_rows)));
   EXPECT_TRUE(std::isnan(fincore::common_sense_ratio(single)));
   EXPECT_TRUE(std::isnan(fincore::common_sense_ratio(all_nan)));
+  EXPECT_TRUE(
+      std::isnan(fincore::common_sense_ratio(undefined_tail_with_win)));
   EXPECT_TRUE(std::isnan(fincore::common_sense_ratio(no_win)));
 
   const double one_finite_result =
@@ -76,6 +81,24 @@ TEST(ExtendedRatios, UsesAcceptedNativeFiniteFilteringForCommonSenseRatio) {
               3.294117647058822, 1e-12);
   EXPECT_NEAR(fincore::common_sense_ratio(negative_infinity),
               3.294117647058822, 1e-12);
+}
+
+TEST(ExtendedRatios, PreservesInfiniteDelegatedTailWithoutClamping) {
+  std::vector<fincore::timestamp> index;
+  std::vector<double> values(19U,
+                             -std::numeric_limits<double>::denorm_min());
+  index.reserve(20U);
+  for (fincore::timestamp value = 1; value <= 20; ++value) {
+    index.push_back(value);
+  }
+  values.push_back(std::numeric_limits<double>::max());
+  const auto returns =
+      fincore::make_series(std::move(index), "returns", std::move(values));
+
+  const double result = fincore::common_sense_ratio(returns);
+
+  EXPECT_TRUE(std::isinf(result));
+  EXPECT_GT(result, 0.0);
 }
 
 TEST(ExtendedRatios, ValidatesCommonSenseRatioSelectorBeforeRawLength) {

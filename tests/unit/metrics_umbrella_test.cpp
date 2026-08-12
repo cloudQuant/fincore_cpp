@@ -11,6 +11,7 @@
 #include <string>
 #include <tuple>
 #include <typeindex>
+#include <utility>
 #include <vector>
 
 namespace {
@@ -88,6 +89,32 @@ TEST(MetricsUmbrella, ExposesOnlyImplementedDataframeNativeMetrics) {
   const double zero_win_rate = fincore::win_rate(common_sense_with_zeros);
   EXPECT_NEAR(fincore::common_sense_ratio(common_sense_with_zeros),
               zero_tail * zero_win_rate / (1.0 - zero_win_rate), 1e-12);
+
+  const auto undefined_common_sense_tail = fincore::make_series(
+      std::vector<fincore::timestamp>{1, 2, 3}, "returns",
+      std::vector<double>{0., 0., .01});
+  EXPECT_TRUE(std::isnan(fincore::tail_ratio(undefined_common_sense_tail)));
+  EXPECT_DOUBLE_EQ(fincore::win_rate(undefined_common_sense_tail), 1.0 / 3.0);
+  EXPECT_TRUE(
+      std::isnan(fincore::common_sense_ratio(undefined_common_sense_tail)));
+
+  std::vector<fincore::timestamp> infinite_tail_index;
+  std::vector<double> infinite_tail_values(
+      19U, -std::numeric_limits<double>::denorm_min());
+  infinite_tail_index.reserve(20U);
+  for (fincore::timestamp value = 1; value <= 20; ++value) {
+    infinite_tail_index.push_back(value);
+  }
+  infinite_tail_values.push_back(std::numeric_limits<double>::max());
+  const auto infinite_common_sense_tail = fincore::make_series(
+      std::move(infinite_tail_index), "returns",
+      std::move(infinite_tail_values));
+  EXPECT_TRUE(std::isinf(fincore::tail_ratio(infinite_common_sense_tail)));
+  EXPECT_DOUBLE_EQ(fincore::win_rate(infinite_common_sense_tail), 0.05);
+  const double infinite_common_sense_result =
+      fincore::common_sense_ratio(infinite_common_sense_tail);
+  EXPECT_TRUE(std::isinf(infinite_common_sense_result));
+  EXPECT_GT(infinite_common_sense_result, 0.0);
 
   const std::vector<fincore::drawdown_period> detailed_drawdowns =
       fincore::get_all_drawdowns_detailed(returns);
