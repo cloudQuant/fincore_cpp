@@ -1212,6 +1212,36 @@ compile/link-only and no GUI executable was launched. The public-only facade
 consumer and fresh compiler/build evidence are retained in
 [the Phase 19 acceptance record](docs/acceptance/2026-08-12-phase-19-gbm-from-returns-acceptance.md).
 
+## Accepted Phase 20 bootstrap distribution
+
+`<fincore/simulation.hpp>` now exports the accepted native bootstrap
+distribution surface:
+
+~~~cpp
+#include <fincore/simulation.hpp>
+
+const fincore::dataframe distribution = fincore::bootstrap_distribution(
+    returns, 10000U, fincore::bootstrap_statistic::mean, 42U);
+~~~
+
+The operation samples one selected genuine-`double` return column with
+replacement and returns an independently owned, one-column genuine-`double`
+`bootstrap` table on ordinal index `0..resample_count-1`. It exposes the
+source's mean, sample standard deviation, median, Sharpe, Sortino, minimum,
+and maximum statistic choices. An explicit seed is repeatable for the native
+`std::mt19937_64` implementation only; it intentionally does not claim NumPy
+random-stream parity. NaNs are dropped before sampling, while malformed,
+empty/all-NaN, infinite, unrepresentable, or allocation-failing input raises
+`fincore::input_error`. Valid finite degenerate samples retain the specified
+IEEE `NaN`/positive-infinity statistic results.
+
+This acceptance excludes bootstrap confidence intervals and summaries,
+callable statistics, Monte Carlo, antithetic/LHS sampling, providers, reports,
+packaging/release work, full Python RNG parity, and GUI runtime behavior. The
+public-only consumer, genuine umbrella RED/GREEN, compiler/sanitizer,
+compile/link-only ImPlot, and invalid-ImGui evidence are retained in
+[the Phase 20 acceptance record](docs/acceptance/2026-08-12-phase-20-bootstrap-distribution-acceptance.md).
+
 ## Accepted Phase 11 native stress scenarios
 
 `<fincore/simulation.hpp>` exports only the deterministic, DataFrame-native

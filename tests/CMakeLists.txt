@@ -52,6 +52,7 @@ add_executable(fincore_tests
     unit/gbm_paths_test.cpp
     unit/simulation_gbm_paths_umbrella_test.cpp
     unit/simulation_gbm_from_returns_umbrella_test.cpp
+    unit/simulation_bootstrap_umbrella_test.cpp
     unit/simulation_umbrella_test.cpp
     unit/simulation_correlation_umbrella_test.cpp
     unit/simulation_parameters_umbrella_test.cpp)
