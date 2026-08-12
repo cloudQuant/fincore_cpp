@@ -32,6 +32,21 @@ The direct follow-up `77b33470af02ddffdd58e246f96300d813880b64`
 standard-deviation cases for both sides and a constructible empty portfolio
 column-name failure; it makes no production change.
 
+The initial Task 138 acceptance commit is
+`931dcb986c18d197dbd145ee7d6377ae7201a4de` (`docs: accept phase 32 style
+correlation attribution`). It is the direct child of `77b3347` and changes
+exactly:
+
+- `README.md`
+- `docs/acceptance/2026-08-13-phase-32-style-correlation-attribution-acceptance.md`
+
+Thus the accepted implementation and review-fix trace is
+`890a4ae4dfa186a9929b550f6739414115f42f7b` ->
+`77b33470af02ddffdd58e246f96300d813880b64`, followed directly by the initial
+two-path acceptance `931dcb986c18d197dbd145ee7d6377ae7201a4de`.
+Task 139 adds only this historical trace to the acceptance document; it does
+not amend any earlier commit and neither states nor anticipates its own SHA.
+
 Final independent Task 137 specification and task-quality reviews both
 returned **PASS**, with Critical/Important/Minor `0/0/0`. At this review
 handoff the Task 138 documentation candidate consisted only of `README.md`
