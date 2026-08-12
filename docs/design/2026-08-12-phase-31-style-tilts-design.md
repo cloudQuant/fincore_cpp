@@ -25,9 +25,10 @@ Extend `<fincore/attribution/style.hpp>` with:
 
 Python accepts a `factor_returns` argument but never reads it. The native API
 omits that dead and misleading parameter rather than silently accepting unused
-factor data. A typed `std::size_t` window also avoids Python's accidental
-acceptance of booleans and NumPy integers and its later slice failures for
-floating-point values.
+factor data. A typed `std::size_t` expresses the native nonnegative window
+domain and removes Python/NumPy floating-point slice semantics. Ordinary C++
+integral conversions still apply, so callers that require stricter source-type
+validation must perform it before the call.
 
 `asset_returns` is time-by-asset. Its raw timestamp index is positional data,
 and every stable named column is a genuine `double` asset column. The result
