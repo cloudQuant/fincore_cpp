@@ -54,6 +54,11 @@ fincore::dataframe finite_ratio_returns() {
                                 {-0.04, -0.03, -0.02, -0.01});
 }
 
+fincore::dataframe mixed_sign_ratio_returns() {
+    return fincore::make_series({1, 2, 3, 4, 5, 6}, "returns",
+                                {-0.04, -0.03, -0.02, -0.01, -0.005, 0.02});
+}
+
 double arithmetic_mean(const std::vector<double> &values) {
     double total = 0.0;
     for (const double value : values) {
@@ -112,12 +117,17 @@ fincore::bootstrap_summary_statistic expected_from_public_distribution(
     double observed = source_mean;
     if (statistic == fincore::bootstrap_statistic::sample_standard_deviation) {
         observed = source_standard_deviation;
-    } else if (statistic == fincore::bootstrap_statistic::sharpe_ratio ||
-               statistic == fincore::bootstrap_statistic::sortino_ratio) {
-        // The fixture has only negative values, so Sortino's downside series is
-        // the source series itself and both ratios use the same published
-        // formula.
+    } else if (statistic == fincore::bootstrap_statistic::sharpe_ratio) {
         observed = source_mean / source_standard_deviation * std::sqrt(252.0);
+    } else if (statistic == fincore::bootstrap_statistic::sortino_ratio) {
+        auto downside_values = source_values;
+        for (double &value : downside_values) {
+            if (value > 0.0) {
+                value = 0.0;
+            }
+        }
+        observed = source_mean / sample_standard_deviation(downside_values) *
+                   std::sqrt(252.0);
     }
 
     return {observed,
@@ -178,6 +188,45 @@ TEST(BootstrapSummary,
             seed);
         expect_statistic_near(*actual_statistics[index], expected);
     }
+}
+
+TEST(BootstrapSummary,
+     DistinguishesSharpeAndSortinoWithOwnPublicDistributionParity) {
+    const auto returns = mixed_sign_ratio_returns();
+    constexpr std::size_t resample_count = 17U;
+    constexpr double alpha = 0.2;
+    constexpr std::uint64_t seed = 1U;
+    const std::vector<double> source_values{-0.04, -0.03,  -0.02,
+                                            -0.01, -0.005, 0.02};
+    const auto actual =
+        fincore::bootstrap_summary(returns, resample_count, alpha, seed);
+
+    for (const auto statistic :
+         {fincore::bootstrap_statistic::mean,
+          fincore::bootstrap_statistic::sample_standard_deviation,
+          fincore::bootstrap_statistic::sharpe_ratio,
+          fincore::bootstrap_statistic::sortino_ratio}) {
+        const auto values = public_distribution_values(returns, resample_count,
+                                                       statistic, seed);
+        ASSERT_EQ(values.size(), resample_count);
+        for (const double value : values) {
+            EXPECT_TRUE(std::isfinite(value));
+        }
+    }
+
+    const auto expected_sharpe = expected_from_public_distribution(
+        source_values, returns, resample_count, alpha,
+        fincore::bootstrap_statistic::sharpe_ratio, seed);
+    const auto expected_sortino = expected_from_public_distribution(
+        source_values, returns, resample_count, alpha,
+        fincore::bootstrap_statistic::sortino_ratio, seed);
+    expect_statistic_near(actual.sharpe_ratio, expected_sharpe);
+    expect_statistic_near(actual.sortino_ratio, expected_sortino);
+    EXPECT_GT(std::abs(actual.sharpe_ratio.value - actual.sortino_ratio.value),
+              tolerance);
+    EXPECT_GT(std::abs(actual.sharpe_ratio.standard_error -
+                       actual.sortino_ratio.standard_error),
+              tolerance);
 }
 
 TEST(BootstrapSummary, DropsNanForObservedValuesAndEveryPublicDistribution) {
