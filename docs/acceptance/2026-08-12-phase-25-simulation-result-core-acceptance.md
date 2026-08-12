@@ -138,3 +138,23 @@ Python `SimResult`/`MonteCarlo` lifecycle, return calibration or GBM changes,
 antithetic/LHS/bootstrap/stress changes, a caller or global RNG, NumPy random
 stream parity, providers, reports, packaging/release work, or GUI runtime
 behavior. ImPlot evidence is compile/link-only; no GUI was launched.
+
+## Acceptance trace
+
+The complete Task 109 implementation chain contains the direct leaf commit
+`4160bfc509597779ae71af22b6e1b1711d80393b`, whose parent is the Phase 25
+design/plan commit `cd588bf648e124bbfca77cd33785992704e2518b`. Task 109
+changes exactly `CMakeLists.txt`, `tests/CMakeLists.txt`,
+`include/fincore/simulation/result.hpp`, `src/simulation/result.cpp`, and
+`tests/unit/simulation_result_test.cpp`. Its independent review required no
+repair commit.
+
+The direct Task 110 acceptance commit is
+`b82084ee601b405d255ff76802a3f3fdc65fe19e`, whose parent is the Task 109
+leaf. It changes exactly `README.md`, this acceptance document,
+`include/fincore/simulation.hpp`, `tests/CMakeLists.txt`, and
+`tests/unit/simulation_result_umbrella_test.cpp`.
+
+Task 111 is documentation-only. It records this trace without amending Task
+109 or Task 110 and makes no statement that names or anticipates its own
+commit identifier.
