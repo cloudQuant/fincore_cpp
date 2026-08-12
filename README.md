@@ -1636,6 +1636,48 @@ record](docs/acceptance/2026-08-12-phase-29-style-analysis-core-acceptance.md).
 The ImPlot demo was checked for build-root existence/executability only and
 was never launched.
 
-This phase does not implement style tilts, regression attribution,
-performance-by-style, remote factor fetching/providers, SciPy optimization,
-reports, packaging/release work, or GUI runtime validation.
+This phase does not implement style tilts, regression attribution, remote
+factor fetching/providers, SciPy optimization, reports, packaging/release
+work, or GUI runtime validation. Performance-by-style is accepted separately
+in Phase 30 below.
+
+## Accepted Phase 30 native performance by style
+
+`<fincore/attribution.hpp>` now exposes the DataFrame-native counterpart to
+Python `fincore.attribution.style.analyze_performance_by_style` through exactly
+two value-returning overloads:
+
+```cpp
+const fincore::dataframe automatic =
+    fincore::analyze_performance_by_style(asset_returns);
+const fincore::dataframe explicit_result =
+    fincore::analyze_performance_by_style(asset_returns, style_exposures);
+```
+
+Explicit exposures use Phase 29's ordinal rows, genuine string `asset`
+identity, and ordered genuine-`double` style columns. Assets align by exact
+name; missing return assets receive zero weight and extra exposure assets are
+ignored. A positive aligned total is normalized while preserving negative
+hedge weights; a zero or negative total emits zeros. The automatic overload
+calls public `style_analysis` once and delegates.
+
+The value-owning output uses ordinal rows and ordered genuine-double
+`{style}_return` columns. Empty-shaped returns or exposures with no rows or no
+styles return the pandas-compatible empty `0x0` surface. Nonempty inputs obey
+the documented strict schema, finite, identity, name, ordinal, capacity, and
+`fincore::input_error` boundary.
+
+Task 129 is commit `b5bdd7b28060ebcc0f4a7b59c1402c4bd970ed98`
+with exactly the public leaf header/implementation, CTest registration, and
+leaf-only/façade-only tests. Independent review concluded **Spec PASS /
+Quality APPROVE**, Critical/Important/Minor `0/0/0`. The exact Python oracle,
+genuine dual missing-overload RED, ordinal-index RED, current and fresh
+compiler/sanitizer gates, FetchContent provenance, and compile/link-only
+ImPlot evidence are recorded in [the Phase 30 acceptance
+record](docs/acceptance/2026-08-12-phase-30-style-performance-acceptance.md).
+The ImPlot demo was verified as a build-root executable only and was never
+launched.
+
+This phase does not add style tilts, regression attribution, factor fetching
+or providers, a Python runtime, SciPy or another solver, plots, reports,
+packaging/release work, or GUI runtime validation.
