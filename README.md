@@ -1169,6 +1169,49 @@ executable was launched. Source oracle, public-umbrella RED/GREEN, and fresh
 build evidence are retained in
 [the Phase 18 acceptance record](docs/acceptance/2026-08-12-phase-18-gbm-path-generation-acceptance.md).
 
+## Accepted Phase 19 GBM paths calibrated from returns
+
+`<fincore/simulation.hpp>` already exports `paths.hpp`, so it also exposes the
+accepted `gbm_from_returns` convenience operation without a new umbrella
+include:
+
+~~~cpp
+#include <fincore/simulation.hpp>
+
+const fincore::dataframe paths = fincore::gbm_from_returns(
+    returns, /* horizon = */ 4U, /* path_count = */ 2U,
+    /* periods_per_year = */ 4U, /* seed = */ 42U);
+~~~
+
+The wrapper first delegates to the accepted estimator, derives its native
+source-compatible daily terms `drift / periods_per_year` and
+`volatility / sqrt(periods_per_year)`, uses `1 / periods_per_year` as the
+physical time step and `horizon / periods_per_year` as duration, then delegates
+to native GBM once. It removes only GBM's initial price row and subtracts one,
+so named genuine-`double` `path_0` through `path_N` columns keep the delegated
+physical-step ordinal index `{1, ..., n_steps}`. The existing double
+duration/step transformation is intentionally retained: horizon is not an
+exact output-row guarantee. For example, horizon 3 at 5 periods per year has
+two rows, while a horizon of zero returns an empty index and exactly
+`path_count` empty genuine-`double` path columns.
+
+Task 84 implementation commit
+`cb222e867682fa346c462a487155f12c976ba4dd` changed only
+`include/fincore/simulation/paths.hpp`, `src/simulation/paths.cpp`, and
+`tests/unit/gbm_paths_test.cpp`. Its explicit seed is repeatable for the native
+engine only; it does not promise NumPy random-stream equivalence. Existing
+estimator validation remains authoritative for selected return data and the
+existing GBM validation remains authoritative for path count and path
+arithmetic; the wrapper additionally rejects unsafe selector and nonfinite
+wrapper-result boundaries.
+
+This is not Monte Carlo or bootstrap infrastructure, antithetic or Latin-
+hypercube sampling, a `SimResult` API, a correlation/stress change, a provider,
+or a full NumPy-simulation-parity claim. Optional ImPlot evidence is
+compile/link-only and no GUI executable was launched. The public-only facade
+consumer and fresh compiler/build evidence are retained in
+[the Phase 19 acceptance record](docs/acceptance/2026-08-12-phase-19-gbm-from-returns-acceptance.md).
+
 ## Accepted Phase 11 native stress scenarios
 
 `<fincore/simulation.hpp>` exports only the deterministic, DataFrame-native
