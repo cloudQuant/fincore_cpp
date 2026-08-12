@@ -273,6 +273,99 @@ TEST(StyleAnalysis, UsesDefaultBookToPriceAndValueScorePrecedence) {
               (std::vector<double>{1.0, 0.0, 0.0}));
 }
 
+TEST(StyleAnalysis, DefaultsUse252MomentumAndMedianSizeQuantiles) {
+    constexpr std::size_t row_count{253U};
+    std::vector<fincore::timestamp> index;
+    std::vector<double> alpha(row_count, 0.0);
+    std::vector<double> beta(row_count, 0.0);
+    std::vector<double> gamma(row_count, 0.0);
+    index.reserve(row_count);
+    for (std::size_t row = 0U; row < row_count; ++row) {
+        index.push_back(static_cast<fincore::timestamp>(row));
+    }
+    alpha[0U] = -.50;
+    beta[0U] = -.50;
+    gamma[0U] = -.20;
+    alpha[1U] = -.50;
+    beta[1U] = -.20;
+    gamma[1U] = -.50;
+    alpha[2U] = -.20;
+    beta[2U] = -.50;
+    gamma[2U] = -.50;
+
+    fincore::dataframe returns;
+    returns.load_index(std::move(index));
+    returns.load_column<double>("ALPHA", std::move(alpha),
+                                hmdf::nan_policy::dont_pad_with_nans);
+    returns.load_column<double>("BETA", std::move(beta),
+                                hmdf::nan_policy::dont_pad_with_nans);
+    returns.load_column<double>("GAMMA", std::move(gamma),
+                                hmdf::nan_policy::dont_pad_with_nans);
+    const std::vector<double> market_caps{1.0, 1.0, 2.0};
+
+    const fincore::style_analysis_options default_options{
+        .market_caps = std::span<const double>{market_caps}};
+    const fincore::style_analysis_options explicit_options{
+        .market_caps = std::span<const double>{market_caps},
+        .momentum_window = 252U,
+        .size_quantiles = {.5, .5}};
+    EXPECT_EQ(default_options.momentum_window, 252U);
+    EXPECT_EQ(default_options.size_quantiles, (std::array<double, 2U>{.5, .5}));
+    const auto default_result = fincore::style_analysis(returns, default_options);
+    const auto explicit_result = fincore::style_analysis(returns, explicit_options);
+
+    EXPECT_EQ(default_result.exposures.get_column<double>(
+                  fincore::style_large_column.data()),
+              (std::vector<double>{1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0}));
+    EXPECT_EQ(default_result.exposures.get_column<double>(
+                  fincore::style_mid_column.data()),
+              (std::vector<double>{0.0, 0.0, 0.0}));
+    EXPECT_EQ(default_result.exposures.get_column<double>(
+                  fincore::style_small_column.data()),
+              (std::vector<double>{0.0, 0.0, 0.0}));
+    EXPECT_EQ(default_result.exposures.get_column<double>(
+                  fincore::style_winner_column.data()),
+              (std::vector<double>{.5, .5, 0.0}));
+    EXPECT_EQ(default_result.exposures.get_column<double>(
+                  fincore::style_loser_column.data()),
+              (std::vector<double>{0.0, 0.0, 1.0}));
+
+    for (const std::string_view style : oracle_style_names) {
+        EXPECT_EQ(default_result.exposures.get_column<double>(style.data()),
+                  explicit_result.exposures.get_column<double>(style.data()));
+    }
+}
+
+TEST(StyleAnalysis, UsesTrailingSixtyObservationsForRollingVolatility) {
+    constexpr std::size_t row_count{61U};
+    std::vector<fincore::timestamp> index;
+    std::vector<double> alpha(row_count, 0.0);
+    std::vector<double> beta(row_count, 0.0);
+    std::vector<double> gamma(row_count, 0.0);
+    index.reserve(row_count);
+    for (std::size_t row = 0U; row < row_count; ++row) {
+        index.push_back(static_cast<fincore::timestamp>(row));
+    }
+    alpha[0U] = -2.0;
+    alpha[40U] = -3.0;
+
+    fincore::dataframe returns;
+    returns.load_index(std::move(index));
+    returns.load_column<double>("ALPHA", std::move(alpha),
+                                hmdf::nan_policy::dont_pad_with_nans);
+    returns.load_column<double>("BETA", std::move(beta),
+                                hmdf::nan_policy::dont_pad_with_nans);
+    returns.load_column<double>("GAMMA", std::move(gamma),
+                                hmdf::nan_policy::dont_pad_with_nans);
+
+    const auto result = fincore::style_analysis(
+        returns, {.momentum_window = row_count});
+    EXPECT_EQ(result.exposures.get_column<double>(fincore::style_high_column.data()),
+              (std::vector<double>{0.0, .5, .5}));
+    EXPECT_EQ(result.exposures.get_column<double>(fincore::style_low_column.data()),
+              (std::vector<double>{1.0, 0.0, 0.0}));
+}
+
 TEST(StyleAnalysis, PreservesShortHistoryZeroWeightNanStyleSummaries) {
     fincore::dataframe returns;
     returns.load_index(std::vector<fincore::timestamp>{9, -4, 9});
