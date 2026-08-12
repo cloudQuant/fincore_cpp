@@ -271,6 +271,27 @@ TEST(StyleRegressionAttribution,
   EXPECT_GT(contributions[0], 0.0);
   EXPECT_NEAR(contributions[0], 2.0, 1.0e-12);
   EXPECT_NEAR(contributions[1], -2.0, 1.0e-12);
+
+  fincore::dataframe below_portfolio;
+  below_portfolio.load_index({1, 2, 3, 4});
+  below_portfolio.load_column<double>(
+      "p", {-5.0e-16, -5.0e-16, 5.0e-16, 5.0e-16},
+      hmdf::nan_policy::dont_pad_with_nans);
+  expect_result(invoke_explicit(below_portfolio, styles, selected),
+                {"edge", "residual"}, {0.0, 0.0});
+
+  fincore::dataframe regular_portfolio;
+  regular_portfolio.load_index({1, 2, 3, 4});
+  regular_portfolio.load_column<double>("p", {-1., -1., 1., 1.},
+                                        hmdf::nan_policy::dont_pad_with_nans);
+  fincore::dataframe below_style;
+  below_style.load_index({1, 2, 3, 4});
+  below_style.load_column<double>(
+      "edge", {1.0 - 4.0e-16, 1.0 - 4.0e-16, 1.0 + 4.0e-16,
+               1.0 + 4.0e-16},
+      hmdf::nan_policy::dont_pad_with_nans);
+  expect_result(invoke_explicit(regular_portfolio, below_style, selected),
+                {"edge", "residual"}, {0.0, 0.0});
 }
 
 TEST(StyleRegressionAttribution,
@@ -349,6 +370,14 @@ TEST(StyleRegressionAttribution,
                              hmdf::nan_policy::dont_pad_with_nans);
   const std::array<std::string_view, 1U> selected{"s"};
   EXPECT_THROW(static_cast<void>(invoke_explicit(mixed, styles, selected)),
+               fincore::input_error);
+
+  fincore::dataframe empty_name;
+  empty_name.load_index({1, 2, 3});
+  empty_name.load_column<double>("", {1., 2., 3.},
+                                 hmdf::nan_policy::dont_pad_with_nans);
+  EXPECT_THROW(static_cast<void>(invoke_explicit(
+                   empty_name, styles, selected)),
                fincore::input_error);
 
   fincore::dataframe short_portfolio;
