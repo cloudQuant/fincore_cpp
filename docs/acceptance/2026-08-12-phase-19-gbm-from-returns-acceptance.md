@@ -52,7 +52,15 @@ separate invalid `FINCORE_IMGUI_SOURCE_DIR` configuration is expected to fail
 and its CMake-wrapped diagnostic is matched with the whitespace-tolerant
 multiline PCRE `FINCORE_IMGUI_SOURCE_DIR(?s:.*?)all required\s+files`.
 Exact paths, commands, exit statuses, suite counts, and raw logs are retained
-in the Task 85 report. The LLVM build has one third-party GoogleTest
+in the Task 85 report. The fresh configurations use the local DataFrame source
+and, where enabled, the supplied local Dear ImGui/ImPlot source directories.
+They do **not** use a local GoogleTest source override: each fresh cache has
+`FETCHCONTENT_SOURCE_DIR_GOOGLETEST` empty and
+`FETCHCONTENT_FULLY_DISCONNECTED=OFF`; its generated
+`_deps/googletest-src/.git` is the project's pinned FetchContent checkout of
+the GoogleTest `v1.15.2` remote. The report records the fully expanded fresh
+configure/build/CTest commands, their individual exit statuses, raw logs, and
+this provenance inspection. The LLVM build has one third-party GoogleTest
 `-Wcharacter-conversion` warning; the ImPlot demo build has the known macOS
 OpenGL deprecation warnings for `glViewport`, `glClearColor`, and `glClear`.
 Neither is sanitizer or GUI-runtime evidence.
