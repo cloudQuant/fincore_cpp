@@ -1681,3 +1681,43 @@ launched.
 This phase does not add style tilts, regression attribution, factor fetching
 or providers, a Python runtime, SciPy or another solver, plots, reports,
 packaging/release work, or GUI runtime validation.
+
+## Accepted Phase 31 native rolling style tilts
+
+`<fincore/attribution.hpp>` now exposes the pure C++23/cloudQuant DataFrame
+counterpart to Python `fincore.attribution.style.calculate_style_tilts`:
+
+```cpp
+const fincore::dataframe tilts =
+    fincore::calculate_style_tilts(asset_returns, 252U);
+```
+
+The native API deliberately omits Python's unused `factor_returns` argument.
+Each output row uses only earlier input positions, copies the trailing raw
+timestamp label, and emits genuine-double binary columns in four phase-major
+blocks: all asset `large/small` pairs, then `winner/loser`, `value/growth`,
+and `high_vol/low_vol`. Duplicate and nonmonotonic raw labels are retained,
+but values are written positionally instead of reproducing pandas `.loc`
+broadcast/overwrite side effects.
+
+Size and value use ascending one-based average ranks; momentum uses checked
+trailing `product(1+r)-1`; volatility uses the last 60 excluded observations,
+sample standard deviation (`ddof=1`), and a linear cross-sectional median.
+Empty-shaped inputs, windows below two, and histories below three rows return
+the canonical `0x0` frame. Nonempty inputs require exact finite genuine-double
+columns and safe distinct fixed-width names; the result owns all index, name,
+and value storage.
+
+Task 133 is commit `9c4f81e` with exactly the style public header/source,
+CTest registration, and leaf-only/façade-only consumers. Independent
+specification and task-quality reviews both passed with
+Critical/Important/Minor `0/0/0`. Its genuine dual missing-declaration RED,
+Anaconda Python oracle, `419/419` headless gates, LLVM ASan+UBSan evidence,
+and local ImPlot `420/420` compile/link-only evidence are recorded in [the
+Phase 31 acceptance
+record](docs/acceptance/2026-08-12-phase-31-style-tilts-acceptance.md). The
+ImPlot demo was checked as a build-root executable only and was never run.
+
+This phase does not implement regression attribution, factor providers,
+Python embedding, SciPy or another solver, plotting behavior, reports,
+packaging/release work, or GUI runtime validation.
