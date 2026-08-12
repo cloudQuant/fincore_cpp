@@ -1453,3 +1453,30 @@ LHS, bootstrap, stress, random-control, provider, report, packaging, or GUI
 runtime behavior. The source oracle, public-facade RED/GREEN, compiler and
 sanitizer gates, ImPlot compile/link-only evidence, and invalid-ImGui gate are
 recorded in [the Phase 25 acceptance record](docs/acceptance/2026-08-12-phase-25-simulation-result-core-acceptance.md).
+
+## Accepted Phase 26 Monte Carlo simulation composer
+
+`<fincore/simulation.hpp>` exports the accepted stateless, value-owning
+historical-return simulation composer:
+
+```cpp
+const fincore::simulation_result result = fincore::simulate_monte_carlo(
+    returns, 1000U, 252U, false, 42U);
+```
+
+It calls native `gbm_from_returns` once using the source-compatible fixed
+`252U` annualization, optionally applies `antithetic_variates` once, then calls
+`analyze_simulation_paths` once. Its native result uses raw ordinal path rows
+and named genuine-`double` path columns; it owns its paths, terminal
+statistics, VaR, and CVaR after the input frame changes or is destroyed. An
+explicit seed is repeatable for this supported C++ build but does not claim a
+NumPy random-stream match. Zero horizon reaches the established empty-path
+result invariant and raises `fincore::input_error`.
+
+This narrow composer is not Python's mutable `MonteCarlo`/`SimResult` object
+model and adds no class, cache, caller/global RNG, drift/volatility control,
+return cleaning, new GBM/result arithmetic, providers, reports,
+packaging/release work, or GUI runtime behavior. Its source oracle,
+public-facade RED/GREEN, compiler/sanitizer gates, compile/link-only ImPlot
+boundary, and invalid-ImGui diagnostic are retained in [the Phase 26
+acceptance record](docs/acceptance/2026-08-12-phase-26-monte-carlo-simulation-composer-acceptance.md).

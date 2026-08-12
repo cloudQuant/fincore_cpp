@@ -66,7 +66,8 @@ add_executable(fincore_tests
     unit/simulation_umbrella_test.cpp
     unit/simulation_correlation_umbrella_test.cpp
     unit/simulation_parameters_umbrella_test.cpp
-    unit/monte_carlo_simulation_test.cpp)
+    unit/monte_carlo_simulation_test.cpp
+    unit/monte_carlo_simulation_umbrella_test.cpp)
 target_link_libraries(fincore_tests PRIVATE
     fincore::fincore
     GTest::gtest_main)
