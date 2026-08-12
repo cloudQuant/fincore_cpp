@@ -1526,3 +1526,62 @@ option, return estimation, stress wrapper, local/global RNG, class/cache,
 provider, report, packaging/release work, full Python/NumPy stream parity, or
 GUI runtime validation. The ImPlot demo was compiled and linked only and was
 never launched.
+
+## Accepted Phase 28 Bayesian posterior return cone
+
+`<fincore/metrics.hpp>` now exports the deterministic, DataFrame-native
+posterior return cone:
+
+```cpp
+const fincore::dataframe cone = fincore::compute_bayes_cone(
+    predicted_returns, 1.0);
+```
+
+Its exact function declaration is:
+
+```cpp
+[[nodiscard]] fincore::dataframe compute_bayes_cone(
+    const fincore::dataframe& predicted_returns,
+    double starting_value = 1.0);
+```
+
+The direct Task 121 leaf commit is
+`7790aa169a843a4837c91936b8ce21fa6a4f8d22`
+(`feat: add bayesian posterior return cone`). Its exact five-path scope is
+`CMakeLists.txt`, `include/fincore/metrics/bayesian.hpp`,
+`src/metrics/bayesian.cpp`, `tests/CMakeLists.txt`, and
+`tests/unit/bayesian_cone_test.cpp`. Its independent reviews concluded
+**Spec PASS / Task-Quality PASS** with Critical/Important/Minor `0/0/0`.
+
+The native input is deliberately the transpose of Python's
+`[posterior_path, forecast_step]` array: a DataFrame is
+`[forecast_step, posterior_path]`, with raw rows as steps and every genuine
+`double` column as a path. It compounds each path in raw row order and returns
+only the owned, genuine-`double` columns `percentile_1`, `percentile_5`,
+`percentile_25`, `percentile_50`, `percentile_75`, `percentile_95`, and
+`percentile_99`. The result copies the exact raw index, including duplicate or
+nonmonotonic labels. An index-empty input with one or more typed-empty double
+paths returns those seven typed-empty columns; a pathless, mixed/non-double,
+or malformed input is rejected.
+
+Unlike the Python helper's permissive non-finite propagation, the native leaf
+requires finite starts, returns, multipliers, cumulative wealth, and
+percentiles, reporting `fincore::input_error` at that boundary. Negative or
+zero starts and returns at or below `-1.0` remain valid when arithmetic stays
+finite. The result is value-owning: it retains no source frame or column view.
+
+The leaf's public-header RED/GREEN and the façade-only RED/GREEN are retained
+with source-oracle, compiler, sanitizer, FetchContent, and compile/link-only
+ImPlot evidence in [the Phase 28 acceptance
+record](docs/acceptance/2026-08-12-phase-28-bayesian-return-cone-acceptance.md).
+The Task 121 leaf RED was a missing-header build (with no CTest afterward) and
+its final GREEN passed `6/6` focused and `387/387` full CTest. The Task 122
+façade RED was a missing-export build (again with no CTest afterward); its
+terminal GREEN passed `89/89` relevant and `388/388` full CTest.
+The façade consumer includes only `<fincore/metrics.hpp>`; it proves the exact
+function/default-call contract, raw-index preservation, the total seven-column
+typed schema without hidden non-double columns, and directly calculated
+two-path percentile endpoints. This scope does not add PyMC, posterior
+sampling, a `Bayesian` class, `compute_consistency_score`, reports, or GUI
+runtime behavior. The ImPlot demo was compiled/linked and checked for
+build-root existence/executability only; it was never launched.

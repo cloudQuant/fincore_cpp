@@ -17,3 +17,4 @@
 #include <fincore/metrics/transactions.hpp>
 #include <fincore/metrics/round_trips.hpp>
 #include <fincore/metrics/perf_attrib.hpp>
+#include <fincore/metrics/bayesian.hpp>
