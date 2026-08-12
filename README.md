@@ -1480,3 +1480,49 @@ packaging/release work, or GUI runtime behavior. Its source oracle,
 public-facade RED/GREEN, compiler/sanitizer gates, compile/link-only ImPlot
 boundary, and invalid-ImGui diagnostic are retained in [the Phase 26
 acceptance record](docs/acceptance/2026-08-12-phase-26-monte-carlo-simulation-composer-acceptance.md).
+
+## Accepted Phase 27 Monte Carlo parameter composer
+
+The existing `<fincore/simulation.hpp>` façade now exposes the accepted
+stateless counterpart to Python `MonteCarlo.from_parameters`:
+
+```cpp
+const fincore::simulation_result result =
+    fincore::simulate_monte_carlo_from_parameters(
+        0.252, 0.0, 2.0, 2U, 4U, 42U);
+```
+
+The composer preserves the source's fixed-252 transformation exactly:
+`mu_daily = annualized_drift / 252`,
+`sigma_daily = annualized_volatility / sqrt(252)`,
+`T = horizon / 252`, and `dt = 1 / 252`. It calls the public raw GBM leaf
+once and passes that complete price table to public terminal analysis once.
+Unlike the Phase 26 historical-return composer, this result retains the
+index-zero initial-price row and does not subtract one. A zero horizon is
+therefore a valid one-row result rather than an empty-return-path error.
+
+Raw ordinal rows remain observations and exactly `path_count` named
+genuine-`double` `path_N` columns remain paths. The result owns the complete
+price table, terminal statistics, VaR, and CVaR. Explicit seeds repeat only
+for the supported native `std::mt19937_64` implementation; no NumPy stream
+equality is claimed. Raw GBM and result validation remains authoritative:
+nonfinite model inputs, zero or unrepresentable path/output counts,
+nonrepresentable steps, nonfinite path arithmetic, and nonfinite terminal
+statistics raise the inherited `fincore::input_error`. Finite zero/negative
+initial values and finite negative volatility retain raw-GBM behavior.
+
+Task 117 comprises implementation `7e328da6716687b8e5596dce82fe539e972b36e3`
+and test hardening `64d258029568e5e9292613dc082675151984b8e9`;
+its independent re-review concluded **Spec PASS / Task-Quality PASS** with
+Critical/Important/Minor `0/0/0`. The public-only façade consumer, Python
+source oracle, real leaf RED/GREEN, inherited-error parity, fresh AppleClang,
+LLVM ASan+UBSan, compile/link-only ImPlot, FetchContent provenance, and
+invalid-ImGui evidence are retained in [the Phase 27 acceptance
+record](docs/acceptance/2026-08-12-phase-27-monte-carlo-parameter-composer-acceptance.md).
+
+This narrow surface does not add Python's mutable class lifecycle,
+`price_paths`/`simulate` parameter branches, a caller period, antithetic
+option, return estimation, stress wrapper, local/global RNG, class/cache,
+provider, report, packaging/release work, full Python/NumPy stream parity, or
+GUI runtime validation. The ImPlot demo was compiled and linked only and was
+never launched.
