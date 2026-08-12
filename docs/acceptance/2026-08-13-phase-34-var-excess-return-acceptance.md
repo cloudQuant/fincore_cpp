@@ -62,6 +62,23 @@ re-review then returned specification **PASS** and task quality **PASS**, each
 with Critical/Important/Minor `0/0/0`, and no new finding. This section
 intentionally does not state or anticipate a Task 146 commit SHA.
 
+The initial Task 146 acceptance commit is
+`fae6fa054b96825dca0c236ed3ba7bd73453c44a` (`docs: accept phase 34 var
+excess return`). It is the direct child of
+`39e6dc35339dc7dfcbeda66141fcac1bbf3caff8` and changes exactly:
+
+- `README.md`
+- `docs/acceptance/2026-08-13-phase-34-var-excess-return-acceptance.md`
+
+Thus the Phase 34 direct ancestry is design/plan
+`7b3d5f346021b3f76e61649f7d2b199592caeb06`, implementation
+`56c821b75be72493f7f4837fe2488d8bb8821d1f`, test-only review fix
+`39e6dc35339dc7dfcbeda66141fcac1bbf3caff8`, then initial acceptance
+`fae6fa054b96825dca0c236ed3ba7bd73453c44a`. Their exact two-, four-, one-,
+and two-path scopes are recorded above. Task 147 adds only this historical
+trace to the acceptance document; it is documentation-only, does not amend
+any prior commit, and neither states nor anticipates its own SHA.
+
 ## Exact public API and source mapping
 
 Python source checkout
