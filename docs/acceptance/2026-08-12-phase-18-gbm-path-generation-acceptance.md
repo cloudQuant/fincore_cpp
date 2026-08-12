@@ -183,5 +183,20 @@ public-only consumer and registration, README, and this record. It does not
 alter the Task 80 leaf, Phase 17 calibration, stress/correlation behavior,
 generic DataFrame helpers, third-party configuration, or ImPlot source.
 
-Task 82 is reserved for documentation-only, non-self-referential traceability;
-it does not amend the Task 80 leaf or this Task 81 initial acceptance scope.
+## Traceability
+
+The exact Task 80 implementation revision is
+`5d9ceddb668568d5d5692cf6e3d03fd239e0177f` (`feat: add native gbm path
+generation`). Its scope is exactly `CMakeLists.txt`, `tests/CMakeLists.txt`,
+`include/fincore/simulation/paths.hpp`, `src/simulation/paths.cpp`, and
+`tests/unit/gbm_paths_test.cpp`.
+
+The direct Task 81 initial-acceptance revision is
+`cf6a3a9d743bf65ee30802dd68c3a62cc4fadd4c` (`docs: accept phase 18 gbm path
+generation`), whose parent is Task 80. Its scope is exactly `README.md`, this
+acceptance record, `include/fincore/simulation.hpp`, `tests/CMakeLists.txt`,
+and `tests/unit/simulation_gbm_paths_umbrella_test.cpp`.
+
+Task 82 is documentation-only: it records this completed trace in a new
+commit without amending Task 80 or Task 81. This record does not state or
+anticipate the Task 82 commit identifier.
