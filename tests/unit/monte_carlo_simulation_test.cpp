@@ -10,7 +10,9 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <tuple>
 #include <type_traits>
+#include <typeindex>
 #include <utility>
 #include <vector>
 
@@ -20,11 +22,37 @@ using monte_carlo_function = fincore::simulation_result (*) (
     const fincore::dataframe&, std::size_t, std::size_t, bool,
     std::optional<std::uint64_t>, std::string_view);
 
+using parameter_monte_carlo_function = fincore::simulation_result (*) (
+    double, double, double, std::size_t, std::size_t,
+    std::optional<std::uint64_t>);
+
 static_assert(std::is_same_v<decltype(&fincore::simulate_monte_carlo),
                              monte_carlo_function>);
 static_assert(std::is_same_v<
+              decltype(&fincore::simulate_monte_carlo_from_parameters),
+              parameter_monte_carlo_function>);
+static_assert(std::is_same_v<
               decltype(fincore::simulate_monte_carlo(
                   std::declval<const fincore::dataframe&>())),
+              fincore::simulation_result>);
+static_assert(std::is_same_v<
+              decltype(fincore::simulate_monte_carlo_from_parameters(0.0, 0.0)),
+              fincore::simulation_result>);
+static_assert(std::is_same_v<
+              decltype(fincore::simulate_monte_carlo_from_parameters(
+                  0.0, 0.0, 2.0)),
+              fincore::simulation_result>);
+static_assert(std::is_same_v<
+              decltype(fincore::simulate_monte_carlo_from_parameters(
+                  0.0, 0.0, 2.0, 2U)),
+              fincore::simulation_result>);
+static_assert(std::is_same_v<
+              decltype(fincore::simulate_monte_carlo_from_parameters(
+                  0.0, 0.0, 2.0, 2U, 4U)),
+              fincore::simulation_result>);
+static_assert(std::is_same_v<
+              decltype(fincore::simulate_monte_carlo_from_parameters(
+                  0.0, 0.0, 2.0, 2U, 4U, 42U)),
               fincore::simulation_result>);
 
 constexpr double tolerance = 1.0e-12;
@@ -85,10 +113,199 @@ void expect_same_result(const fincore::simulation_result& actual,
   EXPECT_NEAR(actual_stats.sample_standard_deviation,
               expected_stats.sample_standard_deviation, tolerance);
   EXPECT_NEAR(actual_stats.median, expected_stats.median, tolerance);
+  EXPECT_NEAR(actual_stats.percentiles.percentile_1,
+              expected_stats.percentiles.percentile_1, tolerance);
+  EXPECT_NEAR(actual_stats.percentiles.percentile_5,
+              expected_stats.percentiles.percentile_5, tolerance);
+  EXPECT_NEAR(actual_stats.percentiles.percentile_25,
+              expected_stats.percentiles.percentile_25, tolerance);
+  EXPECT_NEAR(actual_stats.percentiles.percentile_50,
+              expected_stats.percentiles.percentile_50, tolerance);
+  EXPECT_NEAR(actual_stats.percentiles.percentile_75,
+              expected_stats.percentiles.percentile_75, tolerance);
+  EXPECT_NEAR(actual_stats.percentiles.percentile_95,
+              expected_stats.percentiles.percentile_95, tolerance);
+  EXPECT_NEAR(actual_stats.percentiles.percentile_99,
+              expected_stats.percentiles.percentile_99, tolerance);
   EXPECT_NEAR(actual.terminal_value_at_risk(),
               expected.terminal_value_at_risk(), tolerance);
   EXPECT_NEAR(actual.terminal_conditional_value_at_risk(),
               expected.terminal_conditional_value_at_risk(), tolerance);
+}
+
+TEST(MonteCarloSimulation, ParameterComposerPreservesDefaultExpressions) {
+  const auto result = fincore::simulate_monte_carlo_from_parameters(0.0, 0.0);
+
+  EXPECT_EQ(result.path_count(), 1000U);
+  EXPECT_EQ(result.observation_count(), 253U);
+  EXPECT_EQ(result.paths().shape(),
+            (std::pair<std::size_t, std::size_t>{253U, 1000U}));
+  EXPECT_EQ(result.paths().get_index().front(), 0);
+  EXPECT_EQ(result.paths().get_index().back(), 252);
+  EXPECT_EQ(result.paths().get_column<double>("path_0").front(), 1.0);
+  EXPECT_EQ(result.paths().get_column<double>("path_0").back(), 1.0);
+  EXPECT_EQ(result.paths().get_column<double>("path_999").front(), 1.0);
+  EXPECT_EQ(result.paths().get_column<double>("path_999").back(), 1.0);
+}
+
+TEST(MonteCarloSimulation,
+     ParameterComposerMatchesZeroVolatilityPythonSourceOracle) {
+  const auto result = fincore::simulate_monte_carlo_from_parameters(
+      0.252, 0.0, 2.0, 2U, 4U, 42U);
+  const std::vector<double> expected{2.0, 2.0000079365236836,
+                                     2.0000158730788615,
+                                     2.000023809665534,
+                                     2.0000317462837005};
+
+  EXPECT_EQ(result.paths().get_index(),
+            (std::vector<fincore::timestamp>{0, 1, 2, 3, 4}));
+  EXPECT_EQ(result.path_count(), 2U);
+  EXPECT_EQ(result.observation_count(), 5U);
+  EXPECT_EQ(result.paths().shape(),
+            (std::pair<std::size_t, std::size_t>{5U, 2U}));
+  const auto columns = result.paths().get_columns_info<double>();
+  ASSERT_EQ(columns.size(), 2U);
+  EXPECT_EQ(std::get<0>(columns[0]), "path_0");
+  EXPECT_EQ(std::get<1>(columns[0]), 5U);
+  EXPECT_EQ(std::get<2>(columns[0]), typeid(double));
+  EXPECT_EQ(std::get<0>(columns[1]), "path_1");
+  EXPECT_EQ(std::get<1>(columns[1]), 5U);
+  EXPECT_EQ(std::get<2>(columns[1]), typeid(double));
+  expect_values(result.paths(), "path_0", expected);
+  expect_values(result.paths(), "path_1", expected);
+  expect_statistics(result, {2.0000317462837005, 0.0,
+                             2.0000317462837005, 2.0000317462837005,
+                             2.0000317462837005, 2.0000317462837005,
+                             2.0000317462837005, 2.0000317462837005,
+                             2.0000317462837005, 2.0000317462837005});
+  EXPECT_NEAR(result.terminal_value_at_risk(), 2.0000317462837005,
+              tolerance);
+  EXPECT_NEAR(result.terminal_conditional_value_at_risk(),
+              2.0000317462837005, tolerance);
+}
+
+TEST(MonteCarloSimulation, ParameterComposerKeepsZeroHorizonInitialRow) {
+  const auto result = fincore::simulate_monte_carlo_from_parameters(
+      0.252, 0.0, 2.0, 2U, 0U, 42U);
+
+  EXPECT_EQ(result.paths().get_index(),
+            (std::vector<fincore::timestamp>{0}));
+  EXPECT_EQ(result.path_count(), 2U);
+  EXPECT_EQ(result.observation_count(), 1U);
+  EXPECT_EQ(result.paths().shape(),
+            (std::pair<std::size_t, std::size_t>{1U, 2U}));
+  EXPECT_EQ(result.paths().get_column<double>("path_0"),
+            (std::vector<double>{2.0}));
+  EXPECT_EQ(result.paths().get_column<double>("path_1"),
+            (std::vector<double>{2.0}));
+  expect_statistics(result, {2.0, 0.0, 2.0, 2.0, 2.0,
+                             2.0, 2.0, 2.0, 2.0, 2.0});
+  EXPECT_EQ(result.terminal_value_at_risk(), 2.0);
+  EXPECT_EQ(result.terminal_conditional_value_at_risk(), 2.0);
+}
+
+TEST(MonteCarloSimulation,
+     ParameterComposerComposesPublicLeavesAndNativeSeedSemantics) {
+  constexpr double annualized_drift = 0.15;
+  constexpr double annualized_volatility = 0.3;
+  constexpr double initial_value = 7.5;
+  constexpr std::size_t path_count = 3U;
+  constexpr std::size_t horizon = 7U;
+  constexpr std::uint64_t seed = 918U;
+  const auto direct = fincore::analyze_simulation_paths(
+      fincore::geometric_brownian_motion(
+          initial_value, annualized_drift / 252.0,
+          annualized_volatility / std::sqrt(252.0),
+          static_cast<double>(horizon) / 252.0, 1.0 / 252.0, path_count,
+          seed));
+  const auto actual = fincore::simulate_monte_carlo_from_parameters(
+      annualized_drift, annualized_volatility, initial_value, path_count,
+      horizon, seed);
+  const auto repeated = fincore::simulate_monte_carlo_from_parameters(
+      annualized_drift, annualized_volatility, initial_value, path_count,
+      horizon, seed);
+  const auto distinct = fincore::simulate_monte_carlo_from_parameters(
+      annualized_drift, annualized_volatility, initial_value, path_count,
+      horizon, seed + 1U);
+
+  expect_same_result(actual, direct);
+  bool diverged = false;
+  for (std::size_t path = 0U; path < path_count; ++path) {
+    const std::string name = "path_" + std::to_string(path);
+    EXPECT_EQ(actual.paths().get_column<double>(name.c_str()),
+              repeated.paths().get_column<double>(name.c_str()));
+    diverged = diverged ||
+               actual.paths().get_column<double>(name.c_str()) !=
+                   distinct.paths().get_column<double>(name.c_str());
+  }
+  EXPECT_TRUE(diverged);
+}
+
+TEST(MonteCarloSimulation,
+     ParameterComposerPreservesAcceptedFiniteRawGbmBoundaries) {
+  const auto zero = fincore::simulate_monte_carlo_from_parameters(
+      0.05, 0.2, 0.0, 2U, 2U, 22U);
+  EXPECT_EQ(zero.paths().get_column<double>("path_0"),
+            (std::vector<double>{0.0, 0.0, 0.0}));
+  EXPECT_EQ(zero.statistics().mean, 0.0);
+
+  const auto negative = fincore::simulate_monte_carlo_from_parameters(
+      0.252, 0.0, -2.0, 2U, 2U, 22U);
+  EXPECT_LT(negative.paths().get_column<double>("path_0").back(), -2.0);
+  EXPECT_TRUE(std::isfinite(negative.statistics().mean));
+
+  const auto negative_volatility =
+      fincore::simulate_monte_carlo_from_parameters(
+          0.0, -0.2, 1.0, 2U, 2U, 22U);
+  EXPECT_TRUE(std::isfinite(
+      negative_volatility.paths().get_column<double>("path_0").back()));
+  EXPECT_TRUE(std::isfinite(negative_volatility.statistics().mean));
+}
+
+TEST(MonteCarloSimulation, ParameterComposerPropagatesInheritedInputErrors) {
+  const std::array<double, 3U> nonfinite{
+      std::numeric_limits<double>::quiet_NaN(),
+      std::numeric_limits<double>::infinity(),
+      -std::numeric_limits<double>::infinity()};
+  for (const double invalid : nonfinite) {
+    EXPECT_THROW(static_cast<void>(
+                     fincore::simulate_monte_carlo_from_parameters(
+                         invalid, 0.2, 1.0, 2U, 1U, 1U)),
+                 fincore::input_error);
+    EXPECT_THROW(static_cast<void>(
+                     fincore::simulate_monte_carlo_from_parameters(
+                         0.1, invalid, 1.0, 2U, 1U, 1U)),
+                 fincore::input_error);
+    EXPECT_THROW(static_cast<void>(
+                     fincore::simulate_monte_carlo_from_parameters(
+                         0.1, 0.2, invalid, 2U, 1U, 1U)),
+                 fincore::input_error);
+  }
+
+  EXPECT_THROW(static_cast<void>(
+                   fincore::simulate_monte_carlo_from_parameters(
+                       0.1, 0.2, 1.0, 0U, 1U, 1U)),
+               fincore::input_error);
+  EXPECT_THROW(static_cast<void>(
+                   fincore::simulate_monte_carlo_from_parameters(
+                       0.0, 0.0, 1.0, 1U,
+                       std::numeric_limits<std::size_t>::max(), 1U)),
+               fincore::input_error);
+  EXPECT_THROW(static_cast<void>(
+                   fincore::simulate_monte_carlo_from_parameters(
+                       0.0, 0.0, 1.0,
+                       std::numeric_limits<std::size_t>::max(), 0U, 1U)),
+               fincore::input_error);
+  EXPECT_THROW(static_cast<void>(
+                   fincore::simulate_monte_carlo_from_parameters(
+                       std::numeric_limits<double>::max(), 0.0, 1.0, 2U, 1U,
+                       1U)),
+               fincore::input_error);
+  EXPECT_THROW(static_cast<void>(
+                   fincore::simulate_monte_carlo_from_parameters(
+                       0.0, 0.0, std::numeric_limits<double>::max(), 2U, 0U,
+                       1U)),
+               fincore::input_error);
 }
 
 TEST(MonteCarloSimulation, MatchesConstantPythonOracleWithNativeTranspose) {
