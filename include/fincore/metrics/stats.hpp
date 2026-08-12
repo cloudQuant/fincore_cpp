@@ -28,6 +28,11 @@ double safe_correlation(const dataframe& returns,
                         std::string_view returns_column_name = returns_column,
                         std::string_view benchmark_column_name = benchmark_column);
 
+double r_cubed(const dataframe& returns,
+               const dataframe& benchmark,
+               std::string_view returns_column_name = returns_column,
+               std::string_view benchmark_column_name = benchmark_column);
+
 double relative_win_rate(const dataframe& returns,
                          const dataframe& benchmark,
                          std::string_view returns_column_name = returns_column,

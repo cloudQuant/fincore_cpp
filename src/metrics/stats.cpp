@@ -210,6 +210,25 @@ double safe_correlation(const dataframe& returns,
   return safe_pearson_correlation(pairs.returns, pairs.benchmark);
 }
 
+double r_cubed(const dataframe& returns,
+               const dataframe& benchmark,
+               std::string_view returns_column_name,
+               std::string_view benchmark_column_name) {
+  if (returns_column_name.find('\0') != std::string_view::npos) {
+    throw input_error{"returns column name must not contain an embedded NUL"};
+  }
+  if (benchmark_column_name.find('\0') != std::string_view::npos) {
+    throw input_error{
+        "benchmark column name must not contain an embedded NUL"};
+  }
+  const double correlation = safe_correlation(
+      returns, benchmark, returns_column_name, benchmark_column_name);
+  if (std::isnan(correlation)) {
+    return nan;
+  }
+  return correlation * correlation * correlation;
+}
+
 double relative_win_rate(const dataframe& returns,
                          const dataframe& benchmark,
                          std::string_view returns_column_name,

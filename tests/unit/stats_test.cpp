@@ -1,14 +1,39 @@
-#include <fincore/error.hpp>
 #include <fincore/metrics/stats.hpp>
 
 #include <gtest/gtest.h>
 
+#include <array>
 #include <cmath>
+#include <exception>
 #include <limits>
+#include <string_view>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
 namespace {
 
 constexpr double nan = std::numeric_limits<double>::quiet_NaN();
+
+using r_cubed_signature =
+    double (*)(const fincore::dataframe&, const fincore::dataframe&,
+               std::string_view, std::string_view);
+
+static_assert(std::is_same_v<
+              decltype(static_cast<r_cubed_signature>(&fincore::r_cubed)),
+              r_cubed_signature>);
+
+template <typename callable>
+void expect_input_error_message(callable&& invoke, const char* message) {
+  try {
+    static_cast<void>(std::forward<callable>(invoke)());
+    FAIL() << "expected fincore::input_error";
+  } catch (const fincore::input_error& error) {
+    EXPECT_STREQ(error.what(), message);
+  } catch (const std::exception& error) {
+    FAIL() << "unexpected exception: " << error.what();
+  }
+}
 
 TEST(Stats, MatchesPythonOracleForAlignedDailyReturns) {
   const auto returns = fincore::make_series(
@@ -150,6 +175,266 @@ TEST(Stats, SupportsNamedColumnsAndRejectsStructuralErrors) {
   EXPECT_THROW(
       fincore::tracking_difference(returns, benchmark, "strategy", "missing"),
       fincore::input_error);
+}
+
+TEST(Stats, MatchesSignedRCubedPythonOracleAndDefaultColumns) {
+  const auto returns =
+      fincore::make_series({1, 2, 3, 4}, "returns", {1.0, 2.0, 4.0, 8.0});
+  const auto positive_benchmark =
+      fincore::make_series({1, 2, 3, 4}, "benchmark", {1.0, 3.0, 4.0, 7.0});
+  const auto negative_benchmark = fincore::make_series(
+      {1, 2, 3, 4}, "benchmark", {-1.0, -3.0, -4.0, -7.0});
+  const auto perfect_returns =
+      fincore::make_series({1, 2, 3, 4}, "returns", {1.0, 2.0, 3.0, 4.0});
+  const auto perfect_positive =
+      fincore::make_series({1, 2, 3, 4}, "benchmark", {2.0, 4.0, 6.0, 8.0});
+  const auto perfect_negative =
+      fincore::make_series({1, 2, 3, 4}, "benchmark", {4.0, 3.0, 2.0, 1.0});
+
+  EXPECT_NEAR(fincore::r_cubed(returns, positive_benchmark),
+              0.9407744656599973, 1e-12);
+  EXPECT_NEAR(fincore::r_cubed(returns, negative_benchmark),
+              -0.9407744656599973, 1e-12);
+  EXPECT_NEAR(fincore::r_cubed(perfect_returns, perfect_positive), 1.0,
+              1e-12);
+  EXPECT_NEAR(fincore::r_cubed(perfect_returns, perfect_negative), -1.0,
+              1e-12);
+}
+
+TEST(Stats, RCubedUsesTheDirectSignedPublicLeafCube) {
+  const auto returns = fincore::make_series(
+      {1, 2, 3, 4, 5}, "strategy", {.01, -.02, .03, -.01, .02});
+  const auto benchmark = fincore::make_series(
+      {1, 2, 3, 4, 5}, "market", {.005, -.01, .02, -.005, .015});
+  const double correlation =
+      fincore::safe_correlation(returns, benchmark, "strategy", "market");
+
+  EXPECT_DOUBLE_EQ(
+      fincore::r_cubed(returns, benchmark, "strategy", "market"),
+      correlation * correlation * correlation);
+}
+
+TEST(Stats, RCubedAlignsTimestampIntersectionInLeftInputOrder) {
+  const auto returns = fincore::make_series(
+      {30, 10, 40, 20}, "returns", {4.0, 1.0, 8.0, 2.0});
+  const auto benchmark = fincore::make_series(
+      {20, 40, 10, 50, 30}, "benchmark", {3.0, 7.0, 0.0, 99.0, 5.0});
+  const double correlation = fincore::safe_correlation(returns, benchmark);
+  const double positional_cube = -0.0799905546687648;
+  const double result = fincore::r_cubed(returns, benchmark);
+
+  EXPECT_NEAR(correlation, 0.9285310170665338, 1e-12);
+  EXPECT_NEAR(result, 0.8005514473838972, 1e-12);
+  EXPECT_DOUBLE_EQ(result, correlation * correlation * correlation);
+  EXPECT_GT(std::abs(result - positional_cube), 0.8);
+}
+
+TEST(Stats, RCubedInheritsPairFilteringAndInvalidNumericalBoundaries) {
+  const auto pairwise_nan =
+      fincore::make_series({1, 2, 3, 4}, "returns", {1.0, nan, 3.0, 4.0});
+  const auto pairwise_benchmark =
+      fincore::make_series({1, 2, 3, 4}, "benchmark", {2.0, 5.0, 6.0, 8.0});
+  const auto no_common_returns =
+      fincore::make_series({1, 2}, "returns", {.01, -.02});
+  const auto no_common_benchmark =
+      fincore::make_series({3, 4}, "benchmark", {.02, -.01});
+  const auto one_finite_benchmark =
+      fincore::make_series({1, 2}, "benchmark", {.02, nan});
+  const auto constant =
+      fincore::make_series({1, 2, 3}, "returns", {1.0, 1.0, 1.0});
+  const auto varying =
+      fincore::make_series({1, 2, 3}, "benchmark", {1.0, 2.0, 3.0});
+  const auto tiny_variation =
+      fincore::make_series({1, 2}, "returns", {0.0, 5e-16});
+  const auto tiny_benchmark =
+      fincore::make_series({1, 2}, "benchmark", {.01, -.02});
+  const double maximum = std::numeric_limits<double>::max();
+  const auto symmetric_maximum =
+      fincore::make_series({1, 2}, "returns", {maximum, -maximum});
+  const auto symmetric_benchmark =
+      fincore::make_series({1, 2}, "benchmark", {1.0, -1.0});
+
+  fincore::dataframe empty_returns;
+  empty_returns.load_index(std::vector<fincore::timestamp>{});
+  empty_returns.load_column<double>("returns", std::vector<double>{},
+                                    hmdf::nan_policy::dont_pad_with_nans);
+  fincore::dataframe empty_benchmark;
+  empty_benchmark.load_index(std::vector<fincore::timestamp>{});
+  empty_benchmark.load_column<double>("benchmark", std::vector<double>{},
+                                      hmdf::nan_policy::dont_pad_with_nans);
+
+  EXPECT_NEAR(fincore::r_cubed(pairwise_nan, pairwise_benchmark), 1.0,
+              1e-12);
+  EXPECT_TRUE(
+      std::isnan(fincore::r_cubed(no_common_returns, no_common_benchmark)));
+  EXPECT_TRUE(
+      std::isnan(fincore::r_cubed(no_common_returns, one_finite_benchmark)));
+  EXPECT_TRUE(std::isnan(fincore::r_cubed(empty_returns, empty_benchmark)));
+  EXPECT_TRUE(std::isnan(fincore::r_cubed(constant, varying)));
+  EXPECT_TRUE(std::isnan(fincore::r_cubed(tiny_variation, tiny_benchmark)));
+  EXPECT_TRUE(
+      std::isnan(fincore::r_cubed(symmetric_maximum, symmetric_benchmark)));
+}
+
+TEST(Stats, RCubedInheritsSignedInfinityFilteringDivergence) {
+  const double infinity = std::numeric_limits<double>::infinity();
+  const auto positive_infinity =
+      fincore::make_series({1, 2, 3, 4}, "returns", {.01, infinity, -.02, .03});
+  const auto negative_infinity = fincore::make_series(
+      {1, 2, 3, 4}, "returns", {.01, -infinity, -.02, .03});
+  const auto benchmark = fincore::make_series(
+      {1, 2, 3, 4}, "benchmark", {.005, .1, -.01, -.01});
+
+  EXPECT_NEAR(fincore::r_cubed(positive_infinity, benchmark),
+              0.0015093140386221175, 1e-15);
+  EXPECT_NEAR(fincore::r_cubed(negative_infinity, benchmark),
+              0.0015093140386221175, 1e-15);
+}
+
+TEST(Stats, RCubedPreservesRoundedEndpointOvershoot) {
+  const auto returns =
+      fincore::make_series({1, 2}, "returns", {-10.0, -0.3});
+  const auto benchmark =
+      fincore::make_series({1, 2}, "benchmark", {-10.0, -0.3});
+  const double correlation = fincore::safe_correlation(returns, benchmark);
+  const double result = fincore::r_cubed(returns, benchmark);
+
+  EXPECT_GT(correlation, 1.0);
+  EXPECT_GT(result, 1.0);
+  EXPECT_DOUBLE_EQ(result, correlation * correlation * correlation);
+}
+
+TEST(Stats, RCubedSupportsNamedAndBoundedNonterminatedSelectors) {
+  const auto returns = fincore::make_series(
+      {1, 2, 3, 4}, "strategy", {1.0, 2.0, 4.0, 8.0});
+  const auto benchmark =
+      fincore::make_series({1, 2, 3, 4}, "market", {1.0, 3.0, 4.0, 7.0});
+  const std::array<char, 10> returns_storage{
+      's', 't', 'r', 'a', 't', 'e', 'g', 'y', '!', '\0'};
+  const std::array<char, 8> benchmark_storage{
+      'm', 'a', 'r', 'k', 'e', 't', '!', '\0'};
+  const std::string_view returns_selector{returns_storage.data(), 8U};
+  const std::string_view benchmark_selector{benchmark_storage.data(), 6U};
+
+  EXPECT_NEAR(fincore::r_cubed(returns, benchmark, returns_selector,
+                               benchmark_selector),
+              0.9407744656599973, 1e-12);
+}
+
+TEST(Stats, RCubedRejectsBothEmbeddedNulSelectorsBeforeDataframeAccess) {
+  const auto valid_returns =
+      fincore::make_series({1, 2}, "strategy", {.01, -.02});
+  const auto valid_benchmark =
+      fincore::make_series({1, 2}, "market", {.02, -.01});
+  const std::array<char, 10> embedded_returns_storage{
+      's', 't', 'r', 'a', 't', 'e', 'g', 'y', '\0', '!'};
+  const std::array<char, 8> embedded_benchmark_storage{
+      'm', 'a', 'r', 'k', 'e', 't', '\0', '!'};
+  const std::string_view embedded_returns{embedded_returns_storage.data(),
+                                          embedded_returns_storage.size()};
+  const std::string_view embedded_benchmark{
+      embedded_benchmark_storage.data(), embedded_benchmark_storage.size()};
+  fincore::dataframe invalid_frame;
+
+  expect_input_error_message(
+      [&] {
+        return fincore::r_cubed(valid_returns, invalid_frame,
+                                embedded_returns, "missing");
+      },
+      "returns column name must not contain an embedded NUL");
+  expect_input_error_message(
+      [&] {
+        return fincore::r_cubed(invalid_frame, valid_benchmark, "missing",
+                                embedded_benchmark);
+      },
+      "benchmark column name must not contain an embedded NUL");
+  expect_input_error_message(
+      [&] {
+        return fincore::r_cubed(invalid_frame, invalid_frame,
+                                embedded_returns, embedded_benchmark);
+      },
+      "returns column name must not contain an embedded NUL");
+}
+
+TEST(Stats, RCubedRetainsBothSidesStructuralValidationOrder) {
+  fincore::dataframe typed_empty_returns;
+  typed_empty_returns.load_index(std::vector<fincore::timestamp>{});
+  typed_empty_returns.load_column<double>(
+      "returns", std::vector<double>{},
+      hmdf::nan_policy::dont_pad_with_nans);
+  fincore::dataframe missing_frame;
+  fincore::dataframe wrong_returns;
+  wrong_returns.load_index(std::vector<fincore::timestamp>{});
+  wrong_returns.load_column<int>("returns", std::vector<int>{},
+                                 hmdf::nan_policy::dont_pad_with_nans);
+  fincore::dataframe wrong_benchmark;
+  wrong_benchmark.load_index(std::vector<fincore::timestamp>{});
+  wrong_benchmark.load_column<int>("benchmark", std::vector<int>{},
+                                   hmdf::nan_policy::dont_pad_with_nans);
+  fincore::dataframe malformed_returns;
+  malformed_returns.load_index(std::vector<fincore::timestamp>{1});
+  malformed_returns.load_column<double>(
+      "returns", std::vector<double>{},
+      hmdf::nan_policy::dont_pad_with_nans);
+  fincore::dataframe malformed_benchmark;
+  malformed_benchmark.load_index(std::vector<fincore::timestamp>{1});
+  malformed_benchmark.load_column<double>(
+      "benchmark", std::vector<double>{},
+      hmdf::nan_policy::dont_pad_with_nans);
+
+  expect_input_error_message(
+      [&] {
+        return fincore::r_cubed(typed_empty_returns, missing_frame, "",
+                                "missing");
+      },
+      "column name must not be empty");
+  expect_input_error_message(
+      [&] {
+        return fincore::r_cubed(typed_empty_returns, missing_frame, "returns",
+                                "");
+      },
+      "column name must not be empty");
+  expect_input_error_message(
+      [&] { return fincore::r_cubed(missing_frame, missing_frame); },
+      "required double column is absent");
+  expect_input_error_message(
+      [&] {
+        return fincore::r_cubed(typed_empty_returns, missing_frame);
+      },
+      "required double column is absent");
+  expect_input_error_message(
+      [&] { return fincore::r_cubed(wrong_returns, missing_frame); },
+      "required column is not a double column");
+  expect_input_error_message(
+      [&] { return fincore::r_cubed(typed_empty_returns, wrong_benchmark); },
+      "required column is not a double column");
+  expect_input_error_message(
+      [&] { return fincore::r_cubed(malformed_returns, missing_frame); },
+      "required double column must match the frame index length");
+  expect_input_error_message(
+      [&] {
+        return fincore::r_cubed(typed_empty_returns, malformed_benchmark);
+      },
+      "required double column must match the frame index length");
+}
+
+TEST(Stats, RCubedReturnsAnOwnedScalar) {
+  const double result = [] {
+    const auto returns = fincore::make_series(
+        {1, 2, 3, 4}, "strategy", {1.0, 2.0, 4.0, 8.0});
+    const auto benchmark =
+        fincore::make_series({1, 2, 3, 4}, "market", {1.0, 3.0, 4.0, 7.0});
+    const std::array<char, 10> returns_storage{
+        's', 't', 'r', 'a', 't', 'e', 'g', 'y', '!', '\0'};
+    const std::array<char, 8> benchmark_storage{
+        'm', 'a', 'r', 'k', 'e', 't', '!', '\0'};
+    return fincore::r_cubed(
+        returns, benchmark,
+        std::string_view{returns_storage.data(), 8U},
+        std::string_view{benchmark_storage.data(), 6U});
+  }();
+
+  EXPECT_NEAR(result, 0.9407744656599973, 1e-12);
 }
 
 }  // namespace

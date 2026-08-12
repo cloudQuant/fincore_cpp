@@ -22,6 +22,9 @@ using var_excess_return_signature =
                std::optional<double>, std::string_view);
 using trading_value_at_risk_signature =
     double (*)(const fincore::dataframe&, double, std::string_view);
+using r_cubed_signature =
+    double (*)(const fincore::dataframe&, const fincore::dataframe&,
+               std::string_view, std::string_view);
 
 static_assert(std::is_same_v<
               decltype(static_cast<var_excess_return_signature>(
@@ -31,6 +34,9 @@ static_assert(std::is_same_v<
               decltype(static_cast<trading_value_at_risk_signature>(
                   &fincore::trading_value_at_risk)),
               trading_value_at_risk_signature>);
+static_assert(std::is_same_v<
+              decltype(static_cast<r_cubed_signature>(&fincore::r_cubed)),
+              r_cubed_signature>);
 
 std::vector<fincore::timestamp> twelve_indices() {
   std::vector<fincore::timestamp> result;
@@ -91,6 +97,7 @@ TEST(MetricsUmbrella, ExposesOnlyImplementedDataframeNativeMetrics) {
   EXPECT_TRUE(std::isfinite(fincore::downside_risk(returns)));
   EXPECT_TRUE(std::isfinite(fincore::trading_value_at_risk(returns)));
   EXPECT_TRUE(std::isfinite(fincore::win_rate(returns)));
+  EXPECT_TRUE(std::isfinite(fincore::r_cubed(returns, benchmark)));
 
   const double var_excess_return_var =
       fincore::historical_value_at_risk(returns);
