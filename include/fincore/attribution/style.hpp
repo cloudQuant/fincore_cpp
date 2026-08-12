@@ -49,4 +49,8 @@ struct style_analysis_result {
     const dataframe& asset_returns,
     const dataframe& style_exposures);
 
+[[nodiscard]] dataframe calculate_style_tilts(
+    const dataframe& asset_returns,
+    std::size_t window = 252U);
+
 }  // namespace fincore

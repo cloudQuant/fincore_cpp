@@ -4,6 +4,7 @@
 #include <fincore/error.hpp>
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <limits>
@@ -665,6 +666,271 @@ dataframe analyze_performance_by_style_impl(
     return result;
 }
 
+struct tilt_inputs {
+    std::vector<std::string> asset_names;
+    std::vector<std::span<const double>> values;
+};
+
+constexpr std::array<std::string_view, 8U> tilt_suffixes{
+    "_large", "_small", "_winner", "_loser",
+    "_value", "_growth", "_high_vol", "_low_vol"};
+
+tilt_inputs validate_tilt_inputs(const dataframe& asset_returns) {
+    const auto& index = asset_returns.get_index();
+    const auto shape = asset_returns.shape();
+    const auto double_columns = asset_returns.get_columns_info<double>();
+    if (shape.first != index.size() || double_columns.size() != shape.second) {
+        throw input_error{"style tilts require only double return columns"};
+    }
+    if (index.size() > std::vector<timestamp>{}.max_size() ||
+        double_columns.size() > std::vector<std::string>{}.max_size() ||
+        double_columns.size() >
+            std::vector<std::span<const double>>{}.max_size()) {
+        throw input_error{"style tilts input is not representable"};
+    }
+
+    tilt_inputs result;
+    result.asset_names.reserve(double_columns.size());
+    result.values.reserve(double_columns.size());
+    std::unordered_set<std::string> seen_names;
+    seen_names.reserve(double_columns.size());
+    for (const auto& info : double_columns) {
+        std::string name = copy_external_name(
+            std::get<0>(info),
+            "style tilt asset names must not be empty",
+            "style tilt asset names must not contain an embedded NUL");
+        if (!seen_names.insert(name).second) {
+            throw input_error{"style tilt asset names must be distinct"};
+        }
+        const auto& values = asset_returns.get_column<double>(name.c_str());
+        if (values.size() != index.size()) {
+            throw input_error{
+                "style tilt return columns must match the frame index length"};
+        }
+        require_finite_values(values, "style tilt returns must be finite");
+        result.asset_names.push_back(std::move(name));
+        result.values.emplace_back(values.data(), values.size());
+    }
+    return result;
+}
+
+std::string tilt_output_name(const std::string& asset_name,
+                             const std::string_view suffix) {
+    const std::size_t capacity = dataframe::ColNameType::capacity();
+    if (capacity == 0U || asset_name.size() >= capacity ||
+        suffix.size() >= capacity - asset_name.size()) {
+        throw input_error{"style tilt output column name is not representable"};
+    }
+    return asset_name + std::string{suffix};
+}
+
+std::vector<std::string> tilt_output_names(
+    const std::vector<std::string>& asset_names) {
+    if (asset_names.size() > std::numeric_limits<std::size_t>::max() /
+                                 tilt_suffixes.size()) {
+        throw input_error{"style tilt column count is not representable"};
+    }
+    const std::size_t column_count{asset_names.size() * tilt_suffixes.size()};
+    if (column_count > std::vector<std::string>{}.max_size()) {
+        throw input_error{"style tilt column count is not representable"};
+    }
+
+    std::vector<std::string> names;
+    names.reserve(column_count);
+    std::unordered_set<std::string> seen_names;
+    seen_names.reserve(column_count);
+    for (std::size_t phase{0U}; phase < tilt_suffixes.size(); phase += 2U) {
+        for (const std::string& asset_name : asset_names) {
+            for (std::size_t member{0U}; member < 2U; ++member) {
+                std::string name =
+                    tilt_output_name(asset_name, tilt_suffixes[phase + member]);
+                if (!seen_names.insert(name).second) {
+                    throw input_error{
+                        "style tilt output column names must be distinct"};
+                }
+                names.push_back(std::move(name));
+            }
+        }
+    }
+    return names;
+}
+
+void validate_tilt_output_shape(const std::size_t row_count,
+                                const std::size_t column_count) {
+    if (row_count > std::vector<double>{}.max_size() ||
+        column_count > std::vector<std::vector<double>>{}.max_size()) {
+        throw input_error{"style tilt output is not representable"};
+    }
+    if (row_count != 0U &&
+        column_count > std::vector<double>{}.max_size() / row_count) {
+        throw input_error{"style tilt output is not representable"};
+    }
+}
+
+std::vector<double> average_ranks(const std::span<const double> values) {
+    std::vector<std::pair<double, std::size_t>> ordered;
+    ordered.reserve(values.size());
+    for (std::size_t position{0U}; position < values.size(); ++position) {
+        ordered.emplace_back(values[position], position);
+    }
+    std::stable_sort(
+        ordered.begin(), ordered.end(),
+        [](const auto& left, const auto& right) {
+            return left.first < right.first;
+        });
+
+    std::vector<double> ranks(values.size());
+    std::size_t begin{0U};
+    while (begin < ordered.size()) {
+        std::size_t end{begin + 1U};
+        while (end < ordered.size() &&
+               ordered[end].first == ordered[begin].first) {
+            ++end;
+        }
+        const double rank{
+            (static_cast<double>(begin + 1U) + static_cast<double>(end)) /
+            2.0};
+        require_finite(rank, "style tilt rank is not finite");
+        for (std::size_t position{begin}; position < end; ++position) {
+            ranks[ordered[position].second] = rank;
+        }
+        begin = end;
+    }
+    return ranks;
+}
+
+double sample_standard_deviation(const std::span<const double> values,
+                                 const std::size_t start,
+                                 const std::size_t count) {
+    if (count < 2U) {
+        throw input_error{
+            "style tilt volatility requires at least two observations"};
+    }
+    double mean{0.0};
+    double sum_of_squares{0.0};
+    for (std::size_t offset{0U}; offset < count; ++offset) {
+        const double value{values[start + offset]};
+        const double delta{value - mean};
+        require_finite(delta,
+                       "style tilt volatility intermediate is not finite");
+        mean += delta / static_cast<double>(offset + 1U);
+        require_finite(mean,
+                       "style tilt volatility intermediate is not finite");
+        const double adjusted_delta{value - mean};
+        const double increment{delta * adjusted_delta};
+        require_finite(increment,
+                       "style tilt volatility intermediate is not finite");
+        sum_of_squares += increment;
+        require_finite(sum_of_squares,
+                       "style tilt volatility intermediate is not finite");
+    }
+    const double variance{sum_of_squares / static_cast<double>(count - 1U)};
+    require_finite(variance, "style tilt volatility is not finite");
+    const double result{std::sqrt(variance)};
+    require_finite(result, "style tilt volatility is not finite");
+    return result;
+}
+
+std::size_t tilt_column_index(const std::size_t phase,
+                              const std::size_t asset,
+                              const std::size_t member,
+                              const std::size_t asset_count) {
+    return phase * asset_count * 2U + asset * 2U + member;
+}
+
+dataframe calculate_style_tilts_impl(const dataframe& asset_returns,
+                                     const std::size_t window) {
+    const auto shape = asset_returns.shape();
+    const auto& index = asset_returns.get_index();
+    if (shape.first == 0U || shape.second == 0U || index.empty()) {
+        return {};
+    }
+
+    const std::size_t row_count{index.size()};
+    if (row_count < 3U) {
+        return {};
+    }
+    const std::size_t effective_window{std::min(window, row_count - 1U)};
+    if (effective_window < 2U) {
+        return {};
+    }
+
+    const tilt_inputs inputs = validate_tilt_inputs(asset_returns);
+    const std::size_t asset_count{inputs.asset_names.size()};
+    auto output_names = tilt_output_names(inputs.asset_names);
+    const std::size_t output_rows{row_count - effective_window};
+    validate_tilt_output_shape(output_rows, output_names.size());
+
+    std::vector<std::vector<double>> output_columns(
+        output_names.size(), std::vector<double>(output_rows));
+    std::vector<double> latest(asset_count);
+    std::vector<double> cumulative(asset_count);
+    std::vector<double> volatilities(asset_count);
+    const double asset_count_as_double{static_cast<double>(asset_count)};
+    require_finite(asset_count_as_double,
+                   "style tilt asset count is not representable");
+
+    for (std::size_t output_row{0U}; output_row < output_rows; ++output_row) {
+        const std::size_t input_row{effective_window + output_row};
+        const std::size_t momentum_count{std::min(window, input_row)};
+        const std::size_t momentum_start{input_row - momentum_count};
+        const std::size_t volatility_count{
+            std::min(maximum_volatility_window, input_row)};
+        const std::size_t volatility_start{input_row - volatility_count};
+
+        for (std::size_t asset{0U}; asset < asset_count; ++asset) {
+            latest[asset] = inputs.values[asset][input_row - 1U];
+            cumulative[asset] = compounded_return(
+                inputs.values[asset], momentum_start, momentum_count);
+            volatilities[asset] = sample_standard_deviation(
+                inputs.values[asset], volatility_start, volatility_count);
+        }
+
+        const auto size_ranks = average_ranks(latest);
+        const auto value_ranks = average_ranks(cumulative);
+        const double volatility_median{checked_median(
+            volatilities, "style tilt volatility median is not finite")};
+        const double one_third{asset_count_as_double / 3.0};
+        const double two_thirds{2.0 * asset_count_as_double / 3.0};
+        const double one_half{asset_count_as_double / 2.0};
+
+        for (std::size_t asset{0U}; asset < asset_count; ++asset) {
+            output_columns[tilt_column_index(0U, asset, 0U, asset_count)]
+                          [output_row] = size_ranks[asset] <= one_third ? 1.0 : 0.0;
+            output_columns[tilt_column_index(0U, asset, 1U, asset_count)]
+                          [output_row] = size_ranks[asset] > two_thirds ? 1.0 : 0.0;
+            output_columns[tilt_column_index(1U, asset, 0U, asset_count)]
+                          [output_row] = cumulative[asset] > 0.0 ? 1.0 : 0.0;
+            output_columns[tilt_column_index(1U, asset, 1U, asset_count)]
+                          [output_row] = cumulative[asset] <= 0.0 ? 1.0 : 0.0;
+            output_columns[tilt_column_index(2U, asset, 0U, asset_count)]
+                          [output_row] = value_ranks[asset] <= one_half ? 1.0 : 0.0;
+            output_columns[tilt_column_index(2U, asset, 1U, asset_count)]
+                          [output_row] = value_ranks[asset] > one_half ? 1.0 : 0.0;
+            output_columns[tilt_column_index(3U, asset, 0U, asset_count)]
+                          [output_row] =
+                volatilities[asset] >= volatility_median ? 1.0 : 0.0;
+            output_columns[tilt_column_index(3U, asset, 1U, asset_count)]
+                          [output_row] =
+                volatilities[asset] < volatility_median ? 1.0 : 0.0;
+        }
+    }
+
+    if (output_rows > std::vector<timestamp>{}.max_size()) {
+        throw input_error{"style tilt output index is not representable"};
+    }
+    dataframe result;
+    result.load_index(std::vector<timestamp>{
+        index.begin() + static_cast<std::ptrdiff_t>(effective_window),
+        index.end()});
+    for (std::size_t column{0U}; column < output_names.size(); ++column) {
+        result.load_column<double>(output_names[column].c_str(),
+                                   std::move(output_columns[column]),
+                                   hmdf::nan_policy::dont_pad_with_nans);
+    }
+    return result;
+}
+
 }  // namespace
 
 style_analysis_result style_analysis(const dataframe& asset_returns,
@@ -711,6 +977,21 @@ dataframe analyze_performance_by_style(const dataframe& asset_returns,
             "style performance allocation is not representable"};
     } catch (const std::exception&) {
         throw input_error{"style performance input is malformed"};
+    }
+}
+
+dataframe calculate_style_tilts(const dataframe& asset_returns,
+                                const std::size_t window) {
+    try {
+        return calculate_style_tilts_impl(asset_returns, window);
+    } catch (const input_error&) {
+        throw;
+    } catch (const std::bad_alloc&) {
+        throw input_error{"style tilt allocation failed"};
+    } catch (const std::length_error&) {
+        throw input_error{"style tilt allocation is not representable"};
+    } catch (const std::exception&) {
+        throw input_error{"style tilt input is malformed"};
     }
 }
 
