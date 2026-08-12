@@ -25,6 +25,7 @@ add_library(fincore
     src/calendar.cpp
     src/dataframe.cpp
     src/metrics/basic.cpp
+    src/metrics/bayesian.cpp
     src/metrics/returns.cpp
     src/metrics/drawdown.cpp
     src/metrics/consecutive.cpp

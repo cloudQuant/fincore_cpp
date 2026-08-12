@@ -12,6 +12,7 @@ add_executable(fincore_tests
     unit/calendar_test.cpp
     unit/dataframe_test.cpp
     unit/basic_test.cpp
+    unit/bayesian_cone_test.cpp
     unit/returns_test.cpp
     unit/drawdown_test.cpp
     unit/consecutive_test.cpp
