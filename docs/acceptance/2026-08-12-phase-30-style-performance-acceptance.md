@@ -24,6 +24,31 @@ is exactly `README.md` and this acceptance document. The candidate remains
 unstaged and uncommitted until a fresh independent read-only Task 130 review
 is dispatched and any Critical, Important, or Minor finding is corrected.
 
+## Task 131 commit traceability
+
+The complete Task 129 implementation is commit
+`b5bdd7b28060ebcc0f4a7b59c1402c4bd970ed98`, whose direct parent is the
+Phase 30 plan commit `1d69fc4d4d2d6e3ad1fe988a96d78c7f858afc62`. Its exact
+five-path scope is:
+
+- `include/fincore/attribution/style.hpp`
+- `src/attribution/style.cpp`
+- `tests/CMakeLists.txt`
+- `tests/unit/style_performance_test.cpp`
+- `tests/unit/attribution_style_performance_umbrella_test.cpp`
+
+The initial Task 130 acceptance is commit
+`e644893cdee3b78ad7c6913934e805809e6550a4`, whose direct parent is the Task
+129 implementation commit `b5bdd7b28060ebcc0f4a7b59c1402c4bd970ed98`. Its exact
+two-path scope is:
+
+- `README.md`
+- `docs/acceptance/2026-08-12-phase-30-style-performance-acceptance.md`
+
+Task 131 is a documentation-only traceability update. It does not amend the
+Task 129 implementation or the Task 130 acceptance, and it deliberately
+neither states nor anticipates its own commit SHA.
+
 ## Public API and Python-to-native mapping
 
 The accepted public leaf and existing `<fincore/attribution.hpp>` façade
