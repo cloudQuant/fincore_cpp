@@ -1299,6 +1299,22 @@ callable statistics, full Python RNG/nonfinite-percentile parity, Monte Carlo,
 antithetic or Latin-hypercube sampling, SimResult, providers, reports,
 packaging/release work, and GUI runtime behavior.
 
+## Accepted Phase 22 bootstrap summary
+
+The existing simulation facade already exports the bootstrap leaf, so
+bootstrap_summary is available through that path without a redundant include
+change. It returns value-owning mean, sample-standard-deviation, Sharpe, and
+Sortino summaries; each delegates once to the public bootstrap distribution
+with the same input/seed/selector, then derives its ddof=1 standard error and
+linear confidence interval from that same finite distribution. The native
+boundary validates alpha before count and input, uses retained NaN-filtered
+source values, and rejects nonfinite or degenerate summary components rather
+than claiming full Python or NumPy-RNG parity.
+
+Fresh AppleClang, LLVM ASan+UBSan, and configured CTest evidence is recorded
+in [the Phase 22 acceptance record](docs/acceptance/2026-08-12-phase-22-bootstrap-summary-acceptance.md).
+The ImPlot gate is compile/link-only; no GUI is launched.
+
 ## Accepted Phase 11 native stress scenarios
 
 `<fincore/simulation.hpp>` exports only the deterministic, DataFrame-native
