@@ -1421,3 +1421,35 @@ EVT/GARCH; Fama-French/style attribution; providers; reports/tearsheets;
 release validation; full Python parity; or GUI runtime validation. ImPlot
 evidence is compile/link only. See
 [`docs/acceptance/2026-08-12-phase-11-native-stress-scenarios-acceptance.md`](docs/acceptance/2026-08-12-phase-11-native-stress-scenarios-acceptance.md).
+
+## Accepted Phase 25 simulation result core
+
+`<fincore/simulation.hpp>` exports a value-owning terminal-path analysis
+surface for an already-generated native path table:
+
+```cpp
+const fincore::simulation_result result =
+    fincore::analyze_simulation_paths(paths);
+
+const auto& statistics = result.statistics();
+const double var_95 = result.terminal_value_at_risk(0.05);
+const double cvar_95 = result.terminal_conditional_value_at_risk(0.05);
+```
+
+Native paths have the established DataFrame orientation: raw index rows are
+observations and every named genuine-`double` column is a path. The result
+owns a copy of the input table, preserves its raw (including duplicate or
+nonmonotonic) index and column order, and analyzes each path's final value.
+It exposes mean, sample standard deviation, median, 1/5/25/50/75/95/99 linear
+percentiles, terminal VaR, and inclusive-tail terminal CVaR. A singleton has
+a `NaN` sample standard deviation; invalid alpha (zero, one, NaN, or infinity)
+returns `NaN`. Nonterminal IEEE values remain in the owned table, while a
+nonfinite terminal value or structural/non-double/malformed path input raises
+`fincore::input_error`.
+
+This is a bounded result value, not Python's mutable `SimResult` or a full
+`MonteCarlo` orchestrator. It does not alter GBM, calibration, antithetic,
+LHS, bootstrap, stress, random-control, provider, report, packaging, or GUI
+runtime behavior. The source oracle, public-facade RED/GREEN, compiler and
+sanitizer gates, ImPlot compile/link-only evidence, and invalid-ImGui gate are
+recorded in [the Phase 25 acceptance record](docs/acceptance/2026-08-12-phase-25-simulation-result-core-acceptance.md).
