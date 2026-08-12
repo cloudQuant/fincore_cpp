@@ -80,15 +80,29 @@ void validate_confidence_alpha(const double alpha) {
     }
 }
 
-std::vector<double> finite_bootstrap_values(const dataframe& distribution) {
+enum class bootstrap_distribution_consumer {
+    confidence_interval,
+    summary,
+};
+
+std::vector<double> finite_bootstrap_values(
+    const dataframe& distribution,
+    const bootstrap_distribution_consumer consumer =
+        bootstrap_distribution_consumer::confidence_interval) {
     const auto values = require_double_column(distribution, bootstrap_statistic_column);
     if (values.empty()) {
+        if (consumer == bootstrap_distribution_consumer::summary) {
+            throw input_error{"bootstrap summary requires at least two generated statistics"};
+        }
         throw input_error{"bootstrap confidence interval requires at least one resample"};
     }
 
     std::vector<double> copied{values.begin(), values.end()};
     for (const double value : copied) {
         if (!std::isfinite(value)) {
+            if (consumer == bootstrap_distribution_consumer::summary) {
+                throw input_error{"bootstrap summary requires finite generated statistics"};
+            }
             throw input_error{"bootstrap confidence interval requires finite statistics"};
         }
     }
@@ -275,6 +289,40 @@ double statistic_value(const std::vector<double>& sample,
     throw input_error{"unknown bootstrap statistic"};
 }
 
+double require_finite_summary_value(const double value) {
+    if (!std::isfinite(value)) {
+        throw input_error{"bootstrap summary requires finite statistics"};
+    }
+    return value;
+}
+
+bootstrap_summary_statistic summarize_statistic(
+    const dataframe& returns,
+    const std::vector<double>& retained,
+    const std::size_t resample_count,
+    const double alpha,
+    const std::optional<std::uint64_t> seed,
+    const std::string_view column,
+    const bootstrap_statistic statistic) {
+    const double observed = require_finite_summary_value(statistic_value(retained, statistic));
+    const auto distribution =
+        bootstrap_distribution(returns, resample_count, statistic, seed, column);
+    auto values = finite_bootstrap_values(distribution,
+                                          bootstrap_distribution_consumer::summary);
+    if (values.size() < 2U) {
+        throw input_error{"bootstrap summary requires at least two resamples"};
+    }
+
+    const double standard_error =
+        require_finite_summary_value(checked_sample_standard_deviation(values));
+    std::sort(values.begin(), values.end());
+    const double lower =
+        require_finite_summary_value(checked_linear_percentile(values, alpha / 2.0));
+    const double upper =
+        require_finite_summary_value(checked_linear_percentile(values, 1.0 - alpha / 2.0));
+    return {observed, standard_error, {lower, upper}};
+}
+
 }  // namespace
 
 dataframe bootstrap_distribution(const dataframe& returns,
@@ -330,6 +378,40 @@ bootstrap_confidence_interval_result bootstrap_confidence_interval(
         throw input_error{"bootstrap confidence interval allocation failed"};
     } catch (const std::length_error&) {
         throw input_error{"bootstrap confidence interval allocation is not representable"};
+    }
+}
+
+bootstrap_summary_result bootstrap_summary(const dataframe& returns,
+                                           const std::size_t resample_count,
+                                           const double alpha,
+                                           const std::optional<std::uint64_t> seed,
+                                           const std::string_view column) {
+    validate_confidence_alpha(alpha);
+    if (resample_count < 2U) {
+        throw input_error{"bootstrap summary requires at least two resamples"};
+    }
+
+    try {
+        const auto column_name = checked_column_name(column);
+        const auto retained =
+            retained_values(require_double_column(returns, column_name));
+
+        bootstrap_summary_result result;
+        result.mean = summarize_statistic(returns, retained, resample_count, alpha, seed,
+                                          column_name, bootstrap_statistic::mean);
+        result.sample_standard_deviation =
+            summarize_statistic(returns, retained, resample_count, alpha, seed, column_name,
+                                bootstrap_statistic::sample_standard_deviation);
+        result.sharpe_ratio = summarize_statistic(returns, retained, resample_count, alpha, seed,
+                                                  column_name, bootstrap_statistic::sharpe_ratio);
+        result.sortino_ratio =
+            summarize_statistic(returns, retained, resample_count, alpha, seed, column_name,
+                                bootstrap_statistic::sortino_ratio);
+        return result;
+    } catch (const std::bad_alloc&) {
+        throw input_error{"bootstrap summary allocation failed"};
+    } catch (const std::length_error&) {
+        throw input_error{"bootstrap summary allocation is not representable"};
     }
 }
 
