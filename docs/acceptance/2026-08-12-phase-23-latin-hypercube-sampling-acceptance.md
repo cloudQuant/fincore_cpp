@@ -122,6 +122,23 @@ The three fresh positive caches each record
 the pinned FetchContent tag `v1.15.2`. This is actual FetchContent provenance,
 not a claim that GoogleTest was locally supplied or unfetched.
 
+## Traceability
+
+The Task 100 implementation chain is
+`f013aa9659099f6b0e60f9edb1c8052b2ba72024` followed directly by
+`afb162dd492433fe9ebbece8149ab2ec0018337d`. The first commit changes exactly
+`include/fincore/simulation/paths.hpp`, `src/simulation/paths.cpp`,
+`tests/CMakeLists.txt`, `tests/unit/latin_hypercube_sampling_test.cpp`, and
+`tests/unit/simulation_latin_hypercube_umbrella_test.cpp`; the repair changes
+only `src/simulation/paths.cpp` and
+`tests/unit/latin_hypercube_sampling_test.cpp`.
+
+The direct Task 101 acceptance commit is
+`525fbe4d687dd3b092a8839d6434585d0e2ed6df`, whose parent is the repair. Its
+exact scope is `README.md` and this acceptance document. The subsequent trace
+is documentation-only, does not amend any prior commit, and does not state or
+anticipate its own commit identifier.
+
 ## Scope and exclusions
 
 This accepts only the bounded, DataFrame-native Latin-hypercube sampling leaf
