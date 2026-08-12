@@ -50,6 +50,7 @@ add_library(fincore
     src/simulation/parameters.cpp
     src/simulation/result.cpp
     src/simulation/paths.cpp
+    src/simulation/monte_carlo.cpp
     src/simulation/bootstrap.cpp
     src/analysis_context.cpp
     src/rolling_engine.cpp)
