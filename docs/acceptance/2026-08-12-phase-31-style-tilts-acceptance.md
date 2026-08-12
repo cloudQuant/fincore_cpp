@@ -25,6 +25,35 @@ document/gate review ran. That review returned **Spec PASS / Task-Quality
 PASS**, with Critical/Important/Minor `0/0/0`; the two-file candidate was then
 accepted without a review-fix commit.
 
+## Task 135 commit traceability
+
+The Phase 31 plan is
+`15199979bc6f4800fa43eb85532869b5e64937c6`, with exact scope:
+
+- `docs/design/2026-08-12-phase-31-style-tilts-design.md`
+- `docs/plans/2026-08-12-fincore-cpp-phase-31-style-tilts.md`
+
+Its direct one-file wording correction is
+`17838e04014499119cbf9a86159eb051e68e6512`, which changes only the design
+document. The Task 133 implementation is its direct child,
+`9c4f81e57a771f11583e4b8506823aeada3fb7c4`, with exact scope:
+
+- `include/fincore/attribution/style.hpp`
+- `src/attribution/style.cpp`
+- `tests/CMakeLists.txt`
+- `tests/unit/style_tilts_test.cpp`
+- `tests/unit/attribution_style_tilts_umbrella_test.cpp`
+
+The initial Task 134 acceptance is the implementation's direct child,
+`c33d8d2f0d7a5cafdd323236a88b3985301316d8`, with exact scope:
+
+- `README.md`
+- `docs/acceptance/2026-08-12-phase-31-style-tilts-acceptance.md`
+
+Task 135 is a documentation-only traceability update. It does not amend any
+plan, correction, implementation, review, or initial acceptance commit, and it
+deliberately neither states nor anticipates its own commit SHA.
+
 ## Exact public API and source mapping
 
 The existing `<fincore/attribution.hpp>` façade already includes the style
