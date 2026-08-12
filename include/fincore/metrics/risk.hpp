@@ -9,6 +9,10 @@ namespace fincore {
 double historical_value_at_risk(const dataframe &returns, double cutoff = 0.05,
                                 std::string_view column = returns_column);
 
+double trading_value_at_risk(
+    const dataframe& returns, double sigma = 2.0,
+    std::string_view column = returns_column);
+
 double var_excess_return(
     const dataframe& returns, double cutoff = 0.05, double risk_free = 0.0,
     frequency period = frequency::daily,

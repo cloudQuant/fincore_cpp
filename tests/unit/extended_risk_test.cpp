@@ -19,11 +19,17 @@ constexpr double nan = std::numeric_limits<double>::quiet_NaN();
 using var_excess_return_signature =
     double (*)(const fincore::dataframe&, double, double, fincore::frequency,
                std::optional<double>, std::string_view);
+using trading_value_at_risk_signature =
+    double (*)(const fincore::dataframe&, double, std::string_view);
 
 static_assert(std::is_same_v<
               decltype(static_cast<var_excess_return_signature>(
                   &fincore::var_excess_return)),
               var_excess_return_signature>);
+static_assert(std::is_same_v<
+              decltype(static_cast<trading_value_at_risk_signature>(
+                  &fincore::trading_value_at_risk)),
+              trading_value_at_risk_signature>);
 
 template <typename callable>
 void expect_input_error_message(callable&& invoke, const char* message) {
@@ -42,6 +48,169 @@ TEST(ExtendedRisk, MatchesVarExcessReturnDefaultPythonOracle) {
       {1, 2, 3, 4}, "returns", {.10, -.05, .02, -.01});
 
   EXPECT_NEAR(fincore::var_excess_return(returns), 649.7873043614145, 1e-12);
+}
+
+TEST(ExtendedRisk, MatchesTradingValueAtRiskDefaultPythonOracle) {
+  const auto returns =
+      fincore::make_series({1, 2, 3}, "returns", {.01, -.02, .03});
+
+  EXPECT_NEAR(fincore::trading_value_at_risk(returns),
+              -0.043665562901805, 1e-15);
+}
+
+TEST(ExtendedRisk, MatchesTradingValueAtRiskPythonOracleAcrossSigmaValues) {
+  const auto returns =
+      fincore::make_series({1, 2, 3}, "returns", {.01, -.02, .03});
+  const double infinity = std::numeric_limits<double>::infinity();
+
+  EXPECT_NEAR(fincore::trading_value_at_risk(returns, 1.0),
+              -0.018499448117569168, 1e-15);
+  EXPECT_NEAR(fincore::trading_value_at_risk(returns, 0.0),
+              0.006666666666666665, 1e-15);
+  EXPECT_NEAR(fincore::trading_value_at_risk(returns, -3.0),
+              0.08216501101937417, 1e-15);
+  EXPECT_TRUE(std::isnan(fincore::trading_value_at_risk(returns, nan)));
+
+  const double negative_infinite =
+      fincore::trading_value_at_risk(returns, infinity);
+  EXPECT_TRUE(std::isinf(negative_infinite));
+  EXPECT_LT(negative_infinite, 0.0);
+
+  const double positive_infinite =
+      fincore::trading_value_at_risk(returns, -infinity);
+  EXPECT_TRUE(std::isinf(positive_infinite));
+  EXPECT_GT(positive_infinite, 0.0);
+}
+
+TEST(ExtendedRisk, UsesSampleRatherThanPopulationStandardDeviation) {
+  const auto returns = fincore::make_series(
+      {1, 2, 3, 4}, "returns", {.02, -.01, .04, 0.0});
+  constexpr double mean = .0125;
+  constexpr double squared_deviations = .001475;
+  const double expected_sample =
+      mean - 1.5 * std::sqrt(squared_deviations / 3.0);
+  const double population_mutant =
+      mean - 1.5 * std::sqrt(squared_deviations / 4.0);
+
+  const double result = fincore::trading_value_at_risk(returns, 1.5);
+
+  EXPECT_NEAR(result, expected_sample, 1e-15);
+  EXPECT_GT(std::abs(result - population_mutant), 1e-3);
+}
+
+TEST(ExtendedRisk, ShortcutsTypedTradingValueAtRiskSeriesBeforeArithmetic) {
+  fincore::dataframe empty;
+  empty.load_index(std::vector<fincore::timestamp>{});
+  empty.load_column<double>("returns", std::vector<double>{},
+                            hmdf::nan_policy::dont_pad_with_nans);
+  const auto one = fincore::make_series({1}, "returns", {.10});
+  const double infinity = std::numeric_limits<double>::infinity();
+
+  EXPECT_TRUE(std::isnan(
+      fincore::trading_value_at_risk(empty, infinity)));
+  EXPECT_TRUE(std::isnan(fincore::trading_value_at_risk(one, nan)));
+}
+
+TEST(ExtendedRisk, PreservesConstantTradingValueAtRiskArithmetic) {
+  const auto flat_positive =
+      fincore::make_series({1, 2}, "returns", {.1, .1});
+  const auto flat_zero =
+      fincore::make_series({1, 2}, "returns", {0.0, 0.0});
+  const double infinity = std::numeric_limits<double>::infinity();
+
+  EXPECT_DOUBLE_EQ(fincore::trading_value_at_risk(flat_positive), .1);
+  EXPECT_DOUBLE_EQ(fincore::trading_value_at_risk(flat_zero), 0.0);
+  EXPECT_TRUE(std::isnan(
+      fincore::trading_value_at_risk(flat_positive, infinity)));
+  EXPECT_TRUE(
+      std::isnan(fincore::trading_value_at_risk(flat_zero, infinity)));
+}
+
+TEST(ExtendedRisk, DoesNotFilterNonfiniteTradingValueAtRiskObservations) {
+  const auto nan_mixed =
+      fincore::make_series({1, 2, 3}, "returns", {.1, -.1, nan});
+  const auto positive_infinity_mixed = fincore::make_series(
+      {1, 2, 3}, "returns",
+      {.1, -.1, std::numeric_limits<double>::infinity()});
+  const auto negative_infinity_mixed = fincore::make_series(
+      {1, 2, 3}, "returns",
+      {.1, -.1, -std::numeric_limits<double>::infinity()});
+  const auto both_infinities = fincore::make_series(
+      {1, 2, 3, 4}, "returns",
+      {.1, -.1, std::numeric_limits<double>::infinity(),
+       -std::numeric_limits<double>::infinity()});
+
+  EXPECT_TRUE(std::isnan(fincore::trading_value_at_risk(nan_mixed)));
+  EXPECT_TRUE(std::isnan(
+      fincore::trading_value_at_risk(positive_infinity_mixed)));
+  EXPECT_TRUE(std::isnan(
+      fincore::trading_value_at_risk(negative_infinity_mixed)));
+  EXPECT_TRUE(std::isnan(fincore::trading_value_at_risk(both_infinities)));
+}
+
+TEST(ExtendedRisk, PreservesSignedInfiniteTradingValueAtRiskResults) {
+  const double maximum = std::numeric_limits<double>::max();
+  const auto symmetric_maximum =
+      fincore::make_series({1, 2}, "returns", {maximum, -maximum});
+
+  const double negative_infinite =
+      fincore::trading_value_at_risk(symmetric_maximum);
+  EXPECT_TRUE(std::isinf(negative_infinite));
+  EXPECT_LT(negative_infinite, 0.0);
+
+  const double positive_infinite =
+      fincore::trading_value_at_risk(symmetric_maximum, -2.0);
+  EXPECT_TRUE(std::isinf(positive_infinite));
+  EXPECT_GT(positive_infinite, 0.0);
+}
+
+TEST(ExtendedRisk, ValidatesTradingValueAtRiskSelectorBeforeRawLength) {
+  const auto strategy =
+      fincore::make_series({1, 2, 3}, "strategy", {.01, -.02, .03});
+  const auto single_strategy =
+      fincore::make_series({1}, "strategy", std::vector<double>{.10});
+  const std::array<char, 9> bounded_storage{
+      's', 't', 'r', 'a', 't', 'e', 'g', 'y', '!'};
+  const std::string_view bounded_selector{bounded_storage.data(), 8U};
+  const std::array<char, 10> embedded_storage{
+      's', 't', 'r', 'a', 't', 'e', 'g', 'y', '\0', '!'};
+  const std::string_view embedded_selector{embedded_storage.data(),
+                                           embedded_storage.size()};
+
+  EXPECT_NEAR(fincore::trading_value_at_risk(strategy, 2.0,
+                                              bounded_selector),
+              -0.043665562901805, 1e-15);
+  expect_input_error_message(
+      [&] {
+        return fincore::trading_value_at_risk(single_strategy, 2.0,
+                                               embedded_selector);
+      },
+      "column name must not contain an embedded NUL");
+  expect_input_error_message(
+      [&] { return fincore::trading_value_at_risk(single_strategy, 2.0, ""); },
+      "column name must not be empty");
+  expect_input_error_message(
+      [&] {
+        return fincore::trading_value_at_risk(single_strategy, 2.0,
+                                               "missing");
+      },
+      "required double column is absent");
+
+  fincore::dataframe wrong_type;
+  wrong_type.load_index(std::vector<fincore::timestamp>{1});
+  wrong_type.load_column<int>("returns", std::vector<int>{1},
+                              hmdf::nan_policy::dont_pad_with_nans);
+  expect_input_error_message(
+      [&] { return fincore::trading_value_at_risk(wrong_type); },
+      "required column is not a double column");
+
+  fincore::dataframe mismatched;
+  mismatched.load_index(std::vector<fincore::timestamp>{1});
+  mismatched.load_column<double>("returns", std::vector<double>{},
+                                 hmdf::nan_policy::dont_pad_with_nans);
+  expect_input_error_message(
+      [&] { return fincore::trading_value_at_risk(mismatched); },
+      "required double column must match the frame index length");
 }
 
 TEST(ExtendedRisk, MatchesVarExcessReturnPythonOracleAcrossParameters) {

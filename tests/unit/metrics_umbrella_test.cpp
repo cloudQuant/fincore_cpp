@@ -20,11 +20,17 @@ namespace {
 using var_excess_return_signature =
     double (*)(const fincore::dataframe&, double, double, fincore::frequency,
                std::optional<double>, std::string_view);
+using trading_value_at_risk_signature =
+    double (*)(const fincore::dataframe&, double, std::string_view);
 
 static_assert(std::is_same_v<
               decltype(static_cast<var_excess_return_signature>(
                   &fincore::var_excess_return)),
               var_excess_return_signature>);
+static_assert(std::is_same_v<
+              decltype(static_cast<trading_value_at_risk_signature>(
+                  &fincore::trading_value_at_risk)),
+              trading_value_at_risk_signature>);
 
 std::vector<fincore::timestamp> twelve_indices() {
   std::vector<fincore::timestamp> result;
@@ -83,6 +89,7 @@ TEST(MetricsUmbrella, ExposesOnlyImplementedDataframeNativeMetrics) {
   EXPECT_TRUE(std::isfinite(fincore::max_drawdown(returns)));
   EXPECT_TRUE(std::isfinite(fincore::sharpe_ratio(returns)));
   EXPECT_TRUE(std::isfinite(fincore::downside_risk(returns)));
+  EXPECT_TRUE(std::isfinite(fincore::trading_value_at_risk(returns)));
   EXPECT_TRUE(std::isfinite(fincore::win_rate(returns)));
 
   const double var_excess_return_var =

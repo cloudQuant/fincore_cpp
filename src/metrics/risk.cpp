@@ -81,6 +81,22 @@ double historical_value_at_risk(const dataframe &returns, double cutoff,
   return percentile({values.begin(), values.end()}, cutoff);
 }
 
+double trading_value_at_risk(const dataframe& returns, double sigma,
+                             std::string_view column) {
+  if (column.find('\0') != std::string_view::npos) {
+    throw input_error{"column name must not contain an embedded NUL"};
+  }
+  const auto values = require_double_column(returns, column);
+  if (values.size() < 2) {
+    return nan;
+  }
+
+  const double average = detail::mean(values);
+  const double standard_deviation =
+      std::sqrt(detail::sample_variance(values));
+  return average - sigma * standard_deviation;
+}
+
 double var_excess_return(const dataframe& returns, double cutoff,
                          double risk_free, frequency period,
                          std::optional<double> annualization,
