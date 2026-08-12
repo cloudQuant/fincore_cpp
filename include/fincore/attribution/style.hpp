@@ -12,6 +12,9 @@ namespace fincore {
 inline constexpr std::string_view style_asset_column{"asset"};
 inline constexpr std::string_view style_name_column{"style"};
 inline constexpr std::string_view style_return_column{"return"};
+inline constexpr std::string_view style_attribution_contribution_column{
+    "contribution"};
+inline constexpr std::string_view style_attribution_residual_name{"residual"};
 
 inline constexpr std::string_view style_equal_weight_column{"equal_weight"};
 inline constexpr std::string_view style_large_column{"large"};
@@ -52,5 +55,13 @@ struct style_analysis_result {
 [[nodiscard]] dataframe calculate_style_tilts(
     const dataframe& asset_returns,
     std::size_t window = 252U);
+
+[[nodiscard]] dataframe calculate_regression_attribution(
+    const dataframe& asset_returns);
+
+[[nodiscard]] dataframe calculate_regression_attribution(
+    const dataframe& portfolio_returns,
+    const dataframe& style_returns,
+    std::span<const std::string_view> selected_styles);
 
 }  // namespace fincore

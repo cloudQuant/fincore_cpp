@@ -7,6 +7,7 @@
 #include <array>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
 #include <limits>
 #include <new>
 #include <span>
@@ -931,6 +932,457 @@ dataframe calculate_style_tilts_impl(const dataframe& asset_returns,
     return result;
 }
 
+constexpr double minimum_attribution_standard_deviation{1.0e-15};
+constexpr std::uint64_t maximum_exact_double_integer{
+    std::uint64_t{1U} << std::numeric_limits<double>::digits};
+
+struct attribution_portfolio {
+    std::vector<timestamp> index;
+    std::vector<double> values;
+};
+
+struct attribution_style {
+    std::string name;
+    std::span<const double> values;
+};
+
+struct paired_moments {
+    std::size_t count{0U};
+    double left_mean{0.0};
+    double right_mean{0.0};
+    double left_sum_of_squares{0.0};
+    double right_sum_of_squares{0.0};
+    double co_moment{0.0};
+};
+
+double checked_attribution_count(const std::size_t count,
+                                 const char* const message) {
+    if constexpr (std::numeric_limits<std::size_t>::digits >
+                  std::numeric_limits<double>::digits) {
+        if (count > static_cast<std::size_t>(maximum_exact_double_integer)) {
+            throw input_error{message};
+        }
+    }
+    const double result{static_cast<double>(count)};
+    require_finite(result, message);
+    return result;
+}
+
+void require_unique_attribution_index(
+    const std::vector<timestamp>& index,
+    const char* const message) {
+    if (index.size() > std::unordered_set<timestamp>{}.max_size()) {
+        throw input_error{"style attribution index is not representable"};
+    }
+    std::unordered_set<timestamp> seen;
+    seen.reserve(index.size());
+    for (const timestamp value : index) {
+        if (!seen.insert(value).second) {
+            throw input_error{message};
+        }
+    }
+}
+
+double checked_attribution_mean(const std::span<const double> values,
+                                const char* const message) {
+    if (values.empty()) {
+        throw input_error{message};
+    }
+    double mean{0.0};
+    std::size_t count{0U};
+    for (const double value : values) {
+        ++count;
+        const double delta{value - mean};
+        require_finite(delta, message);
+        mean += delta / checked_attribution_count(count, message);
+        require_finite(mean, message);
+    }
+    return mean;
+}
+
+std::vector<std::string> validate_attribution_selectors(
+    const std::span<const std::string_view> selectors) {
+    if (selectors.size() > std::vector<std::string>{}.max_size() ||
+        selectors.size() > std::unordered_set<std::string>{}.max_size()) {
+        throw input_error{"style attribution selector count is not representable"};
+    }
+    const std::size_t capacity{dataframe::ColNameType::capacity()};
+    std::vector<std::string> result;
+    std::unordered_set<std::string> seen;
+    result.reserve(selectors.size());
+    seen.reserve(selectors.size());
+    for (const std::string_view selector : selectors) {
+        if (selector.empty()) {
+            throw input_error{"style attribution selectors must not be empty"};
+        }
+        if (selector.find('\0') != std::string_view::npos) {
+            throw input_error{
+                "style attribution selectors must not contain an embedded NUL"};
+        }
+        if (capacity == 0U || selector.size() >= capacity) {
+            throw input_error{
+                "style attribution selector is not representable"};
+        }
+        if (selector == style_attribution_residual_name) {
+            throw input_error{
+                "style attribution selectors must not contain residual"};
+        }
+        std::string owned{selector};
+        if (!seen.insert(owned).second) {
+            throw input_error{"style attribution selectors must be distinct"};
+        }
+        result.push_back(std::move(owned));
+    }
+    return result;
+}
+
+attribution_portfolio validate_attribution_portfolio(
+    const dataframe& portfolio_returns) {
+    const auto& raw_index = portfolio_returns.get_index();
+    const auto shape = portfolio_returns.shape();
+    const auto columns = portfolio_returns.get_columns_info<double>();
+    if (shape.first != raw_index.size() || columns.empty() ||
+        columns.size() != shape.second) {
+        throw input_error{
+            "style attribution portfolio must contain only double columns"};
+    }
+    if (raw_index.size() > std::vector<timestamp>{}.max_size() ||
+        raw_index.size() > std::vector<double>{}.max_size() ||
+        columns.size() > std::vector<std::span<const double>>{}.max_size()) {
+        throw input_error{"style attribution portfolio is not representable"};
+    }
+    require_unique_attribution_index(
+        raw_index, "style attribution portfolio timestamps must be unique");
+
+    std::unordered_set<std::string> seen_names;
+    seen_names.reserve(columns.size());
+    std::vector<std::span<const double>> values;
+    values.reserve(columns.size());
+    for (const auto& info : columns) {
+        std::string name = copy_external_name(
+            std::get<0>(info),
+            "style attribution portfolio column names must not be empty",
+            "style attribution portfolio column names must not contain an embedded NUL");
+        if (!seen_names.insert(name).second) {
+            throw input_error{
+                "style attribution portfolio column names must be distinct"};
+        }
+        const auto& column = portfolio_returns.get_column<double>(name.c_str());
+        if (column.size() != raw_index.size()) {
+            throw input_error{
+                "style attribution portfolio columns must match the index length"};
+        }
+        require_finite_values(
+            column, "style attribution portfolio returns must be finite");
+        values.emplace_back(column.data(), column.size());
+    }
+
+    const double column_count{checked_attribution_count(
+        values.size(),
+        "style attribution portfolio column count is not representable")};
+    std::vector<double> row_means(raw_index.size(), 0.0);
+    for (std::size_t row{0U}; row < raw_index.size(); ++row) {
+        double total{0.0};
+        for (const std::span<const double> column : values) {
+            total += column[row];
+            require_finite(
+                total, "style attribution portfolio row sum is not finite");
+        }
+        row_means[row] = total / column_count;
+        require_finite(
+            row_means[row], "style attribution portfolio row mean is not finite");
+    }
+    return {{raw_index.begin(), raw_index.end()}, std::move(row_means)};
+}
+
+std::vector<attribution_style> validate_attribution_styles(
+    const dataframe& style_returns,
+    const std::vector<std::string>& selectors) {
+    const auto& index = style_returns.get_index();
+    if (style_returns.shape().first != index.size()) {
+        throw input_error{"style attribution style-return index is malformed"};
+    }
+    require_unique_attribution_index(
+        index, "style attribution style-return timestamps must be unique");
+
+    const auto double_columns = style_returns.get_columns_info<double>();
+    std::unordered_set<std::string> selected{selectors.begin(), selectors.end()};
+    std::unordered_set<std::string> selected_double_names;
+    selected_double_names.reserve(selectors.size());
+    for (const auto& info : double_columns) {
+        const auto& raw_name = std::get<0>(info);
+        const std::string name{raw_name.begin(), raw_name.end()};
+        if (selected.contains(name)) {
+            selected_double_names.insert(name);
+        }
+    }
+    for (const std::string& selector : selectors) {
+        if (style_returns.has_column(selector.c_str()) &&
+            !selected_double_names.contains(selector)) {
+            throw input_error{
+                "selected style-return column must be a double column"};
+        }
+    }
+
+    if (double_columns.size() > std::vector<attribution_style>{}.max_size()) {
+        throw input_error{"style attribution style count is not representable"};
+    }
+    std::vector<attribution_style> styles;
+    styles.reserve(std::min(double_columns.size(), selectors.size()));
+    for (const auto& info : double_columns) {
+        const auto& raw_name = std::get<0>(info);
+        const std::string name{raw_name.begin(), raw_name.end()};
+        if (!selected.contains(name)) {
+            continue;
+        }
+        const auto& values = style_returns.get_column<double>(name.c_str());
+        if (values.size() != index.size()) {
+            throw input_error{
+                "selected style-return columns must match the index length"};
+        }
+        require_finite_values(
+            values, "selected style returns must be finite");
+        styles.push_back({name, {values.data(), values.size()}});
+    }
+    return styles;
+}
+
+void append_paired_moment(paired_moments& moments,
+                          const double left,
+                          const double right) {
+    ++moments.count;
+    const double count{checked_attribution_count(
+        moments.count, "style attribution pair count is not representable")};
+
+    const double left_delta{left - moments.left_mean};
+    const double right_delta{right - moments.right_mean};
+    require_finite(left_delta,
+                   "style attribution centered portfolio value is not finite");
+    require_finite(right_delta,
+                   "style attribution centered style value is not finite");
+    moments.left_mean += left_delta / count;
+    moments.right_mean += right_delta / count;
+    require_finite(moments.left_mean,
+                   "style attribution portfolio mean is not finite");
+    require_finite(moments.right_mean,
+                   "style attribution style mean is not finite");
+
+    const double left_adjusted{left - moments.left_mean};
+    const double right_adjusted{right - moments.right_mean};
+    const double left_increment{left_delta * left_adjusted};
+    const double right_increment{right_delta * right_adjusted};
+    const double co_increment{left_delta * right_adjusted};
+    require_finite(left_increment,
+                   "style attribution portfolio variance is not finite");
+    require_finite(right_increment,
+                   "style attribution style variance is not finite");
+    require_finite(co_increment,
+                   "style attribution covariance is not finite");
+    moments.left_sum_of_squares += left_increment;
+    moments.right_sum_of_squares += right_increment;
+    moments.co_moment += co_increment;
+    require_finite(moments.left_sum_of_squares,
+                   "style attribution portfolio variance is not finite");
+    require_finite(moments.right_sum_of_squares,
+                   "style attribution style variance is not finite");
+    require_finite(moments.co_moment,
+                   "style attribution covariance is not finite");
+}
+
+double contribution_from_moments(const paired_moments& moments) {
+    if (moments.count < 3U) {
+        return 0.0;
+    }
+    const double count{checked_attribution_count(
+        moments.count, "style attribution pair count is not representable")};
+    const double left_variance{moments.left_sum_of_squares / count};
+    const double right_variance{moments.right_sum_of_squares / count};
+    if (!(left_variance >= 0.0) || !(right_variance >= 0.0)) {
+        throw input_error{"style attribution variance is negative"};
+    }
+    require_finite(left_variance,
+                   "style attribution portfolio variance is not finite");
+    require_finite(right_variance,
+                   "style attribution style variance is not finite");
+    const double left_standard_deviation{std::sqrt(left_variance)};
+    const double right_standard_deviation{std::sqrt(right_variance)};
+    require_finite(left_standard_deviation,
+                   "style attribution portfolio deviation is not finite");
+    require_finite(right_standard_deviation,
+                   "style attribution style deviation is not finite");
+    if (left_standard_deviation < minimum_attribution_standard_deviation ||
+        right_standard_deviation < minimum_attribution_standard_deviation) {
+        return 0.0;
+    }
+    const double covariance{moments.co_moment / count};
+    const double denominator{
+        left_standard_deviation * right_standard_deviation};
+    require_finite(covariance,
+                   "style attribution covariance is not finite");
+    require_finite(denominator,
+                   "style attribution correlation denominator is not finite");
+    if (denominator == 0.0) {
+        return 0.0;
+    }
+    const double correlation{covariance / denominator};
+    require_finite(correlation,
+                   "style attribution correlation is not finite");
+    const double contribution{correlation * moments.right_mean};
+    require_finite(contribution,
+                   "style attribution contribution is not finite");
+    return contribution;
+}
+
+double aligned_attribution_contribution(
+    const attribution_portfolio& portfolio,
+    const std::vector<timestamp>& style_index,
+    const std::span<const double> style_values) {
+    if (style_index.size() != style_values.size()) {
+        throw input_error{"selected style-return column is malformed"};
+    }
+    std::unordered_map<timestamp, std::size_t> style_positions;
+    style_positions.reserve(style_index.size());
+    for (std::size_t position{0U}; position < style_index.size(); ++position) {
+        style_positions.emplace(style_index[position], position);
+    }
+    paired_moments moments;
+    for (std::size_t position{0U}; position < portfolio.index.size(); ++position) {
+        const auto found = style_positions.find(portfolio.index[position]);
+        if (found != style_positions.end()) {
+            append_paired_moment(moments, portfolio.values[position],
+                                 style_values[found->second]);
+        }
+    }
+    return contribution_from_moments(moments);
+}
+
+double positional_attribution_contribution(
+    const std::span<const double> portfolio,
+    const std::span<const double> style) {
+    if (portfolio.size() != style.size()) {
+        throw input_error{
+            "automatic style attribution columns must have equal lengths"};
+    }
+    paired_moments moments;
+    for (std::size_t position{0U}; position < portfolio.size(); ++position) {
+        append_paired_moment(moments, portfolio[position], style[position]);
+    }
+    return contribution_from_moments(moments);
+}
+
+dataframe materialize_attribution_result(
+    std::vector<std::string> names,
+    std::vector<double> contributions,
+    const double portfolio_mean) {
+    if (names.size() != contributions.size() ||
+        names.size() >= std::vector<std::string>{}.max_size() ||
+        names.size() >= std::vector<double>{}.max_size() ||
+        names.size() > static_cast<std::size_t>(
+                           std::numeric_limits<timestamp>::max())) {
+        throw input_error{"style attribution result is not representable"};
+    }
+    double attributed{0.0};
+    for (const double contribution : contributions) {
+        attributed += contribution;
+        require_finite(attributed,
+                       "style attribution total is not finite");
+    }
+    const double residual{portfolio_mean - attributed};
+    require_finite(residual, "style attribution residual is not finite");
+    names.emplace_back(style_attribution_residual_name);
+    contributions.push_back(residual);
+    const std::size_t row_count{names.size()};
+    if (row_count > std::vector<timestamp>{}.max_size() ||
+        row_count > std::vector<std::string>{}.max_size() ||
+        row_count > std::vector<double>{}.max_size()) {
+        throw input_error{"style attribution result is not representable"};
+    }
+
+    dataframe result;
+    result.load_index(ordinal_index(row_count));
+    result.load_column<std::string>(style_name_column.data(), std::move(names),
+                                    hmdf::nan_policy::dont_pad_with_nans);
+    result.load_column<double>(style_attribution_contribution_column.data(),
+                               std::move(contributions),
+                               hmdf::nan_policy::dont_pad_with_nans);
+    return result;
+}
+
+dataframe calculate_explicit_attribution_impl(
+    const dataframe& portfolio_returns,
+    const dataframe& style_returns,
+    const std::span<const std::string_view> selected_styles) {
+    if (is_empty_shaped(portfolio_returns)) {
+        return {};
+    }
+    const auto selectors = validate_attribution_selectors(selected_styles);
+    const attribution_portfolio portfolio =
+        validate_attribution_portfolio(portfolio_returns);
+    const auto styles = validate_attribution_styles(style_returns, selectors);
+
+    if (styles.size() >= std::vector<std::string>{}.max_size() ||
+        styles.size() >= std::vector<double>{}.max_size()) {
+        throw input_error{"style attribution result is not representable"};
+    }
+
+    std::vector<std::string> names;
+    std::vector<double> contributions;
+    names.reserve(styles.size() + 1U);
+    contributions.reserve(styles.size() + 1U);
+    const auto& style_index = style_returns.get_index();
+    for (const attribution_style& style : styles) {
+        names.push_back(style.name);
+        contributions.push_back(aligned_attribution_contribution(
+            portfolio, style_index, style.values));
+    }
+    const double portfolio_mean{checked_attribution_mean(
+        portfolio.values, "style attribution portfolio mean is not finite")};
+    return materialize_attribution_result(
+        std::move(names), std::move(contributions), portfolio_mean);
+}
+
+dataframe calculate_automatic_attribution_impl(
+    const dataframe& asset_returns) {
+    if (is_empty_shaped(asset_returns)) {
+        return {};
+    }
+    const style_analysis_result analysis = style_analysis(asset_returns);
+    const dataframe performance = analyze_performance_by_style(
+        asset_returns, analysis.exposures);
+    const auto portfolio = require_double_column(
+        analysis.overall_returns, style_return_column);
+    require_finite_values(
+        portfolio, "style attribution portfolio returns must be finite");
+
+    const auto style_columns = analysis.exposures.get_columns_info<double>();
+    if (style_columns.size() >= std::vector<std::string>{}.max_size() ||
+        style_columns.size() >= std::vector<double>{}.max_size()) {
+        throw input_error{"style attribution result is not representable"};
+    }
+    std::vector<std::string> names;
+    std::vector<double> contributions;
+    names.reserve(style_columns.size() + 1U);
+    contributions.reserve(style_columns.size() + 1U);
+    for (const auto& info : style_columns) {
+        const std::string name = copy_external_name(
+            std::get<0>(info),
+            "automatic style attribution style name must not be empty",
+            "automatic style attribution style name must not contain an embedded NUL");
+        const std::string performance_name = performance_output_name(name);
+        const auto style_values = require_double_column(
+            performance, performance_name);
+        require_finite_values(
+            style_values, "automatic style returns must be finite");
+        names.push_back(name);
+        contributions.push_back(positional_attribution_contribution(
+            portfolio, style_values));
+    }
+    const double portfolio_mean{checked_attribution_mean(
+        portfolio, "style attribution portfolio mean is not finite")};
+    return materialize_attribution_result(
+        std::move(names), std::move(contributions), portfolio_mean);
+}
+
 }  // namespace
 
 style_analysis_result style_analysis(const dataframe& asset_returns,
@@ -992,6 +1444,39 @@ dataframe calculate_style_tilts(const dataframe& asset_returns,
         throw input_error{"style tilt allocation is not representable"};
     } catch (const std::exception&) {
         throw input_error{"style tilt input is malformed"};
+    }
+}
+
+dataframe calculate_regression_attribution(
+    const dataframe& asset_returns) {
+    try {
+        return calculate_automatic_attribution_impl(asset_returns);
+    } catch (const input_error&) {
+        throw;
+    } catch (const std::bad_alloc&) {
+        throw input_error{"style attribution allocation failed"};
+    } catch (const std::length_error&) {
+        throw input_error{"style attribution allocation is not representable"};
+    } catch (const std::exception&) {
+        throw input_error{"style attribution input is malformed"};
+    }
+}
+
+dataframe calculate_regression_attribution(
+    const dataframe& portfolio_returns,
+    const dataframe& style_returns,
+    const std::span<const std::string_view> selected_styles) {
+    try {
+        return calculate_explicit_attribution_impl(
+            portfolio_returns, style_returns, selected_styles);
+    } catch (const input_error&) {
+        throw;
+    } catch (const std::bad_alloc&) {
+        throw input_error{"style attribution allocation failed"};
+    } catch (const std::length_error&) {
+        throw input_error{"style attribution allocation is not representable"};
+    } catch (const std::exception&) {
+        throw input_error{"style attribution input is malformed"};
     }
 }
 
