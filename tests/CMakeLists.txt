@@ -53,6 +53,8 @@ add_executable(fincore_tests
     unit/bootstrap_summary_test.cpp
     unit/gbm_paths_test.cpp
     unit/simulation_gbm_paths_umbrella_test.cpp
+    unit/latin_hypercube_sampling_test.cpp
+    unit/simulation_latin_hypercube_umbrella_test.cpp
     unit/simulation_gbm_from_returns_umbrella_test.cpp
     unit/simulation_bootstrap_umbrella_test.cpp
     unit/simulation_bootstrap_confidence_interval_umbrella_test.cpp

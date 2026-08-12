@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <limits>
 #include <new>
+#include <numeric>
 #include <numbers>
 #include <optional>
 #include <random>
@@ -132,6 +133,51 @@ std::string path_name(const std::size_t path_number) {
     return std::string{gbm_path_column_prefix} + std::to_string(path_number);
 }
 
+void validate_latin_hypercube_shape(const std::size_t sample_count,
+                                    const std::size_t dimension_count) {
+    if (sample_count != 0U &&
+        sample_count - 1U >
+            static_cast<std::size_t>(std::numeric_limits<timestamp>::max())) {
+        throw input_error{"Latin-hypercube sample index is not representable"};
+    }
+    if (sample_count > std::vector<timestamp>{}.max_size()) {
+        throw input_error{"Latin-hypercube sample index allocation is not representable"};
+    }
+
+    if (dimension_count != 0U) {
+        const std::string largest_suffix = std::to_string(dimension_count - 1U);
+        const std::size_t string_capacity = std::string{}.max_size();
+        if (largest_suffix.size() > string_capacity ||
+            latin_hypercube_dimension_column_prefix.size() >
+                string_capacity - largest_suffix.size()) {
+            throw input_error{"Latin-hypercube dimension name is not representable"};
+        }
+    }
+    if (dimension_count > std::vector<std::string>{}.max_size()) {
+        throw input_error{"Latin-hypercube dimension allocation is not representable"};
+    }
+
+    if (sample_count == 0U || dimension_count == 0U) {
+        return;
+    }
+    if (sample_count > std::vector<std::size_t>{}.max_size() ||
+        sample_count > std::vector<double>{}.max_size()) {
+        throw input_error{"Latin-hypercube sample allocation is not representable"};
+    }
+    if (dimension_count > std::numeric_limits<std::size_t>::max() / sample_count) {
+        throw input_error{"Latin-hypercube output cell count is not representable"};
+    }
+    const std::size_t cell_count = sample_count * dimension_count;
+    if (cell_count > std::vector<double>{}.max_size()) {
+        throw input_error{"Latin-hypercube output allocation is not representable"};
+    }
+}
+
+std::string latin_hypercube_dimension_name(const std::size_t dimension) {
+    return std::string{latin_hypercube_dimension_column_prefix} +
+           std::to_string(dimension);
+}
+
 std::mt19937_64 make_engine(const std::optional<std::uint64_t> seed) {
     if (seed.has_value()) {
         return std::mt19937_64{*seed};
@@ -155,6 +201,40 @@ double open_unit_uniform(std::mt19937_64& engine) {
         throw input_error{"GBM random uniform is not finite"};
     }
     return uniform;
+}
+
+std::size_t rejection_mapped_index(std::mt19937_64& engine,
+                                   const std::size_t upper_bound) {
+    if (upper_bound == 0U) {
+        throw input_error{"Latin-hypercube bounded index must be positive"};
+    }
+    if constexpr (sizeof(std::size_t) > sizeof(std::uint64_t)) {
+        if (upper_bound > static_cast<std::size_t>(
+                              std::numeric_limits<std::uint64_t>::max())) {
+            throw input_error{"Latin-hypercube bounded index is not representable"};
+        }
+    }
+
+    const std::uint64_t bound = static_cast<std::uint64_t>(upper_bound);
+    const std::uint64_t threshold = (std::uint64_t{0} - bound) % bound;
+    for (;;) {
+        const std::uint64_t candidate = engine();
+        if (candidate >= threshold) {
+            return static_cast<std::size_t>(candidate % bound);
+        }
+    }
+}
+
+std::vector<std::size_t> latin_hypercube_permutation(
+    const std::size_t sample_count,
+    std::mt19937_64& engine) {
+    std::vector<std::size_t> permutation(sample_count);
+    std::iota(permutation.begin(), permutation.end(), std::size_t{0});
+    for (std::size_t remaining = sample_count; remaining > 1U; --remaining) {
+        std::swap(permutation[remaining - 1U],
+                  permutation[rejection_mapped_index(engine, remaining)]);
+    }
+    return permutation;
 }
 
 double standard_normal(std::mt19937_64& engine) {
@@ -214,6 +294,62 @@ std::vector<double> generate_path(const double initial_value,
 }
 
 }  // namespace
+
+dataframe latin_hypercube_sampling(
+    const std::size_t sample_count,
+    const std::size_t dimension_count,
+    const std::optional<std::uint64_t> seed) {
+    try {
+        validate_latin_hypercube_shape(sample_count, dimension_count);
+        const double denominator = static_cast<double>(sample_count);
+        if (sample_count != 0U && dimension_count != 0U &&
+            (!std::isfinite(denominator) || denominator <= 0.0)) {
+            throw input_error{"Latin-hypercube denominator is not finite"};
+        }
+
+        dataframe result;
+        result.load_index(make_ordinal_index(sample_count));
+        if (sample_count == 0U) {
+            for (std::size_t dimension = 0U; dimension < dimension_count;
+                 ++dimension) {
+                const std::string name = latin_hypercube_dimension_name(dimension);
+                result.load_column<double>(name.c_str(), std::vector<double>{},
+                                           hmdf::nan_policy::dont_pad_with_nans);
+            }
+            return result;
+        }
+        if (dimension_count == 0U) {
+            return result;
+        }
+
+        auto engine = make_engine(seed);
+        for (std::size_t dimension = 0U; dimension < dimension_count;
+             ++dimension) {
+            const std::vector<std::size_t> permutation =
+                latin_hypercube_permutation(sample_count, engine);
+            std::vector<double> values;
+            values.reserve(sample_count);
+            for (const std::size_t stratum : permutation) {
+                const double numerator = static_cast<double>(stratum) +
+                                         open_unit_uniform(engine);
+                const double value = numerator / denominator;
+                if (!std::isfinite(value) || value < 0.0 || value >= 1.0) {
+                    throw input_error{"Latin-hypercube sample is outside [0, 1)"};
+                }
+                values.push_back(value);
+            }
+
+            const std::string name = latin_hypercube_dimension_name(dimension);
+            result.load_column<double>(name.c_str(), std::move(values),
+                                       hmdf::nan_policy::dont_pad_with_nans);
+        }
+        return result;
+    } catch (const std::bad_alloc&) {
+        throw input_error{"Latin-hypercube output allocation failed"};
+    } catch (const std::length_error&) {
+        throw input_error{"Latin-hypercube output allocation is not representable"};
+    }
+}
 
 dataframe geometric_brownian_motion(
     const double initial_value,

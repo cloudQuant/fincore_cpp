@@ -10,6 +10,13 @@
 namespace fincore {
 
 inline constexpr std::string_view gbm_path_column_prefix{"path_"};
+inline constexpr std::string_view latin_hypercube_dimension_column_prefix{
+    "lhs_dimension_"};
+
+dataframe latin_hypercube_sampling(
+    std::size_t sample_count,
+    std::size_t dimension_count,
+    std::optional<std::uint64_t> seed = std::nullopt);
 
 dataframe geometric_brownian_motion(
     double initial_value,
