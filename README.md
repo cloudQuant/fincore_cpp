@@ -1315,6 +1315,34 @@ Fresh AppleClang, LLVM ASan+UBSan, and configured CTest evidence is recorded
 in [the Phase 22 acceptance record](docs/acceptance/2026-08-12-phase-22-bootstrap-summary-acceptance.md).
 The ImPlot gate is compile/link-only; no GUI is launched.
 
+## Accepted Phase 23 Latin-hypercube sampling
+
+`<fincore/simulation.hpp>` already exposes the paths leaf, including the
+accepted named LHS surface:
+
+```cpp
+const fincore::dataframe samples = fincore::latin_hypercube_sampling(
+    100U, 3U, 42U);
+```
+
+It returns an owned ordinal-indexed DataFrame with exactly the genuine-double
+columns `lhs_dimension_0..N-1`; all source zero shapes are retained. Every
+nonempty dimension contains exactly one finite value in each half-open
+stratum `[k/n,(k+1)/n)` and no value outside `[0,1)`. A native explicit seed
+repeats within the supported C++ build, but does not claim NumPy stream
+equality. The native implementation has no global random state or caller RNG,
+and rejects unrepresentable index/name/vector/cell shapes before allocation.
+
+The accepted repair guards the floating strata boundary: unsupported positive
+sample counts above double's exact-strata resolution fail before random work,
+and generated candidates are redrawn unless their public `floor(value * n)`
+classification remains their selected stratum. It does not clip, sort, or
+post-process samples. This is not an antithetic/normal/correlated transform,
+`MonteCarlo`/`SimResult`, full Python/NumPy parity surface, provider/report,
+release, or GUI runtime feature. Fresh AppleClang, LLVM ASan+UBSan, configured
+CTest, ImPlot compile/link-only, and invalid-ImGui evidence is recorded in
+[the Phase 23 acceptance record](docs/acceptance/2026-08-12-phase-23-latin-hypercube-sampling-acceptance.md).
+
 ## Accepted Phase 11 native stress scenarios
 
 `<fincore/simulation.hpp>` exports only the deterministic, DataFrame-native
