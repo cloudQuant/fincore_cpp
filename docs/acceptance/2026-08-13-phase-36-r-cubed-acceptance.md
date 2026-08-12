@@ -458,3 +458,29 @@ Sharpe, `mar_ratio`, calendar-resampled consecutive statistics, EVT,
 providers, reports, plots, packaging/release work, or Python container
 adapters. ImPlot acceptance remains strictly compile/link plus adapter-test
 evidence; no plotting appearance, interaction, or GUI runtime is accepted.
+
+## Non-self-referential traceability
+
+Task 152 is commit `1bfadde5f0e18905a2ccc25c566f22a6ebdb55f8`, the direct
+child of accepted Phase 35 trace
+`879a5eb21b17ad3a432875e804d00ac339d8e43d`. It adds exactly the Phase 36
+design and executable plan:
+
+- `docs/design/2026-08-13-phase-36-r-cubed-design.md`
+- `docs/plans/2026-08-13-fincore-cpp-phase-36-r-cubed.md`
+
+Task 153 is commit `4df362c5ab9a78632101eeaeebfc27c2ea1c2a1d`, the direct
+child of Task 152. Its complete implementation chain required no review-fix
+commit and changes exactly:
+
+- `include/fincore/metrics/stats.hpp`
+- `src/metrics/stats.cpp`
+- `tests/unit/stats_test.cpp`
+- `tests/unit/metrics_umbrella_test.cpp`
+
+Task 154 is commit `7a116466434ae5e6d0040644d43901201d1405bc`, the direct
+child of Task 153, and changes exactly `README.md` plus this acceptance record.
+
+Task 155 is documentation-only and does not amend Task 152, Task 153, Task
+154, or any other prior commit. It neither states nor anticipates its own
+commit SHA.
