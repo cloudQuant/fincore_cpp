@@ -55,6 +55,21 @@ independent review returned Spec **PASS** and Task-Quality **PASS**, each with
 Critical/Important/Minor `0/0/0`; it made no workspace edit and required no
 correction.
 
+The initial Task 142 acceptance commit is
+`84f969ddc181b3cafcd30ea3aa6723022fbdbfda` (`docs: accept phase 33 common
+sense ratio`). It is the direct child of `759af93` and changes exactly:
+
+- `README.md`
+- `docs/acceptance/2026-08-13-phase-33-common-sense-ratio-acceptance.md`
+
+Thus the implementation and review-fix chain is
+`ae9f49d9a694faf1343f72769a2f2279421e1465` ->
+`759af93ecdc8cabad62d08c849fd6927ae44d504`, followed directly by the initial
+two-path acceptance `84f969ddc181b3cafcd30ea3aa6723022fbdbfda`.
+Task 143 adds only this historical trace to the acceptance document; it is
+documentation-only, does not amend any earlier commit, and neither states nor
+anticipates its own SHA.
+
 ## Exact public API and source mapping
 
 `<fincore/metrics/ratios.hpp>` declares exactly one new native symbol:
