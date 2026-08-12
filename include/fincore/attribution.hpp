@@ -5,3 +5,4 @@
 #include <fincore/attribution/factor_exposures.hpp>
 #include <fincore/attribution/factor_prediction.hpp>
 #include <fincore/attribution/factor_regression.hpp>
+#include <fincore/attribution/style.hpp>

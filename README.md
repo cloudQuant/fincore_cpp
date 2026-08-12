@@ -1585,3 +1585,57 @@ two-path percentile endpoints. This scope does not add PyMC, posterior
 sampling, a `Bayesian` class, `compute_consistency_score`, reports, or GUI
 runtime behavior. The ImPlot demo was compiled/linked and checked for
 build-root existence/executability only; it was never launched.
+
+## Accepted Phase 29 native Style Analysis core
+
+`<fincore/attribution.hpp>` exports the deterministic, DataFrame-native
+counterpart to Python `fincore.attribution.style.style_analysis`:
+
+```cpp
+const fincore::style_analysis_result result = fincore::style_analysis(
+    asset_returns,
+    {.market_caps = market_caps,
+     .value_scores = value_scores,
+     .momentum_window = 5U,
+     .size_quantiles = {.3, .7}});
+```
+
+The input is a time-by-asset DataFrame: raw rows are observations and every
+genuine `double` column is an asset. Optional market-cap, book-to-price, and
+value-score spans map positionally to that stable column order; a supplied
+span must have one finite value per asset, and value scores take precedence
+over book-to-price. The defaults remain momentum window `252` and size
+quantiles `{.5,.5}`.
+
+The value-owning result contains three independent frames. `exposures` uses
+ordinal asset rows, a genuine string `asset` column, and ordered double style
+weights. With caps its style order is `large, mid, small, winner, loser,
+value, growth, high, low`; without caps, `equal_weight` replaces the three
+size columns. `returns_by_style` uses ordinal rows plus genuine string `style`
+and genuine double `return`. `overall_returns` preserves the exact raw input
+index—including duplicates and nonmonotonic values—and has one genuine double
+`return` column.
+
+Size uses linear percentiles, momentum compounds the last configured window,
+value uses a median split, and volatility matches pandas rolling width `60`,
+minimum `20`, population standard deviation. A short history can therefore
+produce zero-weight `high`/`low` styles whose summary return is `NaN`; input
+NaN or infinity is still rejected. Structural, non-double, malformed,
+nonfinite, mismatched-characteristic, invalid-quantile, arithmetic, and
+allocation boundaries raise `fincore::input_error`.
+
+Task 125 consists of implementation `9ff78501763a9d4090005df018002928aa4fb54f`
+and test hardening `9b7afab1efbacda8e2108ee26096e467a124f6bf`.
+Independent review concluded **Spec PASS / Task-Quality PASS** with
+Critical/Important/Minor `0/0/0`; the hardening locks default semantics,
+quantile ties, and 60-row rolling truncation without changing production.
+The Python oracle, real leaf/façade RED-GREEN records, current and fresh
+compiler/sanitizer gates, FetchContent provenance, and compile/link-only
+ImPlot evidence are recorded in [the Phase 29 acceptance
+record](docs/acceptance/2026-08-12-phase-29-style-analysis-core-acceptance.md).
+The ImPlot demo was checked for build-root existence/executability only and
+was never launched.
+
+This phase does not implement style tilts, regression attribution,
+performance-by-style, remote factor fetching/providers, SciPy optimization,
+reports, packaging/release work, or GUI runtime validation.
