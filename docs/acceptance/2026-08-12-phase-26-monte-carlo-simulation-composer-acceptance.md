@@ -169,6 +169,33 @@ return pre-cleaning, normal/correlated/LHS/bootstrap/stress changes, providers,
 reports, packaging/release work, or GUI runtime behavior. ImPlot evidence is
 compile/link-only; no GUI executable is launched.
 
-This document deliberately contains no Task 114 commit identifier. The
-independent Task 114 document/gate review remains required before staging and
-commit.
+## Acceptance trace
+
+The complete Task 113 implementation/fix chain is the single leaf commit
+`d8a808d1c547bf7788fae3861a560042082b0f88` (`feat: add native monte carlo
+simulation composer`), a direct child of the Phase 26 design/plan commit
+`23bf1ddee28ec6d62ac34aea40cef8c98f20a293`. It changes exactly:
+
+- `CMakeLists.txt`
+- `tests/CMakeLists.txt`
+- `include/fincore/simulation/monte_carlo.hpp`
+- `src/simulation/monte_carlo.cpp`
+- `tests/unit/monte_carlo_simulation_test.cpp`
+
+There is no Task 113 repair commit: the independent leaf review was **Spec
+PASS / Task-Quality PASS**, Critical/Important/Minor `0/0/0`.
+
+The direct Task 114 acceptance commit is
+`2333f82512fe4ba913fbffbd297da64ebc30ea6d` (`docs: accept phase 26 monte
+carlo simulation composer`), whose parent is the Task 113 leaf. It changes
+exactly:
+
+- `README.md`
+- `include/fincore/simulation.hpp`
+- `tests/CMakeLists.txt`
+- `tests/unit/monte_carlo_simulation_umbrella_test.cpp`
+- `docs/acceptance/2026-08-12-phase-26-monte-carlo-simulation-composer-acceptance.md`
+
+Task 115 is documentation-only: it records the trace without amending Task
+113 or Task 114, and makes no statement that names or anticipates its own
+commit identifier.
