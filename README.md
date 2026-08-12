@@ -1915,3 +1915,53 @@ This phase does not implement `mar_ratio`, `r_cubed`, `kappa_three_ratio`,
 adjusted or conditional Sharpe, calendar-resampled consecutive statistics,
 EVT, aliases, providers, reports, plots, packaging/release work, Python
 container adapters, or GUI runtime validation.
+
+## Accepted Phase 36 native R-cubed
+
+The Phase 36 route audit selected `r_cubed` as the smallest remaining
+Empyrical-registered, non-alias metric calculation whose numerical leaf is
+already native. This is deliberately narrower than a whole-package missing-
+name claim: the smaller market-correlation names are compatibility aliases for
+existing `safe_correlation`, while `simulation.base.annualize` is a standalone
+utility that is neither simulation-facade-exported nor Empyrical-registered.
+
+`<fincore/metrics.hpp>` now exposes exactly one native overload through its
+existing stats leaf:
+
+```cpp
+const double result = fincore::r_cubed(returns, benchmark);
+const double named =
+    fincore::r_cubed(returns, benchmark, "strategy", "market");
+```
+
+The implementation rejects embedded NUL in the returns selector and then the
+benchmark selector before any DataFrame access, invokes public
+`safe_correlation` exactly once, returns NaN when that leaf returns NaN, and
+otherwise returns the direct signed product
+`correlation * correlation * correlation`. It adds no alignment, filtering,
+variance, clamp, absolute-value, square, `std::pow`, or CAPM-R-squared logic.
+
+Timestamp intersection, left-input ordering, nonfinite-pair filtering,
+minimum-sample, and variance-threshold behavior therefore remain owned by the
+accepted public leaf. Python removes NaN pairs but leaves signed infinity to
+NumPy, whereas native `safe_correlation` filters every nonfinite pair; the
+fixed signed-infinity fixture consequently returns a finite native cube near
+`0.0015093140386221175` while Python returns NaN with one warning. This
+intentional compatibility boundary is mutation-locked.
+
+Task 152 design/plan commit `1bfadde` and Task 153 implementation commit
+`4df362c` form a direct two- then four-path chain. Final independent
+specification and task-quality reviews both concluded **PASS**, with
+Critical/Important/Minor `0/0/0`. The mandatory 14-case Anaconda source
+oracle, genuine dual-consumer missing-symbol RED, current `467/467` headless
+gates, and fresh compiler/sanitizer/graphics/provenance evidence are recorded
+in [the Phase 36 acceptance
+record](docs/acceptance/2026-08-13-phase-36-r-cubed-acceptance.md).
+The ImPlot evidence is compile/link plus adapter-test evidence only; its demo
+was not run and no GUI was launched.
+
+This phase does not add market-correlation aliases,
+`simulation.base.annualize`, `kappa_three_ratio`, adjusted or conditional
+Sharpe, `mar_ratio`, calendar-resampled consecutive statistics, EVT,
+providers, reports, plots, packages, Python container adapters, or GUI runtime
+validation.
