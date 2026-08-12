@@ -2,6 +2,7 @@
 
 #include <fincore/error.hpp>
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -13,6 +14,7 @@
 #include <random>
 #include <stdexcept>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -27,6 +29,12 @@ struct output_shape {
 struct propagation_terms {
     double drift_per_step;
     double diffusion_scale;
+};
+
+struct antithetic_source_column {
+    std::string name;
+    std::string mirror_name;
+    std::vector<double> values;
 };
 
 void require_finite(const double value, const char* const message) {
@@ -131,6 +139,84 @@ std::vector<timestamp> make_ordinal_index(const std::size_t row_count) {
 
 std::string path_name(const std::size_t path_number) {
     return std::string{gbm_path_column_prefix} + std::to_string(path_number);
+}
+
+void validate_antithetic_output_shape(const std::size_t row_count,
+                                      const std::size_t source_column_count) {
+    if (source_column_count == 0U ||
+        source_column_count > std::numeric_limits<std::size_t>::max() / 2U) {
+        throw input_error{"antithetic path column count is not representable"};
+    }
+
+    const std::size_t output_column_count = source_column_count * 2U;
+    if (row_count > std::vector<timestamp>{}.max_size() ||
+        row_count > std::vector<double>{}.max_size() ||
+        source_column_count > std::vector<antithetic_source_column>{}.max_size() ||
+        output_column_count > std::vector<std::string>{}.max_size()) {
+        throw input_error{"antithetic path output allocation is not representable"};
+    }
+    if (output_column_count > std::numeric_limits<std::size_t>::max() / row_count) {
+        throw input_error{"antithetic path output cell count is not representable"};
+    }
+    const std::size_t output_cell_count = row_count * output_column_count;
+    if (output_cell_count > std::vector<double>{}.max_size()) {
+        throw input_error{"antithetic path output allocation is not representable"};
+    }
+}
+
+std::string antithetic_path_name(const std::string& source_name) {
+    // DataFrame stores column names in a fixed-size, NUL-terminated type.
+    // Require the full derived name to fit so neither its identity nor the
+    // collision check can be silently changed by truncation.
+    const std::size_t dataframe_name_capacity =
+        dataframe::ColNameType::capacity();
+    if (dataframe_name_capacity == 0U ||
+        source_name.size() >= dataframe_name_capacity ||
+        antithetic_path_column_prefix.size() >=
+            dataframe_name_capacity - source_name.size()) {
+        throw input_error{"antithetic path column name is not representable"};
+    }
+    return std::string{antithetic_path_column_prefix} + source_name;
+}
+
+std::vector<antithetic_source_column> materialize_antithetic_sources(
+    const dataframe& paths) {
+    const auto& index = paths.get_index();
+    if (index.empty()) {
+        throw input_error{"antithetic paths must have a nonempty index"};
+    }
+
+    const auto shape = paths.shape();
+    const auto double_columns = paths.get_columns_info<double>();
+    if (shape.second == 0U || double_columns.size() != shape.second) {
+        throw input_error{"antithetic paths must contain only double columns"};
+    }
+    validate_antithetic_output_shape(index.size(), double_columns.size());
+
+    std::vector<antithetic_source_column> sources;
+    sources.reserve(double_columns.size());
+    std::vector<std::string> source_names;
+    source_names.reserve(double_columns.size());
+    for (const auto& info : double_columns) {
+        std::string name{std::get<0>(info).c_str()};
+        const auto& values = paths.get_column<double>(name.c_str());
+        if (values.size() != index.size()) {
+            throw input_error{
+                "antithetic path columns must match the frame index length"};
+        }
+        source_names.push_back(name);
+        sources.push_back({std::move(name), {},
+                           std::vector<double>{values.begin(), values.end()}});
+    }
+
+    for (auto& source : sources) {
+        source.mirror_name = antithetic_path_name(source.name);
+        if (std::find(source_names.begin(), source_names.end(), source.mirror_name) !=
+            source_names.end()) {
+            throw input_error{"antithetic path column name collides with input"};
+        }
+    }
+    return sources;
 }
 
 void validate_latin_hypercube_shape(const std::size_t sample_count,
@@ -379,6 +465,38 @@ dataframe latin_hypercube_sampling(
         throw input_error{"Latin-hypercube output allocation failed"};
     } catch (const std::length_error&) {
         throw input_error{"Latin-hypercube output allocation is not representable"};
+    }
+}
+
+dataframe antithetic_variates(const dataframe& paths) {
+    try {
+        const std::vector<antithetic_source_column> sources =
+            materialize_antithetic_sources(paths);
+        const auto& source_index = paths.get_index();
+        const double initial_value = sources.front().values.front();
+
+        dataframe result;
+        result.load_index(
+            std::vector<timestamp>{source_index.begin(), source_index.end()});
+        for (const auto& source : sources) {
+            result.load_column<double>(source.name.c_str(), source.values,
+                                       hmdf::nan_policy::dont_pad_with_nans);
+        }
+        for (const auto& source : sources) {
+            std::vector<double> mirror_values;
+            mirror_values.reserve(source.values.size());
+            for (const double value : source.values) {
+                mirror_values.push_back(2.0 * initial_value - value);
+            }
+            result.load_column<double>(source.mirror_name.c_str(),
+                                       std::move(mirror_values),
+                                       hmdf::nan_policy::dont_pad_with_nans);
+        }
+        return result;
+    } catch (const std::bad_alloc&) {
+        throw input_error{"antithetic path output allocation failed"};
+    } catch (const std::length_error&) {
+        throw input_error{"antithetic path output allocation is not representable"};
     }
 }
 

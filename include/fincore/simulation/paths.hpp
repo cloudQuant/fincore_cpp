@@ -12,6 +12,8 @@ namespace fincore {
 inline constexpr std::string_view gbm_path_column_prefix{"path_"};
 inline constexpr std::string_view latin_hypercube_dimension_column_prefix{
     "lhs_dimension_"};
+inline constexpr std::string_view antithetic_path_column_prefix{
+    "antithetic_"};
 
 dataframe latin_hypercube_sampling(
     std::size_t sample_count,
@@ -34,5 +36,7 @@ dataframe gbm_from_returns(
     std::size_t periods_per_year = 252U,
     std::optional<std::uint64_t> seed = std::nullopt,
     std::string_view column = returns_column);
+
+dataframe antithetic_variates(const dataframe& paths);
 
 }  // namespace fincore
