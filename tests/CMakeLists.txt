@@ -48,6 +48,7 @@ add_executable(fincore_tests
     unit/stress_scenarios_test.cpp
     unit/correlation_breakdown_test.cpp
     unit/simulation_parameters_test.cpp
+    unit/bootstrap_distribution_test.cpp
     unit/gbm_paths_test.cpp
     unit/simulation_gbm_paths_umbrella_test.cpp
     unit/simulation_gbm_from_returns_umbrella_test.cpp

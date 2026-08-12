@@ -49,6 +49,7 @@ add_library(fincore
     src/simulation/correlation.cpp
     src/simulation/parameters.cpp
     src/simulation/paths.cpp
+    src/simulation/bootstrap.cpp
     src/analysis_context.cpp
     src/rolling_engine.cpp)
 add_library(fincore::fincore ALIAS fincore)
