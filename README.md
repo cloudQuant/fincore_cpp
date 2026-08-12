@@ -1867,3 +1867,51 @@ never run and no GUI was launched.
 This phase does not implement `mar_ratio`, adjusted or conditional Sharpe,
 weekly/monthly consecutive statistics, EVT, aliases, providers, plots,
 reports, packaging/release work, or GUI runtime validation.
+
+## Accepted Phase 35 native trading value at risk
+
+The Phase 35 route audit first considered `mar_ratio`, then selected the
+smaller dependency-closed public gap
+`fincore.metrics.risk.trading_value_at_risk`. The apparently smaller
+`loss_rate` was again confirmed already declared, implemented,
+facade-exported, and tested.
+
+`<fincore/metrics.hpp>` exposes exactly one new native overload through its
+existing risk leaf:
+
+```cpp
+const double result = fincore::trading_value_at_risk(returns);
+const double named =
+    fincore::trading_value_at_risk(returns, 1.0, "strategy");
+```
+
+Python's `period` parameter is completely unused and is deliberately omitted
+from the native API. The implementation rejects an embedded-NUL selector
+before any DataFrame C-string boundary, validates the selected genuine-double
+column before the raw two-row shortcut, computes the raw arithmetic mean and
+sample standard deviation, then returns `mean - sigma * standard_deviation`
+directly. It performs no filtering, annualization, sigma validation,
+zero-deviation special case, or nonfinite clamp.
+
+Consequently NaN and raw signed infinity are not cleaned; zero multiplied by
+signed infinity remains NaN; negative, zero, NaN, and signed-infinite `sigma`
+values retain direct IEEE behavior; and legitimate final signed infinity is
+preserved. Native overflow, cancellation, and reduction order come from the
+accepted `detail::mean` and `detail::sample_variance` helpers rather than a
+private NumPy-compatible reduction.
+
+Task 148 design/plan commit `a9d695e` and Task 149 implementation commit
+`e52d288` form a direct two- then four-path chain. Final independent
+specification and task-quality reviews both concluded **PASS**, with
+Critical/Important/Minor `0/0/0`. The mandatory 19-case Anaconda source
+oracle, genuine dual-consumer missing-symbol RED, current `457/457` headless
+gates, and fresh compiler/sanitizer/graphics/provenance evidence are recorded
+in [the Phase 35 acceptance
+record](docs/acceptance/2026-08-13-phase-35-trading-value-at-risk-acceptance.md).
+The ImPlot gate is compile/link plus adapter-test evidence only; its demo was
+not run and no GUI was launched.
+
+This phase does not implement `mar_ratio`, `r_cubed`, `kappa_three_ratio`,
+adjusted or conditional Sharpe, calendar-resampled consecutive statistics,
+EVT, aliases, providers, reports, plots, packaging/release work, Python
+container adapters, or GUI runtime validation.
