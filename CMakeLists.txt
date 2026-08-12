@@ -46,6 +46,7 @@ add_library(fincore
     src/attribution/factor_exposures.cpp
     src/attribution/factor_attribution.cpp
     src/attribution/factor_prediction.cpp
+    src/attribution/style.cpp
     src/simulation/scenarios.cpp
     src/simulation/correlation.cpp
     src/simulation/parameters.cpp
