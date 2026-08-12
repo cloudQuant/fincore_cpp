@@ -107,3 +107,24 @@ normal/correlated transformations, LHS, GBM, bootstrap, a caller-provided or
 global RNG, NumPy random-stream parity, providers, reports, packaging/release,
 or GUI runtime validation. The ImPlot evidence is compile/link-only; no GUI
 was launched.
+
+## Acceptance trace
+
+The Phase 24 implementation chain is:
+
+- Task 103 design and executable plan:
+  `687cd63e8fefa5f1fd25bf797dc1f72ae4468dcc`, changing only the Phase 24
+  design and plan documents.
+- Task 104 implementation:
+  `0f7ea3d39ba1444bc350e5d063df2612892774d2`, its direct child, changing
+  exactly `include/fincore/simulation/paths.hpp`,
+  `src/simulation/paths.cpp`, `tests/CMakeLists.txt`,
+  `tests/unit/antithetic_variates_test.cpp`, and
+  `tests/unit/simulation_antithetic_variates_umbrella_test.cpp`.
+- Task 105 initial acceptance:
+  `9682ab68975fe861201c61a4ad067a90c6d90e68`, the direct child of Task 104,
+  changing exactly `README.md` and this acceptance document.
+
+Task 106 is documentation-only. It records this trace in a new commit without
+amending Task 103, Task 104, or Task 105, and makes no claim about its own
+commit identifier.
