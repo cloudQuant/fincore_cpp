@@ -74,6 +74,21 @@ TEST(MetricsUmbrella, ExposesOnlyImplementedDataframeNativeMetrics) {
   EXPECT_TRUE(std::isfinite(fincore::downside_risk(returns)));
   EXPECT_TRUE(std::isfinite(fincore::win_rate(returns)));
 
+  const double common_sense_tail = fincore::tail_ratio(returns);
+  const double common_sense_win_rate = fincore::win_rate(returns);
+  EXPECT_NEAR(fincore::common_sense_ratio(returns),
+              common_sense_tail * common_sense_win_rate /
+                  (1.0 - common_sense_win_rate),
+              1e-12);
+
+  const auto common_sense_with_zeros = fincore::make_series(
+      std::vector<fincore::timestamp>{1, 2, 3, 4, 5}, "returns",
+      std::vector<double>{.01, 0., -.02, .03, 0.});
+  const double zero_tail = fincore::tail_ratio(common_sense_with_zeros);
+  const double zero_win_rate = fincore::win_rate(common_sense_with_zeros);
+  EXPECT_NEAR(fincore::common_sense_ratio(common_sense_with_zeros),
+              zero_tail * zero_win_rate / (1.0 - zero_win_rate), 1e-12);
+
   const std::vector<fincore::drawdown_period> detailed_drawdowns =
       fincore::get_all_drawdowns_detailed(returns);
   EXPECT_FALSE(detailed_drawdowns.empty());

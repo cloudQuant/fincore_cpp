@@ -1,6 +1,8 @@
 #include <fincore/metrics/ratios.hpp>
 
 #include <fincore/detail/numeric.hpp>
+#include <fincore/metrics/risk.hpp>
+#include <fincore/metrics/stats.hpp>
 
 #include <cmath>
 #include <limits>
@@ -202,6 +204,26 @@ double calmar_ratio(const dataframe& returns,
     }
     return finite_quotient(annual_return(returns, annualization, column) - risk_free,
                            std::fabs(maximum_drawdown));
+}
+
+double common_sense_ratio(const dataframe& returns, std::string_view column) {
+    if (column.find('\0') != std::string_view::npos) {
+        throw input_error{"column name must not contain an embedded NUL"};
+    }
+    if (require_double_column(returns, column).size() < 2) {
+        return nan;
+    }
+
+    const double return_tail_ratio = tail_ratio(returns, column);
+    const double return_win_rate = win_rate(returns, column);
+    if (std::isnan(return_tail_ratio) || std::isnan(return_win_rate) ||
+        return_win_rate == 0.0) {
+        return nan;
+    }
+    if (return_win_rate == 1.0) {
+        return std::numeric_limits<double>::infinity();
+    }
+    return return_tail_ratio * return_win_rate / (1.0 - return_win_rate);
 }
 
 double excess_sharpe(const dataframe& returns,

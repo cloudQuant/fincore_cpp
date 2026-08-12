@@ -22,6 +22,9 @@ double calmar_ratio(const dataframe& returns,
                     double annualization = daily_annualization,
                     std::string_view column = returns_column);
 
+double common_sense_ratio(const dataframe& returns,
+                          std::string_view column = returns_column);
+
 double excess_sharpe(const dataframe& returns,
                      const dataframe& benchmark,
                      std::string_view returns_column_name = returns_column,
