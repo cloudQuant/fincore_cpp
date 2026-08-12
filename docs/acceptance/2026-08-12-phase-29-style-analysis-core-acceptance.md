@@ -23,8 +23,31 @@ truncation. Direct follow-up
 
 Task 126 adds no style implementation or numerical change. Its tracked scope
 is limited to README, the attribution façade, CTest registration, a façade-only
-consumer, and this acceptance record. This document intentionally does not
-name or anticipate Task 126's SHA; Task 127 records that trace later.
+consumer, and this acceptance record. The Task 127 trace below records that
+accepted commit without naming or anticipating Task 127 itself.
+
+## Accepted commit trace
+
+The complete implementation and review-fix chain is:
+
+1. Task 125 implementation
+   `9ff78501763a9d4090005df018002928aa4fb54f`, with exactly
+   `CMakeLists.txt`, `tests/CMakeLists.txt`,
+   `include/fincore/attribution/style.hpp`,
+   `src/attribution/style.cpp`, and `tests/unit/style_analysis_test.cpp`.
+2. Task 125 test-only review fix
+   `9b7afab1efbacda8e2108ee26096e467a124f6bf`, with exactly
+   `tests/unit/style_analysis_test.cpp`.
+3. Task 126 initial acceptance
+   `33ee100e6cba5dc9e662806da1564bf2177d19d0`, the direct child of the
+   Task 125 review fix, with exactly `README.md`,
+   `include/fincore/attribution.hpp`, `tests/CMakeLists.txt`,
+   `tests/unit/attribution_style_analysis_umbrella_test.cpp`, and this
+   acceptance document.
+
+Task 127 is documentation-only, changes only this acceptance document, and
+does not amend any earlier commit. To remain non-self-referential, this record
+does not state or anticipate Task 127's own SHA.
 
 ## Public contract and pandas-to-DataFrame mapping
 
