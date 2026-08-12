@@ -13,6 +13,7 @@
 #include <string>
 #include <string_view>
 #include <tuple>
+#include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <vector>
@@ -409,6 +410,261 @@ style_analysis_result style_analysis_impl(const dataframe& asset_returns,
                               inputs.asset_returns, std::move(styles));
 }
 
+struct performance_returns {
+    std::vector<std::string> asset_names;
+    std::vector<std::span<const double>> values;
+    std::size_t row_count;
+};
+
+struct performance_style {
+    std::string output_name;
+    std::vector<double> aligned_weights;
+};
+
+[[nodiscard]] bool is_empty_shaped(const dataframe& frame) {
+    const auto shape = frame.shape();
+    return shape.first == 0U || shape.second == 0U;
+}
+
+std::string copy_external_name(const dataframe::ColNameType& raw_name,
+                               const char* const empty_message,
+                               const char* const nul_message) {
+    const std::string name{raw_name.begin(), raw_name.end()};
+    if (name.empty()) {
+        throw input_error{empty_message};
+    }
+    if (name.find('\0') != std::string::npos) {
+        throw input_error{nul_message};
+    }
+    return name;
+}
+
+performance_returns validate_performance_returns(const dataframe& asset_returns) {
+    const auto& index = asset_returns.get_index();
+    const auto shape = asset_returns.shape();
+    const auto double_columns = asset_returns.get_columns_info<double>();
+    if (shape.first != index.size() || double_columns.size() != shape.second) {
+        throw input_error{
+            "style performance returns must contain only double columns"};
+    }
+    if (index.size() - 1U > static_cast<std::size_t>(
+                               std::numeric_limits<timestamp>::max())) {
+        throw input_error{"style performance ordinal index is not representable"};
+    }
+    if (index.size() > std::vector<timestamp>{}.max_size() ||
+        double_columns.size() > std::vector<std::string>{}.max_size() ||
+        double_columns.size() >
+            std::vector<std::span<const double>>{}.max_size()) {
+        throw input_error{"style performance returns are not representable"};
+    }
+
+    performance_returns result;
+    result.row_count = index.size();
+    result.asset_names.reserve(double_columns.size());
+    result.values.reserve(double_columns.size());
+    std::unordered_set<std::string> seen_names;
+    seen_names.reserve(double_columns.size());
+    for (const auto& info : double_columns) {
+        std::string name = copy_external_name(
+            std::get<0>(info),
+            "style performance return asset names must not be empty",
+            "style performance return asset names must not contain an embedded NUL");
+        if (!seen_names.insert(name).second) {
+            throw input_error{
+                "style performance return asset names must be distinct"};
+        }
+        const auto& values = asset_returns.get_column<double>(name.c_str());
+        if (values.size() != index.size()) {
+            throw input_error{
+                "style performance return columns must match the frame index length"};
+        }
+        require_finite_values(values,
+                              "style performance returns must be finite");
+        result.asset_names.push_back(std::move(name));
+        result.values.emplace_back(values.data(), values.size());
+    }
+    return result;
+}
+
+std::string performance_output_name(const std::string& style_name) {
+    constexpr std::string_view suffix{"_return"};
+    const std::size_t capacity = dataframe::ColNameType::capacity();
+    if (capacity == 0U || style_name.size() >= capacity ||
+        suffix.size() >= capacity - style_name.size()) {
+        throw input_error{
+            "style performance output column name is not representable"};
+    }
+    return style_name + std::string{suffix};
+}
+
+std::vector<performance_style> validate_and_align_performance_styles(
+    const dataframe& style_exposures,
+    const std::vector<std::string>& return_asset_names) {
+    const auto& index = style_exposures.get_index();
+    const auto shape = style_exposures.shape();
+    const auto string_columns = style_exposures.get_columns_info<std::string>();
+    const auto double_columns = style_exposures.get_columns_info<double>();
+    if (shape.first != index.size() || string_columns.size() != 1U ||
+        double_columns.empty() ||
+        string_columns.size() + double_columns.size() != shape.second) {
+        throw input_error{
+            "style performance exposures must contain one asset string column and double style columns"};
+    }
+    for (std::size_t row{0U}; row < index.size(); ++row) {
+        if (row > static_cast<std::size_t>(
+                      std::numeric_limits<timestamp>::max()) ||
+            index[row] != static_cast<timestamp>(row)) {
+            throw input_error{
+                "style performance exposure index must be ordinal"};
+        }
+    }
+
+    const std::string asset_column_name = copy_external_name(
+        std::get<0>(string_columns.front()),
+        "style performance exposure asset column must not be empty",
+        "style performance exposure asset column must not contain an embedded NUL");
+    if (asset_column_name != style_asset_column) {
+        throw input_error{
+            "style performance exposures must contain exactly one asset string column"};
+    }
+    const auto& asset_identities =
+        style_exposures.get_column<std::string>(asset_column_name.c_str());
+    if (asset_identities.size() != index.size()) {
+        throw input_error{
+            "style performance exposure asset identities must match the frame index length"};
+    }
+
+    std::unordered_map<std::string, std::size_t> exposure_rows;
+    exposure_rows.reserve(asset_identities.size());
+    for (std::size_t row{0U}; row < asset_identities.size(); ++row) {
+        const std::string& identity = asset_identities[row];
+        if (identity.empty()) {
+            throw input_error{
+                "style performance exposure asset identities must not be empty"};
+        }
+        if (identity.find('\0') != std::string::npos) {
+            throw input_error{
+                "style performance exposure asset identities must not contain an embedded NUL"};
+        }
+        if (!exposure_rows.emplace(identity, row).second) {
+            throw input_error{
+                "style performance exposure asset identities must be distinct"};
+        }
+    }
+
+    if (double_columns.size() > std::vector<performance_style>{}.max_size()) {
+        throw input_error{"style performance style count is not representable"};
+    }
+    if (!return_asset_names.empty() &&
+        double_columns.size() >
+            std::vector<double>{}.max_size() / return_asset_names.size()) {
+        throw input_error{"style performance aligned weights are not representable"};
+    }
+
+    std::vector<performance_style> styles;
+    styles.reserve(double_columns.size());
+    std::unordered_set<std::string> output_names;
+    output_names.reserve(double_columns.size());
+    for (const auto& info : double_columns) {
+        const std::string style_name = copy_external_name(
+            std::get<0>(info),
+            "style performance style names must not be empty",
+            "style performance style names must not contain an embedded NUL");
+        const std::string output_name = performance_output_name(style_name);
+        if (!output_names.insert(output_name).second) {
+            throw input_error{
+                "style performance output column names must be distinct"};
+        }
+
+        const auto& raw_weights =
+            style_exposures.get_column<double>(style_name.c_str());
+        if (raw_weights.size() != index.size()) {
+            throw input_error{
+                "style performance style columns must match the frame index length"};
+        }
+        require_finite_values(raw_weights,
+                              "style performance weights must be finite");
+
+        std::vector<double> aligned_weights(return_asset_names.size(), 0.0);
+        double total{0.0};
+        for (std::size_t asset{0U}; asset < return_asset_names.size(); ++asset) {
+            const auto found = exposure_rows.find(return_asset_names[asset]);
+            if (found != exposure_rows.end()) {
+                aligned_weights[asset] = raw_weights[found->second];
+            }
+            total += aligned_weights[asset];
+            require_finite(total,
+                           "style performance aligned weight total is not finite");
+        }
+        if (total > 0.0) {
+            for (double& weight : aligned_weights) {
+                weight /= total;
+                require_finite(
+                    weight,
+                    "style performance normalized weight is not finite");
+            }
+        } else {
+            std::fill(aligned_weights.begin(), aligned_weights.end(), 0.0);
+        }
+        styles.push_back({output_name, std::move(aligned_weights)});
+    }
+    return styles;
+}
+
+void validate_performance_output_shape(const std::size_t row_count,
+                                       const std::size_t style_count) {
+    if (row_count > std::vector<double>{}.max_size() ||
+        style_count > std::vector<std::vector<double>>{}.max_size()) {
+        throw input_error{"style performance output is not representable"};
+    }
+    if (row_count != 0U &&
+        style_count > std::vector<double>{}.max_size() / row_count) {
+        throw input_error{"style performance output is not representable"};
+    }
+}
+
+dataframe analyze_performance_by_style_impl(
+    const dataframe& asset_returns,
+    const dataframe& style_exposures) {
+    if (is_empty_shaped(asset_returns) || is_empty_shaped(style_exposures) ||
+        style_exposures.get_columns_info<double>().empty()) {
+        return {};
+    }
+
+    const auto returns = validate_performance_returns(asset_returns);
+    auto styles = validate_and_align_performance_styles(
+        style_exposures, returns.asset_names);
+    validate_performance_output_shape(returns.row_count, styles.size());
+
+    std::vector<std::vector<double>> style_returns(styles.size());
+    for (std::size_t style{0U}; style < styles.size(); ++style) {
+        auto& output = style_returns[style];
+        output.reserve(returns.row_count);
+        for (std::size_t row{0U}; row < returns.row_count; ++row) {
+            double row_return{0.0};
+            for (std::size_t asset{0U}; asset < returns.values.size(); ++asset) {
+                const double product =
+                    returns.values[asset][row] * styles[style].aligned_weights[asset];
+                require_finite(product,
+                               "style performance weighted product is not finite");
+                row_return += product;
+                require_finite(row_return,
+                               "style performance row return is not finite");
+            }
+            output.push_back(row_return);
+        }
+    }
+
+    dataframe result;
+    result.load_index(ordinal_index(returns.row_count));
+    for (std::size_t style{0U}; style < styles.size(); ++style) {
+        result.load_column<double>(styles[style].output_name.c_str(),
+                                   std::move(style_returns[style]),
+                                   hmdf::nan_policy::dont_pad_with_nans);
+    }
+    return result;
+}
+
 }  // namespace
 
 style_analysis_result style_analysis(const dataframe& asset_returns,
@@ -419,6 +675,42 @@ style_analysis_result style_analysis(const dataframe& asset_returns,
         throw input_error{"style analysis allocation failed"};
     } catch (const std::length_error&) {
         throw input_error{"style analysis allocation is not representable"};
+    }
+}
+
+dataframe analyze_performance_by_style(const dataframe& asset_returns) {
+    try {
+        if (is_empty_shaped(asset_returns)) {
+            return {};
+        }
+        const style_analysis_result analysis = style_analysis(asset_returns);
+        return analyze_performance_by_style(asset_returns, analysis.exposures);
+    } catch (const input_error&) {
+        throw;
+    } catch (const std::bad_alloc&) {
+        throw input_error{"style performance allocation failed"};
+    } catch (const std::length_error&) {
+        throw input_error{
+            "style performance allocation is not representable"};
+    } catch (const std::exception&) {
+        throw input_error{"style performance input is malformed"};
+    }
+}
+
+dataframe analyze_performance_by_style(const dataframe& asset_returns,
+                                       const dataframe& style_exposures) {
+    try {
+        return analyze_performance_by_style_impl(asset_returns,
+                                                 style_exposures);
+    } catch (const input_error&) {
+        throw;
+    } catch (const std::bad_alloc&) {
+        throw input_error{"style performance allocation failed"};
+    } catch (const std::length_error&) {
+        throw input_error{
+            "style performance allocation is not representable"};
+    } catch (const std::exception&) {
+        throw input_error{"style performance input is malformed"};
     }
 }
 

@@ -42,4 +42,11 @@ struct style_analysis_result {
     const dataframe& asset_returns,
     const style_analysis_options& options = {});
 
+[[nodiscard]] dataframe analyze_performance_by_style(
+    const dataframe& asset_returns);
+
+[[nodiscard]] dataframe analyze_performance_by_style(
+    const dataframe& asset_returns,
+    const dataframe& style_exposures);
+
 }  // namespace fincore
