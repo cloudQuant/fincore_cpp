@@ -1343,6 +1343,47 @@ release, or GUI runtime feature. Fresh AppleClang, LLVM ASan+UBSan, configured
 CTest, ImPlot compile/link-only, and invalid-ImGui evidence is recorded in
 [the Phase 23 acceptance record](docs/acceptance/2026-08-12-phase-23-latin-hypercube-sampling-acceptance.md).
 
+## Accepted Phase 24 antithetic path transform
+
+The existing simulation façade already includes the paths leaf, so it
+automatically exposes the native antithetic transform without a redundant
+`simulation.hpp` change:
+
+```cpp
+#include <fincore/simulation.hpp>
+
+const fincore::dataframe doubled = fincore::antithetic_variates(paths);
+```
+
+For a time-indexed input with genuine-`double` columns `path_0`, `path_1`,
+the result owns the exact raw index (including unordered or duplicate
+timestamps), then contains `path_0`, `path_1`, `antithetic_path_0`, and
+`antithetic_path_1` in that order. It copies the original columns and mirrors
+each source value as `2.0 * initial - value`, where `initial` is the first
+value of the first source column. This is the established native transpose of
+Python's path-major row operation.
+
+The leaf requires a nonempty table whose every data column is a genuine
+index-length `double` column. It rejects empty, mixed/non-double, malformed,
+derived-name-colliding, or nonrepresentable output shapes with
+`fincore::input_error`. It rejects derived names that DataFrame cannot store
+without truncation. It deliberately preserves ordinary IEEE NaN, infinity,
+and overflow arithmetic—there is no sort, deduplication, finite-value filter,
+or clamping.
+
+The Phase 24 source oracle, public-header RED/GREEN, independent review,
+configured CTest (`51/51` focused; `359/359` full), AppleClang, LLVM 22
+ASan+UBSan, ImPlot compile/link-only, FetchContent provenance, and invalid
+ImGui evidence are recorded in
+[the Phase 24 acceptance record](docs/acceptance/2026-08-12-phase-24-antithetic-path-transform-acceptance.md).
+The ImPlot demo executable was checked only for build-root existence and
+executability; it was not launched.
+
+This acceptance does not introduce Monte Carlo or `SimResult`, normal or
+correlated transforms, a caller RNG, LHS/GBM/bootstrap changes, providers,
+reports, packaging/release work, full NumPy stream parity, or GUI runtime
+validation.
+
 ## Accepted Phase 11 native stress scenarios
 
 `<fincore/simulation.hpp>` exports only the deterministic, DataFrame-native
