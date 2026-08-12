@@ -81,6 +81,29 @@ double historical_value_at_risk(const dataframe &returns, double cutoff,
   return percentile({values.begin(), values.end()}, cutoff);
 }
 
+double var_excess_return(const dataframe& returns, double cutoff,
+                         double risk_free, frequency period,
+                         std::optional<double> annualization,
+                         std::string_view column) {
+  if (column.find('\0') != std::string_view::npos) {
+    throw input_error{"column name must not contain an embedded NUL"};
+  }
+  const auto values = require_double_column(returns, column);
+  if (values.size() < 2) {
+    return nan;
+  }
+
+  const double factor = annualization_factor(period, annualization);
+  const double annualized_return = annual_return(returns, factor, column);
+  const double value_at_risk =
+      historical_value_at_risk(returns, cutoff, column);
+  if (value_at_risk == 0.0 || std::isnan(value_at_risk) ||
+      std::isnan(annualized_return)) {
+    return nan;
+  }
+  return (annualized_return - risk_free) / std::abs(value_at_risk);
+}
+
 double conditional_value_at_risk(const dataframe &returns, double cutoff,
                                  std::string_view column) {
   const auto values = require_double_column(returns, column);

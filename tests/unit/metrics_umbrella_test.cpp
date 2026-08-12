@@ -11,10 +11,20 @@
 #include <string>
 #include <tuple>
 #include <typeindex>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
 namespace {
+
+using var_excess_return_signature =
+    double (*)(const fincore::dataframe&, double, double, fincore::frequency,
+               std::optional<double>, std::string_view);
+
+static_assert(std::is_same_v<
+              decltype(static_cast<var_excess_return_signature>(
+                  &fincore::var_excess_return)),
+              var_excess_return_signature>);
 
 std::vector<fincore::timestamp> twelve_indices() {
   std::vector<fincore::timestamp> result;
@@ -74,6 +84,13 @@ TEST(MetricsUmbrella, ExposesOnlyImplementedDataframeNativeMetrics) {
   EXPECT_TRUE(std::isfinite(fincore::sharpe_ratio(returns)));
   EXPECT_TRUE(std::isfinite(fincore::downside_risk(returns)));
   EXPECT_TRUE(std::isfinite(fincore::win_rate(returns)));
+
+  const double var_excess_return_var =
+      fincore::historical_value_at_risk(returns);
+  EXPECT_NEAR(fincore::var_excess_return(returns),
+              fincore::annual_return(returns) /
+                  std::abs(var_excess_return_var),
+              1e-12);
 
   const double common_sense_tail = fincore::tail_ratio(returns);
   const double common_sense_win_rate = fincore::win_rate(returns);
