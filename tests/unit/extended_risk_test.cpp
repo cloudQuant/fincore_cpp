@@ -173,6 +173,15 @@ TEST(ExtendedRisk, ReturnsNanForUndefinedVarExcessReturnInputs) {
       fincore::var_excess_return(negative_infinite_return)));
 }
 
+TEST(ExtendedRisk, ReturnsNanForNondegenerateZeroValueAtRisk) {
+  const auto returns =
+      fincore::make_series({1, 2}, "returns", {0.0, 0.1});
+
+  EXPECT_GT(fincore::annual_return(returns), 0.0);
+  EXPECT_DOUBLE_EQ(fincore::historical_value_at_risk(returns, 0.0), 0.0);
+  EXPECT_TRUE(std::isnan(fincore::var_excess_return(returns, 0.0)));
+}
+
 TEST(ExtendedRisk, PreservesDirectIeeeVarExcessReturnArithmetic) {
   const auto returns = fincore::make_series(
       {1, 2, 3, 4}, "returns", {.10, -.05, .02, -.01});
