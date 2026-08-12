@@ -1768,3 +1768,52 @@ never run and no GUI was launched.
 This phase does not add an exposure-value regression, OLS or another solver,
 factor fetching/providers, Python/pandas embedding, plots or reports,
 packaging/release work, or GUI runtime validation.
+
+## Accepted Phase 33 native common-sense ratio
+
+The Phase 32 audit closed every successful local public calculation path in
+Python `fincore.attribution.style`: native code now covers style analysis,
+performance by style, rolling style tilts, and correlation attribution. The
+remaining `StyleResult` helpers are Python container conveniences, while
+`fetch_style_factors` is an always-failing provider stub; neither is a missing
+local calculation API. Phase 33 therefore leaves the style route and selects
+the smallest useful dependency-closed package gap.
+
+`<fincore/metrics.hpp>` now exposes one native symbol through its existing
+ratio leaf:
+
+```cpp
+const double result = fincore::common_sense_ratio(returns);
+const double named = fincore::common_sense_ratio(returns, "strategy");
+```
+
+The implementation rejects embedded-NUL selectors before a DataFrame C-string
+boundary, validates a genuine-double column before applying the raw two-row
+minimum, then calls the accepted public `tail_ratio` and `win_rate` exactly
+once each. A NaN delegate or zero win rate returns NaN; a win rate of one
+returns positive infinity; every other result is the direct IEEE expression
+`tail_ratio * win_rate / (1 - win_rate)` without a finite clamp.
+
+This deliberately composes the accepted native finite-filter policy. Python
+drops NaN but retains signed infinity, so its percentile path returns NaN for
+the recorded infinity fixtures. Native `tail_ratio` and `win_rate` drop all
+nonfinite observations, and both signed-infinity fixtures therefore return
+`3.294117647058822`. Tests also lock the source-visible raw-count distinction,
+an independently undefined tail with nonzero win rate, and a legitimate
+positive-infinite public tail with a `0.05` win rate so the final result cannot
+be normalized or clamped.
+
+Task 141 consists of implementation `ae9f49d` and test-only boundary hardening
+`759af93`. Final independent specification and task-quality reviews both
+concluded **PASS**, with Critical/Important/Minor `0/0/0`. The mandatory
+Anaconda source oracle, genuine dual missing-symbol RED plus transparent
+exact-base evidence recovery, `439/439` headless gates, LLVM 22 ASan+UBSan
+run, local ImPlot `440/440` compile/link-only gate, dependency provenance, and
+invalid-ImGui diagnostic are recorded in [the Phase 33 acceptance
+record](docs/acceptance/2026-08-13-phase-33-common-sense-ratio-acceptance.md).
+The ImPlot demo was checked as a build-root executable only; it was never run
+and no GUI was launched.
+
+This phase does not implement `mar_ratio`, `var_excess_return`, conditional
+ratios, weekly/monthly consecutive statistics, EVT, provider or solver paths,
+aliases, plots, reports, packaging/release work, or GUI runtime validation.
