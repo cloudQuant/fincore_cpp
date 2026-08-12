@@ -1131,6 +1131,44 @@ Homebrew LLVM ASan+UBSan, ImPlot compile/link-only, and invalid-ImGui evidence
 is in
 [the Phase 17 acceptance record](docs/acceptance/2026-08-12-phase-17-simulation-parameter-estimation-acceptance.md).
 
+## Accepted Phase 18 native GBM path generation
+
+`<fincore/simulation.hpp>` now also exports a reproducible native
+Geometric-Brownian-Motion path generator:
+
+~~~cpp
+#include <fincore/simulation.hpp>
+
+const fincore::dataframe paths = fincore::geometric_brownian_motion(
+    100.0, 0.10, 0.20, 1.0, 1.0 / 252.0, 1U, 42U);
+~~~
+
+This is a DataFrame-native transpose of Python's anonymous two-dimensional
+path array: rows are ordinal time steps `0..trunc(total_years / time_step)`;
+columns are genuine `double` values named `path_0`, `path_1`, and so on in
+path-number order. Each column starts at `initial_value`, then applies
+`S_next = S_current * exp((mu - 0.5 * sigma^2) * dt + sigma * sqrt(dt) * Z)`.
+The zero-volatility Python oracle is therefore shared exactly: with 100.0,
+0.1, 0.0, 1.0, and 0.25, each path is 100.0, 102.53151205244289,
+105.12710963760242, 107.78841508846317, 110.51709180756478.
+
+An explicit seed makes the native stream repeatable with a local MT19937-64
+and Box-Muller transform; it deliberately does not promise bit-for-bit NumPy
+`default_rng` samples for the same seed. Omitting the seed uses a local
+`random_device` seed. All floating model inputs must be finite; time step is
+positive, total years nonnegative, and path count nonzero. Unrepresentable
+sizes or nonfinite intermediate/path arithmetic raise `fincore::input_error`.
+Finite zero or negative initial values remain valid algebraic inputs.
+
+Task 80's implementation is
+`5d9ceddb668568d5d5692cf6e3d03fd239e0177f`. This acceptance does not include
+calibration changes, `gbm_from_returns`, bootstrap/Monte Carlo, antithetic or
+Latin-hypercube sampling, `SimResult`, correlation/stress changes, provider
+or full NumPy RNG parity. ImPlot evidence is compile/link-only; no GUI
+executable was launched. Source oracle, public-umbrella RED/GREEN, and fresh
+build evidence are retained in
+[the Phase 18 acceptance record](docs/acceptance/2026-08-12-phase-18-gbm-path-generation-acceptance.md).
+
 ## Accepted Phase 11 native stress scenarios
 
 `<fincore/simulation.hpp>` exports only the deterministic, DataFrame-native
