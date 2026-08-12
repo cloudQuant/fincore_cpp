@@ -1,6 +1,6 @@
 #pragma once
 
-#include <fincore/dataframe.hpp>
+#include <fincore/simulation/parameters.hpp>
 
 #include <cstddef>
 #include <cstdint>
@@ -19,5 +19,13 @@ dataframe geometric_brownian_motion(
     double time_step,
     std::size_t path_count,
     std::optional<std::uint64_t> seed = std::nullopt);
+
+dataframe gbm_from_returns(
+    const dataframe& returns,
+    std::size_t horizon = 252U,
+    std::size_t path_count = 1000U,
+    std::size_t periods_per_year = 252U,
+    std::optional<std::uint64_t> seed = std::nullopt,
+    std::string_view column = returns_column);
 
 }  // namespace fincore

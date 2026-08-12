@@ -34,6 +34,13 @@ void require_finite(const double value, const char* const message) {
     }
 }
 
+std::string checked_return_column_name(const std::string_view column) {
+    if (column.find('\0') != std::string_view::npos) {
+        throw input_error{"GBM returns column name must not contain an embedded NUL"};
+    }
+    return std::string{column};
+}
+
 void validate_model_inputs(const double initial_value,
                            const double annualized_drift,
                            const double annualized_volatility,
@@ -246,6 +253,78 @@ dataframe geometric_brownian_motion(
         throw input_error{"GBM output allocation failed"};
     } catch (const std::length_error&) {
         throw input_error{"GBM output allocation is not representable"};
+    }
+}
+
+dataframe gbm_from_returns(
+    const dataframe& returns,
+    const std::size_t horizon,
+    const std::size_t path_count,
+    const std::size_t periods_per_year,
+    const std::optional<std::uint64_t> seed,
+    const std::string_view column) {
+    try {
+        const std::string column_name = checked_return_column_name(column);
+        const simulation_parameters parameters = estimate_simulation_parameters(
+            returns, periods_per_year, column_name);
+
+        const double periods_as_double = static_cast<double>(periods_per_year);
+        require_finite(periods_as_double,
+                       "GBM returns periods per year is not finite");
+        const double square_root_periods = std::sqrt(periods_as_double);
+        require_finite(square_root_periods,
+                       "GBM returns periods-per-year square root is not finite");
+        const double daily_drift = parameters.drift / periods_as_double;
+        require_finite(daily_drift, "GBM returns daily drift is not finite");
+        const double daily_volatility = parameters.volatility / square_root_periods;
+        require_finite(daily_volatility,
+                       "GBM returns daily volatility is not finite");
+        const double horizon_as_double = static_cast<double>(horizon);
+        require_finite(horizon_as_double, "GBM returns horizon is not finite");
+        const double duration = horizon_as_double / periods_as_double;
+        require_finite(duration, "GBM returns duration is not finite");
+        const double step = 1.0 / periods_as_double;
+        require_finite(step, "GBM returns time step is not finite");
+
+        const dataframe prices = geometric_brownian_motion(
+            1.0, daily_drift, daily_volatility, duration, step, path_count, seed);
+        const auto& price_index = prices.get_index();
+        if (price_index.empty()) {
+            throw input_error{"GBM returns price paths must include an initial row"};
+        }
+
+        const std::size_t retained_count = price_index.size() - 1U;
+        std::vector<timestamp> index;
+        index.reserve(retained_count);
+        for (std::size_t row = 1U; row < price_index.size(); ++row) {
+            index.push_back(price_index[row]);
+        }
+
+        dataframe result;
+        result.load_index(std::move(index));
+        for (std::size_t path = 0U; path < path_count; ++path) {
+            const std::string name = path_name(path);
+            const auto& prices_for_path = prices.get_column<double>(name.c_str());
+            if (prices_for_path.size() != price_index.size()) {
+                throw input_error{"GBM returns price path length is invalid"};
+            }
+
+            std::vector<double> values;
+            values.reserve(retained_count);
+            for (std::size_t row = 1U; row < prices_for_path.size(); ++row) {
+                const double cumulative_return = prices_for_path[row] - 1.0;
+                require_finite(cumulative_return,
+                               "GBM returns cumulative return is not finite");
+                values.push_back(cumulative_return);
+            }
+            result.load_column<double>(name.c_str(), std::move(values),
+                                       hmdf::nan_policy::dont_pad_with_nans);
+        }
+        return result;
+    } catch (const std::bad_alloc&) {
+        throw input_error{"GBM returns output allocation failed"};
+    } catch (const std::length_error&) {
+        throw input_error{"GBM returns output allocation is not representable"};
     }
 }
 
