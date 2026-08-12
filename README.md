@@ -1817,3 +1817,53 @@ and no GUI was launched.
 This phase does not implement `mar_ratio`, `var_excess_return`, conditional
 ratios, weekly/monthly consecutive statistics, EVT, provider or solver paths,
 aliases, plots, reports, packaging/release work, or GUI runtime validation.
+
+## Accepted Phase 34 native VaR excess return
+
+The Phase 34 route audit confirmed that the apparently smaller `loss_rate`
+metric is already declared, implemented, facade-exported, and tested. The
+smallest useful dependency-closed package gap was therefore Python
+`fincore.metrics.risk.var_excess_return`, whose successful path composes three
+already accepted public native leaves.
+
+`<fincore/metrics.hpp>` now exposes exactly one native overload through its
+existing risk leaf:
+
+```cpp
+const double result = fincore::var_excess_return(returns);
+const double weekly = fincore::var_excess_return(
+    returns, 0.05, 0.0, fincore::frequency::weekly);
+const double custom = fincore::var_excess_return(
+    returns, 0.05, 0.01, fincore::frequency::daily, 7.0, "strategy");
+```
+
+The implementation rejects an embedded-NUL selector before any DataFrame
+C-string boundary, validates a genuine-double selected column before the raw
+two-row shortcut, then calls public `annualization_factor`, `annual_return`,
+and `historical_value_at_risk` exactly once each. Zero or NaN VaR and NaN
+annual return produce NaN; every other result is the direct IEEE expression
+`(annualized_return - risk_free) / abs(value_at_risk)` without finite
+clamping.
+
+Cutoff endpoints `0` and `1` remain accepted. Unknown frequency is observed
+before invalid cutoff unless an explicit annualization override bypasses the
+frequency lookup. Risk-free NaN/infinity and legitimate infinite results
+retain direct IEEE behavior. Explicit annualization follows the accepted
+native annual-return leaf: its `0` and signed-infinity behavior deliberately
+differs from Python's intermediate division, while finite source goldens and
+the `-3`/NaN cases agree.
+
+Task 145 consists of implementation `56c821b` and the test-only zero-VaR
+mutation hardening `39e6dc3`. Final independent specification and task-quality
+reviews both concluded **PASS**, with Critical/Important/Minor `0/0/0`. The
+mandatory Anaconda source oracle, genuine dual-consumer missing-symbol RED,
+`449/449` headless gates, LLVM 22 ASan+UBSan run, local ImPlot compile/link-only
+gate, dependency provenance, and invalid-ImGui diagnostic are recorded in
+[the Phase 34 acceptance
+record](docs/acceptance/2026-08-13-phase-34-var-excess-return-acceptance.md).
+The ImPlot demo was compiled and linked as a build-root executable only; it was
+never run and no GUI was launched.
+
+This phase does not implement `mar_ratio`, adjusted or conditional Sharpe,
+weekly/monthly consecutive statistics, EVT, aliases, providers, plots,
+reports, packaging/release work, or GUI runtime validation.
