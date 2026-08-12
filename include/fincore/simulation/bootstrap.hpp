@@ -21,9 +21,22 @@ enum class bootstrap_statistic {
 
 inline constexpr std::string_view bootstrap_statistic_column{"bootstrap"};
 
+struct bootstrap_confidence_interval_result {
+    double lower;
+    double upper;
+};
+
 dataframe bootstrap_distribution(
     const dataframe& returns,
     std::size_t resample_count = 10000U,
+    bootstrap_statistic statistic = bootstrap_statistic::mean,
+    std::optional<std::uint64_t> seed = std::nullopt,
+    std::string_view column = returns_column);
+
+bootstrap_confidence_interval_result bootstrap_confidence_interval(
+    const dataframe& returns,
+    std::size_t resample_count = 10000U,
+    double alpha = 0.05,
     bootstrap_statistic statistic = bootstrap_statistic::mean,
     std::optional<std::uint64_t> seed = std::nullopt,
     std::string_view column = returns_column);

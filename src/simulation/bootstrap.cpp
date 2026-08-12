@@ -74,6 +74,64 @@ void validate_output_shape(const std::size_t resample_count) {
     }
 }
 
+void validate_confidence_alpha(const double alpha) {
+    if (!std::isfinite(alpha) || alpha <= 0.0 || alpha >= 1.0) {
+        throw input_error{"bootstrap confidence alpha must be finite and in (0, 1)"};
+    }
+}
+
+std::vector<double> finite_bootstrap_values(const dataframe& distribution) {
+    const auto values = require_double_column(distribution, bootstrap_statistic_column);
+    if (values.empty()) {
+        throw input_error{"bootstrap confidence interval requires at least one resample"};
+    }
+
+    std::vector<double> copied{values.begin(), values.end()};
+    for (const double value : copied) {
+        if (!std::isfinite(value)) {
+            throw input_error{"bootstrap confidence interval requires finite statistics"};
+        }
+    }
+    return copied;
+}
+
+double checked_linear_percentile(const std::vector<double>& ordered, const double percentile) {
+    if (ordered.empty() || !std::isfinite(percentile) || percentile < 0.0 ||
+        percentile > 1.0) {
+        throw input_error{"bootstrap confidence percentile is invalid"};
+    }
+
+    const double last_position = static_cast<double>(ordered.size() - 1U);
+    const double position = percentile * last_position;
+    if (!std::isfinite(last_position) || !std::isfinite(position) || position < 0.0 ||
+        position > last_position) {
+        throw input_error{"bootstrap confidence percentile position overflowed"};
+    }
+
+    const double lower_position = std::floor(position);
+    if (!std::isfinite(lower_position) || lower_position < 0.0 ||
+        lower_position > static_cast<double>(std::numeric_limits<std::size_t>::max())) {
+        throw input_error{"bootstrap confidence percentile index overflowed"};
+    }
+    const auto lower = static_cast<std::size_t>(lower_position);
+    if (lower >= ordered.size()) {
+        throw input_error{"bootstrap confidence percentile index is invalid"};
+    }
+    if (lower == ordered.size() - 1U) {
+        return ordered[lower];
+    }
+
+    const double weight = position - lower_position;
+    const double lower_component = ordered[lower] * (1.0 - weight);
+    const double upper_component = ordered[lower + 1U] * weight;
+    const double interpolated = lower_component + upper_component;
+    if (!std::isfinite(weight) || !std::isfinite(lower_component) ||
+        !std::isfinite(upper_component) || !std::isfinite(interpolated)) {
+        throw input_error{"bootstrap confidence percentile interpolation overflowed"};
+    }
+    return interpolated;
+}
+
 std::vector<timestamp> ordinal_index(const std::size_t count) {
     std::vector<timestamp> index;
     index.reserve(count);
@@ -250,6 +308,28 @@ dataframe bootstrap_distribution(const dataframe& returns,
         throw input_error{"bootstrap allocation failed"};
     } catch (const std::length_error&) {
         throw input_error{"bootstrap allocation is not representable"};
+    }
+}
+
+bootstrap_confidence_interval_result bootstrap_confidence_interval(
+    const dataframe& returns,
+    const std::size_t resample_count,
+    const double alpha,
+    const bootstrap_statistic statistic,
+    const std::optional<std::uint64_t> seed,
+    const std::string_view column) {
+    validate_confidence_alpha(alpha);
+    try {
+        const auto distribution = bootstrap_distribution(returns, resample_count, statistic,
+                                                         seed, column);
+        auto values = finite_bootstrap_values(distribution);
+        std::sort(values.begin(), values.end());
+        return {checked_linear_percentile(values, alpha / 2.0),
+                checked_linear_percentile(values, 1.0 - alpha / 2.0)};
+    } catch (const std::bad_alloc&) {
+        throw input_error{"bootstrap confidence interval allocation failed"};
+    } catch (const std::length_error&) {
+        throw input_error{"bootstrap confidence interval allocation is not representable"};
     }
 }
 
