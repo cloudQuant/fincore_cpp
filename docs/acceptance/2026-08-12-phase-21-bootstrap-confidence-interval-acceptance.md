@@ -124,3 +124,26 @@ The ignored report
 `.superpowers/sdd/2026-08-12-fincore-cpp-phase-21-bootstrap-confidence-interval/task-93-report.md`
 indexes the raw `tee` logs, exact commands/statuses, dependency provenance,
 diagnostic scanner, review verdict, and scope checks.
+
+## Non-self-referential task traceability
+
+The accepted implementation commit is Task 92,
+`f15dbb95eaf1ebb4c0d2f4d4a17958c85c84789d` (`feat: add bootstrap confidence
+interval`).  Its exact scope is the five files listed in **Public boundary and
+accepted implementation**: the bootstrap public leaf, its implementation,
+test registration, and the two confidence-interval consumers.  Its diff does
+not contain `include/fincore/simulation.hpp`: the facade export is automatic
+because that umbrella already includes the bootstrap leaf.  The leaf-only and
+umbrella-only consumers therefore prove the existing facade path without a
+redundant facade edit.
+
+The initial acceptance commit is Task 93,
+`49c19adaf1b765a8a3db09f562786a82d4f8ff91` (`docs: accept phase 21 bootstrap
+confidence interval`).  It is the direct child of Task 92.  Its exact scope is
+only `README.md` and this acceptance document; it records acceptance evidence
+and public-facing wording, with no production, test, CMake, or facade change.
+
+Task 94 is documentation-only and changes only this acceptance document to
+make the preceding implementation and acceptance chain explicit.  It does not
+amend either prior commit, does not add a `simulation.hpp` diff, and does not
+make a self-referential claim about its own commit identity.
