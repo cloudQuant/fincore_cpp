@@ -261,6 +261,33 @@ tables, a new RNG or random state, class/cache/options, providers, reports,
 packaging/release work, full NumPy stream parity, or GUI runtime behavior.
 ImPlot and demo evidence is compile/link only; no GUI executable was launched.
 
-This document intentionally contains no Task 118 commit identifier. Task 119
-will add non-self-referential acceptance traceability after Task 118 is
-reviewed and committed; Task 119 has not begun.
+## Acceptance trace
+
+The complete Task 117 implementation/fix chain begins with
+`7e328da6716687b8e5596dce82fe539e972b36e3` (`feat: add parameter monte
+carlo composer`), whose parent is the Phase 27 design/plan commit
+`8cf845c0678111ed6b87abf90f18e75111d9f615`. The implementation commit
+changes exactly:
+
+- `include/fincore/simulation/monte_carlo.hpp`
+- `src/simulation/monte_carlo.cpp`
+- `tests/unit/monte_carlo_simulation_test.cpp`
+
+Its direct child `64d258029568e5e9292613dc082675151984b8e9` (`test: harden
+parameter monte carlo composer`) is the sole Task 117 repair commit and changes
+only:
+
+- `tests/unit/monte_carlo_simulation_test.cpp`
+
+The direct Task 118 acceptance commit is
+`77c2fc538044f1e70e092d7cfde7237df6c62adf` (`docs: accept phase 27 monte
+carlo parameter composer`). Its parent is the Task 117 hardening commit
+`64d258029568e5e9292613dc082675151984b8e9`, and it changes exactly:
+
+- `README.md`
+- `docs/acceptance/2026-08-12-phase-27-monte-carlo-parameter-composer-acceptance.md`
+- `tests/unit/monte_carlo_simulation_umbrella_test.cpp`
+
+Task 119 is documentation-only: it updates only this acceptance record, does
+not amend Task 117 or Task 118, and does not name or anticipate its own commit
+identifier. Final Phase 27 review is a later, separate task and has not begun.
