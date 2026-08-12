@@ -70,3 +70,23 @@ Task 85's tracked scope is limited to this acceptance record, `README.md`,
 Task 84's leaf implementation, the existing `simulation.hpp` umbrella,
 calibration or raw GBM behavior, correlation/stress functionality, generic
 DataFrame helpers, third-party configuration, or ImPlot source.
+
+## Completed revision identities
+
+The Task 84 implementation is exactly
+`cb222e867682fa346c462a487155f12c976ba4dd`; its committed scope is exactly:
+
+- `include/fincore/simulation/paths.hpp`
+- `src/simulation/paths.cpp`
+- `tests/unit/gbm_paths_test.cpp`
+
+The direct Task 85 initial-acceptance revision is exactly
+`b98253f81ab3937561207ce2f36d6bb9ec389896`; its committed scope is exactly:
+
+- `README.md`
+- `docs/acceptance/2026-08-12-phase-19-gbm-from-returns-acceptance.md`
+- `tests/CMakeLists.txt`
+- `tests/unit/simulation_gbm_from_returns_umbrella_test.cpp`
+
+Task 85 directly descends from the Task 84 revision. This Task 86 update is
+documentation-only traceability and does not amend either earlier commit.
