@@ -111,6 +111,25 @@ registration, this acceptance record, and README. It does not alter the Task
 88 leaf, generic CMake/dependency files, DataFrame behavior, simulation
 parameter/GBM/correlation/stress behavior, or ImPlot sources.
 
+## Commit traceability
+
+Task 88 implementation is commit
+`4b06aabbb15c0d7deb0c487b764fad0ede3f7a0e` (`feat: add bootstrap
+distribution`). Its exact scope is `CMakeLists.txt`, the new public leaf
+`include/fincore/simulation/bootstrap.hpp`, the new implementation
+`src/simulation/bootstrap.cpp`, `tests/CMakeLists.txt`, and the new leaf test
+`tests/unit/bootstrap_distribution_test.cpp`.
+
+Task 89 initial acceptance is its direct child commit
+`a6ef6fdde03f306c09805a9907091185953ac6ee` (`docs: accept phase 20 bootstrap
+distribution`). Its exact scope is `README.md`, this acceptance record, the
+simulation facade `include/fincore/simulation.hpp`, `tests/CMakeLists.txt`,
+and the new public-only umbrella consumer
+`tests/unit/simulation_bootstrap_umbrella_test.cpp`.
+
+Task 90 is documentation-only: it adds this non-self-referential traceability
+record and does not amend either earlier commit.
+
 This is not acceptance of bootstrap confidence intervals, percentile or
 summary schemas, arbitrary callable statistics, Python random-stream parity,
 `MonteCarlo`, antithetic or Latin-hypercube sampling, providers, reports,
