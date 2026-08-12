@@ -160,6 +160,24 @@ void validate_latin_hypercube_shape(const std::size_t sample_count,
     if (sample_count == 0U || dimension_count == 0U) {
         return;
     }
+
+    // A double has only this many binary significand digits.  Beyond this
+    // count, there cannot be a distinct representable value in every
+    // half-open LHS stratum near one, so rejection sampling would not have a
+    // valid termination domain.
+    constexpr auto double_digits =
+        static_cast<unsigned>(std::numeric_limits<double>::digits);
+    constexpr auto size_digits =
+        static_cast<unsigned>(std::numeric_limits<std::size_t>::digits);
+    if constexpr (double_digits < size_digits) {
+        constexpr std::size_t maximum_strata_count =
+            std::size_t{1} << double_digits;
+        if (sample_count > maximum_strata_count) {
+            throw input_error{
+                "Latin-hypercube sample count exceeds double precision"};
+        }
+    }
+
     if (sample_count > std::vector<std::size_t>{}.max_size() ||
         sample_count > std::vector<double>{}.max_size()) {
         throw input_error{"Latin-hypercube sample allocation is not representable"};
@@ -330,13 +348,26 @@ dataframe latin_hypercube_sampling(
             std::vector<double> values;
             values.reserve(sample_count);
             for (const std::size_t stratum : permutation) {
-                const double numerator = static_cast<double>(stratum) +
-                                         open_unit_uniform(engine);
-                const double value = numerator / denominator;
-                if (!std::isfinite(value) || value < 0.0 || value >= 1.0) {
-                    throw input_error{"Latin-hypercube sample is outside [0, 1)"};
+                for (;;) {
+                    const double numerator = static_cast<double>(stratum) +
+                                             open_unit_uniform(engine);
+                    const double value = numerator / denominator;
+                    if (!std::isfinite(value) || value < 0.0 || value >= 1.0) {
+                        continue;
+                    }
+
+                    const double observed_stratum =
+                        std::floor(value * denominator);
+                    if (!std::isfinite(observed_stratum) ||
+                        observed_stratum < 0.0 ||
+                        observed_stratum >= denominator ||
+                        static_cast<std::size_t>(observed_stratum) != stratum) {
+                        continue;
+                    }
+
+                    values.push_back(value);
+                    break;
                 }
-                values.push_back(value);
             }
 
             const std::string name = latin_hypercube_dimension_name(dimension);

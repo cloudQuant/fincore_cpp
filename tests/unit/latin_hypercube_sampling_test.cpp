@@ -83,6 +83,13 @@ TEST(LatinHypercubeSampling, PublishesExactContractAndDefaultCallExpression) {
     expect_open_unit_strata(samples, 1U, 1U);
 }
 
+TEST(LatinHypercubeSampling, PreservesSourceSingletonMultiDimensionShape) {
+    const auto samples = fincore::latin_hypercube_sampling(1U, 3U, 42U);
+
+    expect_schema(samples, 1U, 3U);
+    expect_open_unit_strata(samples, 1U, 3U);
+}
+
 TEST(LatinHypercubeSampling, PreservesTypedSchemaOrdinalIndexAndDimensionOrder) {
     const auto samples = fincore::latin_hypercube_sampling(4U, 3U, 42U);
 
@@ -159,6 +166,46 @@ TEST(LatinHypercubeSampling, RejectsUnrepresentableOutputCountsBeforeAllocation)
                  fincore::input_error);
     EXPECT_THROW(fincore::latin_hypercube_sampling(2U, maximum, 1U),
                  fincore::input_error);
+
+    constexpr auto double_digits =
+        static_cast<unsigned>(std::numeric_limits<double>::digits);
+    constexpr auto size_digits =
+        static_cast<unsigned>(std::numeric_limits<std::size_t>::digits);
+    if constexpr (double_digits < size_digits) {
+        constexpr std::size_t maximum_precise_sample_count =
+            std::size_t{1} << double_digits;
+        try {
+            static_cast<void>(fincore::latin_hypercube_sampling(
+                maximum_precise_sample_count + 1U, 1U, 1U));
+            FAIL() << "expected the double-precision guard to reject the sample count";
+        } catch (const fincore::input_error& error) {
+            EXPECT_STREQ(error.what(),
+                         "Latin-hypercube sample count exceeds double precision");
+        }
+    }
+}
+
+TEST(LatinHypercubeSampling, RejectsCellOverflowAfterValidShapeCapacityChecks) {
+    constexpr std::size_t maximum = std::numeric_limits<std::size_t>::max();
+    const std::size_t dimension_capacity = std::vector<std::string>{}.max_size();
+    ASSERT_GT(dimension_capacity, 1U);
+
+    const std::size_t sample_count = maximum / dimension_capacity + 1U;
+    ASSERT_LT(sample_count, maximum);
+    ASSERT_LE(sample_count - 1U,
+              static_cast<std::size_t>(std::numeric_limits<fincore::timestamp>::max()));
+    ASSERT_LE(sample_count, std::vector<fincore::timestamp>{}.max_size());
+    ASSERT_LE(sample_count, std::vector<std::size_t>{}.max_size());
+    ASSERT_LE(sample_count, std::vector<double>{}.max_size());
+
+    try {
+        static_cast<void>(
+            fincore::latin_hypercube_sampling(sample_count, dimension_capacity, 1U));
+        FAIL() << "expected the cell-count guard to reject the shape";
+    } catch (const fincore::input_error& error) {
+        EXPECT_STREQ(error.what(),
+                     "Latin-hypercube output cell count is not representable");
+    }
 }
 
 }  // namespace
