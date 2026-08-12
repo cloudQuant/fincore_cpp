@@ -133,6 +133,17 @@ void expect_same_result(const fincore::simulation_result& actual,
               expected.terminal_conditional_value_at_risk(), tolerance);
 }
 
+template <typename Operation>
+std::string input_error_message(Operation&& operation) {
+  try {
+    std::forward<Operation>(operation)();
+  } catch (const fincore::input_error& error) {
+    return error.what();
+  }
+  ADD_FAILURE() << "expected fincore::input_error";
+  return {};
+}
+
 TEST(MonteCarloSimulation, ParameterComposerPreservesDefaultExpressions) {
   const auto result = fincore::simulate_monte_carlo_from_parameters(0.0, 0.0);
 
@@ -241,6 +252,30 @@ TEST(MonteCarloSimulation,
   EXPECT_TRUE(diverged);
 }
 
+TEST(MonteCarloSimulation, ParameterComposerOmittedSeedIsNotFixed) {
+  const auto first = fincore::simulate_monte_carlo_from_parameters(
+      0.15, 0.3, 7.5, 3U, 7U);
+  const auto second = fincore::simulate_monte_carlo_from_parameters(
+      0.15, 0.3, 7.5, 3U, 7U);
+  const auto third = fincore::simulate_monte_carlo_from_parameters(
+      0.15, 0.3, 7.5, 3U, 7U);
+
+  bool first_second_diverged = false;
+  bool first_third_diverged = false;
+  for (std::size_t path = 0U; path < 3U; ++path) {
+    const std::string name = "path_" + std::to_string(path);
+    first_second_diverged =
+        first_second_diverged ||
+        first.paths().get_column<double>(name.c_str()) !=
+            second.paths().get_column<double>(name.c_str());
+    first_third_diverged =
+        first_third_diverged ||
+        first.paths().get_column<double>(name.c_str()) !=
+            third.paths().get_column<double>(name.c_str());
+  }
+  EXPECT_TRUE(first_second_diverged || first_third_diverged);
+}
+
 TEST(MonteCarloSimulation,
      ParameterComposerPreservesAcceptedFiniteRawGbmBoundaries) {
   const auto zero = fincore::simulate_monte_carlo_from_parameters(
@@ -254,12 +289,23 @@ TEST(MonteCarloSimulation,
   EXPECT_LT(negative.paths().get_column<double>("path_0").back(), -2.0);
   EXPECT_TRUE(std::isfinite(negative.statistics().mean));
 
-  const auto negative_volatility =
+  constexpr double negative_drift = -0.15;
+  constexpr double negative_volatility = -0.3;
+  constexpr double initial_value = 1.0;
+  constexpr std::size_t path_count = 3U;
+  constexpr std::size_t horizon = 7U;
+  constexpr std::uint64_t seed = 22U;
+  const auto direct = fincore::analyze_simulation_paths(
+      fincore::geometric_brownian_motion(
+          initial_value, negative_drift / 252.0,
+          negative_volatility / std::sqrt(252.0),
+          static_cast<double>(horizon) / 252.0, 1.0 / 252.0, path_count,
+          seed));
+  const auto negative_parameters =
       fincore::simulate_monte_carlo_from_parameters(
-          0.0, -0.2, 1.0, 2U, 2U, 22U);
-  EXPECT_TRUE(std::isfinite(
-      negative_volatility.paths().get_column<double>("path_0").back()));
-  EXPECT_TRUE(std::isfinite(negative_volatility.statistics().mean));
+          negative_drift, negative_volatility, initial_value, path_count,
+          horizon, seed);
+  expect_same_result(negative_parameters, direct);
 }
 
 TEST(MonteCarloSimulation, ParameterComposerPropagatesInheritedInputErrors) {
@@ -306,6 +352,57 @@ TEST(MonteCarloSimulation, ParameterComposerPropagatesInheritedInputErrors) {
                        0.0, 0.0, std::numeric_limits<double>::max(), 2U, 0U,
                        1U)),
                fincore::input_error);
+}
+
+TEST(MonteCarloSimulation,
+     ParameterComposerPreservesInheritedErrorMessages) {
+  constexpr double step = 1.0 / 252.0;
+  const double invalid_drift = std::numeric_limits<double>::quiet_NaN();
+  const auto direct_model_error = input_error_message([&] {
+    static_cast<void>(fincore::analyze_simulation_paths(
+        fincore::geometric_brownian_motion(
+            1.0, invalid_drift / 252.0, 0.2 / std::sqrt(252.0),
+            1.0 / 252.0, step, 2U, 1U)));
+  });
+  EXPECT_EQ(direct_model_error, "GBM annualized drift must be finite");
+  EXPECT_EQ(input_error_message([&] {
+              static_cast<void>(
+                  fincore::simulate_monte_carlo_from_parameters(
+                      invalid_drift, 0.2, 1.0, 2U, 1U, 1U));
+            }),
+            direct_model_error);
+
+  const auto direct_shape_error = input_error_message([&] {
+    static_cast<void>(fincore::analyze_simulation_paths(
+        fincore::geometric_brownian_motion(
+            1.0, 0.0, 0.0, 0.0, step,
+            std::numeric_limits<std::size_t>::max(), 1U)));
+  });
+  EXPECT_EQ(direct_shape_error,
+            "GBM output allocation is not representable");
+  EXPECT_EQ(input_error_message([&] {
+              static_cast<void>(
+                  fincore::simulate_monte_carlo_from_parameters(
+                      0.0, 0.0, 1.0,
+                      std::numeric_limits<std::size_t>::max(), 0U, 1U));
+            }),
+            direct_shape_error);
+
+  const auto direct_statistics_error = input_error_message([&] {
+    static_cast<void>(fincore::analyze_simulation_paths(
+        fincore::geometric_brownian_motion(
+            std::numeric_limits<double>::max(), 0.0, 0.0, 0.0, step, 2U,
+            1U)));
+  });
+  EXPECT_EQ(direct_statistics_error,
+            "simulation terminal statistics are not finite");
+  EXPECT_EQ(input_error_message([&] {
+              static_cast<void>(
+                  fincore::simulate_monte_carlo_from_parameters(
+                      0.0, 0.0, std::numeric_limits<double>::max(), 2U, 0U,
+                      1U));
+            }),
+            direct_statistics_error);
 }
 
 TEST(MonteCarloSimulation, MatchesConstantPythonOracleWithNativeTranspose) {
