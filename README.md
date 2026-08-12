@@ -1242,6 +1242,63 @@ public-only consumer, genuine umbrella RED/GREEN, compiler/sanitizer,
 compile/link-only ImPlot, and invalid-ImGui evidence are retained in
 [the Phase 20 acceptance record](docs/acceptance/2026-08-12-phase-20-bootstrap-distribution-acceptance.md).
 
+## Accepted Phase 21 bootstrap confidence interval
+
+`<fincore/simulation.hpp>` already includes
+`<fincore/simulation/bootstrap.hpp>`.  Consequently, Task 92 extended the
+existing public bootstrap leaf and the façade automatically exports the new
+surface; no redundant `simulation.hpp` diff is needed.  The public-only
+umbrella consumer includes only `<fincore/simulation.hpp>` and calls
+`bootstrap_confidence_interval`, which is the GREEN proof of that boundary.
+
+```cpp
+const fincore::bootstrap_confidence_interval_result interval =
+    fincore::bootstrap_confidence_interval(
+        returns, 10000U, 0.05, fincore::bootstrap_statistic::mean, 42U);
+```
+
+Task 92 implementation commit
+`f15dbb95eaf1ebb4c0d2f4d4a17958c85c84789d` adds the two-double
+`bootstrap_confidence_interval_result{lower, upper}` and
+`bootstrap_confidence_interval`.  After rejecting a nonfinite or out-of-range
+`alpha`, the function calls public `bootstrap_distribution` exactly once with
+the caller's distribution arguments unchanged.  It copies the generated
+statistics, rejects an empty or nonfinite generated distribution, sorts the
+finite copy, and computes the lower and upper endpoints at `alpha / 2` and
+`1 - alpha / 2` with linear percentile position `p * (n - 1)` and adjacent
+order-statistic interpolation.  This is the source `percentile` method only;
+there is no method selector or callable statistic hook.
+
+The Phase 21 source oracle was run through the mandated Anaconda environment.
+It records source results for the nonconstant mean
+`(0.004999999999999999, 0.01)`, constant mean `(0.01, 0.01)`, constant
+standard deviation `(0.0, 0.0)`, and NaN-drop mean `(0.01, 0.01)`, along with
+source `ValueError` for invalid alpha.  Python
+raises an empty-percentile `IndexError` at zero count and emits a warning then
+returns `(nan, nan)` for the recorded nonfinite statistic case.  Native CI
+deliberately rejects both generated-empty and generated-nonfinite distributions
+with `fincore::input_error`; that is not full Python nonfinite-percentile
+parity.  A native seed is repeatable within the supported C++ build only; no
+NumPy random-stream parity is claimed.
+
+The true Task 92 RED registered both consumers before the declaration existed:
+the leaf-only consumer failed because the result/function were absent, and the
+umbrella-only consumer failed because `bootstrap_confidence_interval` was
+absent.  CTest was deliberately not run after that expected compile failure.
+After the leaf extension, the configured GREEN passed its focused `8/8`,
+prescribed `71/71`, and full `332/332` suites.  Fresh Task 93 headless gates
+also passed `332/332` on AppleClang and Homebrew LLVM 22 with ASan+UBSan; the
+fresh ImPlot/demo build passed `333/333` including `ImPlotAdapterCompile`.
+The ImPlot demo was compiled and linked only—the checked build-root executable
+was never launched.  The exact commands, statuses, raw `tee` logs, dependency
+provenance, and invalid-ImGui diagnostic scan are retained in
+[the Phase 21 acceptance record](docs/acceptance/2026-08-12-phase-21-bootstrap-confidence-interval-acceptance.md).
+
+This acceptance excludes bootstrap summaries, Python method variants and
+callable statistics, full Python RNG/nonfinite-percentile parity, Monte Carlo,
+antithetic or Latin-hypercube sampling, SimResult, providers, reports,
+packaging/release work, and GUI runtime behavior.
+
 ## Accepted Phase 11 native stress scenarios
 
 `<fincore/simulation.hpp>` exports only the deterministic, DataFrame-native
