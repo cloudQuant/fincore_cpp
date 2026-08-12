@@ -1721,3 +1721,50 @@ ImPlot demo was checked as a build-root executable only and was never run.
 This phase does not implement regression attribution, factor providers,
 Python embedding, SciPy or another solver, plotting behavior, reports,
 packaging/release work, or GUI runtime validation.
+
+## Accepted Phase 32 native style correlation attribution
+
+`<fincore/attribution.hpp>` now exposes the pure C++23/cloudQuant DataFrame
+counterpart to Python
+`fincore.attribution.style.calculate_regression_attribution` through exactly
+two overloads:
+
+```cpp
+const fincore::dataframe automatic =
+    fincore::calculate_regression_attribution(asset_returns);
+
+const fincore::dataframe explicit_result =
+    fincore::calculate_regression_attribution(
+        portfolio_returns, style_returns, selected_styles);
+```
+
+Despite the source-compatible public name, this is correlation attribution,
+not an OLS regression. For each selected style it calculates centered Pearson
+correlation against the portfolio and multiplies it by that style's common-row
+mean. Fewer than three common rows or either population standard deviation
+strictly below `1e-15` produces zero contribution. The residual is the full
+portfolio mean minus all style contributions.
+
+The explicit overload row-averages every genuine-double portfolio column,
+requires unique timestamps, and aligns common rows in portfolio-left order.
+Its copied `selected_styles` span replaces Python's unread exposure values:
+missing names are ignored and output remains in style-return column order.
+The automatic overload calls the accepted public style-analysis and explicit
+performance-by-style APIs once each and pairs their results positionally, so
+duplicate or nonmonotonic raw asset-return labels remain valid. Output is an
+owned ordinal table with genuine string `style`, genuine double
+`contribution`, and `residual` last.
+
+Task 137 consists of implementation `890a4ae` and one-test boundary hardening
+`77b3347`. Final independent specification and task-quality reviews both
+concluded **PASS**, with Critical/Important/Minor `0/0/0`. The Anaconda source
+oracle, genuine dual missing-API RED, `434/434` headless gates, LLVM 22
+ASan+UBSan run, local ImPlot `435/435` compile/link-only gate, dependency
+provenance, and invalid-ImGui diagnostic are recorded in [the Phase 32
+acceptance record](docs/acceptance/2026-08-13-phase-32-style-correlation-attribution-acceptance.md).
+The ImPlot demo was compiled and linked as a build-root executable only; it was
+never run and no GUI was launched.
+
+This phase does not add an exposure-value regression, OLS or another solver,
+factor fetching/providers, Python/pandas embedding, plots or reports,
+packaging/release work, or GUI runtime validation.
