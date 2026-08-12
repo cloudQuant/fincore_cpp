@@ -175,3 +175,29 @@ a release, full Python parity, NumPy RNG parity, Python dictionary/map output,
 callable statistics, endpoint alpha support, nonfinite summary results, Monte
 Carlo, antithetic or Latin-hypercube sampling, providers, reports, packaging,
 or GUI runtime. The ImPlot gate is compile/link-only; no GUI was launched.
+
+## Traceability
+
+Git history records the following bounded implementation and acceptance chain:
+
+- Task 96 leaf implementation commit
+  `c3917f9096a74829f4e2f94aca8a9180c54a28e0` changed exactly:
+  - `include/fincore/simulation/bootstrap.hpp`
+  - `src/simulation/bootstrap.cpp`
+  - `tests/CMakeLists.txt`
+  - `tests/unit/bootstrap_summary_test.cpp`
+  - `tests/unit/simulation_bootstrap_summary_umbrella_test.cpp`
+- Task 96 independent-review test-only correction
+  `5297942038083355896f82901984f26cdbe69418` is a direct child of
+  `c3917f9096a74829f4e2f94aca8a9180c54a28e0`; its sole changed path is
+  `tests/unit/bootstrap_summary_test.cpp`.
+- Task 97 initial acceptance
+  `63fd5d63c2207b5ca972a36cdcb3d6213f127094` is a direct child of
+  `5297942038083355896f82901984f26cdbe69418`; its exact scope is `README.md`
+  and
+  `docs/acceptance/2026-08-12-phase-22-bootstrap-summary-acceptance.md`.
+  Its initial document-PCRE review finding was corrected before that
+  acceptance commit.
+
+Task 98 is documentation-only: it changes only this acceptance record and
+does not amend any prior commit.
