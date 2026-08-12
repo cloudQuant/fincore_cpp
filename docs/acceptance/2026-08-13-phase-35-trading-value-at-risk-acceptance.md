@@ -399,3 +399,29 @@ EVT, market aliases, providers, reports, plots, packaging/release work, or
 Python container adapters. The ImPlot evidence in this record is strictly
 compile/link plus adapter-test evidence, never plotting appearance,
 interaction, or GUI runtime acceptance.
+
+## Non-self-referential traceability
+
+Task 148 is commit `a9d695e93d9f9c399bf633e4f825f7b1b98552f9`, the direct
+child of accepted Phase 34 commit
+`ad621ca09454f1e7071ec227bc8694ab749ad7bb`. It adds exactly the Phase 35
+design and executable plan:
+
+- `docs/design/2026-08-13-phase-35-trading-value-at-risk-design.md`
+- `docs/plans/2026-08-13-fincore-cpp-phase-35-trading-value-at-risk.md`
+
+Task 149 is commit `e52d288022cd49494c14c669b669a61260dbef80`, the direct
+child of Task 148. Its complete implementation chain changes exactly:
+
+- `include/fincore/metrics/risk.hpp`
+- `src/metrics/risk.cpp`
+- `tests/unit/extended_risk_test.cpp`
+- `tests/unit/metrics_umbrella_test.cpp`
+
+Both independent Task 149 reviews passed with no required fix commit. Task 150
+is commit `45c4215431d96c905a4e69b07af08dba9b3a454b`, the direct child
+of Task 149, and changes exactly `README.md` plus this acceptance record.
+
+Task 151 is documentation-only and does not amend Task 148, Task 149, Task
+150, or any other prior commit. It neither states nor anticipates its own
+commit SHA.
