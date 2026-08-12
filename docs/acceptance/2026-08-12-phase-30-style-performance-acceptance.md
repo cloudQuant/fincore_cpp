@@ -17,12 +17,12 @@ The final Task 129 implementation is
 - `tests/unit/style_performance_test.cpp`
 - `tests/unit/attribution_style_performance_umbrella_test.cpp`
 
-Independent specification review returned **PASS** and independent quality
-review returned **APPROVE**, with Critical/Important/Minor `0/0/0`. Task 130
-changes no code, test, CMake, design, or plan path. Its candidate tracked scope
-is exactly `README.md` and this acceptance document. The candidate remains
-unstaged and uncommitted until a fresh independent read-only Task 130 review
-is dispatched and any Critical, Important, or Minor finding is corrected.
+Task 130 changed no code, test, CMake, design, or plan path. Its candidate
+tracked scope was exactly `README.md` and this acceptance document. It remained
+unstaged and uncommitted while the fresh independent Task 130 review ran. That
+review returned specification and quality **PASS**, with
+Critical/Important/Minor `0/0/0`, and the candidate was then committed as the
+Task 130 acceptance traced below.
 
 ## Task 131 commit traceability
 
