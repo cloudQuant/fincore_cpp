@@ -393,3 +393,28 @@ Task 158 accepts only the isolated implementation branch at `2ba633d`. It
 does not turn local build success into a release, package, live-service, or
 full-parity claim, and it does not reconcile the separate primary branch or
 push any ref.
+
+## Non-self-referential traceability
+
+The Phase 37 history is deliberately append-only:
+
+- Task 156 is `2bf256dd5630ce7919340ab69a292da6d33e1542`, which added the
+  design and executable plan and selected the narrow Kappa-three route.
+- Task 157 begins with
+  `9c4680b96b714b0ca4a5999ff25391bc1376a99f`, which changes exactly
+  `include/fincore/metrics/ratios.hpp`, `src/metrics/ratios.cpp`,
+  `tests/unit/ratios_test.cpp`, and
+  `tests/unit/metrics_umbrella_test.cpp` to add the native leaf and its first
+  contract coverage. Its direct child,
+  `2ba633d86074c11815a1243f77cf7522f1231d62`, changes only
+  `tests/unit/ratios_test.cpp` to harden selector, precedence, and ownership
+  coverage. Together they are the four-path, 285-insertion implementation
+  chain accepted above.
+- Task 158 is
+  `f2b6cf0c6eb3a8bb9a93087e70b6c34f4e0d1c4c`, the initial acceptance record:
+  it changes only `README.md` and this acceptance document, records evidence
+  for exact candidate `2ba633d`, and adds no implementation, test, build, or
+  dependency change.
+
+This Task 159 update is documentation-only. It does not amend, replace, or
+reinterpret any prior commit, and it records no SHA for itself.
