@@ -1965,3 +1965,34 @@ This phase does not add market-correlation aliases,
 Sharpe, `mar_ratio`, calendar-resampled consecutive statistics, EVT,
 providers, reports, plots, packages, Python container adapters, or GUI runtime
 validation.
+
+## Accepted Phase 37 native Kappa-three ratio
+
+Phase 37 adds the next narrowly selected public metric leaf:
+
+```cpp
+const double result = fincore::kappa_three_ratio(returns);
+const double named = fincore::kappa_three_ratio(returns, 0.0, "strategy");
+```
+
+It rejects an embedded-NUL selector before DataFrame access, validates the
+selected genuine-double column before sample shortcuts, removes NaN values
+only, computes third-order downside partial moment before the mean, and uses
+the strict `lpm3 < 1e-30` branch. Signed infinity, NaN, and negative zero are
+intentional scalar results rather than normalized errors. Python's
+`risk_free`, `period`, and `annualization` parameters are numerically dead and
+are deliberately absent from the native API; a future adapter may accept and
+discard them.
+
+Task 156 plan `2bf256d`, implementation `9c4680b`, and selector/precedence
+test hardening `2ba633d` form the accepted chain. The current configured tree
+at clean candidate `2ba633d` passed 478/478 CTest cases; fresh AppleClang,
+LLVM 22 ASan+UBSan, and local ImGui/ImPlot compile/link gates are recorded in [the Phase 37 acceptance
+record](docs/acceptance/2026-08-13-phase-37-kappa-three-ratio-acceptance.md).
+ImPlot evidence is compile/link plus adapter-test evidence only: its demo was
+not executed and no GUI was launched.
+
+This phase does not add literal aliases, Python adapters, `adjusted_sharpe_ratio`,
+`conditional_sharpe_ratio`, `mar_ratio`, `r_cubed_turtle`, resampling, EVT,
+providers, reports as a native subsystem, plot behavior/runtime acceptance,
+packages, or a primary-branch merge/push.
