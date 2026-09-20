@@ -5,6 +5,7 @@
 #include <array>
 #include <cmath>
 #include <limits>
+#include <string>
 #include <string_view>
 #include <type_traits>
 #include <vector>
@@ -131,6 +132,8 @@ TEST(Ratios, PreservesNegativeZeroWhenDownsideCubeOverflows) {
 }
 
 TEST(Ratios, UsesOriginalReturnOrderAndIgnoresDuplicateNonmonotonicLabels) {
+    const auto regular_index = fincore::make_series(
+        {1, 2, 3, 4}, "returns", {0.01, -0.02, 0.03, -0.01});
     const auto duplicate_nonmonotonic = fincore::make_series(
         {3, 1, 3, 2}, "returns", {0.01, -0.02, 0.03, -0.01});
     const auto cancellation_order =
@@ -140,6 +143,8 @@ TEST(Ratios, UsesOriginalReturnOrderAndIgnoresDuplicateNonmonotonicLabels) {
 
     EXPECT_NEAR(fincore::kappa_three_ratio(duplicate_nonmonotonic),
                 0.19078570709222184, 1e-15);
+    EXPECT_DOUBLE_EQ(fincore::kappa_three_ratio(regular_index),
+                     fincore::kappa_three_ratio(duplicate_nonmonotonic));
     EXPECT_DOUBLE_EQ(fincore::kappa_three_ratio(cancellation_order), 0.0);
     EXPECT_GT(fincore::kappa_three_ratio(retained_unit_last_order), 0.0);
     EXPECT_NE(fincore::kappa_three_ratio(cancellation_order),
@@ -149,15 +154,24 @@ TEST(Ratios, UsesOriginalReturnOrderAndIgnoresDuplicateNonmonotonicLabels) {
 TEST(Ratios, SupportsNamedAndBoundedColumnSelectors) {
     const auto strategy = fincore::make_series(
         {1, 2, 3, 4}, "strategy", {0.01, -0.02, 0.03, -0.01});
+    const auto portfolio = fincore::make_series(
+        {1, 2, 3, 4}, "portfolio", {0.01, -0.02, 0.03, -0.01});
     constexpr std::array<char, 8> bounded_name{
         's', 't', 'r', 'a', 't', 'e', 'g', 'y'};
-    const std::string_view bounded_selector{bounded_name.data(),
+    constexpr std::array<char, 9> bounded_portfolio_name{
+        'p', 'o', 'r', 't', 'f', 'o', 'l', 'i', 'o'};
+    const std::string_view bounded_strategy{bounded_name.data(),
                                             bounded_name.size()};
+    const std::string_view bounded_portfolio{bounded_portfolio_name.data(),
+                                             bounded_portfolio_name.size()};
 
     EXPECT_NEAR(fincore::kappa_three_ratio(strategy, 0.0, "strategy"),
                 0.19078570709222184, 1e-15);
-    EXPECT_DOUBLE_EQ(fincore::kappa_three_ratio(strategy, 0.0, bounded_selector),
+    EXPECT_DOUBLE_EQ(fincore::kappa_three_ratio(strategy, 0.0, bounded_strategy),
                      fincore::kappa_three_ratio(strategy, 0.0, "strategy"));
+    EXPECT_DOUBLE_EQ(
+        fincore::kappa_three_ratio(portfolio, 0.0, bounded_portfolio),
+        fincore::kappa_three_ratio(portfolio, 0.0, "portfolio"));
 }
 
 TEST(Ratios, ValidatesSelectorsAndDataframeStructureBeforeRawCount) {
@@ -169,6 +183,16 @@ TEST(Ratios, ValidatesSelectorsAndDataframeStructureBeforeRawCount) {
     const std::string_view embedded_selector{embedded_storage.data(),
                                              embedded_storage.size()};
 
+    const auto expect_error_message = [](const auto& call,
+                                         const char* expected_message) {
+        try {
+            static_cast<void>(call());
+            ADD_FAILURE() << "expected fincore::input_error";
+        } catch (const fincore::input_error& error) {
+            EXPECT_STREQ(error.what(), expected_message);
+        }
+    };
+
     EXPECT_THROW(static_cast<void>(fincore::kappa_three_ratio(empty_missing_column)),
                  fincore::input_error);
     EXPECT_THROW(static_cast<void>(fincore::kappa_three_ratio(singleton, 0.0, "")),
@@ -176,13 +200,14 @@ TEST(Ratios, ValidatesSelectorsAndDataframeStructureBeforeRawCount) {
     EXPECT_THROW(static_cast<void>(fincore::kappa_three_ratio(singleton, 0.0, "missing")),
                  fincore::input_error);
 
-    try {
-        static_cast<void>(
-            fincore::kappa_three_ratio(empty_missing_column, 0.0, embedded_selector));
-        FAIL() << "embedded NUL selector should be rejected before frame access";
-    } catch (const fincore::input_error& error) {
-        EXPECT_STREQ(error.what(), "column name must not contain an embedded NUL");
-    }
+    const auto valid_prefix_frame =
+        fincore::make_series({1, 2}, "returns", {0.01, -0.02});
+    expect_error_message(
+        [&] {
+            return fincore::kappa_three_ratio(valid_prefix_frame, 0.0,
+                                               embedded_selector);
+        },
+        "column name must not contain an embedded NUL");
 
     fincore::dataframe wrong_type;
     wrong_type.load_index(std::vector<fincore::timestamp>{1});
@@ -197,13 +222,24 @@ TEST(Ratios, ValidatesSelectorsAndDataframeStructureBeforeRawCount) {
                                   hmdf::nan_policy::dont_pad_with_nans);
     EXPECT_THROW(static_cast<void>(fincore::kappa_three_ratio(malformed)),
                  fincore::input_error);
+    expect_error_message(
+        [&] {
+            return fincore::kappa_three_ratio(malformed, 0.0,
+                                               embedded_selector);
+        },
+        "column name must not contain an embedded NUL");
+    expect_error_message(
+        [&] { return fincore::kappa_three_ratio(malformed, nan); },
+        "required double column must match the frame index length");
 }
 
-TEST(Ratios, ReturnsAnOwnedScalarAfterInputFrameLifetimeEnds) {
+TEST(Ratios, ReturnsAnOwnedScalarAfterInputFrameAndSelectorLifetimesEnd) {
     const double result = [] {
+        const std::string column{"returns"};
+        const std::string_view selector{column.data(), column.size()};
         const auto returns = fincore::make_series(
             {1, 2, 3, 4}, "returns", {0.01, -0.02, 0.03, -0.01});
-        return fincore::kappa_three_ratio(returns);
+        return fincore::kappa_three_ratio(returns, 0.0, selector);
     }();
 
     EXPECT_NEAR(result, 0.19078570709222184, 1e-15);
