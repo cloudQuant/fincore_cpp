@@ -4,6 +4,7 @@
 #include <fincore/metrics/risk.hpp>
 #include <fincore/metrics/stats.hpp>
 
+#include <algorithm>
 #include <cmath>
 #include <limits>
 #include <span>
@@ -224,6 +225,41 @@ double common_sense_ratio(const dataframe& returns, std::string_view column) {
         return std::numeric_limits<double>::infinity();
     }
     return return_tail_ratio * return_win_rate / (1.0 - return_win_rate);
+}
+
+double kappa_three_ratio(const dataframe& returns,
+                         double mar,
+                         std::string_view column) {
+    if (column.find('\0') != std::string_view::npos) {
+        throw input_error{"column name must not contain an embedded NUL"};
+    }
+    const auto raw_values = require_double_column(returns, column);
+    if (raw_values.size() < 2) {
+        return nan;
+    }
+    const auto values = valid_values(raw_values);
+    if (values.size() < 2) {
+        return nan;
+    }
+    if (std::isnan(mar)) {
+        return nan;
+    }
+
+    double lpm3_total = 0.0;
+    for (const double value : values) {
+        const double deviation = mar - value;
+        if (std::isnan(deviation)) {
+            return nan;
+        }
+        const double downside = std::max(0.0, deviation);
+        lpm3_total += downside * downside * downside;
+    }
+    const double lpm3 = lpm3_total / static_cast<double>(values.size());
+    const double mu = mean(values);
+    if (lpm3 < 1.0e-30) {
+        return mu > mar ? std::numeric_limits<double>::infinity() : nan;
+    }
+    return (mu - mar) / std::pow(lpm3, 1.0 / 3.0);
 }
 
 double excess_sharpe(const dataframe& returns,

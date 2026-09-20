@@ -25,6 +25,10 @@ double calmar_ratio(const dataframe& returns,
 double common_sense_ratio(const dataframe& returns,
                           std::string_view column = returns_column);
 
+double kappa_three_ratio(const dataframe& returns,
+                         double mar = 0.0,
+                         std::string_view column = returns_column);
+
 double excess_sharpe(const dataframe& returns,
                      const dataframe& benchmark,
                      std::string_view returns_column_name = returns_column,
