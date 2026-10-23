@@ -2379,3 +2379,16 @@ Iteration 1 therefore closes its assigned slice; complete metrics-domain
 parity waits for Iteration 3 Phases 63–64. Head evidence: 572/572 headless
 CTest and 572/572 ASan+UBSan. The full audit is recorded in [the Iteration 1
 close-out](docs/acceptance/2026-10-23-iteration-1-closeout.md).
+
+## Accepted Phase 53 native time-weighted return
+
+Phase 53 opens the `performance` leaf with
+`fincore::twr(returns, column)`: NaN-cleaned geometric compounding,
+`prod(1+r) - 1`, with no cashflow subdivision or annualization. Empty and
+all-NaN inputs return `0.0` (NumPy's empty product), total loss returns `-1`,
+and signed infinities propagate.
+
+Clean detached oracle at `4b8f31b` reproduced all goldens. Full headless
+CTest and LLVM 22 ASan+UBSan each passed 576/576. Evidence is recorded in [the
+Phase 53 acceptance
+record](docs/acceptance/2026-10-23-phase-53-twr-acceptance.md).
