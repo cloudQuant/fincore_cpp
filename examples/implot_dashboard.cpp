@@ -11,15 +11,47 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdio>
+#include <cstdlib>
 #include <vector>
+
+namespace {
+
+bool write_ppm(const char* path, const int width, const int height,
+               const std::vector<unsigned char>& pixels) {
+    FILE* stream = std::fopen(path, "wb");
+    if (stream == nullptr) {
+        return false;
+    }
+    std::fprintf(stream, "P6\n%d %d\n255\n", width, height);
+    for (int row = height - 1; row >= 0; --row) {
+        std::fwrite(pixels.data() +
+                        static_cast<std::size_t>(row * width * 3),
+                    1, static_cast<std::size_t>(width * 3), stream);
+    }
+    std::fclose(stream);
+    return true;
+}
+
+}  // namespace
 
 int main() {
     if (glfwInit() == GLFW_FALSE) {
         return 1;
     }
 
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "fincore ImPlot dashboard",
-                                          nullptr, nullptr);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+    const char* capture = std::getenv("FINCORE_IMPLOT_CAPTURE");
+    if (capture != nullptr) {
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+    }
+
+    const int window_height = capture != nullptr ? 2400 : 720;
+    GLFWwindow* window = glfwCreateWindow(
+        1280, window_height, "fincore ImPlot dashboard", nullptr, nullptr);
     if (window == nullptr) {
         glfwTerminate();
         return 1;
@@ -89,14 +121,13 @@ int main() {
     frontier.max_sharpe.expected_return = 0.15;
     const auto frontier_chart = fincore::build_frontier_chart(frontier);
 
-    while (glfwWindowShouldClose(window) == GLFW_FALSE) {
-        glfwPollEvents();
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
+    const auto draw_dashboard = [&] {
+        ImGui::SetNextWindowPos(ImVec2(0.0F, 0.0F));
+        ImGui::SetNextWindowSize(
+            ImVec2(1280.0F, static_cast<float>(window_height)));
         ImGui::Begin("fincore dashboard");
-        fincore::plot_cumulative_returns(returns, "cumulative_returns");
+        fincore::plot_cumulative_returns(cumulative_frame,
+                                          "cumulative_returns");
         ImGui::SeparatorText("Cumulative returns");
         fincore::plot_series_chart(cumulative_chart);
         ImGui::SeparatorText("Monthly heatmap");
@@ -114,8 +145,23 @@ int main() {
         ImGui::SeparatorText("Efficient frontier");
         fincore::plot_frontier_chart(frontier_chart);
         ImGui::End();
+    };
 
+    std::vector<unsigned char> pixels;
+    int capture_width = 0;
+    int capture_height = 0;
+    for (int frame = 0;
+         capture != nullptr
+             ? frame < 3
+             : glfwWindowShouldClose(window) == GLFW_FALSE;
+         ++frame) {
+        glfwPollEvents();
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+        draw_dashboard();
         ImGui::Render();
+
         int display_width = 0;
         int display_height = 0;
         glfwGetFramebufferSize(window, &display_width, &display_height);
@@ -123,7 +169,26 @@ int main() {
         glClearColor(0.1F, 0.1F, 0.1F, 1.0F);
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        glfwSwapBuffers(window);
+        if (capture != nullptr) {
+            if (frame == 2) {
+                glFinish();
+                capture_width = display_width;
+                capture_height = display_height;
+                pixels.resize(static_cast<std::size_t>(display_width) *
+                              static_cast<std::size_t>(display_height) * 3U);
+                glReadPixels(0, 0, display_width, display_height, GL_RGB,
+                             GL_UNSIGNED_BYTE, pixels.data());
+            }
+        } else {
+            glfwSwapBuffers(window);
+        }
+    }
+
+    int exit_code = 0;
+    if (capture != nullptr) {
+        exit_code = write_ppm(capture, capture_width, capture_height, pixels)
+                        ? 0
+                        : 1;
     }
 
     ImGui_ImplOpenGL3_Shutdown();
@@ -132,5 +197,5 @@ int main() {
     ImGui::DestroyContext();
     glfwDestroyWindow(window);
     glfwTerminate();
-    return 0;
+    return exit_code;
 }

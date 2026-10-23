@@ -39,11 +39,11 @@ phase	iteration	scope	evidence	status	notes
 69	3	portfolio optimization	phases-68-71-portfolio-optimization	accepted	
 70	3	risk parity	phases-68-71-portfolio-optimization	accepted	
 71	3	frontier/risk-parity completion	phases-68-71-portfolio-optimization	accepted	
-72	4	viz contracts/backend	iteration-4-visualization	accepted_bounded	visual NOT_RUN
-73	4	ImPlot adapter	iteration-4-visualization	accepted_bounded	adapter compiles; visual NOT_RUN
-74	4	chart data	iteration-4-visualization	accepted_bounded	visual NOT_RUN
-75	4	demo	iteration-4-visualization	accepted_bounded	demo not built; visual NOT_RUN
-76	4	chart fidelity	iteration-4-visualization	accepted_bounded	visual NOT_RUN
+72	4	viz contracts/backend	iteration-4-visualization; phase-75-implot-visual	accepted_bounded	offscreen visual; interactive NOT_RUN
+73	4	ImPlot adapter	iteration-4-visualization; phase-75-implot-visual	accepted_bounded	offscreen visual; interactive NOT_RUN
+74	4	chart data	iteration-4-visualization; phase-75-implot-visual	accepted_bounded	offscreen visual; interactive NOT_RUN
+75	4	demo	iteration-4-visualization; phase-75-implot-visual	accepted_bounded	demo built and rendered offscreen
+76	4	chart fidelity	iteration-4-visualization; phase-75-implot-visual	accepted_bounded	offscreen visual; interactive NOT_RUN
 77	5	panel schema/layout spike	iteration-5-factor-core	accepted	
 78	5	prepare/quantize/forward returns/PIT	iteration-5-factor-core; iteration-5-pit-portfolio	accepted	
 79	5	analysis model, event and group models	phase-79-analysis-model; phase-79-group-analysis	accepted	

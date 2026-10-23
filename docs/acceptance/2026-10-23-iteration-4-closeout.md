@@ -19,13 +19,17 @@
   `fincore_implot` at this HEAD (rc 0,
   `/tmp/fincore-implot-build/libfincore_implot.a`); the GLFW demo is not
   built, and no rendering was exercised.
-- Visual verification is **NOT_RUN**: no screenshot or human visual review
-  is claimed.
+- Visual verification: the demo was rendered **offscreen** (hidden
+  1280x2400 window, macOS OpenGL 3.2 core) and the 2560x4800 framebuffer was
+  inspected; date axes, heatmap labels and all panels render without ImGui
+  errors. Interactive window/input behaviour remains **NOT_RUN**. No desktop
+  screenshot was taken.
 - Sanitizer: full ASan+UBSan suite **722/722 passed** at the final HEAD
   (Homebrew LLVM 22.1.8, Ninja Debug).
 
 ## Open items
 
-Actual on-screen rendering, offline image capture and ImPlot adapter
-installation with the package remain open. The compute and build halves are accepted; the visual half is
+Interactive on-screen behaviour, Linux/Windows rendering and ImPlot adapter
+installation with the package remain open; the synthetic offscreen render is
+accepted. The compute and build halves are accepted; the visual half is
 explicitly unverified.

@@ -106,8 +106,9 @@ function route remains.
   (Homebrew LLVM 22.1.8, Ninja Debug; no reports). See
   [the sanitizer gate record](2026-10-23-sanitizer-gate-acceptance.md).
 - HTML artifacts: visually inspected in headless Chrome (synthetic report,
-  four SVG charts, eleven tables). ImPlot windows remain **NOT_RUN**; no
-  desktop screenshot was taken.
+  four SVG charts, eleven tables). ImPlot charts: offscreen 2560x4800 render
+  inspected after fixing axis/heatmap defects. Interactive windows and
+  Linux/Windows rendering remain **NOT_RUN**; no desktop screenshot was taken.
 - Supported-platform CI matrix: **NOT_RUN**; only the local macOS arm64
   install/consumer path is evidenced.
 - XLSX byte parity with the Python writer: not claimed; openpyxl load
@@ -119,6 +120,6 @@ function route remains.
 The native program covers the accepted compute, model, report, runtime and
 packaging paths with 279 exact/renamed public routes, zero unresolved routes
 and 72 explicitly deferred or non-port routes. The iteration-level items above
-(ImPlot windows, Ubuntu CI) remain outside the function ledger. Program-level parity is therefore **partial and explicitly
+(interactive windows, Ubuntu CI) remain outside the function ledger. Program-level parity is therefore **partial and explicitly
 bounded**; this record is the authoritative close-out of Phase 92 and must be
 updated if any listed gap is closed.

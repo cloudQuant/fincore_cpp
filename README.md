@@ -3179,7 +3179,7 @@ open items: [Iteration 4](docs/acceptance/2026-10-23-iteration-4-closeout.md)
 (factor analysis complete at the function level, group/event modelling and
 tear-sheet plotting open), and
 [Iteration 6](docs/acceptance/2026-10-23-iteration-6-closeout.md)
-(report/runtime accepted with ImPlot windows open, Ubuntu CI NOT_RUN;
+(report/runtime accepted with interactive windows open, Ubuntu CI NOT_RUN;
 the ASan+UBSan suite passes 724/724).
 The program parity ledger now reports 240 exact + 36 renamed routes, 51
 deferred, 21 non-port and three unresolved function gaps.
@@ -3370,3 +3370,16 @@ data, not a desktop screenshot.
 ImPlot GUI windows remain **NOT_RUN**. Release and ASan+UBSan suites remain
 731/731. Evidence is in [the HTML visual acceptance
 record](docs/acceptance/2026-10-23-phase-86-html-visual-acceptance.md).
+
+## Phase 75 slice — ImPlot dashboard rendered offscreen
+
+The demo now supports `FINCORE_IMPLOT_CAPTURE` (hidden GLFW window, OpenGL 3.2
+core, three frames, `glReadPixels`). Visual review caught and fixed four
+adapter defects: one-tick heatmap assertions, a hard-coded 12-month span,
+raw day-number axes, and repeated single-label axes. The final 2560x4800
+capture renders all panels with `YYYY-MM-DD` date axes and no ImGui errors.
+
+This is a synthetic offscreen render, not a desktop screenshot; interactive
+windows and Linux/Windows rendering remain NOT_RUN. Release and ASan+UBSan
+suites remain 731/731. Evidence is in [the ImPlot visual acceptance
+record](docs/acceptance/2026-10-23-phase-75-implot-visual-acceptance.md).

@@ -1,9 +1,13 @@
 #include <fincore/viz/implot_backend.hpp>
 
+#include <fincore/detail/json.hpp>
+
 #include <implot.h>
 
 #include <algorithm>
 #include <cmath>
+#include <cstdio>
+#include <cstdint>
 #include <limits>
 #include <string>
 #include <vector>
@@ -12,6 +16,8 @@ namespace fincore {
 namespace {
 
 constexpr double nanoseconds_per_day = 86'400'000'000'000.0;
+
+int format_date_axis(double value, char* buffer, int size, void*);
 
 void plot_series(const dataframe& frame, std::string_view column,
                  std::string_view title, std::string_view label) {
@@ -29,6 +35,7 @@ void plot_series(const dataframe& frame, std::string_view column,
     const std::string plot_title{title};
     const std::string series_label{label};
     if (ImPlot::BeginPlot(plot_title.data())) {
+        ImPlot::SetupAxisFormat(ImAxis_X1, format_date_axis);
         ImPlot::PlotLine(series_label.data(), x.data(), values.data(),
                          static_cast<int>(values.size()));
         ImPlot::EndPlot();
@@ -45,6 +52,17 @@ std::vector<double> day_axis(const std::vector<timestamp>& index) {
 }
 
 ImVec4 benchmark_color() { return ImVec4(0.45F, 0.45F, 0.45F, 1.0F); }
+
+int format_date_axis(double value, char* buffer, int size, void*) {
+    const auto nanoseconds = static_cast<timestamp>(
+        std::llround(value * nanoseconds_per_day));
+    const std::string text = detail::format_timestamp(nanoseconds);
+    const std::string date = text.substr(0, 10);
+    std::snprintf(buffer, static_cast<std::size_t>(size), "%s",
+                  date.c_str());
+    return static_cast<int>(date.size());
+}
+
 
 }  // namespace
 
@@ -68,15 +86,23 @@ void plot_monthly_heatmap(const heat_grid& grid) {
     if (!ImPlot::BeginPlot("Monthly Returns (%)")) {
         return;
     }
-    ImPlot::SetupAxes(nullptr, nullptr);
     std::vector<const char*> month_pointers;
     month_pointers.reserve(grid.columns.size());
     for (const auto& label : grid.columns) {
         month_pointers.push_back(label.c_str());
     }
-    ImPlot::SetupAxisTicks(ImAxis_X1, 0.5, 11.5,
-                           static_cast<int>(grid.columns.size()),
-                           month_pointers.data());
+    if (grid.columns.size() >= 2U) {
+        ImPlot::SetupAxis(ImAxis_X1, nullptr);
+        ImPlot::SetupAxis(ImAxis_Y1, nullptr);
+        ImPlot::SetupAxisTicks(
+            ImAxis_X1, 0.5,
+            static_cast<double>(grid.columns.size()) - 0.5,
+            static_cast<int>(grid.columns.size()), month_pointers.data());
+    } else {
+        ImPlot::SetupAxis(ImAxis_X1, month_pointers.front(),
+                          ImPlotAxisFlags_NoTickLabels);
+        ImPlot::SetupAxis(ImAxis_Y1, nullptr);
+    }
     std::vector<std::string> year_text;
     year_text.reserve(grid.years.size());
     std::vector<const char*> year_pointers;
@@ -87,10 +113,15 @@ void plot_monthly_heatmap(const heat_grid& grid) {
     for (const auto& text : year_text) {
         year_pointers.push_back(text.c_str());
     }
-    ImPlot::SetupAxisTicks(
-        ImAxis_Y1, 0.5,
-        static_cast<double>(grid.years.size()) - 0.5,
-        static_cast<int>(grid.years.size()), year_pointers.data());
+    if (grid.years.size() >= 2U) {
+        ImPlot::SetupAxisTicks(
+            ImAxis_Y1, 0.5,
+            static_cast<double>(grid.years.size()) - 0.5,
+            static_cast<int>(grid.years.size()), year_pointers.data());
+    } else {
+        ImPlot::SetupAxis(ImAxis_Y1, year_pointers.front(),
+                          ImPlotAxisFlags_NoTickLabels);
+    }
     const int rows = static_cast<int>(grid.years.size());
     const int columns = static_cast<int>(grid.columns.size());
     ImPlot::PlotHeatmap("Monthly returns", grid.values.data(), rows, columns,
@@ -106,6 +137,7 @@ void plot_series_chart(const series_chart& chart) {
         return;
     }
     ImPlot::SetupAxes(nullptr, chart.y_label.c_str());
+    ImPlot::SetupAxisFormat(ImAxis_X1, format_date_axis);
     double minimum = std::numeric_limits<double>::infinity();
     double maximum = -std::numeric_limits<double>::infinity();
     for (const auto& series : chart.series) {
@@ -141,6 +173,7 @@ void plot_drawdown_chart(const series_chart& chart) {
         return;
     }
     ImPlot::SetupAxes(nullptr, chart.y_label.c_str());
+    ImPlot::SetupAxisFormat(ImAxis_X1, format_date_axis);
     for (const auto& series : chart.series) {
         if (series.index.empty()) {
             continue;
@@ -210,19 +243,25 @@ void plot_correlation_matrix(const correlation_matrix& matrix) {
     if (matrix.labels.empty() || !ImPlot::BeginPlot("Correlation")) {
         return;
     }
-    ImPlot::SetupAxes(nullptr, nullptr);
     std::vector<const char*> pointers;
     pointers.reserve(matrix.labels.size());
     for (const auto& label : matrix.labels) {
         pointers.push_back(label.c_str());
     }
     const int count = static_cast<int>(matrix.labels.size());
-    ImPlot::SetupAxisTicks(ImAxis_X1, 0.0,
-                           static_cast<double>(count) - 1.0, count,
-                           pointers.data());
-    ImPlot::SetupAxisTicks(ImAxis_Y1, 0.0,
-                           static_cast<double>(count) - 1.0, count,
-                           pointers.data());
+    if (count >= 2) {
+        ImPlot::SetupAxisTicks(ImAxis_X1, 0.0,
+                               static_cast<double>(count) - 1.0, count,
+                               pointers.data());
+        ImPlot::SetupAxisTicks(ImAxis_Y1, 0.0,
+                               static_cast<double>(count) - 1.0, count,
+                               pointers.data());
+    } else {
+        ImPlot::SetupAxis(ImAxis_X1, matrix.labels.front().c_str(),
+                          ImPlotAxisFlags_NoTickLabels);
+        ImPlot::SetupAxis(ImAxis_Y1, matrix.labels.front().c_str(),
+                          ImPlotAxisFlags_NoTickLabels);
+    }
     ImPlot::PlotHeatmap("Correlation", matrix.values.data(), count, count,
                         -1.0, 1.0, "%.2f",
                         ImPlotPoint(-0.5, -0.5),
