@@ -2424,3 +2424,21 @@ half-period `0.21`, three flows `0.05691785736085275`, zero-dropped
 ASan+UBSan each passed 582/582. Evidence is recorded in [the Phase 54
 acceptance
 record](docs/acceptance/2026-10-23-phase-54-mwr-acceptance.md).
+
+## Accepted Phase 56 native cashflow-adjusted returns
+
+Phase 56 adds `cashflow_adjusted_returns`, `cashflow_adjusted_twr`, and
+`fee_treatment` in a new cashflows leaf. Valuations must be finite,
+non-negative with positive opening capital (terminal zero allowed); the
+ledger carries numeric timing (`0` end, `1` start) with duplicate dates
+summed; fees align by date; opening-date flows and fees are rejected. Period
+returns follow the source's start/end formulas with net or gross fee
+treatment, and TWR compounds the factors with representability guards.
+
+Clean detached oracle at `4b8f31b` reproduced the goldens (mixed ledger TWR
+`0.1160714285714286`, gross-fee `0.12165178571428581`, uniform end
+`0.12103174603174605`, same-day `0.13636363636363646`, terminal loss `-1.0`).
+Full headless CTest and LLVM 22 ASan+UBSan each passed 586/586. The
+currency/FX branch is declared out of this slice. Evidence is recorded in
+[the Phase 56 acceptance
+record](docs/acceptance/2026-10-23-phase-56-cashflow-adjusted-acceptance.md).
