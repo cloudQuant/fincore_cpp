@@ -2296,3 +2296,23 @@ record](docs/acceptance/2026-10-23-phase-51-interesting-date-ranges-acceptance.m
 
 This phase does not add adapters, reports, plots, packages, or release
 actions.
+
+## Accepted Phase 52 native bootstrap performance stats
+
+Phase 52 adds `calc_distribution_stats` (mean, median, population std, linear
+5/25/75/95 percentiles, IQR) and `perf_stats_bootstrap` over the thirteen
+unary perf metrics, reusing every accepted native metric leaf. The generic
+`calc_bootstrap` is mapped to the existing
+`simulation::bootstrap_distribution` rather than duplicated. Resampling uses
+`std::mt19937_64`; same-seed NumPy/C++ stream equality is explicitly not
+claimed, while native determinism and kernel composition are tested.
+
+Distribution goldens match the clean detached oracle exactly (mean
+`0.003999999999999999`, std `0.02690724809414742`, p5 `-0.041`, IQR
+`0.0325`), and metric names/order match. Full headless CTest and LLVM 22
+ASan+UBSan each passed 564/564. Evidence is recorded in [the Phase 52
+acceptance
+record](docs/acceptance/2026-10-23-phase-52-perf-stats-bootstrap-acceptance.md).
+
+This phase does not add a DataFrame projection, adapters, reports, plots,
+packages, or release actions.
