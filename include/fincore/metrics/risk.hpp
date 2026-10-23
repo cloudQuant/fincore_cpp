@@ -44,4 +44,17 @@ double residual_risk(const dataframe &returns, const dataframe &benchmark,
 double var_cov_var_normal(double portfolio_value, double confidence,
                           double mean = 0.0, double standard_deviation = 1.0);
 
+struct gpd_risk_estimates_result {
+    double threshold;
+    double scale;
+    double shape;
+    double var;
+    double es;
+};
+
+gpd_risk_estimates_result gpd_risk_estimates(
+    const dataframe& returns,
+    double var_p = 0.01,
+    std::string_view column = returns_column);
+
 } // namespace fincore
