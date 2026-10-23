@@ -2744,3 +2744,30 @@ only in last bits (VaR <= 1.4e-14 absolute).
 Full headless CTest and LLVM 22 ASan+UBSan each passed 648/648. Evidence is
 recorded in [the Phase 63 slice-4 acceptance
 record](docs/acceptance/2026-10-23-phase-63d-gev-acceptance.md).
+
+## Accepted Phases 68–71 native portfolio optimization
+
+Phases 68–71 add the shared projected-gradient/penalty portfolio solver,
+`optimize_portfolio` (max-Sharpe, min-variance, target-return, target-risk),
+`efficient_frontier` and `risk_parity`, with a new
+`fincore::optimization_error` feasibility failure type. The solver keeps
+weights on the simplex/bounds, penalizes return/sector/volatility
+constraints, validates every result and reuses the Phase 60 QP kernel for
+unconstrained minimum variance.
+
+The 300-day, four-asset oracle fixture matches min-variance at 1e-5 weights
+(volatility 0.0579348205) and max-Sharpe at 1e-4 (Sharpe 3.0263399417), with
+declared budgets for target-return (5e-3 weights, 1e-8 target residual),
+target-risk (5e-4 weights, 1e-7 volatility), sector-constrained variance
+(5e-3) and the 10-point frontier (returns/volatilities 5e-7, weights 1e-3).
+Risk parity matches at 1e-6 weights and 1e-8 contributions. Infeasible
+target-risk and frontier bounds fail with `optimization_error`; malformed
+inputs fail with `input_error`.
+
+Declared divergence: SciPy SLSQP paths are not reproduced; the contract is
+objective/feasibility tolerance parity, and unique optima are also compared
+by weight. Runtime operation registration remains Iteration 6.
+
+Full headless CTest and LLVM 22 ASan+UBSan each passed 655/655. Evidence is
+recorded in [the Phases 68–71 acceptance
+record](docs/acceptance/2026-10-23-phases-68-71-portfolio-optimization-acceptance.md).
