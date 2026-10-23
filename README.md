@@ -2623,3 +2623,15 @@ Full headless CTest and LLVM 22 ASan+UBSan each passed 620/620. Evidence is
 recorded in [the Phase 63 slice-1 acceptance
 record](docs/acceptance/2026-10-23-phase-63-gpd-risk-estimates-acceptance.md).
 `risk/evt.py` remains the second slice.
+
+## Accepted Phase 63 slice 2 — EVT Hill and GPD fits
+
+Phase 63 slice 2 adds `hill_estimator` and `gpd_fit` (MLE/PWM). Hill and PWM
+match the oracle exactly (lower xi 0.5949755669081104, upper
+0.07553762175129869; PWM xi 0.6969927826510689/beta 0.00682871573607405).
+The MLE port reproduces the source's minimize-log-likelihood defect (shape at
+the 1.0 bound), recorded rather than silently corrected.
+
+Full headless CTest and LLVM 22 ASan+UBSan each passed 624/624. Evidence is
+recorded in [the Phase 63 slice-2 acceptance
+record](docs/acceptance/2026-10-23-phase-63b-evt-kernels-acceptance.md).
