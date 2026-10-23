@@ -2316,3 +2316,19 @@ record](docs/acceptance/2026-10-23-phase-52-perf-stats-bootstrap-acceptance.md).
 
 This phase does not add a DataFrame projection, adapters, reports, plots,
 packages, or release actions.
+
+## Accepted Phase 52b slice 1 — weekly/monthly consecutive runs
+
+Phase 52b slice 1 adds `max_consecutive_up_weeks`, `max_consecutive_down_weeks`,
+`max_consecutive_up_months`, and `max_consecutive_down_months`. Daily rows are
+bucketed into Sunday-ending weeks or calendar months, each bucket compounds
+with NaN-as-zero semantics, and the longest strictly positive/negative run is
+returned; empty input is NaN.
+
+Clean detached oracle at `4b8f31b` reproduced the goldens (five-month fixture:
+up/down months 2/1, up/down weeks 8/5; six-week fixture: 2/2). Full headless
+CTest and LLVM 22 ASan+UBSan each passed 566/566. Evidence is recorded in [the
+Phase 52b slice-1 acceptance
+record](docs/acceptance/2026-10-23-phase-52b-consecutive-weeks-months-acceptance.md).
+Phase 52b remains open for `r_cubed_turtle`, rolling volatility/Sortino, and
+aligned rolling alpha/beta variants.
