@@ -307,4 +307,262 @@ TEST(Ratios, ReturnsSignedInfinityForZeroDownsideSortino) {
     EXPECT_GT(fincore::sortino_ratio(returns), 0.0);
 }
 
+std::vector<double> repeating_pattern(std::initializer_list<double> pattern,
+                                      std::size_t count) {
+    std::vector<double> values;
+    values.reserve(count);
+    while (values.size() < count) {
+        for (const double value : pattern) {
+            if (values.size() == count) {
+                break;
+            }
+            values.push_back(value);
+        }
+    }
+    return values;
+}
+
+std::vector<double> lower_clamp_values(std::size_t count) {
+    std::vector<double> values(count - 1, -0.001);
+    values.push_back(0.04);
+    return values;
+}
+
+std::vector<fincore::timestamp> sequence_index(std::size_t count) {
+    std::vector<fincore::timestamp> index(count);
+    for (std::size_t position = 0; position < count; ++position) {
+        index[position] = static_cast<fincore::timestamp>(position + 1);
+    }
+    return index;
+}
+
+fincore::dataframe adjusted_series(std::vector<double> values) {
+    return fincore::make_series(sequence_index(values.size()), "returns",
+                                values);
+}
+
+TEST(Ratios, AdjustedSharpeMatchesPythonOracleForOrdinaryAndRiskFree) {
+    const auto returns = fincore::make_series(
+        {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, "returns",
+        {0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03});
+
+    EXPECT_NEAR(fincore::adjusted_sharpe_ratio(returns), 2.179402814215353,
+                1e-15);
+    EXPECT_NEAR(fincore::adjusted_sharpe_ratio(returns, 0.001),
+                1.637451311586237, 1e-15);
+}
+
+TEST(Ratios, AdjustedSharpeGatesRawCountThenCleanSharpeBeforeMoments) {
+    const std::vector<double> raw_four{0.01, -0.02, 0.03, -0.01};
+    for (std::size_t count = 0; count < 4; ++count) {
+        const auto short_frame = adjusted_series(std::vector<double>(
+            raw_four.begin(),
+            raw_four.begin() + static_cast<std::ptrdiff_t>(count)));
+        EXPECT_TRUE(std::isnan(fincore::adjusted_sharpe_ratio(short_frame)))
+            << "raw count " << count;
+    }
+    const auto four = adjusted_series(raw_four);
+    EXPECT_NEAR(fincore::adjusted_sharpe_ratio(four), 1.8289412324150214,
+                1e-15);
+
+    const auto all_nan = adjusted_series(std::vector<double>(10, nan));
+    EXPECT_TRUE(std::isnan(fincore::adjusted_sharpe_ratio(all_nan)));
+
+    const auto none_clean = adjusted_series({nan, nan, nan, nan});
+    const auto one_clean = adjusted_series({nan, nan, nan, 0.01});
+    EXPECT_TRUE(std::isnan(fincore::adjusted_sharpe_ratio(none_clean)));
+    EXPECT_TRUE(std::isnan(fincore::adjusted_sharpe_ratio(one_clean)));
+}
+
+TEST(Ratios, AdjustedSharpeUsesNanOnlyBiasedMomentsNotPublicStatsGates) {
+    const auto two_clean = adjusted_series({nan, nan, 0.01, -0.02});
+    const auto three_clean = adjusted_series({nan, 0.01, -0.02, 0.03});
+
+    EXPECT_NEAR(fincore::adjusted_sharpe_ratio(two_clean),
+                -4.090878742872842, 1e-14);
+    EXPECT_NEAR(fincore::adjusted_sharpe_ratio(three_clean),
+                4.520724794501948, 1e-14);
+}
+
+TEST(Ratios, AdjustedSharpeDampensAndClampsAtAllRawBoundaries) {
+    struct boundary_case {
+        std::size_t count;
+        double upper_expected;
+        double lower_expected;
+    };
+    const std::array<boundary_case, 4> cases{{
+        {19, 33.1438443915704, 1.758752806478678},
+        {20, 40.22864650967021, 1.4544898588693689},
+        {49, 40.44197112618808, -0.3539959942330339},
+        {50, 40.85889866357148, -0.3942429246552071},
+    }};
+
+    for (const auto& test_case : cases) {
+        const auto upper = adjusted_series(
+            repeating_pattern({0.01, 0.03}, test_case.count));
+        const auto lower =
+            adjusted_series(lower_clamp_values(test_case.count));
+
+        EXPECT_NEAR(fincore::adjusted_sharpe_ratio(upper),
+                    test_case.upper_expected, 1e-12)
+            << "upper raw count " << test_case.count;
+        EXPECT_NEAR(fincore::adjusted_sharpe_ratio(lower),
+                    test_case.lower_expected, 1e-13)
+            << "lower raw count " << test_case.count;
+    }
+}
+
+TEST(Ratios, AdjustedSharpeUsesRawCountForDampeningAndClampFamily) {
+    std::vector<double> values(18, nan);
+    values.push_back(0.01);
+    values.push_back(-0.02);
+    const auto raw_twenty_clean_two = adjusted_series(values);
+
+    EXPECT_NEAR(fincore::adjusted_sharpe_ratio(raw_twenty_clean_two),
+                -4.864154602806124, 1e-14);
+}
+
+TEST(Ratios, AdjustedSharpeFallsBackForNaNMomentsOnNearZeroVariance) {
+    const double next = std::nextafter(1.0, 2.0);
+    const auto near_zero_variance = adjusted_series({1.0, next, 1.0, next});
+    const double base = fincore::sharpe_ratio(near_zero_variance);
+
+    EXPECT_NEAR(base, 8.755998418330334e16, 1e2);
+    EXPECT_DOUBLE_EQ(fincore::adjusted_sharpe_ratio(near_zero_variance), base);
+}
+
+TEST(Ratios, AdjustedSharpePreservesConstantAndNonfiniteClasses) {
+    const double infinity = std::numeric_limits<double>::infinity();
+    const auto zeros = adjusted_series({0.0, 0.0, 0.0, 0.0});
+    const auto positive_constant = adjusted_series({0.01, 0.01, 0.01, 0.01});
+    const auto negative_constant =
+        adjusted_series({-0.01, -0.01, -0.01, -0.01});
+
+    EXPECT_TRUE(std::isnan(fincore::adjusted_sharpe_ratio(zeros)));
+    const double positive = fincore::adjusted_sharpe_ratio(positive_constant);
+    EXPECT_TRUE(std::isinf(positive));
+    EXPECT_GT(positive, 0.0);
+    const double negative = fincore::adjusted_sharpe_ratio(negative_constant);
+    EXPECT_TRUE(std::isinf(negative));
+    EXPECT_LT(negative, 0.0);
+
+    const auto positive_inf = adjusted_series({infinity, 0.01, -0.02, 0.03});
+    const auto negative_inf =
+        adjusted_series({-infinity, 0.01, -0.02, 0.03});
+    const auto both_inf =
+        adjusted_series({infinity, -infinity, 0.01, -0.02});
+    EXPECT_TRUE(std::isnan(fincore::adjusted_sharpe_ratio(positive_inf)));
+    EXPECT_TRUE(std::isnan(fincore::adjusted_sharpe_ratio(negative_inf)));
+    EXPECT_TRUE(std::isnan(fincore::adjusted_sharpe_ratio(both_inf)));
+
+    const auto raw_four = adjusted_series({0.01, -0.02, 0.03, -0.01});
+    EXPECT_TRUE(std::isnan(fincore::adjusted_sharpe_ratio(raw_four, nan)));
+    EXPECT_TRUE(std::isnan(fincore::adjusted_sharpe_ratio(raw_four, infinity)));
+    EXPECT_TRUE(std::isnan(fincore::adjusted_sharpe_ratio(raw_four, -infinity)));
+}
+
+TEST(Ratios, AdjustedSharpePreservesOrderAndDuplicateNonmonotonicLabels) {
+    const auto ordered = fincore::make_series(
+        std::vector<fincore::timestamp>{3, 1, 3, 2}, "returns",
+        std::vector<double>{-1e16, 1.0, 1e16, 1.0});
+    const auto reordered = fincore::make_series(
+        std::vector<fincore::timestamp>{3, 1, 3, 2}, "returns",
+        std::vector<double>{1.0, 1e16, 1.0, -1e16});
+
+    EXPECT_NEAR(fincore::adjusted_sharpe_ratio(ordered),
+                4.860555523805895e-16, 1e-20);
+    EXPECT_DOUBLE_EQ(fincore::adjusted_sharpe_ratio(reordered), 0.0);
+    EXPECT_NE(fincore::adjusted_sharpe_ratio(ordered),
+              fincore::adjusted_sharpe_ratio(reordered));
+}
+
+TEST(Ratios, AdjustedSharpeSupportsNamedAndBoundedSelectors) {
+    const auto strategy = fincore::make_series(
+        {1, 2, 3, 4}, "strategy", {0.01, -0.02, 0.03, -0.01});
+    constexpr std::array<char, 8> bounded_name{
+        's', 't', 'r', 'a', 't', 'e', 'g', 'y'};
+    const std::string_view bounded_selector{bounded_name.data(),
+                                            bounded_name.size()};
+
+    EXPECT_NEAR(fincore::adjusted_sharpe_ratio(strategy, 0.0, "strategy"),
+                1.8289412324150214, 1e-15);
+    EXPECT_DOUBLE_EQ(
+        fincore::adjusted_sharpe_ratio(strategy, 0.0, bounded_selector),
+        fincore::adjusted_sharpe_ratio(strategy, 0.0, "strategy"));
+}
+
+TEST(Ratios, AdjustedSharpeValidatesSelectorsAndStructureBeforeRawCount) {
+    fincore::dataframe empty_missing_column;
+    empty_missing_column.load_index(std::vector<fincore::timestamp>{});
+    const auto singleton = fincore::make_series({1}, "returns", {0.01});
+    const std::array<char, 13> embedded_storage{
+        'r', 'e', 't', 'u', 'r', 'n', 's', '\0', 'e', 'v', 'i', 'l', '!'};
+    const std::string_view embedded_selector{embedded_storage.data(),
+                                             embedded_storage.size()};
+
+    const auto expect_error_message = [](const auto& call,
+                                         const char* expected_message) {
+        try {
+            static_cast<void>(call());
+            ADD_FAILURE() << "expected fincore::input_error";
+        } catch (const fincore::input_error& error) {
+            EXPECT_STREQ(error.what(), expected_message);
+        }
+    };
+
+    EXPECT_THROW(
+        static_cast<void>(fincore::adjusted_sharpe_ratio(empty_missing_column)),
+        fincore::input_error);
+    EXPECT_THROW(
+        static_cast<void>(fincore::adjusted_sharpe_ratio(singleton, 0.0, "")),
+        fincore::input_error);
+    EXPECT_THROW(static_cast<void>(
+                     fincore::adjusted_sharpe_ratio(singleton, 0.0, "missing")),
+                 fincore::input_error);
+
+    const auto valid_prefix_frame =
+        fincore::make_series({1, 2}, "returns", {0.01, -0.02});
+    expect_error_message(
+        [&] {
+            return fincore::adjusted_sharpe_ratio(valid_prefix_frame, 0.0,
+                                                  embedded_selector);
+        },
+        "column name must not contain an embedded NUL");
+
+    fincore::dataframe wrong_type;
+    wrong_type.load_index(std::vector<fincore::timestamp>{1});
+    wrong_type.load_column<int>("returns", std::vector<int>{1},
+                                hmdf::nan_policy::dont_pad_with_nans);
+    EXPECT_THROW(static_cast<void>(fincore::adjusted_sharpe_ratio(wrong_type)),
+                 fincore::input_error);
+
+    fincore::dataframe malformed;
+    malformed.load_index(std::vector<fincore::timestamp>{1, 2});
+    malformed.load_column<double>("returns", std::vector<double>{0.01},
+                                  hmdf::nan_policy::dont_pad_with_nans);
+    EXPECT_THROW(static_cast<void>(fincore::adjusted_sharpe_ratio(malformed)),
+                 fincore::input_error);
+    expect_error_message(
+        [&] {
+            return fincore::adjusted_sharpe_ratio(malformed, 0.0,
+                                                  embedded_selector);
+        },
+        "column name must not contain an embedded NUL");
+    expect_error_message(
+        [&] { return fincore::adjusted_sharpe_ratio(malformed, nan); },
+        "required double column must match the frame index length");
+}
+
+TEST(Ratios, AdjustedSharpeReturnsOwnedScalarAfterInputFrameAndSelectorEnd) {
+    const double result = [] {
+        const std::string column{"returns"};
+        const std::string_view selector{column.data(), column.size()};
+        const auto returns = fincore::make_series(
+            {1, 2, 3, 4}, "returns", {0.01, -0.02, 0.03, -0.01});
+        return fincore::adjusted_sharpe_ratio(returns, 0.0, selector);
+    }();
+
+    EXPECT_NEAR(result, 1.8289412324150214, 1e-15);
+}
+
 }  // namespace
