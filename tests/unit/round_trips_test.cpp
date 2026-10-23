@@ -1,3 +1,4 @@
+#include <fincore/calendar.hpp>
 #include <fincore/metrics/round_trips.hpp>
 
 #include <gtest/gtest.h>
@@ -342,6 +343,96 @@ TEST(RoundTrips, RejectsInvalidFieldsAndIgnoresUnrelatedMetadata) {
                  fincore::input_error);
     EXPECT_THROW(fincore::extract_round_trips(valid, 8 * hour, "absent"),
                  fincore::input_error);
+}
+
+fincore::dataframe round_trip_stats_fixture() {
+    const std::vector<fincore::timestamp> opens{
+        fincore::utc_timestamp(2021, 1, 1), fincore::utc_timestamp(2021, 1, 2),
+        fincore::utc_timestamp(2021, 1, 3), fincore::utc_timestamp(2021, 1, 4),
+        fincore::utc_timestamp(2021, 1, 5), fincore::utc_timestamp(2021, 1, 6)};
+    const std::vector<fincore::timestamp> closes{
+        fincore::utc_timestamp(2021, 1, 3),  fincore::utc_timestamp(2021, 1, 5),
+        fincore::utc_timestamp(2021, 1, 4),  fincore::utc_timestamp(2021, 1, 8),
+        fincore::utc_timestamp(2021, 1, 5),  fincore::utc_timestamp(2021, 1, 10)};
+    fincore::dataframe frame;
+    frame.load_index(std::vector<fincore::timestamp>{1, 2, 3, 4, 5, 6});
+    frame.load_column<double>("pnl", {100.0, -40.0, 25.0, -10.0, 0.0, 60.0},
+                              hmdf::nan_policy::dont_pad_with_nans);
+    frame.load_column<fincore::timestamp>("open_dt", opens,
+                                          hmdf::nan_policy::dont_pad_with_nans);
+    frame.load_column<fincore::timestamp>("close_dt", closes,
+                                          hmdf::nan_policy::dont_pad_with_nans);
+    std::vector<bool> long_flags{true, false, true, false, true, false};
+    frame.load_column<bool>("long", long_flags,
+                            hmdf::nan_policy::dont_pad_with_nans);
+    frame.load_column<double>("rt_returns",
+                              {0.1, -0.05, 0.02, -0.01, 0.0, 0.06},
+                              hmdf::nan_policy::dont_pad_with_nans);
+    frame.load_column<std::string>("symbol",
+                                   {"AAA", "AAA", "BBB", "BBB", "CCC", "CCC"},
+                                   hmdf::nan_policy::dont_pad_with_nans);
+    std::vector<fincore::timestamp> durations;
+    durations.reserve(6);
+    for (std::size_t position = 0; position < 6; ++position) {
+        durations.push_back(closes[position] - opens[position]);
+    }
+    frame.load_column<fincore::timestamp>("duration", durations,
+                                          hmdf::nan_policy::dont_pad_with_nans);
+    return frame;
+}
+
+TEST(RoundTrips, GenerateRoundTripStatsMatchesPythonOracle) {
+    const auto stats = fincore::gen_round_trip_stats(round_trip_stats_fixture());
+
+    ASSERT_EQ(stats.pnl.row_labels.size(), 3U);
+    EXPECT_EQ(stats.pnl.row_labels[0], "All trades");
+    EXPECT_EQ(stats.pnl.row_labels[1], "short");
+    EXPECT_EQ(stats.pnl.row_labels[2], "long");
+    ASSERT_EQ(stats.pnl.values.size(), 3U);
+    EXPECT_DOUBLE_EQ(stats.pnl.values[0][0], 135.0);
+    EXPECT_DOUBLE_EQ(stats.pnl.values[0][1], 185.0);
+    EXPECT_DOUBLE_EQ(stats.pnl.values[0][2], -50.0);
+    EXPECT_NEAR(stats.pnl.values[0][3], 3.7, 1e-15);
+    EXPECT_NEAR(stats.pnl.values[0][4], 22.5, 1e-15);
+    EXPECT_TRUE(std::isnan(stats.pnl.values[2][3]));
+    EXPECT_DOUBLE_EQ(stats.pnl.values[2][8], 100.0);
+
+    EXPECT_DOUBLE_EQ(stats.summary.values[0][0], 6.0);
+    EXPECT_DOUBLE_EQ(stats.summary.values[0][1], 0.5);
+    EXPECT_DOUBLE_EQ(stats.summary.values[1][1], 1.0 / 3.0);
+    EXPECT_DOUBLE_EQ(stats.summary.values[2][1], 2.0 / 3.0);
+
+    EXPECT_NEAR(stats.duration.values[0][0], 2.3333333333333335, 1e-15);
+    EXPECT_NEAR(stats.duration.values[0][1], 2.5, 1e-15);
+    EXPECT_DOUBLE_EQ(stats.duration.values[0][2], 4.0);
+    EXPECT_DOUBLE_EQ(stats.duration.values[0][3], 0.0);
+    EXPECT_DOUBLE_EQ(stats.duration.values[0][4], 2.0 / 3.0);
+    EXPECT_DOUBLE_EQ(stats.duration.values[0][5], 14.0);
+    EXPECT_NEAR(stats.duration.values[1][0], 3.6666666666666665, 1e-15);
+    EXPECT_NEAR(stats.duration.values[1][4], 0.375, 1e-15);
+
+    EXPECT_NEAR(stats.returns.values[0][0], 0.02, 1e-15);
+    EXPECT_NEAR(stats.returns.values[0][1], 0.06, 1e-15);
+    EXPECT_NEAR(stats.returns.values[0][2], -0.030000000000000002, 1e-15);
+    EXPECT_NEAR(stats.returns.values[0][3], 0.01, 1e-15);
+    EXPECT_DOUBLE_EQ(stats.returns.values[0][6], 0.1);
+    EXPECT_DOUBLE_EQ(stats.returns.values[0][7], -0.05);
+
+    ASSERT_EQ(stats.symbol_labels.size(), 3U);
+    EXPECT_EQ(stats.symbol_labels[0], "AAA");
+    EXPECT_EQ(stats.symbol_labels[1], "BBB");
+    EXPECT_EQ(stats.symbol_labels[2], "CCC");
+    ASSERT_EQ(stats.symbol_values.size(), 8U);
+    EXPECT_NEAR(stats.symbol_values[0][0], 0.025, 1e-15);
+    EXPECT_NEAR(stats.symbol_values[0][1], 0.005, 1e-15);
+    EXPECT_NEAR(stats.symbol_values[0][2], 0.03, 1e-15);
+    EXPECT_DOUBLE_EQ(stats.symbol_values[7][2], 0.0);
+
+    fincore::dataframe empty;
+    empty.load_index(std::vector<fincore::timestamp>{});
+    const auto empty_stats = fincore::gen_round_trip_stats(empty);
+    EXPECT_TRUE(empty_stats.pnl.row_labels.empty());
+    EXPECT_TRUE(empty_stats.pnl.column_labels.empty());
 }
 
 }  // namespace

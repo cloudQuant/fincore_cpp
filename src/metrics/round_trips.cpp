@@ -358,4 +358,289 @@ dataframe extract_round_trips(
     return make_round_trip_frame(fifo_round_trips(blocks));
 }
 
+namespace {
+
+constexpr double rt_nan = std::numeric_limits<double>::quiet_NaN();
+constexpr double nanoseconds_per_day_double = 86'400'000'000'000.0;
+
+double rt_mean(const std::vector<double>& values) {
+    if (values.empty()) {
+        return rt_nan;
+    }
+    double total = 0.0;
+    for (const double value : values) {
+        total += value;
+    }
+    return total / static_cast<double>(values.size());
+}
+
+double rt_median(std::vector<double> values) {
+    if (values.empty()) {
+        return rt_nan;
+    }
+    std::sort(values.begin(), values.end());
+    const std::size_t middle = values.size() / 2U;
+    if (values.size() % 2U != 0U) {
+        return values[middle];
+    }
+    return (values[middle - 1U] + values[middle]) / 2.0;
+}
+
+double rt_sum(const std::vector<double>& values) {
+    double total = 0.0;
+    for (const double value : values) {
+        total += value;
+    }
+    return total;
+}
+
+std::vector<double> rt_filter(const std::vector<double>& values,
+                              const bool positive) {
+    std::vector<double> result;
+    for (const double value : values) {
+        if (positive ? value > 0.0 : value < 0.0) {
+            result.push_back(value);
+        }
+    }
+    return result;
+}
+
+std::vector<double> pnl_stats(const std::vector<double>& values,
+                              const std::vector<double>& durations) {
+    static_cast<void>(durations);
+    const auto positive = rt_filter(values, true);
+    const auto negative = rt_filter(values, false);
+    const double gross_profit = rt_sum(positive);
+    const double gross_loss = rt_sum(negative);
+    const double profit_factor =
+        gross_loss != 0.0 ? gross_profit / std::fabs(gross_loss) : rt_nan;
+    const double average_winning = rt_mean(positive);
+    const double average_losing = rt_mean(negative);
+    const double ratio =
+        !std::isnan(average_losing) && std::fabs(average_losing) != 0.0
+            ? average_winning / std::fabs(average_losing)
+            : rt_nan;
+    double maximum = rt_nan;
+    double minimum = rt_nan;
+    for (const double value : values) {
+        maximum = std::isnan(maximum) ? value : std::max(maximum, value);
+        minimum = std::isnan(minimum) ? value : std::min(minimum, value);
+    }
+    return {rt_sum(values), gross_profit, gross_loss, profit_factor,
+            rt_mean(values), average_winning, average_losing, ratio, maximum,
+            minimum};
+}
+
+std::vector<double> summary_stats(const std::vector<double>& values,
+                                 const std::vector<double>& durations) {
+    static_cast<void>(durations);
+    double winners = 0.0;
+    double losers = 0.0;
+    double even = 0.0;
+    for (const double value : values) {
+        if (value > 0.0) {
+            ++winners;
+        } else if (value < 0.0) {
+            ++losers;
+        } else {
+            ++even;
+        }
+    }
+    const double count = static_cast<double>(values.size());
+    return {count, count > 0.0 ? winners / count : rt_nan, winners, losers,
+            even};
+}
+
+std::vector<double> duration_stats(const std::vector<double>& values,
+                                   const std::vector<double>& durations) {
+    static_cast<void>(values);
+    double sum = 0.0;
+    double maximum = rt_nan;
+    double minimum = rt_nan;
+    for (const double value : durations) {
+        sum += value;
+        maximum = std::isnan(maximum) ? value : std::max(maximum, value);
+        minimum = std::isnan(minimum) ? value : std::min(minimum, value);
+    }
+    const double average = durations.empty()
+                               ? rt_nan
+                               : sum / static_cast<double>(durations.size());
+    return {average, rt_median(durations), maximum, minimum};
+}
+
+std::vector<double> return_stats(const std::vector<double>& values,
+                                 const std::vector<double>& durations) {
+    static_cast<void>(durations);
+    const auto positive = rt_filter(values, true);
+    const auto negative = rt_filter(values, false);
+    double maximum = rt_nan;
+    double minimum = rt_nan;
+    for (const double value : values) {
+        maximum = std::isnan(maximum) ? value : std::max(maximum, value);
+        minimum = std::isnan(minimum) ? value : std::min(minimum, value);
+    }
+    return {rt_mean(values), rt_mean(positive), rt_mean(negative),
+            rt_median(values), rt_median(positive), rt_median(negative),
+            maximum, minimum};
+}
+
+struct rt_row_data {
+    std::vector<double> values;
+    std::vector<double> return_values;
+    std::vector<double> durations;
+    double group_span_days{0.0};
+};
+
+}  // namespace
+
+round_trip_stats gen_round_trip_stats(
+    const dataframe& round_trips, const std::string_view pnl_column_name,
+    const std::string_view returns_column_name,
+    const std::string_view long_column_name,
+    const std::string_view symbol_column_name,
+    const std::string_view open_column_name,
+    const std::string_view close_column_name) {
+    if (pnl_column_name.find(' ') != std::string_view::npos ||
+        returns_column_name.find(' ') != std::string_view::npos ||
+        long_column_name.find(' ') != std::string_view::npos ||
+        symbol_column_name.find(' ') != std::string_view::npos ||
+        open_column_name.find(' ') != std::string_view::npos ||
+        close_column_name.find(' ') != std::string_view::npos) {
+        throw input_error{"column name must not contain an embedded NUL"};
+    }
+    if (round_trips.get_index().empty()) {
+        return round_trip_stats{};
+    }
+    const auto pnls = require_double_column(round_trips, pnl_column_name);
+    const auto returns =
+        require_double_column(round_trips, returns_column_name);
+    const auto& longs =
+        round_trips.get_column<bool>(std::string{long_column_name}.c_str());
+    const auto& symbols = round_trips.get_column<std::string>(
+        std::string{symbol_column_name}.c_str());
+    const auto& opens = round_trips.get_column<timestamp>(
+        std::string{open_column_name}.c_str());
+    const auto& closes = round_trips.get_column<timestamp>(
+        std::string{close_column_name}.c_str());
+    if (symbols.size() != pnls.size() || longs.size() != pnls.size() ||
+        opens.size() != pnls.size() || closes.size() != pnls.size()) {
+        throw input_error{"round-trip columns must match the frame index length"};
+    }
+
+    round_trip_stats result;
+    if (pnls.empty()) {
+        return result;
+    }
+
+    std::vector<double> durations(opens.size());
+    for (std::size_t position = 0; position < opens.size(); ++position) {
+        durations[position] =
+            static_cast<double>(closes[position] - opens[position]) /
+            nanoseconds_per_day_double;
+    }
+
+    auto group_values = [&](const int group) {
+        rt_row_data data;
+        timestamp minimum_open = std::numeric_limits<timestamp>::max();
+        timestamp maximum_close = std::numeric_limits<timestamp>::min();
+        for (std::size_t position = 0; position < pnls.size(); ++position) {
+            const bool is_long = longs[position];
+            if (group == 0 || (group == 1 && !is_long) ||
+                (group == 2 && is_long)) {
+                data.values.push_back(pnls[position]);
+                data.return_values.push_back(returns[position]);
+                data.durations.push_back(durations[position]);
+                minimum_open = std::min(minimum_open, opens[position]);
+                maximum_close = std::max(maximum_close, closes[position]);
+            }
+        }
+        if (!data.values.empty()) {
+            data.group_span_days =
+                static_cast<double>(maximum_close - minimum_open) /
+                nanoseconds_per_day_double;
+        }
+        return data;
+    };
+
+    std::vector<std::pair<std::string, rt_row_data>> groups{
+        {"All trades", group_values(0)}, {"short", group_values(1)},
+        {"long", group_values(2)}};
+
+    auto fill_table = [&](round_trip_stat_table& table,
+                          const std::vector<std::string>& columns,
+                          const int family) {
+        table.column_labels = columns;
+        for (const auto& [label, data] : groups) {
+            if (data.values.empty()) {
+                continue;
+            }
+            std::vector<double> row;
+            if (family == 0) {
+                row = pnl_stats(data.values, data.durations);
+            } else if (family == 1) {
+                row = summary_stats(data.values, data.durations);
+            } else if (family == 2) {
+                row = duration_stats(data.values, data.durations);
+                const double count = static_cast<double>(data.values.size());
+                const double per_day = data.group_span_days > 0.0
+                                           ? count / data.group_span_days
+                                           : rt_nan;
+                const double per_month =
+                    data.group_span_days > 0.0
+                        ? count / (data.group_span_days / 21.0)
+                        : rt_nan;
+                row.push_back(per_day);
+                row.push_back(per_month);
+            } else {
+                row = return_stats(data.return_values, data.durations);
+            }
+            table.row_labels.push_back(label);
+            table.values.push_back(std::move(row));
+        }
+    };
+
+    fill_table(result.pnl, {"Total profit", "Gross profit", "Gross loss",
+                            "Profit factor", "Avg. trade net profit",
+                            "Avg. winning trade", "Avg. losing trade",
+                            "Ratio Avg. Win:Avg. Loss", "Largest winning trade",
+                            "Largest losing trade"},
+               0);
+    fill_table(result.summary, {"Total number of round_trips",
+                                "Percent profitable", "Winning round_trips",
+                                "Losing round_trips", "Even round_trips"},
+               1);
+    fill_table(result.duration, {"Avg duration", "Median duration",
+                                 "Longest duration", "Shortest duration",
+                                 "Avg # round_trips per day",
+                                 "Avg # round_trips per month"},
+               2);
+    fill_table(result.returns, {"Avg returns all round_trips",
+                                "Avg returns winning", "Avg returns losing",
+                                "Median returns all round_trips",
+                                "Median returns winning",
+                                "Median returns losing",
+                                "Largest winning trade",
+                                "Largest losing trade"},
+               3);
+
+    std::map<std::string, std::vector<double>> by_symbol;
+    for (std::size_t position = 0; position < returns.size(); ++position) {
+        by_symbol[symbols[position]].push_back(returns[position]);
+    }
+    const std::array<const char*, 8> symbol_stats{
+        "Avg returns all round_trips", "Avg returns winning",
+        "Avg returns losing", "Median returns all round_trips",
+        "Median returns winning", "Median returns losing", "max", "min"};
+    result.symbol_stat_labels.assign(symbol_stats.begin(), symbol_stats.end());
+    result.symbol_values.assign(8U, {});
+    for (const auto& [symbol, values] : by_symbol) {
+        result.symbol_labels.push_back(symbol);
+        const auto stats = return_stats(values, {});
+        for (std::size_t index = 0; index < 8U; ++index) {
+            result.symbol_values[index].push_back(stats[index]);
+        }
+    }
+    return result;
+}
+
 }  // namespace fincore

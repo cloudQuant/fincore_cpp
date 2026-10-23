@@ -3,6 +3,8 @@
 #include <fincore/metrics/transactions.hpp>
 
 #include <chrono>
+#include <string>
+#include <vector>
 #include <string_view>
 
 namespace fincore {
@@ -31,5 +33,30 @@ dataframe extract_round_trips(
     std::string_view symbol_column_name = transaction_symbol_column,
     std::string_view amount_column_name = transaction_amount_column,
     std::string_view price_column_name = transaction_price_column);
+
+struct round_trip_stat_table {
+    std::vector<std::string> row_labels;
+    std::vector<std::string> column_labels;
+    std::vector<std::vector<double>> values;
+};
+
+struct round_trip_stats {
+    round_trip_stat_table pnl;
+    round_trip_stat_table summary;
+    round_trip_stat_table duration;
+    round_trip_stat_table returns;
+    std::vector<std::string> symbol_labels;
+    std::vector<std::string> symbol_stat_labels;
+    std::vector<std::vector<double>> symbol_values;
+};
+
+round_trip_stats gen_round_trip_stats(
+    const dataframe& round_trips,
+    std::string_view pnl_column_name = round_trip_pnl_column,
+    std::string_view returns_column_name = round_trip_return_column,
+    std::string_view long_column_name = round_trip_long_column,
+    std::string_view symbol_column_name = transaction_symbol_column,
+    std::string_view open_column_name = round_trip_open_datetime_column,
+    std::string_view close_column_name = round_trip_close_datetime_column);
 
 }  // namespace fincore
