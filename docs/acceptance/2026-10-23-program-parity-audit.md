@@ -3,7 +3,7 @@
 **Pin:** Python `4b8f31b1b59707480d5db9603704d83bbf7e6946`
 **Machine ledger:** [2026-10-23-program-parity-ledger.tsv](2026-10-23-program-parity-ledger.tsv)
 **Generator:** `tools/parity_ledger.py`
-**Native tests:** 733/733 Release CTest
+**Native tests:** 734/734 Release CTest
 
 ## Method
 
@@ -95,14 +95,14 @@ function route remains.
 | 1 — metrics completion | Phases 39–52b accepted with oracle evidence; the three residual function gaps were closed later in the program | none at function level |
 | 2 — performance/portfolio | Phases 53–59 accepted | none at function level |
 | 3 — risk/optimization | Phases 60–71 accepted; 661/661 CTest+ASan+UBSan at close | none at function level |
-| 4 — visualization | chart data and ImPlot adapter accepted; offscreen 2560x4800 render inspected after fixing axis/heatmap defects; sanitizer 733/733 | interactive window/input behaviour and Linux/Windows rendering **NOT_RUN** |
-| 5 — factor analysis | 77–87 slices accepted: prep/PIT, performance/inference/event windows, costs, analysis model (event/group models), full bounded research (precomputed/next-open labels, universe, signals/groups, segments, correlations, comparisons, multi-factor), export, grouped tear data, four-section report, portfolio constructor, performance study | grid-driven non-day label naming; interactive grouped tear rendering |
+| 4 — visualization | chart data and ImPlot adapter accepted; offscreen 2560x4800 render inspected after fixing axis/heatmap defects; sanitizer 734/734 | interactive window/input behaviour and Linux/Windows rendering **NOT_RUN** |
+| 5 — factor analysis | 77–87 slices accepted: prep/PIT, performance/inference/event windows, costs, analysis model (event/group models), full bounded research (calendar/precomputed/next-open labels, universe, signals/groups, segments, correlations, comparisons, multi-factor), export, grouped tear data, four-section report, portfolio constructor, performance study | weighted factor combinations; intraday labels; interactive grouped tear rendering |
 | 6 — report/runtime | 88a/89/90/91/92/93 accepted: schema, HTML, XLSX, risk/portfolio/transactions projections, runtime catalog, install/export consumer, usage/migration notes, factor event and group models | group tear rendering absent; 93 CI matrix NOT_RUN |
 
 ## Gate status
 
-- Release CTest: **733/733 passed** (this audit).
-- Sanitizer: full ASan+UBSan suite **733/733 passed** at the final HEAD
+- Release CTest: **734/734 passed** (this audit).
+- Sanitizer: full ASan+UBSan suite **734/734 passed** at the final HEAD
   (Homebrew LLVM 22.1.8, Ninja Debug; no reports). See
   [the sanitizer gate record](2026-10-23-sanitizer-gate-acceptance.md).
 - HTML artifacts: visually inspected in headless Chrome (synthetic report,
@@ -120,8 +120,8 @@ function route remains.
 The native program covers the accepted compute, model, report, runtime and
 packaging paths with 279 exact/renamed public routes, zero unresolved routes
 and 72 explicitly deferred or non-port routes. Still open outside the function
-ledger: grid-driven non-day research label naming, on-screen grouped tear
-rendering, interactive ImPlot windows, and the Ubuntu CI leg (VM provisioning
+ledger: weighted factor combinations, intraday label formatting, on-screen grouped
+tear rendering, interactive ImPlot windows, and the Ubuntu CI leg (VM provisioning
 tracked separately). The runtime catalog remains a selected 44 of 273
 operations. Program-level parity is therefore **partial and explicitly
 bounded**; this record is the authoritative close-out of Phase 92 and must be

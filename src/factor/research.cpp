@@ -164,6 +164,12 @@ factor_series research_panel(const factor_series& factors,
     if (spec.periods.empty()) {
         throw factor_data_error{"periods must contain positive integers"};
     }
+    for (const int period : spec.periods) {
+        if (period <= 0) {
+            throw factor_data_error{
+                "periods must contain positive integers"};
+        }
+    }
     for (const int lag : spec.stability_lags) {
         if (lag <= 0) {
             throw factor_data_error{
@@ -297,6 +303,24 @@ static research_result evaluate_with_table(
 
 namespace {
 
+std::string canonical_period_label(const dataframe& prices,
+                                   const int period) {
+    const auto& index = prices.get_index();
+    for (std::size_t row = 0;
+         row + static_cast<std::size_t>(period) < index.size(); ++row) {
+        const timestamp difference =
+            index[row + static_cast<std::size_t>(period)] - index[row];
+        if (difference <= 0) {
+            continue;
+        }
+        constexpr timestamp day = 86'400'000'000'000LL;
+        if (difference % day == 0) {
+            return std::to_string(difference / day) + "D";
+        }
+    }
+    return std::to_string(period) + "D";
+}
+
 forward_return_table next_open_table(const dataframe& prices,
                                      const research_spec& spec) {
     std::vector<std::string> assets;
@@ -320,7 +344,7 @@ forward_return_table next_open_table(const dataframe& prices,
     table.dates = prices.get_index();
     table.assets = assets;
     for (const int period : spec.periods) {
-        table.labels.push_back(std::to_string(period) + "D");
+        table.labels.push_back(canonical_period_label(prices, period));
         std::vector<double> values(table.dates.size() * assets.size(), nan);
         for (std::size_t row = 0; row < table.dates.size(); ++row) {
             const std::size_t numerator_row = row +
@@ -371,8 +395,23 @@ research_result evaluate_factor_research(const factor_series& factors,
     config.periods = spec.periods;
     config.quantiles = spec.quantiles;
     config.max_loss = spec.max_loss;
-    const auto prepared =
+    auto prepared =
         prepare_factor_data_by_horizon(panel, prices, config);
+    if (prepared.by_horizon.size() != spec.periods.size()) {
+        throw factor_data_error{
+            "prepared horizons must match the requested periods"};
+    }
+    std::set<std::string> labels;
+    for (std::size_t index = 0; index < spec.periods.size(); ++index) {
+        const std::string label =
+            canonical_period_label(prices, spec.periods[index]);
+        if (!labels.insert(label).second) {
+            throw factor_data_error{
+                "requested periods map to duplicate forward-return labels"};
+        }
+        prepared.by_horizon[index].first = label;
+        prepared.by_horizon[index].second.forward_labels = {label};
+    }
     auto result = assemble_research(prepared, spec);
     result.signals = build_signals(factors, panel, spec);
     return result;
@@ -636,17 +675,23 @@ static research_result evaluate_with_table(
         }
     }
     std::vector<std::size_t> label_indices;
-    for (const int period : spec.periods) {
-        const std::string label = std::to_string(period) + "D";
+    for (std::size_t period_index = 0; period_index < spec.periods.size();
+         ++period_index) {
+        const std::string label =
+            std::to_string(spec.periods[period_index]) + "D";
         const auto found = std::find(precomputed_returns.labels.begin(),
                                      precomputed_returns.labels.end(),
                                      label);
-        if (found == precomputed_returns.labels.end()) {
+        if (found != precomputed_returns.labels.end()) {
+            label_indices.push_back(static_cast<std::size_t>(
+                found - precomputed_returns.labels.begin()));
+        } else if (precomputed_returns.labels.size() ==
+                   spec.periods.size()) {
+            label_indices.push_back(period_index);
+        } else {
             throw factor_data_error{
                 "precomputed returns are missing period " + label};
         }
-        label_indices.push_back(static_cast<std::size_t>(
-            found - precomputed_returns.labels.begin()));
     }
     quantization_config quantile_config;
     quantile_config.quantiles = spec.quantiles;

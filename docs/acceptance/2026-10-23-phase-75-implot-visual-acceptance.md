@@ -48,5 +48,5 @@ adapter remain unverified. No desktop screenshot was taken.
 
 ## Gates
 
-Full Release and ASan+UBSan suites remain **733/733 passed**; the demo target
+Full Release and ASan+UBSan suites remain **734/734 passed**; the demo target
 is excluded from the default build.

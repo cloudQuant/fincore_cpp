@@ -660,4 +660,58 @@ TEST(FactorResearch, EvaluatesMultipleFactorPanelsWithComparisons) {
                  fincore::factor_data_error);
 }
 
+TEST(FactorResearch, DerivesCalendarPeriodLabelsForWeeklyGrid) {
+    const auto start = fincore::utc_timestamp(2022, 1, 3);
+    const auto week = 7 * 86'400'000'000'000LL;
+    const char* assets[] = {"A", "B", "C"};
+    std::vector<fincore::timestamp> dates;
+    for (int index = 0; index < 10; ++index) {
+        dates.push_back(start + index * week);
+    }
+    fincore::factor_series factor;
+    for (int date = 0; date < 5; ++date) {
+        for (int asset = 0; asset < 3; ++asset) {
+            factor.dates.push_back(dates[static_cast<std::size_t>(date)]);
+            factor.assets.push_back(assets[asset]);
+            factor.values.push_back(static_cast<double>(asset + 1));
+        }
+    }
+    fincore::dataframe prices;
+    prices.load_index(std::vector<fincore::timestamp>{dates});
+    const double bases[] = {100.0, 50.0, 10.0};
+    for (int asset = 0; asset < 3; ++asset) {
+        std::vector<double> values;
+        for (int date = 0; date < 10; ++date) {
+            values.push_back(bases[asset] + date);
+        }
+        prices.load_column<double>(assets[asset], std::move(values),
+                                   hmdf::nan_policy::dont_pad_with_nans);
+    }
+    fincore::research_spec config;
+    config.targets = {"A", "B", "C"};
+    config.start = start;
+    config.end = start + 4 * week;
+    config.periods = {1};
+    config.quantiles = 3;
+    config.max_loss = 1.0;
+    config.preprocess = "none";
+    config.stability_lags = {1};
+    config.label = "next_open_to_open";
+    const auto next_open =
+        fincore::evaluate_factor_research(factor, prices, config);
+    ASSERT_EQ(next_open.information_coefficient.labels.size(), 1U);
+    EXPECT_EQ(next_open.information_coefficient.labels[0], "7D");
+    EXPECT_EQ(next_open.coverage[0], 15U);
+    for (const double value : next_open.information_coefficient.values) {
+        EXPECT_NEAR(value, 1.0, 1e-12);
+    }
+
+    config.label = "close_to_close";
+    const auto close =
+        fincore::evaluate_factor_research(factor, prices, config);
+    ASSERT_EQ(close.information_coefficient.labels.size(), 1U);
+    EXPECT_EQ(close.information_coefficient.labels[0], "7D");
+    EXPECT_EQ(close.coverage[0], 15U);
+}
+
 }  // namespace
