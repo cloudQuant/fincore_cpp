@@ -2155,3 +2155,41 @@ shares the drawdown/fallback kernel with Phase 43.
 
 This phase does not add `cal_treynor_ratio`, `m_squared`, capture returns,
 adapters, reports, plots, packages, or release actions.
+
+## Accepted Phase 44 native Cal-Treynor ratio
+
+Phase 44 adds `fincore::cal_treynor_ratio(returns, benchmark, risk_free = 0.0,
+annualization = 252, returns_column, benchmark_column)`: annualized excess
+return divided by benchmark beta after strict inner alignment. Beta zero,
+negative, or NaN returns NaN; there is no finite-result filter. Python's
+`treynor_ratio` is a forwarding alias and is mapped, not duplicated natively.
+
+Clean detached oracle at `4b8f31b` reproduced all goldens (positive-beta
+`1.7905755807724069`, risk-free `1.7893778338053357`, annualization-52
+`0.2486869244876499`, NaN-pair `9.760631792660886`; zero/negative/undefined
+beta and short input NaN). Full headless CTest and LLVM 22 ASan+UBSan each
+passed 537/537 at the shared Phase 44/45 batch head. Evidence is recorded in
+[the Phase 44 acceptance
+record](docs/acceptance/2026-10-23-phase-44-cal-treynor-ratio-acceptance.md).
+
+This phase does not add 2D output forms, adapters, reports, plots, packages,
+or release actions.
+
+## Accepted Phase 45 native M-squared measure
+
+Phase 45 adds `fincore::m_squared(returns, benchmark, risk_free = 0.0,
+annualization = 252, returns_column, benchmark_column)`: portfolio excess
+return scaled by the benchmark/portfolio annualized-volatility ratio plus the
+risk-free rate. It reuses the accepted native `annual_return` and
+`annual_volatility` kernels; only zero, negative, or NaN portfolio volatility
+is gated.
+
+Clean detached oracle at `4b8f31b` reproduced the goldens (ordinary
+`1.3665828992102713`, risk-free `1.3666687682792138`, annualization-52
+`0.1898000296169657`, NaN-pair `8.357805155252677`; zero-volatility and
+short-input NaN). Full headless CTest and LLVM 22 ASan+UBSan each passed
+537/537. Evidence is recorded in [the Phase 45 acceptance
+record](docs/acceptance/2026-10-23-phase-45-m-squared-acceptance.md).
+
+This phase does not add alignment-policy parameters, adapters, reports,
+plots, packages, or release actions.
