@@ -1276,4 +1276,221 @@ fama_macbeth_result fama_macbeth(const dataframe& returns,
     return result;
 }
 
+
+namespace {
+
+std::vector<std::string> factor_assets_at(const factor_series& factor,
+                                          const timestamp date) {
+    std::vector<std::string> assets;
+    for (std::size_t row = 0; row < factor.dates.size(); ++row) {
+        if (factor.dates[row] != date) {
+            continue;
+        }
+        if (std::find(assets.begin(), assets.end(), factor.assets[row]) ==
+            assets.end()) {
+            assets.push_back(factor.assets[row]);
+        }
+    }
+    return assets;
 }
+
+std::vector<double> wealth_series(const std::vector<double>& returns) {
+    std::vector<double> wealth(returns.size(), 1.0);
+    double growth = 1.0;
+    for (std::size_t row = 0; row < returns.size(); ++row) {
+        growth *= 1.0 + (std::isfinite(returns[row]) ? returns[row] : 0.0);
+        wealth[row] = growth;
+    }
+    return wealth;
+}
+
+}  // namespace
+
+event_window_result common_start_returns(
+    const factor_series& factor, const dataframe& returns, const int before,
+    const int after, const bool cumulative, const bool mean_by_date,
+    const factor_series* demean_by) {
+    if (before < 0 || after < 0) {
+        throw factor_data_error{
+            "before and after must be non-negative integers"};
+    }
+    const auto& index = returns.get_index();
+    if (std::adjacent_find(index.begin(), index.end()) != index.end()) {
+        throw factor_data_error{"returns index must be unique"};
+    }
+    const auto assets = asset_columns(returns);
+    std::map<std::string, std::vector<double>> values;
+    for (const auto& asset : assets) {
+        const auto& column = returns.get_column<double>(asset.c_str());
+        values[asset] =
+            cumulative
+                ? std::vector<double>(column.begin(), column.end())
+                : wealth_series(std::vector<double>(column.begin(),
+                                                    column.end()));
+    }
+    std::map<timestamp, std::size_t> positions;
+    for (std::size_t row = 0; row < index.size(); ++row) {
+        positions[index[row]] = row;
+    }
+    std::set<timestamp> event_dates_set;
+    for (const auto date : factor.dates) {
+        if (positions.contains(date)) {
+            event_dates_set.insert(date);
+        }
+    }
+
+    event_window_result result;
+    result.before = before;
+    result.after = after;
+    result.event_dates.assign(event_dates_set.begin(), event_dates_set.end());
+    std::set<int> offsets;
+    std::set<std::string> labels;
+    for (const timestamp date : result.event_dates) {
+        const auto position = positions[date];
+        const auto event_assets = factor_assets_at(factor, date);
+        const auto demean_assets =
+            demean_by != nullptr ? factor_assets_at(*demean_by, date)
+                                 : std::vector<std::string>{};
+        if (demean_by != nullptr && demean_assets.empty()) {
+            throw factor_data_error{
+                "demean_by has no assets at a factor event date"};
+        }
+        for (const auto& asset : event_assets) {
+            if (!values.contains(asset)) {
+                throw factor_data_error{
+                    "returns do not contain factor assets"};
+            }
+            labels.insert(asset);
+        }
+        const std::size_t start =
+            position > static_cast<std::size_t>(before)
+                ? position - static_cast<std::size_t>(before)
+                : 0U;
+        const std::size_t stop = std::min(
+            index.size(),
+            position + static_cast<std::size_t>(after) + 1U);
+        for (std::size_t row = start; row < stop; ++row) {
+            const int offset =
+                static_cast<int>(row) - static_cast<int>(position);
+            offsets.insert(offset);
+            double demean_mean = 0.0;
+            std::size_t demean_count = 0U;
+            if (demean_by != nullptr) {
+                for (const auto& asset : demean_assets) {
+                    const double value = values[asset][row];
+                    if (std::isfinite(value)) {
+                        demean_mean += value;
+                        ++demean_count;
+                    }
+                }
+                demean_mean /= static_cast<double>(demean_count);
+            }
+            if (mean_by_date) {
+                double total = 0.0;
+                std::size_t count = 0U;
+                for (const auto& asset : event_assets) {
+                    const double value = values[asset][row];
+                    if (std::isfinite(value)) {
+                        total += value;
+                        ++count;
+                    }
+                }
+                if (count > 0U) {
+                    double mean = total / static_cast<double>(count);
+                    if (demean_by != nullptr) {
+                        mean -= demean_mean;
+                    }
+                    result.cells.push_back(
+                        {offset, date, std::string{}, mean});
+                }
+            } else {
+                for (const auto& asset : event_assets) {
+                    const double value = values[asset][row];
+                    if (std::isfinite(value)) {
+                        result.cells.push_back(
+                            {offset, date, asset,
+                             demean_by != nullptr ? value - demean_mean
+                                                  : value});
+                    }
+                }
+            }
+        }
+    }
+    result.offsets.assign(offsets.begin(), offsets.end());
+    result.asset_labels.assign(labels.begin(), labels.end());
+    return result;
+}
+
+std::vector<quantile_event_statistics>
+average_cumulative_return_by_quantile(
+    const prepared_factor_data& factor_data, const dataframe& returns,
+    const int before, const int after, const bool demeaned) {
+    if (before < 0 || after < 0) {
+        throw factor_data_error{
+            "before and after must be non-negative integers"};
+    }
+    std::set<int> quantiles;
+    for (const auto& row : factor_data.rows) {
+        quantiles.insert(row.quantile);
+    }
+    factor_series demean_source;
+    for (const auto& row : factor_data.rows) {
+        demean_source.dates.push_back(row.date);
+        demean_source.assets.push_back(row.asset);
+        demean_source.values.push_back(static_cast<double>(row.quantile));
+    }
+    std::vector<quantile_event_statistics> result;
+    for (const int quantile : quantiles) {
+        factor_series events;
+        for (const auto& row : factor_data.rows) {
+            if (row.quantile != quantile) {
+                continue;
+            }
+            events.dates.push_back(row.date);
+            events.assets.push_back(row.asset);
+            events.values.push_back(static_cast<double>(quantile));
+        }
+        const auto window = common_start_returns(
+            events, returns, before, after, true, true,
+            demeaned ? &demean_source : nullptr);
+        std::map<int, std::vector<double>> by_offset;
+        for (const auto& cell : window.cells) {
+            by_offset[cell.offset].push_back(cell.value);
+        }
+        quantile_event_statistics statistics;
+        statistics.quantile = quantile;
+        if (!by_offset.empty()) {
+            const int first = by_offset.begin()->first;
+            const int last = by_offset.rbegin()->first;
+            for (int offset = first; offset <= last; ++offset) {
+                statistics.offsets.push_back(offset);
+                const auto found = by_offset.find(offset);
+                if (found == by_offset.end() || found->second.empty()) {
+                    statistics.means.push_back(nan);
+                    statistics.standard_deviations.push_back(nan);
+                    continue;
+                }
+                const auto& entries = found->second;
+                const double mean =
+                    std::accumulate(entries.begin(), entries.end(), 0.0) /
+                    static_cast<double>(entries.size());
+                statistics.means.push_back(mean);
+                if (entries.size() > 1U) {
+                    double variance = 0.0;
+                    for (const double value : entries) {
+                        variance += (value - mean) * (value - mean);
+                    }
+                    variance /= static_cast<double>(entries.size() - 1U);
+                    statistics.standard_deviations.push_back(
+                        std::sqrt(variance));
+                } else {
+                    statistics.standard_deviations.push_back(nan);
+                }
+            }
+        }
+        result.push_back(std::move(statistics));
+    }
+    return result;
+}
+
+}  // namespace fincore

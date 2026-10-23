@@ -53,6 +53,29 @@ struct quantile_date_return_table {
     std::vector<double> standard_errors; // dates x quantiles x labels
 };
 
+struct event_window_cell {
+    int offset = 0;
+    timestamp event_date = 0;
+    std::string asset;  // empty for date-mean output
+    double value = 0.0;
+};
+
+struct event_window_result {
+    int before = 0;
+    int after = 0;
+    std::vector<int> offsets;
+    std::vector<timestamp> event_dates;
+    std::vector<std::string> asset_labels;
+    std::vector<event_window_cell> cells;  // non-finite cells omitted
+};
+
+struct quantile_event_statistics {
+    int quantile = 0;
+    std::vector<int> offsets;
+    std::vector<double> means;
+    std::vector<double> standard_deviations;
+};
+
 struct quantile_spread_result {
     std::vector<std::string> labels;
     std::vector<double> spreads;
@@ -92,6 +115,16 @@ quantile_return_table mean_return_by_quantile(
 quantile_date_return_table mean_return_by_quantile_by_date(
     const prepared_factor_data& factor_data, bool demeaned = true,
     bool group_adjust = false);
+
+event_window_result common_start_returns(
+    const factor_series& factor, const dataframe& returns, int before,
+    int after, bool cumulative = false, bool mean_by_date = false,
+    const factor_series* demean_by = nullptr);
+
+std::vector<quantile_event_statistics>
+average_cumulative_return_by_quantile(
+    const prepared_factor_data& factor_data, const dataframe& returns,
+    int before = 10, int after = 15, bool demeaned = true);
 
 quantile_spread_result mean_return_spread(
     const quantile_return_table& table, int upper_quantile,

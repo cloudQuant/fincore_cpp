@@ -277,4 +277,106 @@ TEST(FactorPerformance, FamaMacbethMatchesCleanPythonOracle) {
         fincore::factor_data_error);
 }
 
+TEST(FactorPerformance, CommonStartEventWindowsMatchCleanPythonOracle) {
+    const auto start = fincore::utc_timestamp(2022, 1, 3);
+    const auto day = 86'400'000'000'000LL;
+    std::vector<fincore::timestamp> index;
+    for (int offset = 0; offset < 5; ++offset) {
+        index.push_back(start + offset * day);
+    }
+    fincore::dataframe returns;
+    returns.load_index(std::vector<fincore::timestamp>{index});
+    returns.load_column<double>("A", {0.01, 0.02, 0.03, 0.01, 0.04},
+                                hmdf::nan_policy::dont_pad_with_nans);
+    returns.load_column<double>("B", {0.02, 0.01, 0.02, 0.03, 0.01},
+                                hmdf::nan_policy::dont_pad_with_nans);
+    returns.load_column<double>("C", {0.03, 0.04, 0.01, 0.02, 0.03},
+                                hmdf::nan_policy::dont_pad_with_nans);
+
+    fincore::factor_series plain;
+    plain.dates = {index[1], index[1], index[2]};
+    plain.assets = {"A", "B", "C"};
+    plain.values = {1.0, 1.0, 2.0};
+    const auto raw = fincore::common_start_returns(plain, returns, 1, 2,
+                                                   true, false);
+    EXPECT_EQ(raw.offsets, (std::vector<int>{-1, 0, 1, 2}));
+    EXPECT_EQ(raw.event_dates.size(), 2U);
+    EXPECT_EQ(raw.cells.size(), 12U);
+    const auto find_cell = [](const fincore::event_window_result& window,
+                              const int offset, const fincore::timestamp date,
+                              const std::string& asset) {
+        for (const auto& cell : window.cells) {
+            if (cell.offset == offset && cell.event_date == date &&
+                cell.asset == asset) {
+                return cell.value;
+            }
+        }
+        return std::nan("");
+    };
+    EXPECT_DOUBLE_EQ(find_cell(raw, -1, index[1], "A"), 0.01);
+    EXPECT_DOUBLE_EQ(find_cell(raw, -1, index[1], "B"), 0.02);
+    EXPECT_DOUBLE_EQ(find_cell(raw, 2, index[1], "A"), 0.01);
+    EXPECT_DOUBLE_EQ(find_cell(raw, -1, index[2], "C"), 0.04);
+
+    const auto mean = fincore::common_start_returns(plain, returns, 1, 2,
+                                                    true, true);
+    EXPECT_EQ(mean.cells.size(), 8U);
+    EXPECT_DOUBLE_EQ(find_cell(mean, -1, index[1], ""), 0.015);
+    EXPECT_DOUBLE_EQ(find_cell(mean, -1, index[2], ""), 0.04);
+
+    fincore::factor_series event;
+    event.dates = {index[1]};
+    event.assets = {"C"};
+    event.values = {2.0};
+    fincore::factor_series demean;
+    demean.dates = {index[1], index[1]};
+    demean.assets = {"A", "B"};
+    demean.values = {1.0, 1.0};
+    const auto demeaned = fincore::common_start_returns(
+        event, returns, 1, 2, true, true, &demean);
+    EXPECT_DOUBLE_EQ(find_cell(demeaned, -1, index[1], ""), 0.015);
+    EXPECT_DOUBLE_EQ(find_cell(demeaned, 0, index[1], ""), 0.025);
+    EXPECT_NEAR(find_cell(demeaned, 1, index[1], ""), -0.015000000000000001,
+                1e-15);
+    const auto wealth = fincore::common_start_returns(
+        event, returns, 1, 2, false, true, nullptr);
+    EXPECT_NEAR(find_cell(wealth, -1, index[1], ""), 1.03, 1e-15);
+    EXPECT_NEAR(find_cell(wealth, 0, index[1], ""), 1.0712, 1e-15);
+    EXPECT_NEAR(find_cell(wealth, 2, index[1], ""), 1.10355024, 1e-15);
+
+    fincore::prepared_factor_data prepared;
+    for (const auto& entry :
+         {std::tuple{index[1], "A", 1}, std::tuple{index[1], "B", 1},
+          std::tuple{index[1], "C", 2}, std::tuple{index[2], "C", 2}}) {
+        fincore::factor_row row;
+        row.date = std::get<0>(entry);
+        row.asset = std::get<1>(entry);
+        row.factor = static_cast<double>(std::get<2>(entry));
+        row.quantile = std::get<2>(entry);
+        prepared.rows.push_back(row);
+    }
+    const auto statistics =
+        fincore::average_cumulative_return_by_quantile(prepared, returns, 1, 2,
+                                                       false);
+    ASSERT_EQ(statistics.size(), 2U);
+    EXPECT_EQ(statistics[0].quantile, 1);
+    EXPECT_EQ(statistics[0].offsets, (std::vector<int>{-1, 0, 1, 2}));
+    EXPECT_NEAR(statistics[0].means[0], 0.015, 1e-15);
+    EXPECT_NEAR(statistics[0].means[3], 0.02, 1e-15);
+    EXPECT_TRUE(std::isnan(statistics[0].standard_deviations[0]));
+    EXPECT_NEAR(statistics[1].means[0], 0.035, 1e-15);
+    EXPECT_NEAR(statistics[1].standard_deviations[0], 0.007071067811865477,
+                1e-15);
+    const auto demeaned_statistics =
+        fincore::average_cumulative_return_by_quantile(prepared, returns, 1, 2,
+                                                       true);
+    EXPECT_NEAR(demeaned_statistics[0].means[0], -0.005, 1e-15);
+    EXPECT_NEAR(demeaned_statistics[0].means[1], -0.008333333333333335,
+                1e-15);
+    EXPECT_NEAR(demeaned_statistics[1].means[0], 0.004999999999999999,
+                1e-15);
+    EXPECT_NEAR(demeaned_statistics[1].standard_deviations[0],
+                0.007071067811865474, 1e-15);
+}
+
 }  // namespace
