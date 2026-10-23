@@ -22,8 +22,8 @@ and [ledger](2026-10-23-program-parity-ledger.tsv).
 
 - Fresh component install at this revision and a downstream consumer printing
   `version=0.1.0 sharpe=6.928203230275507`.
-- Full headless CTest **729/729** passed at the final HEAD.
-- Full ASan+UBSan suite **729/729 passed** at the final HEAD (Homebrew LLVM
+- Full headless CTest **730/730** passed at the final HEAD.
+- Full ASan+UBSan suite **730/730 passed** at the final HEAD (Homebrew LLVM
   22.1.8, Ninja Debug).
 - macOS CI workflow steps were reproduced in a clean clone (pinned DataFrame
   `90aa4acf`, 726/726); the Ubuntu leg is **NOT_RUN** because no runner/Docker

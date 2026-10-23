@@ -404,4 +404,68 @@ TEST(FactorResearch, EvaluatesPrecomputedForwardReturns) {
         fincore::factor_data_error);
 }
 
+TEST(FactorResearch, AppliesWideUniverseMask) {
+    auto fixture = make_fixture();
+    const auto start = fincore::utc_timestamp(2021, 1, 4);
+    const auto day = 86'400'000'000'000LL;
+    const char* assets[] = {"A", "B", "C", "D", "E"};
+    fincore::dataframe universe;
+    std::vector<fincore::timestamp> index;
+    for (int date = 0; date < 60; ++date) {
+        index.push_back(start + date * day);
+    }
+    universe.load_index(std::move(index));
+    for (int asset = 0; asset < 5; ++asset) {
+        universe.load_column<bool>(
+            assets[asset],
+            std::vector<bool>(60, asset != 4),
+            hmdf::nan_policy::dont_pad_with_nans);
+    }
+    const auto baseline = fincore::evaluate_factor_research(
+        fixture.factor, fixture.prices, spec());
+    ASSERT_EQ(baseline.coverage.size(), 2U);
+    EXPECT_EQ(baseline.coverage[0], 300U);
+
+    const auto masked = fincore::evaluate_factor_research(
+        fixture.factor, fixture.prices, spec(), universe);
+    EXPECT_EQ(masked.status, "OK");
+    EXPECT_EQ(masked.coverage[0], 240U);
+    EXPECT_EQ(masked.coverage[1], 240U);
+    ASSERT_EQ(masked.manifest.count("universe"), 1U);
+    EXPECT_EQ(masked.manifest.at("universe"), "applied");
+
+    fincore::dataframe four_assets;
+    four_assets.load_index(std::vector<fincore::timestamp>{
+        start, start + day, start + 2 * day, start + 3 * day});
+    for (int asset = 0; asset < 4; ++asset) {
+        four_assets.load_column<bool>(
+            assets[asset], std::vector<bool>(4, true),
+            hmdf::nan_policy::dont_pad_with_nans);
+    }
+    auto short_spec = spec();
+    short_spec.start = start;
+    short_spec.end = start + 3 * day;
+    const auto short_masked = fincore::evaluate_factor_research(
+        fixture.factor, fixture.prices, short_spec, four_assets);
+    EXPECT_EQ(short_masked.coverage[0], 16U);
+
+    fincore::dataframe none;
+    none.load_index(std::vector<fincore::timestamp>{start, start + day});
+    for (int asset = 0; asset < 5; ++asset) {
+        none.load_column<bool>(
+            assets[asset], std::vector<bool>(2, false),
+            hmdf::nan_policy::dont_pad_with_nans);
+    }
+    EXPECT_THROW(static_cast<void>(fincore::evaluate_factor_research(
+                     fixture.factor, fixture.prices, spec(), none)),
+                 fincore::factor_data_error);
+    fincore::dataframe numeric;
+    numeric.load_index(std::vector<fincore::timestamp>{start});
+    numeric.load_column<double>(
+        "A", {1.0}, hmdf::nan_policy::dont_pad_with_nans);
+    EXPECT_THROW(static_cast<void>(fincore::evaluate_factor_research(
+                     fixture.factor, fixture.prices, spec(), numeric)),
+                 fincore::factor_data_error);
+}
+
 }  // namespace

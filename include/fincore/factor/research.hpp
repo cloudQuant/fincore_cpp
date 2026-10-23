@@ -115,6 +115,11 @@ research_result evaluate_factor_research(
     const factor_series& factors, const dataframe& prices,
     const research_spec& spec);
 
+/// Evaluate with a wide boolean eligibility mask (dates x assets).
+research_result evaluate_factor_research(
+    const factor_series& factors, const dataframe& prices,
+    const research_spec& spec, const dataframe& universe);
+
 /// Evaluate against caller-supplied forward returns instead of prices.
 research_result evaluate_factor_research(
     const factor_series& factors,

@@ -197,6 +197,53 @@ factor_series research_panel(const factor_series& factors,
     return panel;
 }
 
+
+factor_series apply_universe(const factor_series& panel,
+                             const dataframe& universe) {
+    if (!universe.get_columns_info<double>().empty()) {
+        throw factor_data_error{
+            "universe must contain only boolean columns"};
+    }
+    const auto columns = universe.get_columns_info<bool>();
+    if (columns.empty()) {
+        throw factor_data_error{
+            "universe must contain at least one boolean asset column"};
+    }
+    if (std::adjacent_find(universe.get_index().begin(),
+                           universe.get_index().end()) !=
+        universe.get_index().end()) {
+        throw factor_data_error{"universe index must be unique"};
+    }
+    std::map<timestamp, std::size_t> rows;
+    for (std::size_t row = 0; row < universe.get_index().size(); ++row) {
+        rows[universe.get_index()[row]] = row;
+    }
+    std::map<std::string, const std::vector<bool>*> flags;
+    for (const auto& info : columns) {
+        const std::string name{std::get<0>(info).c_str()};
+        flags[name] = &universe.get_column<bool>(name.c_str());
+    }
+    factor_series filtered;
+    for (std::size_t row = 0; row < panel.dates.size(); ++row) {
+        const auto universe_row = rows.find(panel.dates[row]);
+        if (universe_row == rows.end()) {
+            continue;
+        }
+        const auto column = flags.find(panel.assets[row]);
+        if (column == flags.end() || !(*column->second)[universe_row->second]) {
+            continue;
+        }
+        filtered.dates.push_back(panel.dates[row]);
+        filtered.assets.push_back(panel.assets[row]);
+        filtered.values.push_back(panel.values[row]);
+    }
+    if (filtered.dates.empty()) {
+        throw factor_data_error{
+            "universe removed every factor cell"};
+    }
+    return filtered;
+}
+
 research_result assemble_research(
     const multi_horizon_prepared_factor_data& prepared,
     const research_spec& spec);
@@ -418,6 +465,24 @@ void write_table(const std::filesystem::path& path,
 }
 
 }  // namespace
+
+
+research_result evaluate_factor_research(const factor_series& factors,
+                                         const dataframe& prices,
+                                         const research_spec& spec,
+                                         const dataframe& universe) {
+    const factor_series panel =
+        apply_universe(research_panel(factors, spec), universe);
+    prepare_factor_config config;
+    config.periods = spec.periods;
+    config.quantiles = spec.quantiles;
+    config.max_loss = spec.max_loss;
+    const auto prepared =
+        prepare_factor_data_by_horizon(panel, prices, config);
+    auto result = assemble_research(prepared, spec);
+    result.manifest["universe"] = "applied";
+    return result;
+}
 
 research_result evaluate_factor_research(
     const factor_series& factors,
