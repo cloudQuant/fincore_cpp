@@ -115,6 +115,12 @@ research_result evaluate_factor_research(
     const factor_series& factors, const dataframe& prices,
     const research_spec& spec);
 
+/// Evaluate against caller-supplied forward returns instead of prices.
+research_result evaluate_factor_research(
+    const factor_series& factors,
+    const forward_return_table& precomputed_returns,
+    const research_spec& spec);
+
 struct research_export_result {
     std::string directory;
     std::vector<std::string> files;

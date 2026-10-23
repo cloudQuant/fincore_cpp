@@ -152,9 +152,8 @@ research_capabilities research_capabilities_report() {
     return {};
 }
 
-research_result evaluate_factor_research(const factor_series& factors,
-                                         const dataframe& prices,
-                                         const research_spec& spec) {
+factor_series research_panel(const factor_series& factors,
+                              const research_spec& spec) {
     if (!(spec.max_loss >= 0.0 && spec.max_loss <= 1.0)) {
         throw factor_data_error{
             "max_loss must be a number between 0 and 1"};
@@ -195,6 +194,18 @@ research_result evaluate_factor_research(const factor_series& factors,
     }
     preprocess(panel, spec.preprocess);
 
+    return panel;
+}
+
+research_result assemble_research(
+    const multi_horizon_prepared_factor_data& prepared,
+    const research_spec& spec);
+
+research_result evaluate_factor_research(const factor_series& factors,
+                                         const dataframe& prices,
+                                         const research_spec& spec) {
+    const factor_series panel = research_panel(factors, spec);
+
     prepare_factor_config config;
     config.periods = spec.periods;
     config.quantiles = spec.quantiles;
@@ -202,6 +213,12 @@ research_result evaluate_factor_research(const factor_series& factors,
     const auto prepared =
         prepare_factor_data_by_horizon(panel, prices, config);
 
+    return assemble_research(prepared, spec);
+}
+
+research_result assemble_research(
+    const multi_horizon_prepared_factor_data& prepared,
+    const research_spec& spec) {
     research_result result;
     result.manifest = {
         {"api_version", research_api_version},
@@ -331,6 +348,8 @@ research_result evaluate_factor_research(const factor_series& factors,
     return result;
 }
 
+
+
 namespace {
 
 std::string csv_escape(const std::string& text) {
@@ -399,6 +418,93 @@ void write_table(const std::filesystem::path& path,
 }
 
 }  // namespace
+
+research_result evaluate_factor_research(
+    const factor_series& factors,
+    const forward_return_table& precomputed_returns,
+    const research_spec& spec) {
+    const factor_series panel = research_panel(factors, spec);
+    const std::size_t asset_count = precomputed_returns.assets.size();
+    const std::size_t date_count = precomputed_returns.dates.size();
+    const std::size_t label_count = precomputed_returns.labels.size();
+    if (date_count == 0U || asset_count == 0U || label_count == 0U) {
+        throw factor_data_error{
+            "precomputed returns must contain dates, assets and labels"};
+    }
+    if (precomputed_returns.values.size() != label_count) {
+        throw factor_data_error{
+            "precomputed returns must be label-major"};
+    }
+    for (const auto& values : precomputed_returns.values) {
+        if (values.size() != date_count * asset_count) {
+            throw factor_data_error{
+                "precomputed return rows must match dates x assets"};
+        }
+    }
+    std::map<std::pair<timestamp, std::string>, std::size_t> rows;
+    for (std::size_t date = 0; date < date_count; ++date) {
+        for (std::size_t asset = 0; asset < asset_count; ++asset) {
+            const auto key =
+                std::pair{precomputed_returns.dates[date],
+                          precomputed_returns.assets[asset]};
+            if (!rows.emplace(key, date * asset_count + asset).second) {
+                throw factor_data_error{
+                    "precomputed returns keys must be unique"};
+            }
+        }
+    }
+    std::vector<std::size_t> label_indices;
+    for (const int period : spec.periods) {
+        const std::string label = std::to_string(period) + "D";
+        const auto found = std::find(precomputed_returns.labels.begin(),
+                                     precomputed_returns.labels.end(),
+                                     label);
+        if (found == precomputed_returns.labels.end()) {
+            throw factor_data_error{
+                "precomputed returns are missing period " + label};
+        }
+        label_indices.push_back(static_cast<std::size_t>(
+            found - precomputed_returns.labels.begin()));
+    }
+    quantization_config quantile_config;
+    quantile_config.quantiles = spec.quantiles;
+    quantile_config.no_raise = spec.max_loss != 0.0;
+    const auto quantiles = quantize_factor(panel, quantile_config);
+    multi_horizon_prepared_factor_data prepared;
+    for (const std::size_t label_index : label_indices) {
+        const std::string& label = precomputed_returns.labels[label_index];
+        prepared_factor_data horizon;
+        horizon.forward_labels = {label};
+        for (std::size_t row = 0; row < panel.dates.size(); ++row) {
+            const auto found = rows.find({panel.dates[row], panel.assets[row]});
+            if (found == rows.end()) {
+                continue;
+            }
+            const double value =
+                precomputed_returns.values[label_index][found->second];
+            if (!std::isfinite(value) || !quantiles[row].has_value()) {
+                continue;
+            }
+            factor_row factor;
+            factor.date = panel.dates[row];
+            factor.asset = panel.assets[row];
+            factor.factor = panel.values[row];
+            factor.quantile = *quantiles[row];
+            factor.has_group = false;
+            factor.forward_returns = {value};
+            horizon.rows.push_back(std::move(factor));
+        }
+        if (horizon.rows.empty()) {
+            throw factor_data_error{
+                "precomputed returns produced no prepared rows for " + label};
+        }
+        prepared.by_horizon.push_back(
+            {label, std::move(horizon)});
+    }
+    auto result = assemble_research(prepared, spec);
+    result.manifest["label"] = "precomputed";
+    return result;
+}
 
 research_export_result export_factor_research(
     const research_result& result, const std::string& directory,

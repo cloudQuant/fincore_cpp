@@ -328,4 +328,80 @@ TEST(FactorResearch, RecordsSegmentProvenance) {
         fincore::factor_data_error);
 }
 
+TEST(FactorResearch, EvaluatesPrecomputedForwardReturns) {
+    const auto start = fincore::utc_timestamp(2022, 1, 3);
+    const auto day = 86'400'000'000'000LL;
+    const char* assets[] = {"A", "B", "C"};
+    fincore::factor_series factor;
+    std::vector<fincore::timestamp> dates;
+    for (int date = 0; date < 5; ++date) {
+        dates.push_back(start + date * day);
+        for (int asset = 0; asset < 3; ++asset) {
+            factor.dates.push_back(start + date * day);
+            factor.assets.push_back(assets[asset]);
+            factor.values.push_back(static_cast<double>(asset + 1));
+        }
+    }
+    fincore::forward_return_table table;
+    table.labels = {"1D", "5D"};
+    table.dates = dates;
+    table.assets = {"A", "B", "C"};
+    for (const auto& label : table.labels) {
+        std::vector<double> values;
+        const double scale = label == "1D" ? 0.01 : 0.05;
+        const double shift = label == "1D" ? 0.001 : 0.002;
+        for (int date = 0; date < 5; ++date) {
+            for (int asset = 0; asset < 3; ++asset) {
+                values.push_back(scale * (asset + 1) + shift * date);
+            }
+        }
+        table.values.push_back(std::move(values));
+    }
+    fincore::research_spec config;
+    config.targets = {"A", "B", "C"};
+    config.start = start;
+    config.end = start + 4 * day;
+    config.periods = {1, 5};
+    config.quantiles = 2;
+    config.max_loss = 1.0;
+    config.preprocess = "none";
+    config.stability_lags = {1};
+    const auto result =
+        fincore::evaluate_factor_research(factor, table, config);
+    EXPECT_EQ(result.status, "OK");
+    ASSERT_EQ(result.information_coefficient.labels.size(), 2U);
+    EXPECT_EQ(result.information_coefficient.labels[0], "1D");
+    EXPECT_EQ(result.information_coefficient.labels[1], "5D");
+    ASSERT_EQ(result.information_coefficient.dates.size(), 5U);
+    for (const double value : result.information_coefficient.values) {
+        EXPECT_NEAR(value, 1.0, 1e-12);
+    }
+    ASSERT_EQ(result.coverage.size(), 2U);
+    EXPECT_EQ(result.coverage[0], 15U);
+    EXPECT_EQ(result.coverage[1], 15U);
+    EXPECT_EQ(result.quantile_returns.quantiles.size(), 2U);
+    ASSERT_EQ(result.manifest.count("label"), 1U);
+    EXPECT_EQ(result.manifest.at("label"), "precomputed");
+
+    auto missing = table;
+    missing.labels = {"1D"};
+    missing.values.pop_back();
+    EXPECT_THROW(
+        static_cast<void>(
+            fincore::evaluate_factor_research(factor, missing, config)),
+        fincore::factor_data_error);
+    auto malformed = table;
+    malformed.values[0].pop_back();
+    EXPECT_THROW(
+        static_cast<void>(
+            fincore::evaluate_factor_research(factor, malformed, config)),
+        fincore::factor_data_error);
+    auto duplicate = table;
+    duplicate.dates[1] = duplicate.dates[0];
+    EXPECT_THROW(
+        static_cast<void>(
+            fincore::evaluate_factor_research(factor, duplicate, config)),
+        fincore::factor_data_error);
+}
+
 }  // namespace
