@@ -66,6 +66,20 @@ double m_squared(const dataframe& returns,
                  std::string_view returns_column_name = returns_column,
                  std::string_view benchmark_column_name = benchmark_column);
 
+double up_capture_return(
+    const dataframe& returns,
+    const dataframe& benchmark,
+    double annualization = daily_annualization,
+    std::string_view returns_column_name = returns_column,
+    std::string_view benchmark_column_name = benchmark_column);
+
+double down_capture_return(
+    const dataframe& returns,
+    const dataframe& benchmark,
+    double annualization = daily_annualization,
+    std::string_view returns_column_name = returns_column,
+    std::string_view benchmark_column_name = benchmark_column);
+
 double common_sense_ratio(const dataframe& returns,
                           std::string_view column = returns_column);
 

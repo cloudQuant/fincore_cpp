@@ -694,6 +694,69 @@ double m_squared(const dataframe& returns,
            risk_free;
 }
 
+double capture_return_impl(const dataframe& returns,
+                           const dataframe& benchmark,
+                           double annualization,
+                           std::string_view returns_column_name,
+                           std::string_view benchmark_column_name,
+                           bool upward) {
+    if (returns_column_name.find('\0') != std::string_view::npos ||
+        benchmark_column_name.find('\0') != std::string_view::npos) {
+        throw input_error{"column name must not contain an embedded NUL"};
+    }
+    const auto aligned = align_on_common_index(returns, returns_column_name,
+                                               benchmark,
+                                               benchmark_column_name);
+    const auto values =
+        require_double_column(aligned.first, returns_column_name);
+    const auto factors =
+        require_double_column(aligned.second, benchmark_column_name);
+
+    std::vector<double> selected;
+    selected.reserve(values.size());
+    for (std::size_t position = 0; position < values.size(); ++position) {
+        const bool include =
+            upward ? factors[position] > 0.0 : factors[position] < 0.0;
+        if (include) {
+            selected.push_back(values[position]);
+        }
+    }
+    if (selected.empty()) {
+        return nan;
+    }
+
+    double wealth = 1.0;
+    for (const double value : selected) {
+        wealth *= 1.0 + (std::isnan(value) ? 0.0 : value);
+    }
+    if (wealth <= 0.0) {
+        return -1.0;
+    }
+    return std::pow(wealth,
+                    annualization / static_cast<double>(selected.size())) -
+           1.0;
+}
+
+double up_capture_return(const dataframe& returns,
+                         const dataframe& benchmark,
+                         double annualization,
+                         std::string_view returns_column_name,
+                         std::string_view benchmark_column_name) {
+    return capture_return_impl(returns, benchmark, annualization,
+                               returns_column_name, benchmark_column_name,
+                               true);
+}
+
+double down_capture_return(const dataframe& returns,
+                           const dataframe& benchmark,
+                           double annualization,
+                           std::string_view returns_column_name,
+                           std::string_view benchmark_column_name) {
+    return capture_return_impl(returns, benchmark, annualization,
+                               returns_column_name, benchmark_column_name,
+                               false);
+}
+
 double common_sense_ratio(const dataframe& returns, std::string_view column) {
     if (column.find('\0') != std::string_view::npos) {
         throw input_error{"column name must not contain an embedded NUL"};

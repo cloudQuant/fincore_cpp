@@ -35,6 +35,9 @@ using cal_treynor_ratio_signature =
 using m_squared_signature =
     double (*)(const fincore::dataframe&, const fincore::dataframe&, double,
                double, std::string_view, std::string_view);
+using capture_return_signature =
+    double (*)(const fincore::dataframe&, const fincore::dataframe&, double,
+               std::string_view, std::string_view);
 
 static_assert(std::is_same_v<
               decltype(static_cast<kappa_three_ratio_signature>(
@@ -57,6 +60,10 @@ static_assert(std::is_same_v<decltype(&fincore::cal_treynor_ratio),
                              cal_treynor_ratio_signature>);
 static_assert(std::is_same_v<decltype(&fincore::m_squared),
                              m_squared_signature>);
+static_assert(std::is_same_v<decltype(&fincore::up_capture_return),
+                             capture_return_signature>);
+static_assert(std::is_same_v<decltype(&fincore::down_capture_return),
+                             capture_return_signature>);
 
 TEST(Ratios, PublishesExactKappaThreeSignatureAndDefaultCall) {
     const auto returns =
@@ -1568,6 +1575,103 @@ TEST(Ratios, MSquaredReturnsOwnedScalarAfterInputLifetimesEnd) {
     }();
 
     EXPECT_NEAR(result, 1.3665828992102713, 1e-12);
+}
+
+TEST(Ratios, CaptureReturnsMatchPythonOracleForOrdinaryWindows) {
+    const auto returns = treynor_returns();
+    const auto benchmark = plain_benchmark();
+
+    EXPECT_NEAR(fincore::up_capture_return(returns, benchmark),
+                1.5166094207700231, 1e-12);
+    EXPECT_NEAR(fincore::down_capture_return(returns, benchmark),
+                1.473483204701317, 1e-12);
+    EXPECT_NEAR(fincore::up_capture_return(returns, benchmark, 52.0),
+                0.20978452786208313, 1e-12);
+    EXPECT_NEAR(fincore::down_capture_return(returns, benchmark, 52.0),
+                0.20547717849603586, 1e-12);
+}
+
+TEST(Ratios, CaptureReturnsGateEmptyWindowsAndSingleObservation) {
+    const auto returns = treynor_returns();
+    const auto all_up = fincore::make_series(
+        sequence_index(10), "benchmark",
+        {0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01});
+    const auto all_down = fincore::make_series(
+        sequence_index(10), "benchmark",
+        {-0.01, -0.01, -0.01, -0.01, -0.01, -0.01, -0.01, -0.01, -0.01,
+         -0.01});
+    const auto single_returns =
+        fincore::make_series({1}, "returns", {0.01});
+    const auto single_benchmark =
+        fincore::make_series({1}, "benchmark", {0.01});
+
+    EXPECT_TRUE(std::isnan(fincore::up_capture_return(returns, all_down)));
+    EXPECT_TRUE(std::isnan(fincore::down_capture_return(returns, all_up)));
+    EXPECT_NEAR(
+        fincore::up_capture_return(single_returns, single_benchmark),
+        11.274002099240244, 1e-12);
+    EXPECT_TRUE(std::isnan(
+        fincore::down_capture_return(single_returns, single_benchmark)));
+}
+
+TEST(Ratios, CaptureReturnsAlignAndTolerateNanPairs) {
+    std::vector<double> return_values{
+        0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03};
+    std::vector<double> benchmark_values{-0.04, -0.03, -0.02, -0.01, -0.005,
+                                         0.005, 0.01, 0.02, 0.03, 0.04};
+    return_values[6] = nan;
+    benchmark_values[0] = nan;
+    const auto nan_returns =
+        fincore::make_series(sequence_index(10), "returns", return_values);
+    const auto nan_benchmark =
+        fincore::make_series(sequence_index(10), "benchmark", benchmark_values);
+
+    EXPECT_NEAR(fincore::up_capture_return(nan_returns, nan_benchmark),
+                -0.6513934704548094, 1e-12);
+    EXPECT_NEAR(fincore::down_capture_return(nan_returns, nan_benchmark),
+                0.65725622476063, 1e-12);
+}
+
+TEST(Ratios, CaptureReturnsSupportNamedSelectorsAndRejectNul) {
+    const auto strategy = fincore::make_series(
+        sequence_index(10), "strategy",
+        {0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03});
+    const auto factor = fincore::make_series(
+        sequence_index(10), "factor",
+        {-0.04, -0.03, -0.02, -0.01, -0.005, 0.005, 0.01, 0.02, 0.03, 0.04});
+    const std::array<char, 13> embedded_storage{
+        'f', 'a', 'c', 't', 'o', 'r', ' ', 'x', '!', '!', '!', '!', '!'};
+    const std::string_view embedded_selector{embedded_storage.data(),
+                                             embedded_storage.size()};
+
+    EXPECT_NEAR(fincore::up_capture_return(strategy, factor, 252.0,
+                                           "strategy", "factor"),
+                1.5166094207700231, 1e-12);
+    EXPECT_NEAR(fincore::down_capture_return(strategy, factor, 252.0,
+                                             "strategy", "factor"),
+                1.473483204701317, 1e-12);
+    EXPECT_THROW(static_cast<void>(fincore::up_capture_return(
+                     strategy, factor, 252.0, "missing", "factor")),
+                 fincore::input_error);
+    EXPECT_THROW(static_cast<void>(fincore::down_capture_return(
+                     strategy, factor, 252.0, "strategy", embedded_selector)),
+                 fincore::input_error);
+}
+
+TEST(Ratios, CaptureReturnsReturnOwnedScalarsAfterInputLifetimesEnd) {
+    const double up_result = [] {
+        const auto returns = treynor_returns();
+        const auto benchmark = plain_benchmark();
+        return fincore::up_capture_return(returns, benchmark);
+    }();
+    const double down_result = [] {
+        const auto returns = treynor_returns();
+        const auto benchmark = plain_benchmark();
+        return fincore::down_capture_return(returns, benchmark);
+    }();
+
+    EXPECT_NEAR(up_result, 1.5166094207700231, 1e-12);
+    EXPECT_NEAR(down_result, 1.473483204701317, 1e-12);
 }
 
 }  // namespace
