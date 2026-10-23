@@ -99,6 +99,11 @@ target_include_directories(fincore PUBLIC
 
 fincore_enable_sanitizers(fincore)
 
+add_executable(fincore_factor_benchmark EXCLUDE_FROM_ALL
+    benchmarks/factor_pipeline_benchmark.cpp)
+target_link_libraries(fincore_factor_benchmark PRIVATE fincore)
+fincore_enable_sanitizers(fincore_factor_benchmark)
+
 include(cmake/fincore_install.cmake)
 
 if (FINCORE_BUILD_IMPLOT_DEMO AND NOT FINCORE_BUILD_IMPLOT)

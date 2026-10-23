@@ -3055,3 +3055,20 @@ scaled positions, period-end monthly labels, native byte equality and
 visual rendering (NOT_RUN). Full headless CTest passed 710/710; sanitizer
 not re-run. Evidence is in [the portfolio completion acceptance
 record](docs/acceptance/2026-10-23-phase-91-portfolio-report-completion-acceptance.md).
+
+## Phase 87 slice — factor pipeline performance study recorded
+
+Adds an excluded-from-default-build benchmark (`fincore_factor_benchmark`)
+that measures the compute-once factor pipeline on deterministic dense and
+sparse panels. On Apple M2/Release: dense 250x100 (25k rows) analysis
+95.3 ms, report 3.3 ms, HTML 0.40 ms/59 KB, XLSX 1.05 ms/166 KB, 38 MB RSS;
+sparse 250x1000 (12.5k rows) analysis 263.9 ms and 109 MB RSS. Repeated
+analysis yields an identical fingerprint and a copied/mutated model leaves
+the source unchanged. The wide-universe panel is ~2.8x slower despite half
+the rows, identifying per-asset bookkeeping rather than row count as the
+dominant cost.
+
+Limits: single machine/process, synthetic panels, no Python-side timing, no
+repeated-render amortization. Full headless CTest passed 710/710; sanitizer
+not re-run; visual NOT_RUN. Evidence is in [the performance acceptance
+record](docs/acceptance/2026-10-23-phase-87-factor-performance-acceptance.md).
