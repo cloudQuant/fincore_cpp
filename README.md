@@ -2215,3 +2215,22 @@ record](docs/acceptance/2026-10-23-phase-47-capture-returns-acceptance.md).
 
 This phase does not add adapters, reports, plots, packages, or release
 actions.
+
+## Accepted Phase 48 native Hurst exponent
+
+Phase 48 adds `fincore::hurst_exponent(returns, column)`: rescaled-range
+analysis over lagged subseries with a log-log OLS regression, a NumPy
+`geomspace`-equivalent lag grid (endpoint forced to `max_lag`), the
+short-series fallback, and [0,1] clamping. Raw and NaN-only clean lengths
+below eight return NaN; zero deviation or range return NaN.
+
+Clean detached oracle at `4b8f31b` reproduced the goldens (ordinary `1.0`,
+120-point sin `0.6317378848594388`, cos `0.385513237072807`, spike
+`0.7280957897994347`, NaN-mixed `1.0`; short/exact-constant/flat NaN), with
+the 22-lag control list recorded in the design. Full headless CTest and LLVM
+22 ASan+UBSan each passed 546/546. Evidence is recorded in [the Phase 48
+acceptance
+record](docs/acceptance/2026-10-23-phase-48-hurst-exponent-acceptance.md).
+
+This phase does not add window/lag parameters, adapters, reports, plots,
+packages, or release actions.
