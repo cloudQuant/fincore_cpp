@@ -2442,3 +2442,18 @@ Full headless CTest and LLVM 22 ASan+UBSan each passed 586/586. The
 currency/FX branch is declared out of this slice. Evidence is recorded in
 [the Phase 56 acceptance
 record](docs/acceptance/2026-10-23-phase-56-cashflow-adjusted-acceptance.md).
+
+## Accepted Phase 57 native Sharpe inference
+
+Phase 57 adds `standard_error_of_mean`, `sharpe_standard_error`, and
+`sharpe_confidence_interval`: NaN-only cleaning, ddof=1 deviation, the
+`1e-15` Sharpe fallback, Lo (2002) `sqrt((1+0.5*SR^2)/n)`, and risk-free
+adjustment before SR/SE computation. CI bounds are `SR ± z*SE` with `z=1.96`
+default; fewer than two clean values yields NaN (both bounds for the CI).
+
+Clean detached oracle at `4b8f31b` reproduced the goldens (SE mean
+`0.00896908269804914`, Sharpe SE `0.31779627930188475`, CI
+`[-0.4818505590150136, 0.7639108558483746]`). Full headless CTest and LLVM 22
+ASan+UBSan each passed 590/590. Evidence is recorded in [the Phase 57
+acceptance
+record](docs/acceptance/2026-10-23-phase-57-inference-acceptance.md).
