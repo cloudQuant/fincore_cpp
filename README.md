@@ -2074,3 +2074,23 @@ record](docs/acceptance/2026-10-23-phase-40-mar-ratio-acceptance.md).
 This phase does not add `conditional_sharpe`, `burke_ratio`,
 `cal_treynor_ratio`, `m_squared`, `sterling_ratio`, capture-return metrics,
 adapters, reports, plots, packages, or release actions.
+
+## Accepted Phase 41 native conditional Sharpe ratio
+
+Phase 41 adds `fincore::conditional_sharpe_ratio(returns, cutoff = 0.05,
+risk_free = 0.0, annualization = 252, column)`: the annualized Sharpe ratio of
+returns at or below the left-tail percentile cutoff. NumPy's linear
+percentile interpolation (including the midpoint lerp branch), the `<=`
+equality boundary, raw-order tail selection, NaN propagation, and the
+infinite-annualization ±infinity class are preserved. Python's `period`
+maps to the native annualization factor.
+
+Clean detached oracle at `4b8f31b` reproduced all goldens (exit `0`, zero
+stderr, `FAILURES=0`). Full headless CTest and LLVM 22 ASan+UBSan each passed
+506/506; the ImPlot compile/link gate was re-run. Evidence is recorded in [the
+Phase 41 acceptance
+record](docs/acceptance/2026-10-23-phase-41-conditional-sharpe-ratio-acceptance.md).
+
+This phase does not add `deflated_sharpe_ratio`, `burke_ratio`,
+`cal_treynor_ratio`, `m_squared`, `sterling_ratio`, capture returns,
+adapters, reports, plots, packages, or release actions.
