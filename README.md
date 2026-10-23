@@ -2364,3 +2364,18 @@ Clean detached oracle at `4b8f31b` reproduced the goldens (six runs 3/1, 2/0,
 ASan+UBSan each passed 572/572. Evidence is recorded in [the Phase 52b
 slice-3 acceptance
 record](docs/acceptance/2026-10-23-phase-52b-aggregate-percentile-acceptance.md).
+
+## Iteration 1 close-out — metrics completion
+
+All assigned phases (38 close-out, 39 re-pin, 40–52, 52b slices 1–3) are
+accepted. A full public-API audit enumerated 166 Python metric names against
+143 native declarations and classified every one of the 47 unmatched names:
+19 mapped to existing native names or aliases (including `treynor_ratio`,
+`value_at_risk`, aligned rolling wrappers, `calc_bootstrap`, and the two
+leaves added in 52b.3), 8 private vectorization kernels, 5 container
+utilities, 11 PyMC Bayesian non-ports, and 4 Iteration 3 risk routes
+(`gpd_risk_estimates`, `beta_fragility_heuristic` and their aligned forms).
+Iteration 1 therefore closes its assigned slice; complete metrics-domain
+parity waits for Iteration 3 Phases 63–64. Head evidence: 572/572 headless
+CTest and 572/572 ASan+UBSan. The full audit is recorded in [the Iteration 1
+close-out](docs/acceptance/2026-10-23-iteration-1-closeout.md).
