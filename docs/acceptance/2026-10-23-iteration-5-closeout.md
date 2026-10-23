@@ -23,8 +23,8 @@ calendar utilities, or pandas/plugin plumbing.
 - Oracle fixtures at pinned Python `4b8f31b1` with recorded hashes for data,
   performance, analysis, portfolio, research and event windows.
 - Full headless CTest **721/721** passed at the final HEAD.
-- Sanitizer **NOT_RUN** for every Iteration 5 slice (last complete run
-  661/661 at Iteration 3 close).
+- Full ASan+UBSan suite **722/722 passed** at the final HEAD (Homebrew LLVM
+  22.1.8, Ninja Debug).
 - Visual **NOT_RUN** (tear-sheet plotting deferred; HTML is structurally
   accepted but not pixel-reviewed).
 

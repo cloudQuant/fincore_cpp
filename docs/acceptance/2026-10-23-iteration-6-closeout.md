@@ -23,8 +23,8 @@ and [ledger](2026-10-23-program-parity-ledger.tsv).
 - Fresh component install at this revision and a downstream consumer printing
   `version=0.1.0 sharpe=6.928203230275507`.
 - Full headless CTest **722/722** passed at the final HEAD.
-- Sanitizer **NOT_RUN** for Iterations 4–6 (last complete 661/661 at
-  Iteration 3 close).
+- Full ASan+UBSan suite **722/722 passed** at the final HEAD (Homebrew LLVM
+  22.1.8, Ninja Debug).
 - Supported-platform CI matrix **NOT_RUN**; only macOS arm64 is evidenced.
 - Visual rendering **NOT_RUN**; HTML is structurally tested, not
   pixel-reviewed, and ECharts is replaced by inline SVG.

@@ -102,9 +102,9 @@ function route remains.
 ## Gate status
 
 - Release CTest: **722/722 passed** (this audit).
-- Sanitizer: last complete ASan+UBSan run **661/661** (Iteration 3 close and
-  layout alignment). No later slice claims a sanitizer run; the gate remains
-  **NOT_RUN** for Iterations 4–6.
+- Sanitizer: full ASan+UBSan suite **722/722 passed** at the final HEAD
+  (Homebrew LLVM 22.1.8, Ninja Debug; no reports). See
+  [the sanitizer gate record](2026-10-23-sanitizer-gate-acceptance.md).
 - Visual rendering: **NOT_RUN** (no screenshots; ImPlot adapter build not
   re-exercised).
 - Supported-platform CI matrix: **NOT_RUN**; only the local macOS arm64
