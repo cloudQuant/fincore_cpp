@@ -2332,3 +2332,20 @@ Phase 52b slice-1 acceptance
 record](docs/acceptance/2026-10-23-phase-52b-consecutive-weeks-months-acceptance.md).
 Phase 52b remains open for `r_cubed_turtle`, rolling volatility/Sortino, and
 aligned rolling alpha/beta variants.
+
+## Accepted Phase 52b slice 2 — turtle R³ and rolling leaves
+
+Phase 52b slice 2 adds `r_cubed_turtle`, `roll_annual_volatility`, and
+`roll_sortino_ratio`. Turtle R³ regresses cumulative NAV on time (OLS slope),
+annualizes, and divides by the mean per-UTC-year absolute max drawdown.
+Rolling leaves use endpoint output frames and delegate to the accepted
+`annual_volatility`/`sortino_ratio` scalars, preserving NaN-dropping
+semantics. The Empyrical aligned rolling wrappers map to the already accepted
+label-aligned `roll_alpha`/`roll_beta`/`roll_alpha_beta`.
+
+Clean detached oracle at `4b8f31b` reproduced the goldens (turtle
+`28.394903817964696`, long `-0.10352738136922`; volatility/Sortino arrays
+including NaN, infinity and zero classes). Full headless CTest and LLVM 22
+ASan+UBSan each passed 570/570. Evidence is recorded in [the Phase 52b
+slice-2 acceptance
+record](docs/acceptance/2026-10-23-phase-52b-turtle-rolling-leaves-acceptance.md).
