@@ -2053,3 +2053,24 @@ This phase changes no C++ source, test, build file, dependency, provider,
 report, plot, package, or release artifact. Iterations 5 and 6 must run their
 own re-pin checkpoint before starting, because their source domains are the
 ones that moved in this range.
+
+## Accepted Phase 40 native MAR ratio
+
+Phase 40 adds `fincore::mar_ratio(returns, annualization = 252, column)`:
+annualized NaN-only mean return divided by the absolute maximum drawdown.
+Raw counts below two return NaN; a non-negative maximum drawdown returns NaN;
+only infinite quotients map to NaN. The native `max_drawdown` leaf is reused
+unchanged.
+
+Python source `fincore/metrics/ratios.py::mar_ratio` (lines 428–475) was
+transcribed into a clean detached oracle at `4b8f31b` (exit `0`, zero stderr,
+`FAILURES=0`). Goldens include ordinary `20.160000000000007`, annualization-52
+`4.160000000000002`, NaN-mixed `-2.185751579730772e-15`, and negative-mean
+`-85.56004481716624`. Full headless CTest and LLVM 22 ASan+UBSan each passed
+499/499; the ImPlot compile/link gate was re-run. Evidence is recorded in [the
+Phase 40 acceptance
+record](docs/acceptance/2026-10-23-phase-40-mar-ratio-acceptance.md).
+
+This phase does not add `conditional_sharpe`, `burke_ratio`,
+`cal_treynor_ratio`, `m_squared`, `sterling_ratio`, capture-return metrics,
+adapters, reports, plots, packages, or release actions.
