@@ -33,6 +33,7 @@ add_library(fincore
     src/performance/returns.cpp
     src/performance/cashflows.cpp
     src/performance/inference.cpp
+    src/performance/disclosures.cpp
     src/metrics/stats.cpp
     src/metrics/risk.cpp
     src/metrics/alpha_beta.cpp

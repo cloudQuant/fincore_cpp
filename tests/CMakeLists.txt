@@ -35,6 +35,7 @@ add_executable(fincore_tests
     unit/performance_returns_test.cpp
     unit/performance_cashflows_test.cpp
     unit/performance_inference_test.cpp
+    unit/performance_disclosures_test.cpp
     unit/perf_stats_public_header_test.cpp
     unit/positions_test.cpp
     unit/transactions_test.cpp
