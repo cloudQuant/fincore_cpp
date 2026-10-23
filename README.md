@@ -2888,3 +2888,22 @@ portfolio constructor, and research/tears/reports still open.
 Full headless CTest passed 687/687; sanitizer was not re-run for this slice.
 Evidence is recorded in [the factor costs/analysis acceptance
 record](docs/acceptance/2026-10-23-iteration-5-factor-costs-analysis-acceptance.md).
+
+## Iteration 6 slice 1 — HTML, risk projection and runtime core accepted
+
+Adds a self-contained offline HTML renderer (escaped semantic HTML, inline
+SVG charts, en/zh labels, deterministic bytes; declared substitution for the
+ECharts asset), the Phase 67 risk-validation projection (metrics, backtest
+zone, forecast/refit tables, disclosure), and the runtime core: typed
+operation specs, digest-bound catalog, isolated requests, ordered
+`plan`/`batch`/`run`, session cache, snapshots and artifact boundary. The
+builtin catalog registers `metrics.sharpe_ratio` and
+`risk.backtesting.kupiec_lr`.
+
+Open in Iteration 6: XLSX renderer, install/export packaging and installed
+consumer validation, full 88b fields, factor research/tears, portfolio
+builder and Phase 87 performance.
+
+Full headless CTest passed 699/699; sanitizer was not re-run for this slice.
+Evidence is recorded in [the HTML/risk/runtime acceptance
+record](docs/acceptance/2026-10-23-iteration-6-html-risk-runtime-acceptance.md).
