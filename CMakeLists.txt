@@ -40,6 +40,8 @@ add_library(fincore
     src/factor/costs.cpp
     src/factor/analysis.cpp
     src/factor/report.cpp
+    src/factor/research.cpp
+    src/factor/tears.cpp
     src/report/models.cpp
     src/report/html.cpp
     src/report/risk.cpp

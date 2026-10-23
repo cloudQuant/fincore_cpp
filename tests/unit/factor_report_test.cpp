@@ -1,6 +1,7 @@
 #include <fincore/calendar.hpp>
 #include <fincore/factor/analysis.hpp>
 #include <fincore/factor/report.hpp>
+#include <fincore/report/html.hpp>
 
 #include <gtest/gtest.h>
 
@@ -64,6 +65,16 @@ TEST(FactorReport, ProjectsModelToSharedDocument) {
     EXPECT_NE(json.find("\"turnover\""), std::string::npos);
     EXPECT_NE(json.find("\"mean_ic.1D\""), std::string::npos);
     EXPECT_EQ(json.back(), '\n');
+
+    const auto html = fincore::render_html(report);
+    EXPECT_EQ(html.rfind("<!doctype html>", 0), 0U);
+    EXPECT_NE(html.find("Factor performance"), std::string::npos);
+    EXPECT_NE(html.find("<svg"), std::string::npos);
+    fincore::report_html_options chinese;
+    chinese.language = "zh";
+    const auto chinese_html = fincore::render_html(report, chinese);
+    EXPECT_NE(chinese_html.find("说明"), std::string::npos);
+    EXPECT_NE(chinese_html.find("<html lang=\"zh\">"), std::string::npos);
 }
 
 }  // namespace
