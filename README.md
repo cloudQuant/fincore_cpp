@@ -3039,3 +3039,19 @@ from Python, and the HTML renderer keeps its inline-SVG substitution.
 Full headless CTest passed 710/710; sanitizer not re-run; visual NOT_RUN.
 Evidence is in [the factor report acceptance
 record](docs/acceptance/2026-10-23-phase-84-factor-report-acceptance.md).
+
+## Phase 91 completion slice — portfolio performance and exposure accepted
+
+`build_portfolio_report` now publishes the pinned performance series
+(returns, cumulative returns, drawdown, rolling Sharpe/volatility, monthly
+returns), the top-five drawdown table, rolling benchmark beta and the alpha
+metric. An optional positions frame with a `cash` column adds a portfolio
+section with asset count, average/maximum gross leverage and the leverage
+series; positions must cover every return timestamp and stay finite.
+
+Declared gaps: the transactions section (unique-index native frame cannot
+hold multiple trades per timestamp and turnover needs the ledger), capital-
+scaled positions, period-end monthly labels, native byte equality and
+visual rendering (NOT_RUN). Full headless CTest passed 710/710; sanitizer
+not re-run. Evidence is in [the portfolio completion acceptance
+record](docs/acceptance/2026-10-23-phase-91-portfolio-report-completion-acceptance.md).
