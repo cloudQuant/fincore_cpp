@@ -2951,3 +2951,30 @@ validation, comparisons/segments/correlations, min-asset enforcement,
 research export, and visual rendering (NOT_RUN). Full headless CTest passed
 705/705; sanitizer not re-run. Evidence is in [the research/tears acceptance
 record](docs/acceptance/2026-10-23-iteration-5-research-tears-acceptance.md).
+
+## Iteration 5 slice 4 — PIT ledger and factor portfolio constructor accepted
+
+Adds causal point-in-time materialization (`PITPoint`/`pit_point`,
+`materialize_pit_factor`, `validate_pit_alignment`,
+`prepare_pit_factor_data`) and the overlapping factor-portfolio constructor
+(`factor_positions`, `factor_cumulative_returns`,
+`build_factor_portfolio_inputs`). Selections require both `known_at` and
+`effective_from` on or before each evaluation date, an out-of-universe
+latest record removes the asset instead of leaking a stale value, and PIT
+preparation rejects full-sample z-score filtering. Holdings overlap and
+gross-normalize per timestamp, expire on a whole-business-day Monday-Friday
+calendar, and the builder publishes daily returns, asset-plus-cash positions
+and the long-only equal-weight benchmark.
+
+Oracle fixture at pinned Python `4b8f31b1` (SHA-256
+`11af4f42…`): 3D positions `-0.5, 0, 0.5` through 2022-01-07 with zeros on
+01-10, cumulative `1.01/1.0201/1.030301`, daily inputs returns
+`0/0.01/0.01`, a `cash=1` overlay after expiry, benchmark `0/0.02/0.02`, and
+four PIT rows with the universe-excluded asset absent.
+
+Declared gaps: no intraday holding remainders, holiday calendars,
+capital-scaled dollar positions, or per-observation timezones; explicit
+weights are accepted only by `factor_positions`. Full headless CTest passed
+709/709; sanitizer not re-run; visual NOT_RUN. Evidence is in [the PIT and
+portfolio constructor acceptance
+record](docs/acceptance/2026-10-23-iteration-5-pit-portfolio-acceptance.md).

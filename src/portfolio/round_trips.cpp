@@ -1,4 +1,4 @@
-#include <fincore/metrics/round_trips.hpp>
+#include <fincore/portfolio/round_trips.hpp>
 
 #include <fincore/error.hpp>
 
