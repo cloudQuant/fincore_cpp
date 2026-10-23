@@ -1,5 +1,6 @@
 #include <fincore/risk/evt.hpp>
 
+#include <fincore/detail/numeric.hpp>
 #include <fincore/detail/optimization.hpp>
 
 #include <algorithm>
@@ -130,6 +131,371 @@ void validate_alpha(const double alpha) {
     if (!std::isfinite(alpha) || !(alpha > 0.0 && alpha < 1.0)) {
         throw input_error{"alpha must be finite and in (0, 1)"};
     }
+}
+
+constexpr double euler_gamma =
+    0.577215664901532860606512090082402431;
+
+std::vector<double> gev_block_extremes(const std::vector<double>& values,
+                                       const std::size_t block_size,
+                                       const evt_tail tail) {
+    const std::size_t n_blocks = values.size() / block_size;
+    if (n_blocks == 0U) {
+        throw input_error{
+            "block_size must leave at least one complete block"};
+    }
+    std::vector<double> extremes;
+    extremes.reserve(n_blocks);
+    for (std::size_t block = 0U; block < n_blocks; ++block) {
+        const std::size_t start = block * block_size;
+        double extreme =
+            tail == evt_tail::lower ? -values[start] : values[start];
+        for (std::size_t offset = 1U; offset < block_size; ++offset) {
+            const double value = values[start + offset];
+            const double candidate =
+                tail == evt_tail::lower ? -value : value;
+            extreme = std::max(extreme, candidate);
+        }
+        extremes.push_back(extreme);
+    }
+    return extremes;
+}
+
+constexpr double log_maximum_double = 709.782712893384;
+
+double genextreme_negative_loglikelihood(
+    const std::vector<double>& extremes, const double shape,
+    const double location, const double scale) {
+    if (!std::isfinite(shape) || !(scale > 0.0) ||
+        !std::isfinite(scale)) {
+        return std::numeric_limits<double>::infinity();
+    }
+    double total = 0.0;
+    std::size_t unsupported = 0U;
+    for (const double value : extremes) {
+        const double standardized = (value - location) / scale;
+        const double support = 1.0 - shape * standardized;
+        if (!std::isfinite(support) || support <= 0.0) {
+            ++unsupported;
+            continue;
+        }
+        double log_density = 0.0;
+        if (std::fabs(shape) < 1e-8) {
+            const double exponential = std::exp(-standardized);
+            log_density = -standardized - exponential;
+        } else {
+            log_density =
+                -std::pow(support, 1.0 / shape) +
+                (1.0 / shape - 1.0) * std::log(support);
+        }
+        if (!std::isfinite(log_density)) {
+            ++unsupported;
+            continue;
+        }
+        total += log_density;
+    }
+    // scipy.stats._nnlf_and_penalty drops unsupported observations and adds
+    // _LOGXMAX * 100 per dropped point; the scale term still counts all n.
+    return -total + static_cast<double>(extremes.size()) * std::log(scale) +
+           static_cast<double>(unsupported) * log_maximum_double * 100.0;
+}
+
+double regularized_gamma_p(const double shape, const double value) {
+    if (!(shape > 0.0) || !(value >= 0.0) || !std::isfinite(shape) ||
+        !std::isfinite(value)) {
+        return nan;
+    }
+    if (value == 0.0) {
+        return 0.0;
+    }
+    const double log_factor =
+        -value + shape * std::log(value) - std::lgamma(shape);
+    if (value < shape + 1.0) {
+        double sum = 1.0 / shape;
+        double term = sum;
+        double shifted = shape;
+        for (int iteration = 1; iteration < 10000; ++iteration) {
+            shifted += 1.0;
+            term *= value / shifted;
+            sum += term;
+            if (std::fabs(term) < std::fabs(sum) * 1e-16) {
+                break;
+            }
+        }
+        return sum * std::exp(log_factor);
+    }
+    double b = value + 1.0 - shape;
+    double c = 1.0 / 1e-300;
+    double d = 1.0 / b;
+    double fraction = d;
+    for (int iteration = 1; iteration < 10000; ++iteration) {
+        const double coefficient =
+            -static_cast<double>(iteration) *
+            (static_cast<double>(iteration) - shape);
+        b += 2.0;
+        d = coefficient * d + b;
+        if (std::fabs(d) < 1e-300) {
+            d = 1e-300;
+        }
+        c = b + coefficient / c;
+        if (std::fabs(c) < 1e-300) {
+            c = 1e-300;
+        }
+        d = 1.0 / d;
+        const double delta = d * c;
+        fraction *= delta;
+        if (std::fabs(delta - 1.0) < 1e-16) {
+            break;
+        }
+    }
+    return 1.0 - std::exp(log_factor) * fraction;
+}
+
+double lower_incomplete_gamma(const double shape, const double value) {
+    return regularized_gamma_p(shape, value) * std::tgamma(shape);
+}
+
+double exponential_integral_e1(const double value) {
+    if (!(value > 0.0) || !std::isfinite(value)) {
+        return nan;
+    }
+    if (value < 1.0) {
+        double result = -euler_gamma - std::log(value);
+        double power = -value;
+        double factorial = 1.0;
+        for (int order = 1; order <= 200; ++order) {
+            factorial *= static_cast<double>(order);
+            const double term =
+                power / (static_cast<double>(order) * factorial);
+            result -= term;
+            power *= -value;
+            if (std::fabs(term) < 1e-18 * std::fabs(result)) {
+                break;
+            }
+        }
+        return result;
+    }
+    double b = value + 1.0;
+    double c = 1e300;
+    double d = 1.0 / b;
+    double fraction = d;
+    for (int iteration = 1; iteration <= 500; ++iteration) {
+        const double coefficient =
+            -static_cast<double>(iteration) * iteration;
+        b += 2.0;
+        d = 1.0 / (coefficient * d + b);
+        c = b + coefficient / c;
+        const double delta = d * c;
+        fraction *= delta;
+        if (std::fabs(delta - 1.0) < 1e-16) {
+            break;
+        }
+    }
+    return std::exp(-value) * fraction;
+}
+
+double gumbel_expected_shortfall(const double mu, const double sigma,
+                                 const double alpha) {
+    const double t = -std::log1p(-alpha);
+    if (t < 1e-5) {
+        double series = 0.0;
+        double power = 1.0;
+        double factorial = 1.0;
+        for (int order = 1; order <= 16; ++order) {
+            power *= -t;
+            factorial *= static_cast<double>(order);
+            series -= power /
+                      (static_cast<double>(order) * factorial);
+        }
+        const double scaled =
+            std::expm1(-t) / alpha * std::log(t) + series / alpha;
+        return mu + sigma * scaled;
+    }
+    const double numerator =
+        euler_gamma + std::exp(-t) * std::log(t) +
+        exponential_integral_e1(t);
+    return mu + sigma * numerator / alpha;
+}
+
+struct scipy_simplex_result {
+    std::vector<double> parameters;
+    double value;
+    std::size_t function_calls;
+    bool converged;
+};
+
+scipy_simplex_result scipy_style_nelder_mead(
+    const std::function<double(const std::vector<double>&)>& objective,
+    const std::vector<double>& start, const std::size_t max_function_calls,
+    const std::size_t max_iterations, const double xatol,
+    const double fatol) {
+    constexpr double rho = 1.0;
+    constexpr double chi = 2.0;
+    constexpr double psi = 0.5;
+    constexpr double sigma = 0.5;
+    constexpr double non_zero_delta = 0.05;
+    constexpr double zero_delta = 0.00025;
+
+    const std::size_t dimensions = start.size();
+    std::vector<std::vector<double>> simplex(dimensions + 1U, start);
+    for (std::size_t index = 0; index < dimensions; ++index) {
+        simplex[index + 1U][index] =
+            start[index] != 0.0 ? (1.0 + non_zero_delta) * start[index]
+                                : zero_delta;
+    }
+    std::vector<double> values(dimensions + 1U, 0.0);
+    std::size_t calls = 0U;
+    for (std::size_t index = 0; index <= dimensions; ++index) {
+        values[index] = objective(simplex[index]);
+        ++calls;
+    }
+    const auto sort_simplex = [&] {
+        std::vector<std::size_t> order(dimensions + 1U);
+        for (std::size_t index = 0; index <= dimensions; ++index) {
+            order[index] = index;
+        }
+        std::sort(order.begin(), order.end(),
+                  [&values](const std::size_t left,
+                            const std::size_t right) {
+                      return values[left] < values[right];
+                  });
+        std::vector<std::vector<double>> sorted_simplex(dimensions + 1U);
+        std::vector<double> sorted_values(dimensions + 1U);
+        for (std::size_t index = 0; index <= dimensions; ++index) {
+            sorted_simplex[index] = simplex[order[index]];
+            sorted_values[index] = values[order[index]];
+        }
+        simplex = std::move(sorted_simplex);
+        values = std::move(sorted_values);
+    };
+    sort_simplex();
+
+    scipy_simplex_result result{start, values.front(), calls, false};
+    std::size_t iterations = 1U;
+    while (calls < max_function_calls && iterations < max_iterations) {
+        double maximum_step = 0.0;
+        double maximum_change = 0.0;
+        for (std::size_t vertex = 1U; vertex <= dimensions; ++vertex) {
+            for (std::size_t index = 0; index < dimensions; ++index) {
+                maximum_step = std::max(
+                    maximum_step,
+                    std::fabs(simplex[vertex][index] -
+                              simplex[0][index]));
+            }
+            if (std::isfinite(values[vertex]) &&
+                std::isfinite(values[0])) {
+                maximum_change = std::max(
+                    maximum_change,
+                    std::fabs(values[vertex] - values[0]));
+            } else {
+                maximum_change =
+                    std::numeric_limits<double>::infinity();
+            }
+        }
+        if (maximum_step <= xatol && maximum_change <= fatol) {
+            result.converged = true;
+            break;
+        }
+
+        std::vector<double> centroid(dimensions, 0.0);
+        for (std::size_t vertex = 0; vertex < dimensions; ++vertex) {
+            for (std::size_t index = 0; index < dimensions; ++index) {
+                centroid[index] += simplex[vertex][index];
+            }
+        }
+        for (double& value : centroid) {
+            value /= static_cast<double>(dimensions);
+        }
+        const auto reflected = [&] {
+            std::vector<double> point(dimensions);
+            for (std::size_t index = 0; index < dimensions; ++index) {
+                point[index] = (1.0 + rho) * centroid[index] -
+                               rho * simplex.back()[index];
+            }
+            return point;
+        }();
+        const double reflected_value = objective(reflected);
+        ++calls;
+        bool shrink = false;
+        if (reflected_value < values.front()) {
+            const auto expanded = [&] {
+                std::vector<double> point(dimensions);
+                for (std::size_t index = 0; index < dimensions; ++index) {
+                    point[index] =
+                        (1.0 + rho * chi) * centroid[index] -
+                        rho * chi * simplex.back()[index];
+                }
+                return point;
+            }();
+            const double expanded_value = objective(expanded);
+            ++calls;
+            if (expanded_value < reflected_value) {
+                simplex.back() = expanded;
+                values.back() = expanded_value;
+            } else {
+                simplex.back() = reflected;
+                values.back() = reflected_value;
+            }
+        } else if (reflected_value < values[dimensions - 1U]) {
+            simplex.back() = reflected;
+            values.back() = reflected_value;
+        } else if (reflected_value < values.back()) {
+            const auto contracted = [&] {
+                std::vector<double> point(dimensions);
+                for (std::size_t index = 0; index < dimensions; ++index) {
+                    point[index] = (1.0 + psi * rho) * centroid[index] -
+                                   psi * rho * simplex.back()[index];
+                }
+                return point;
+            }();
+            const double contracted_value = objective(contracted);
+            ++calls;
+            if (contracted_value <= reflected_value) {
+                simplex.back() = contracted;
+                values.back() = contracted_value;
+            } else {
+                shrink = true;
+            }
+        } else {
+            const auto contracted = [&] {
+                std::vector<double> point(dimensions);
+                for (std::size_t index = 0; index < dimensions; ++index) {
+                    point[index] = (1.0 - psi) * centroid[index] +
+                                   psi * simplex.back()[index];
+                }
+                return point;
+            }();
+            const double contracted_value = objective(contracted);
+            ++calls;
+            if (contracted_value < values.back()) {
+                simplex.back() = contracted;
+                values.back() = contracted_value;
+            } else {
+                shrink = true;
+            }
+        }
+        if (shrink) {
+            for (std::size_t vertex = 1U; vertex <= dimensions; ++vertex) {
+                for (std::size_t index = 0; index < dimensions; ++index) {
+                    simplex[vertex][index] =
+                        simplex[0][index] +
+                        sigma * (simplex[vertex][index] -
+                                 simplex[0][index]);
+                }
+                values[vertex] = objective(simplex[vertex]);
+                ++calls;
+            }
+        }
+        ++iterations;
+        sort_simplex();
+        result.parameters = simplex.front();
+        result.value = values.front();
+        result.function_calls = calls;
+    }
+    result.parameters = simplex.front();
+    result.value = values.front();
+    result.function_calls = calls;
+    return result;
 }
 
 }  // namespace
@@ -263,15 +629,159 @@ gpd_parameters gpd_fit(const dataframe& data,
     return {xi, beta, used_threshold, excesses.size()};
 }
 
+gev_parameters gev_fit(const dataframe& data,
+                       const std::optional<std::size_t> block_size,
+                       const evt_tail tail,
+                       const std::string_view column) {
+    if (column.find('\0') != std::string_view::npos) {
+        throw input_error{"column name must not contain an embedded NUL"};
+    }
+    const auto raw_values = require_double_column(data, column);
+    std::vector<double> values;
+    values.reserve(raw_values.size());
+    for (const double value : raw_values) {
+        if (!std::isnan(value)) {
+            values.push_back(value);
+        }
+    }
+    if (values.empty()) {
+        throw input_error{"GEV fit requires at least one observation"};
+    }
+
+    const std::size_t block =
+        block_size.has_value()
+            ? *block_size
+            : static_cast<std::size_t>(
+                  std::sqrt(static_cast<double>(values.size())));
+    if (block == 0U) {
+        throw input_error{"block_size must be a positive integer"};
+    }
+    const auto extremes = gev_block_extremes(values, block, tail);
+
+    const double mean_extreme =
+        detail::mean(std::span<const double>(extremes));
+    const double variance =
+        detail::population_variance(std::span<const double>(extremes));
+    if (!std::isfinite(variance) || variance <= 0.0) {
+        throw input_error{
+            "GEV fit requires positive finite block-extreme variation"};
+    }
+
+    const double scale_skew = std::sqrt(variance);
+    double third_moment = 0.0;
+    for (const double value : extremes) {
+        third_moment +=
+            (value - mean_extreme) * (value - mean_extreme) *
+            (value - mean_extreme);
+    }
+    third_moment /= static_cast<double>(extremes.size());
+    const double skewness =
+        extremes.size() > 2U
+            ? third_moment / (scale_skew * scale_skew * scale_skew) *
+                  std::sqrt(static_cast<double>(extremes.size()) *
+                            static_cast<double>(extremes.size() - 1U)) /
+                  static_cast<double>(extremes.size() - 2U)
+            : 0.0;
+
+    // scipy.stats.genextreme._fitstart picks shape c = +0.5 for negative
+    // skew and -0.5 otherwise, then loc/scale from the method of moments.
+    const double shape = skewness < 0.0 ? 0.5 : -0.5;
+    const double standard_mean =
+        (1.0 - std::tgamma(1.0 + shape)) / shape;
+    const double variance_shape = 1.0 + 2.0 * shape;
+    double standard_variance =
+        std::numeric_limits<double>::infinity();
+    if (variance_shape > 0.0) {
+        standard_variance =
+            (std::tgamma(variance_shape) -
+             std::tgamma(1.0 + shape) * std::tgamma(1.0 + shape)) /
+            (shape * shape);
+    }
+    double starting_scale = std::sqrt(variance / standard_variance);
+    double starting_location =
+        mean_extreme - starting_scale * standard_mean;
+    if (!std::isfinite(starting_location)) {
+        starting_location = 0.0;
+    }
+    if (!(std::isfinite(starting_scale) && starting_scale > 0.0)) {
+        starting_scale = 1.0;
+    }
+
+    const double data_min = *std::min_element(extremes.begin(),
+                                              extremes.end());
+    const double data_max = *std::max_element(extremes.begin(),
+                                              extremes.end());
+    const double data_width = data_max - data_min;
+    const double lower_support =
+        shape > 0.0 ? -std::numeric_limits<double>::infinity() : 1.0 / shape;
+    const double upper_support =
+        shape > 0.0 ? 1.0 / shape : std::numeric_limits<double>::infinity();
+    const double lower_bound =
+        starting_location + lower_support * starting_scale;
+    const double upper_bound =
+        starting_location + upper_support * starting_scale;
+    if (!(lower_bound < data_min && data_max < upper_bound)) {
+        if (shape > 0.0) {
+            starting_location =
+                data_max - upper_support + 0.1 * data_width;
+            starting_scale = 1.0;
+        } else {
+            starting_location =
+                data_min - lower_support - 0.1 * data_width;
+            starting_scale = 1.0;
+        }
+    }
+
+    const auto objective =
+        [&extremes](const std::vector<double>& point) {
+            return genextreme_negative_loglikelihood(
+                extremes, point[0], point[1], point[2]);
+        };
+    // scipy.stats.genextreme.fit runs fmin (Nelder-Mead) with xtol=ftol=1e-4
+    // and maxiter=maxfun=200*N from the moment-matched start above.
+    const auto best = scipy_style_nelder_mead(
+        objective,
+        std::vector<double>{shape, starting_location, starting_scale},
+        600U, 600U, 1e-4, 1e-4);
+    if (!std::isfinite(best.value) || best.parameters.size() != 3U) {
+        throw input_error{
+            "GEV fit did not converge to a finite likelihood"};
+    }
+    const double xi = -best.parameters[0];
+    const double mu = best.parameters[1];
+    const double sigma = best.parameters[2];
+    if (!std::isfinite(xi) || !std::isfinite(mu) ||
+        !std::isfinite(sigma) || sigma <= 0.0) {
+        throw input_error{
+            "GEV fit returned non-finite parameters or non-positive scale"};
+    }
+    return {xi, mu, sigma, extremes.size()};
+}
+
 double evt_var(const dataframe& data, const double alpha,
                const evt_model model, const evt_tail tail,
                const std::optional<double> threshold,
                const std::optional<std::size_t> block_size,
                const std::string_view column) {
-    static_cast<void>(block_size);
     validate_alpha(alpha);
-    if (model != evt_model::gpd) {
-        throw input_error{"GEV model is not available in this build"};
+    if (model == evt_model::gev) {
+        const auto params = gev_fit(data, block_size, tail, column);
+        if (!std::isfinite(params.xi) || !std::isfinite(params.mu) ||
+            !std::isfinite(params.sigma) || params.sigma <= 0.0) {
+            throw input_error{"GEV fit returned non-finite parameters or non-positive scale"};
+        }
+        const double tail_probability = -std::log1p(-alpha);
+        const double var_magnitude =
+            std::fabs(params.xi) < 1e-10
+                ? params.mu -
+                      params.sigma * std::log(tail_probability)
+                : params.mu +
+                      (params.sigma / params.xi) *
+                          (std::pow(tail_probability, -params.xi) - 1.0);
+        if (!std::isfinite(var_magnitude)) {
+            throw input_error{"GEV VaR is not finite for the fitted parameters and alpha"};
+        }
+        return tail == evt_tail::lower ? -var_magnitude : var_magnitude;
     }
     const auto values = finite_values(data, column);
     const double pot_threshold =
@@ -305,10 +815,33 @@ double evt_cvar(const dataframe& data, const double alpha,
                 const std::optional<double> threshold,
                 const std::optional<std::size_t> block_size,
                 const std::string_view column) {
-    static_cast<void>(block_size);
     validate_alpha(alpha);
-    if (model != evt_model::gpd) {
-        throw input_error{"GEV model is not available in this build"};
+    if (model == evt_model::gev) {
+        const auto params = gev_fit(data, block_size, tail, column);
+        if (!std::isfinite(params.xi) || !std::isfinite(params.mu) ||
+            !std::isfinite(params.sigma) || params.sigma <= 0.0) {
+            throw input_error{"GEV fit returned non-finite parameters or non-positive scale"};
+        }
+        const double tail_probability = -std::log1p(-alpha);
+        double cvar_magnitude = 0.0;
+        if (std::fabs(params.xi) < 1e-10) {
+            cvar_magnitude = gumbel_expected_shortfall(
+                params.mu, params.sigma, alpha);
+        } else if (params.xi < 1.0) {
+            const double lower_gamma = lower_incomplete_gamma(
+                1.0 - params.xi, tail_probability);
+            cvar_magnitude =
+                params.mu +
+                (params.sigma / params.xi) *
+                    (lower_gamma / alpha - 1.0);
+        } else {
+            throw input_error{"CVaR infinite for xi >= 1"};
+        }
+        if (!std::isfinite(cvar_magnitude)) {
+            throw input_error{"GEV CVaR is not finite for the fitted parameters"};
+        }
+        return tail == evt_tail::lower ? -cvar_magnitude
+                                       : cvar_magnitude;
     }
     const auto values = finite_values(data, column);
     const double pot_threshold =
@@ -342,8 +875,19 @@ extreme_risk_result extreme_risk(
     const evt_model model, const std::optional<double> threshold,
     const std::optional<std::size_t> block_size, const std::string_view column) {
     validate_alpha(alpha);
-    if (model != evt_model::gpd) {
-        throw input_error{"GEV model is not available in this build"};
+    if (model == evt_model::gev) {
+        const auto params = gev_fit(returns, block_size, tail, column);
+        const double var =
+            evt_var(returns, alpha, model, tail, threshold, block_size,
+                    column);
+        const double cvar =
+            evt_cvar(returns, alpha, model, tail, threshold, block_size,
+                     column);
+        extreme_risk_result result{var, cvar, params.xi, nan, 0U, alpha};
+        result.location = params.mu;
+        result.scale = params.sigma;
+        result.n_blocks = params.n_blocks;
+        return result;
     }
     const auto values = finite_values(returns, column);
     const double pot_threshold =

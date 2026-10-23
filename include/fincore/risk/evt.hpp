@@ -25,6 +25,13 @@ struct gpd_parameters {
     std::size_t n_exceed;
 };
 
+struct gev_parameters {
+    double xi;
+    double mu;
+    double sigma;
+    std::size_t n_blocks;
+};
+
 hill_estimate hill_estimator(const dataframe& data,
                              std::optional<double> threshold = std::nullopt,
                              evt_tail tail = evt_tail::upper,
@@ -33,6 +40,11 @@ hill_estimate hill_estimator(const dataframe& data,
 gpd_parameters gpd_fit(const dataframe& data,
                        std::optional<double> threshold = std::nullopt,
                        gpd_estimation_method method = gpd_estimation_method::mle,
+                       evt_tail tail = evt_tail::lower,
+                       std::string_view column = returns_column);
+
+gev_parameters gev_fit(const dataframe& data,
+                       std::optional<std::size_t> block_size = std::nullopt,
                        evt_tail tail = evt_tail::lower,
                        std::string_view column = returns_column);
 
@@ -57,6 +69,9 @@ struct extreme_risk_result {
     double threshold;
     std::size_t n_exceedances;
     double alpha;
+    std::optional<double> location;
+    std::optional<double> scale;
+    std::optional<std::size_t> n_blocks;
 };
 
 extreme_risk_result extreme_risk(const dataframe& returns, double alpha = 0.05,
