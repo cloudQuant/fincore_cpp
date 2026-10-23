@@ -2134,3 +2134,24 @@ record](docs/acceptance/2026-10-23-phase-43-burke-ratio-acceptance.md).
 
 This phase does not add `cal_treynor_ratio`, `m_squared`, `sterling_ratio`,
 capture returns, adapters, reports, plots, packages, or release actions.
+
+## Accepted Phase 46 native Sterling ratio
+
+Phase 46 adds `fincore::sterling_ratio(returns, risk_free = 0.0,
+annualization = 252, column)`: annualized excess return divided by the
+absolute average drawdown episode, with downside-mean and
+population-deviation fallbacks when no non-zero episode exists. The `1e-10`
+gate, intentional +infinity, NaN-as-zero CAGR numerator, and signed-zero
+negative-infinity class match the source. The accepted native
+`get_all_drawdowns` and `annual_return` kernels are reused.
+
+Clean detached oracle at `4b8f31b` reproduced all goldens (exit `0`, zero
+stderr, `FAILURES=0`). Full headless CTest and LLVM 22 ASan+UBSan each passed
+525/525; ImPlot compile/link was re-run. Evidence is recorded in [the Phase 46
+acceptance
+record](docs/acceptance/2026-10-23-phase-46-sterling-ratio-acceptance.md).
+Phases 44 and 45 remain open; this phase lands out of numeric order because it
+shares the drawdown/fallback kernel with Phase 43.
+
+This phase does not add `cal_treynor_ratio`, `m_squared`, capture returns,
+adapters, reports, plots, packages, or release actions.
