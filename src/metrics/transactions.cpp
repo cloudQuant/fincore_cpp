@@ -656,7 +656,7 @@ std::vector<ticker_liquidity> get_max_days_to_liquidate_by_ticker(
         const long long cutoff =
             *newest - static_cast<long long>(*last_n_days) * nanoseconds_per_day;
         for (std::size_t row = 0; row < day_index.size(); ++row) {
-            keep[row] = day_index[row] > cutoff;
+            keep[row] = day_index[row] >= cutoff;
         }
     }
 

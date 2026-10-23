@@ -39,6 +39,7 @@ add_executable(fincore_tests
     unit/perf_stats_public_header_test.cpp
     unit/positions_test.cpp
     unit/transactions_test.cpp
+    unit/capacity_test.cpp
     unit/round_trips_test.cpp
     unit/perf_attrib_test.cpp
     unit/brinson_test.cpp

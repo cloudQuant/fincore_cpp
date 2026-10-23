@@ -1222,6 +1222,9 @@ TEST(Transactions, DaysToLiquidateMatchesPythonOracle) {
     const auto recent = fincore::get_max_days_to_liquidate_by_ticker(
         positions, prices, volumes, 0.2, 1'000'000.0, 2U, 2U);
     ASSERT_EQ(recent.size(), 2U);
+    EXPECT_NEAR(recent[0].days_to_liquidate, 55.47177006951307, 1e-12);
+    EXPECT_NEAR(recent[0].position_allocation_pct, 13.008130081300814,
+                1e-12);
     EXPECT_NEAR(recent[1].days_to_liquidate, 23.089355806972986, 1e-12);
     EXPECT_NEAR(recent[1].position_allocation_pct, 6.557377049180328,
                 1e-12);
