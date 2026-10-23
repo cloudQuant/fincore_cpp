@@ -2788,3 +2788,24 @@ fields, and an explicit empty-input error instead of NumPy's IndexError.
 Full headless CTest and LLVM 22 ASan+UBSan each passed 661/661. Evidence is
 recorded in [the Phase 62 residual acceptance
 record](docs/acceptance/2026-10-23-phase-62b-risk-models-acceptance.md).
+
+## Iteration 3 close-out — risk and optimization accepted
+
+Iteration 3 (Phases 60–71, including the 62/65 residuals and GEV slice)
+is accepted: GARCH/EGARCH/GJR fits and forecasts, conditional VaR/ES,
+`RiskEstimate`/`forecast_var`/`forecast_es`, Hill/GPD/GEV EVT with EVT
+VaR/CVaR/extreme risk, beta fragility, Kupiec/Christoffersen backtests and
+calibration helpers, walk-forward VaR, the deterministic risk validation
+report, and portfolio objectives/frontier/risk parity. The capability
+ledger maps all pinned `risk/*` and `optimization/*` public routes, with
+the `*_aligned` metric wrappers mapped to their canonical native functions.
+
+Defect log: the source's GPD MLE sign defect is reproduced, GEV local-optima
+behavior is matched through SciPy's fit path, GARCH and SLSQP comparisons
+are objective/feasibility-first with declared budgets, and native digests
+are versioned non-CSV recipes. The only domain residual is runtime
+`OperationSpec` registration for the three optimization routes (Phase 92).
+
+Full headless CTest and LLVM 22 ASan+UBSan each passed 661/661. Evidence is
+recorded in [the Iteration 3 close-out
+record](docs/acceptance/2026-10-23-iteration-3-closeout.md).
