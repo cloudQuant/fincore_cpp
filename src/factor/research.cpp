@@ -757,6 +757,85 @@ research_result evaluate_factor_research(
 }
 
 
+namespace {
+
+void validate_combinations(
+    const research_spec& spec,
+    const std::set<std::string>& factor_names) {
+    for (const auto& [name, weights] : spec.combinations) {
+        if (name.empty() || factor_names.contains(name)) {
+            throw factor_data_error{
+                "combination names must be non-empty and distinct from factors"};
+        }
+        bool used = false;
+        for (const auto& [factor, weight] : weights) {
+            if (!factor_names.contains(factor)) {
+                throw factor_data_error{
+                    "combination references an unknown factor"};
+            }
+            if (!std::isfinite(weight)) {
+                throw factor_data_error{
+                    "combination weights must be finite"};
+            }
+            if (weight != 0.0) {
+                used = true;
+            }
+        }
+        if (!used) {
+            throw factor_data_error{
+                "combination has no non-zero weights"};
+        }
+    }
+}
+
+factor_series blend_combination(
+    const std::string& name,
+    const std::map<std::string, double>& weights,
+    const std::map<std::string, factor_series>& processed) {
+    std::map<std::pair<timestamp, std::string>, double> totals;
+    bool first = true;
+    for (const auto& [factor, weight] : weights) {
+        if (weight == 0.0) {
+            continue;
+        }
+        const auto& panel = processed.at(factor);
+        std::map<std::pair<timestamp, std::string>, double> values;
+        for (std::size_t row = 0; row < panel.dates.size(); ++row) {
+            values[{panel.dates[row], panel.assets[row]}] =
+                panel.values[row];
+        }
+        if (first) {
+            for (const auto& [key, value] : values) {
+                totals[key] = weight * value;
+            }
+            first = false;
+        } else {
+            for (auto entry = totals.begin(); entry != totals.end();) {
+                const auto found = values.find(entry->first);
+                if (found == values.end()) {
+                    entry = totals.erase(entry);
+                } else {
+                    entry->second += weight * found->second;
+                    ++entry;
+                }
+            }
+        }
+    }
+    factor_series blended;
+    for (const auto& [key, value] : totals) {
+        blended.dates.push_back(key.first);
+        blended.assets.push_back(key.second);
+        blended.values.push_back(value);
+    }
+    if (blended.dates.empty()) {
+        throw factor_data_error{
+            "combination " + name + " has no shared factor cells"};
+    }
+    return blended;
+}
+
+}  // namespace
+
 research_panel_result evaluate_factor_research_panel(
     const std::span<const named_factor_panel> factors,
     const dataframe& prices, const research_spec& spec) {
@@ -771,9 +850,16 @@ research_panel_result evaluate_factor_research_panel(
                 "factor names must be non-empty and unique"};
         }
     }
+    validate_combinations(spec, names);
+    std::set<std::string> evaluated_names = names;
+    for (const auto& [name, weights] : spec.combinations) {
+        static_cast<void>(weights);
+        evaluated_names.insert(name);
+    }
     for (const auto& [name, pair] : spec.comparisons) {
         static_cast<void>(name);
-        if (!names.contains(pair.first) || !names.contains(pair.second)) {
+        if (!evaluated_names.contains(pair.first) ||
+            !evaluated_names.contains(pair.second)) {
             throw factor_data_error{
                 "comparison references an unknown factor"};
         }
@@ -797,17 +883,44 @@ research_panel_result evaluate_factor_research_panel(
         }
         result.factors.push_back(std::move(named));
     }
-    if (ok_count == factors.size()) {
+    std::map<std::string, factor_series> processed;
+    for (const auto& factor : factors) {
+        processed[factor.name] = research_panel(factor.values, spec);
+    }
+    std::vector<research_factor_panel> panels;
+    panels.reserve(factors.size() + spec.combinations.size());
+    for (const auto& factor : factors) {
+        panels.push_back({factor.name, factor.values});
+    }
+    for (const auto& [name, weights] : spec.combinations) {
+        factor_series blended =
+            blend_combination(name, weights, processed);
+        research_spec combination_spec = spec;
+        combination_spec.preprocess = "none";
+        combination_spec.direction_overrides.clear();
+        combination_spec.combinations.clear();
+        named_research_result named;
+        named.name = name;
+        named.result = evaluate_factor_research(blended, prices,
+                                                combination_spec);
+        for (auto& signal : named.result.signals) {
+            signal.factor = name;
+            result.signals.push_back(signal);
+        }
+        if (named.result.status == "OK") {
+            ++ok_count;
+        } else if (named.result.status == "UNEVALUABLE") {
+            ++unevaluable_count;
+        }
+        result.factors.push_back(named);
+        panels.push_back({name, blended});
+    }
+    if (ok_count == result.factors.size()) {
         result.status = "OK";
-    } else if (unevaluable_count == factors.size()) {
+    } else if (unevaluable_count == result.factors.size()) {
         result.status = "UNEVALUABLE";
     } else {
         result.status = "PARTIAL";
-    }
-    std::vector<research_factor_panel> panels;
-    panels.reserve(factors.size());
-    for (const auto& factor : factors) {
-        panels.push_back({factor.name, factor.values});
     }
     result.correlations =
         research_factor_correlations(panels, spec.min_assets);
@@ -818,7 +931,8 @@ research_panel_result evaluate_factor_research_panel(
     result.manifest = {
         {"api_version", research_api_version},
         {"schema_version", std::to_string(research_result_schema_version)},
-        {"factor_count", std::to_string(factors.size())},
+        {"factor_count", std::to_string(result.factors.size())},
+        {"combination_count", std::to_string(spec.combinations.size())},
         {"correlation_rows", std::to_string(result.correlations.size())},
         {"comparison_rows", std::to_string(result.comparisons.size())}};
     return result;

@@ -674,6 +674,81 @@ TEST(FactorResearch, EvaluatesMultipleFactorPanelsWithComparisons) {
                  fincore::factor_data_error);
 }
 
+TEST(FactorResearch, EvaluatesWeightedFactorCombinations) {
+    auto fixture = make_fixture();
+    auto inverse = fixture.factor;
+    for (double& value : inverse.values) {
+        value = -value;
+    }
+    std::vector<fincore::named_factor_panel> panels{
+        {"F", fixture.factor}, {"G", inverse}};
+    auto config = spec();
+    config.combinations = {{"combo", {{"F", 0.5}, {"G", -0.5}}}};
+    config.comparisons = {{"F_vs_combo", {"F", "combo"}}};
+    const auto result = fincore::evaluate_factor_research_panel(
+        panels, fixture.prices, config);
+    EXPECT_EQ(result.status, "OK");
+    ASSERT_EQ(result.factors.size(), 3U);
+    EXPECT_EQ(result.factors[0].name, "F");
+    EXPECT_EQ(result.factors[1].name, "G");
+    EXPECT_EQ(result.factors[2].name, "combo");
+    EXPECT_EQ(result.signals.size(), 900U);
+    for (const auto& signal : result.signals) {
+        EXPECT_TRUE(signal.factor == "F" || signal.factor == "G" ||
+                    signal.factor == "combo");
+    }
+    ASSERT_EQ(result.correlations.size(), 3U);
+    EXPECT_EQ(result.correlations[0].left, "F");
+    EXPECT_EQ(result.correlations[0].right, "G");
+    EXPECT_NEAR(result.correlations[0].mean_correlation, -1.0, 1e-12);
+    EXPECT_EQ(result.correlations[0].n_dates, 60U);
+    EXPECT_EQ(result.correlations[1].left, "F");
+    EXPECT_EQ(result.correlations[1].right, "combo");
+    EXPECT_GT(result.correlations[1].mean_correlation, 0.0);
+    EXPECT_EQ(result.correlations[1].n_dates, 60U);
+    EXPECT_EQ(result.correlations[2].left, "G");
+    EXPECT_EQ(result.correlations[2].right, "combo");
+    EXPECT_LT(result.correlations[2].mean_correlation, 0.0);
+    EXPECT_EQ(result.correlations[2].n_dates, 60U);
+    ASSERT_EQ(result.comparisons.size(), 2U);
+    for (const auto& row : result.comparisons) {
+        EXPECT_EQ(row.comparison, "F_vs_combo");
+        EXPECT_NEAR(row.mean_ic, 0.0, 1e-12);
+        EXPECT_EQ(row.n_dates_left, 60U);
+        EXPECT_EQ(row.n_dates_right, 60U);
+    }
+    EXPECT_EQ(result.manifest.at("factor_count"), "3");
+    EXPECT_EQ(result.manifest.at("combination_count"), "1");
+    EXPECT_EQ(result.manifest.at("correlation_rows"), "3");
+
+    auto unknown = config;
+    unknown.combinations = {{"combo", {{"missing", 1.0}}}};
+    EXPECT_THROW(static_cast<void>(fincore::evaluate_factor_research_panel(
+                     panels, fixture.prices, unknown)),
+                 fincore::factor_data_error);
+    auto empty_weights = config;
+    empty_weights.combinations = {{"combo", {}}};
+    EXPECT_THROW(static_cast<void>(fincore::evaluate_factor_research_panel(
+                     panels, fixture.prices, empty_weights)),
+                 fincore::factor_data_error);
+    auto shadow = config;
+    shadow.combinations = {{"F", {{"G", 1.0}}}};
+    EXPECT_THROW(static_cast<void>(fincore::evaluate_factor_research_panel(
+                     panels, fixture.prices, shadow)),
+                 fincore::factor_data_error);
+    auto non_finite = config;
+    non_finite.combinations = {
+        {"combo", {{"F", 1.0}, {"G", std::nan("")}}}};
+    EXPECT_THROW(static_cast<void>(fincore::evaluate_factor_research_panel(
+                     panels, fixture.prices, non_finite)),
+                 fincore::factor_data_error);
+    auto zero = config;
+    zero.combinations = {{"combo", {{"F", 0.0}, {"G", 0.0}}}};
+    EXPECT_THROW(static_cast<void>(fincore::evaluate_factor_research_panel(
+                     panels, fixture.prices, zero)),
+                 fincore::factor_data_error);
+}
+
 TEST(FactorResearch, DerivesCalendarPeriodLabelsForWeeklyGrid) {
     const auto start = fincore::utc_timestamp(2022, 1, 3);
     const auto week = 7 * 86'400'000'000'000LL;

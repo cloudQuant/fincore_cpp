@@ -49,6 +49,7 @@ struct research_spec {
     std::map<std::string, int> direction_overrides;
     std::map<std::string, std::pair<std::string, std::string>> segments;
     std::map<std::string, std::pair<std::string, std::string>> comparisons;
+    std::map<std::string, std::map<std::string, double>> combinations;
     std::map<std::string, std::string> groups;
     std::string snapshot_id = "unspecified";
     std::string price_basis = "unspecified";

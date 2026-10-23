@@ -96,13 +96,13 @@ function route remains.
 | 2 — performance/portfolio | Phases 53–59 accepted | none at function level |
 | 3 — risk/optimization | Phases 60–71 accepted; 661/661 CTest+ASan+UBSan at close | none at function level |
 | 4 — visualization | chart data and ImPlot adapter accepted; offscreen 2560x4800 render inspected after fixing axis/heatmap defects; sanitizer 734/734 | interactive window/input behaviour and Linux/Windows rendering **NOT_RUN** |
-| 5 — factor analysis | 77–87 slices accepted: prep/PIT, performance/inference/event windows, costs, analysis model (event/group models), full bounded research (calendar/precomputed/next-open labels, universe, signals/groups, segments, correlations, comparisons, multi-factor), export, grouped tear data, four-section report, portfolio constructor, performance study | weighted factor combinations; intraday labels; interactive grouped tear rendering |
+| 5 — factor analysis | 77–87 slices accepted: prep/PIT, performance/inference/event windows, costs, analysis model (event/group models), full bounded research (calendar/precomputed/next-open labels, universe, signals/groups, segments, correlations, comparisons, multi-factor, weighted combinations), export, grouped tear data, four-section report, portfolio constructor, performance study | intraday labels; interactive grouped tear rendering |
 | 6 — report/runtime | 88a/89/90/91/92/93 accepted: schema, HTML, XLSX, risk/portfolio/transactions projections, runtime catalog, install/export consumer, usage/migration notes, factor event and group models | group tear rendering absent; 93 CI matrix NOT_RUN |
 
 ## Gate status
 
-- Release CTest: **734/734 passed** (this audit).
-- Sanitizer: full ASan+UBSan suite **734/734 passed** at the final HEAD
+- Release CTest: **735/735 passed** (this audit).
+- Sanitizer: full ASan+UBSan suite **735/735 passed** at the final HEAD
   (Homebrew LLVM 22.1.8, Ninja Debug; no reports). See
   [the sanitizer gate record](2026-10-23-sanitizer-gate-acceptance.md).
 - HTML artifacts: visually inspected in headless Chrome (synthetic report,
@@ -120,7 +120,7 @@ function route remains.
 The native program covers the accepted compute, model, report, runtime and
 packaging paths with 279 exact/renamed public routes, zero unresolved routes
 and 72 explicitly deferred or non-port routes. Still open outside the function
-ledger: weighted factor combinations, intraday label formatting, on-screen grouped
+ledger: intraday label formatting, on-screen grouped
 tear rendering, interactive ImPlot windows, and the Ubuntu CI leg (VM provisioning
 tracked separately). The runtime catalog remains a selected 44 of 273
 operations. Program-level parity is therefore **partial and explicitly
