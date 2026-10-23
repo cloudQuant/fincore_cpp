@@ -2457,3 +2457,15 @@ Clean detached oracle at `4b8f31b` reproduced the goldens (SE mean
 ASan+UBSan each passed 590/590. Evidence is recorded in [the Phase 57
 acceptance
 record](docs/acceptance/2026-10-23-phase-57-inference-acceptance.md).
+
+## Accepted Phase 57b native disclosure context
+
+Phase 57b adds `disclosure_context` and `render_disclosure`, reproducing the
+GIPS-aware text template: eleven fixed lines in source order, `unspecified`
+fallbacks (except `Benchmark: none`), `yes`/`no` annualization, and
+`Notes: a; b` only when notes exist. Defaults match the Python dataclass.
+
+Clean detached oracle at `4b8f31b` reproduced all three exact multiline
+outputs. Full headless CTest and LLVM 22 ASan+UBSan each passed 593/593.
+Evidence is recorded in [the Phase 57b acceptance
+record](docs/acceptance/2026-10-23-phase-57b-disclosures-acceptance.md).
