@@ -17,6 +17,9 @@ double serial_correlation(const dataframe& returns,
                           std::ptrdiff_t lag = 1,
                           std::string_view column = returns_column);
 
+double hurst_exponent(const dataframe& returns,
+                      std::string_view column = returns_column);
+
 double win_rate(const dataframe& returns,
                 std::string_view column = returns_column);
 

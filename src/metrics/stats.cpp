@@ -282,4 +282,154 @@ double tracking_difference(const dataframe& returns,
   return std::isfinite(result) ? result : nan;
 }
 
+std::vector<std::size_t> hurst_lags(std::size_t max_lag) {
+    std::vector<std::size_t> lags;
+    const std::size_t span = max_lag - 1;
+    if (span > 30) {
+        const double start_log = std::log10(2.0);
+        const double stop_log = std::log10(static_cast<double>(max_lag));
+        const double step = (stop_log - start_log) / 29.0;
+        for (std::size_t position = 0; position < 30; ++position) {
+            const double value =
+                std::pow(10.0, start_log + step * static_cast<double>(position));
+            lags.push_back(static_cast<std::size_t>(value));
+        }
+        lags.back() = max_lag;
+        std::sort(lags.begin(), lags.end());
+        lags.erase(std::unique(lags.begin(), lags.end()), lags.end());
+    } else {
+        for (std::size_t lag = 2; lag <= max_lag; ++lag) {
+            lags.push_back(lag);
+        }
+    }
+    return lags;
+}
+
+double hurst_exponent(const dataframe& returns, std::string_view column) {
+    constexpr std::size_t minimum_length = 8;
+    if (column.find('\0') != std::string_view::npos) {
+        throw input_error{"column name must not contain an embedded NUL"};
+    }
+    const auto raw_values = require_double_column(returns, column);
+    if (raw_values.size() < minimum_length) {
+        return nan;
+    }
+
+    std::vector<double> values;
+    values.reserve(raw_values.size());
+    for (const double value : raw_values) {
+        if (!std::isnan(value)) {
+            values.push_back(value);
+        }
+    }
+    if (values.size() < minimum_length) {
+        return nan;
+    }
+
+    const double count = static_cast<double>(values.size());
+    double average = 0.0;
+    for (const double value : values) {
+        average += value;
+    }
+    average /= count;
+
+    double running = 0.0;
+    double maximum = -std::numeric_limits<double>::infinity();
+    double minimum = std::numeric_limits<double>::infinity();
+    for (const double value : values) {
+        running += value - average;
+        maximum = std::max(maximum, running);
+        minimum = std::min(minimum, running);
+    }
+    const double range = maximum - minimum;
+
+    double squared_total = 0.0;
+    for (const double value : values) {
+        const double deviation = value - average;
+        squared_total += deviation * deviation;
+    }
+    const double deviation = std::sqrt(squared_total / (count - 1.0));
+    if (deviation == 0.0 || range == 0.0) {
+        return nan;
+    }
+
+    const std::size_t size = values.size();
+    const std::size_t max_lag = std::max<std::size_t>(size / 3, 3);
+    struct lag_ratio {
+        double lag;
+        double ratio;
+    };
+    std::vector<lag_ratio> ratios;
+    for (const std::size_t lag : hurst_lags(max_lag)) {
+        const std::size_t subseries_count = size / lag;
+        if (subseries_count < 1) {
+            continue;
+        }
+        double ratio_total = 0.0;
+        std::size_t valid_count = 0;
+        for (std::size_t row = 0; row < subseries_count; ++row) {
+            const std::size_t offset = row * lag;
+            double block_mean = 0.0;
+            for (std::size_t index = 0; index < lag; ++index) {
+                block_mean += values[offset + index];
+            }
+            block_mean /= static_cast<double>(lag);
+
+            double cumulative = 0.0;
+            double block_max = -std::numeric_limits<double>::infinity();
+            double block_min = std::numeric_limits<double>::infinity();
+            double block_squared = 0.0;
+            for (std::size_t index = 0; index < lag; ++index) {
+                const double block_deviation = values[offset + index] - block_mean;
+                cumulative += block_deviation;
+                block_max = std::max(block_max, cumulative);
+                block_min = std::min(block_min, cumulative);
+                block_squared += block_deviation * block_deviation;
+            }
+            const double block_range = block_max - block_min;
+            const double block_deviation =
+                std::sqrt(block_squared / static_cast<double>(lag - 1));
+            if (block_deviation > 0.0 && block_range > 0.0) {
+                ratio_total += block_range / block_deviation;
+                ++valid_count;
+            }
+        }
+        if (valid_count > 0) {
+            ratios.push_back({static_cast<double>(lag),
+                              ratio_total / static_cast<double>(valid_count)});
+        }
+    }
+
+    if (ratios.size() < 2) {
+        double fallback =
+            0.5 + std::log(range / deviation) / std::log(2.0 * count);
+        fallback = std::max(0.0, std::min(1.0, fallback));
+        return fallback;
+    }
+
+    double lag_mean = 0.0;
+    double ratio_mean = 0.0;
+    for (const auto& entry : ratios) {
+        lag_mean += std::log(entry.lag);
+        ratio_mean += std::log(entry.ratio);
+    }
+    lag_mean /= static_cast<double>(ratios.size());
+    ratio_mean /= static_cast<double>(ratios.size());
+
+    double covariance = 0.0;
+    double lag_variance = 0.0;
+    for (const auto& entry : ratios) {
+        const double lag_delta = std::log(entry.lag) - lag_mean;
+        const double ratio_delta = std::log(entry.ratio) - ratio_mean;
+        covariance += lag_delta * ratio_delta;
+        lag_variance += lag_delta * lag_delta;
+    }
+    if (lag_variance == 0.0) {
+        return nan;
+    }
+    double hurst = covariance / lag_variance;
+    hurst = std::max(0.0, std::min(1.0, hurst));
+    return hurst;
+}
+
 }  // namespace fincore

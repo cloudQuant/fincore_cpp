@@ -140,6 +140,7 @@ TEST(MetricsUmbrella, ExposesOnlyImplementedDataframeNativeMetrics) {
   EXPECT_TRUE(std::isfinite(fincore::m_squared(returns, benchmark)));
   EXPECT_TRUE(std::isfinite(fincore::up_capture_return(returns, benchmark)));
   EXPECT_TRUE(std::isfinite(fincore::down_capture_return(returns, benchmark)));
+  EXPECT_TRUE(std::isfinite(fincore::hurst_exponent(returns)));
 
   const double var_excess_return_var =
       fincore::historical_value_at_risk(returns);

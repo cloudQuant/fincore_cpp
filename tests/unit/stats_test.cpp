@@ -15,6 +15,12 @@ namespace {
 
 constexpr double nan = std::numeric_limits<double>::quiet_NaN();
 
+using hurst_exponent_signature =
+    double (*)(const fincore::dataframe&, std::string_view);
+
+static_assert(std::is_same_v<decltype(&fincore::hurst_exponent),
+                             hurst_exponent_signature>);
+
 using r_cubed_signature =
     double (*)(const fincore::dataframe&, const fincore::dataframe&,
                std::string_view, std::string_view);
@@ -435,6 +441,104 @@ TEST(Stats, RCubedReturnsAnOwnedScalar) {
   }();
 
   EXPECT_NEAR(result, 0.9407744656599973, 1e-12);
+}
+
+std::vector<fincore::timestamp> hurst_index(std::size_t count) {
+    std::vector<fincore::timestamp> index(count);
+    for (std::size_t position = 0; position < count; ++position) {
+        index[position] = static_cast<fincore::timestamp>(position + 1);
+    }
+    return index;
+}
+
+std::vector<double> hurst_long_values(double frequency, double offset,
+                                      bool cosine) {
+    std::vector<double> values;
+    values.reserve(120);
+    for (int index = 0; index < 120; ++index) {
+        const double argument = static_cast<double>(index) * frequency;
+        values.push_back(0.01 * (cosine ? std::cos(argument) : std::sin(argument)) +
+                        offset);
+    }
+    return values;
+}
+
+TEST(Stats, HurstExponentMatchesPythonOracleForShortAndLongSeries) {
+    const auto ordinary = fincore::make_series(
+        {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, "returns",
+        {0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03});
+    const auto long_sin = fincore::make_series(
+        hurst_index(120), "returns", hurst_long_values(0.7, 0.0, false));
+    const auto long_cos = fincore::make_series(
+        hurst_index(120), "returns", hurst_long_values(1.3, 0.002, true));
+
+    EXPECT_NEAR(fincore::hurst_exponent(ordinary), 1.0, 1e-12);
+    EXPECT_NEAR(fincore::hurst_exponent(long_sin), 0.6317378848594388, 1e-6);
+    EXPECT_NEAR(fincore::hurst_exponent(long_cos), 0.385513237072807, 1e-6);
+}
+
+TEST(Stats, HurstExponentGatesShortNaNConstantAndSpikeSeries) {
+    const auto short_frame =
+        fincore::make_series(hurst_index(7), "returns",
+                             std::vector<double>(7, 0.01));
+    const auto exact_constant =
+        fincore::make_series(hurst_index(10), "returns",
+                             std::vector<double>(10, 0.5));
+    const auto flat_zero =
+        fincore::make_series(hurst_index(10), "returns",
+                             std::vector<double>(10, 0.0));
+    const auto nan_mixed = fincore::make_series(
+        hurst_index(10), "returns",
+        {0.01, nan, 0.02, -0.03, 0.01, 0.02, -0.01, 0.03, nan, 0.01});
+    const auto two_spike = fincore::make_series(
+        hurst_index(16), "returns",
+        {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1, -0.1, 0.0, 0.0, 0.0,
+         0.0, 0.0, 0.0});
+    const auto eight_values = fincore::make_series(
+        hurst_index(8), "returns",
+        {0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01});
+
+    EXPECT_TRUE(std::isnan(fincore::hurst_exponent(short_frame)));
+    EXPECT_TRUE(std::isnan(fincore::hurst_exponent(exact_constant)));
+    EXPECT_TRUE(std::isnan(fincore::hurst_exponent(flat_zero)));
+    EXPECT_NEAR(fincore::hurst_exponent(nan_mixed), 1.0, 1e-12);
+    EXPECT_NEAR(fincore::hurst_exponent(two_spike), 0.7280957897994347, 1e-6);
+    EXPECT_NEAR(fincore::hurst_exponent(eight_values), 1.0, 1e-12);
+}
+
+TEST(Stats, HurstExponentSupportsSelectorsAndRejectsNul) {
+    const auto strategy = fincore::make_series(
+        hurst_index(10), "strategy",
+        {0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03});
+    constexpr std::array<char, 8> bounded_name{
+        's', 't', 'r', 'a', 't', 'e', 'g', 'y'};
+    const std::string_view bounded_selector{bounded_name.data(),
+                                            bounded_name.size()};
+    const std::array<char, 13> embedded_storage{
+        'r', 'e', 't', 'u', 'r', 'n', 's', '\0', 'e', 'v', 'i', 'l', '!'};
+    const std::string_view embedded_selector{embedded_storage.data(),
+                                             embedded_storage.size()};
+
+    EXPECT_DOUBLE_EQ(fincore::hurst_exponent(strategy, bounded_selector),
+                     fincore::hurst_exponent(strategy, "strategy"));
+    EXPECT_THROW(
+        static_cast<void>(fincore::hurst_exponent(strategy, embedded_selector)),
+        fincore::input_error);
+    EXPECT_THROW(static_cast<void>(fincore::hurst_exponent(strategy, "")),
+                 fincore::input_error);
+}
+
+TEST(Stats, HurstExponentReturnsOwnedScalarAfterInputLifetimeEnds) {
+    const double result = [] {
+        const std::string column{"returns"};
+        const std::string_view selector{column.data(), column.size()};
+        const auto frame = fincore::make_series(
+            hurst_index(10), "returns",
+            {0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03});
+        return fincore::hurst_exponent(frame, selector);
+    }();
+
+    EXPECT_NEAR(result, 1.0, 1e-12);
 }
 
 }  // namespace
