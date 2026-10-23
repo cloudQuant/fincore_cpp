@@ -26,6 +26,15 @@ double max_consecutive_gain(const dataframe& returns,
                             std::string_view column = returns_column);
 double max_consecutive_loss(const dataframe& returns,
                             std::string_view column = returns_column);
+
+double max_consecutive_up_weeks(const dataframe& returns,
+                                std::string_view column = returns_column);
+double max_consecutive_down_weeks(const dataframe& returns,
+                                  std::string_view column = returns_column);
+double max_consecutive_up_months(const dataframe& returns,
+                                 std::string_view column = returns_column);
+double max_consecutive_down_months(const dataframe& returns,
+                                   std::string_view column = returns_column);
 double max_single_day_gain(const dataframe& returns,
                            std::string_view column = returns_column);
 double max_single_day_loss(const dataframe& returns,

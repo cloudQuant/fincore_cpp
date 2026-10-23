@@ -4,8 +4,12 @@
 
 #include <gtest/gtest.h>
 
+#include <array>
+#include <chrono>
 #include <cmath>
 #include <limits>
+#include <string>
+#include <string_view>
 #include <optional>
 #include <type_traits>
 #include <vector>
@@ -267,5 +271,100 @@ static_assert(std::is_same_v<
 static_assert(std::is_same_v<
               decltype(fincore::daily_consecutive_statistics::max_consecutive_loss),
               double>);
+
+std::vector<fincore::timestamp> daily_index_range(int year, int month, int day,
+                                                 int count) {
+    constexpr std::int64_t nanoseconds_per_day = 86'400'000'000'000LL;
+    std::vector<fincore::timestamp> index;
+    index.reserve(static_cast<std::size_t>(count));
+    const fincore::timestamp start = fincore::utc_timestamp(year, month, day);
+    for (int position = 0; position < count; ++position) {
+        index.push_back(start + position * nanoseconds_per_day);
+    }
+    return index;
+}
+
+TEST(Consecutive, WeeklyAndMonthlyRunsMatchPythonOracle) {
+    // 2020-11-01 through 2021-03-31 daily: each month has a constant sign.
+    const int count = 151;
+    std::vector<double> month_values;
+    month_values.reserve(static_cast<std::size_t>(count));
+    for (int position = 0; position < count; ++position) {
+        const auto day = fincore::utc_timestamp(2020, 11, 1) +
+                         position * 86'400'000'000'000LL;
+        const int year = fincore::utc_year(day);
+        const auto ymd = std::chrono::year_month_day{
+            std::chrono::sys_days{std::chrono::days{day / 86'400'000'000'000LL}}};
+        const int month_value = static_cast<int>(static_cast<unsigned>(ymd.month()));
+        double value = 0.0;
+        if (year == 2020 && month_value == 11) {
+            value = 0.01;
+        } else if (year == 2020 && month_value == 12) {
+            value = -0.01;
+        } else if (year == 2021 && month_value == 1) {
+            value = 0.01;
+        } else if (year == 2021 && month_value == 2) {
+            value = 0.01;
+        } else {
+            value = -0.01;
+        }
+        month_values.push_back(value);
+    }
+    const auto monthly = fincore::make_series(
+        daily_index_range(2020, 11, 1, count), "returns", month_values);
+
+    EXPECT_DOUBLE_EQ(fincore::max_consecutive_up_months(monthly), 2.0);
+    EXPECT_DOUBLE_EQ(fincore::max_consecutive_down_months(monthly), 1.0);
+    EXPECT_DOUBLE_EQ(fincore::max_consecutive_up_weeks(monthly), 8.0);
+    EXPECT_DOUBLE_EQ(fincore::max_consecutive_down_weeks(monthly), 5.0);
+
+    constexpr int weekly_count = 42;  // 2021-01-04 .. 2021-02-14
+    std::vector<double> weekly_values;
+    weekly_values.reserve(static_cast<std::size_t>(weekly_count));
+    for (int position = 0; position < weekly_count; ++position) {
+        const int iso_week = 1 + position / 7;
+        const bool positive =
+            iso_week == 1 || iso_week == 2 || iso_week == 4;
+        weekly_values.push_back(positive ? 0.01 : -0.01);
+    }
+    const auto weekly = fincore::make_series(
+        daily_index_range(2021, 1, 4, weekly_count), "returns",
+        weekly_values);
+    EXPECT_DOUBLE_EQ(fincore::max_consecutive_up_weeks(weekly), 2.0);
+    EXPECT_DOUBLE_EQ(fincore::max_consecutive_down_weeks(weekly), 2.0);
+}
+
+TEST(Consecutive, WeeklyAndMonthlyRunsHandleEmptyAndSelectors) {
+    const auto empty = fincore::make_series({}, "returns", {});
+    EXPECT_TRUE(std::isnan(fincore::max_consecutive_up_weeks(empty)));
+    EXPECT_TRUE(std::isnan(fincore::max_consecutive_down_weeks(empty)));
+    EXPECT_TRUE(std::isnan(fincore::max_consecutive_up_months(empty)));
+    EXPECT_TRUE(std::isnan(fincore::max_consecutive_down_months(empty)));
+
+    const auto strategy = fincore::make_series(
+        daily_index_range(2021, 1, 4, 14), "strategy",
+        {0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, -0.01, -0.01, -0.01,
+         -0.01, -0.01, -0.01, -0.01});
+    EXPECT_DOUBLE_EQ(fincore::max_consecutive_down_weeks(strategy, "strategy"),
+                     1.0);
+
+    const std::array<char, 13> embedded_storage{
+        'r', 'e', 't', 'u', 'r', 'n', 's', '\0', 'e', 'v', 'i', 'l', '!'};
+    const std::string_view embedded_selector{embedded_storage.data(),
+                                             embedded_storage.size()};
+    EXPECT_THROW(
+        static_cast<void>(
+            fincore::max_consecutive_up_weeks(strategy, embedded_selector)),
+        fincore::input_error);
+
+    const auto owned = [] {
+        const auto frame = fincore::make_series(
+            daily_index_range(2021, 1, 4, 14), "returns",
+            {0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, -0.01, -0.01, -0.01,
+             -0.01, -0.01, -0.01, -0.01});
+        return fincore::max_consecutive_up_weeks(frame);
+    }();
+    EXPECT_DOUBLE_EQ(owned, 1.0);
+}
 
 }  // namespace
