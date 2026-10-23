@@ -27,6 +27,8 @@ using r_cubed_signature =
                std::string_view, std::string_view);
 using kappa_three_ratio_signature =
     double (*)(const fincore::dataframe&, double, std::string_view);
+using adjusted_sharpe_ratio_signature =
+    double (*)(const fincore::dataframe&, double, std::string_view);
 
 static_assert(std::is_same_v<
               decltype(static_cast<var_excess_return_signature>(
@@ -43,6 +45,9 @@ static_assert(std::is_same_v<
               decltype(static_cast<kappa_three_ratio_signature>(
                   &fincore::kappa_three_ratio)),
               kappa_three_ratio_signature>);
+static_assert(std::is_same_v<
+              decltype(&fincore::adjusted_sharpe_ratio),
+              adjusted_sharpe_ratio_signature>);
 
 std::vector<fincore::timestamp> twelve_indices() {
   std::vector<fincore::timestamp> result;
@@ -105,6 +110,7 @@ TEST(MetricsUmbrella, ExposesOnlyImplementedDataframeNativeMetrics) {
   EXPECT_TRUE(std::isfinite(fincore::win_rate(returns)));
   EXPECT_TRUE(std::isfinite(fincore::r_cubed(returns, benchmark)));
   EXPECT_TRUE(std::isfinite(fincore::kappa_three_ratio(returns)));
+  EXPECT_TRUE(std::isfinite(fincore::adjusted_sharpe_ratio(returns)));
 
   const double var_excess_return_var =
       fincore::historical_value_at_risk(returns);

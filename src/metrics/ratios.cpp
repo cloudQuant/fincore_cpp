@@ -41,6 +41,40 @@ double mean(const std::vector<double>& values) {
     return total / static_cast<double>(values.size());
 }
 
+struct biased_moments {
+    double skew;
+    double kurtosis;
+};
+
+biased_moments nan_only_biased_moments(std::span<const double> raw_values) {
+    const auto values = valid_values(raw_values);
+    const double count = static_cast<double>(values.size());
+    const double average = mean(values);
+
+    double second_total = 0.0;
+    double third_total = 0.0;
+    double fourth_total = 0.0;
+    for (const double value : values) {
+        const double deviation = value - average;
+        const double squared = deviation * deviation;
+        second_total += squared;
+        third_total += squared * deviation;
+        fourth_total += squared * squared;
+    }
+
+    const double second = second_total / count;
+    const double third = third_total / count;
+    const double fourth = fourth_total / count;
+    const double epsilon_mean =
+        std::numeric_limits<double>::epsilon() * average;
+    if (second <= epsilon_mean * epsilon_mean) {
+        return {nan, nan};
+    }
+
+    return {third / (second * std::sqrt(second)),
+            fourth / (second * second) - 3.0};
+}
+
 double finite_quotient(double numerator, double denominator) {
     if (denominator == 0.0) {
         return nan;
@@ -164,6 +198,44 @@ double sharpe_ratio(const dataframe& returns,
     const double sample_standard_deviation =
         std::sqrt(squared_deviations / static_cast<double>(excess.size() - 1));
     return average * std::sqrt(annualization) / sample_standard_deviation;
+}
+
+double adjusted_sharpe_ratio(const dataframe& returns,
+                             double risk_free,
+                             std::string_view column) {
+    if (column.find('\0') != std::string_view::npos) {
+        throw input_error{"column name must not contain an embedded NUL"};
+    }
+    const auto raw_values = require_double_column(returns, column);
+    if (raw_values.size() < 4) {
+        return nan;
+    }
+
+    const double sharpe =
+        sharpe_ratio(returns, risk_free, daily_annualization, column);
+    if (std::isnan(sharpe)) {
+        return nan;
+    }
+
+    const biased_moments moments = nan_only_biased_moments(raw_values);
+    const double skew = std::isnan(moments.skew) ? 0.0 : moments.skew;
+    const double kurt =
+        std::isnan(moments.kurtosis) ? 0.0 : moments.kurtosis;
+
+    const double n = static_cast<double>(raw_values.size());
+    const double dampening = std::min(1.0, n / 50.0);
+    const double skew_adjustment = (skew / 6.0) * sharpe * dampening;
+    const double kurt_adjustment =
+        (kurt / 24.0) * (sharpe * sharpe) * dampening;
+    double adjustment = 1.0 + skew_adjustment - kurt_adjustment;
+
+    if (raw_values.size() < 20) {
+        adjustment = std::max(0.9, std::min(1.1, adjustment));
+    } else {
+        adjustment = std::max(0.8, std::min(1.3, adjustment));
+    }
+
+    return sharpe * adjustment;
 }
 
 double sortino_ratio(const dataframe& returns,

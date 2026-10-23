@@ -16,11 +16,16 @@ constexpr double nan = std::numeric_limits<double>::quiet_NaN();
 
 using kappa_three_ratio_signature =
     double (*)(const fincore::dataframe&, double, std::string_view);
+using adjusted_sharpe_ratio_signature =
+    double (*)(const fincore::dataframe&, double, std::string_view);
 
 static_assert(std::is_same_v<
               decltype(static_cast<kappa_three_ratio_signature>(
                   &fincore::kappa_three_ratio)),
               kappa_three_ratio_signature>);
+static_assert(std::is_same_v<
+              decltype(&fincore::adjusted_sharpe_ratio),
+              adjusted_sharpe_ratio_signature>);
 
 TEST(Ratios, PublishesExactKappaThreeSignatureAndDefaultCall) {
     const auto returns =
@@ -28,6 +33,14 @@ TEST(Ratios, PublishesExactKappaThreeSignatureAndDefaultCall) {
 
     EXPECT_DOUBLE_EQ(fincore::kappa_three_ratio(returns),
                      fincore::kappa_three_ratio(returns, 0.0, "returns"));
+}
+
+TEST(Ratios, AdjustedSharpeRatioHasExactSignatureAndFiniteDefaultCall) {
+    const auto returns =
+        fincore::make_series({1, 2, 3, 4}, "returns", {0.01, -0.02, 0.03, -0.01});
+
+    EXPECT_NEAR(fincore::adjusted_sharpe_ratio(returns),
+                1.8289412324150214, 1e-14);
 }
 
 TEST(Ratios, MatchesPythonOracleForOrdinaryAndNonzeroMar) {

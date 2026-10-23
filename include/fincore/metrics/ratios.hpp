@@ -12,6 +12,10 @@ double sharpe_ratio(const dataframe& returns,
                     double annualization = daily_annualization,
                     std::string_view column = returns_column);
 
+double adjusted_sharpe_ratio(const dataframe& returns,
+                             double risk_free = 0.0,
+                             std::string_view column = returns_column);
+
 double sortino_ratio(const dataframe& returns,
                      double required_return = 0.0,
                      double annualization = daily_annualization,
