@@ -3,8 +3,10 @@
 #include <fincore/metrics/returns.hpp>
 
 #include <cstddef>
+#include <limits>
 #include <optional>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 namespace fincore {
@@ -24,6 +26,14 @@ struct drawdown_window {
     std::optional<timestamp> recovery;
 };
 
+struct drawdown_table_row {
+    double net_drawdown_percent = std::numeric_limits<double>::quiet_NaN();
+    std::optional<timestamp> peak;
+    std::optional<timestamp> valley;
+    std::optional<timestamp> recovery;
+    std::optional<std::size_t> duration_business_days;
+};
+
 dataframe drawdown_series(const dataframe& returns,
                           std::string_view column = returns_column);
 
@@ -41,6 +51,20 @@ std::vector<drawdown_period> get_all_drawdowns_detailed(
 std::optional<drawdown_window> max_drawdown_window(
     const dataframe& returns,
     std::string_view column = returns_column);
+
+std::vector<drawdown_window> get_top_drawdowns(
+    const dataframe& returns,
+    std::size_t top = 10,
+    std::string_view column = returns_column);
+
+std::vector<drawdown_table_row> gen_drawdown_table(
+    const dataframe& returns,
+    std::size_t top = 10,
+    std::string_view column = returns_column);
+
+std::pair<std::optional<timestamp>, std::optional<timestamp>>
+max_drawdown_period(const dataframe& returns,
+                    std::string_view column = returns_column);
 
 double max_drawdown_days(const dataframe& returns,
                          std::string_view column = returns_column);
