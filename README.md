@@ -2576,3 +2576,22 @@ Rosenbrock, equal-covariance weights `[0.5, 0.5]`, inverse-variance
 Full headless CTest and LLVM 22 ASan+UBSan each passed 610/610. Evidence is
 recorded in [the Phase 60 acceptance
 record](docs/acceptance/2026-10-23-phase-60-solver-spike-acceptance.md).
+
+## Accepted Phase 61 native GARCH(1,1)
+
+Phase 61 adds `fit_garch11`, `garch11_log_likelihood`, and
+`forecast_garch11`: NaN cleaning, an 11-observation gate, transformed
+parameter bounds, Phase 60 Nelder-Mead MLE, the population-variance-seeded
+GARCH recursion, Gaussian likelihood with one-observation burn-in, and the
+analytical forecast recursion.
+
+Parity is layered: constant-mean parameters/log-likelihood match SciPy within
+declared tolerances; closed-form likelihood and variance/forecast values match
+Python at 1e-9/1e-12; determinism is exact. A source-optimizer stall was
+found and recorded: SciPy's zero-mean L-BFGS-B stops at
+`loglik 747.2805538792478`, while the Python likelihood at the native
+parameters is `747.7286069253973`, so the acceptance requires the native
+result to be at least as good rather than equal to a stalled optimum. Full
+headless CTest and LLVM 22 ASan+UBSan each passed 615/615. Evidence is
+recorded in [the Phase 61 acceptance
+record](docs/acceptance/2026-10-23-phase-61-garch11-acceptance.md).
