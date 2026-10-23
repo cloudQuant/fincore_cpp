@@ -78,6 +78,8 @@ TEST(FactorResearch, EvaluatesPanelsAndReportsTables) {
     EXPECT_EQ(result.information_coefficient.labels[0], "1D");
     EXPECT_EQ(result.information_coefficient.labels[1], "5D");
     EXPECT_EQ(result.information_coefficient.dates.size(), 60U);
+    EXPECT_EQ(result.labels.size(), 600U);
+    EXPECT_EQ(result.signals.size(), 300U);
     EXPECT_NEAR(result.information_coefficient.values[0],
                 0.9999999999999999, 1e-12);
     EXPECT_NEAR(result.information_coefficient_summary.means[0],
@@ -173,7 +175,7 @@ TEST(FactorResearch, ExportsCsvTablesWithoutOverwriting) {
     const auto exported = fincore::export_factor_research(
         result, directory.string());
     EXPECT_EQ(exported.directory, directory.string());
-    EXPECT_EQ(exported.files.size(), 9U);
+    EXPECT_EQ(exported.files.size(), 11U);
     for (const auto& name : exported.files) {
         EXPECT_TRUE(std::filesystem::exists(directory / name));
     }
@@ -187,6 +189,18 @@ TEST(FactorResearch, ExportsCsvTablesWithoutOverwriting) {
     manifest_text << manifest.rdbuf();
     EXPECT_NE(manifest_text.str().find("\"ic.csv\""), std::string::npos);
     EXPECT_NE(manifest_text.str().find("api_version"), std::string::npos);
+    std::ifstream labels(directory / "labels.csv");
+    std::stringstream labels_text;
+    labels_text << labels.rdbuf();
+    EXPECT_EQ(labels_text.str().rfind("date,asset,period,value\n", 0), 0U);
+    std::ifstream signals(directory / "signals.csv");
+    std::stringstream signals_text;
+    signals_text << signals.rdbuf();
+    EXPECT_EQ(signals_text.str().rfind(
+                  "date,asset,factor,direction,value,processed_value,preprocess,"
+                  "group\n",
+                  0),
+              0U);
     std::ifstream turnover(directory / "turnover.csv");
     std::stringstream turnover_text;
     turnover_text << turnover.rdbuf();

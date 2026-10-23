@@ -3426,3 +3426,13 @@ Full Release and ASan+UBSan suites pass 734/734; visual NOT_RUN. Weighted
 factor combinations, intraday labels and interactive grouped tear rendering
 remain open. Evidence is in [the calendar-label acceptance
 record](docs/acceptance/2026-10-23-phase-83-calendar-labels-acceptance.md).
+
+## Phase 83 tables slice — research labels/signals tables and CSV accepted
+
+`research_result` now owns a `labels` table (finite prepared cells per
+horizon; 600 rows in the 60-date x 5-asset fixture) alongside the existing
+`signals` table (300 rows). The exporter writes `labels.csv` and `signals.csv`,
+bringing the artifact set to eleven files, with headers checked by the export
+test. Missing label cells are omitted rather than written as NaN.
+
+Full Release and ASan+UBSan suites pass 734/734; visual NOT_RUN.

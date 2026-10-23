@@ -67,8 +67,16 @@ struct research_signal_row {
     std::string group;
 };
 
+struct research_label_row {
+    timestamp date = 0;
+    std::string asset;
+    std::string period;
+    double value = 0.0;
+};
+
 struct research_result {
     std::string status;
+    std::vector<research_label_row> labels;
     std::vector<research_signal_row> signals;
     factor_ic_table information_coefficient;
     factor_ic_summary information_coefficient_summary;

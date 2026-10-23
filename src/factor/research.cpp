@@ -541,6 +541,14 @@ research_result assemble_research(
         }
     }
     result.stability_lags = spec.stability_lags;
+    for (const auto& [label, horizon] : prepared.by_horizon) {
+        for (const auto& row : horizon.rows) {
+            if (!row.forward_returns.empty()) {
+                result.labels.push_back(
+                    {row.date, row.asset, label, row.forward_returns.front()});
+            }
+        }
+    }
     result.status = result.coverage.empty() ? "UNEVALUABLE" : "OK";
     for (const std::size_t count : result.coverage) {
         if (count == 0U) {
@@ -940,6 +948,29 @@ research_export_result export_factor_research(
     exported.files.push_back("spreads.csv");
     write_table(target / "coverage.csv", {"label", "count"}, coverage_rows);
     exported.files.push_back("coverage.csv");
+
+    std::vector<std::vector<std::string>> label_rows;
+    for (const auto& row : result.labels) {
+        label_rows.push_back(
+            {detail::format_timestamp(row.date), row.asset, row.period,
+             csv_number(row.value)});
+    }
+    write_table(target / "labels.csv", {"date", "asset", "period", "value"},
+                label_rows);
+    exported.files.push_back("labels.csv");
+
+    std::vector<std::vector<std::string>> signal_rows;
+    for (const auto& row : result.signals) {
+        signal_rows.push_back(
+            {detail::format_timestamp(row.date), row.asset, row.factor,
+             std::to_string(row.direction), csv_number(row.value),
+             csv_number(row.processed_value), row.preprocess, row.group});
+    }
+    write_table(target / "signals.csv",
+                {"date", "asset", "factor", "direction", "value",
+                 "processed_value", "preprocess", "group"},
+                signal_rows);
+    exported.files.push_back("signals.csv");
 
     std::vector<std::vector<std::string>> diagnostic_rows;
     for (std::size_t index = 0; index < result.diagnostics.size(); ++index) {

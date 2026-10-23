@@ -18,8 +18,10 @@ never overwrites an existing export target. `research_result` now records the
   failures also fail with `factor_data_error`.
 - Files: `ic.csv` (date x horizon), `ic_summary.csv`, `quantile_returns.csv`
   (quantile, label, mean, standard error), `turnover.csv`, `stability.csv`,
-  `spreads.csv`, `coverage.csv`, `diagnostics.csv` and `manifest.json`
-  (status, exported file list and the evaluator manifest entries).
+  `spreads.csv`, `coverage.csv`, `labels.csv` (date, asset, period, value),
+  `signals.csv` (date, asset, factor, direction, value, processed value,
+  preprocess, group), `diagnostics.csv` and `manifest.json` (status,
+  exported file list and the evaluator manifest entries).
 - Numbers use the shared Python-style float formatter with non-finite values
   written as empty cells; strings are RFC-4180 quoted; timestamps use the
   shared ISO-8601 formatter. CSV bytes are native-determined, not pandas
@@ -28,8 +30,7 @@ never overwrites an existing export target. `research_result` now records the
 ## Tests and gates
 
 New `FactorResearch.ExportsCsvTablesWithoutOverwriting` exports a manually
-built result to a unique temporary directory, asserts all nine files, the
+built result to a unique temporary directory, asserts all eleven files, the
 `ic.csv` header/values, the manifest contents and turnover rows, then asserts
 that a second export and a chart export both fail with `factor_data_error`,
-and removes the directory. Full headless CTest: **711/711 passed**. Sanitizer
-not re-run for this slice.
+and removes the directory. Full Release and ASan+UBSan CTest: **734/734 passed**.
