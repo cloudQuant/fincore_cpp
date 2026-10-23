@@ -171,6 +171,12 @@ research_result evaluate_factor_research(const factor_series& factors,
                 "stability_lags must contain positive integers"};
         }
     }
+    for (const auto& [name, bounds] : spec.segments) {
+        if (name.empty() || bounds.first.empty() || bounds.second.empty()) {
+            throw factor_data_error{
+                "segments must have non-empty names and bounds"};
+        }
+    }
     factor_series panel = window_and_targets(factors, spec);
     for (auto& value : panel.values) {
         value = std::isfinite(value) ? value : nan;
@@ -207,6 +213,10 @@ research_result evaluate_factor_research(const factor_series& factors,
         {"preprocess", spec.preprocess},
         {"quantiles", std::to_string(spec.quantiles)},
         {"periods", std::to_string(spec.periods.size())}};
+    for (const auto& [name, bounds] : spec.segments) {
+        result.manifest["segment." + name] =
+            bounds.first + ".." + bounds.second;
+    }
     result.spread.assign(spec.periods.size(), nan);
     result.coverage.assign(spec.periods.size(), 0U);
     if (prepared.by_horizon.empty()) {

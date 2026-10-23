@@ -46,6 +46,7 @@ struct research_spec {
     double max_loss = 1.0;
     std::vector<int> stability_lags{1, 5, 20};
     std::map<std::string, int> direction_overrides;
+    std::map<std::string, std::pair<std::string, std::string>> segments;
     std::string snapshot_id = "unspecified";
     std::string price_basis = "unspecified";
     std::string calendar_id = "unspecified";

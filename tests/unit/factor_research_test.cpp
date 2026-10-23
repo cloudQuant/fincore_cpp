@@ -299,4 +299,33 @@ TEST(FactorResearch, ComparesStoredIcSummaries) {
                  fincore::factor_data_error);
 }
 
+TEST(FactorResearch, RecordsSegmentProvenance) {
+    auto fixture = make_fixture();
+    auto evaluation = spec();
+    evaluation.segments = {
+        {"first_half", {"2021-01-04", "2021-02-01"}},
+        {"second_half", {"2021-02-02", "2021-03-04"}}};
+    const auto result = fincore::evaluate_factor_research(
+        fixture.factor, fixture.prices, evaluation);
+    ASSERT_EQ(result.manifest.count("segment.first_half"), 1U);
+    EXPECT_EQ(result.manifest.at("segment.first_half"),
+              "2021-01-04..2021-02-01");
+    ASSERT_EQ(result.manifest.count("segment.second_half"), 1U);
+    EXPECT_EQ(result.manifest.at("segment.second_half"),
+              "2021-02-02..2021-03-04");
+
+    auto empty_name = evaluation;
+    empty_name.segments = {{"", {"2021-01-04", "2021-02-01"}}};
+    EXPECT_THROW(
+        static_cast<void>(fincore::evaluate_factor_research(
+            fixture.factor, fixture.prices, empty_name)),
+        fincore::factor_data_error);
+    auto empty_bound = evaluation;
+    empty_bound.segments = {{"x", {"2021-01-04", ""}}};
+    EXPECT_THROW(
+        static_cast<void>(fincore::evaluate_factor_research(
+            fixture.factor, fixture.prices, empty_bound)),
+        fincore::factor_data_error);
+}
+
 }  // namespace
