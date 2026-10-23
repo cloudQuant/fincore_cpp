@@ -2935,3 +2935,19 @@ Positions/transactions/rolling sections from the pinned builder remain open.
 Full headless CTest passed 702/702; sanitizer was not re-run. Evidence is in
 [the portfolio projection acceptance
 record](docs/acceptance/2026-10-23-phase-91-portfolio-report-acceptance.md).
+
+## Iteration 5 slice 3 — research, tears and factor HTML accepted (bounded)
+
+Adds a bounded `research_capabilities_report`/`research_spec`/
+`evaluate_factor_research` pipeline over the accepted prep/performance
+kernels (IC, quantile returns, turnover, stability, spread, coverage,
+manifest, OK/PARTIAL/UNEVALUABLE), factor tear chart data for the ImPlot
+series/bar plotters, and factor HTML through the shared renderer (en/zh,
+inline SVG). Oracle fixture: IC first `0.9999999`, mean `-0.1783333`,
+negative high-minus-low spread, 300 coverage per horizon.
+
+Declared gaps: grid/next-open basis, universe/groups, precomputed-label
+validation, comparisons/segments/correlations, min-asset enforcement,
+research export, and visual rendering (NOT_RUN). Full headless CTest passed
+705/705; sanitizer not re-run. Evidence is in [the research/tears acceptance
+record](docs/acceptance/2026-10-23-iteration-5-research-tears-acceptance.md).
