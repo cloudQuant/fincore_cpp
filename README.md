@@ -2349,3 +2349,18 @@ including NaN, infinity and zero classes). Full headless CTest and LLVM 22
 ASan+UBSan each passed 570/570. Evidence is recorded in [the Phase 52b
 slice-2 acceptance
 record](docs/acceptance/2026-10-23-phase-52b-turtle-rolling-leaves-acceptance.md).
+
+## Accepted Phase 52b slice 3 — aggregate consecutive stats and alpha percentile rank
+
+Phase 52b slice 3 closes the last executable metric gaps from the iteration-1
+API audit. `consecutive_stats` returns the six-run aggregate over the accepted
+daily/weekly/monthly leaves; `alpha_percentile_rank` compares the strategy's
+annualized alpha against a peer universe supplied as a span of frames,
+skipping short and NaN-alpha peers and returning the strict-below rank
+fraction.
+
+Clean detached oracle at `4b8f31b` reproduced the goldens (six runs 3/1, 2/0,
+1/0; percentile `0.6666666666666666`). Full headless CTest and LLVM 22
+ASan+UBSan each passed 572/572. Evidence is recorded in [the Phase 52b
+slice-3 acceptance
+record](docs/acceptance/2026-10-23-phase-52b-aggregate-percentile-acceptance.md).
