@@ -1,3 +1,4 @@
+#include <fincore/calendar.hpp>
 #include <fincore/metrics/timing.hpp>
 
 #include <algorithm>
@@ -252,6 +253,74 @@ double cornell_timing(const dataframe& returns,
   }
   const double result = (*fitted)[1] - (*fitted)[2];
   return std::isfinite(result) ? result : nan;
+}
+
+namespace {
+
+struct crisis_period {
+    const char* name;
+    timestamp start;
+    timestamp end;
+};
+
+const std::vector<crisis_period>& crisis_periods() {
+    static const std::vector<crisis_period> periods{
+        {"Dotcom", utc_timestamp(2000, 3, 10), utc_timestamp(2000, 9, 10)},
+        {"Lehman", utc_timestamp(2008, 8, 1), utc_timestamp(2008, 10, 1)},
+        {"9/11", utc_timestamp(2001, 9, 11), utc_timestamp(2001, 10, 11)},
+        {"US downgrade/European Debt Crisis", utc_timestamp(2011, 8, 5),
+         utc_timestamp(2011, 9, 5)},
+        {"Fukushima", utc_timestamp(2011, 3, 16), utc_timestamp(2011, 4, 16)},
+        {"US Housing", utc_timestamp(2003, 1, 8), utc_timestamp(2003, 2, 8)},
+        {"EZB IR Event", utc_timestamp(2012, 9, 10),
+         utc_timestamp(2012, 10, 10)},
+        {"Aug07", utc_timestamp(2007, 8, 1), utc_timestamp(2007, 9, 1)},
+        {"Mar08", utc_timestamp(2008, 3, 1), utc_timestamp(2008, 4, 1)},
+        {"Sept08", utc_timestamp(2008, 9, 1), utc_timestamp(2008, 10, 1)},
+        {"2009Q1", utc_timestamp(2009, 1, 1), utc_timestamp(2009, 3, 1)},
+        {"2009Q2", utc_timestamp(2009, 3, 1), utc_timestamp(2009, 6, 1)},
+        {"Flash Crash", utc_timestamp(2010, 5, 5), utc_timestamp(2010, 5, 10)},
+        {"Apr14", utc_timestamp(2014, 4, 1), utc_timestamp(2014, 5, 1)},
+        {"Oct14", utc_timestamp(2014, 10, 1), utc_timestamp(2014, 11, 1)},
+        {"Fall2015", utc_timestamp(2015, 8, 15), utc_timestamp(2015, 9, 30)},
+        {"Low Volatility Bull Market", utc_timestamp(2005, 1, 1),
+         utc_timestamp(2007, 8, 1)},
+        {"GFC Crash", utc_timestamp(2007, 8, 1), utc_timestamp(2009, 4, 1)},
+        {"Recovery", utc_timestamp(2009, 4, 1), utc_timestamp(2013, 1, 1)},
+        {"New Normal", utc_timestamp(2013, 1, 1), utc_timestamp(2025, 12, 31)},
+    };
+    return periods;
+}
+
+}  // namespace
+
+std::vector<named_returns> extract_interesting_date_ranges(
+    const dataframe& returns, std::string_view column) {
+    if (column.find(' ') != std::string_view::npos) {
+        throw input_error{"column name must not contain an embedded NUL"};
+    }
+    const auto values = require_double_column(returns, column);
+    const auto& index = returns.get_index();
+    std::vector<named_returns> result;
+    for (const auto& period : crisis_periods()) {
+        std::vector<timestamp> selected_index;
+        std::vector<double> selected_values;
+        for (std::size_t position = 0; position < values.size(); ++position) {
+            if (index[position] >= period.start &&
+                index[position] <= period.end) {
+                selected_index.push_back(index[position]);
+                selected_values.push_back(values[position]);
+            }
+        }
+        if (selected_index.empty()) {
+            continue;
+        }
+        result.push_back(
+            {period.name,
+             make_series(std::move(selected_index), column,
+                         std::move(selected_values))});
+    }
+    return result;
 }
 
 }  // namespace fincore
