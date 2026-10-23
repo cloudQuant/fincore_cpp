@@ -45,6 +45,20 @@ struct quantile_return_table {
     std::vector<double> standard_errors; // quantiles x labels
 };
 
+struct quantile_date_return_table {
+    std::vector<timestamp> dates;
+    std::vector<int> quantiles;
+    std::vector<std::string> labels;
+    std::vector<double> means;           // dates x quantiles x labels
+    std::vector<double> standard_errors; // dates x quantiles x labels
+};
+
+struct quantile_spread_result {
+    std::vector<std::string> labels;
+    std::vector<double> spreads;
+    std::vector<double> standard_errors;
+};
+
 struct factor_series_result {
     std::vector<timestamp> dates;
     std::vector<double> values;
@@ -74,6 +88,14 @@ quantile_return_table mean_return_by_quantile(
     const prepared_factor_data& factor_data, bool by_date = false,
     bool by_group = false, bool demeaned = true,
     bool group_adjust = false);
+
+quantile_date_return_table mean_return_by_quantile_by_date(
+    const prepared_factor_data& factor_data, bool demeaned = true,
+    bool group_adjust = false);
+
+quantile_spread_result mean_return_spread(
+    const quantile_return_table& table, int upper_quantile,
+    int lower_quantile);
 
 factor_series_result quantile_turnover(
     const prepared_factor_data& factor_data, int quantile,

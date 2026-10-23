@@ -662,6 +662,114 @@ quantile_return_table mean_return_by_quantile(
     return table;
 }
 
+quantile_date_return_table mean_return_by_quantile_by_date(
+    const prepared_factor_data& factor_data, const bool demeaned,
+    const bool group_adjust) {
+    const std::size_t labels = factor_data.forward_labels.size();
+    auto forwards = group_adjust
+                        ? demean_returns(factor_data, true).values
+                        : (demeaned ? demean_returns(factor_data, false).values
+                                    : forward_matrix(factor_data));
+    quantile_date_return_table table;
+    table.dates = unique_dates(factor_data);
+    table.labels = factor_data.forward_labels;
+    std::set<int> quantile_values;
+    for (const auto& row : factor_data.rows) {
+        quantile_values.insert(row.quantile);
+    }
+    table.quantiles.assign(quantile_values.begin(), quantile_values.end());
+    const std::size_t date_count = table.dates.size();
+    const std::size_t quantile_count = table.quantiles.size();
+    table.means.assign(date_count * quantile_count * labels, nan);
+    table.standard_errors.assign(date_count * quantile_count * labels, nan);
+
+    std::map<timestamp, std::size_t> date_index;
+    for (std::size_t index = 0; index < date_count; ++index) {
+        date_index[table.dates[index]] = index;
+    }
+    std::map<int, std::size_t> quantile_index;
+    for (std::size_t index = 0; index < quantile_count; ++index) {
+        quantile_index[table.quantiles[index]] = index;
+    }
+    using cell = std::tuple<std::size_t, std::size_t, std::size_t>;
+    std::map<cell, std::vector<double>> buckets;
+    for (std::size_t row = 0; row < factor_data.rows.size(); ++row) {
+        const auto date = date_index.find(factor_data.rows[row].date);
+        const auto quantile =
+            quantile_index.find(factor_data.rows[row].quantile);
+        if (date == date_index.end() || quantile == quantile_index.end()) {
+            continue;
+        }
+        for (std::size_t label = 0; label < labels; ++label) {
+            if (std::isfinite(forwards[label][row])) {
+                buckets[{date->second, quantile->second, label}]
+                    .push_back(forwards[label][row]);
+            }
+        }
+    }
+    for (const auto& entry : buckets) {
+        const auto& [date, quantile, label] = entry.first;
+        const auto& values = entry.second;
+        if (values.empty()) {
+            continue;
+        }
+        const double mean =
+            std::accumulate(values.begin(), values.end(), 0.0) /
+            static_cast<double>(values.size());
+        const std::size_t position =
+            (date * quantile_count + quantile) * labels + label;
+        table.means[position] = mean;
+        if (values.size() > 1U) {
+            double variance = 0.0;
+            for (const double value : values) {
+                variance += (value - mean) * (value - mean);
+            }
+            variance /= static_cast<double>(values.size() - 1U);
+            table.standard_errors[position] =
+                std::sqrt(variance) /
+                std::sqrt(static_cast<double>(values.size()));
+        }
+    }
+    return table;
+}
+
+quantile_spread_result mean_return_spread(
+    const quantile_return_table& table, const int upper_quantile,
+    const int lower_quantile) {
+    const auto upper = std::find(table.quantiles.begin(),
+                                 table.quantiles.end(), upper_quantile);
+    const auto lower = std::find(table.quantiles.begin(),
+                                 table.quantiles.end(), lower_quantile);
+    if (upper == table.quantiles.end() || lower == table.quantiles.end()) {
+        throw factor_data_error{
+            "spread quantiles must both be present in the quantile table"};
+    }
+    const std::size_t upper_index =
+        static_cast<std::size_t>(upper - table.quantiles.begin());
+    const std::size_t lower_index =
+        static_cast<std::size_t>(lower - table.quantiles.begin());
+    const std::size_t labels = table.labels.size();
+    quantile_spread_result result;
+    result.labels = table.labels;
+    result.spreads.assign(labels, nan);
+    result.standard_errors.assign(labels, nan);
+    for (std::size_t label = 0; label < labels; ++label) {
+        const double upper_mean = table.means[upper_index * labels + label];
+        const double lower_mean = table.means[lower_index * labels + label];
+        result.spreads[label] = upper_mean - lower_mean;
+        const double upper_error =
+            table.standard_errors[upper_index * labels + label];
+        const double lower_error =
+            table.standard_errors[lower_index * labels + label];
+        if (std::isfinite(upper_error) && std::isfinite(lower_error)) {
+            result.standard_errors[label] =
+                std::sqrt(upper_error * upper_error +
+                          lower_error * lower_error);
+        }
+    }
+    return result;
+}
+
 factor_series_result quantile_turnover(
     const prepared_factor_data& factor_data, const int quantile,
     const int period) {

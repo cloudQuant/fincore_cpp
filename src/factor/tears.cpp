@@ -64,15 +64,20 @@ factor_tear_charts build_factor_tear_charts(
 
     charts.turnover.title = "Quantile turnover";
     charts.turnover.y_label = "Turnover";
+    const int primary_lag = model.quantile_turnover.empty()
+                                ? 1
+                                : model.quantile_turnover.front().lag;
     const auto& turnover_dates =
         model.quantile_turnover.empty()
             ? std::vector<timestamp>{}
-            : model.quantile_turnover.front().dates;
-    for (std::size_t index = 0; index < model.quantile_turnover.size();
-         ++index) {
-        charts.turnover.series.push_back(series_for(
-            "Q" + std::to_string(index + 1U), turnover_dates,
-            model.quantile_turnover[index].values));
+            : model.quantile_turnover.front().values.dates;
+    for (const auto& turnover : model.quantile_turnover) {
+        if (turnover.lag != primary_lag) {
+            continue;
+        }
+        charts.turnover.series.push_back(
+            series_for("Q" + std::to_string(turnover.quantile),
+                       turnover_dates, turnover.values.values));
     }
 
     charts.spread.title = "Quantile spread";
@@ -101,9 +106,11 @@ factor_tear_charts build_factor_tear_charts(
     charts.rank_autocorrelation.title = "Rank autocorrelation";
     charts.rank_autocorrelation.y_label = "Autocorrelation";
     charts.rank_autocorrelation.zero_line = true;
-    charts.rank_autocorrelation.series.push_back(series_for(
-        "Rank autocorrelation", model.rank_autocorrelation.dates,
-        model.rank_autocorrelation.values));
+    for (const auto& autocorrelation : model.rank_autocorrelation) {
+        charts.rank_autocorrelation.series.push_back(series_for(
+            "Lag " + std::to_string(autocorrelation.lag),
+            autocorrelation.values.dates, autocorrelation.values.values));
+    }
     return charts;
 }
 

@@ -2997,3 +2997,27 @@ utilities explicitly out of runtime scope. All 20 IDs exist in the source
 catalog (0 missing). Full headless CTest passed 709/709; sanitizer not
 re-run. Evidence is in [the runtime catalog acceptance
 record](docs/acceptance/2026-10-23-phase-92-runtime-catalog-acceptance.md).
+
+## Phase 79 slice — compute-once factor analysis model accepted
+
+`analyze_factor` now assembles a renderer-ready snapshot: quantile
+statistics, aggregate and by-date quantile returns with within-date standard
+errors, top-minus-bottom spreads, per-period cumulative curves, quantile
+growth curves, gross positions, lagged quantile turnover and rank
+autocorrelation, monthly IC and the first-period portfolio inputs. Two new
+performance kernels (`mean_return_by_quantile_by_date`,
+`mean_return_spread`) back the assembly; the IC kernel now honors
+`group_neutral`. Config gains period selection, turnover lags, monthly
+aggregation and the portfolio-input switch.
+
+Oracle fixture at pinned Python `4b8f31b1` (SHA-256 `a4425245…`): Q1 stats
+`1.5 ± 0.5477226` over 6 rows, spread `0.02/0.1`, 1D cumulative
+`1.0379707031249998`, quantile growth `1.030301/0.970299`, 16/24 position
+rows, monthly IC `1.0` at 2022-01-31, and portfolio returns
+`0/0.0125/0.0125` with benchmark `0/0.026/0.027`.
+
+Declared gaps: no group/event analysis, capital-scaled portfolio inputs,
+weekly/quarterly/yearly aggregation, or separate by-date standard-error
+field. Full headless CTest passed 710/710; sanitizer not re-run; visual
+NOT_RUN. Evidence is in [the analysis model acceptance
+record](docs/acceptance/2026-10-23-phase-79-analysis-model-acceptance.md).

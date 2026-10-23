@@ -70,12 +70,16 @@ report_document build_factor_report(const factor_analysis_model& model,
                 model.alpha_beta[index].beta));
         }
     }
-    for (std::size_t index = 0; index < model.quantile_turnover.size();
-         ++index) {
+    const int primary_lag = model.quantile_turnover.empty()
+                                ? 1
+                                : model.quantile_turnover.front().lag;
+    for (const auto& turnover : model.quantile_turnover) {
+        if (turnover.lag != primary_lag) {
+            continue;
+        }
         double total = 0.0;
         std::size_t count = 0U;
-        for (const double value :
-             model.quantile_turnover[index].values) {
+        for (const double value : turnover.values.values) {
             if (std::isfinite(value)) {
                 total += value;
                 ++count;
@@ -83,9 +87,9 @@ report_document build_factor_report(const factor_analysis_model& model,
         }
         if (count > 0U) {
             summary.metrics.push_back(number_metric(
-                "mean_turnover.q" + std::to_string(index + 1U),
-                "Mean turnover q" + std::to_string(index + 1U), "fraction",
-                total / static_cast<double>(count)));
+                "mean_turnover.q" + std::to_string(turnover.quantile),
+                "Mean turnover q" + std::to_string(turnover.quantile),
+                "fraction", total / static_cast<double>(count)));
         }
     }
     document.sections.push_back(summary);
@@ -159,18 +163,23 @@ report_document build_factor_report(const factor_analysis_model& model,
     turnover_table.key = "turnover";
     turnover_table.title = "Quantile turnover";
     turnover_table.columns.push_back("date");
-    for (std::size_t index = 0; index < model.quantile_turnover.size();
-         ++index) {
-        turnover_table.columns.push_back("q" + std::to_string(index + 1U));
+    std::vector<const factor_turnover_series*> primary_turnover;
+    for (const auto& turnover : model.quantile_turnover) {
+        if (!model.quantile_turnover.empty() &&
+            turnover.lag == model.quantile_turnover.front().lag) {
+            primary_turnover.push_back(&turnover);
+            turnover_table.columns.push_back(
+                "q" + std::to_string(turnover.quantile));
+        }
     }
-    if (!model.quantile_turnover.empty()) {
-        const auto& first = model.quantile_turnover.front();
-        for (std::size_t date = 0; date < first.dates.size(); ++date) {
+    if (!primary_turnover.empty()) {
+        const auto& dates = primary_turnover.front()->values.dates;
+        for (std::size_t date = 0; date < dates.size(); ++date) {
             std::vector<report_cell> row;
             row.push_back(report_cell::text_cell(
-                fincore::detail::format_timestamp(first.dates[date])));
-            for (const auto& turnover : model.quantile_turnover) {
-                row.push_back(numeric_cell(turnover.values[date]));
+                fincore::detail::format_timestamp(dates[date])));
+            for (const auto* turnover : primary_turnover) {
+                row.push_back(numeric_cell(turnover->values.values[date]));
             }
             turnover_table.rows.push_back(std::move(row));
         }
