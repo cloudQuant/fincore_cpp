@@ -27,8 +27,9 @@ A plain install (without `--component fincore`) also installs the fetched
 GoogleTest targets; the usage guide directs consumers to the component form.
 The consumer supplies its own DataFrame checkout and links
 `fincore::fincore` through `find_package(fincore 0.1 CONFIG REQUIRED)`.
-Re-verified after the later attribution/portfolio slices at commit
-`42d9d5d`: install/configure/build rc 0 and the same printed values.
+Re-verified again at commit `9ad642a` after the research/visual slices:
+component install, downstream configure and build rc 0, consumer prints
+`version=0.1.0 sharpe=6.928203230275507` (run rc 0).
 
 ## Documented migration facts
 
