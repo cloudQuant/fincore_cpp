@@ -2502,3 +2502,16 @@ Phase 58 acceptance and the Phase 59 addendum. Full headless CTest and LLVM
 22 ASan+UBSan each passed 598/598. Evidence is recorded in [the Phase 58
 acceptance
 record](docs/acceptance/2026-10-23-phase-58-capacity-assessment-acceptance.md).
+
+## Accepted Phase 59b position residual slice
+
+Phase 59b closes three pure-position gaps: `get_top_long_short_abs` (NaN-
+skipping column extrema, ranked long/short/absolute lists),
+`get_long_short_notional` (per-row positive and absolute-negative sums), and
+`stack_positions` (row-major date/symbol/value records including NaN cells).
+Cash is excluded throughout; NUL selectors are rejected.
+
+Clean detached oracle at `4b8f31b` reproduced the ranked lists, notionals,
+and 12-entry stack exactly. Full headless CTest and LLVM 22 ASan+UBSan each
+passed 601/601. Evidence is recorded in [the Phase 59b acceptance
+record](docs/acceptance/2026-10-23-phase-59b-position-residuals-acceptance.md).
