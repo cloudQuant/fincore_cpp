@@ -2822,3 +2822,28 @@ records keep their original paths as evidence.
 Full headless CTest and LLVM 22 ASan+UBSan each passed 661/661. Evidence is
 recorded in [the layout acceptance
 record](docs/acceptance/2026-10-23-layout-alignment-portfolio.md).
+
+## Iteration 4 — visualization compute/build accepted (visual NOT_RUN)
+
+Iteration 4 adds render-neutral chart data for the four `VizBackend` routes
+and selected extras: monthly year×month heatmaps with an explicit missing
+mask and percent/color-domain policy, named series with benchmark metadata,
+drawdown fill-to-zero charts, grouped bars, NumPy-compatible histogram bins
+with counts and density, pairwise-finite correlation matrices, and frontier
+charts consuming Phase 69 results without a solver. The optional ImPlot
+adapter gained heatmap/series/fill/bar/histogram/correlation/frontier
+plotters and the demo exercises all of them.
+
+Oracle comparisons cover monthly compounding (`0.5606853`, `-0.7060026`,
+`0.0720039`), correlation (`0.4242641`, `-0.2828427`), histogram
+counts/edges/density and constant/negative/empty cases. Declared difference:
+pandas fills an empty resample month with `0.0`; native marks it missing, as
+the requirements demand. Benchmarks use gray/lighter style because this
+ImPlot revision has no dash property.
+
+COMPUTE: core CTest 668/668. BUILD: adapter 669/669 including
+`ImPlotAdapterCompile`, demo configured and linked. VISUAL: **NOT_RUN** (no
+automated visual fixture; desktop capture not used). Sanitizer: deferred
+after an owner interruption; no sanitizer claim is made for this delivery.
+Evidence is recorded in [the Iteration 4 acceptance
+record](docs/acceptance/2026-10-23-iteration-4-visualization-acceptance.md).
