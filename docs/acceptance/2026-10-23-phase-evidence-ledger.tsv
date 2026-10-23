@@ -53,7 +53,7 @@ phase	iteration	scope	evidence	status	notes
 83	5	research evaluator and export	iteration-5-research-tears; phase-83-research-export; phase-83-research-correlations; phase-83-research-segments; phase-83-precomputed-labels; phase-83-research-universe; phase-83-next-open-labels	accepted_bounded	groups/multi-factor open
 84	5	factor report	phase-84-factor-report	accepted	
 85	5	tear chart data	iteration-5-research-tears; phase-85-group-tears	accepted_bounded	visual NOT_RUN
-86	5	factor HTML	iteration-5-research-tears; iteration-6-html-risk-runtime	accepted_bounded	no pixel review
+86	5	factor HTML	iteration-5-research-tears; phase-86-html-visual	accepted_bounded	HTML headless visual; ImPlot NOT_RUN
 87	5	performance study	phase-87-factor-performance	accepted	
 88a	6	report schema/artifact boundary	phase-88a-report-schema	accepted	
 88b	6	factor/portfolio/risk integration, event/group models	phase-88b-event-model; phase-79-group-analysis; phase-84-factor-report; phase-91-portfolio-report-completion; phase-67-risk-report	accepted_bounded	group tear rendering open

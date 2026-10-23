@@ -105,8 +105,9 @@ function route remains.
 - Sanitizer: full ASan+UBSan suite **731/731 passed** at the final HEAD
   (Homebrew LLVM 22.1.8, Ninja Debug; no reports). See
   [the sanitizer gate record](2026-10-23-sanitizer-gate-acceptance.md).
-- Visual rendering: **NOT_RUN** (no screenshots; ImPlot adapter build not
-  re-exercised).
+- HTML artifacts: visually inspected in headless Chrome (synthetic report,
+  four SVG charts, eleven tables). ImPlot windows remain **NOT_RUN**; no
+  desktop screenshot was taken.
 - Supported-platform CI matrix: **NOT_RUN**; only the local macOS arm64
   install/consumer path is evidenced.
 - XLSX byte parity with the Python writer: not claimed; openpyxl load
@@ -118,6 +119,6 @@ function route remains.
 The native program covers the accepted compute, model, report, runtime and
 packaging paths with 279 exact/renamed public routes, zero unresolved routes
 and 72 explicitly deferred or non-port routes. The iteration-level items above
-(visual rendering, Ubuntu CI) remain outside the function ledger. Program-level parity is therefore **partial and explicitly
+(ImPlot windows, Ubuntu CI) remain outside the function ledger. Program-level parity is therefore **partial and explicitly
 bounded**; this record is the authoritative close-out of Phase 92 and must be
 updated if any listed gap is closed.

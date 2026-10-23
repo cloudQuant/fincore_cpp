@@ -28,8 +28,9 @@ and [ledger](2026-10-23-program-parity-ledger.tsv).
 - macOS CI workflow steps were reproduced in a clean clone (pinned DataFrame
   `90aa4acf`, 726/726); the Ubuntu leg is **NOT_RUN** because no runner/Docker
   is available locally.
-- Visual rendering **NOT_RUN**; HTML is structurally tested, not
-  pixel-reviewed, and ECharts is replaced by inline SVG.
+- HTML rendering visually verified in headless Chrome (synthetic artifact,
+  four SVG charts); ImPlot windows remain **NOT_RUN**; ECharts is replaced
+  by inline SVG.
 
 ## Open items
 

@@ -106,6 +106,11 @@ add_executable(fincore_factor_benchmark EXCLUDE_FROM_ALL
 target_link_libraries(fincore_factor_benchmark PRIVATE fincore)
 fincore_enable_sanitizers(fincore_factor_benchmark)
 
+add_executable(fincore_report_render EXCLUDE_FROM_ALL
+    examples/render_factor_report.cpp)
+target_link_libraries(fincore_report_render PRIVATE fincore)
+fincore_enable_sanitizers(fincore_report_render)
+
 include(cmake/fincore_install.cmake)
 
 if (FINCORE_BUILD_IMPLOT_DEMO AND NOT FINCORE_BUILD_IMPLOT)

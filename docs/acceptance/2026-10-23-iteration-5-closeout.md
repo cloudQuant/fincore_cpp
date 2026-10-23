@@ -25,8 +25,8 @@ calendar utilities, or pandas/plugin plumbing.
 - Full headless CTest **721/721** passed at the final HEAD.
 - Full ASan+UBSan suite **731/731 passed** at the final HEAD (Homebrew LLVM
   22.1.8, Ninja Debug).
-- Visual **NOT_RUN** (tear-sheet plotting deferred; HTML is structurally
-  accepted but not pixel-reviewed).
+- HTML artifact visually verified headlessly (four SVG charts, eleven tables);
+  ImPlot windows remain **NOT_RUN**.
 
 ## Open items
 

@@ -3179,7 +3179,7 @@ open items: [Iteration 4](docs/acceptance/2026-10-23-iteration-4-closeout.md)
 (factor analysis complete at the function level, group/event modelling and
 tear-sheet plotting open), and
 [Iteration 6](docs/acceptance/2026-10-23-iteration-6-closeout.md)
-(report/runtime accepted with visual rendering open, Ubuntu CI NOT_RUN;
+(report/runtime accepted with ImPlot windows open, Ubuntu CI NOT_RUN;
 the ASan+UBSan suite passes 724/724).
 The program parity ledger now reports 240 exact + 36 renamed routes, 51
 deferred, 21 non-port and three unresolved function gaps.
@@ -3357,3 +3357,16 @@ with NaN tails. Group mappings and multi-factor assembly remain open.
 Full Release and ASan+UBSan suites pass 731/731; visual NOT_RUN. Evidence is
 in [the next-open acceptance
 record](docs/acceptance/2026-10-23-phase-83-next-open-labels-acceptance.md).
+
+## Phase 86 slice — HTML artifact visually verified headlessly
+
+Added an excluded `fincore_report_render` example that writes a synthetic
+factor report, then rendered it in headless Chrome via Playwright. The
+artifact is 19,379 bytes with five section headings, eleven tables and four
+inline SVG charts; a 1440x5145 full-page capture shows correct axes, legends,
+metric cards and column alignment. This is an artifact render of synthetic
+data, not a desktop screenshot.
+
+ImPlot GUI windows remain **NOT_RUN**. Release and ASan+UBSan suites remain
+731/731. Evidence is in [the HTML visual acceptance
+record](docs/acceptance/2026-10-23-phase-86-html-visual-acceptance.md).
