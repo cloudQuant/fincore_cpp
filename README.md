@@ -2771,3 +2771,20 @@ by weight. Runtime operation registration remains Iteration 6.
 Full headless CTest and LLVM 22 ASan+UBSan each passed 655/655. Evidence is
 recorded in [the Phases 68–71 acceptance
 record](docs/acceptance/2026-10-23-phases-68-71-portfolio-optimization-acceptance.md).
+
+## Accepted Phase 62 residual native risk estimates
+
+Completes the Phase 62 row with `risk_forecast_config`, `risk_estimate`,
+`forecast_var` and `forecast_es`: historical linear-quantile VaR/ES, EVT
+adapters over GPD/GEV, and GARCH conditional adapters, with
+ok/insufficient-data/failed statuses and an inputs digest. The historical
+values match the oracle exactly; EVT matches at 1e-6 and GARCH at 2e-5
+(objective-first GARCH contract). Empty cleaned input fails explicitly, and
+duplicate/unsorted indexes are rejected.
+
+Declared divergences: native canonical digest, typed enum/diagnostic
+fields, and an explicit empty-input error instead of NumPy's IndexError.
+
+Full headless CTest and LLVM 22 ASan+UBSan each passed 661/661. Evidence is
+recorded in [the Phase 62 residual acceptance
+record](docs/acceptance/2026-10-23-phase-62b-risk-models-acceptance.md).
