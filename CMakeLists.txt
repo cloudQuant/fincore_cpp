@@ -35,6 +35,7 @@ add_library(fincore
     src/performance/inference.cpp
     src/performance/disclosures.cpp
     src/portfolio/capacity.cpp
+    src/viz/chart_data.cpp
     src/optimization/numerics.cpp
     src/optimization/portfolio_solver.cpp
     src/optimization/objectives.cpp
