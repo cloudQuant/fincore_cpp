@@ -90,6 +90,48 @@ double checked_threshold(const std::optional<double> threshold,
     return value;
 }
 
+double default_pot_threshold(const std::vector<double>& values,
+                             const evt_tail tail, const double alpha) {
+    std::vector<double> magnitudes;
+    for (const double value : values) {
+        if (tail == evt_tail::lower && value < 0.0) {
+            magnitudes.push_back(-value);
+        } else if (tail == evt_tail::upper && value > 0.0) {
+            magnitudes.push_back(value);
+        }
+    }
+    const std::size_t required = std::max<std::size_t>(
+        10U, static_cast<std::size_t>(std::floor(alpha *
+                                                 static_cast<double>(values.size()))) + 1U);
+    if (magnitudes.size() < required) {
+        throw input_error{"Not enough observations in the selected tail to choose a GPD threshold covering alpha"};
+    }
+    std::sort(magnitudes.begin(), magnitudes.end());
+    const double conventional = linear_percentile(magnitudes, 90.0);
+    std::size_t above = 0;
+    for (const double magnitude : magnitudes) {
+        if (magnitude > conventional) {
+            ++above;
+        }
+    }
+    if (above >= required) {
+        return conventional;
+    }
+    const double selected = magnitudes[magnitudes.size() - required];
+    const double threshold = std::nextafter(selected,
+                                            -std::numeric_limits<double>::infinity());
+    if (!std::isfinite(threshold) || threshold <= 0.0) {
+        throw input_error{"automatic GPD threshold must be finite and positive"};
+    }
+    return threshold;
+}
+
+void validate_alpha(const double alpha) {
+    if (!std::isfinite(alpha) || !(alpha > 0.0 && alpha < 1.0)) {
+        throw input_error{"alpha must be finite and in (0, 1)"};
+    }
+}
+
 }  // namespace
 
 hill_estimate hill_estimator(const dataframe& data,
@@ -219,6 +261,100 @@ gpd_parameters gpd_fit(const dataframe& data,
         throw input_error{"Unknown method"};
     }
     return {xi, beta, used_threshold, excesses.size()};
+}
+
+double evt_var(const dataframe& data, const double alpha,
+               const evt_model model, const evt_tail tail,
+               const std::optional<double> threshold,
+               const std::optional<std::size_t> block_size,
+               const std::string_view column) {
+    static_cast<void>(block_size);
+    validate_alpha(alpha);
+    if (model != evt_model::gpd) {
+        throw input_error{"GEV model is not available in this build"};
+    }
+    const auto values = finite_values(data, column);
+    const double pot_threshold =
+        threshold.has_value() ? *threshold : default_pot_threshold(values, tail, alpha);
+    const auto params = gpd_fit(data, pot_threshold, gpd_estimation_method::mle,
+                                tail, column);
+    if (!std::isfinite(params.xi) || !std::isfinite(params.beta) ||
+        !std::isfinite(params.threshold) || params.beta <= 0.0 ||
+        params.threshold <= 0.0) {
+        throw input_error{"GPD fit returned non-finite parameters or non-positive scale/threshold"};
+    }
+    const double exceed_probability =
+        static_cast<double>(params.n_exceed) / static_cast<double>(values.size());
+    if (alpha > exceed_probability) {
+        throw input_error{"GPD POT alpha exceeds the fitted threshold exceedance probability; choose alpha <= n_exceed / n_total or fit a lower threshold"};
+    }
+    const double ratio = alpha / exceed_probability;
+    const double var_magnitude =
+        std::fabs(params.xi) < 1e-10
+            ? params.threshold - params.beta * std::log(ratio)
+            : params.threshold + (params.beta / params.xi) *
+                                     (std::pow(ratio, -params.xi) - 1.0);
+    if (!std::isfinite(var_magnitude)) {
+        throw input_error{"GPD VaR is not finite for the fitted parameters and alpha"};
+    }
+    return tail == evt_tail::lower ? -var_magnitude : var_magnitude;
+}
+
+double evt_cvar(const dataframe& data, const double alpha,
+                const evt_model model, const evt_tail tail,
+                const std::optional<double> threshold,
+                const std::optional<std::size_t> block_size,
+                const std::string_view column) {
+    static_cast<void>(block_size);
+    validate_alpha(alpha);
+    if (model != evt_model::gpd) {
+        throw input_error{"GEV model is not available in this build"};
+    }
+    const auto values = finite_values(data, column);
+    const double pot_threshold =
+        threshold.has_value() ? *threshold : default_pot_threshold(values, tail, alpha);
+    const auto params = gpd_fit(data, pot_threshold, gpd_estimation_method::mle,
+                                tail, column);
+    if (!std::isfinite(params.xi) || !std::isfinite(params.beta) ||
+        !std::isfinite(params.threshold) || params.beta <= 0.0 ||
+        params.threshold <= 0.0) {
+        throw input_error{"GPD fit returned non-finite parameters or non-positive scale/threshold"};
+    }
+    const double var = evt_var(data, alpha, model, tail, params.threshold,
+                               block_size, column);
+    const double var_magnitude = tail == evt_tail::lower ? -var : var;
+    double cvar_magnitude = 0.0;
+    if (std::fabs(params.xi) < 1e-10) {
+        cvar_magnitude = var_magnitude + params.beta;
+    } else if (params.xi < 1.0) {
+        cvar_magnitude = var_magnitude +
+                         (params.beta + params.xi *
+                                            (var_magnitude - params.threshold)) /
+                             (1.0 - params.xi);
+    } else {
+        throw input_error{"CVaR infinite for xi >= 1"};
+    }
+    return tail == evt_tail::lower ? -cvar_magnitude : cvar_magnitude;
+}
+
+extreme_risk_result extreme_risk(
+    const dataframe& returns, const double alpha, const evt_tail tail,
+    const evt_model model, const std::optional<double> threshold,
+    const std::optional<std::size_t> block_size, const std::string_view column) {
+    validate_alpha(alpha);
+    if (model != evt_model::gpd) {
+        throw input_error{"GEV model is not available in this build"};
+    }
+    const auto values = finite_values(returns, column);
+    const double pot_threshold =
+        threshold.has_value() ? *threshold : default_pot_threshold(values, tail, alpha);
+    const auto params = gpd_fit(returns, pot_threshold,
+                                gpd_estimation_method::mle, tail, column);
+    const double var = evt_var(returns, alpha, model, tail, params.threshold,
+                               block_size, column);
+    const double cvar = evt_cvar(returns, alpha, model, tail, params.threshold,
+                                 block_size, column);
+    return {var, cvar, params.xi, params.threshold, params.n_exceed, alpha};
 }
 
 }  // namespace fincore
