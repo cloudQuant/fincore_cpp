@@ -2922,3 +2922,16 @@ columns; the ImPlot adapter is not installed; CI/platform matrices are not
 run here. Full headless CTest passed 701/701; sanitizer was not re-run.
 Evidence is recorded in [the XLSX/packaging acceptance
 record](docs/acceptance/2026-10-23-iteration-6-xlsx-packaging-acceptance.md).
+
+## Phase 91 slice — portfolio report projection accepted (reduced)
+
+`build_portfolio_report` projects accepted native performance metrics
+(annual/cumulative return, volatility, Sharpe/Sortino/Calmar/stability,
+drawdown, Omega, tail ratio, VaR) and an optional benchmark section
+(information ratio, active-return tracking error, up/down capture, beta) into
+the shared report document, with a cumulative-return series and notes.
+Positions/transactions/rolling sections from the pinned builder remain open.
+
+Full headless CTest passed 702/702; sanitizer was not re-run. Evidence is in
+[the portfolio projection acceptance
+record](docs/acceptance/2026-10-23-phase-91-portfolio-report-acceptance.md).
