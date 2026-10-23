@@ -34,6 +34,8 @@ using mar_ratio_signature =
 using conditional_sharpe_ratio_signature =
     double (*)(const fincore::dataframe&, double, double, double,
                std::string_view);
+using deflated_sharpe_ratio_signature =
+    double (*)(const fincore::dataframe&, double, int, std::string_view);
 
 static_assert(std::is_same_v<
               decltype(static_cast<var_excess_return_signature>(
@@ -118,6 +120,7 @@ TEST(MetricsUmbrella, ExposesOnlyImplementedDataframeNativeMetrics) {
   EXPECT_TRUE(std::isfinite(fincore::adjusted_sharpe_ratio(returns)));
   EXPECT_TRUE(std::isfinite(fincore::mar_ratio(returns)));
   EXPECT_TRUE(std::isfinite(fincore::conditional_sharpe_ratio(returns, 0.5)));
+  EXPECT_TRUE(std::isfinite(fincore::deflated_sharpe_ratio(returns)));
 
   const double var_excess_return_var =
       fincore::historical_value_at_risk(returns);

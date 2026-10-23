@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <numbers>
 #include <span>
 #include <vector>
 
@@ -375,6 +376,153 @@ double conditional_sharpe_ratio(const dataframe& returns,
         return nan;
     }
     return excess_mean / tail_std * std::sqrt(annualization);
+}
+
+double normal_cdf(double value) {
+    return 0.5 * std::erfc(-value / std::sqrt(2.0));
+}
+
+double normal_ppf(double probability) {
+    constexpr double low = 0.02425;
+    constexpr double high = 1.0 - low;
+    double result = 0.0;
+    if (probability < low) {
+        const double q = std::sqrt(-2.0 * std::log(probability));
+        result = (((((-7.784894002430293e-03 * q - 3.223964580411365e-01) * q -
+                      2.400758277161838e+00) * q - 2.549732539343734e+00) * q +
+                    4.374664141464968e+00) * q + 2.938163982698783e+00) /
+                 ((((7.784695709041462e-03 * q + 3.224671290700398e-01) * q +
+                    2.445134137142996e+00) * q + 3.754408661907416e+00) * q + 1.0);
+    } else if (probability <= high) {
+        const double q = probability - 0.5;
+        const double r = q * q;
+        result = (((((-3.969683028665376e+01 * r + 2.209460984245205e+02) * r -
+                      2.759285104469687e+02) * r + 1.383577518672690e+02) * r -
+                    3.066479806614716e+01) * r + 2.506628277459239e+00) * q /
+                 (((((-5.447609879822406e+01 * r + 1.615858368580409e+02) * r -
+                      1.556989798598866e+02) * r + 6.680131188771972e+01) * r -
+                    1.328068155288572e+01) * r + 1.0);
+    } else {
+        const double q = std::sqrt(-2.0 * std::log(1.0 - probability));
+        result = -(((((-7.784894002430293e-03 * q - 3.223964580411365e-01) * q -
+                       2.400758277161838e+00) * q - 2.549732539343734e+00) * q +
+                     4.374664141464968e+00) * q + 2.938163982698783e+00) /
+                  ((((7.784695709041462e-03 * q + 3.224671290700398e-01) * q +
+                     2.445134137142996e+00) * q + 3.754408661907416e+00) * q + 1.0);
+    }
+
+    const double error = normal_cdf(result) - probability;
+    const double correction =
+        error * std::sqrt(2.0 * std::numbers::pi) * std::exp(result * result / 2.0);
+    return result - correction / (1.0 + result * correction / 2.0);
+}
+
+double sample_skewness(const std::vector<double>& values) {
+    const double count = static_cast<double>(values.size());
+    if (values.size() < 3) {
+        return 0.0;
+    }
+    const double average = mean(values);
+    double squared_total = 0.0;
+    for (const double value : values) {
+        const double deviation = value - average;
+        squared_total += deviation * deviation;
+    }
+    const double deviation =
+        std::sqrt(squared_total / (count - 1.0));
+    if (deviation == 0.0) {
+        return 0.0;
+    }
+    double cubed_total = 0.0;
+    for (const double value : values) {
+        cubed_total += std::pow((value - average) / deviation, 3.0);
+    }
+    return count / ((count - 1.0) * (count - 2.0)) * cubed_total;
+}
+
+double sample_excess_kurtosis(const std::vector<double>& values) {
+    const double count = static_cast<double>(values.size());
+    if (values.size() < 4) {
+        return 0.0;
+    }
+    const double average = mean(values);
+    double squared_total = 0.0;
+    for (const double value : values) {
+        const double deviation = value - average;
+        squared_total += deviation * deviation;
+    }
+    const double deviation =
+        std::sqrt(squared_total / (count - 1.0));
+    if (deviation == 0.0) {
+        return 0.0;
+    }
+    double fourth_total = 0.0;
+    for (const double value : values) {
+        fourth_total += std::pow((value - average) / deviation, 4.0);
+    }
+    const double kurtosis =
+        count * (count + 1.0) / ((count - 1.0) * (count - 2.0) * (count - 3.0)) *
+        fourth_total;
+    return kurtosis -
+           3.0 * (count - 1.0) * (count - 1.0) / ((count - 2.0) * (count - 3.0));
+}
+
+double deflated_sharpe_ratio(const dataframe& returns,
+                             double risk_free,
+                             int num_trials,
+                             std::string_view column) {
+    if (column.find('\0') != std::string_view::npos) {
+        throw input_error{"column name must not contain an embedded NUL"};
+    }
+    const auto raw_values = require_double_column(returns, column);
+    const auto clean_values = valid_values(raw_values);
+    if (clean_values.size() < 3) {
+        return nan;
+    }
+
+    std::vector<double> excess;
+    excess.reserve(clean_values.size());
+    for (const double value : clean_values) {
+        excess.push_back(value - risk_free);
+    }
+
+    const double count = static_cast<double>(excess.size());
+    const double excess_mean = mean(excess);
+    double squared_total = 0.0;
+    for (const double value : excess) {
+        const double deviation = value - excess_mean;
+        squared_total += deviation * deviation;
+    }
+    const double excess_deviation =
+        std::sqrt(squared_total / (count - 1.0));
+    const double sr_hat =
+        excess_deviation > 1e-15 ? excess_mean / excess_deviation : 0.0;
+
+    const double gamma3 = sample_skewness(excess);
+    const double gamma4 = sample_excess_kurtosis(excess) + 3.0;
+    const double sr_variance =
+        1.0 - gamma3 * sr_hat + (gamma4 - 1.0) / 4.0 * sr_hat * sr_hat;
+
+    const int trials = std::max(num_trials, 1);
+    double sr_star = 0.0;
+    if (trials > 1) {
+        constexpr double euler = 0.5772156649015329;
+        const double trial_count = static_cast<double>(trials);
+        const double z_inverse_n =
+            normal_ppf(1.0 - 1.0 / trial_count);
+        const double z_inverse_ne =
+            normal_ppf(1.0 - 1.0 / (trial_count * std::numbers::e));
+        sr_star = std::sqrt(std::max(sr_variance, 0.0)) *
+                  ((1.0 - euler) * z_inverse_n + euler * z_inverse_ne);
+    }
+
+    if (sr_variance <= 0.0) {
+        return sr_hat > sr_star ? 1.0 : 0.0;
+    }
+
+    const double z = (sr_hat - sr_star) * std::sqrt(count - 1.0) /
+                     std::sqrt(sr_variance);
+    return normal_cdf(z);
 }
 
 double common_sense_ratio(const dataframe& returns, std::string_view column) {
