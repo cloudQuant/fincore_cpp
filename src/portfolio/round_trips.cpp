@@ -643,4 +643,93 @@ round_trip_stats gen_round_trip_stats(
     return result;
 }
 
+dataframe apply_sector_mappings_to_round_trips(
+    const dataframe& round_trips,
+    const std::map<std::string, std::string>& sector_mappings) {
+    dataframe result;
+    std::vector<timestamp> index = round_trips.get_index();
+    result.load_index(std::move(index));
+    for (const auto& info : round_trips.get_columns_info<double>()) {
+        if (std::get<2>(info) != typeid(double)) {
+            continue;
+        }
+        const std::string name{std::get<0>(info).c_str()};
+        const auto& values = round_trips.get_column<double>(name.c_str());
+        result.load_column<double>(name.c_str(),
+                                   std::vector<double>(values.begin(),
+                                                       values.end()),
+                                   hmdf::nan_policy::dont_pad_with_nans);
+    }
+    bool has_symbol = false;
+    for (const auto& info : round_trips.get_columns_info<std::string>()) {
+        if (std::get<2>(info) != typeid(std::string)) {
+            continue;
+        }
+        const std::string name{std::get<0>(info).c_str()};
+        if (name == "sector") {
+            continue;
+        }
+        const auto& values = round_trips.get_column<std::string>(name.c_str());
+        if (name == "symbol") {
+            has_symbol = true;
+        }
+        result.load_column<std::string>(name.c_str(),
+                                        std::vector<std::string>(values.begin(),
+                                                                 values.end()),
+                                        hmdf::nan_policy::dont_pad_with_nans);
+    }
+    if (has_symbol) {
+        const auto& symbols =
+            round_trips.get_column<std::string>("symbol");
+        std::vector<std::string> sectors;
+        sectors.reserve(symbols.size());
+        for (const auto& symbol : symbols) {
+            const auto found = sector_mappings.find(symbol);
+            sectors.push_back(found != sector_mappings.end() ? found->second
+                                                             : std::string{});
+        }
+        result.load_column<std::string>("sector", std::move(sectors),
+                                        hmdf::nan_policy::dont_pad_with_nans);
+    }
+    return result;
+}
+
+std::vector<round_trip_transaction> add_closing_transactions(
+    const dataframe& positions,
+    const std::span<const round_trip_transaction> transactions) {
+    if (positions.get_index().empty()) {
+        throw input_error{"positions must contain at least one row"};
+    }
+    static_cast<void>(require_double_column(positions, cash_column));
+    std::map<std::string, double> ending_amounts;
+    for (const auto& transaction : transactions) {
+        ending_amounts[transaction.symbol] += transaction.amount;
+    }
+    const timestamp end_date =
+        positions.get_index().back() + 1'000'000'000LL;
+    std::vector<round_trip_transaction> result(transactions.begin(),
+                                               transactions.end());
+    for (const auto& info : positions.get_columns_info<double>()) {
+        if (std::get<2>(info) != typeid(double)) {
+            continue;
+        }
+        const std::string name{std::get<0>(info).c_str()};
+        if (name == cash_column) {
+            continue;
+        }
+        const auto& values = positions.get_column<double>(name.c_str());
+        const double ending_value = values.back();
+        const double ending_amount = ending_amounts[name];
+        if (std::abs(ending_amount) < 1e-6) {
+            continue;
+        }
+        result.push_back({end_date, name, -ending_amount,
+                          ending_value / ending_amount});
+    }
+    std::erase_if(result, [](const round_trip_transaction& transaction) {
+        return transaction.amount == 0.0;
+    });
+    return result;
+}
+
 }  // namespace fincore

@@ -3,6 +3,8 @@
 #include <fincore/portfolio/transactions.hpp>
 
 #include <chrono>
+#include <map>
+#include <span>
 #include <string>
 #include <vector>
 #include <string_view>
@@ -26,6 +28,23 @@ dataframe groupby_consecutive_transactions(
     std::string_view symbol_column_name = transaction_symbol_column,
     std::string_view amount_column_name = transaction_amount_column,
     std::string_view price_column_name = transaction_price_column);
+
+struct round_trip_transaction {
+    timestamp date = 0;
+    std::string symbol;
+    double amount = 0.0;
+    double price = 0.0;
+};
+
+/// Append one closing transaction per still-open position at the final
+/// position timestamp plus one second.
+std::vector<round_trip_transaction> add_closing_transactions(
+    const dataframe& positions,
+    std::span<const round_trip_transaction> transactions);
+
+dataframe apply_sector_mappings_to_round_trips(
+    const dataframe& round_trips,
+    const std::map<std::string, std::string>& sector_mappings);
 
 dataframe extract_round_trips(
     const dataframe& transactions,

@@ -3,7 +3,7 @@
 **Pin:** Python `4b8f31b1b59707480d5db9603704d83bbf7e6946`
 **Machine ledger:** [2026-10-23-program-parity-ledger.tsv](2026-10-23-program-parity-ledger.tsv)
 **Generator:** `tools/parity_ledger.py`
-**Native tests:** 716/716 Release CTest
+**Native tests:** 718/718 Release CTest
 
 ## Method
 
@@ -35,7 +35,7 @@ record).
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | metrics | 157 | 123 | 18 | 16 | 0 | 0 |
 | performance | 9 | 9 | 0 | 0 | 0 | 0 |
-| portfolio | 30 | 23 | 2 | 0 | 2 | 3 |
+| portfolio | 30 | 25 | 2 | 0 | 2 | 1 |
 | factor_analysis | 79 | 34 | 7 | 30 | 8 | 0 |
 | simulation | 14 | 9 | 4 | 0 | 1 | 0 |
 | optimization | 3 | 2 | 1 | 0 | 0 | 0 |
@@ -46,13 +46,13 @@ record).
 | runtime | 13 | 4 | 2 | 0 | 7 | 0 |
 | extensions | 3 | 1 | 0 | 0 | 2 | 0 |
 | viz | 1 | 0 | 1 | 0 | 0 | 0 |
-| **total** | **351** | **238** | **36** | **51** | **21** | **5** |
+| **total** | **351** | **240** | **36** | **51** | **21** | **3** |
 
-Exact-or-renamed coverage is 274/351 (78.1%); 51 deferred and 21 non-port
-rows bring classified coverage to 346/351 (98.6%). No full-domain parity is
+Exact-or-renamed coverage is 276/351 (78.6%); 51 deferred and 21 non-port
+rows bring classified coverage to 348/351 (99.1%). No full-domain parity is
 claimed.
 
-## Unresolved gaps (5)
+## Unresolved gaps (3)
 
 Gap closure during this audit: `simulation.annualize` is now a native public
 helper (`annualize(value, period)` with the source period factors, tested in
@@ -61,13 +61,15 @@ helper (`annualize(value, period)` with the source period factors, tested in
 fixture (`docs/acceptance/2026-10-23-phase-80-inference-acceptance.md`), and
 the event-window routes (`common_start_returns`,
 `average_cumulative_return_by_quantile`) are ported with their own oracle
-(`docs/acceptance/2026-10-23-phase-80-event-windows-acceptance.md`). These
-five closures reduce the initial ten gaps to five.
+(`docs/acceptance/2026-10-23-phase-80-event-windows-acceptance.md`), and the
+round-trip helpers `apply_sector_mappings_to_round_trips` and
+`add_closing_transactions` are ported with typed ledgers
+(`docs/acceptance/2026-10-23-phase-59-round-trip-helpers-acceptance.md`).
+These seven closures reduce the initial ten gaps to three.
 
-- `portfolio.add_closing_transactions`, `portfolio.agg_all_long_short`,
-  `portfolio.apply_sector_mappings_to_round_trips` — the native round-trip
-  surface covers grouping/extraction/stats but not closing-transaction
-  synthesis or long/short aggregation.
+- `portfolio.agg_all_long_short` — arbitrary caller-supplied statistic
+  functions over a pandas round-trip frame have no typed native analogue;
+  the native round-trip stats cover grouping/extraction/standard summaries.
 - `attribution.align_and_warn` — the four-panel attribution alignment helper
   with warning policy is not ported.
 - `attribution.calculate_idiosyncratic_risk` — Fama-French idiosyncratic
@@ -93,7 +95,7 @@ five closures reduce the initial ten gaps to five.
 
 | iteration | accepted scope | open |
 | --- | --- | --- |
-| 1 — metrics completion | Phases 39–52b accepted with oracle evidence | 5 function-level gaps as above (metrics itself has 0) |
+| 1 — metrics completion | Phases 39–52b accepted with oracle evidence | 3 function-level gaps as above (metrics itself has 0) |
 | 2 — performance/portfolio | Phases 53–59 accepted | none at function level |
 | 3 — risk/optimization | Phases 60–71 accepted; 661/661 CTest+ASan+UBSan at close | none at function level |
 | 4 — visualization | chart data and ImPlot adapter accepted for compute/build | visual rendering **NOT_RUN**; sanitizer not re-run after the changes |
@@ -102,7 +104,7 @@ five closures reduce the initial ten gaps to five.
 
 ## Gate status
 
-- Release CTest: **716/716 passed** (this audit).
+- Release CTest: **718/718 passed** (this audit).
 - Sanitizer: last complete ASan+UBSan run **661/661** (Iteration 3 close and
   layout alignment). No later slice claims a sanitizer run; the gate remains
   **NOT_RUN** for Iterations 4–6.
@@ -117,9 +119,9 @@ five closures reduce the initial ten gaps to five.
 ## Verdict
 
 The native program covers the accepted compute, model, report, runtime and
-packaging paths with 274 exact/renamed public routes and 72 explicitly
-deferred or non-port routes. Five named gaps remain, plus the iteration-level
-items above (visual, sanitizer re-run, CI matrix, 88b fields, transactions
-section). Program-level parity is therefore **partial and explicitly
+packaging paths with 276 exact/renamed public routes and 72 explicitly
+deferred or non-port routes. Three named gaps remain, plus the iteration-level
+items above (visual, sanitizer re-run, CI matrix, 88b fields, transaction
+turnover). Program-level parity is therefore **partial and explicitly
 bounded**; this record is the authoritative close-out of Phase 92 and must be
 updated if any listed gap is closed.

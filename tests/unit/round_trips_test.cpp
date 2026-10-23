@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
+#include <map>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -433,6 +434,65 @@ TEST(RoundTrips, GenerateRoundTripStatsMatchesPythonOracle) {
     const auto empty_stats = fincore::gen_round_trip_stats(empty);
     EXPECT_TRUE(empty_stats.pnl.row_labels.empty());
     EXPECT_TRUE(empty_stats.pnl.column_labels.empty());
+}
+
+TEST(RoundTrips, AppliesSectorMappingsToSymbols) {
+    fincore::dataframe round_trips;
+    round_trips.load_index(std::vector<fincore::timestamp>{1, 2, 3});
+    round_trips.load_column<std::string>(
+        "symbol", {"A", "B", "C"}, hmdf::nan_policy::dont_pad_with_nans);
+    round_trips.load_column<double>(
+        "pnl", {1.5, -2.5, 3.5}, hmdf::nan_policy::dont_pad_with_nans);
+    const auto mapped = fincore::apply_sector_mappings_to_round_trips(
+        round_trips, {{"A", "Technology"}, {"B", "Financials"}});
+    const auto& sectors = mapped.get_column<std::string>("sector");
+    ASSERT_EQ(sectors.size(), 3U);
+    EXPECT_EQ(sectors[0], "Technology");
+    EXPECT_EQ(sectors[1], "Financials");
+    EXPECT_EQ(sectors[2], "");
+    const auto& pnl = mapped.get_column<double>("pnl");
+    ASSERT_EQ(pnl.size(), 3U);
+    EXPECT_DOUBLE_EQ(pnl[0], 1.5);
+    EXPECT_DOUBLE_EQ(pnl[1], -2.5);
+
+    fincore::dataframe no_symbol;
+    no_symbol.load_index(std::vector<fincore::timestamp>{1});
+    no_symbol.load_column<double>(
+        "pnl", {1.0}, hmdf::nan_policy::dont_pad_with_nans);
+    const auto unchanged = fincore::apply_sector_mappings_to_round_trips(
+        no_symbol, {{"A", "Technology"}});
+    EXPECT_THROW(static_cast<void>(unchanged.get_column<std::string>("sector")),
+                 hmdf::ColNotFound);
+}
+
+TEST(RoundTrips, AddsClosingTransactionsAtFinalTimestamp) {
+    const auto day = 86'400'000'000'000LL;
+    const auto start = fincore::utc_timestamp(2022, 1, 3);
+    fincore::dataframe positions;
+    positions.load_index(
+        std::vector<fincore::timestamp>{start, start + day});
+    positions.load_column<double>(
+        "A", {10.0, 100.0}, hmdf::nan_policy::dont_pad_with_nans);
+    positions.load_column<double>(
+        "B", {-5.0, -50.0}, hmdf::nan_policy::dont_pad_with_nans);
+    positions.load_column<double>(
+        "C", {0.0, 0.0}, hmdf::nan_policy::dont_pad_with_nans);
+    positions.load_column<double>(
+        "cash", {95.0, 10.0}, hmdf::nan_policy::dont_pad_with_nans);
+    const std::vector<fincore::round_trip_transaction> transactions{
+        {start, "A", 10.0, 5.0}, {start, "B", -5.0, 20.0}};
+    const auto closed =
+        fincore::add_closing_transactions(positions, transactions);
+    ASSERT_EQ(closed.size(), 4U);
+    EXPECT_EQ(closed[2].symbol, "A");
+    EXPECT_EQ(closed[2].date, start + day + 1'000'000'000LL);
+    EXPECT_DOUBLE_EQ(closed[2].amount, -10.0);
+    EXPECT_DOUBLE_EQ(closed[2].price, 10.0);
+    EXPECT_EQ(closed[3].symbol, "B");
+    EXPECT_DOUBLE_EQ(closed[3].amount, 5.0);
+    EXPECT_DOUBLE_EQ(closed[3].price, 10.0);
+    EXPECT_EQ(closed[0].symbol, "A");
+    EXPECT_DOUBLE_EQ(closed[0].amount, 10.0);
 }
 
 }  // namespace
