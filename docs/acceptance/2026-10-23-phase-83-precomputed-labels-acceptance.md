@@ -38,5 +38,4 @@ Full Release and ASan+UBSan suites: **729/729 passed**. Visual NOT_RUN.
 
 ## Remaining research gaps
 
-Grid/next-open price bases, universe/group inputs, multi-factor evaluator
-assembly remain open.
+Group mappings and multi-factor evaluator assembly remain open.

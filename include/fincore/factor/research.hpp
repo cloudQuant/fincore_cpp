@@ -42,6 +42,7 @@ struct research_spec {
     int quantiles = 5;
     int min_assets = 1;
     int min_quantile_assets = 1;
+    std::string label = "close_to_close";
     std::string preprocess = "cross_section_rank";
     double max_loss = 1.0;
     std::vector<int> stability_lags{1, 5, 20};

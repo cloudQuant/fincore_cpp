@@ -248,9 +248,78 @@ research_result assemble_research(
     const multi_horizon_prepared_factor_data& prepared,
     const research_spec& spec);
 
+static research_result evaluate_with_table(
+    const factor_series& panel,
+    const forward_return_table& precomputed_returns,
+    const research_spec& spec, const std::string& label);
+
+namespace {
+
+forward_return_table next_open_table(const dataframe& prices,
+                                     const research_spec& spec) {
+    std::vector<std::string> assets;
+    for (const auto& info : prices.get_columns_info<double>()) {
+        if (std::get<2>(info) == typeid(double)) {
+            assets.emplace_back(std::get<0>(info).c_str());
+        }
+    }
+    if (assets.empty() || prices.get_index().size() < 2U) {
+        throw factor_data_error{
+            "next-open labels require prices with assets and at least two rows"};
+    }
+    if (!std::is_sorted(prices.get_index().begin(), prices.get_index().end()) ||
+        std::adjacent_find(prices.get_index().begin(),
+                           prices.get_index().end()) !=
+            prices.get_index().end()) {
+        throw factor_data_error{
+            "next-open price index must be sorted and duplicate-free"};
+    }
+    forward_return_table table;
+    table.dates = prices.get_index();
+    table.assets = assets;
+    for (const int period : spec.periods) {
+        table.labels.push_back(std::to_string(period) + "D");
+        std::vector<double> values(table.dates.size() * assets.size(), nan);
+        for (std::size_t row = 0; row < table.dates.size(); ++row) {
+            const std::size_t numerator_row = row +
+                                              static_cast<std::size_t>(period) +
+                                              1U;
+            if (numerator_row >= table.dates.size()) {
+                continue;
+            }
+            for (std::size_t asset = 0; asset < assets.size(); ++asset) {
+                const auto& column =
+                    prices.get_column<double>(assets[asset].c_str());
+                const double numerator = column[numerator_row];
+                const double denominator = column[row + 1U];
+                const double value = numerator / denominator - 1.0;
+                values[row * assets.size() + asset] =
+                    std::isfinite(value) ? value : nan;
+            }
+        }
+        table.values.push_back(std::move(values));
+    }
+    return table;
+}
+
+}  // namespace
+
 research_result evaluate_factor_research(const factor_series& factors,
                                          const dataframe& prices,
                                          const research_spec& spec) {
+    if (spec.label == "precomputed") {
+        throw factor_data_error{
+            "precomputed labels require the precomputed evaluator"};
+    }
+    if (spec.label != "close_to_close" &&
+        spec.label != "next_open_to_open") {
+        throw factor_data_error{"unsupported research label: " + spec.label};
+    }
+    if (spec.label == "next_open_to_open") {
+        const factor_series panel = research_panel(factors, spec);
+        return evaluate_with_table(panel, next_open_table(prices, spec), spec,
+                                   "next_open_to_open");
+    }
     const factor_series panel = research_panel(factors, spec);
 
     prepare_factor_config config;
@@ -274,6 +343,7 @@ research_result assemble_research(
         {"price_basis", spec.price_basis},
         {"calendar_id", spec.calendar_id},
         {"frequency", spec.frequency},
+        {"label", spec.label},
         {"preprocess", spec.preprocess},
         {"quantiles", std::to_string(spec.quantiles)},
         {"periods", std::to_string(spec.periods.size())}};
@@ -484,11 +554,10 @@ research_result evaluate_factor_research(const factor_series& factors,
     return result;
 }
 
-research_result evaluate_factor_research(
-    const factor_series& factors,
+static research_result evaluate_with_table(
+    const factor_series& panel,
     const forward_return_table& precomputed_returns,
-    const research_spec& spec) {
-    const factor_series panel = research_panel(factors, spec);
+    const research_spec& spec, const std::string& label) {
     const std::size_t asset_count = precomputed_returns.assets.size();
     const std::size_t date_count = precomputed_returns.dates.size();
     const std::size_t label_count = precomputed_returns.labels.size();
@@ -567,8 +636,20 @@ research_result evaluate_factor_research(
             {label, std::move(horizon)});
     }
     auto result = assemble_research(prepared, spec);
-    result.manifest["label"] = "precomputed";
+    result.manifest["label"] = label;
     return result;
+}
+
+research_result evaluate_factor_research(
+    const factor_series& factors,
+    const forward_return_table& precomputed_returns,
+    const research_spec& spec) {
+    if (spec.label == "next_open_to_open") {
+        throw factor_data_error{
+            "next-open labels require the price-based evaluator"};
+    }
+    return evaluate_with_table(research_panel(factors, spec),
+                               precomputed_returns, spec, "precomputed");
 }
 
 research_export_result export_factor_research(

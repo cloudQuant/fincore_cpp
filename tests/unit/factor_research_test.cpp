@@ -468,4 +468,94 @@ TEST(FactorResearch, AppliesWideUniverseMask) {
                  fincore::factor_data_error);
 }
 
+TEST(FactorResearch, DerivesNextOpenToOpenLabels) {
+    const auto start = fincore::utc_timestamp(2022, 1, 3);
+    const auto day = 86'400'000'000'000LL;
+    const char* assets[] = {"A", "B", "C"};
+    fincore::factor_series factor;
+    std::vector<fincore::timestamp> dates;
+    for (int date = 0; date < 8; ++date) {
+        dates.push_back(start + date * day);
+    }
+    for (int date = 0; date < 4; ++date) {
+        for (int asset = 0; asset < 3; ++asset) {
+            factor.dates.push_back(dates[static_cast<std::size_t>(date)]);
+            factor.assets.push_back(assets[asset]);
+            factor.values.push_back(static_cast<double>(asset + 1));
+        }
+    }
+    fincore::dataframe prices;
+    prices.load_index(std::vector<fincore::timestamp>{dates});
+    const double steps[] = {1.0, 1.0, 1.0};
+    const double bases[] = {100.0, 50.0, 10.0};
+    for (int asset = 0; asset < 3; ++asset) {
+        std::vector<double> values;
+        for (int date = 0; date < 8; ++date) {
+            values.push_back(bases[asset] + steps[asset] * date);
+        }
+        prices.load_column<double>(assets[asset], std::move(values),
+                                   hmdf::nan_policy::dont_pad_with_nans);
+    }
+    fincore::research_spec config;
+    config.targets = {"A", "B", "C"};
+    config.start = start;
+    config.end = start + 3 * day;
+    config.periods = {1, 5};
+    config.quantiles = 3;
+    config.max_loss = 1.0;
+    config.preprocess = "none";
+    config.stability_lags = {1};
+    config.label = "next_open_to_open";
+    const auto result =
+        fincore::evaluate_factor_research(factor, prices, config);
+    EXPECT_EQ(result.status, "OK");
+    ASSERT_EQ(result.information_coefficient.labels.size(), 2U);
+    EXPECT_EQ(result.information_coefficient.labels[0], "1D");
+    EXPECT_EQ(result.information_coefficient.labels[1], "5D");
+    ASSERT_EQ(result.coverage.size(), 2U);
+    EXPECT_EQ(result.coverage[0], 12U);
+    EXPECT_EQ(result.coverage[1], 6U);
+    std::size_t finite_ic = 0U;
+    std::size_t missing_ic = 0U;
+    for (const double value : result.information_coefficient.values) {
+        if (std::isfinite(value)) {
+            EXPECT_NEAR(value, 1.0, 1e-12);
+            ++finite_ic;
+        } else {
+            ++missing_ic;
+        }
+    }
+    EXPECT_EQ(finite_ic, 6U);
+    EXPECT_EQ(missing_ic, 2U);
+    ASSERT_EQ(result.manifest.count("label"), 1U);
+    EXPECT_EQ(result.manifest.at("label"), "next_open_to_open");
+
+    auto unsupported = config;
+    unsupported.label = "unknown_basis";
+    EXPECT_THROW(
+        static_cast<void>(fincore::evaluate_factor_research(
+            factor, prices, unsupported)),
+        fincore::factor_data_error);
+    auto precomputed = config;
+    precomputed.label = "precomputed";
+    EXPECT_THROW(
+        static_cast<void>(fincore::evaluate_factor_research(
+            factor, prices, precomputed)),
+        fincore::factor_data_error);
+    auto unsorted = prices;
+    auto unsorted_index = unsorted.get_index();
+    std::swap(unsorted_index[0], unsorted_index[1]);
+    fincore::dataframe bad_prices;
+    bad_prices.load_index(std::move(unsorted_index));
+    for (int asset = 0; asset < 3; ++asset) {
+        const auto& values = prices.get_column<double>(assets[asset]);
+        bad_prices.load_column<double>(
+            assets[asset], std::vector<double>(values.begin(), values.end()),
+            hmdf::nan_policy::dont_pad_with_nans);
+    }
+    EXPECT_THROW(static_cast<void>(fincore::evaluate_factor_research(
+                     factor, bad_prices, config)),
+                 fincore::factor_data_error);
+}
+
 }  // namespace

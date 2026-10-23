@@ -34,6 +34,5 @@ Full Release and ASan+UBSan suites: **730/730 passed**. Visual NOT_RUN.
 
 ## Remaining research gaps
 
-Grid/next-open price bases, group mappings and multi-factor evaluator
-assembly remain open. Segments are provenance only in the source, so no
+Group mappings and multi-factor evaluator assembly remain open. Segments are provenance only in the source, so no
 multi-segment result table is missing.
