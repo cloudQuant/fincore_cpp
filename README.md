@@ -3085,3 +3085,22 @@ native-determined, not pandas `to_csv` bytes.
 Full headless CTest passed 711/711; sanitizer not re-run. Evidence is in [the
 research export acceptance
 record](docs/acceptance/2026-10-23-phase-83-research-export-acceptance.md).
+
+## Program parity audit — Phase 92 close (partial, explicit gaps)
+
+Published a machine-readable capability ledger and program audit for the
+pinned Python surface: 351 public top-level functions, of which 234 have an
+exact native declaration and 36 have a verified rename (270/351, 76.9%);
+51 are deferred (matplotlib tear sheets, network providers, Bayesian
+posterior helpers, public calendar utilities) and 21 are non-port
+(pandas/plugin/import plumbing). Nine capabilities remain unresolved:
+portfolio closing/aggregation helpers, factor event cumulative returns and
+Fama-MacBeth/model inference, and two attribution alignment/risk helpers.
+The runtime catalog registers 20 of 273 operations under source IDs.
+
+Exact-or-classified coverage is 342/351 (97.4%), but no full-domain parity is
+claimed. Gate status: 712/712 Release CTest; sanitizer last green at 661/661
+before Iteration 4 and NOT_RUN since; visual NOT_RUN; CI platform matrix
+NOT_RUN; XLSX byte parity not claimed. Evidence is in [the program parity
+audit](docs/acceptance/2026-10-23-program-parity-audit.md) and [the capability
+ledger](docs/acceptance/2026-10-23-program-parity-ledger.tsv).

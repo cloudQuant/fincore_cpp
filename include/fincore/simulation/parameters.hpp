@@ -7,6 +7,9 @@
 
 namespace fincore {
 
+/// Annualize a volatility-like value with the source's period factors.
+double annualize(double value, std::string_view period = "daily");
+
 struct simulation_parameters {
     double drift;
     double volatility;

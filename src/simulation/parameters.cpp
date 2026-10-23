@@ -2,6 +2,7 @@
 
 #include <fincore/error.hpp>
 
+#include <cctype>
 #include <cmath>
 #include <cstddef>
 #include <limits>
@@ -10,6 +11,24 @@
 #include <string_view>
 
 namespace fincore {
+
+double annualize(const double value, const std::string_view period) {
+    double factor = 252.0;
+    std::string lower{period};
+    for (char& character : lower) {
+        character = static_cast<char>(
+            std::tolower(static_cast<unsigned char>(character)));
+    }
+    if (lower == "weekly") {
+        factor = 52.0;
+    } else if (lower == "monthly") {
+        factor = 12.0;
+    } else if (lower == "yearly") {
+        factor = 1.0;
+    }
+    return value * std::sqrt(factor);
+}
+
 namespace {
 
 struct running_moments {

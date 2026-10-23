@@ -167,3 +167,18 @@ TEST(SimulationParameters, RejectsInfinitiesInvalidPeriodsAndNonfiniteArithmetic
 }
 
 }  // namespace
+
+namespace {
+
+TEST(SimulationParameters, AnnualizesWithSourcePeriodFactors) {
+    EXPECT_DOUBLE_EQ(fincore::annualize(0.01), 0.01 * std::sqrt(252.0));
+    EXPECT_DOUBLE_EQ(fincore::annualize(0.02, "weekly"),
+                     0.02 * std::sqrt(52.0));
+    EXPECT_DOUBLE_EQ(fincore::annualize(0.03, "MONTHLY"),
+                     0.03 * std::sqrt(12.0));
+    EXPECT_DOUBLE_EQ(fincore::annualize(0.04, "yearly"), 0.04);
+    EXPECT_DOUBLE_EQ(fincore::annualize(0.01, "hourly"),
+                     0.01 * std::sqrt(252.0));
+}
+
+}  // namespace
