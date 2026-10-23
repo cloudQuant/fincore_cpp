@@ -240,4 +240,129 @@ dataframe gross_lev(const dataframe& positions,
     return make_frame(positions.get_index(), {{"gross_lev", std::move(values)}});
 }
 
+namespace {
+
+std::vector<numeric_column> asset_columns(const dataframe& positions,
+                                          const std::string& cash_name) {
+    std::vector<numeric_column> result;
+    for (const auto& column : numeric_columns(positions)) {
+        if (column.name != cash_name) {
+            result.push_back(column);
+        }
+    }
+    return result;
+}
+
+}  // namespace
+
+top_positions get_top_long_short_abs(const dataframe& positions,
+                                     const std::size_t top,
+                                     const std::string_view cash_column_name) {
+    if (cash_column_name.find(' ') != std::string_view::npos) {
+        throw input_error{"column name must not contain an embedded NUL"};
+    }
+    const std::string cash_name = checked_cash_column_name(cash_column_name);
+    const auto columns = asset_columns(positions, cash_name);
+    top_positions result;
+    std::vector<ranked_position> longs;
+    std::vector<ranked_position> shorts;
+    std::vector<ranked_position> absolutes;
+    for (const auto& column : columns) {
+        double maximum = nan;
+        double minimum = nan;
+        double absolute_maximum = nan;
+        for (const double value : column.values) {
+            if (std::isnan(value)) {
+                continue;
+            }
+            maximum = std::isnan(maximum) ? value : std::max(maximum, value);
+            minimum = std::isnan(minimum) ? value : std::min(minimum, value);
+            const double absolute = std::fabs(value);
+            absolute_maximum = std::isnan(absolute_maximum)
+                                   ? absolute
+                                   : std::max(absolute_maximum, absolute);
+        }
+        if (!std::isnan(maximum) && maximum > 0.0) {
+            longs.push_back({column.name, maximum});
+        }
+        if (!std::isnan(minimum) && minimum < 0.0) {
+            shorts.push_back({column.name, minimum});
+        }
+        if (!std::isnan(absolute_maximum)) {
+            absolutes.push_back({column.name, absolute_maximum});
+        }
+    }
+    std::sort(longs.begin(), longs.end(),
+              [](const ranked_position& left, const ranked_position& right) {
+                  return left.value > right.value;
+              });
+    std::sort(shorts.begin(), shorts.end(),
+              [](const ranked_position& left, const ranked_position& right) {
+                  return left.value < right.value;
+              });
+    std::sort(absolutes.begin(), absolutes.end(),
+              [](const ranked_position& left, const ranked_position& right) {
+                  return left.value > right.value;
+              });
+    if (longs.size() > top) {
+        longs.resize(top);
+    }
+    if (shorts.size() > top) {
+        shorts.resize(top);
+    }
+    if (absolutes.size() > top) {
+        absolutes.resize(top);
+    }
+    result.long_positions = std::move(longs);
+    result.short_positions = std::move(shorts);
+    result.absolute_positions = std::move(absolutes);
+    return result;
+}
+
+std::pair<std::vector<double>, std::vector<double>> get_long_short_notional(
+    const dataframe& positions, const std::string_view cash_column_name) {
+    if (cash_column_name.find(' ') != std::string_view::npos) {
+        throw input_error{"column name must not contain an embedded NUL"};
+    }
+    const std::string cash_name = checked_cash_column_name(cash_column_name);
+    const auto columns = asset_columns(positions, cash_name);
+    const std::size_t row_count = positions.get_index().size();
+    std::vector<double> longs(row_count, 0.0);
+    std::vector<double> shorts(row_count, 0.0);
+    for (std::size_t row = 0; row < row_count; ++row) {
+        for (const auto& column : columns) {
+            const double value = column.values[row];
+            if (std::isnan(value)) {
+                continue;
+            }
+            if (value > 0.0) {
+                longs[row] += value;
+            } else if (value < 0.0) {
+                shorts[row] -= value;
+            }
+        }
+    }
+    return {std::move(longs), std::move(shorts)};
+}
+
+std::vector<position_record> stack_positions(
+    const dataframe& positions, const bool pos_in_dollars,
+    const std::string_view cash_column_name) {
+    static_cast<void>(pos_in_dollars);
+    if (cash_column_name.find(' ') != std::string_view::npos) {
+        throw input_error{"column name must not contain an embedded NUL"};
+    }
+    const std::string cash_name = checked_cash_column_name(cash_column_name);
+    const auto columns = asset_columns(positions, cash_name);
+    const auto& index = positions.get_index();
+    std::vector<position_record> result;
+    result.reserve(index.size() * columns.size());
+    for (std::size_t row = 0; row < index.size(); ++row) {
+        for (const auto& column : columns) {
+            result.push_back({index[row], column.name, column.values[row]});
+        }
+    }
+    return result;
+}
+
 }  // namespace fincore

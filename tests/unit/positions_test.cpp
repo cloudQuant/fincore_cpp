@@ -3,8 +3,10 @@
 
 #include <gtest/gtest.h>
 
+#include <array>
 #include <cmath>
 #include <cstddef>
+#include <vector>
 #include <limits>
 #include <string>
 #include <string_view>
@@ -286,6 +288,89 @@ TEST(Positions, HonorsNaNAndInfinityBoundaries) {
          {"max_long", "median_long", "median_short", "max_short"}) {
         expect_values(concentration.get_column<double>(std::string{column}.c_str()),
                       {nan, nan, nan});
+    }
+}
+
+fincore::dataframe residual_positions() {
+    fincore::dataframe frame;
+    frame.load_index(std::vector<fincore::timestamp>{1, 2, 3, 4});
+    frame.load_column<double>(
+        "AAA", {100.0, -50.0, 30.0,
+                std::numeric_limits<double>::quiet_NaN()},
+        hmdf::nan_policy::dont_pad_with_nans);
+    frame.load_column<double>("BBB", {-200.0, 80.0, -20.0, 40.0},
+                              hmdf::nan_policy::dont_pad_with_nans);
+    frame.load_column<double>("CCC", {50.0, 0.0, 90.0, -10.0},
+                              hmdf::nan_policy::dont_pad_with_nans);
+    frame.load_column<double>("cash", std::vector<double>(4, 1000.0),
+                              hmdf::nan_policy::dont_pad_with_nans);
+    return frame;
+}
+
+TEST(Positions, TopLongShortAbsoluteMatchesPythonOracle) {
+    const auto positions = residual_positions();
+    const auto top = fincore::get_top_long_short_abs(positions, 2U);
+
+    ASSERT_EQ(top.long_positions.size(), 2U);
+    EXPECT_EQ(top.long_positions[0].symbol, "AAA");
+    EXPECT_DOUBLE_EQ(top.long_positions[0].value, 100.0);
+    EXPECT_EQ(top.long_positions[1].symbol, "CCC");
+    EXPECT_DOUBLE_EQ(top.long_positions[1].value, 90.0);
+
+    ASSERT_EQ(top.short_positions.size(), 2U);
+    EXPECT_EQ(top.short_positions[0].symbol, "BBB");
+    EXPECT_DOUBLE_EQ(top.short_positions[0].value, -200.0);
+    EXPECT_EQ(top.short_positions[1].symbol, "AAA");
+    EXPECT_DOUBLE_EQ(top.short_positions[1].value, -50.0);
+
+    ASSERT_EQ(top.absolute_positions.size(), 2U);
+    EXPECT_EQ(top.absolute_positions[0].symbol, "BBB");
+    EXPECT_DOUBLE_EQ(top.absolute_positions[0].value, 200.0);
+    EXPECT_EQ(top.absolute_positions[1].symbol, "AAA");
+    EXPECT_DOUBLE_EQ(top.absolute_positions[1].value, 100.0);
+
+    const std::array<char, 13> embedded_storage{
+        'c', 'a', 's', 'h', ' ', 'x', '!', '!', '!', '!', '!', '!', '!'};
+    const std::string_view embedded_selector{embedded_storage.data(),
+                                             embedded_storage.size()};
+    EXPECT_THROW(static_cast<void>(fincore::get_top_long_short_abs(
+                     positions, 2U, embedded_selector)),
+                 fincore::input_error);
+}
+
+TEST(Positions, LongShortNotionalMatchesPythonOracle) {
+    const auto positions = residual_positions();
+    const auto notionals = fincore::get_long_short_notional(positions);
+    ASSERT_EQ(notionals.first.size(), 4U);
+    EXPECT_DOUBLE_EQ(notionals.first[0], 150.0);
+    EXPECT_DOUBLE_EQ(notionals.first[1], 80.0);
+    EXPECT_DOUBLE_EQ(notionals.first[2], 120.0);
+    EXPECT_DOUBLE_EQ(notionals.first[3], 40.0);
+    EXPECT_DOUBLE_EQ(notionals.second[0], 200.0);
+    EXPECT_DOUBLE_EQ(notionals.second[1], 50.0);
+    EXPECT_DOUBLE_EQ(notionals.second[2], 20.0);
+    EXPECT_DOUBLE_EQ(notionals.second[3], 10.0);
+}
+
+TEST(Positions, StackPositionsMatchesPythonOracleIncludingNanCells) {
+    const auto positions = residual_positions();
+    const auto stacked = fincore::stack_positions(positions);
+    ASSERT_EQ(stacked.size(), 12U);
+    EXPECT_EQ(stacked.front().date, 1);
+    EXPECT_EQ(stacked.front().symbol, "AAA");
+    EXPECT_DOUBLE_EQ(stacked.front().value, 100.0);
+    EXPECT_EQ(stacked[3].symbol, "AAA");
+    EXPECT_DOUBLE_EQ(stacked[3].value, -50.0);
+    EXPECT_EQ(stacked[4].symbol, "BBB");
+    EXPECT_DOUBLE_EQ(stacked[4].value, 80.0);
+    const auto& last_row_start = stacked[9];
+    EXPECT_EQ(last_row_start.date, 4);
+    EXPECT_EQ(last_row_start.symbol, "AAA");
+    EXPECT_TRUE(std::isnan(last_row_start.value));
+    EXPECT_EQ(stacked[11].symbol, "CCC");
+    EXPECT_DOUBLE_EQ(stacked[11].value, -10.0);
+    for (const auto& record : stacked) {
+        EXPECT_NE(record.symbol, "cash");
     }
 }
 
