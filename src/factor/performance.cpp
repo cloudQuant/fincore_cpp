@@ -275,7 +275,7 @@ std::vector<double> compute_weights(const prepared_factor_data& data,
     return weights;
 }
 
-double student_t_two_sided_p(const double statistic, const double df) {
+double student_t_two_sided_p_value(const double statistic, const double df) {
     if (!std::isfinite(statistic) || !(df > 0.0)) {
         return nan;
     }
@@ -351,6 +351,10 @@ double student_t_two_sided_p(const double statistic, const double df) {
 }
 
 }  // namespace
+
+double student_t_two_sided_p(const double statistic, const double df) {
+    return student_t_two_sided_p_value(statistic, df);
+}
 
 factor_ic_table factor_information_coefficient(
     const prepared_factor_data& factor_data, const bool group_adjust,
@@ -1034,7 +1038,7 @@ ic_inference_result information_coefficient_inference(
         }
         hypothesis.mean_ic = ic_mean(values);
         hypothesis.t_stat = ic_t_stat(values);
-        hypothesis.p_value = student_t_two_sided_p(
+        hypothesis.p_value = student_t_two_sided_p_value(
             hypothesis.t_stat,
             static_cast<double>(values.size() - 1U));
         testable_p.push_back(hypothesis.p_value);

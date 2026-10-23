@@ -3021,3 +3021,21 @@ weekly/quarterly/yearly aggregation, or separate by-date standard-error
 field. Full headless CTest passed 710/710; sanitizer not re-run; visual
 NOT_RUN. Evidence is in [the analysis model acceptance
 record](docs/acceptance/2026-10-23-phase-79-analysis-model-acceptance.md).
+
+## Phase 84 slice — four-section factor report accepted
+
+`build_factor_report` now projects the compute-once model into the pinned
+layout: summary (coverage/forward-count metrics, quantile statistics,
+alpha/beta, mean returns, IC table and cumulative-return series),
+information (IC mean/std/risk-adjusted/t/p/skew/kurtosis plus IC series),
+returns (alpha/beta, top/bottom/spread in basis points and quantile means)
+and turnover (mean turnover, rank-autocorrelation and turnover summaries by
+lag). Metadata carries the fingerprint, periods, asset/date counts and
+window bounds; no value is recomputed while rendering.
+
+Declared divergences: constant IC series leave t/p missing instead of
+infinite, moments are population (`bias=True`), native document bytes differ
+from Python, and the HTML renderer keeps its inline-SVG substitution.
+Full headless CTest passed 710/710; sanitizer not re-run; visual NOT_RUN.
+Evidence is in [the factor report acceptance
+record](docs/acceptance/2026-10-23-phase-84-factor-report-acceptance.md).

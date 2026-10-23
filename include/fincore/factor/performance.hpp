@@ -106,6 +106,8 @@ factor_series_result factor_rank_autocorrelation(
 
 double ic_mean(std::span<const double> values);
 double ic_t_stat(std::span<const double> values);
+/// Two-sided Student-t tail probability for a t statistic and degrees of freedom.
+double student_t_two_sided_p(double statistic, double df);
 struct ic_interval {
     double lower;
     double upper;
