@@ -508,4 +508,254 @@ dataframe get_turnover(const dataframe& positions,
     return make_frame(std::move(index), {{"turnover", std::move(values)}});
 }
 
+namespace {
+
+constexpr long long nanoseconds_per_day = 86'400'000'000'000LL;
+
+void require_same_index(const dataframe& left, const dataframe& right) {
+    if (left.get_index() != right.get_index()) {
+        throw input_error{"liquidity inputs must share the same index"};
+    }
+}
+
+void validate_liquidity_parameters(const double max_bar_consumption,
+                                   const double capital_base,
+                                   const std::size_t mean_volume_window) {
+    if (!(max_bar_consumption > 0.0 && max_bar_consumption <= 1.0)) {
+        throw input_error{"max_bar_consumption must be in (0, 1]"};
+    }
+    if (!(capital_base > 0.0)) {
+        throw input_error{"capital_base must be positive"};
+    }
+    if (mean_volume_window < 1U) {
+        throw input_error{"mean_volume_window must be positive"};
+    }
+}
+
+std::vector<double> rolling_mean_dollar_volume(
+    const dataframe& prices, const dataframe& volumes,
+    const std::string& symbol, const std::size_t window) {
+    const auto& price_values = prices.get_column<double>(symbol.c_str());
+    const auto& volume_values = volumes.get_column<double>(symbol.c_str());
+    std::vector<double> result(price_values.size(), nan);
+    for (std::size_t row = window; row < price_values.size(); ++row) {
+        double total = 0.0;
+        bool valid = true;
+        for (std::size_t offset = row - window; offset < row; ++offset) {
+            const double dollar_volume =
+                price_values[offset] * volume_values[offset];
+            if (std::isnan(dollar_volume)) {
+                valid = false;
+                break;
+            }
+            total += dollar_volume;
+        }
+        if (valid) {
+            const double average = total / static_cast<double>(window);
+            if (average != 0.0) {
+                result[row] = average;
+            }
+        }
+    }
+    return result;
+}
+
+std::vector<output_column> liquidity_allocations(const dataframe& positions,
+                                                 const std::string& cash_name) {
+    const auto columns = numeric_position_columns(positions);
+    const std::size_t row_count = positions.get_index().size();
+    std::vector<output_column> result;
+    for (const auto& column : columns) {
+        if (column.name != cash_name) {
+            result.push_back({column.name, std::vector<double>(row_count, nan)});
+        }
+    }
+    for (std::size_t row = 0; row < row_count; ++row) {
+        double total = 0.0;
+        for (const auto& column : columns) {
+            if (!std::isnan(column.values[row])) {
+                total += column.values[row];
+            }
+        }
+        std::size_t output = 0;
+        for (const auto& column : columns) {
+            if (column.name == cash_name) {
+                continue;
+            }
+            result[output].values[row] =
+                total == 0.0 ? nan : column.values[row] / total;
+            ++output;
+        }
+    }
+    return result;
+}
+
+}  // namespace
+
+dataframe days_to_liquidate_positions(
+    const dataframe& positions, const dataframe& prices,
+    const dataframe& volumes, const double max_bar_consumption,
+    const double capital_base, const std::size_t mean_volume_window,
+    const std::string_view cash_column_name) {
+    if (cash_column_name.find(' ') != std::string_view::npos) {
+        throw input_error{"column name must not contain an embedded NUL"};
+    }
+    validate_liquidity_parameters(max_bar_consumption, capital_base,
+                                  mean_volume_window);
+    require_same_index(positions, prices);
+    require_same_index(positions, volumes);
+    const std::string cash_name = checked_cash_column_name(cash_column_name);
+    const auto allocations = liquidity_allocations(positions, cash_name);
+    const auto& index = positions.get_index();
+    if (index.size() <= mean_volume_window) {
+        return make_frame({}, {});
+    }
+
+    std::vector<timestamp> output_index(index.begin() +
+                                            static_cast<std::ptrdiff_t>(
+                                                mean_volume_window),
+                                        index.end());
+    std::vector<output_column> output;
+    output.reserve(allocations.size());
+    for (const auto& allocation : allocations) {
+        const auto dollar_volumes = rolling_mean_dollar_volume(
+            prices, volumes, allocation.name, mean_volume_window);
+        std::vector<double> values(output_index.size(), nan);
+        for (std::size_t row = mean_volume_window; row < index.size(); ++row) {
+            const double allocation_value = allocation.values[row];
+            const double dollar_volume = dollar_volumes[row];
+            if (!std::isnan(allocation_value) && !std::isnan(dollar_volume)) {
+                values[row - mean_volume_window] =
+                    allocation_value * capital_base /
+                    (max_bar_consumption * dollar_volume);
+            }
+        }
+        output.push_back({allocation.name, std::move(values)});
+    }
+    return make_frame(std::move(output_index), std::move(output));
+}
+
+std::vector<ticker_liquidity> get_max_days_to_liquidate_by_ticker(
+    const dataframe& positions, const dataframe& prices,
+    const dataframe& volumes, const double max_bar_consumption,
+    const double capital_base, const std::size_t mean_volume_window,
+    const std::optional<std::size_t> last_n_days,
+    const std::string_view cash_column_name) {
+    const std::string cash_name = checked_cash_column_name(cash_column_name);
+    const auto days = days_to_liquidate_positions(
+        positions, prices, volumes, max_bar_consumption, capital_base,
+        mean_volume_window, cash_column_name);
+    const auto allocations = liquidity_allocations(positions, cash_name);
+    const auto& day_index = days.get_index();
+    std::optional<timestamp> newest;
+    for (const timestamp point : day_index) {
+        newest = newest.has_value() ? std::max(*newest, point) : point;
+    }
+    std::vector<bool> keep(day_index.size(), true);
+    if (last_n_days.has_value() && newest.has_value()) {
+        const long long cutoff =
+            *newest - static_cast<long long>(*last_n_days) * nanoseconds_per_day;
+        for (std::size_t row = 0; row < day_index.size(); ++row) {
+            keep[row] = day_index[row] > cutoff;
+        }
+    }
+
+    std::vector<ticker_liquidity> result;
+    for (const auto& allocation : allocations) {
+        const auto& values = days.get_column<double>(allocation.name.c_str());
+        std::size_t best_row = values.size();
+        double best_days = nan;
+        for (std::size_t row = 0; row < values.size(); ++row) {
+            if (!keep[row] || std::isnan(values[row])) {
+                continue;
+            }
+            if (best_row == values.size() || values[row] > best_days) {
+                best_row = row;
+                best_days = values[row];
+            }
+        }
+        double allocation_pct = nan;
+        if (best_row < values.size()) {
+            for (std::size_t position = 0;
+                 position < positions.get_index().size(); ++position) {
+                if (positions.get_index()[position] == day_index[best_row]) {
+                    allocation_pct = allocation.values[position] * 100.0;
+                    break;
+                }
+            }
+        }
+        result.push_back(
+            {allocation.name, best_days, allocation_pct});
+    }
+    std::sort(result.begin(), result.end(),
+              [](const ticker_liquidity& left, const ticker_liquidity& right) {
+                  return left.symbol < right.symbol;
+              });
+    return result;
+}
+
+std::vector<transaction_liquidity> get_low_liquidity_transactions(
+    const std::span<const trade_record> transactions, const dataframe& prices,
+    const dataframe& volumes, const std::optional<std::size_t> last_n_days) {
+    require_same_index(prices, volumes);
+    std::map<std::pair<std::string, timestamp>, double> daily_amounts;
+    for (const auto& trade : transactions) {
+        if (!std::isfinite(trade.amount)) {
+            throw input_error{"transaction amounts must be finite"};
+        }
+        daily_amounts[{trade.symbol, trade.date}] += std::fabs(trade.amount);
+    }
+    if (daily_amounts.empty()) {
+        return {};
+    }
+    std::optional<timestamp> newest;
+    for (const auto& [key, amount] : daily_amounts) {
+        static_cast<void>(amount);
+        newest = newest.has_value() ? std::max(*newest, key.second) : key.second;
+    }
+    const long long cutoff =
+        last_n_days.has_value()
+            ? *newest - static_cast<long long>(*last_n_days) * nanoseconds_per_day
+            : std::numeric_limits<long long>::min();
+
+    std::map<timestamp, std::size_t> row_positions;
+    for (std::size_t row = 0; row < prices.get_index().size(); ++row) {
+        row_positions[prices.get_index()[row]] = row;
+    }
+
+    struct best_entry {
+        bool seen = false;
+        timestamp date{};
+        double percent = nan;
+    };
+    std::map<std::string, best_entry> best;
+    for (const auto& [key, amount] : daily_amounts) {
+        if (key.second <= cutoff) {
+            continue;
+        }
+        const auto row = row_positions.find(key.second);
+        if (row == row_positions.end()) {
+            throw input_error{"transaction dates must be present in the price index"};
+        }
+        double volume = nan;
+        try {
+            volume = volumes.get_column<double>(key.first.c_str())[row->second];
+        } catch (const input_error&) {
+            throw input_error{"every traded symbol must have a volume column"};
+        }
+        const double percent = amount / volume * 100.0;
+        auto& entry = best[key.first];
+        if (!entry.seen || percent > entry.percent) {
+            entry = {true, key.second, percent};
+        }
+    }
+
+    std::vector<transaction_liquidity> result;
+    result.reserve(best.size());
+    for (const auto& [symbol, entry] : best) {
+        result.push_back({symbol, entry.date, entry.percent});
+    }
+    return result;
+}
+
 }  // namespace fincore

@@ -3,7 +3,12 @@
 #include <fincore/metrics/positions.hpp>
 #include <fincore/metrics/returns.hpp>
 
+#include <cstddef>
+#include <optional>
+#include <span>
+#include <string>
 #include <string_view>
+#include <vector>
 
 namespace fincore {
 
@@ -48,5 +53,48 @@ dataframe get_turnover(
     std::string_view cash_column_name = cash_column,
     std::string_view amount_column_name = transaction_amount_column,
     std::string_view price_column_name = transaction_price_column);
+
+struct trade_record {
+    timestamp date;
+    std::string symbol;
+    double amount;
+};
+
+struct ticker_liquidity {
+    std::string symbol;
+    double days_to_liquidate;
+    double position_allocation_pct;
+};
+
+struct transaction_liquidity {
+    std::string symbol;
+    timestamp date;
+    double max_percent_bar_consumed;
+};
+
+dataframe days_to_liquidate_positions(
+    const dataframe& positions,
+    const dataframe& prices,
+    const dataframe& volumes,
+    double max_bar_consumption = 0.2,
+    double capital_base = 1'000'000.0,
+    std::size_t mean_volume_window = 5U,
+    std::string_view cash_column_name = cash_column);
+
+std::vector<ticker_liquidity> get_max_days_to_liquidate_by_ticker(
+    const dataframe& positions,
+    const dataframe& prices,
+    const dataframe& volumes,
+    double max_bar_consumption = 0.2,
+    double capital_base = 1'000'000.0,
+    std::size_t mean_volume_window = 5U,
+    std::optional<std::size_t> last_n_days = std::nullopt,
+    std::string_view cash_column_name = cash_column);
+
+std::vector<transaction_liquidity> get_low_liquidity_transactions(
+    std::span<const trade_record> transactions,
+    const dataframe& prices,
+    const dataframe& volumes,
+    std::optional<std::size_t> last_n_days = std::nullopt);
 
 }  // namespace fincore

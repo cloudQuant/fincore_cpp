@@ -4,6 +4,7 @@
 
 #include <gtest/gtest.h>
 
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <limits>
@@ -1140,6 +1141,172 @@ TEST(Transactions, RejectsInvalidQuadraticPenaltyTransactionFields) {
     EXPECT_THROW(
         fincore::apply_slippage_penalty(returns, malformed_volume, 1000.0, 1000.0),
         fincore::input_error);
+}
+
+std::vector<fincore::timestamp> liquidity_index() {
+    return {fincore::utc_timestamp(2021, 1, 1),
+            fincore::utc_timestamp(2021, 1, 2),
+            fincore::utc_timestamp(2021, 1, 3),
+            fincore::utc_timestamp(2021, 1, 4),
+            fincore::utc_timestamp(2021, 1, 5),
+            fincore::utc_timestamp(2021, 1, 6),
+            fincore::utc_timestamp(2021, 1, 7)};
+}
+
+fincore::dataframe wide_frame(const std::vector<fincore::timestamp>& index,
+                              const std::string& first_name,
+                              std::vector<double> first,
+                              const std::string& second_name,
+                              std::vector<double> second) {
+    fincore::dataframe frame;
+    frame.load_index(std::vector<fincore::timestamp>(index));
+    frame.load_column<double>(first_name.c_str(), std::move(first),
+                              hmdf::nan_policy::dont_pad_with_nans);
+    frame.load_column<double>(second_name.c_str(), std::move(second),
+                              hmdf::nan_policy::dont_pad_with_nans);
+    return frame;
+}
+
+TEST(Transactions, DaysToLiquidateMatchesPythonOracle) {
+    auto positions = wide_frame(
+        liquidity_index(), "AAA",
+        {100.0, 120.0, 90.0, 150.0, 160.0, 140.0, 170.0}, "BBB",
+        {50.0, 40.0, 60.0, 55.0, 70.0, 80.0, 75.0});
+    positions.load_column<double>(
+        "cash", std::vector<double>(7, 1000.0),
+        hmdf::nan_policy::dont_pad_with_nans);
+    const auto prices = wide_frame(
+        liquidity_index(), "AAA",
+        {10.0, 11.0, 12.0, 11.5, 13.0, 12.5, 13.5}, "BBB",
+        {20.0, 19.0, 21.0, 22.0, 20.0, 23.0, 22.0});
+    const auto volumes = wide_frame(
+        liquidity_index(), "AAA",
+        {1000.0, 1200.0, 900.0, 1100.0, 1300.0, 1000.0, 1500.0}, "BBB",
+        {500.0, 600.0, 550.0, 700.0, 650.0, 800.0, 750.0});
+
+    const auto days = fincore::days_to_liquidate_positions(
+        positions, prices, volumes, 0.2, 1'000'000.0, 2U);
+    EXPECT_EQ(days.get_index(),
+              (std::vector<fincore::timestamp>{
+                  fincore::utc_timestamp(2021, 1, 3),
+                  fincore::utc_timestamp(2021, 1, 4),
+                  fincore::utc_timestamp(2021, 1, 5),
+                  fincore::utc_timestamp(2021, 1, 6),
+                  fincore::utc_timestamp(2021, 1, 7)}));
+    const auto& aaa = days.get_column<double>("AAA");
+    EXPECT_NEAR(aaa[0], 33.733133433283356, 1e-12);
+    EXPECT_NEAR(aaa[1], 51.86721991701245, 1e-12);
+    EXPECT_NEAR(aaa[2], 55.47177006951307, 1e-12);
+    EXPECT_NEAR(aaa[3], 38.833874233724444, 1e-12);
+    EXPECT_NEAR(aaa[4], 46.44428052345437, 1e-12);
+    const auto& bbb = days.get_column<double>("BBB");
+    EXPECT_NEAR(bbb[0], 24.380333197887037, 1e-12);
+    EXPECT_NEAR(bbb[1], 19.88808432547754, 1e-12);
+    EXPECT_NEAR(bbb[2], 21.117094287825992, 1e-12);
+    EXPECT_NEAR(bbb[3], 23.089355806972986, 1e-12);
+    EXPECT_NEAR(bbb[4], 19.185020336121557, 1e-12);
+    EXPECT_FALSE(days.has_column("cash"));
+
+    const auto maximums = fincore::get_max_days_to_liquidate_by_ticker(
+        positions, prices, volumes, 0.2, 1'000'000.0, 2U);
+    ASSERT_EQ(maximums.size(), 2U);
+    EXPECT_EQ(maximums[0].symbol, "AAA");
+    EXPECT_NEAR(maximums[0].days_to_liquidate, 55.47177006951307, 1e-12);
+    EXPECT_NEAR(maximums[0].position_allocation_pct,
+                13.008130081300814, 1e-12);
+    EXPECT_EQ(maximums[1].symbol, "BBB");
+    EXPECT_NEAR(maximums[1].days_to_liquidate, 24.380333197887037, 1e-12);
+    EXPECT_NEAR(maximums[1].position_allocation_pct, 5.217391304347826,
+                1e-12);
+
+    const auto recent = fincore::get_max_days_to_liquidate_by_ticker(
+        positions, prices, volumes, 0.2, 1'000'000.0, 2U, 2U);
+    ASSERT_EQ(recent.size(), 2U);
+    EXPECT_NEAR(recent[1].days_to_liquidate, 23.089355806972986, 1e-12);
+    EXPECT_NEAR(recent[1].position_allocation_pct, 6.557377049180328,
+                1e-12);
+}
+
+TEST(Transactions, LowLiquidityTransactionsMatchesPythonOracle) {
+    const auto prices = wide_frame(
+        liquidity_index(), "AAA",
+        {10.0, 11.0, 12.0, 11.5, 13.0, 12.5, 13.5}, "BBB",
+        {20.0, 19.0, 21.0, 22.0, 20.0, 23.0, 22.0});
+    const auto volumes = wide_frame(
+        liquidity_index(), "AAA",
+        {1000.0, 1200.0, 900.0, 1100.0, 1300.0, 1000.0, 1500.0}, "BBB",
+        {500.0, 600.0, 550.0, 700.0, 650.0, 800.0, 750.0});
+    const std::vector<fincore::trade_record> trades{
+        {fincore::utc_timestamp(2021, 1, 2), "AAA", 10.0},
+        {fincore::utc_timestamp(2021, 1, 2), "AAA", -30.0},
+        {fincore::utc_timestamp(2021, 1, 3), "BBB", 40.0},
+        {fincore::utc_timestamp(2021, 1, 5), "AAA", 20.0},
+        {fincore::utc_timestamp(2021, 1, 5), "BBB", -15.0}};
+
+    const auto low = fincore::get_low_liquidity_transactions(
+        trades, prices, volumes);
+    ASSERT_EQ(low.size(), 2U);
+    EXPECT_EQ(low[0].symbol, "AAA");
+    EXPECT_EQ(low[0].date, fincore::utc_timestamp(2021, 1, 2));
+    EXPECT_NEAR(low[0].max_percent_bar_consumed, 3.3333333333333335,
+                1e-12);
+    EXPECT_EQ(low[1].symbol, "BBB");
+    EXPECT_EQ(low[1].date, fincore::utc_timestamp(2021, 1, 3));
+    EXPECT_NEAR(low[1].max_percent_bar_consumed, 7.2727272727272725,
+                1e-12);
+
+    const auto recent = fincore::get_low_liquidity_transactions(
+        trades, prices, volumes, 2U);
+    ASSERT_EQ(recent.size(), 2U);
+    EXPECT_EQ(recent[0].date, fincore::utc_timestamp(2021, 1, 5));
+    EXPECT_NEAR(recent[0].max_percent_bar_consumed, 1.5384615384615385,
+                1e-12);
+    EXPECT_NEAR(recent[1].max_percent_bar_consumed, 2.307692307692308,
+                1e-12);
+}
+
+TEST(Transactions, LiquiditiyHelpersValidateInputs) {
+    auto positions = wide_frame(liquidity_index(), "AAA",
+                                std::vector<double>(7, 100.0), "BBB",
+                                std::vector<double>(7, 50.0));
+    positions.load_column<double>("cash", std::vector<double>(7, 1000.0),
+                                  hmdf::nan_policy::dont_pad_with_nans);
+    auto prices = wide_frame(liquidity_index(), "AAA",
+                             std::vector<double>(7, 10.0), "BBB",
+                             std::vector<double>(7, 20.0));
+    auto volumes = wide_frame(liquidity_index(), "AAA",
+                              std::vector<double>(7, 1000.0), "BBB",
+                              std::vector<double>(7, 500.0));
+
+    EXPECT_THROW(static_cast<void>(fincore::days_to_liquidate_positions(
+                     positions, prices, volumes, 0.0)),
+                 fincore::input_error);
+    EXPECT_THROW(static_cast<void>(fincore::days_to_liquidate_positions(
+                     positions, prices, volumes, 0.2, 1e6, 0U)),
+                 fincore::input_error);
+
+    auto shifted_prices = wide_frame(
+        {fincore::utc_timestamp(2021, 1, 2),
+         fincore::utc_timestamp(2021, 1, 3),
+         fincore::utc_timestamp(2021, 1, 4),
+         fincore::utc_timestamp(2021, 1, 5),
+         fincore::utc_timestamp(2021, 1, 6),
+         fincore::utc_timestamp(2021, 1, 7),
+         fincore::utc_timestamp(2021, 1, 8)},
+        "AAA", std::vector<double>(7, 10.0), "BBB",
+        std::vector<double>(7, 20.0));
+    EXPECT_THROW(static_cast<void>(fincore::days_to_liquidate_positions(
+                     positions, shifted_prices, volumes)),
+                 fincore::input_error);
+
+    const std::array<char, 13> embedded_storage{
+        'c', 'a', 's', 'h', ' ', 'x', '!', '!', '!', '!', '!', '!', '!'};
+    const std::string_view embedded_selector{embedded_storage.data(),
+                                             embedded_storage.size()};
+    EXPECT_THROW(static_cast<void>(fincore::days_to_liquidate_positions(
+                     positions, prices, volumes, 0.2, 1e6, 2U,
+                     embedded_selector)),
+                 fincore::input_error);
 }
 
 }  // namespace
