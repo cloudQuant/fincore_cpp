@@ -2256,3 +2256,24 @@ record](docs/acceptance/2026-10-23-phase-49-stutzer-index-acceptance.md).
 
 This phase does not add public solver parameters, adapters, reports, plots,
 packages, or release actions.
+
+## Accepted Phase 50 native drawdown table and rank APIs
+
+Phase 50 completes the Python drawdown surface with `get_top_drawdowns`,
+`gen_drawdown_table` (returning timestamp-bearing `drawdown_table_row`
+values), and `max_drawdown_period`. Ranking reuses one index-based helper:
+first-argmin valley, last-zero peak, first-zero recovery, then splice out the
+episode (truncate when unrecovered). The table pads to `top` rows like the
+pandas frame, computes net percent from the underwater value, and counts
+inclusive Monday–Friday calendar days for durations. Existing underwater,
+recovery, and ranked-maxima leaves are reused unchanged.
+
+A hardening defect (nanoseconds-per-day 1000× too small, durations 5001/2144
+instead of 6/4) was fixed and is guarded by exact goldens. Clean detached
+oracle at `4b8f31b` reproduced the windows, nets, durations, and period
+classes. Full headless CTest and LLVM 22 ASan+UBSan each passed 555/555.
+Evidence is recorded in [the Phase 50 acceptance
+record](docs/acceptance/2026-10-23-phase-50-drawdown-table-acceptance.md).
+
+This phase does not add date formatting, adapters, reports, plots, packages,
+or release actions.
