@@ -2115,3 +2115,22 @@ record](docs/acceptance/2026-10-23-phase-42-deflated-sharpe-ratio-acceptance.md)
 This phase does not add `burke_ratio`, `cal_treynor_ratio`, `m_squared`,
 `sterling_ratio`, capture returns, adapters, reports, plots, packages, or
 release actions.
+
+## Accepted Phase 43 native Burke ratio
+
+Phase 43 adds `fincore::burke_ratio(returns, risk_free = 0.0,
+annualization = 252, column)`: annualized excess return divided by the square
+root of summed squared drawdown episodes, falling back to downside-return
+dispersion (or the population standard deviation) when no non-zero episode
+exists. The source's `1e-10` risk floor, intentional +infinity gate, and NaN
+compounding semantics are preserved; the accepted native `get_all_drawdowns`
+and `annual_return` kernels are reused unchanged.
+
+Clean detached oracle at `4b8f31b` reproduced all goldens (exit `0`, zero
+stderr, `FAILURES=0`). Full headless CTest and LLVM 22 ASan+UBSan each passed
+520/520; ImPlot compile/link was re-run. Evidence is recorded in [the Phase 43
+acceptance
+record](docs/acceptance/2026-10-23-phase-43-burke-ratio-acceptance.md).
+
+This phase does not add `cal_treynor_ratio`, `m_squared`, `sterling_ratio`,
+capture returns, adapters, reports, plots, packages, or release actions.
