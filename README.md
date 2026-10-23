@@ -2723,3 +2723,24 @@ Declared divergences: native digest (not CSV-equal), null
 Full headless CTest and LLVM 22 ASan+UBSan each passed 644/644. Evidence is
 recorded in [the Phase 67 acceptance
 record](docs/acceptance/2026-10-23-phase-67-risk-report-acceptance.md).
+
+## Accepted Phase 63 slice 4 native GEV block maxima
+
+Phase 63 slice 4 adds `gev_fit` and the GEV branches of `evt_var`,
+`evt_cvar` and `extreme_risk`, completing the EVT model set. The native fit
+reproduces SciPy's `genextreme.fit`: adjusted-skew shape start, moment
+loc/scale (including the infinite-variance start), support fallback and the
+`fmin` Nelder-Mead path with `xtol=ftol=1e-4` and `200*N` evaluations. GEV
+VaR uses the `-log1p(-alpha)` tail probability; GEV CVaR uses the Gumbel E1
+form or the lower incomplete gamma for `xi < 1` and rejects `xi >= 1`.
+
+The 1200-day heavy-tail oracle matches xi to ~1e-12 and VaR/CVaR to 1e-11
+for both tails and block sizes 20/40 plus the automatic block. Bounded
+shapes cover xi negative (block 10), near zero (block 20) and positive
+(block 40). Multimodal GEV likelihoods are reported through the source's
+local `fmin` optimum, not a global multi-start solution. Bounded fits differ
+only in last bits (VaR <= 1.4e-14 absolute).
+
+Full headless CTest and LLVM 22 ASan+UBSan each passed 648/648. Evidence is
+recorded in [the Phase 63 slice-4 acceptance
+record](docs/acceptance/2026-10-23-phase-63d-gev-acceptance.md).
