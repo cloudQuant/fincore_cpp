@@ -1996,3 +1996,38 @@ This phase does not add literal aliases, Python adapters, `adjusted_sharpe_ratio
 `conditional_sharpe_ratio`, `mar_ratio`, `r_cubed_turtle`, resampling, EVT,
 providers, reports as a native subsystem, plot behavior/runtime acceptance,
 packages, or a primary-branch merge/push.
+
+## Accepted Phase 38 native adjusted Sharpe ratio
+
+Phase 38 adds the next narrowly selected public ratio leaf:
+
+```cpp
+const double result = fincore::adjusted_sharpe_ratio(returns);
+const double named = fincore::adjusted_sharpe_ratio(returns, 0.0, "strategy");
+```
+
+It rejects an embedded-NUL selector before DataFrame access, gates on raw
+count `< 4`, delegates the base value to native `sharpe_ratio` with explicit
+daily annualization and the selected column, and returns early only for NaN
+Sharpe. A private NaN-only biased-moment helper reproduces SciPy's
+`nan_policy="omit"`, `bias=True`, Fisher-excess-kurtosis contract without the
+public stats functions' finite filtering or clean-count thresholds. Raw count
+controls dampening and the `< 20` clamp family; moments use the nested
+`max(lower, min(upper, adjustment))` form so nonfinite Sharpe values retain
+the source's ±infinity classes.
+
+Design and plan `0d7dd51`, implementation `e2038e0`, and test hardening
+`ce9943b` form the accepted chain. A fresh detached clean Python worktree at
+`2354bb5` reproduced every design golden (exit `0`, zero stderr bytes, zero
+FAILURES; script/output SHA-256 recorded in the acceptance record). The clean
+candidate passed 490/490 headless CTest cases plus Homebrew LLVM 22.1.8
+ASan+UBSan 490/490; ImPlot compile/link and the adapter CMake test passed, and
+the invalid-ImGui expected-failure configure exited `1`. Evidence is recorded
+in [the Phase 38 acceptance
+record](docs/acceptance/2026-10-23-phase-38-adjusted-sharpe-ratio-acceptance.md).
+The ImPlot demo was not executed and no GUI was launched.
+
+This phase does not add `mar_ratio`, `conditional_sharpe_ratio`,
+`burke_ratio`, `cal_treynor_ratio`, `m_squared`, `sterling_ratio`,
+capture-return metrics, Python adapters, providers, reports, plots as a
+runtime subsystem, packages, or a release action.
