@@ -53,6 +53,7 @@ add_executable(fincore_tests
     unit/report_risk_test.cpp
     unit/runtime_test.cpp
     unit/report_xlsx_test.cpp
+    unit/report_portfolio_test.cpp
     unit/risk_garch_test.cpp
     unit/risk_evt_test.cpp
     unit/risk_backtesting_test.cpp

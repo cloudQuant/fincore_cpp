@@ -44,6 +44,7 @@ add_library(fincore
     src/report/html.cpp
     src/report/risk.cpp
     src/report/xlsx.cpp
+    src/report/portfolio.cpp
     src/runtime/runtime.cpp
     src/viz/chart_data.cpp
     src/optimization/numerics.cpp
