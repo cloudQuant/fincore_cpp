@@ -4,7 +4,11 @@
 
 #include <gtest/gtest.h>
 
+#include <chrono>
 #include <cmath>
+#include <filesystem>
+#include <fstream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -132,6 +136,72 @@ TEST(FactorResearch, PreprocessAndDirectionChangeSignals) {
     EXPECT_THROW(static_cast<void>(fincore::evaluate_factor_research(
                      fixture.factor, fixture.prices, empty)),
                  fincore::factor_data_error);
+}
+
+TEST(FactorResearch, ExportsCsvTablesWithoutOverwriting) {
+    fincore::research_result result;
+    result.status = "OK";
+    const auto start = fincore::utc_timestamp(2022, 1, 3);
+    const auto day = 86'400'000'000'000LL;
+    result.information_coefficient.labels = {"1D"};
+    result.information_coefficient.dates = {start, start + day};
+    result.information_coefficient.values = {0.1, 0.2};
+    result.information_coefficient_summary.labels = {"1D"};
+    result.information_coefficient_summary.means = {0.15};
+    result.quantile_returns.quantiles = {1, 3};
+    result.quantile_returns.labels = {"1D"};
+    result.quantile_returns.means = {-0.01, 0.02};
+    result.quantile_returns.standard_errors = {0.001, 0.002};
+    result.turnover.push_back(
+        {{start, start + day}, {0.25, 0.5}});
+    result.stability.push_back(
+        {{start, start + day}, {std::nan(""), 1.0}});
+    result.stability_lags = {2};
+    result.spread = {0.03};
+    result.coverage = {10};
+    result.diagnostics = {"a warning"};
+    result.manifest = {{"api_version", "1.0"}};
+
+    const auto stamp = std::chrono::steady_clock::now()
+                           .time_since_epoch()
+                           .count();
+    const auto directory =
+        std::filesystem::temp_directory_path() /
+        ("fincore-research-export-" + std::to_string(stamp));
+    std::filesystem::remove_all(directory);
+
+    const auto exported = fincore::export_factor_research(
+        result, directory.string());
+    EXPECT_EQ(exported.directory, directory.string());
+    EXPECT_EQ(exported.files.size(), 9U);
+    for (const auto& name : exported.files) {
+        EXPECT_TRUE(std::filesystem::exists(directory / name));
+    }
+    std::ifstream ic(directory / "ic.csv");
+    std::stringstream ic_text;
+    ic_text << ic.rdbuf();
+    EXPECT_EQ(ic_text.str().rfind("date,1D\n", 0), 0U);
+    EXPECT_NE(ic_text.str().find("0.1"), std::string::npos);
+    std::ifstream manifest(directory / "manifest.json");
+    std::stringstream manifest_text;
+    manifest_text << manifest.rdbuf();
+    EXPECT_NE(manifest_text.str().find("\"ic.csv\""), std::string::npos);
+    EXPECT_NE(manifest_text.str().find("api_version"), std::string::npos);
+    std::ifstream turnover(directory / "turnover.csv");
+    std::stringstream turnover_text;
+    turnover_text << turnover.rdbuf();
+    EXPECT_NE(turnover_text.str().find("1,"), std::string::npos);
+
+    EXPECT_THROW(
+        static_cast<void>(fincore::export_factor_research(
+            result, directory.string())),
+        fincore::factor_data_error);
+    const auto charts_directory = directory.string() + "-charts";
+    EXPECT_THROW(
+        static_cast<void>(fincore::export_factor_research(
+            result, charts_directory, true)),
+        fincore::factor_data_error);
+    std::filesystem::remove_all(directory);
 }
 
 }  // namespace

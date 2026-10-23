@@ -3072,3 +3072,16 @@ Limits: single machine/process, synthetic panels, no Python-side timing, no
 repeated-render amortization. Full headless CTest passed 710/710; sanitizer
 not re-run; visual NOT_RUN. Evidence is in [the performance acceptance
 record](docs/acceptance/2026-10-23-phase-87-factor-performance-acceptance.md).
+
+## Phase 83 export slice — research CSV and manifest accepted
+
+`export_factor_research` writes nine deterministic artifacts (`ic`,
+`ic_summary`, `quantile_returns`, `turnover`, `stability`, `spreads`,
+`coverage`, `diagnostics`, `manifest`) into a new directory and refuses an
+existing target. Chart export fails closed because no native raster renderer
+exists. Stability rows now carry the evaluator's recorded lags. CSV bytes are
+native-determined, not pandas `to_csv` bytes.
+
+Full headless CTest passed 711/711; sanitizer not re-run. Evidence is in [the
+research export acceptance
+record](docs/acceptance/2026-10-23-phase-83-research-export-acceptance.md).

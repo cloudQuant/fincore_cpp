@@ -1,9 +1,14 @@
 #include <fincore/factor/research.hpp>
 
 #include <fincore/detail/json.hpp>
+
+#include <fincore/detail/json.hpp>
 #include <fincore/factor/exceptions.hpp>
 
 #include <algorithm>
+#include <filesystem>
+#include <fstream>
+#include <sstream>
 #include <cmath>
 #include <limits>
 #include <map>
@@ -305,6 +310,7 @@ research_result evaluate_factor_research(const factor_series& factors,
             }
         }
     }
+    result.stability_lags = spec.stability_lags;
     result.status = result.coverage.empty() ? "UNEVALUABLE" : "OK";
     for (const std::size_t count : result.coverage) {
         if (count == 0U) {
@@ -313,6 +319,235 @@ research_result evaluate_factor_research(const factor_series& factors,
         }
     }
     return result;
+}
+
+namespace {
+
+std::string csv_escape(const std::string& text) {
+    if (text.find_first_of(",\"\n\r") == std::string::npos) {
+        return text;
+    }
+    std::string escaped{"\""};
+    for (const char character : text) {
+        if (character == '"') {
+            escaped.push_back('"');
+        }
+        escaped.push_back(character);
+    }
+    escaped.push_back('"');
+    return escaped;
+}
+
+std::string csv_number(const double value) {
+    if (!std::isfinite(value)) {
+        return {};
+    }
+    return detail::python_float(value, "research export");
+}
+
+std::string json_escape(const std::string& text) {
+    std::string escaped;
+    for (const char character : text) {
+        switch (character) {
+            case '"': escaped += "\\\""; break;
+            case '\\': escaped += "\\\\"; break;
+            case '\n': escaped += "\\n"; break;
+            case '\r': escaped += "\\r"; break;
+            case '\t': escaped += "\\t"; break;
+            default: escaped.push_back(character); break;
+        }
+    }
+    return escaped;
+}
+
+std::string row_text(const std::vector<std::string>& cells) {
+    std::string line;
+    for (std::size_t index = 0; index < cells.size(); ++index) {
+        if (index > 0U) {
+            line.push_back(',');
+        }
+        line += csv_escape(cells[index]);
+    }
+    line.push_back('\n');
+    return line;
+}
+
+void write_table(const std::filesystem::path& path,
+                 const std::vector<std::string>& header,
+                 const std::vector<std::vector<std::string>>& rows) {
+    std::ofstream stream(path, std::ios::binary);
+    if (!stream) {
+        throw factor_data_error{"could not create research export file"};
+    }
+    stream << row_text(header);
+    for (const auto& row : rows) {
+        stream << row_text(row);
+    }
+    if (!stream) {
+        throw factor_data_error{"could not write research export file"};
+    }
+}
+
+}  // namespace
+
+research_export_result export_factor_research(
+    const research_result& result, const std::string& directory,
+    const bool charts) {
+    if (charts) {
+        throw factor_data_error{
+            "chart export requires a raster renderer that is not available "
+            "natively"};
+    }
+    if (directory.empty()) {
+        throw factor_data_error{"research export directory must not be empty"};
+    }
+    const std::filesystem::path target{directory};
+    if (std::filesystem::exists(target)) {
+        throw factor_data_error{
+            "evaluation export already exists and will not be overwritten"};
+    }
+    std::error_code error;
+    std::filesystem::create_directories(target, error);
+    if (error) {
+        throw factor_data_error{"could not create research export directory"};
+    }
+
+    research_export_result exported;
+    exported.directory = directory;
+    const auto labels = result.information_coefficient.labels;
+
+    std::vector<std::vector<std::string>> ic_rows;
+    for (std::size_t date = 0;
+         date < result.information_coefficient.dates.size(); ++date) {
+        std::vector<std::string> row{
+            detail::format_timestamp(result.information_coefficient.dates[date])};
+        for (std::size_t label = 0; label < labels.size(); ++label) {
+            row.push_back(csv_number(
+                result.information_coefficient.values[date * labels.size() +
+                                                      label]));
+        }
+        ic_rows.push_back(std::move(row));
+    }
+    std::vector<std::string> ic_header{"date"};
+    ic_header.insert(ic_header.end(), labels.begin(), labels.end());
+    write_table(target / "ic.csv", ic_header, ic_rows);
+    exported.files.push_back("ic.csv");
+
+    std::vector<std::vector<std::string>> summary_rows;
+    for (std::size_t label = 0; label < labels.size(); ++label) {
+        summary_rows.push_back(
+            {labels[label],
+             csv_number(label < result.information_coefficient_summary.means.size()
+                            ? result.information_coefficient_summary.means[label]
+                            : std::nan(""))});
+    }
+    write_table(target / "ic_summary.csv", {"label", "mean_ic"}, summary_rows);
+    exported.files.push_back("ic_summary.csv");
+
+    std::vector<std::vector<std::string>> quantile_rows;
+    const std::size_t quantiles = result.quantile_returns.quantiles.size();
+    for (std::size_t quantile = 0; quantile < quantiles; ++quantile) {
+        for (std::size_t label = 0; label < labels.size(); ++label) {
+            quantile_rows.push_back(
+                {std::to_string(
+                     result.quantile_returns.quantiles[quantile]),
+                 labels[label],
+                 csv_number(result.quantile_returns.means
+                                [quantile * labels.size() + label]),
+                 csv_number(result.quantile_returns.standard_errors
+                                [quantile * labels.size() + label])});
+        }
+    }
+    write_table(target / "quantile_returns.csv",
+                {"quantile", "label", "mean", "standard_error"},
+                quantile_rows);
+    exported.files.push_back("quantile_returns.csv");
+
+    std::vector<std::vector<std::string>> turnover_rows;
+    for (std::size_t index = 0; index < result.turnover.size(); ++index) {
+        const std::string quantile =
+            index < quantiles
+                ? std::to_string(result.quantile_returns.quantiles[index])
+                : std::to_string(index + 1U);
+        const auto& series = result.turnover[index];
+        for (std::size_t date = 0; date < series.dates.size(); ++date) {
+            turnover_rows.push_back(
+                {quantile, detail::format_timestamp(series.dates[date]),
+                 csv_number(series.values[date])});
+        }
+    }
+    write_table(target / "turnover.csv", {"quantile", "date", "value"},
+                turnover_rows);
+    exported.files.push_back("turnover.csv");
+
+    std::vector<std::vector<std::string>> stability_rows;
+    for (std::size_t index = 0; index < result.stability.size(); ++index) {
+        const std::string lag =
+            index < result.stability_lags.size()
+                ? std::to_string(result.stability_lags[index])
+                : std::to_string(index + 1U);
+        const auto& series = result.stability[index];
+        for (std::size_t date = 0; date < series.dates.size(); ++date) {
+            stability_rows.push_back(
+                {lag, detail::format_timestamp(series.dates[date]),
+                 csv_number(series.values[date])});
+        }
+    }
+    write_table(target / "stability.csv", {"lag", "date", "value"},
+                stability_rows);
+    exported.files.push_back("stability.csv");
+
+    std::vector<std::vector<std::string>> spread_rows;
+    std::vector<std::vector<std::string>> coverage_rows;
+    for (std::size_t label = 0; label < labels.size(); ++label) {
+        spread_rows.push_back(
+            {labels[label],
+             csv_number(label < result.spread.size() ? result.spread[label]
+                                                     : std::nan(""))});
+        coverage_rows.push_back(
+            {labels[label],
+             label < result.coverage.size()
+                 ? std::to_string(result.coverage[label])
+                 : std::string{}});
+    }
+    write_table(target / "spreads.csv", {"label", "spread"}, spread_rows);
+    exported.files.push_back("spreads.csv");
+    write_table(target / "coverage.csv", {"label", "count"}, coverage_rows);
+    exported.files.push_back("coverage.csv");
+
+    std::vector<std::vector<std::string>> diagnostic_rows;
+    for (std::size_t index = 0; index < result.diagnostics.size(); ++index) {
+        diagnostic_rows.push_back(
+            {std::to_string(index + 1U), result.diagnostics[index]});
+    }
+    write_table(target / "diagnostics.csv", {"index", "message"},
+                diagnostic_rows);
+    exported.files.push_back("diagnostics.csv");
+
+    std::ostringstream manifest;
+    manifest << "{\n  \"status\": \"" << json_escape(result.status)
+             << "\",\n  \"exports\": [";
+    for (std::size_t index = 0; index < exported.files.size(); ++index) {
+        if (index > 0U) {
+            manifest << ", ";
+        }
+        manifest << '\"' << json_escape(exported.files[index]) << '\"';
+    }
+    manifest << "]";
+    for (const auto& [key, value] : result.manifest) {
+        manifest << ",\n  \"" << json_escape(key) << "\": \""
+                 << json_escape(value) << '\"';
+    }
+    manifest << "\n}\n";
+    {
+        std::ofstream stream(target / "manifest.json", std::ios::binary);
+        if (!stream) {
+            throw factor_data_error{"could not create research manifest"};
+        }
+        stream << manifest.str();
+    }
+    exported.files.push_back("manifest.json");
+    return exported;
 }
 
 }  // namespace fincore

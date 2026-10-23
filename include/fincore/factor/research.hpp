@@ -58,6 +58,7 @@ struct research_result {
     quantile_return_table quantile_returns;
     std::vector<factor_series_result> turnover;
     std::vector<factor_series_result> stability;
+    std::vector<int> stability_lags;
     std::vector<double> spread;  // periods
     std::vector<std::size_t> coverage;  // periods
     std::vector<std::string> diagnostics;
@@ -68,5 +69,18 @@ struct research_result {
 research_result evaluate_factor_research(
     const factor_series& factors, const dataframe& prices,
     const research_spec& spec);
+
+struct research_export_result {
+    std::string directory;
+    std::vector<std::string> files;
+};
+
+/// Write deterministic CSV tables and a JSON manifest without overwriting.
+///
+/// ``charts=true`` requests raster chart export, which the native library
+/// does not provide; it fails closed instead of silently skipping charts.
+research_export_result export_factor_research(
+    const research_result& result, const std::string& directory,
+    bool charts = false);
 
 }  // namespace fincore
