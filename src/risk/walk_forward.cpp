@@ -121,22 +121,7 @@ walk_forward_var_result walk_forward_var(const dataframe& returns,
     if (column.find('\0') != std::string_view::npos) {
         throw input_error{"column name must not contain an embedded NUL"};
     }
-    if (!std::isfinite(spec.confidence_level) ||
-        !(spec.confidence_level > 0.0 && spec.confidence_level < 1.0)) {
-        throw input_error{"confidence_level must be a finite real number in (0, 1)"};
-    }
-    if (spec.window < 2U) {
-        throw input_error{"window must be an integer at least 2"};
-    }
-    if (spec.refit_cadence < 1U) {
-        throw input_error{"refit_cadence must be an integer at least 1"};
-    }
-    if (spec.model_version != "1.0") {
-        throw input_error{"model_version must be '1.0'"};
-    }
-    if (spec.distribution != "historical" && spec.distribution != "normal") {
-        throw input_error{"distribution must be 'historical' or 'normal'"};
-    }
+    validate_risk_model_spec(spec);
     const auto& index = returns.get_index();
     for (std::size_t position = 1; position < index.size(); ++position) {
         if (!(index[position] > index[position - 1U])) {
@@ -152,6 +137,7 @@ walk_forward_var_result walk_forward_var(const dataframe& returns,
 
     walk_forward_var_result result{};
     result.spec = spec;
+    result.n_observations = values.size();
     result.inputs_digest = digest_of(
         std::vector<double>(values.begin(), values.end()), spec);
 
@@ -162,6 +148,8 @@ walk_forward_var_result walk_forward_var(const dataframe& returns,
         unsupported = "walk_forward_var currently supports tail='lower' only";
     } else if (spec.sign_convention != "losses_negative") {
         unsupported = "walk_forward_var currently supports sign_convention='losses_negative' only";
+    } else if (spec.horizon != 1U) {
+        unsupported = "walk_forward_var currently supports horizon=1 only";
     } else if (spec.distribution == "historical") {
         const double alpha = 1.0 - spec.confidence_level;
         const double rank = (static_cast<double>(spec.window) + 1.0) * alpha;
@@ -235,6 +223,18 @@ walk_forward_var_result walk_forward_var(const dataframe& returns,
     result.status = walk_forward_status::ok;
     result.has_backtest = true;
     return result;
+}
+
+std::string_view walk_forward_status_name(const walk_forward_status status) {
+    switch (status) {
+        case walk_forward_status::ok:
+            return "ok";
+        case walk_forward_status::insufficient_data:
+            return "insufficient_data";
+        case walk_forward_status::unsupported:
+            return "unsupported";
+    }
+    return "unsupported";
 }
 
 }  // namespace fincore

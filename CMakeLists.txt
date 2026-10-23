@@ -41,6 +41,8 @@ add_library(fincore
     src/risk/evt.cpp
     src/risk/backtesting.cpp
     src/risk/walk_forward.cpp
+    src/risk/specs.cpp
+    src/risk/report.cpp
     src/metrics/stats.cpp
     src/metrics/risk.cpp
     src/metrics/alpha_beta.cpp

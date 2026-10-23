@@ -48,4 +48,17 @@ risk_backtest_result backtest_es(
     std::string_view forecast_column = "forecast",
     std::string_view realized_column = "realized");
 
+double expected_exception_count(std::size_t observations,
+                                double confidence_level);
+
+std::string basel_traffic_light(std::size_t exceptions,
+                                std::size_t observations,
+                                double confidence_level = 0.99);
+
+double es_calibration_score(double forecast_es,
+                            std::span<const double> realized,
+                            double confidence_level);
+
+std::string_view risk_backtest_status_name(risk_backtest_status status);
+
 }  // namespace fincore

@@ -107,4 +107,44 @@ TEST(RiskBacktesting, EsBacktestMatchesDeterministicOracleFields) {
     EXPECT_EQ(result.inputs_digest, second.inputs_digest);
 }
 
+TEST(RiskBacktesting, CalibrationHelpersMatchPythonOracle) {
+    EXPECT_NEAR(fincore::expected_exception_count(250, 0.99),
+                2.500000000000002, 1e-15);
+    EXPECT_NEAR(fincore::expected_exception_count(1000, 0.95),
+                50.00000000000004, 1e-13);
+    EXPECT_DOUBLE_EQ(fincore::expected_exception_count(0, 0.99), 0.0);
+
+    EXPECT_EQ(fincore::basel_traffic_light(4, 250, 0.99), "green");
+    EXPECT_EQ(fincore::basel_traffic_light(5, 250, 0.99), "yellow");
+    EXPECT_EQ(fincore::basel_traffic_light(9, 250, 0.99), "yellow");
+    EXPECT_EQ(fincore::basel_traffic_light(10, 250, 0.99), "red");
+    EXPECT_EQ(fincore::basel_traffic_light(0, 1, 0.99), "yellow");
+    EXPECT_EQ(fincore::basel_traffic_light(1, 1, 0.99), "red");
+    EXPECT_EQ(fincore::basel_traffic_light(0, 10, 0.99), "green");
+    EXPECT_EQ(fincore::basel_traffic_light(1, 10, 0.99), "yellow");
+    EXPECT_EQ(fincore::basel_traffic_light(2, 10, 0.99), "yellow");
+    EXPECT_EQ(fincore::basel_traffic_light(3, 10, 0.99), "red");
+    EXPECT_EQ(fincore::basel_traffic_light(10, 250, 0.975), "green");
+    EXPECT_EQ(fincore::basel_traffic_light(11, 250, 0.975), "yellow");
+    EXPECT_EQ(fincore::basel_traffic_light(16, 250, 0.975), "yellow");
+    EXPECT_EQ(fincore::basel_traffic_light(17, 250, 0.975), "red");
+    EXPECT_EQ(fincore::basel_traffic_light(61, 1000, 0.95), "green");
+    EXPECT_EQ(fincore::basel_traffic_light(62, 1000, 0.95), "yellow");
+    EXPECT_EQ(fincore::basel_traffic_light(76, 1000, 0.95), "yellow");
+    EXPECT_EQ(fincore::basel_traffic_light(77, 1000, 0.95), "red");
+    EXPECT_EQ(fincore::basel_traffic_light(3, 0, 0.99), "green");
+    EXPECT_THROW(static_cast<void>(fincore::basel_traffic_light(1, 10, 1.0)),
+                 fincore::input_error);
+
+    const std::vector<double> realized{0.01, -0.03, -0.02, 0.005,
+                                       -0.04, 0.0, -0.01, -0.05};
+    EXPECT_NEAR(fincore::es_calibration_score(-0.03, realized, 0.75), -0.5,
+                1e-12);
+    EXPECT_TRUE(
+        std::isnan(fincore::es_calibration_score(0.0, realized, 0.75)));
+    const std::vector<double> tails{0.1, 0.2};
+    EXPECT_NEAR(fincore::es_calibration_score(-0.03, tails, 0.975),
+                4.333333333333334, 1e-12);
+}
+
 }  // namespace

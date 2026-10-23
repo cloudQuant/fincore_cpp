@@ -1,6 +1,7 @@
 #pragma once
 
 #include <fincore/risk/backtesting.hpp>
+#include <fincore/risk/specs.hpp>
 
 #include <cstddef>
 #include <string>
@@ -10,20 +11,7 @@
 namespace fincore {
 
 enum class risk_distribution { historical, normal };
-enum class risk_forecast_target { var, es, pair };
-enum class risk_tail { lower, upper };
 enum class walk_forward_status { ok, insufficient_data, unsupported };
-
-struct risk_model_spec {
-    risk_forecast_target forecast_target = risk_forecast_target::var;
-    double confidence_level = 0.99;
-    std::string distribution = "normal";
-    risk_tail tail = risk_tail::lower;
-    std::string sign_convention = "losses_negative";
-    std::size_t window = 252U;
-    std::size_t refit_cadence = 1U;
-    std::string model_version = "1.0";
-};
 
 struct refit_parameters {
     timestamp date;
@@ -43,6 +31,7 @@ struct walk_forward_var_result {
     std::string inputs_digest;
     walk_forward_status status;
     std::string unsupported_reason;
+    std::size_t n_observations = 0U;
     risk_backtest_result backtest;
     bool has_backtest;
 };
@@ -50,5 +39,7 @@ struct walk_forward_var_result {
 walk_forward_var_result walk_forward_var(
     const dataframe& returns, const risk_model_spec& spec,
     std::string_view column = returns_column);
+
+std::string_view walk_forward_status_name(walk_forward_status status);
 
 }  // namespace fincore

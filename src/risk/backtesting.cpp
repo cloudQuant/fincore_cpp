@@ -114,6 +114,69 @@ double linear_quantile(std::vector<double> values, const double q) {
                           : values[upper] - difference * (1.0 - fraction);
 }
 
+double binomial_log_pmf(const std::size_t k, const std::size_t n,
+                        const double p) {
+    if (p <= 0.0) {
+        return k == 0U ? 0.0 : -std::numeric_limits<double>::infinity();
+    }
+    if (p >= 1.0) {
+        return k == n ? 0.0 : -std::numeric_limits<double>::infinity();
+    }
+    return std::lgamma(static_cast<double>(n) + 1.0) -
+           std::lgamma(static_cast<double>(k) + 1.0) -
+           std::lgamma(static_cast<double>(n - k) + 1.0) +
+           static_cast<double>(k) * std::log(p) +
+           static_cast<double>(n - k) * std::log1p(-p);
+}
+
+double binomial_cdf(const std::size_t k, const std::size_t n,
+                    const double p) {
+    if (k >= n) {
+        return 1.0;
+    }
+    if (p <= 0.0) {
+        return 1.0;
+    }
+    if (p >= 1.0) {
+        return 0.0;
+    }
+    const auto mode = static_cast<std::size_t>(
+        std::floor((static_cast<double>(n) + 1.0) * p));
+    if (k < mode) {
+        double pmf = std::exp(binomial_log_pmf(k, n, p));
+        double total = pmf;
+        for (std::size_t value = k; value > 0U; --value) {
+            pmf *= (static_cast<double>(value) * (1.0 - p)) /
+                   (static_cast<double>(n - value + 1U) * p);
+            total += pmf;
+        }
+        return std::min(1.0, total);
+    }
+    double pmf = std::exp(binomial_log_pmf(k, n, p));
+    double tail = 0.0;
+    for (std::size_t value = k; value < n; ++value) {
+        pmf *= (static_cast<double>(n - value) * p) /
+               (static_cast<double>(value + 1U) * (1.0 - p));
+        tail += pmf;
+    }
+    return std::max(0.0, 1.0 - tail);
+}
+
+std::size_t binomial_quantile(const double probability, const std::size_t n,
+                              const double p) {
+    std::size_t low = 0U;
+    std::size_t high = n;
+    while (low < high) {
+        const std::size_t middle = low + (high - low) / 2U;
+        if (binomial_cdf(middle, n, p) >= probability) {
+            high = middle;
+        } else {
+            low = middle + 1U;
+        }
+    }
+    return low;
+}
+
 }  // namespace
 
 double kupiec_lr(const std::size_t observations,
@@ -306,6 +369,72 @@ risk_backtest_result backtest_es(
              {"n_bootstrap", static_cast<double>(n_bootstrap)},
              {"seed", static_cast<double>(seed)}},
             risk_backtest_status::experimental};
+}
+
+double expected_exception_count(const std::size_t observations,
+                                const double confidence_level) {
+    return static_cast<double>(observations) * (1.0 - confidence_level);
+}
+
+std::string basel_traffic_light(const std::size_t exceptions,
+                                const std::size_t observations,
+                                const double confidence_level) {
+    if (observations == 0U) {
+        return "green";
+    }
+    if (!std::isfinite(confidence_level) ||
+        !(confidence_level > 0.0 && confidence_level < 1.0)) {
+        throw input_error{"confidence_level must be in (0, 1)"};
+    }
+    const double p = 1.0 - confidence_level;
+    const std::size_t green_max =
+        binomial_quantile(0.95, observations, p);
+    const std::size_t red_min =
+        binomial_quantile(0.9999, observations, p);
+    if (exceptions >= red_min) {
+        return "red";
+    }
+    if (exceptions >= green_max) {
+        return "yellow";
+    }
+    return "green";
+}
+
+double es_calibration_score(const double forecast_es,
+                            const std::span<const double> realized,
+                            const double confidence_level) {
+    const double threshold = linear_quantile(
+        std::vector<double>(realized.begin(), realized.end()),
+        1.0 - confidence_level);
+    double total = 0.0;
+    std::size_t count = 0U;
+    for (const double value : realized) {
+        if (value <= threshold) {
+            total += value;
+            ++count;
+        }
+    }
+    const double realized_es =
+        count == 0U ? 0.0 : total / static_cast<double>(count);
+    if (std::abs(forecast_es) < 1e-15) {
+        return nan;
+    }
+    return (realized_es - forecast_es) / std::abs(forecast_es);
+}
+
+std::string_view risk_backtest_status_name(
+    const risk_backtest_status status) {
+    switch (status) {
+        case risk_backtest_status::pass:
+            return "pass";
+        case risk_backtest_status::fail:
+            return "fail";
+        case risk_backtest_status::inconclusive:
+            return "inconclusive";
+        case risk_backtest_status::experimental:
+            return "experimental";
+    }
+    return "inconclusive";
 }
 
 }  // namespace fincore

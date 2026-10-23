@@ -52,6 +52,7 @@ TEST(RiskWalkForward, NormalDistributionMatchesPythonOracle) {
     EXPECT_EQ(result.backtest.exceptions, 0U);
     EXPECT_NEAR(result.backtest.kupiec_lr, 5.025167926750753, 1e-12);
     EXPECT_EQ(result.inputs_digest.size(), 64U);
+    EXPECT_EQ(result.n_observations, 300U);
 }
 
 TEST(RiskWalkForward, HistoricalDistributionMatchesPythonOracle) {
@@ -119,6 +120,26 @@ TEST(RiskWalkForward, ReportsUnsupportedInsufficientAndValidatesSpec) {
     bad_confidence.confidence_level = 1.0;
     EXPECT_THROW(static_cast<void>(fincore::walk_forward_var(
                      walk_forward_fixture(300), bad_confidence)),
+                 fincore::input_error);
+}
+
+TEST(RiskWalkForward, ReportsHorizonAsStructuredUnsupportedState) {
+    fincore::risk_model_spec spec;
+    spec.distribution = "normal";
+    spec.window = 50U;
+    spec.horizon = 2U;
+    const auto result =
+        fincore::walk_forward_var(walk_forward_fixture(300), spec);
+    EXPECT_EQ(result.status, fincore::walk_forward_status::unsupported);
+    EXPECT_EQ(result.unsupported_reason,
+              "walk_forward_var currently supports horizon=1 only");
+    EXPECT_EQ(result.n_observations, 300U);
+    EXPECT_TRUE(result.forecast.empty());
+
+    fincore::risk_model_spec zero_horizon;
+    zero_horizon.horizon = 0U;
+    EXPECT_THROW(static_cast<void>(fincore::walk_forward_var(
+                     walk_forward_fixture(300), zero_horizon)),
                  fincore::input_error);
 }
 
