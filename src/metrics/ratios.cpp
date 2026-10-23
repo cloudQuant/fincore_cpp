@@ -279,6 +279,35 @@ double calmar_ratio(const dataframe& returns,
                            std::fabs(maximum_drawdown));
 }
 
+double mar_ratio(const dataframe& returns,
+                 double annualization,
+                 std::string_view column) {
+    if (column.find('\0') != std::string_view::npos) {
+        throw input_error{"column name must not contain an embedded NUL"};
+    }
+    const auto raw_values = require_double_column(returns, column);
+    if (raw_values.size() < 2) {
+        return nan;
+    }
+
+    const double maximum_drawdown = max_drawdown(returns, column);
+    if (maximum_drawdown >= 0.0) {
+        return nan;
+    }
+
+    const auto values = valid_values(raw_values);
+    if (values.empty()) {
+        return nan;
+    }
+
+    const double result =
+        mean(values) * annualization / std::fabs(maximum_drawdown);
+    if (std::isinf(result)) {
+        return nan;
+    }
+    return result;
+}
+
 double common_sense_ratio(const dataframe& returns, std::string_view column) {
     if (column.find('\0') != std::string_view::npos) {
         throw input_error{"column name must not contain an embedded NUL"};

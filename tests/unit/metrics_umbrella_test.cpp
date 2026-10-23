@@ -29,6 +29,8 @@ using kappa_three_ratio_signature =
     double (*)(const fincore::dataframe&, double, std::string_view);
 using adjusted_sharpe_ratio_signature =
     double (*)(const fincore::dataframe&, double, std::string_view);
+using mar_ratio_signature =
+    double (*)(const fincore::dataframe&, double, std::string_view);
 
 static_assert(std::is_same_v<
               decltype(static_cast<var_excess_return_signature>(
