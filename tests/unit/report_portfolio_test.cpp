@@ -129,4 +129,50 @@ TEST(ReportPortfolio, BuildsPerformanceAndBenchmarkSections) {
                  fincore::input_error);
 }
 
+TEST(ReportPortfolio, ProjectsTransactionActivity) {
+    const auto returns =
+        series_fixture("returns", {0.01, 0.02, -0.01, 0.03, 0.0});
+    const auto day = 86'400'000'000'000LL;
+    const auto start = fincore::utc_timestamp(2022, 1, 3);
+    const std::vector<fincore::portfolio_transaction> transactions{
+        {start, "A", 10.0, 5.0},
+        {start, "B", -5.0, 20.0},
+        {start + day, "A", -2.0, 6.0}};
+    const auto document = fincore::build_portfolio_report(
+        returns, nullptr, "Portfolio", nullptr, 63U, transactions);
+    ASSERT_EQ(document.sections.size(), 2U);
+    EXPECT_EQ(document.sections[1].key, "transactions");
+    EXPECT_EQ(document.sections[1].series.size(), 2U);
+    EXPECT_EQ(document.sections[1].series[0].key,
+              "daily_transaction_count");
+    ASSERT_EQ(document.sections[1].series[0].y.size(), 2U);
+    EXPECT_DOUBLE_EQ(document.sections[1].series[0].y[0], 2.0);
+    EXPECT_DOUBLE_EQ(document.sections[1].series[0].y[1], 1.0);
+    ASSERT_EQ(document.sections[1].series[1].y.size(), 2U);
+    EXPECT_DOUBLE_EQ(document.sections[1].series[1].y[0], 150.0);
+    EXPECT_DOUBLE_EQ(document.sections[1].series[1].y[1], 12.0);
+    bool has_count = false;
+    bool has_days = false;
+    for (const auto& metric : document.sections[1].metrics) {
+        if (metric.key == "transaction_count") {
+            has_count = true;
+            ASSERT_TRUE(metric.number.has_value());
+            EXPECT_DOUBLE_EQ(*metric.number, 3.0);
+        }
+        if (metric.key == "trading_days") {
+            has_days = true;
+            ASSERT_TRUE(metric.number.has_value());
+            EXPECT_DOUBLE_EQ(*metric.number, 2.0);
+        }
+    }
+    EXPECT_TRUE(has_count);
+    EXPECT_TRUE(has_days);
+
+    auto invalid = transactions;
+    invalid[0].price = std::nan("");
+    EXPECT_THROW(static_cast<void>(fincore::build_portfolio_report(
+                     returns, nullptr, "Portfolio", nullptr, 63U, invalid)),
+                 fincore::input_error);
+}
+
 }  // namespace

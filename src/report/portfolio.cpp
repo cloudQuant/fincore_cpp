@@ -11,7 +11,9 @@
 #include <fincore/portfolio/positions.hpp>
 
 #include <cmath>
+#include <cstdint>
 #include <map>
+#include <set>
 #include <string>
 #include <typeindex>
 #include <utility>
@@ -158,6 +160,68 @@ dataframe align_positions(const dataframe& returns,
     return aligned;
 }
 
+constexpr std::int64_t day_ns = 86'400'000'000'000LL;
+
+report_section transactions_section(
+    std::span<const portfolio_transaction> transactions) {
+    report_section section;
+    section.key = "transactions";
+    section.title = "Transactions";
+    std::map<timestamp, std::pair<std::size_t, double>> by_day;
+    std::set<std::string> symbols;
+    for (const auto& transaction : transactions) {
+        if (!std::isfinite(transaction.amount) ||
+            !std::isfinite(transaction.price)) {
+            throw input_error{
+                "transactions must contain finite amount and price values"};
+        }
+        timestamp day = transaction.date / day_ns;
+        if (transaction.date % day_ns < 0) {
+            --day;
+        }
+        day *= day_ns;
+        auto& entry = by_day[day];
+        ++entry.first;
+        entry.second += std::abs(transaction.amount) * transaction.price;
+        symbols.insert(transaction.symbol);
+    }
+    double total_count = 0.0;
+    double total_notional = 0.0;
+    for (const auto& [day, entry] : by_day) {
+        total_count += static_cast<double>(entry.first);
+        total_notional += entry.second;
+    }
+    const auto day_count = static_cast<double>(by_day.size());
+    section.metrics = {
+        number_metric("transaction_count", "Transaction count", "count",
+                      static_cast<double>(transactions.size())),
+        number_metric("trading_days", "Trading days", "count", day_count),
+        number_metric("average_daily_transactions",
+                      "Average daily transactions", "count",
+                      day_count > 0.0 ? total_count / day_count
+                                      : std::nan("")),
+        number_metric("average_daily_notional", "Average daily notional",
+                      "notional",
+                      day_count > 0.0 ? total_notional / day_count
+                                      : std::nan("")),
+        number_metric("symbol_count", "Symbol count", "count",
+                      static_cast<double>(symbols.size()))};
+
+    auto daily_count = make_series("daily_transaction_count", "Trades",
+                                   "count", "count");
+    auto daily_notional = make_series("daily_transaction_notional",
+                                      "Notional", "notional", "notional");
+    for (const auto& [day, entry] : by_day) {
+        daily_count.x.push_back(static_cast<double>(day));
+        daily_count.y.push_back(static_cast<double>(entry.first));
+        daily_notional.x.push_back(static_cast<double>(day));
+        daily_notional.y.push_back(entry.second);
+    }
+    section.series.push_back(std::move(daily_count));
+    section.series.push_back(std::move(daily_notional));
+    return section;
+}
+
 report_section portfolio_section(const dataframe& positions) {
     report_section section;
     section.key = "portfolio";
@@ -203,7 +267,9 @@ report_document build_portfolio_report(const dataframe& returns,
                                        const dataframe* benchmark,
                                        std::string title,
                                        const dataframe* positions,
-                                       const std::size_t rolling_window) {
+                                       const std::size_t rolling_window,
+                                       const std::span<const portfolio_transaction>
+                                           transactions) {
     if (rolling_window == 0U) {
         throw input_error{"rolling_window must be positive"};
     }
@@ -351,6 +417,9 @@ report_document build_portfolio_report(const dataframe& returns,
     if (positions != nullptr) {
         document.sections.push_back(
             portfolio_section(align_positions(returns, *positions)));
+    }
+    if (!transactions.empty()) {
+        document.sections.push_back(transactions_section(transactions));
     }
     return document;
 }

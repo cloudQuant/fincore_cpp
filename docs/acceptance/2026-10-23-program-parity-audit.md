@@ -3,7 +3,7 @@
 **Pin:** Python `4b8f31b1b59707480d5db9603704d83bbf7e6946`
 **Machine ledger:** [2026-10-23-program-parity-ledger.tsv](2026-10-23-program-parity-ledger.tsv)
 **Generator:** `tools/parity_ledger.py`
-**Native tests:** 714/714 Release CTest
+**Native tests:** 715/715 Release CTest
 
 ## Method
 
@@ -99,11 +99,11 @@ These three closures reduce the initial ten gaps to seven.
 | 3 — risk/optimization | Phases 60–71 accepted; 661/661 CTest+ASan+UBSan at close | none at function level |
 | 4 — visualization | chart data and ImPlot adapter accepted for compute/build | visual rendering **NOT_RUN**; sanitizer not re-run after the changes |
 | 5 — factor analysis | 77–87 slices accepted: prep/PIT, performance/inference, costs, analysis model, research, export, tears, four-section report, portfolio constructor, performance study | 2 factor gaps; event/group analysis absent; tear-sheet plotting deferred |
-| 6 — report/runtime | 88a/89/90/91/92 accepted: schema, HTML, XLSX, risk/portfolio projections, runtime catalog, install/export consumer | 88b integration fields partial; transactions section open; 93 CI matrix and migration/usage notes not delivered |
+| 6 — report/runtime | 88a/89/90/91/92/93 accepted: schema, HTML, XLSX, risk/portfolio/transactions projections, runtime catalog, install/export consumer, usage/migration notes | 88b integration fields partial; transaction turnover metric open; 93 CI matrix NOT_RUN |
 
 ## Gate status
 
-- Release CTest: **714/714 passed** (this audit).
+- Release CTest: **715/715 passed** (this audit).
 - Sanitizer: last complete ASan+UBSan run **661/661** (Iteration 3 close and
   layout alignment). No later slice claims a sanitizer run; the gate remains
   **NOT_RUN** for Iterations 4–6.
