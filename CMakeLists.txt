@@ -37,6 +37,8 @@ add_library(fincore
     src/portfolio/capacity.cpp
     src/factor/data.cpp
     src/factor/performance.cpp
+    src/factor/costs.cpp
+    src/factor/analysis.cpp
     src/viz/chart_data.cpp
     src/optimization/numerics.cpp
     src/optimization/portfolio_solver.cpp
