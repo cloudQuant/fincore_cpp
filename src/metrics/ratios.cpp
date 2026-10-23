@@ -525,6 +525,72 @@ double deflated_sharpe_ratio(const dataframe& returns,
     return normal_cdf(z);
 }
 
+double population_standard_deviation(const std::vector<double>& values) {
+    if (values.empty()) {
+        return nan;
+    }
+    const double average = mean(values);
+    double total = 0.0;
+    for (const double value : values) {
+        const double deviation = value - average;
+        total += deviation * deviation;
+    }
+    return std::sqrt(total / static_cast<double>(values.size()));
+}
+
+bool all_zero_drawdowns(const std::vector<double>& drawdowns) {
+    for (const double value : drawdowns) {
+        if (value != 0.0) {
+            return false;
+        }
+    }
+    return true;
+}
+
+double burke_ratio(const dataframe& returns,
+                   double risk_free,
+                   double annualization,
+                   std::string_view column) {
+    if (column.find('\0') != std::string_view::npos) {
+        throw input_error{"column name must not contain an embedded NUL"};
+    }
+    const auto raw_values = require_double_column(returns, column);
+    if (raw_values.size() < 2) {
+        return nan;
+    }
+
+    const auto drawdowns = get_all_drawdowns(returns, column);
+    double burke_risk = 0.0;
+    if (drawdowns.empty() || all_zero_drawdowns(drawdowns)) {
+        const auto clean_values = valid_values(raw_values);
+        std::vector<double> downside;
+        for (const double value : clean_values) {
+            if (value < 0.0) {
+                downside.push_back(value);
+            }
+        }
+        burke_risk =
+            downside.empty()
+                ? std::max(population_standard_deviation(clean_values), 1e-10)
+                : population_standard_deviation(downside);
+    } else {
+        double squared_total = 0.0;
+        for (const double drawdown : drawdowns) {
+            squared_total += drawdown * drawdown;
+        }
+        burke_risk = std::sqrt(squared_total);
+    }
+
+    const double annual_return_value =
+        annual_return(returns, annualization, column);
+    if (burke_risk == 0.0 || burke_risk < 1e-10) {
+        return annual_return_value - risk_free > 0.0
+                   ? std::numeric_limits<double>::infinity()
+                   : nan;
+    }
+    return (annual_return_value - risk_free) / burke_risk;
+}
+
 double common_sense_ratio(const dataframe& returns, std::string_view column) {
     if (column.find('\0') != std::string_view::npos) {
         throw input_error{"column name must not contain an embedded NUL"};

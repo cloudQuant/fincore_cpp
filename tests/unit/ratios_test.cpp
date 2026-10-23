@@ -25,6 +25,8 @@ using conditional_sharpe_ratio_signature =
                std::string_view);
 using deflated_sharpe_ratio_signature =
     double (*)(const fincore::dataframe&, double, int, std::string_view);
+using burke_ratio_signature =
+    double (*)(const fincore::dataframe&, double, double, std::string_view);
 
 static_assert(std::is_same_v<
               decltype(static_cast<kappa_three_ratio_signature>(
@@ -39,6 +41,8 @@ static_assert(std::is_same_v<decltype(&fincore::conditional_sharpe_ratio),
                              conditional_sharpe_ratio_signature>);
 static_assert(std::is_same_v<decltype(&fincore::deflated_sharpe_ratio),
                              deflated_sharpe_ratio_signature>);
+static_assert(std::is_same_v<decltype(&fincore::burke_ratio),
+                             burke_ratio_signature>);
 
 TEST(Ratios, PublishesExactKappaThreeSignatureAndDefaultCall) {
     const auto returns =
@@ -1078,6 +1082,137 @@ TEST(Ratios, DeflatedSharpeReturnsOwnedScalarAfterInputLifetimesEnd) {
     }();
 
     EXPECT_NEAR(result, 0.6548645197338817, 1e-9);
+}
+
+TEST(Ratios, BurkeRatioMatchesPythonOracleForDrawdownAndFallbackPaths) {
+    const auto ordinary = fincore::make_series(
+        {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, "returns",
+        {0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03});
+    const auto monotone =
+        fincore::make_series({1, 2, 3}, "returns", {0.01, 0.02, 0.03});
+    const auto flat =
+        fincore::make_series({1, 2, 3}, "returns", {0.0, 0.0, 0.0});
+
+    EXPECT_NEAR(fincore::burke_ratio(ordinary), 25.638234713640998, 1e-12);
+    EXPECT_NEAR(fincore::burke_ratio(ordinary, 0.001),
+                25.62108485512675, 1e-12);
+    EXPECT_NEAR(fincore::burke_ratio(ordinary, 0.0, 52.0),
+                3.5608068202725582, 1e-12);
+    EXPECT_NEAR(fincore::burke_ratio(ordinary, 10.0),
+                -145.86035042886795, 1e-12);
+    EXPECT_NEAR(fincore::burke_ratio(monotone), 17733.449583883645, 1e-8);
+    EXPECT_DOUBLE_EQ(fincore::burke_ratio(flat), 0.0);
+}
+
+TEST(Ratios, BurkeRatioPreservesConstantTinyDrawdownAndNonfiniteClasses) {
+    const double infinity = std::numeric_limits<double>::infinity();
+    const auto positive_constant = adjusted_series({0.01, 0.01, 0.01, 0.01});
+    const auto negative_constant =
+        adjusted_series({-0.01, -0.01, -0.01, -0.01});
+    const auto tiny_drawdown = adjusted_series({-1e-12, 0.01});
+    const auto nan_mixed = adjusted_series({0.01, nan, -0.05, 0.03, 0.01});
+    const auto all_nan = adjusted_series({nan, nan, nan});
+    const auto positive_inf = adjusted_series({infinity, 0.01, -0.02, 0.03});
+    const auto negative_inf = adjusted_series({-infinity, 0.01, -0.02, 0.03});
+
+    EXPECT_NEAR(fincore::burke_ratio(positive_constant),
+                112740020992.40234, 1e2);
+    EXPECT_NEAR(fincore::burke_ratio(negative_constant),
+                -30.994059065669386, 1e-12);
+    EXPECT_TRUE(std::isinf(fincore::burke_ratio(tiny_drawdown)));
+    EXPECT_GT(fincore::burke_ratio(tiny_drawdown), 0.0);
+    EXPECT_NEAR(fincore::burke_ratio(nan_mixed), -1.7656492431737019,
+                1e-12);
+    EXPECT_TRUE(std::isnan(fincore::burke_ratio(all_nan)));
+    EXPECT_TRUE(std::isinf(fincore::burke_ratio(positive_inf)));
+    EXPECT_TRUE(std::isnan(fincore::burke_ratio(negative_inf)));
+}
+
+TEST(Ratios, BurkeRatioGatesRawCountAndRiskFreeNonfinite) {
+    const auto empty = fincore::make_series({}, "returns", {});
+    const auto singleton = fincore::make_series({1}, "returns", {0.01});
+    const auto ordinary = fincore::make_series(
+        {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, "returns",
+        {0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03});
+
+    EXPECT_TRUE(std::isnan(fincore::burke_ratio(empty)));
+    EXPECT_TRUE(std::isnan(fincore::burke_ratio(singleton)));
+    EXPECT_TRUE(std::isnan(fincore::burke_ratio(ordinary, nan)));
+}
+
+TEST(Ratios, BurkeRatioSupportsNamedAndBoundedSelectors) {
+    const auto strategy = fincore::make_series(
+        {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, "strategy",
+        {0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03});
+    constexpr std::array<char, 8> bounded_name{
+        's', 't', 'r', 'a', 't', 'e', 'g', 'y'};
+    const std::string_view bounded_selector{bounded_name.data(),
+                                            bounded_name.size()};
+
+    EXPECT_NEAR(fincore::burke_ratio(strategy, 0.0, 252.0, "strategy"),
+                25.638234713640998, 1e-12);
+    EXPECT_DOUBLE_EQ(fincore::burke_ratio(strategy, 0.0, 252.0,
+                                          bounded_selector),
+                     fincore::burke_ratio(strategy, 0.0, 252.0, "strategy"));
+}
+
+TEST(Ratios, BurkeRatioValidatesSelectorsAndStructureBeforeRawCount) {
+    fincore::dataframe empty_missing_column;
+    empty_missing_column.load_index(std::vector<fincore::timestamp>{});
+    const auto singleton = fincore::make_series({1}, "returns", {0.01});
+    const std::array<char, 13> embedded_storage{
+        'r', 'e', 't', 'u', 'r', 'n', 's', '\0', 'e', 'v', 'i', 'l', '!'};
+    const std::string_view embedded_selector{embedded_storage.data(),
+                                             embedded_storage.size()};
+
+    const auto expect_error_message = [](const auto& call,
+                                         const char* expected_message) {
+        try {
+            static_cast<void>(call());
+            ADD_FAILURE() << "expected fincore::input_error";
+        } catch (const fincore::input_error& error) {
+            EXPECT_STREQ(error.what(), expected_message);
+        }
+    };
+
+    EXPECT_THROW(static_cast<void>(fincore::burke_ratio(
+                     empty_missing_column)),
+                 fincore::input_error);
+    EXPECT_THROW(
+        static_cast<void>(fincore::burke_ratio(singleton, 0.0, 252.0, "")),
+        fincore::input_error);
+    EXPECT_THROW(static_cast<void>(
+                     fincore::burke_ratio(singleton, 0.0, 252.0, "missing")),
+                 fincore::input_error);
+
+    const auto valid_prefix_frame =
+        fincore::make_series({1, 2}, "returns", {0.01, -0.02});
+    expect_error_message(
+        [&] {
+            return fincore::burke_ratio(valid_prefix_frame, 0.0, 252.0,
+                                        embedded_selector);
+        },
+        "column name must not contain an embedded NUL");
+
+    fincore::dataframe wrong_type;
+    wrong_type.load_index(std::vector<fincore::timestamp>{1});
+    wrong_type.load_column<int>("returns", std::vector<int>{1},
+                                hmdf::nan_policy::dont_pad_with_nans);
+    EXPECT_THROW(static_cast<void>(fincore::burke_ratio(wrong_type)),
+                 fincore::input_error);
+}
+
+TEST(Ratios, BurkeRatioReturnsOwnedScalarAfterInputLifetimesEnd) {
+    const double result = [] {
+        const std::string column{"returns"};
+        const std::string_view selector{column.data(), column.size()};
+        const auto returns = fincore::make_series(
+            {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, "returns",
+            {0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03});
+        return fincore::burke_ratio(returns, 0.0, 252.0, selector);
+    }();
+
+    EXPECT_NEAR(result, 25.638234713640998, 1e-12);
 }
 
 }  // namespace
