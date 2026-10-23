@@ -49,6 +49,9 @@ add_executable(fincore_tests
     unit/factor_analysis_test.cpp
     unit/report_models_test.cpp
     unit/factor_report_test.cpp
+    unit/report_html_test.cpp
+    unit/report_risk_test.cpp
+    unit/runtime_test.cpp
     unit/risk_garch_test.cpp
     unit/risk_evt_test.cpp
     unit/risk_backtesting_test.cpp
