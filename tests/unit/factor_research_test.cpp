@@ -614,4 +614,50 @@ TEST(FactorResearch, RecordsSignalsWithGroupsAndDirections) {
         fincore::factor_data_error);
 }
 
+TEST(FactorResearch, EvaluatesMultipleFactorPanelsWithComparisons) {
+    auto fixture = make_fixture();
+    auto inverse = fixture.factor;
+    for (double& value : inverse.values) {
+        value = -value;
+    }
+    std::vector<fincore::named_factor_panel> panels{
+        {"F", fixture.factor}, {"G", inverse}};
+    auto config = spec();
+    config.comparisons = {{"F_vs_G", {"F", "G"}}};
+    const auto result = fincore::evaluate_factor_research_panel(
+        panels, fixture.prices, config);
+    EXPECT_EQ(result.status, "OK");
+    ASSERT_EQ(result.factors.size(), 2U);
+    EXPECT_EQ(result.factors[0].name, "F");
+    EXPECT_EQ(result.factors[1].name, "G");
+    EXPECT_EQ(result.signals.size(), 600U);
+    for (const auto& signal : result.signals) {
+        EXPECT_TRUE(signal.factor == "F" || signal.factor == "G");
+    }
+    ASSERT_EQ(result.correlations.size(), 1U);
+    EXPECT_EQ(result.correlations[0].left, "F");
+    EXPECT_EQ(result.correlations[0].right, "G");
+    EXPECT_NEAR(result.correlations[0].mean_correlation, -1.0, 1e-12);
+    EXPECT_EQ(result.correlations[0].n_dates, 60U);
+    ASSERT_EQ(result.comparisons.size(), 2U);
+    EXPECT_EQ(result.comparisons[0].comparison, "F_vs_G");
+    EXPECT_EQ(result.comparisons[0].period, "1D");
+    EXPECT_NEAR(result.comparisons[0].mean_ic, -0.35666666666666664,
+                1e-12);
+    EXPECT_EQ(result.comparisons[0].n_dates_left, 60U);
+    ASSERT_EQ(result.manifest.count("factor_count"), 1U);
+    EXPECT_EQ(result.manifest.at("factor_count"), "2");
+
+    auto duplicate = panels;
+    duplicate[1].name = "F";
+    EXPECT_THROW(static_cast<void>(fincore::evaluate_factor_research_panel(
+                     duplicate, fixture.prices, config)),
+                 fincore::factor_data_error);
+    auto unknown = config;
+    unknown.comparisons = {{"bad", {"F", "missing"}}};
+    EXPECT_THROW(static_cast<void>(fincore::evaluate_factor_research_panel(
+                     panels, fixture.prices, unknown)),
+                 fincore::factor_data_error);
+}
+
 }  // namespace

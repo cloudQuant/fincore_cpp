@@ -34,5 +34,5 @@ Full Release and ASan+UBSan suites: **730/730 passed**. Visual NOT_RUN.
 
 ## Remaining research gaps
 
-Multi-factor evaluator assembly remains open; signals/groups are accepted. Segments are provenance only in the source, so no
+Grid-driven non-day label naming remains open; signals/groups are accepted. Segments are provenance only in the source, so no
 multi-segment result table is missing.

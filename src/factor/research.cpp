@@ -703,6 +703,74 @@ research_result evaluate_factor_research(
     return result;
 }
 
+
+research_panel_result evaluate_factor_research_panel(
+    const std::span<const named_factor_panel> factors,
+    const dataframe& prices, const research_spec& spec) {
+    if (factors.empty()) {
+        throw factor_data_error{
+            "factor panels must contain at least one factor"};
+    }
+    std::set<std::string> names;
+    for (const auto& factor : factors) {
+        if (factor.name.empty() || !names.insert(factor.name).second) {
+            throw factor_data_error{
+                "factor names must be non-empty and unique"};
+        }
+    }
+    for (const auto& [name, pair] : spec.comparisons) {
+        static_cast<void>(name);
+        if (!names.contains(pair.first) || !names.contains(pair.second)) {
+            throw factor_data_error{
+                "comparison references an unknown factor"};
+        }
+    }
+    research_panel_result result;
+    std::size_t ok_count = 0U;
+    std::size_t unevaluable_count = 0U;
+    for (const auto& factor : factors) {
+        named_research_result named;
+        named.name = factor.name;
+        named.result =
+            evaluate_factor_research(factor.values, prices, spec);
+        if (named.result.status == "OK") {
+            ++ok_count;
+        } else if (named.result.status == "UNEVALUABLE") {
+            ++unevaluable_count;
+        }
+        for (auto& signal : named.result.signals) {
+            signal.factor = factor.name;
+            result.signals.push_back(signal);
+        }
+        result.factors.push_back(std::move(named));
+    }
+    if (ok_count == factors.size()) {
+        result.status = "OK";
+    } else if (unevaluable_count == factors.size()) {
+        result.status = "UNEVALUABLE";
+    } else {
+        result.status = "PARTIAL";
+    }
+    std::vector<research_factor_panel> panels;
+    panels.reserve(factors.size());
+    for (const auto& factor : factors) {
+        panels.push_back({factor.name, factor.values});
+    }
+    result.correlations =
+        research_factor_correlations(panels, spec.min_assets);
+    if (!spec.comparisons.empty()) {
+        result.comparisons = research_factor_comparisons(
+            result.factors, spec.comparisons);
+    }
+    result.manifest = {
+        {"api_version", research_api_version},
+        {"schema_version", std::to_string(research_result_schema_version)},
+        {"factor_count", std::to_string(factors.size())},
+        {"correlation_rows", std::to_string(result.correlations.size())},
+        {"comparison_rows", std::to_string(result.comparisons.size())}};
+    return result;
+}
+
 research_export_result export_factor_research(
     const research_result& result, const std::string& directory,
     const bool charts) {

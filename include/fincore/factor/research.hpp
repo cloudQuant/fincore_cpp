@@ -48,6 +48,7 @@ struct research_spec {
     std::vector<int> stability_lags{1, 5, 20};
     std::map<std::string, int> direction_overrides;
     std::map<std::string, std::pair<std::string, std::string>> segments;
+    std::map<std::string, std::pair<std::string, std::string>> comparisons;
     std::map<std::string, std::string> groups;
     std::string snapshot_id = "unspecified";
     std::string price_basis = "unspecified";
@@ -124,6 +125,25 @@ std::vector<research_comparison_row> research_factor_comparisons(
     std::span<const named_research_result> results,
     const std::map<std::string, std::pair<std::string, std::string>>&
         comparisons);
+
+struct named_factor_panel {
+    std::string name;
+    factor_series values;
+};
+
+struct research_panel_result {
+    std::string status;
+    std::vector<named_research_result> factors;
+    std::vector<research_correlation_row> correlations;
+    std::vector<research_comparison_row> comparisons;
+    std::vector<research_signal_row> signals;
+    std::map<std::string, std::string> manifest;
+};
+
+/// Evaluate multiple named factor panels and derive correlations/comparisons.
+research_panel_result evaluate_factor_research_panel(
+    std::span<const named_factor_panel> factors, const dataframe& prices,
+    const research_spec& spec);
 
 research_result evaluate_factor_research(
     const factor_series& factors, const dataframe& prices,
