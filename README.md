@@ -2661,3 +2661,20 @@ NaN-pair, `-0.005` constant factor, `-0.02` two-clean).
 Full headless CTest and LLVM 22 ASan+UBSan each passed 628/628. Evidence is
 recorded in [the Phase 64 acceptance
 record](docs/acceptance/2026-10-23-phase-64-beta-fragility-acceptance.md).
+
+## Accepted Phase 65 native risk backtesting
+
+Phase 65 adds Kupiec/Christoffersen statistics plus `backtest_var` and
+`backtest_es`. VaR backtests match the oracle (0 exceptions, Kupiec
+5.025167926750753 / p 0.02498150305344931, inconclusive status; 0.9
+confidence → fail; short → inconclusive); ES reports the oracle's 7
+exceptions, realized ES `-0.009935211388974519`, forecast `-0.012`, and
+experimental status. Chi-square survival uses the df=1 `erfc` closed form;
+SHA-256 is implemented internally.
+
+Declared divergences: the native digest serializes IEEE-754 bits rather than
+pandas CSV bytes, and the ES bootstrap uses `mt19937_64` rather than NumPy's
+`default_rng`; both are natively deterministic and tested as such. Full
+headless CTest and LLVM 22 ASan+UBSan each passed 631/631. Evidence is
+recorded in [the Phase 65 acceptance
+record](docs/acceptance/2026-10-23-phase-65-risk-backtesting-acceptance.md).
