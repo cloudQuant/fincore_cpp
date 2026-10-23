@@ -2277,3 +2277,22 @@ record](docs/acceptance/2026-10-23-phase-50-drawdown-table-acceptance.md).
 
 This phase does not add date formatting, adapters, reports, plots, packages,
 or release actions.
+
+## Accepted Phase 51 native interesting date ranges
+
+Phase 51 adds `fincore::extract_interesting_date_ranges(returns, column)`,
+returning owning `named_returns` frames for the twenty pinned historical
+crisis/regime windows in source insertion order. Windows are inclusive on
+both boundaries and applied as UTC calendar dates; empty windows are skipped.
+
+A source-behaviour finding is recorded: the Python function silently skips
+every window on a tz-aware index because its naive-label slice raises inside
+a caught block (`count=0` for the UTC oracle fixture). The native API applies
+the documented UTC calendar instead of reproducing the defect; goldens come
+from the tz-naive working path (Lehman 62 rows, Sept08 31, GFC Crash 78; New
+Normal two-day case). Full headless CTest and LLVM 22 ASan+UBSan each passed
+559/559. Evidence is recorded in [the Phase 51 acceptance
+record](docs/acceptance/2026-10-23-phase-51-interesting-date-ranges-acceptance.md).
+
+This phase does not add adapters, reports, plots, packages, or release
+actions.
