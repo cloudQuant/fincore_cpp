@@ -2486,3 +2486,19 @@ maximum/low-liquidity goldens at 1e-12. Full headless CTest and LLVM 22
 ASan+UBSan each passed 596/596. Evidence is recorded in [the Phase 59
 acceptance
 record](docs/acceptance/2026-10-23-phase-59-transaction-liquidity-acceptance.md).
+
+## Accepted Phase 58 native capacity assessment
+
+Phase 58 adds `capacity_config`, `capacity_assessment`, and
+`assess_liquidity`, composing the accepted transaction liquidity kernels with
+the source's default assumptions and four config validations. The liquidation
+grid is returned unfiltered; ticker maximums and low-liquidity records apply
+their own `last_n_days` filters.
+
+Oracle cross-checking found and fixed a Phase 59 boundary defect: the
+ticker-maximum filter is inclusive of the cutoff date, while low-liquidity
+filtering is strict. The correction and strengthened test are recorded in the
+Phase 58 acceptance and the Phase 59 addendum. Full headless CTest and LLVM
+22 ASan+UBSan each passed 598/598. Evidence is recorded in [the Phase 58
+acceptance
+record](docs/acceptance/2026-10-23-phase-58-capacity-assessment-acceptance.md).

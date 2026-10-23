@@ -35,3 +35,13 @@ Three tests: days/maximums matrix, low-liquidity paths, and validation
 Wide market-data frames must share the positions index; the long transaction
 ledger is a `trade_record` span. Ties select the earliest date (goldens avoid
 ties).
+
+## Addendum — boundary correction found in Phase 58
+
+The ticker-maximum `last_n_days` filter is inclusive of the cutoff date
+(`dtlp.loc[cutoff:]`), whereas the low-liquidity filter is strict
+(`date > max - n days`). The kernel was corrected in Phase 58 and the
+transaction test now asserts the AAA maximum (`55.47177006951307`,
+allocation `13.008130081300814`) under the 2-day filter. The original
+acceptance evidence remains valid; this addendum records the correction
+rather than rewriting history.
