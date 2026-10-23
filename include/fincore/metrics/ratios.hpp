@@ -51,6 +51,21 @@ double sterling_ratio(const dataframe& returns,
                       double annualization = daily_annualization,
                       std::string_view column = returns_column);
 
+double cal_treynor_ratio(
+    const dataframe& returns,
+    const dataframe& benchmark,
+    double risk_free = 0.0,
+    double annualization = daily_annualization,
+    std::string_view returns_column_name = returns_column,
+    std::string_view benchmark_column_name = benchmark_column);
+
+double m_squared(const dataframe& returns,
+                 const dataframe& benchmark,
+                 double risk_free = 0.0,
+                 double annualization = daily_annualization,
+                 std::string_view returns_column_name = returns_column,
+                 std::string_view benchmark_column_name = benchmark_column);
+
 double common_sense_ratio(const dataframe& returns,
                           std::string_view column = returns_column);
 

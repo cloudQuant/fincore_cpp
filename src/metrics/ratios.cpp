@@ -633,6 +633,67 @@ double sterling_ratio(const dataframe& returns,
     return (annual_return_value - risk_free) / average_drawdown;
 }
 
+double cal_treynor_ratio(const dataframe& returns,
+                         const dataframe& benchmark,
+                         double risk_free,
+                         double annualization,
+                         std::string_view returns_column_name,
+                         std::string_view benchmark_column_name) {
+    if (returns_column_name.find('\0') != std::string_view::npos ||
+        benchmark_column_name.find('\0') != std::string_view::npos) {
+        throw input_error{"column name must not contain an embedded NUL"};
+    }
+    const auto aligned = align_on_common_index(returns, returns_column_name,
+                                               benchmark,
+                                               benchmark_column_name);
+    if (require_double_column(aligned.first, returns_column_name).size() < 2) {
+        return nan;
+    }
+
+    const double annual_return_value =
+        annual_return(aligned.first, annualization, returns_column_name);
+    const double beta_value =
+        beta(aligned.first, aligned.second, risk_free, returns_column_name,
+             benchmark_column_name);
+    if (beta_value == 0.0 || beta_value < 0.0 || std::isnan(beta_value)) {
+        return nan;
+    }
+    return (annual_return_value - risk_free) / beta_value;
+}
+
+double m_squared(const dataframe& returns,
+                 const dataframe& benchmark,
+                 double risk_free,
+                 double annualization,
+                 std::string_view returns_column_name,
+                 std::string_view benchmark_column_name) {
+    if (returns_column_name.find('\0') != std::string_view::npos ||
+        benchmark_column_name.find('\0') != std::string_view::npos) {
+        throw input_error{"column name must not contain an embedded NUL"};
+    }
+    const auto aligned = align_on_common_index(returns, returns_column_name,
+                                               benchmark,
+                                               benchmark_column_name);
+    if (require_double_column(aligned.first, returns_column_name).size() < 2) {
+        return nan;
+    }
+
+    const double annual_return_value =
+        annual_return(aligned.first, annualization, returns_column_name);
+    const double portfolio_volatility =
+        annual_volatility(aligned.first, annualization, returns_column_name);
+    const double benchmark_volatility =
+        annual_volatility(aligned.second, annualization,
+                          benchmark_column_name);
+    if (portfolio_volatility == 0.0 || portfolio_volatility < 0.0 ||
+        std::isnan(portfolio_volatility)) {
+        return nan;
+    }
+    return (annual_return_value - risk_free) *
+               (benchmark_volatility / portfolio_volatility) +
+           risk_free;
+}
+
 double common_sense_ratio(const dataframe& returns, std::string_view column) {
     if (column.find('\0') != std::string_view::npos) {
         throw input_error{"column name must not contain an embedded NUL"};

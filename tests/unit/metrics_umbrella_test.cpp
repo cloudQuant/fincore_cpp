@@ -40,6 +40,12 @@ using burke_ratio_signature =
     double (*)(const fincore::dataframe&, double, double, std::string_view);
 using sterling_ratio_signature =
     double (*)(const fincore::dataframe&, double, double, std::string_view);
+using cal_treynor_ratio_signature =
+    double (*)(const fincore::dataframe&, const fincore::dataframe&, double,
+               double, std::string_view, std::string_view);
+using m_squared_signature =
+    double (*)(const fincore::dataframe&, const fincore::dataframe&, double,
+               double, std::string_view, std::string_view);
 
 static_assert(std::is_same_v<
               decltype(static_cast<var_excess_return_signature>(
@@ -127,6 +133,8 @@ TEST(MetricsUmbrella, ExposesOnlyImplementedDataframeNativeMetrics) {
   EXPECT_TRUE(std::isfinite(fincore::deflated_sharpe_ratio(returns)));
   EXPECT_TRUE(std::isfinite(fincore::burke_ratio(returns)));
   EXPECT_TRUE(std::isfinite(fincore::sterling_ratio(returns)));
+  EXPECT_TRUE(std::isfinite(fincore::cal_treynor_ratio(returns, benchmark)));
+  EXPECT_TRUE(std::isfinite(fincore::m_squared(returns, benchmark)));
 
   const double var_excess_return_var =
       fincore::historical_value_at_risk(returns);

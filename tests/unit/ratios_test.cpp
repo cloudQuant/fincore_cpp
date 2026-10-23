@@ -29,6 +29,12 @@ using burke_ratio_signature =
     double (*)(const fincore::dataframe&, double, double, std::string_view);
 using sterling_ratio_signature =
     double (*)(const fincore::dataframe&, double, double, std::string_view);
+using cal_treynor_ratio_signature =
+    double (*)(const fincore::dataframe&, const fincore::dataframe&, double,
+               double, std::string_view, std::string_view);
+using m_squared_signature =
+    double (*)(const fincore::dataframe&, const fincore::dataframe&, double,
+               double, std::string_view, std::string_view);
 
 static_assert(std::is_same_v<
               decltype(static_cast<kappa_three_ratio_signature>(
@@ -47,6 +53,10 @@ static_assert(std::is_same_v<decltype(&fincore::burke_ratio),
                              burke_ratio_signature>);
 static_assert(std::is_same_v<decltype(&fincore::sterling_ratio),
                              sterling_ratio_signature>);
+static_assert(std::is_same_v<decltype(&fincore::cal_treynor_ratio),
+                             cal_treynor_ratio_signature>);
+static_assert(std::is_same_v<decltype(&fincore::m_squared),
+                             m_squared_signature>);
 
 TEST(Ratios, PublishesExactKappaThreeSignatureAndDefaultCall) {
     const auto returns =
@@ -1303,6 +1313,261 @@ TEST(Ratios, SterlingRatioReturnsOwnedScalarAfterInputLifetimesEnd) {
     }();
 
     EXPECT_NEAR(result, 37.373828320998385, 1e-12);
+}
+
+fincore::dataframe treynor_returns() {
+    return fincore::make_series(
+        sequence_index(10), "returns",
+        {0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03});
+}
+
+fincore::dataframe plain_benchmark() {
+    return fincore::make_series(
+        sequence_index(10), "benchmark",
+        {-0.04, -0.03, -0.02, -0.01, -0.005, 0.005, 0.01, 0.02, 0.03, 0.04});
+}
+
+fincore::dataframe positive_beta_benchmark() {
+    return fincore::make_series(
+        sequence_index(10), "benchmark",
+        {0.014, 0.023, -0.059, 0.034, 0.0135, -0.0255, 0.049, 0.014, 0.023,
+         -0.036});
+}
+
+TEST(Ratios, CalTreynorMatchesPythonOracleForPositiveBeta) {
+    const auto returns = treynor_returns();
+    const auto benchmark = positive_beta_benchmark();
+
+    EXPECT_NEAR(fincore::cal_treynor_ratio(returns, benchmark),
+                1.7905755807724069, 1e-12);
+    EXPECT_NEAR(fincore::cal_treynor_ratio(returns, benchmark, 0.001),
+                1.7893778338053357, 1e-12);
+    EXPECT_NEAR(fincore::cal_treynor_ratio(returns, benchmark, 0.0, 52.0),
+                0.2486869244876499, 1e-12);
+}
+
+TEST(Ratios, CalTreynorRejectsNonPositiveAndUndefinedBeta) {
+    const auto returns = treynor_returns();
+    const auto constant_benchmark = fincore::make_series(
+        sequence_index(10), "benchmark",
+        {0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01});
+    const auto inverse_benchmark = fincore::make_series(
+        sequence_index(10), "inverse",
+        {0.04, 0.03, 0.02, 0.01, 0.005, -0.005, -0.01, -0.02, -0.03, -0.04});
+    const auto plain_benchmark = fincore::make_series(
+        sequence_index(10), "benchmark",
+        {-0.04, -0.03, -0.02, -0.01, -0.005, 0.005, 0.01, 0.02, 0.03, 0.04});
+    const auto short_returns =
+        fincore::make_series({1}, "returns", {0.01});
+    const auto short_benchmark =
+        fincore::make_series({1}, "benchmark", {0.01});
+
+    EXPECT_TRUE(std::isnan(
+        fincore::cal_treynor_ratio(returns, constant_benchmark)));
+    EXPECT_TRUE(std::isnan(fincore::cal_treynor_ratio(
+        inverse_benchmark, plain_benchmark, 0.0, 252.0, "inverse",
+        "benchmark")));
+    EXPECT_TRUE(std::isnan(
+        fincore::cal_treynor_ratio(short_returns, short_benchmark)));
+}
+
+TEST(Ratios, CalTreynorAlignsAndToleratesNanPairs) {
+    auto returns = treynor_returns();
+    auto benchmark = positive_beta_benchmark();
+    std::vector<double> return_values{
+        0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03};
+    std::vector<double> benchmark_values{0.014, 0.023, -0.059, 0.034, 0.0135,
+                                         -0.0255, 0.049, 0.014, 0.023, -0.036};
+    return_values[2] = nan;
+    benchmark_values[0] = nan;
+    const auto nan_returns =
+        fincore::make_series(sequence_index(10), "returns", return_values);
+    const auto nan_benchmark =
+        fincore::make_series(sequence_index(10), "benchmark", benchmark_values);
+
+    EXPECT_NEAR(fincore::cal_treynor_ratio(nan_returns, nan_benchmark),
+                9.760631792660886, 1e-12);
+}
+
+TEST(Ratios, CalTreynorSupportsNamedAndBoundedSelectors) {
+    const auto strategy = fincore::make_series(
+        sequence_index(10), "strategy",
+        {0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03});
+    const auto factor = fincore::make_series(
+        sequence_index(10), "factor",
+        {0.014, 0.023, -0.059, 0.034, 0.0135, -0.0255, 0.049, 0.014, 0.023,
+         -0.036});
+    constexpr std::array<char, 8> bounded_returns{
+        's', 't', 'r', 'a', 't', 'e', 'g', 'y'};
+    constexpr std::array<char, 6> bounded_factor{'f', 'a', 'c', 't', 'o', 'r'};
+    const std::string_view returns_selector{bounded_returns.data(),
+                                            bounded_returns.size()};
+    const std::string_view factor_selector{bounded_factor.data(),
+                                           bounded_factor.size()};
+
+    EXPECT_NEAR(fincore::cal_treynor_ratio(strategy, factor, 0.0, 252.0,
+                                           "strategy", "factor"),
+                1.7905755807724069, 1e-12);
+    EXPECT_DOUBLE_EQ(
+        fincore::cal_treynor_ratio(strategy, factor, 0.0, 252.0,
+                                   returns_selector, factor_selector),
+        fincore::cal_treynor_ratio(strategy, factor, 0.0, 252.0, "strategy",
+                                   "factor"));
+}
+
+TEST(Ratios, CalTreynorValidatesSelectorsAndStructure) {
+    const auto returns = treynor_returns();
+    const auto benchmark = positive_beta_benchmark();
+    const std::array<char, 13> embedded_storage{
+        'b', 'e', 'n', 'c', 'h', 'm', 'a', 'r', 'k', ' ', 'x', '!', '!'};
+    const std::string_view embedded_selector{embedded_storage.data(),
+                                             embedded_storage.size()};
+
+    const auto expect_error_message = [](const auto& call,
+                                         const char* expected_message) {
+        try {
+            static_cast<void>(call());
+            ADD_FAILURE() << "expected fincore::input_error";
+        } catch (const fincore::input_error& error) {
+            EXPECT_STREQ(error.what(), expected_message);
+        }
+    };
+
+    EXPECT_THROW(static_cast<void>(
+                     fincore::cal_treynor_ratio(returns, benchmark, 0.0, 252.0,
+                                                "missing", "benchmark")),
+                 fincore::input_error);
+    EXPECT_THROW(static_cast<void>(
+                     fincore::cal_treynor_ratio(returns, benchmark, 0.0, 252.0,
+                                                "returns", "missing")),
+                 fincore::input_error);
+    expect_error_message(
+        [&] {
+            return fincore::cal_treynor_ratio(returns, benchmark, 0.0, 252.0,
+                                              "returns", embedded_selector);
+        },
+        "column name must not contain an embedded NUL");
+}
+
+TEST(Ratios, CalTreynorReturnsOwnedScalarAfterInputLifetimesEnd) {
+    const double result = [] {
+        const auto returns = treynor_returns();
+        const auto benchmark = positive_beta_benchmark();
+        return fincore::cal_treynor_ratio(returns, benchmark);
+    }();
+
+    EXPECT_NEAR(result, 1.7905755807724069, 1e-12);
+}
+
+TEST(Ratios, MSquaredMatchesPythonOracleForAnnualizationAndRiskFree) {
+    const auto returns = treynor_returns();
+    const auto benchmark = plain_benchmark();
+
+    EXPECT_NEAR(fincore::m_squared(returns, benchmark),
+                1.3665828992102713, 1e-12);
+    EXPECT_NEAR(fincore::m_squared(returns, benchmark, 0.001),
+                1.3666687682792138, 1e-12);
+    EXPECT_NEAR(fincore::m_squared(returns, benchmark, 0.0, 52.0),
+                0.1898000296169657, 1e-12);
+}
+
+TEST(Ratios, MSquaredGatesZeroPortfolioVolatilityAndShortInput) {
+    const auto benchmark = plain_benchmark();
+    const auto zero_returns = fincore::make_series(
+        sequence_index(10), "returns",
+        {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
+    const auto short_returns = fincore::make_series({1}, "returns", {0.01});
+    const auto short_benchmark =
+        fincore::make_series({1}, "benchmark", {0.01});
+
+    EXPECT_TRUE(std::isnan(fincore::m_squared(zero_returns, benchmark)));
+    EXPECT_TRUE(
+        std::isnan(fincore::m_squared(short_returns, short_benchmark)));
+}
+
+TEST(Ratios, MSquaredAlignsAndToleratesNanPairs) {
+    std::vector<double> return_values{
+        0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03};
+    std::vector<double> benchmark_values{-0.04, -0.03, -0.02, -0.01, -0.005,
+                                         0.005, 0.01, 0.02, 0.03, 0.04};
+    return_values[2] = nan;
+    benchmark_values[0] = nan;
+    const auto nan_returns =
+        fincore::make_series(sequence_index(10), "returns", return_values);
+    const auto nan_benchmark =
+        fincore::make_series(sequence_index(10), "benchmark", benchmark_values);
+
+    EXPECT_NEAR(fincore::m_squared(nan_returns, nan_benchmark),
+                8.357805155252677, 1e-12);
+}
+
+TEST(Ratios, MSquaredSupportsNamedAndBoundedSelectors) {
+    const auto strategy = fincore::make_series(
+        sequence_index(10), "strategy",
+        {0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03});
+    const auto factor = fincore::make_series(
+        sequence_index(10), "factor",
+        {-0.04, -0.03, -0.02, -0.01, -0.005, 0.005, 0.01, 0.02, 0.03, 0.04});
+    constexpr std::array<char, 8> bounded_returns{
+        's', 't', 'r', 'a', 't', 'e', 'g', 'y'};
+    constexpr std::array<char, 6> bounded_factor{'f', 'a', 'c', 't', 'o', 'r'};
+    const std::string_view returns_selector{bounded_returns.data(),
+                                            bounded_returns.size()};
+    const std::string_view factor_selector{bounded_factor.data(),
+                                           bounded_factor.size()};
+
+    EXPECT_NEAR(fincore::m_squared(strategy, factor, 0.0, 252.0, "strategy",
+                                   "factor"),
+                1.3665828992102713, 1e-12);
+    EXPECT_DOUBLE_EQ(
+        fincore::m_squared(strategy, factor, 0.0, 252.0, returns_selector,
+                           factor_selector),
+        fincore::m_squared(strategy, factor, 0.0, 252.0, "strategy",
+                           "factor"));
+}
+
+TEST(Ratios, MSquaredValidatesSelectorsAndStructure) {
+    const auto returns = treynor_returns();
+    const auto benchmark = plain_benchmark();
+    const std::array<char, 13> embedded_storage{
+        'b', 'e', 'n', 'c', 'h', 'm', 'a', 'r', 'k', '\0', 'x', '!', '!'};
+    const std::string_view embedded_selector{embedded_storage.data(),
+                                             embedded_storage.size()};
+
+    const auto expect_error_message = [](const auto& call,
+                                         const char* expected_message) {
+        try {
+            static_cast<void>(call());
+            ADD_FAILURE() << "expected fincore::input_error";
+        } catch (const fincore::input_error& error) {
+            EXPECT_STREQ(error.what(), expected_message);
+        }
+    };
+
+    EXPECT_THROW(
+        static_cast<void>(fincore::m_squared(returns, benchmark, 0.0, 252.0,
+                                             "missing", "benchmark")),
+        fincore::input_error);
+    EXPECT_THROW(
+        static_cast<void>(fincore::m_squared(returns, benchmark, 0.0, 252.0,
+                                             "returns", "missing")),
+        fincore::input_error);
+    expect_error_message(
+        [&] {
+            return fincore::m_squared(returns, benchmark, 0.0, 252.0,
+                                      "returns", embedded_selector);
+        },
+        "column name must not contain an embedded NUL");
+}
+
+TEST(Ratios, MSquaredReturnsOwnedScalarAfterInputLifetimesEnd) {
+    const double result = [] {
+        const auto returns = treynor_returns();
+        const auto benchmark = plain_benchmark();
+        return fincore::m_squared(returns, benchmark);
+    }();
+
+    EXPECT_NEAR(result, 1.3665828992102713, 1e-12);
 }
 
 }  // namespace
