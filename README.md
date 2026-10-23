@@ -2031,3 +2031,25 @@ This phase does not add `mar_ratio`, `conditional_sharpe_ratio`,
 `burke_ratio`, `cal_treynor_ratio`, `m_squared`, `sterling_ratio`,
 capture-return metrics, Python adapters, providers, reports, plots as a
 runtime subsystem, packages, or a release action.
+
+## Accepted Phase 39 oracle re-pin
+
+The parity baseline moves from Python `2354bb5` to `dev@4b8f31b`
+(v0.5.2.dev0). A 19-commit drift census found nine changed paths, all under
+`fincore/factor_analysis/` and `fincore/report/factor/`, and **zero** changes
+across the nine ported domains (`metrics`, `attribution`, `simulation`,
+`portfolio`, `risk`, `optimization`, `performance`, `runtime`, `viz`). The
+Phase 38 oracle script was re-run unchanged in a clean detached worktree at
+`4b8f31b`: exit `0`, zero stderr bytes, `FAILURES=0`, and a value domain
+byte-identical to the old-pin run
+(SHA-256 `b651d86e88311b2f6e97c2981f1d760b601d8ee47a2086068e7cf8d255224809`).
+No golden required re-baselining; the full headless suite passed 490/490 at
+the documentation head. Evidence and the census table are recorded in [the
+Phase 39 acceptance
+record](docs/acceptance/2026-10-23-phase-39-oracle-repin-acceptance.md) and
+[design](docs/design/2026-10-23-phase-39-oracle-repin-design.md).
+
+This phase changes no C++ source, test, build file, dependency, provider,
+report, plot, package, or release artifact. Iterations 5 and 6 must run their
+own re-pin checkpoint before starting, because their source domains are the
+ones that moved in this range.
