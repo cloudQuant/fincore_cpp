@@ -92,11 +92,11 @@ function route remains.
 
 | iteration | accepted scope | open |
 | --- | --- | --- |
-| 1 — metrics completion | Phases 39–52b accepted with oracle evidence | 3 function-level gaps as above (metrics itself has 0) |
+| 1 — metrics completion | Phases 39–52b accepted with oracle evidence; the three residual function gaps were closed later in the program | none at function level |
 | 2 — performance/portfolio | Phases 53–59 accepted | none at function level |
 | 3 — risk/optimization | Phases 60–71 accepted; 661/661 CTest+ASan+UBSan at close | none at function level |
-| 4 — visualization | chart data and ImPlot adapter accepted for compute/build | visual rendering **NOT_RUN**; sanitizer not re-run after the changes |
-| 5 — factor analysis | 77–87 slices accepted: prep/PIT, performance/inference/event windows, costs, analysis model, research, export, tears, four-section report, portfolio constructor, performance study | group analysis absent; tear-sheet plotting deferred |
+| 4 — visualization | chart data and ImPlot adapter accepted; offscreen 2560x4800 render inspected after fixing axis/heatmap defects; sanitizer 733/733 | interactive window/input behaviour and Linux/Windows rendering **NOT_RUN** |
+| 5 — factor analysis | 77–87 slices accepted: prep/PIT, performance/inference/event windows, costs, analysis model (event/group models), full bounded research (precomputed/next-open labels, universe, signals/groups, segments, correlations, comparisons, multi-factor), export, grouped tear data, four-section report, portfolio constructor, performance study | grid-driven non-day label naming; interactive grouped tear rendering |
 | 6 — report/runtime | 88a/89/90/91/92/93 accepted: schema, HTML, XLSX, risk/portfolio/transactions projections, runtime catalog, install/export consumer, usage/migration notes, factor event and group models | group tear rendering absent; 93 CI matrix NOT_RUN |
 
 ## Gate status
