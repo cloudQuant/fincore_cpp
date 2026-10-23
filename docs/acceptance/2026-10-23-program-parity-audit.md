@@ -3,7 +3,7 @@
 **Pin:** Python `4b8f31b1b59707480d5db9603704d83bbf7e6946`
 **Machine ledger:** [2026-10-23-program-parity-ledger.tsv](2026-10-23-program-parity-ledger.tsv)
 **Generator:** `tools/parity_ledger.py`
-**Native tests:** 724/724 Release CTest
+**Native tests:** 726/726 Release CTest
 
 ## Method
 
@@ -101,8 +101,8 @@ function route remains.
 
 ## Gate status
 
-- Release CTest: **724/724 passed** (this audit).
-- Sanitizer: full ASan+UBSan suite **724/724 passed** at the final HEAD
+- Release CTest: **726/726 passed** (this audit).
+- Sanitizer: full ASan+UBSan suite **726/726 passed** at the final HEAD
   (Homebrew LLVM 22.1.8, Ninja Debug; no reports). See
   [the sanitizer gate record](2026-10-23-sanitizer-gate-acceptance.md).
 - Visual rendering: **NOT_RUN** (no screenshots; ImPlot adapter build not

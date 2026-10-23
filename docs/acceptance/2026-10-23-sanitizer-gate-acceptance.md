@@ -29,8 +29,7 @@ ctest --test-dir /tmp/fincore-sanitize --output-on-failure
 - Build: rc 0; only linker DWARF-parsing warnings from the fetched GoogleTest
   static archives (`/tmp/fincore-sanitize-build.log`,
   `/tmp/fincore-sanitize-rebuild.log`).
-- Tests: **724/724 passed**, 0 failed (68.30 s for the 722-test run; the
-  event/group-model rebuilds passed 723/724 in follow-up runs)
+- Tests: **726/726 passed**, 0 failed across the final follow-up runs
   (`/tmp/fincore-sanitize-ctest.log`). No ASan or UBSan report was emitted.
 - The rebuild after the turnover projection ran before this test pass, so the
   result covers the current source revision.

@@ -22,8 +22,8 @@ and [ledger](2026-10-23-program-parity-ledger.tsv).
 
 - Fresh component install at this revision and a downstream consumer printing
   `version=0.1.0 sharpe=6.928203230275507`.
-- Full headless CTest **724/724** passed at the final HEAD.
-- Full ASan+UBSan suite **724/724 passed** at the final HEAD (Homebrew LLVM
+- Full headless CTest **726/726** passed at the final HEAD.
+- Full ASan+UBSan suite **726/726 passed** at the final HEAD (Homebrew LLVM
   22.1.8, Ninja Debug).
 - Supported-platform CI matrix **NOT_RUN**; only macOS arm64 is evidenced.
 - Visual rendering **NOT_RUN**; HTML is structurally tested, not

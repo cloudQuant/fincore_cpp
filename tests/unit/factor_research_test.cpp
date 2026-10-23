@@ -204,4 +204,99 @@ TEST(FactorResearch, ExportsCsvTablesWithoutOverwriting) {
     std::filesystem::remove_all(directory);
 }
 
+TEST(FactorResearch, CorrelatesPanelsPerDateAcrossCommonAssets) {
+    const auto start = fincore::utc_timestamp(2022, 1, 3);
+    const auto day = 86'400'000'000'000LL;
+    const char* assets[] = {"A", "B", "C"};
+    const std::vector<std::vector<double>> x_rows{
+        {1.0, 2.0, 3.0}, {2.0, 3.0, 4.0}, {3.0, 4.0, 5.0}, {4.0, 5.0, 6.0}};
+    const std::vector<std::vector<double>> y_rows{
+        {2.0, 1.0, 5.0}, {1.0, 4.0, 3.0}, {5.0, 2.0, 6.0}, {2.0, 3.0, 1.0}};
+    const auto make_panel = [&](std::string name,
+                                const std::vector<std::vector<double>>& rows) {
+        fincore::research_factor_panel panel;
+        panel.name = std::move(name);
+        for (int date = 0; date < 4; ++date) {
+            for (int asset = 0; asset < 3; ++asset) {
+                panel.values.dates.push_back(start + date * day);
+                panel.values.assets.push_back(assets[asset]);
+                panel.values.values.push_back(
+                    rows[static_cast<std::size_t>(date)]
+                        [static_cast<std::size_t>(asset)]);
+            }
+        }
+        return panel;
+    };
+    std::vector<fincore::research_factor_panel> panels;
+    panels.push_back(make_panel("X", x_rows));
+    panels.push_back(make_panel("Y", y_rows));
+    auto negated = x_rows;
+    for (auto& row : negated) {
+        for (double& value : row) {
+            value = -value;
+        }
+    }
+    panels.push_back(make_panel("Z", negated));
+    const auto correlations =
+        fincore::research_factor_correlations(panels, 2);
+    ASSERT_EQ(correlations.size(), 3U);
+    EXPECT_EQ(correlations[0].left, "X");
+    EXPECT_EQ(correlations[0].right, "Y");
+    EXPECT_NEAR(correlations[0].mean_correlation, 0.27885564838462495,
+                1e-15);
+    EXPECT_NEAR(correlations[0].std_correlation, 0.561086034683472, 1e-15);
+    EXPECT_EQ(correlations[0].n_dates, 4U);
+    EXPECT_DOUBLE_EQ(correlations[1].mean_correlation, -1.0);
+    EXPECT_DOUBLE_EQ(correlations[1].std_correlation, 0.0);
+    EXPECT_NEAR(correlations[2].mean_correlation, -0.27885564838462495,
+                1e-15);
+
+    const auto too_strict =
+        fincore::research_factor_correlations(panels, 4);
+    ASSERT_EQ(too_strict.size(), 3U);
+    EXPECT_EQ(too_strict[0].n_dates, 0U);
+    EXPECT_TRUE(std::isnan(too_strict[0].mean_correlation));
+    panels[1].name = "X";
+    EXPECT_THROW(static_cast<void>(
+                     fincore::research_factor_correlations(panels, 1)),
+                 fincore::factor_data_error);
+}
+
+TEST(FactorResearch, ComparesStoredIcSummaries) {
+    const auto start = fincore::utc_timestamp(2022, 1, 3);
+    const auto day = 86'400'000'000'000LL;
+    const auto make_result = [&](std::vector<double> ic_values) {
+        fincore::research_result result;
+        result.information_coefficient.labels = {"1D"};
+        result.information_coefficient.dates = {
+            start, start + day, start + 2 * day};
+        result.information_coefficient.values = std::move(ic_values);
+        return result;
+    };
+    std::vector<fincore::named_research_result> results;
+    results.push_back({"X", make_result({0.1, 0.2, 0.3})});
+    results.push_back({"Y", make_result({0.05, 0.05, 0.05})});
+    const std::map<std::string, std::pair<std::string, std::string>>
+        comparisons{{"X_vs_Y", {"X", "Y"}}};
+    const auto rows =
+        fincore::research_factor_comparisons(results, comparisons);
+    ASSERT_EQ(rows.size(), 1U);
+    EXPECT_EQ(rows[0].comparison, "X_vs_Y");
+    EXPECT_EQ(rows[0].period, "1D");
+    EXPECT_NEAR(rows[0].mean_ic_left, 0.2, 1e-15);
+    EXPECT_NEAR(rows[0].mean_ic_right, 0.05, 1e-15);
+    EXPECT_NEAR(rows[0].icir_left, 2.0, 1e-15);
+    EXPECT_TRUE(std::isnan(rows[0].icir_right));
+    EXPECT_NEAR(rows[0].mean_ic, 0.15, 1e-15);
+    EXPECT_TRUE(std::isnan(rows[0].icir));
+    EXPECT_EQ(rows[0].n_dates_left, 3U);
+    EXPECT_EQ(rows[0].n_dates_right, 3U);
+
+    const std::map<std::string, std::pair<std::string, std::string>>
+        unknown{{"bad", {"X", "missing"}}};
+    EXPECT_THROW(static_cast<void>(
+                     fincore::research_factor_comparisons(results, unknown)),
+                 fincore::factor_data_error);
+}
+
 }  // namespace

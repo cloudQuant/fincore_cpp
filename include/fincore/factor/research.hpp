@@ -4,6 +4,7 @@
 #include <fincore/factor/performance.hpp>
 
 #include <map>
+#include <span>
 #include <string>
 #include <vector>
 
@@ -65,6 +66,49 @@ struct research_result {
     std::map<std::string, std::string> manifest;
     int schema_version = research_result_schema_version;
 };
+
+struct research_factor_panel {
+    std::string name;
+    factor_series values;
+};
+
+struct research_correlation_row {
+    std::string left;
+    std::string right;
+    double mean_correlation = 0.0;
+    double std_correlation = 0.0;
+    std::size_t n_dates = 0U;
+};
+
+/// Per-date Pearson correlation across common assets for every factor pair.
+std::vector<research_correlation_row> research_factor_correlations(
+    std::span<const research_factor_panel> factors, int min_assets = 1);
+
+struct named_research_result {
+    std::string name;
+    research_result result;
+};
+
+struct research_comparison_row {
+    std::string comparison;
+    std::string left;
+    std::string right;
+    std::string period;
+    double mean_ic = 0.0;
+    double icir = 0.0;
+    double mean_ic_left = 0.0;
+    double mean_ic_right = 0.0;
+    double icir_left = 0.0;
+    double icir_right = 0.0;
+    std::size_t n_dates_left = 0U;
+    std::size_t n_dates_right = 0U;
+};
+
+/// Mean-IC/ICIR differences for explicitly named factor pairs, per period.
+std::vector<research_comparison_row> research_factor_comparisons(
+    std::span<const named_research_result> results,
+    const std::map<std::string, std::pair<std::string, std::string>>&
+        comparisons);
 
 research_result evaluate_factor_research(
     const factor_series& factors, const dataframe& prices,

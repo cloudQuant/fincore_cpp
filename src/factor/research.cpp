@@ -1,8 +1,6 @@
 #include <fincore/factor/research.hpp>
 
 #include <fincore/detail/json.hpp>
-
-#include <fincore/detail/json.hpp>
 #include <fincore/factor/exceptions.hpp>
 
 #include <algorithm>
@@ -13,7 +11,9 @@
 #include <limits>
 #include <map>
 #include <set>
+#include <span>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace fincore {
@@ -548,6 +548,227 @@ research_export_result export_factor_research(
     }
     exported.files.push_back("manifest.json");
     return exported;
+}
+
+
+std::vector<research_correlation_row> research_factor_correlations(
+    const std::span<const research_factor_panel> factors,
+    const int min_assets) {
+    if (min_assets < 1) {
+        throw factor_data_error{
+            "min_assets must be a positive integer"};
+    }
+    if (factors.empty()) {
+        return {};
+    }
+    std::set<std::string> names;
+    std::vector<std::map<timestamp, std::map<std::string, double>>> panels;
+    panels.reserve(factors.size());
+    for (const auto& factor : factors) {
+        if (factor.name.empty() || !names.insert(factor.name).second) {
+            throw factor_data_error{
+                "factor names must be non-empty and unique"};
+        }
+        std::map<timestamp, std::map<std::string, double>> by_date;
+        for (std::size_t row = 0; row < factor.values.dates.size(); ++row) {
+            if (!std::isfinite(factor.values.values[row])) {
+                continue;
+            }
+            by_date[factor.values.dates[row]][factor.values.assets[row]] =
+                factor.values.values[row];
+        }
+        panels.push_back(std::move(by_date));
+    }
+    std::vector<research_correlation_row> result;
+    for (std::size_t left = 0; left < factors.size(); ++left) {
+        for (std::size_t right = left + 1U; right < factors.size(); ++right) {
+            std::vector<double> correlations;
+            const auto& left_panel = panels[left];
+            const auto& right_panel = panels[right];
+            for (const auto& [date, left_values] : left_panel) {
+                const auto found = right_panel.find(date);
+                if (found == right_panel.end()) {
+                    continue;
+                }
+                const auto& right_values = found->second;
+                std::vector<double> x_values;
+                std::vector<double> y_values;
+                for (const auto& [asset, value] : left_values) {
+                    const auto other = right_values.find(asset);
+                    if (other == right_values.end()) {
+                        continue;
+                    }
+                    x_values.push_back(value);
+                    y_values.push_back(other->second);
+                }
+                if (x_values.size() <
+                    static_cast<std::size_t>(min_assets)) {
+                    continue;
+                }
+                const double x_mean =
+                    std::accumulate(x_values.begin(), x_values.end(), 0.0) /
+                    static_cast<double>(x_values.size());
+                const double y_mean =
+                    std::accumulate(y_values.begin(), y_values.end(), 0.0) /
+                    static_cast<double>(y_values.size());
+                double xx = 0.0;
+                double yy = 0.0;
+                double xy = 0.0;
+                for (std::size_t index = 0; index < x_values.size();
+                     ++index) {
+                    const double dx = x_values[index] - x_mean;
+                    const double dy = y_values[index] - y_mean;
+                    xx += dx * dx;
+                    yy += dy * dy;
+                    xy += dx * dy;
+                }
+                if (xx <= 0.0 || yy <= 0.0) {
+                    continue;
+                }
+                const double value = xy / std::sqrt(xx * yy);
+                if (std::isfinite(value)) {
+                    correlations.push_back(value);
+                }
+            }
+            research_correlation_row row;
+            row.left = factors[left].name;
+            row.right = factors[right].name;
+            row.n_dates = correlations.size();
+            if (!correlations.empty()) {
+                const double mean =
+                    std::accumulate(correlations.begin(),
+                                    correlations.end(), 0.0) /
+                    static_cast<double>(correlations.size());
+                row.mean_correlation = mean;
+                if (correlations.size() > 1U) {
+                    double variance = 0.0;
+                    for (const double value : correlations) {
+                        variance += (value - mean) * (value - mean);
+                    }
+                    row.std_correlation =
+                        std::sqrt(variance /
+                                  static_cast<double>(correlations.size() -
+                                                      1U));
+                } else {
+                    row.std_correlation = nan;
+                }
+            } else {
+                row.mean_correlation = nan;
+                row.std_correlation = nan;
+            }
+            result.push_back(std::move(row));
+        }
+    }
+    return result;
+}
+
+namespace {
+
+struct ic_statistics {
+    double mean = nan;
+    double icir = nan;
+    std::size_t n_dates = 0U;
+};
+
+ic_statistics label_statistics(const research_result& result,
+                               const std::string& label) {
+    ic_statistics statistics;
+    const auto found =
+        std::find(result.information_coefficient.labels.begin(),
+                  result.information_coefficient.labels.end(), label);
+    if (found == result.information_coefficient.labels.end()) {
+        return statistics;
+    }
+    const std::size_t column = static_cast<std::size_t>(
+        found - result.information_coefficient.labels.begin());
+    const std::size_t labels = result.information_coefficient.labels.size();
+    std::vector<double> values;
+    for (std::size_t date = 0;
+         date < result.information_coefficient.dates.size(); ++date) {
+        const double value =
+            result.information_coefficient.values[date * labels + column];
+        if (std::isfinite(value)) {
+            values.push_back(value);
+        }
+    }
+    statistics.n_dates = values.size();
+    if (values.empty()) {
+        return statistics;
+    }
+    statistics.mean =
+        std::accumulate(values.begin(), values.end(), 0.0) /
+        static_cast<double>(values.size());
+    if (values.size() > 1U) {
+        double variance = 0.0;
+        for (const double value : values) {
+            variance += (value - statistics.mean) *
+                        (value - statistics.mean);
+        }
+        const double deviation = std::sqrt(
+            variance / static_cast<double>(values.size() - 1U));
+        if (deviation > 1e-15) {
+            statistics.icir = statistics.mean / deviation;
+        }
+    }
+    return statistics;
+}
+
+}  // namespace
+
+std::vector<research_comparison_row> research_factor_comparisons(
+    const std::span<const named_research_result> results,
+    const std::map<std::string, std::pair<std::string, std::string>>&
+        comparisons) {
+    std::map<std::string, const research_result*> by_name;
+    for (const auto& entry : results) {
+        if (entry.name.empty() ||
+            !by_name.emplace(entry.name, &entry.result).second) {
+            throw factor_data_error{
+                "research result names must be non-empty and unique"};
+        }
+    }
+    std::vector<research_comparison_row> rows;
+    for (const auto& [name, pair] : comparisons) {
+        const auto left = by_name.find(pair.first);
+        const auto right = by_name.find(pair.second);
+        if (left == by_name.end() || right == by_name.end()) {
+            throw factor_data_error{
+                "comparison references an unknown factor"};
+        }
+        std::vector<std::string> labels =
+            left->second->information_coefficient.labels;
+        for (const auto& label : right->second->information_coefficient.labels) {
+            if (std::find(labels.begin(), labels.end(), label) ==
+                labels.end()) {
+                labels.push_back(label);
+            }
+        }
+        for (const auto& label : labels) {
+            const auto left_stats = label_statistics(*left->second, label);
+            const auto right_stats = label_statistics(*right->second, label);
+            research_comparison_row row;
+            row.comparison = name;
+            row.left = pair.first;
+            row.right = pair.second;
+            row.period = label;
+            row.mean_ic_left = left_stats.mean;
+            row.mean_ic_right = right_stats.mean;
+            row.icir_left = left_stats.icir;
+            row.icir_right = right_stats.icir;
+            row.n_dates_left = left_stats.n_dates;
+            row.n_dates_right = right_stats.n_dates;
+            row.mean_ic = std::isfinite(left_stats.mean) &&
+                                  std::isfinite(right_stats.mean)
+                              ? left_stats.mean - right_stats.mean
+                              : nan;
+            row.icir = std::isfinite(left_stats.icir) &&
+                               std::isfinite(right_stats.icir)
+                           ? left_stats.icir - right_stats.icir
+                           : nan;
+            rows.push_back(std::move(row));
+        }
+    }
+    return rows;
 }
 
 }  // namespace fincore
