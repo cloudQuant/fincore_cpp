@@ -46,6 +46,11 @@ double burke_ratio(const dataframe& returns,
                    double annualization = daily_annualization,
                    std::string_view column = returns_column);
 
+double sterling_ratio(const dataframe& returns,
+                      double risk_free = 0.0,
+                      double annualization = daily_annualization,
+                      std::string_view column = returns_column);
+
 double common_sense_ratio(const dataframe& returns,
                           std::string_view column = returns_column);
 

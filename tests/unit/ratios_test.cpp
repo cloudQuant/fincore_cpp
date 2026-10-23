@@ -27,6 +27,8 @@ using deflated_sharpe_ratio_signature =
     double (*)(const fincore::dataframe&, double, int, std::string_view);
 using burke_ratio_signature =
     double (*)(const fincore::dataframe&, double, double, std::string_view);
+using sterling_ratio_signature =
+    double (*)(const fincore::dataframe&, double, double, std::string_view);
 
 static_assert(std::is_same_v<
               decltype(static_cast<kappa_three_ratio_signature>(
@@ -43,6 +45,8 @@ static_assert(std::is_same_v<decltype(&fincore::deflated_sharpe_ratio),
                              deflated_sharpe_ratio_signature>);
 static_assert(std::is_same_v<decltype(&fincore::burke_ratio),
                              burke_ratio_signature>);
+static_assert(std::is_same_v<decltype(&fincore::sterling_ratio),
+                             sterling_ratio_signature>);
 
 TEST(Ratios, PublishesExactKappaThreeSignatureAndDefaultCall) {
     const auto returns =
@@ -1213,6 +1217,92 @@ TEST(Ratios, BurkeRatioReturnsOwnedScalarAfterInputLifetimesEnd) {
     }();
 
     EXPECT_NEAR(result, 25.638234713640998, 1e-12);
+}
+
+TEST(Ratios, SterlingRatioMatchesPythonOracleForDrawdownAndFallbackPaths) {
+    const auto ordinary = fincore::make_series(
+        {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, "returns",
+        {0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03});
+    const auto monotone =
+        fincore::make_series({1, 2, 3}, "returns", {0.01, 0.02, 0.03});
+    const auto flat =
+        fincore::make_series({1, 2, 3}, "returns", {0.0, 0.0, 0.0});
+
+    EXPECT_NEAR(fincore::sterling_ratio(ordinary), 37.373828320998385, 1e-12);
+    EXPECT_NEAR(fincore::sterling_ratio(ordinary, 0.001),
+                37.348828320998386, 1e-12);
+    EXPECT_NEAR(fincore::sterling_ratio(ordinary, 0.0, 52.0),
+                5.190723318961585, 1e-12);
+    EXPECT_NEAR(fincore::sterling_ratio(monotone), 17733.449583883645, 1e-8);
+    EXPECT_DOUBLE_EQ(fincore::sterling_ratio(flat), 0.0);
+}
+
+TEST(Ratios, SterlingRatioPreservesConstantTinyDrawdownAndNonfiniteClasses) {
+    const double infinity = std::numeric_limits<double>::infinity();
+    const auto positive_constant = adjusted_series({0.01, 0.01, 0.01, 0.01});
+    const auto negative_constant =
+        adjusted_series({-0.01, -0.01, -0.01, -0.01});
+    const auto tiny_drawdown = adjusted_series({-1e-12, 0.01});
+    const auto nan_mixed = adjusted_series({0.01, nan, -0.05, 0.03, 0.01});
+    const auto all_nan = adjusted_series({nan, nan, nan});
+    const auto positive_inf = adjusted_series({infinity, 0.01, -0.02, 0.03});
+    const auto negative_inf = adjusted_series({-infinity, 0.01, -0.02, 0.03});
+
+    EXPECT_NEAR(fincore::sterling_ratio(positive_constant),
+                112740020992.40234, 1e2);
+    EXPECT_NEAR(fincore::sterling_ratio(negative_constant),
+                -30.994059065669386, 1e-12);
+    EXPECT_TRUE(std::isinf(fincore::sterling_ratio(tiny_drawdown)));
+    EXPECT_GT(fincore::sterling_ratio(tiny_drawdown), 0.0);
+    EXPECT_NEAR(fincore::sterling_ratio(nan_mixed), -1.7656492431737019,
+                1e-12);
+    EXPECT_TRUE(std::isnan(fincore::sterling_ratio(all_nan)));
+    EXPECT_TRUE(std::isinf(fincore::sterling_ratio(positive_inf)));
+    const double negative_infinity_result =
+        fincore::sterling_ratio(negative_inf);
+    EXPECT_EQ(negative_infinity_result, 0.0);
+    EXPECT_TRUE(std::signbit(negative_infinity_result));
+}
+
+TEST(Ratios, SterlingRatioGatesRawCountAndRiskFreeNonfinite) {
+    const auto empty = fincore::make_series({}, "returns", {});
+    const auto singleton = fincore::make_series({1}, "returns", {0.01});
+    const auto ordinary = fincore::make_series(
+        {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, "returns",
+        {0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03});
+
+    EXPECT_TRUE(std::isnan(fincore::sterling_ratio(empty)));
+    EXPECT_TRUE(std::isnan(fincore::sterling_ratio(singleton)));
+    EXPECT_TRUE(std::isnan(fincore::sterling_ratio(ordinary, nan)));
+}
+
+TEST(Ratios, SterlingRatioSupportsNamedAndBoundedSelectors) {
+    const auto strategy = fincore::make_series(
+        {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, "strategy",
+        {0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03});
+    constexpr std::array<char, 8> bounded_name{
+        's', 't', 'r', 'a', 't', 'e', 'g', 'y'};
+    const std::string_view bounded_selector{bounded_name.data(),
+                                            bounded_name.size()};
+
+    EXPECT_NEAR(fincore::sterling_ratio(strategy, 0.0, 252.0, "strategy"),
+                37.373828320998385, 1e-12);
+    EXPECT_DOUBLE_EQ(fincore::sterling_ratio(strategy, 0.0, 252.0,
+                                             bounded_selector),
+                     fincore::sterling_ratio(strategy, 0.0, 252.0, "strategy"));
+}
+
+TEST(Ratios, SterlingRatioReturnsOwnedScalarAfterInputLifetimesEnd) {
+    const double result = [] {
+        const std::string column{"returns"};
+        const std::string_view selector{column.data(), column.size()};
+        const auto returns = fincore::make_series(
+            {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, "returns",
+            {0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03});
+        return fincore::sterling_ratio(returns, 0.0, 252.0, selector);
+    }();
+
+    EXPECT_NEAR(result, 37.373828320998385, 1e-12);
 }
 
 }  // namespace
