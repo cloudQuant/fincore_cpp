@@ -2193,3 +2193,25 @@ record](docs/acceptance/2026-10-23-phase-45-m-squared-acceptance.md).
 
 This phase does not add alignment-policy parameters, adapters, reports,
 plots, packages, or release actions.
+
+## Accepted Phase 47 native capture returns
+
+Phase 47 adds `fincore::up_capture_return` and
+`fincore::down_capture_return`: the annualized strategy return over periods
+whose benchmark return is strictly positive (negative). They inner-align the
+two frames, select by benchmark sign in original order, return NaN for empty
+windows, and compound the selection with NaN-as-zero semantics. There is no
+minimum selection size: a single up-market period yields
+`11.274002099240244` on the oracle fixture. No `up_down_capture_return` exists
+at this pin and none was invented.
+
+Clean detached oracle at `4b8f31b` reproduced all goldens (up
+`1.5166094207700231`, down `1.473483204701317`, annualization-52
+`0.20978452786208313` / `0.20547717849603586`, NaN-pair
+`-0.6513934704548094` / `0.65725622476063`). Full headless CTest and LLVM 22
+ASan+UBSan each passed 542/542. Evidence is recorded in [the Phase 47
+acceptance
+record](docs/acceptance/2026-10-23-phase-47-capture-returns-acceptance.md).
+
+This phase does not add adapters, reports, plots, packages, or release
+actions.
