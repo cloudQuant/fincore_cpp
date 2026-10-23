@@ -2,7 +2,7 @@
 
 ## Scope
 
-Expands `builtin_catalog()` from two operations to **20** selected native
+Expands `builtin_catalog()` from two operations to **38** selected native
 equivalents of the pinned source catalog, using the source operation IDs and
 recording a native kernel symbol in each spec's provenance. No new dependency
 and no change to request/plan/batch/session/snapshot semantics.
@@ -26,8 +26,8 @@ modules (catalog digest
 | report | 3 | 0 | Report documents are supported as a runtime value but their builders take domain models. |
 | extensions | 0 | 0 | Provider is empty at the pin. |
 
-No source ID is invented: all 20 registered IDs were checked for exact
-membership in the pinned catalog (20/20 present, 0 missing). The previous
+No source ID is invented: all 38 registered IDs were checked for exact
+membership in the pinned catalog (38/38 present, 0 missing). The previous
 non-source ID `metrics.sharpe_ratio` is replaced by the source ID
 `metrics.ratios.sharpe_ratio`.
 
@@ -73,9 +73,8 @@ describes a selected subset with native provenance.
 
 ## Tests and gates
 
-`Runtime.BuiltinCatalogRunsAcceptedOperations` asserts the 20-operation
+`Runtime.BuiltinCatalogRunsAcceptedOperations` asserts the 38-operation
 catalog, every scalar result against its direct kernel call, the cumulative
 frame digest against the direct kernel, Kupiec `5.025167926750753`, the
 expected-exception count, the green Basel zone, rejection of the removed ID,
-and a missing-benchmark `input_error`. Full headless CTest: **709/709
-passed**. Sanitizer not re-run for this slice.
+and a missing-benchmark `input_error`. Full Release and ASan+UBSan CTest: **724/724 passed**.

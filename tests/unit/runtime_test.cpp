@@ -4,6 +4,7 @@
 #include <fincore/metrics/ratios.hpp>
 #include <fincore/metrics/returns.hpp>
 #include <fincore/metrics/risk.hpp>
+#include <fincore/metrics/stats.hpp>
 #include <fincore/risk/backtesting.hpp>
 #include <fincore/runtime/runtime.hpp>
 
@@ -146,8 +147,8 @@ TEST(Runtime, SnapshotsAndValueDigestsAreStable) {
 
 TEST(Runtime, BuiltinCatalogRunsAcceptedOperations) {
     const auto catalog = fincore::builtin_catalog();
-    ASSERT_EQ(catalog.operations().size(), 20U);
-    EXPECT_EQ(catalog.operation_ids().size(), 20U);
+    ASSERT_EQ(catalog.operations().size(), 38U);
+    EXPECT_EQ(catalog.operation_ids().size(), 38U);
     const auto frame = returns_fixture();
     const auto benchmark = benchmark_fixture();
     const fincore::runtime_inputs pair{{"returns", frame},
@@ -159,7 +160,9 @@ TEST(Runtime, BuiltinCatalogRunsAcceptedOperations) {
                          {}, catalog);
         const auto* value = std::get_if<double>(&result.value.data);
         EXPECT_NE(value, nullptr);
-        if (value != nullptr) {
+        if (value != nullptr && std::isnan(expected)) {
+            EXPECT_TRUE(std::isnan(*value)) << id;
+        } else if (value != nullptr) {
             EXPECT_DOUBLE_EQ(*value, expected) << id;
         }
     };
@@ -177,13 +180,36 @@ TEST(Runtime, BuiltinCatalogRunsAcceptedOperations) {
     single("metrics.yearly.annual_return", fincore::annual_return(frame));
     single("metrics.returns.cum_returns_final",
            fincore::cumulative_return(frame));
+    single("metrics.ratios.adjusted_sharpe_ratio",
+           fincore::adjusted_sharpe_ratio(frame));
+    single("metrics.ratios.burke_ratio", fincore::burke_ratio(frame));
+    single("metrics.ratios.conditional_sharpe_ratio",
+           fincore::conditional_sharpe_ratio(frame));
+    single("metrics.ratios.sterling_ratio", fincore::sterling_ratio(frame));
+    single("metrics.drawdown.max_drawdown_days",
+           fincore::max_drawdown_days(frame));
+    single("metrics.drawdown.max_drawdown_weeks",
+           fincore::max_drawdown_weeks(frame));
+    single("metrics.drawdown.max_drawdown_months",
+           fincore::max_drawdown_months(frame));
+    single("metrics.risk.downside_risk", fincore::downside_risk(frame));
+    single("metrics.stats.skewness", fincore::skewness(frame));
+    single("metrics.stats.kurtosis", fincore::kurtosis(frame));
+    single("metrics.stats.win_rate", fincore::win_rate(frame));
+    single("metrics.stats.loss_rate", fincore::loss_rate(frame));
+    single("metrics.stats.hurst_exponent",
+           fincore::hurst_exponent(frame));
+    single("metrics.stats.stutzer_index", fincore::stutzer_index(frame));
+    single("metrics.stats.r_cubed_turtle", fincore::r_cubed_turtle(frame));
 
     const auto paired = [&catalog, &pair](const std::string& id,
                                           const double expected) {
         const auto result = fincore::run(id, pair, {}, catalog);
         const auto* value = std::get_if<double>(&result.value.data);
         EXPECT_NE(value, nullptr);
-        if (value != nullptr) {
+        if (value != nullptr && std::isnan(expected)) {
+            EXPECT_TRUE(std::isnan(*value)) << id;
+        } else if (value != nullptr) {
             EXPECT_DOUBLE_EQ(*value, expected) << id;
         }
     };
@@ -196,6 +222,12 @@ TEST(Runtime, BuiltinCatalogRunsAcceptedOperations) {
     paired("metrics.alpha_beta.alpha",
            fincore::alpha(frame, benchmark));
     paired("metrics.alpha_beta.beta", fincore::beta(frame, benchmark));
+    paired("metrics.ratios.m_squared",
+           fincore::m_squared(frame, benchmark));
+    paired("metrics.risk.residual_risk",
+           fincore::residual_risk(frame, benchmark));
+    paired("metrics.risk.beta_fragility_heuristic",
+           fincore::beta_fragility_heuristic(frame, benchmark));
 
     const auto cumulative = fincore::run(
         "metrics.returns.cum_returns",

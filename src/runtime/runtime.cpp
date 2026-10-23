@@ -8,6 +8,7 @@
 #include <fincore/metrics/ratios.hpp>
 #include <fincore/metrics/returns.hpp>
 #include <fincore/metrics/risk.hpp>
+#include <fincore/metrics/stats.hpp>
 #include <fincore/risk/backtesting.hpp>
 
 #include <algorithm>
@@ -426,6 +427,104 @@ operation_catalog builtin_catalog() {
                 require_number(inputs, "confidence_level");
             return runtime_value(expected_exception_count(
                 static_cast<std::size_t>(observations), confidence));
+        });
+    add("metrics.drawdown.max_drawdown_days", "metrics", "max_drawdown_days",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                max_drawdown_days(require_frame(inputs, "returns")));
+        });
+    add("metrics.drawdown.max_drawdown_months", "metrics",
+        "max_drawdown_months",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                max_drawdown_months(require_frame(inputs, "returns")));
+        });
+    add("metrics.drawdown.max_drawdown_weeks", "metrics",
+        "max_drawdown_weeks",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                max_drawdown_weeks(require_frame(inputs, "returns")));
+        });
+    add("metrics.ratios.adjusted_sharpe_ratio", "metrics",
+        "adjusted_sharpe_ratio",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                adjusted_sharpe_ratio(require_frame(inputs, "returns")));
+        });
+    add("metrics.ratios.burke_ratio", "metrics", "burke_ratio",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                burke_ratio(require_frame(inputs, "returns")));
+        });
+    add("metrics.ratios.conditional_sharpe_ratio", "metrics",
+        "conditional_sharpe_ratio",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(conditional_sharpe_ratio(
+                require_frame(inputs, "returns")));
+        });
+    add("metrics.ratios.m_squared", "metrics", "m_squared",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                m_squared(require_frame(inputs, "returns"),
+                          require_frame(inputs, "benchmark")));
+        });
+    add("metrics.ratios.sterling_ratio", "metrics", "sterling_ratio",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                sterling_ratio(require_frame(inputs, "returns")));
+        });
+    add("metrics.risk.beta_fragility_heuristic", "metrics",
+        "beta_fragility_heuristic",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(beta_fragility_heuristic(
+                require_frame(inputs, "returns"),
+                require_frame(inputs, "benchmark")));
+        });
+    add("metrics.risk.downside_risk", "metrics", "downside_risk",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                downside_risk(require_frame(inputs, "returns")));
+        });
+    add("metrics.risk.residual_risk", "metrics", "residual_risk",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                residual_risk(require_frame(inputs, "returns"),
+                              require_frame(inputs, "benchmark")));
+        });
+    add("metrics.stats.hurst_exponent", "metrics", "hurst_exponent",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                hurst_exponent(require_frame(inputs, "returns")));
+        });
+    add("metrics.stats.kurtosis", "metrics", "kurtosis",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                kurtosis(require_frame(inputs, "returns")));
+        });
+    add("metrics.stats.loss_rate", "metrics", "loss_rate",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                loss_rate(require_frame(inputs, "returns")));
+        });
+    add("metrics.stats.r_cubed_turtle", "metrics", "r_cubed_turtle",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                r_cubed_turtle(require_frame(inputs, "returns")));
+        });
+    add("metrics.stats.skewness", "metrics", "skewness",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                skewness(require_frame(inputs, "returns")));
+        });
+    add("metrics.stats.stutzer_index", "metrics", "stutzer_index",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                stutzer_index(require_frame(inputs, "returns")));
+        });
+    add("metrics.stats.win_rate", "metrics", "win_rate",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                win_rate(require_frame(inputs, "returns")));
         });
     return operation_catalog(std::move(operations));
 }
