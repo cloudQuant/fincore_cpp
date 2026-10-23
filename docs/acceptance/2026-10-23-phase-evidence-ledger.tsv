@@ -52,7 +52,7 @@ phase	iteration	scope	evidence	status	notes
 82	5	portfolio constructor and costs	iteration-5-pit-portfolio; iteration-5-factor-costs-analysis	accepted	
 83	5	research evaluator and export	iteration-5-research-tears; phase-83-research-export; phase-83-research-correlations	accepted_bounded	segments/grid/next-open/universe open
 84	5	factor report	phase-84-factor-report	accepted	
-85	5	tear chart data	iteration-5-research-tears	accepted_bounded	visual NOT_RUN
+85	5	tear chart data	iteration-5-research-tears; phase-85-group-tears	accepted_bounded	visual NOT_RUN
 86	5	factor HTML	iteration-5-research-tears; iteration-6-html-risk-runtime	accepted_bounded	no pixel review
 87	5	performance study	phase-87-factor-performance	accepted	
 88a	6	report schema/artifact boundary	phase-88a-report-schema	accepted	

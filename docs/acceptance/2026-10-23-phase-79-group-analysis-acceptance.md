@@ -42,8 +42,9 @@ difference versus `by_group=false`, and the missing-group failure.
 
 ## Declared gaps
 
-Group tear-sheet rendering and group sections in the factor report are not
-modelled (the source factor report is aggregate-only). Group labels are sorted
+Grouped tear chart data is accepted separately; on-screen rendering and group
+sections in the factor report are not modelled (the source factor report is
+aggregate-only). Group labels are sorted
 as strings; heterogeneous label ordering is not reproduced. Per-group
 `group_adjust` is not applied, matching the source group helper.
 

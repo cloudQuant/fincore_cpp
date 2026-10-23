@@ -11,7 +11,7 @@
 | 82 | Costs/capacity ledger, overlapping portfolio constructor, business-day holdings, cash/benchmark | [costs](2026-10-23-iteration-5-factor-costs-analysis-acceptance.md), [PIT/portfolio](2026-10-23-iteration-5-pit-portfolio-acceptance.md) |
 | 83 | Research evaluation, capabilities, CSV/manifest export, correlations/comparisons | [research/tears](2026-10-23-iteration-5-research-tears-acceptance.md), [export](2026-10-23-phase-83-research-export-acceptance.md), [correlations](2026-10-23-phase-83-research-correlations-acceptance.md) |
 | 84 | Four-section factor report projection | [factor report](2026-10-23-phase-84-factor-report-acceptance.md) |
-| 85/86 | ImPlot tear chart data; factor HTML through the shared renderer | [research/tears](2026-10-23-iteration-5-research-tears-acceptance.md) |
+| 85/86 | ImPlot tear chart data (including grouped panels); factor HTML through the shared renderer | [research/tears](2026-10-23-iteration-5-research-tears-acceptance.md), [group tears](2026-10-23-phase-85-group-tears-acceptance.md) |
 | 87 | Native pipeline benchmark and measurements | [performance study](2026-10-23-phase-87-factor-performance-acceptance.md) |
 
 The parity ledger lists **zero unresolved factor-analysis function gaps**
@@ -23,18 +23,18 @@ calendar utilities, or pandas/plugin plumbing.
 - Oracle fixtures at pinned Python `4b8f31b1` with recorded hashes for data,
   performance, analysis, portfolio, research and event windows.
 - Full headless CTest **721/721** passed at the final HEAD.
-- Full ASan+UBSan suite **726/726 passed** at the final HEAD (Homebrew LLVM
+- Full ASan+UBSan suite **727/727 passed** at the final HEAD (Homebrew LLVM
   22.1.8, Ninja Debug).
 - Visual **NOT_RUN** (tear-sheet plotting deferred; HTML is structurally
   accepted but not pixel-reviewed).
 
 ## Open items
 
-- Group-aware model results are accepted; group tear rendering and the
-  source duplicate aggregate-versus-group snapshots are not modelled. The
-  optional event model is accepted.
+- Group-aware model results and grouped tear chart data are accepted; on-screen
+  rendering and the source duplicate aggregate-versus-group snapshots are not
+  modelled. The optional event model is accepted.
 - Matplotlib tear-sheet functions are deferred in favour of ImPlot chart data;
-  visual rendering is unverified.
+  grouped chart data is accepted, but visual rendering is unverified.
 - Calendar utility functions (`infer_trading_calendar`, timedelta helpers)
   are deferred; business-day handling exists internally.
 - Research grid/next-open bases, universe/group inputs, segments and
