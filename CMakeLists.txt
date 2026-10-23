@@ -30,6 +30,7 @@ add_library(fincore
     src/metrics/drawdown.cpp
     src/metrics/consecutive.cpp
     src/metrics/ratios.cpp
+    src/performance/returns.cpp
     src/metrics/stats.cpp
     src/metrics/risk.cpp
     src/metrics/alpha_beta.cpp
