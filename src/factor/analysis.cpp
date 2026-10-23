@@ -339,6 +339,7 @@ std::string fingerprint_of(const prepared_factor_data& data,
     append_u64(config.long_short ? 1U : 0U);
     append_u64(config.group_neutral ? 1U : 0U);
     append_u64(config.equal_weight ? 1U : 0U);
+    append_u64(config.by_group ? 1U : 0U);
     append_u64(config.include_portfolio_inputs ? 1U : 0U);
     append_text(config.portfolio_benchmark_period);
     append_u64(periods.size());
@@ -365,6 +366,8 @@ std::string fingerprint_of(const prepared_factor_data& data,
         }
     }
     append_u64(event_returns != nullptr ? 1U : 0U);
+
+
     if (event_returns != nullptr) {
         append_u64(static_cast<std::uint64_t>(event_before));
         append_u64(static_cast<std::uint64_t>(event_after));
@@ -468,6 +471,54 @@ static factor_analysis_model analyze_factor_impl(
         quantile_cumulative_curves(model.mean_returns_by_date, periods);
     model.time_aggregated_information.push_back(
         monthly_information(model.information_coefficient, "M"));
+
+    if (config.by_group) {
+        std::set<std::string> group_names;
+        for (const auto& row : analysis_data.rows) {
+            if (!row.has_group) {
+                throw factor_data_error{
+                    "factor_data must contain groups when by_group=true"};
+            }
+            group_names.insert(row.group);
+        }
+        for (const auto& group : group_names) {
+            prepared_factor_data group_data;
+            group_data.forward_labels = analysis_data.forward_labels;
+            group_data.loss_report = analysis_data.loss_report;
+            for (const auto& row : analysis_data.rows) {
+                if (row.has_group && row.group == group) {
+                    group_data.rows.push_back(row);
+                }
+            }
+            factor_group_analysis grouped;
+            grouped.group = group;
+            grouped.quantile_statistics = quantile_statistics(group_data);
+            grouped.factor_weights = factor_weights(
+                group_data, config.long_short, false, config.equal_weight);
+            grouped.factor_returns = factor_returns(
+                group_data, config.long_short, false, config.equal_weight);
+            grouped.mean_returns_by_quantile = mean_return_by_quantile(
+                group_data, false, false, config.long_short, false);
+            grouped.information_coefficient =
+                factor_information_coefficient(group_data, false);
+            grouped.mean_information_coefficient =
+                mean_information_coefficient(group_data, false);
+            std::set<int> group_quantiles;
+            for (const auto& row : group_data.rows) {
+                group_quantiles.insert(row.quantile);
+            }
+            for (const int lag : config.turnover_periods) {
+                for (const int quantile : group_quantiles) {
+                    grouped.quantile_turnover.push_back(
+                        {quantile, lag,
+                         quantile_turnover(group_data, quantile, lag)});
+                }
+                grouped.rank_autocorrelation.push_back(
+                    {lag, factor_rank_autocorrelation(group_data, lag)});
+            }
+            model.grouped_results.push_back(std::move(grouped));
+        }
+    }
 
     if (event_returns != nullptr) {
         if (event_before < 0 || event_after < 0) {

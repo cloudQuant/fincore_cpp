@@ -223,6 +223,88 @@ TEST(FactorAnalysis, BuildsOptionalEventModelFromEventReturns) {
                  fincore::factor_data_error);
 }
 
+TEST(FactorAnalysis, BuildsGroupedResultsWhenRequested) {
+    const auto start = fincore::utc_timestamp(2022, 1, 3);
+    const auto day = 86'400'000'000'000LL;
+    fincore::prepared_factor_data prepared;
+    prepared.forward_labels = {"1D"};
+    const char* assets[] = {"A", "B", "C", "D"};
+    const char* groups[] = {"G1", "G1", "G2", "G2"};
+    const int quantiles[] = {1, 2, 1, 2};
+    for (int date = 0; date < 4; ++date) {
+        for (int asset = 0; asset < 4; ++asset) {
+            fincore::factor_row row;
+            row.date = start + date * day;
+            row.asset = assets[asset];
+            row.factor = static_cast<double>(asset + 1);
+            row.quantile = quantiles[asset];
+            row.has_group = true;
+            row.group = groups[asset];
+            row.forward_returns = {
+                0.01 * (asset + 1) + 0.001 * date};
+            prepared.rows.push_back(row);
+        }
+    }
+    fincore::factor_analysis_config config;
+    config.periods = {"1D"};
+    config.turnover_periods = {1, 2};
+    config.include_portfolio_inputs = false;
+    config.by_group = true;
+    const auto model = fincore::analyze_factor(prepared, config);
+    ASSERT_EQ(model.grouped_results.size(), 2U);
+    const auto& g1 = model.grouped_results[0];
+    EXPECT_EQ(g1.group, "G1");
+    ASSERT_EQ(g1.quantile_statistics.size(), 2U);
+    EXPECT_DOUBLE_EQ(g1.quantile_statistics[0].mean, 1.0);
+    EXPECT_DOUBLE_EQ(g1.quantile_statistics[1].mean, 2.0);
+    EXPECT_EQ(g1.quantile_statistics[0].count, 4U);
+    EXPECT_DOUBLE_EQ(g1.quantile_statistics[0].count_percent, 50.0);
+    ASSERT_EQ(g1.mean_returns_by_quantile.means.size(), 2U);
+    EXPECT_NEAR(g1.mean_returns_by_quantile.means[0], -0.005000000000000001,
+                1e-15);
+    EXPECT_NEAR(g1.mean_returns_by_quantile.means[1], 0.004999999999999999,
+                1e-15);
+    ASSERT_EQ(g1.factor_weights.size(), 8U);
+    EXPECT_EQ(g1.factor_weights[0].asset, "A");
+    EXPECT_DOUBLE_EQ(g1.factor_weights[0].weight, -0.5);
+    EXPECT_EQ(g1.factor_weights[1].asset, "B");
+    EXPECT_DOUBLE_EQ(g1.factor_weights[1].weight, 0.5);
+    ASSERT_EQ(g1.factor_returns.dates.size(), 4U);
+    EXPECT_NEAR(g1.factor_returns.values[0], 0.005, 1e-15);
+    EXPECT_NEAR(g1.factor_returns.values[1], 0.005000000000000001, 1e-15);
+    ASSERT_EQ(g1.information_coefficient.values.size(), 4U);
+    EXPECT_NEAR(g1.information_coefficient.values[0],
+                0.9999999999999999, 1e-12);
+    EXPECT_NEAR(g1.mean_information_coefficient.means[0],
+                0.9999999999999999, 1e-12);
+    ASSERT_EQ(g1.quantile_turnover.size(), 4U);
+    for (const auto& turnover : g1.quantile_turnover) {
+        EXPECT_DOUBLE_EQ(turnover.values.values.back(), 0.0);
+    }
+    ASSERT_EQ(g1.rank_autocorrelation.size(), 2U);
+    EXPECT_NEAR(g1.rank_autocorrelation[0].values.values.back(),
+                0.9999999999999998, 1e-12);
+
+    const auto& g2 = model.grouped_results[1];
+    EXPECT_EQ(g2.group, "G2");
+    EXPECT_DOUBLE_EQ(g2.quantile_statistics[0].mean, 3.0);
+    EXPECT_DOUBLE_EQ(g2.quantile_statistics[1].mean, 4.0);
+    EXPECT_NEAR(g2.mean_returns_by_quantile.means[0],
+                -0.0050000000000000044, 1e-15);
+    EXPECT_NEAR(g2.mean_returns_by_quantile.means[1],
+                0.0049999999999999975, 1e-15);
+
+    auto aggregate = config;
+    aggregate.by_group = false;
+    EXPECT_NE(fincore::analyze_factor(prepared, aggregate).result_fingerprint,
+              model.result_fingerprint);
+    auto missing = prepared;
+    missing.rows[0].has_group = false;
+    EXPECT_THROW(
+        static_cast<void>(fincore::analyze_factor(missing, config)),
+        fincore::factor_data_error);
+}
+
 }  // namespace
 
 TEST(FactorAnalysis, MatchesCleanPythonModelSnapshot) {

@@ -23,16 +23,16 @@ calendar utilities, or pandas/plugin plumbing.
 - Oracle fixtures at pinned Python `4b8f31b1` with recorded hashes for data,
   performance, analysis, portfolio, research and event windows.
 - Full headless CTest **721/721** passed at the final HEAD.
-- Full ASan+UBSan suite **723/723 passed** at the final HEAD (Homebrew LLVM
+- Full ASan+UBSan suite **724/724 passed** at the final HEAD (Homebrew LLVM
   22.1.8, Ninja Debug).
 - Visual **NOT_RUN** (tear-sheet plotting deferred; HTML is structurally
   accepted but not pixel-reviewed).
 
 ## Open items
 
-- Group-aware factor analysis (`by_group`, group-neutral aggregate snapshots)
-  and group tear models are not modelled; the optional event model is now
-  accepted.
+- Group-aware model results are accepted; group tear rendering and the
+  source duplicate aggregate-versus-group snapshots are not modelled. The
+  optional event model is accepted.
 - Matplotlib tear-sheet functions are deferred in favour of ImPlot chart data;
   visual rendering is unverified.
 - Calendar utility functions (`infer_trading_calendar`, timedelta helpers)

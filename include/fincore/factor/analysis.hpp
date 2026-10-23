@@ -15,6 +15,7 @@ struct factor_analysis_config {
     bool long_short = true;
     bool group_neutral = false;
     bool equal_weight = false;
+    bool by_group = false;
     /// Empty selects every forward-return label.
     std::vector<std::string> periods;
     std::vector<int> turnover_periods{1};
@@ -68,6 +69,18 @@ struct factor_rank_autocorrelation_series {
     factor_series_result values;
 };
 
+struct factor_group_analysis {
+    std::string group;
+    std::vector<factor_quantile_statistics> quantile_statistics;
+    std::vector<factor_weight_row> factor_weights;
+    factor_return_table factor_returns;
+    quantile_return_table mean_returns_by_quantile;
+    factor_ic_table information_coefficient;
+    factor_ic_summary mean_information_coefficient;
+    std::vector<factor_turnover_series> quantile_turnover;
+    std::vector<factor_rank_autocorrelation_series> rank_autocorrelation;
+};
+
 struct factor_event_model {
     std::vector<int> offsets;
     std::vector<timestamp> event_dates;
@@ -101,6 +114,7 @@ struct factor_analysis_model {
     std::vector<factor_quantile_curve> quantile_cumulative_returns;
     std::vector<factor_position_series> factor_positions;
     std::vector<factor_time_information_table> time_aggregated_information;
+    std::vector<factor_group_analysis> grouped_results;
     std::optional<factor_event_model> event_analysis;
     std::optional<dataframe> event_input_snapshot;
     std::optional<factor_portfolio_inputs> portfolio_inputs;
