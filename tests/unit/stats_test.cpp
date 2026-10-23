@@ -17,9 +17,13 @@ constexpr double nan = std::numeric_limits<double>::quiet_NaN();
 
 using hurst_exponent_signature =
     double (*)(const fincore::dataframe&, std::string_view);
+using stutzer_index_signature =
+    double (*)(const fincore::dataframe&, double, std::string_view);
 
 static_assert(std::is_same_v<decltype(&fincore::hurst_exponent),
                              hurst_exponent_signature>);
+static_assert(std::is_same_v<decltype(&fincore::stutzer_index),
+                             stutzer_index_signature>);
 
 using r_cubed_signature =
     double (*)(const fincore::dataframe&, const fincore::dataframe&,
@@ -539,6 +543,102 @@ TEST(Stats, HurstExponentReturnsOwnedScalarAfterInputLifetimeEnds) {
     }();
 
     EXPECT_NEAR(result, 1.0, 1e-12);
+}
+
+TEST(Stats, StutzerIndexMatchesPythonOracleForBothSigns) {
+    const auto ordinary = fincore::make_series(
+        hurst_index(10), "returns",
+        {0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03});
+    const auto negative = fincore::make_series(
+        hurst_index(10), "returns",
+        {-0.01, -0.02, 0.05, -0.03, -0.01, 0.02, -0.04, -0.01, -0.02, 0.03});
+
+    EXPECT_NEAR(fincore::stutzer_index(ordinary), 0.14630936783628698, 1e-6);
+    EXPECT_NEAR(fincore::stutzer_index(ordinary, 0.001),
+                0.11013897196625373, 1e-6);
+    EXPECT_NEAR(fincore::stutzer_index(negative),
+                -0.14630936783628545, 1e-6);
+    EXPECT_NEAR(fincore::stutzer_index(negative, -0.001),
+                -0.11013897196625273, 1e-6);
+}
+
+TEST(Stats, StutzerIndexGatesShortZeroAndNaNInputs) {
+    const auto zeros = fincore::make_series(hurst_index(4), "returns",
+                                            std::vector<double>(4, 0.0));
+    const auto raw_zero = fincore::make_series({}, "returns", {});
+    const auto raw_one = fincore::make_series({1}, "returns", {0.01});
+    const auto one_clean = fincore::make_series(
+        hurst_index(4), "returns", {nan, nan, 0.01, nan});
+    const auto all_nan = fincore::make_series(
+        hurst_index(3), "returns", {nan, nan, nan});
+    const auto nan_mixed = fincore::make_series(
+        hurst_index(5), "returns", {0.01, nan, 0.02, -0.03, 0.01});
+
+    EXPECT_DOUBLE_EQ(fincore::stutzer_index(zeros), 0.0);
+    EXPECT_TRUE(std::isnan(fincore::stutzer_index(raw_zero)));
+    EXPECT_TRUE(std::isnan(fincore::stutzer_index(raw_one)));
+    EXPECT_TRUE(std::isnan(fincore::stutzer_index(one_clean)));
+    EXPECT_TRUE(std::isnan(fincore::stutzer_index(all_nan)));
+    EXPECT_NEAR(fincore::stutzer_index(nan_mixed), 0.12766869919010967, 1e-6);
+}
+
+TEST(Stats, StutzerIndexHandlesConstantsOverflowAndInfinity) {
+    const double infinity = std::numeric_limits<double>::infinity();
+    const auto positive = fincore::make_series(hurst_index(4), "returns",
+                                               std::vector<double>(4, 0.01));
+    const auto negative = fincore::make_series(hurst_index(4), "returns",
+                                               std::vector<double>(4, -0.01));
+    const auto overflow = fincore::make_series(
+        hurst_index(4), "returns",
+        {-5.0, 0.01, 0.02, 0.03});
+    const auto positive_inf = fincore::make_series(
+        hurst_index(4), "returns", {infinity, 0.01, -0.02, 0.03});
+    const auto negative_inf = fincore::make_series(
+        hurst_index(4), "returns", {-infinity, 0.01, -0.02, 0.03});
+
+    EXPECT_NEAR(fincore::stutzer_index(positive), 1.0, 1e-6);
+    EXPECT_NEAR(fincore::stutzer_index(negative), -1.0, 1e-6);
+    EXPECT_NEAR(fincore::stutzer_index(overflow), -0.7294427821824202, 1e-6);
+    EXPECT_NEAR(fincore::stutzer_index(positive_inf), 0.8242437395987398,
+                1e-6);
+    EXPECT_NEAR(fincore::stutzer_index(negative_inf), -0.7585275606810086,
+                1e-6);
+}
+
+TEST(Stats, StutzerIndexSupportsSelectorsAndRejectsNul) {
+    const auto strategy = fincore::make_series(
+        hurst_index(10), "strategy",
+        {0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03});
+    constexpr std::array<char, 8> bounded_name{
+        's', 't', 'r', 'a', 't', 'e', 'g', 'y'};
+    const std::string_view bounded_selector{bounded_name.data(),
+                                            bounded_name.size()};
+    const std::array<char, 13> embedded_storage{
+        'r', 'e', 't', 'u', 'r', 'n', 's', '\0', 'e', 'v', 'i', 'l', '!'};
+    const std::string_view embedded_selector{embedded_storage.data(),
+                                             embedded_storage.size()};
+
+    EXPECT_NEAR(fincore::stutzer_index(strategy, 0.0, bounded_selector),
+                0.14630936783628698, 1e-6);
+    EXPECT_THROW(
+        static_cast<void>(fincore::stutzer_index(strategy, 0.0,
+                                                 embedded_selector)),
+        fincore::input_error);
+    EXPECT_THROW(static_cast<void>(fincore::stutzer_index(strategy, 0.0, "")),
+                 fincore::input_error);
+}
+
+TEST(Stats, StutzerIndexReturnsOwnedScalarAfterInputLifetimeEnds) {
+    const double result = [] {
+        const std::string column{"returns"};
+        const std::string_view selector{column.data(), column.size()};
+        const auto frame = fincore::make_series(
+            hurst_index(10), "returns",
+            {0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03});
+        return fincore::stutzer_index(frame, 0.0, selector);
+    }();
+
+    EXPECT_NEAR(result, 0.14630936783628698, 1e-6);
 }
 
 }  // namespace

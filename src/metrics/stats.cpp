@@ -432,4 +432,85 @@ double hurst_exponent(const dataframe& returns, std::string_view column) {
     return hurst;
 }
 
+double stutzer_objective(double theta,
+                         const std::vector<double>& excess_returns) {
+    double total = 0.0;
+    for (const double value : excess_returns) {
+        const double tilted = std::exp(theta * value);
+        if (std::isinf(tilted) || std::isnan(tilted)) {
+            return 0.0;
+        }
+        total += tilted;
+    }
+    return std::log(total / static_cast<double>(excess_returns.size()));
+}
+
+double stutzer_index(const dataframe& returns,
+                     double target_return,
+                     std::string_view column) {
+    if (column.find('\0') != std::string_view::npos) {
+        throw input_error{"column name must not contain an embedded NUL"};
+    }
+    const auto raw_values = require_double_column(returns, column);
+    if (raw_values.size() < 2) {
+        return nan;
+    }
+
+    std::vector<double> excess_returns;
+    excess_returns.reserve(raw_values.size());
+    for (const double value : raw_values) {
+        const double excess = value - target_return;
+        if (!std::isnan(excess)) {
+            excess_returns.push_back(excess);
+        }
+    }
+    if (excess_returns.size() < 2) {
+        return nan;
+    }
+
+    double total = 0.0;
+    for (const double value : excess_returns) {
+        total += value;
+    }
+    const double mean_excess =
+        total / static_cast<double>(excess_returns.size());
+    if (std::fabs(mean_excess) < 1e-15) {
+        return 0.0;
+    }
+
+    double lower = mean_excess > 0.0 ? -50.0 : 1e-10;
+    double upper = mean_excess > 0.0 ? -1e-10 : 50.0;
+    constexpr double inverse_golden = 0.6180339887498949;
+    double left = upper - inverse_golden * (upper - lower);
+    double right = lower + inverse_golden * (upper - lower);
+    double left_value = stutzer_objective(left, excess_returns);
+    double right_value = stutzer_objective(right, excess_returns);
+    for (int iteration = 0; iteration < 200; ++iteration) {
+        if (upper - lower <= 1e-12) {
+            break;
+        }
+        if (left_value < right_value) {
+            upper = right;
+            right = left;
+            right_value = left_value;
+            left = upper - inverse_golden * (upper - lower);
+            left_value = stutzer_objective(left, excess_returns);
+        } else {
+            lower = left;
+            left = right;
+            left_value = right_value;
+            right = lower + inverse_golden * (upper - lower);
+            right_value = stutzer_objective(right, excess_returns);
+        }
+    }
+
+    double index_of_precision =
+        -stutzer_objective((lower + upper) / 2.0, excess_returns);
+    if (index_of_precision < 0.0) {
+        index_of_precision = 0.0;
+    }
+    const double sign = mean_excess > 0.0 ? 1.0 : -1.0;
+    return sign * std::sqrt(2.0 * index_of_precision);
+}
+
 }  // namespace fincore

@@ -20,6 +20,10 @@ double serial_correlation(const dataframe& returns,
 double hurst_exponent(const dataframe& returns,
                       std::string_view column = returns_column);
 
+double stutzer_index(const dataframe& returns,
+                     double target_return = 0.0,
+                     std::string_view column = returns_column);
+
 double win_rate(const dataframe& returns,
                 std::string_view column = returns_column);
 
