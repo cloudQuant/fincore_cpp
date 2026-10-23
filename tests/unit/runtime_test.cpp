@@ -1,5 +1,10 @@
 #include <fincore/calendar.hpp>
+#include <fincore/metrics/alpha_beta.hpp>
+#include <fincore/metrics/drawdown.hpp>
 #include <fincore/metrics/ratios.hpp>
+#include <fincore/metrics/returns.hpp>
+#include <fincore/metrics/risk.hpp>
+#include <fincore/risk/backtesting.hpp>
 #include <fincore/runtime/runtime.hpp>
 
 #include <gtest/gtest.h>
@@ -13,6 +18,11 @@ namespace {
 fincore::dataframe returns_fixture() {
     return fincore::make_series({1, 2, 3}, "returns",
                                 {0.01, 0.02, -0.01});
+}
+
+fincore::dataframe benchmark_fixture() {
+    return fincore::make_series({1, 2, 3}, "benchmark",
+                                {0.005, 0.01, -0.005});
 }
 
 fincore::operation_catalog demo_catalog(std::shared_ptr<int> counter) {
@@ -136,14 +146,64 @@ TEST(Runtime, SnapshotsAndValueDigestsAreStable) {
 
 TEST(Runtime, BuiltinCatalogRunsAcceptedOperations) {
     const auto catalog = fincore::builtin_catalog();
-    ASSERT_EQ(catalog.operations().size(), 2U);
+    ASSERT_EQ(catalog.operations().size(), 20U);
+    EXPECT_EQ(catalog.operation_ids().size(), 20U);
     const auto frame = returns_fixture();
-    const auto sharpe = fincore::run(
-        "metrics.sharpe_ratio", {{"returns", fincore::runtime_value(frame)}},
-        {}, catalog);
-    const auto* value = std::get_if<double>(&sharpe.value.data);
-    ASSERT_NE(value, nullptr);
-    EXPECT_NEAR(*value, fincore::sharpe_ratio(frame), 1e-15);
+    const auto benchmark = benchmark_fixture();
+    const fincore::runtime_inputs pair{{"returns", frame},
+                                       {"benchmark", benchmark}};
+    const auto single = [&catalog, &frame](const std::string& id,
+                                           const double expected) {
+        const auto result =
+            fincore::run(id, {{"returns", fincore::runtime_value(frame)}},
+                         {}, catalog);
+        const auto* value = std::get_if<double>(&result.value.data);
+        EXPECT_NE(value, nullptr);
+        if (value != nullptr) {
+            EXPECT_DOUBLE_EQ(*value, expected) << id;
+        }
+    };
+    single("metrics.ratios.sharpe_ratio", fincore::sharpe_ratio(frame));
+    single("metrics.ratios.sortino_ratio", fincore::sortino_ratio(frame));
+    single("metrics.ratios.calmar_ratio", fincore::calmar_ratio(frame));
+    single("metrics.ratios.mar_ratio", fincore::mar_ratio(frame));
+    single("metrics.ratios.omega_ratio", fincore::omega_ratio(frame));
+    single("metrics.drawdown.max_drawdown", fincore::max_drawdown(frame));
+    single("metrics.risk.annual_volatility",
+           fincore::annual_volatility(frame));
+    single("metrics.risk.tail_ratio", fincore::tail_ratio(frame));
+    single("metrics.risk.conditional_value_at_risk",
+           fincore::conditional_value_at_risk(frame));
+    single("metrics.yearly.annual_return", fincore::annual_return(frame));
+    single("metrics.returns.cum_returns_final",
+           fincore::cumulative_return(frame));
+
+    const auto paired = [&catalog, &pair](const std::string& id,
+                                          const double expected) {
+        const auto result = fincore::run(id, pair, {}, catalog);
+        const auto* value = std::get_if<double>(&result.value.data);
+        EXPECT_NE(value, nullptr);
+        if (value != nullptr) {
+            EXPECT_DOUBLE_EQ(*value, expected) << id;
+        }
+    };
+    paired("metrics.ratios.information_ratio",
+           fincore::information_ratio(frame, benchmark));
+    paired("metrics.ratios.up_down_capture",
+           fincore::up_down_capture(frame, benchmark));
+    paired("metrics.risk.tracking_error",
+           fincore::tracking_error(frame, benchmark));
+    paired("metrics.alpha_beta.alpha",
+           fincore::alpha(frame, benchmark));
+    paired("metrics.alpha_beta.beta", fincore::beta(frame, benchmark));
+
+    const auto cumulative = fincore::run(
+        "metrics.returns.cum_returns",
+        {{"returns", fincore::runtime_value(frame)}}, {}, catalog);
+    EXPECT_EQ(fincore::runtime_value_digest(cumulative.value),
+              fincore::runtime_value_digest(
+                  fincore::runtime_value(fincore::cumulative_returns(frame))));
+
     const auto kupiec = fincore::run(
         "risk.backtesting.kupiec_lr",
         {{"observations", fincore::runtime_value(250)},
@@ -153,6 +213,35 @@ TEST(Runtime, BuiltinCatalogRunsAcceptedOperations) {
     const auto* lr = std::get_if<double>(&kupiec.value.data);
     ASSERT_NE(lr, nullptr);
     EXPECT_NEAR(*lr, 5.025167926750753, 1e-12);
+
+    const auto expected = fincore::run(
+        "risk.calibration.expected_exception_count",
+        {{"observations", fincore::runtime_value(250)},
+         {"confidence_level", fincore::runtime_value(0.99)}},
+        {}, catalog);
+    const auto* count = std::get_if<double>(&expected.value.data);
+    ASSERT_NE(count, nullptr);
+    EXPECT_DOUBLE_EQ(*count, fincore::expected_exception_count(250, 0.99));
+    const auto basel = fincore::run(
+        "risk.calibration.basel_traffic_light",
+        {{"exceptions", fincore::runtime_value(0)},
+         {"observations", fincore::runtime_value(250)},
+         {"confidence_level", fincore::runtime_value(0.99)}},
+        {}, catalog);
+    const auto* zone = std::get_if<std::string>(&basel.value.data);
+    ASSERT_NE(zone, nullptr);
+    EXPECT_EQ(*zone, "green");
+
+    EXPECT_THROW(
+        static_cast<void>(fincore::run(
+            "metrics.sharpe_ratio",
+            {{"returns", fincore::runtime_value(frame)}}, {}, catalog)),
+        fincore::operation_resolution_error);
+    EXPECT_THROW(
+        static_cast<void>(fincore::run(
+            "metrics.ratios.information_ratio",
+            {{"returns", fincore::runtime_value(frame)}}, {}, catalog)),
+        fincore::input_error);
 
     fincore::artifact_bundle bundle;
     bundle.artifacts["report.html"] = "<html></html>";

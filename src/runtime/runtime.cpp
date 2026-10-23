@@ -3,7 +3,11 @@
 #include <fincore/detail/digest.hpp>
 #include <fincore/detail/json.hpp>
 #include <fincore/error.hpp>
+#include <fincore/metrics/alpha_beta.hpp>
+#include <fincore/metrics/drawdown.hpp>
 #include <fincore/metrics/ratios.hpp>
+#include <fincore/metrics/returns.hpp>
+#include <fincore/metrics/risk.hpp>
 #include <fincore/risk/backtesting.hpp>
 
 #include <algorithm>
@@ -292,22 +296,137 @@ void analysis_session::clear() { cache_.clear(); }
 
 operation_catalog builtin_catalog() {
     std::vector<operation_spec> operations;
-    operations.push_back(
-        {"metrics.sharpe_ratio", "metrics.sharpe_ratio", "metrics",
-         [](const runtime_inputs& inputs) {
-             return runtime_value(sharpe_ratio(require_frame(inputs, "returns")));
-         }});
-    operations.push_back(
-        {"risk.backtesting.kupiec_lr", "risk.backtesting.kupiec_lr", "risk",
-         [](const runtime_inputs& inputs) {
-             const auto& observations = require_integer(inputs, "observations");
-             const auto& exceptions = require_integer(inputs, "exceptions");
-             const double confidence =
-                 require_number(inputs, "confidence_level");
-             return runtime_value(kupiec_lr(
-                 static_cast<std::size_t>(observations),
-                 static_cast<std::size_t>(exceptions), confidence));
-         }});
+    const auto add = [&operations](std::string operation_id,
+                                   std::string domain, std::string kernel,
+                                   std::function<runtime_value(
+                                       const runtime_inputs&)>
+                                       callable) {
+        operations.push_back(
+            {operation_id, operation_id, domain, std::move(callable), true,
+             "none", std::nullopt, std::nullopt,
+             {{"owner", domain}, {"kernel_symbol", std::move(kernel)}}});
+    };
+    add("metrics.alpha_beta.alpha", "metrics", "alpha",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                alpha(require_frame(inputs, "returns"),
+                      require_frame(inputs, "benchmark")));
+        });
+    add("metrics.alpha_beta.beta", "metrics", "beta",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                beta(require_frame(inputs, "returns"),
+                     require_frame(inputs, "benchmark")));
+        });
+    add("metrics.drawdown.max_drawdown", "metrics", "max_drawdown",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                max_drawdown(require_frame(inputs, "returns")));
+        });
+    add("metrics.ratios.calmar_ratio", "metrics", "calmar_ratio",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                calmar_ratio(require_frame(inputs, "returns")));
+        });
+    add("metrics.ratios.information_ratio", "metrics", "information_ratio",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                information_ratio(require_frame(inputs, "returns"),
+                                  require_frame(inputs, "benchmark")));
+        });
+    add("metrics.ratios.mar_ratio", "metrics", "mar_ratio",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                mar_ratio(require_frame(inputs, "returns")));
+        });
+    add("metrics.ratios.omega_ratio", "metrics", "omega_ratio",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                omega_ratio(require_frame(inputs, "returns")));
+        });
+    add("metrics.ratios.sharpe_ratio", "metrics", "sharpe_ratio",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                sharpe_ratio(require_frame(inputs, "returns")));
+        });
+    add("metrics.ratios.sortino_ratio", "metrics", "sortino_ratio",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                sortino_ratio(require_frame(inputs, "returns")));
+        });
+    add("metrics.ratios.up_down_capture", "metrics", "up_down_capture",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                up_down_capture(require_frame(inputs, "returns"),
+                                require_frame(inputs, "benchmark")));
+        });
+    add("metrics.returns.cum_returns", "metrics", "cumulative_returns",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                cumulative_returns(require_frame(inputs, "returns")));
+        });
+    add("metrics.returns.cum_returns_final", "metrics", "cumulative_return",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                cumulative_return(require_frame(inputs, "returns")));
+        });
+    add("metrics.risk.annual_volatility", "metrics", "annual_volatility",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                annual_volatility(require_frame(inputs, "returns")));
+        });
+    add("metrics.risk.conditional_value_at_risk", "metrics",
+        "conditional_value_at_risk",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(conditional_value_at_risk(
+                require_frame(inputs, "returns")));
+        });
+    add("metrics.risk.tail_ratio", "metrics", "tail_ratio",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                tail_ratio(require_frame(inputs, "returns")));
+        });
+    add("metrics.risk.tracking_error", "metrics", "tracking_error",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                tracking_error(require_frame(inputs, "returns"),
+                               require_frame(inputs, "benchmark")));
+        });
+    add("metrics.yearly.annual_return", "metrics", "annual_return",
+        [](const runtime_inputs& inputs) {
+            return runtime_value(
+                annual_return(require_frame(inputs, "returns")));
+        });
+    add("risk.backtesting.kupiec_lr", "risk", "kupiec_lr",
+        [](const runtime_inputs& inputs) {
+            const auto& observations = require_integer(inputs, "observations");
+            const auto& exceptions = require_integer(inputs, "exceptions");
+            const double confidence =
+                require_number(inputs, "confidence_level");
+            return runtime_value(kupiec_lr(
+                static_cast<std::size_t>(observations),
+                static_cast<std::size_t>(exceptions), confidence));
+        });
+    add("risk.calibration.basel_traffic_light", "risk",
+        "basel_traffic_light",
+        [](const runtime_inputs& inputs) {
+            const auto& exceptions = require_integer(inputs, "exceptions");
+            const auto& observations = require_integer(inputs, "observations");
+            const double confidence =
+                require_number(inputs, "confidence_level");
+            return runtime_value(basel_traffic_light(
+                static_cast<std::size_t>(exceptions),
+                static_cast<std::size_t>(observations), confidence));
+        });
+    add("risk.calibration.expected_exception_count", "risk",
+        "expected_exception_count",
+        [](const runtime_inputs& inputs) {
+            const auto& observations = require_integer(inputs, "observations");
+            const double confidence =
+                require_number(inputs, "confidence_level");
+            return runtime_value(expected_exception_count(
+                static_cast<std::size_t>(observations), confidence));
+        });
     return operation_catalog(std::move(operations));
 }
 

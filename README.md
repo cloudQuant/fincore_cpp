@@ -2978,3 +2978,22 @@ weights are accepted only by `factor_positions`. Full headless CTest passed
 709/709; sanitizer not re-run; visual NOT_RUN. Evidence is in [the PIT and
 portfolio constructor acceptance
 record](docs/acceptance/2026-10-23-iteration-5-pit-portfolio-acceptance.md).
+
+## Phase 92 slice — runtime catalog selected native equivalents
+
+`builtin_catalog()` now publishes 20 operations (17 metrics, 3 risk) under
+their pinned Python operation IDs, with native kernel symbols in provenance.
+The previous non-source ID `metrics.sharpe_ratio` is replaced by
+`metrics.ratios.sharpe_ratio`. Selected paths cover Sharpe/Sortino/Calmar/MAR/
+Omega/information/up-down-capture ratios, alpha/beta, maximum drawdown,
+annual return/volatility, CVaR, tail ratio, tracking error, cumulative
+returns (frame and final value), Kupiec LR, the Basel traffic light and the
+expected-exception count; optional Python keywords remain at native defaults.
+
+Classification against the pinned 273-operation catalog is recorded per
+provider domain: metrics/risk selected, factor/portfolio/performance/
+simulation/attribution/report pending runtime input contracts, and data
+utilities explicitly out of runtime scope. All 20 IDs exist in the source
+catalog (0 missing). Full headless CTest passed 709/709; sanitizer not
+re-run. Evidence is in [the runtime catalog acceptance
+record](docs/acceptance/2026-10-23-phase-92-runtime-catalog-acceptance.md).
