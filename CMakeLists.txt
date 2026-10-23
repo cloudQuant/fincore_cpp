@@ -43,6 +43,7 @@ add_library(fincore
     src/report/models.cpp
     src/report/html.cpp
     src/report/risk.cpp
+    src/report/xlsx.cpp
     src/runtime/runtime.cpp
     src/viz/chart_data.cpp
     src/optimization/numerics.cpp
@@ -92,6 +93,8 @@ target_include_directories(fincore PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
 fincore_enable_sanitizers(fincore)
+
+include(cmake/fincore_install.cmake)
 
 if (FINCORE_BUILD_IMPLOT_DEMO AND NOT FINCORE_BUILD_IMPLOT)
     message(FATAL_ERROR
