@@ -97,7 +97,7 @@ function route remains.
 | 3 — risk/optimization | Phases 60–71 accepted; 661/661 CTest+ASan+UBSan at close | none at function level |
 | 4 — visualization | chart data and ImPlot adapter accepted; offscreen 2560x4800 render inspected after fixing axis/heatmap defects; sanitizer 734/734 | interactive window/input behaviour and Linux/Windows rendering **NOT_RUN** |
 | 5 — factor analysis | 77–87 slices accepted: prep/PIT, performance/inference/event windows, costs, analysis model (event/group models), full bounded research (calendar/precomputed/next-open labels, universe, signals/groups, segments, correlations, comparisons, multi-factor, weighted combinations), export, grouped tear data, four-section report, portfolio constructor, performance study | intraday labels; interactive grouped tear rendering |
-| 6 — report/runtime | 88a/89/90/91/92/93 accepted: schema, HTML, XLSX, risk/portfolio/transactions projections, runtime catalog, install/export consumer, usage/migration notes, factor event and group models | group tear rendering absent; 93 CI matrix NOT_RUN |
+| 6 — report/runtime | 88a/89/90/91/92/93 accepted: schema, HTML, XLSX, risk/portfolio/transactions projections, runtime catalog, install/export consumer, usage/migration notes, factor event and group models | group tear rendering absent; Windows CI leg NOT_RUN |
 
 ## Gate status
 
@@ -109,8 +109,10 @@ function route remains.
   four SVG charts, eleven tables). ImPlot charts: offscreen 2560x4800 render
   inspected after fixing axis/heatmap defects. Interactive windows and
   Linux/Windows rendering remain **NOT_RUN**; no desktop screenshot was taken.
-- Supported-platform CI matrix: **NOT_RUN**; only the local macOS arm64
-  install/consumer path is evidenced.
+- Supported-platform CI matrix: Ubuntu 24.04 arm64 and macOS arm64
+  build/test legs reproduced locally (735/735 each); the Ubuntu leg ran in a
+  Lima VM at the same configure/build/ctest commands and DataFrame pin.
+  Windows remains **NOT_RUN**; install/consumer evidence is macOS-only.
 - XLSX byte parity with the Python writer: not claimed; openpyxl load
   validation only.
 - Python-side timing: not measured; Phase 87 numbers are native-only.
@@ -121,8 +123,7 @@ The native program covers the accepted compute, model, report, runtime and
 packaging paths with 279 exact/renamed public routes, zero unresolved routes
 and 72 explicitly deferred or non-port routes. Still open outside the function
 ledger: intraday label formatting, on-screen grouped
-tear rendering, interactive ImPlot windows, and the Ubuntu CI leg (VM provisioning
-tracked separately). The runtime catalog remains a selected 44 of 273
-operations. Program-level parity is therefore **partial and explicitly
-bounded**; this record is the authoritative close-out of Phase 92 and must be
-updated if any listed gap is closed.
+tear rendering, interactive ImPlot windows, and Windows CI. The runtime
+catalog remains a selected 44 of 273 operations. Program-level parity is
+therefore **partial and explicitly bounded**; this record is the authoritative
+close-out of Phase 92 and must be updated if any listed gap is closed.

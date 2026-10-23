@@ -48,10 +48,14 @@ component install, downstream configure and build rc 0, consumer prints
 
 - A pinned GitHub Actions workflow exists for Ubuntu and macOS. Its macOS
   steps were reproduced in a clean clone at commit `e9d1cef` with DataFrame
-  `90aa4acf`: configure/build/ctest rc 0, **726/726 passed**. The Ubuntu leg
-  and Windows remain **NOT_RUN** (no runner or Docker locally).
-- Sanitizer status remains the last green 661/661 at Iteration 3 close; no
-  later slice claims a run.
+  `90aa4acf`: configure/build/ctest rc 0, **726/726 passed**. Its Ubuntu leg
+  was reproduced in a Lima Ubuntu 24.04 arm64 VM at commit `a6a9fff` with the
+  same DataFrame pin and cmake 3.28.3 / g++ 13.3.0 / Ninja 1.11.1:
+  configure/build/ctest rc 0, **735/735 passed**. Windows remains **NOT_RUN**
+  (no runner).
+- Sanitizer status is tracked in the separate sanitizer gate record: full
+  ASan+UBSan suite **735/735 passed** at `a6a9fff`; no later slice claims a
+  run beyond that record.
 - The benchmark baseline is recorded but not enforced as an automated
   performance-regression gate.
 - The optional ImPlot adapter is not installed with the package.

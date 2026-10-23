@@ -29,10 +29,11 @@ ctest --test-dir /tmp/fincore-sanitize --output-on-failure
 - Build: rc 0; only linker DWARF-parsing warnings from the fetched GoogleTest
   static archives (`/tmp/fincore-sanitize-build.log`,
   `/tmp/fincore-sanitize-rebuild.log`).
-- Tests: **734/734 passed**, 0 failed across the final follow-up runs
+- Tests: **735/735 passed**, 0 failed at commit `a6a9fff` (the weighted
+  combination slice added one test), including the earlier 734-test run
   (`/tmp/fincore-sanitize-ctest.log`). No ASan or UBSan report was emitted.
-- The rebuild after the turnover projection ran before this test pass, so the
-  result covers the current source revision.
+- The rebuild was repeated immediately before this pass, so the result covers
+  the current source revision.
 
 ## Claim boundary
 
