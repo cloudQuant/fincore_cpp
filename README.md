@@ -2094,3 +2094,24 @@ record](docs/acceptance/2026-10-23-phase-41-conditional-sharpe-ratio-acceptance.
 This phase does not add `deflated_sharpe_ratio`, `burke_ratio`,
 `cal_treynor_ratio`, `m_squared`, `sterling_ratio`, capture returns,
 adapters, reports, plots, packages, or release actions.
+
+## Accepted Phase 42 native deflated Sharpe ratio
+
+Phase 42 adds `fincore::deflated_sharpe_ratio(returns, risk_free = 0.0,
+num_trials = 1, column)`: the probability that the observed per-period Sharpe
+survives multiple-testing and non-normality correction. It drops NaN only,
+requires three clean observations, uses bias-corrected sample skewness and
+excess kurtosis, normalizes trial counts below one, returns exact `0`/`1` on
+nonpositive Sharpe variance, and otherwise evaluates the standard-normal CDF.
+Private `erfc` CDF and Acklam+Newton inverse helpers carry a declared 1e-9
+error budget; no public special-function API or dependency is added.
+
+Clean detached oracle at `4b8f31b` reproduced all goldens (exit `0`, zero
+stderr, `FAILURES=0`). Full headless CTest and LLVM 22 ASan+UBSan each passed
+514/514; ImPlot compile/link was re-run. Evidence is recorded in [the Phase 42
+acceptance
+record](docs/acceptance/2026-10-23-phase-42-deflated-sharpe-ratio-acceptance.md).
+
+This phase does not add `burke_ratio`, `cal_treynor_ratio`, `m_squared`,
+`sterling_ratio`, capture returns, adapters, reports, plots, packages, or
+release actions.
