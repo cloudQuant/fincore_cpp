@@ -57,4 +57,10 @@ gpd_risk_estimates_result gpd_risk_estimates(
     double var_p = 0.01,
     std::string_view column = returns_column);
 
+double beta_fragility_heuristic(
+    const dataframe& returns,
+    const dataframe& benchmark,
+    std::string_view returns_column_name = returns_column,
+    std::string_view benchmark_column_name = benchmark_column);
+
 } // namespace fincore

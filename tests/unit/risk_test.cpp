@@ -2,10 +2,15 @@
 
 #include <gtest/gtest.h>
 
+#include <array>
 #include <cmath>
 #include <limits>
+#include <string>
+#include <string_view>
 
 namespace {
+
+constexpr double nan = std::numeric_limits<double>::quiet_NaN();
 
 TEST(Risk, ComputesHistoricalVarAndTailAverage) {
     const auto returns = fincore::make_series({1, 2, 3, 4, 5}, "returns",
@@ -81,6 +86,55 @@ TEST(Risk, GpdRiskEstimatesMatchPythonOracleWithinTolerance) {
                                              embedded_storage.size()};
     EXPECT_THROW(static_cast<void>(fincore::gpd_risk_estimates(
                      frame, 0.01, embedded_selector)),
+                 fincore::input_error);
+}
+
+TEST(Risk, BetaFragilityHeuristicMatchesPythonOracle) {
+    const auto ordinary = fincore::make_series(
+        {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, "returns",
+        {0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03});
+    const auto benchmark = fincore::make_series(
+        {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, "benchmark",
+        {-0.04, -0.03, -0.02, -0.01, -0.005, 0.005, 0.01, 0.02, 0.03, 0.04});
+    EXPECT_NEAR(fincore::beta_fragility_heuristic(ordinary, benchmark),
+                0.012499999999999999, 1e-15);
+
+    const auto short_returns =
+        fincore::make_series({1, 2}, "returns", {0.01, 0.02});
+    const auto short_benchmark =
+        fincore::make_series({1, 2}, "benchmark", {-0.01, 0.02});
+    EXPECT_TRUE(std::isnan(fincore::beta_fragility_heuristic(
+        short_returns, short_benchmark)));
+
+    const auto nan_returns = fincore::make_series(
+        {1, 2, 3, 4}, "returns", {0.01, nan, -0.05, 0.03});
+    const auto nan_benchmark = fincore::make_series(
+        {1, 2, 3, 4}, "benchmark", {-0.04, -0.03, nan, 0.02});
+    EXPECT_NEAR(fincore::beta_fragility_heuristic(nan_returns, nan_benchmark),
+                -0.019999999999999997, 1e-15);
+
+    const auto constant_returns = fincore::make_series(
+        {1, 2, 3, 4}, "returns", {0.01, 0.02, 0.03, 0.04});
+    const auto constant_benchmark = fincore::make_series(
+        {1, 2, 3, 4}, "benchmark", {0.01, 0.01, 0.01, 0.01});
+    EXPECT_NEAR(fincore::beta_fragility_heuristic(constant_returns,
+                                                  constant_benchmark),
+                -0.0049999999999999975, 1e-15);
+
+    const auto two_clean_returns = fincore::make_series(
+        {1, 2, 3}, "returns", {0.01, nan, 0.03});
+    const auto two_clean_benchmark = fincore::make_series(
+        {1, 2, 3}, "benchmark", {-0.02, 0.0, 0.02});
+    EXPECT_NEAR(fincore::beta_fragility_heuristic(two_clean_returns,
+                                                  two_clean_benchmark),
+                -0.019999999999999997, 1e-15);
+
+    const std::array<char, 13> embedded_storage{
+        'r', 'e', 't', 'u', 'r', 'n', 's', '\0', 'e', 'v', 'i', 'l', '!'};
+    const std::string_view embedded_selector{embedded_storage.data(),
+                                             embedded_storage.size()};
+    EXPECT_THROW(static_cast<void>(fincore::beta_fragility_heuristic(
+                     ordinary, benchmark, embedded_selector, "benchmark")),
                  fincore::input_error);
 }
 

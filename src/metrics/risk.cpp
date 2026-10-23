@@ -378,4 +378,59 @@ gpd_risk_estimates_result gpd_risk_estimates(
     return result;
 }
 
+double beta_fragility_heuristic(
+    const dataframe& returns, const dataframe& benchmark,
+    const std::string_view returns_column_name,
+    const std::string_view benchmark_column_name) {
+    if (returns_column_name.find('\0') != std::string_view::npos ||
+        benchmark_column_name.find('\0') != std::string_view::npos) {
+        throw input_error{"column name must not contain an embedded NUL"};
+    }
+    const auto aligned = align_on_common_index(
+        returns, returns_column_name, benchmark, benchmark_column_name);
+    const auto return_values =
+        require_double_column(aligned.first, returns_column_name);
+    const auto factor_values =
+        require_double_column(aligned.second, benchmark_column_name);
+    if (return_values.size() < 3U || factor_values.size() < 3U) {
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+    struct pair_value {
+        double returns;
+        double factor;
+    };
+    std::vector<pair_value> pairs;
+    pairs.reserve(return_values.size());
+    for (std::size_t position = 0; position < return_values.size();
+         ++position) {
+        if (!std::isnan(return_values[position]) &&
+            !std::isnan(factor_values[position])) {
+            pairs.push_back({return_values[position], factor_values[position]});
+        }
+    }
+    if (pairs.empty()) {
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+    std::stable_sort(pairs.begin(), pairs.end(),
+                     [](const pair_value& left, const pair_value& right) {
+                         return left.factor < right.factor;
+                     });
+    const std::size_t end_index = pairs.size() - 1U;
+    const auto mid_index = static_cast<std::size_t>(
+        std::nearbyint(static_cast<double>(pairs.size()) / 2.0));
+    const auto& start = pairs.front();
+    const auto& middle = pairs[mid_index];
+    const auto& end = pairs.back();
+    const double factor_range = end.factor - start.factor;
+    double start_weight = 0.5;
+    double end_weight = 0.5;
+    if (factor_range != 0.0) {
+        start_weight = (middle.factor - start.factor) / factor_range;
+        end_weight = (end.factor - middle.factor) / factor_range;
+    }
+    static_cast<void>(end_index);
+    return start_weight * start.returns + end_weight * end.returns -
+           middle.returns;
+}
+
 } // namespace fincore
