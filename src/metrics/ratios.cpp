@@ -308,6 +308,75 @@ double mar_ratio(const dataframe& returns,
     return result;
 }
 
+double conditional_sharpe_ratio(const dataframe& returns,
+                                double cutoff,
+                                double risk_free,
+                                double annualization,
+                                std::string_view column) {
+    if (column.find('\0') != std::string_view::npos) {
+        throw input_error{"column name must not contain an embedded NUL"};
+    }
+    const auto raw_values = require_double_column(returns, column);
+    if (raw_values.size() < 2) {
+        return nan;
+    }
+    if (!(cutoff > 0.0 && cutoff < 1.0)) {
+        return nan;
+    }
+
+    std::vector<double> sorted_values(raw_values.begin(), raw_values.end());
+    for (const double value : sorted_values) {
+        if (std::isnan(value)) {
+            return nan;
+        }
+    }
+    std::sort(sorted_values.begin(), sorted_values.end());
+
+    const double virtual_index =
+        static_cast<double>(sorted_values.size() - 1) * cutoff;
+    const auto lower =
+        static_cast<std::size_t>(std::floor(virtual_index));
+    const auto upper =
+        static_cast<std::size_t>(std::ceil(virtual_index));
+    double cutoff_value = sorted_values[lower];
+    if (lower != upper) {
+        const double difference =
+            sorted_values[upper] - sorted_values[lower];
+        const double fraction =
+            virtual_index - static_cast<double>(lower);
+        cutoff_value = fraction < 0.5
+                           ? sorted_values[lower] + difference * fraction
+                           : sorted_values[upper] -
+                                 difference * (1.0 - fraction);
+    }
+
+    std::vector<double> tail;
+    tail.reserve(raw_values.size());
+    for (const double value : raw_values) {
+        if (value <= cutoff_value) {
+            tail.push_back(value);
+        }
+    }
+    if (tail.size() < 2) {
+        return nan;
+    }
+
+    const double tail_mean = mean(tail);
+    double squared_total = 0.0;
+    for (const double value : tail) {
+        const double deviation = value - tail_mean;
+        squared_total += deviation * deviation;
+    }
+    const double tail_std = std::sqrt(
+        squared_total / static_cast<double>(tail.size() - 1));
+    const double excess_mean = tail_mean - risk_free;
+    if (tail_std == 0.0 || !std::isfinite(excess_mean) ||
+        !std::isfinite(tail_std)) {
+        return nan;
+    }
+    return excess_mean / tail_std * std::sqrt(annualization);
+}
+
 double common_sense_ratio(const dataframe& returns, std::string_view column) {
     if (column.find('\0') != std::string_view::npos) {
         throw input_error{"column name must not contain an embedded NUL"};

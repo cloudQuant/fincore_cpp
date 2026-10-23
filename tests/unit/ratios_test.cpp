@@ -20,6 +20,9 @@ using adjusted_sharpe_ratio_signature =
     double (*)(const fincore::dataframe&, double, std::string_view);
 using mar_ratio_signature =
     double (*)(const fincore::dataframe&, double, std::string_view);
+using conditional_sharpe_ratio_signature =
+    double (*)(const fincore::dataframe&, double, double, double,
+               std::string_view);
 
 static_assert(std::is_same_v<
               decltype(static_cast<kappa_three_ratio_signature>(
@@ -30,6 +33,8 @@ static_assert(std::is_same_v<
               adjusted_sharpe_ratio_signature>);
 static_assert(std::is_same_v<decltype(&fincore::mar_ratio),
                              mar_ratio_signature>);
+static_assert(std::is_same_v<decltype(&fincore::conditional_sharpe_ratio),
+                             conditional_sharpe_ratio_signature>);
 
 TEST(Ratios, PublishesExactKappaThreeSignatureAndDefaultCall) {
     const auto returns =
@@ -721,6 +726,185 @@ TEST(Ratios, MarRatioReturnsOwnedScalarAfterInputFrameAndSelectorEnd) {
     }();
 
     EXPECT_NEAR(result, 20.160000000000007, 1e-13);
+}
+
+TEST(Ratios, ConditionalSharpeMatchesPythonOracleForFiniteTails) {
+    const auto returns = fincore::make_series(
+        {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, "returns",
+        {0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03});
+
+    EXPECT_NEAR(fincore::conditional_sharpe_ratio(returns, 0.2),
+                -44.89988864128729, 1e-12);
+    EXPECT_NEAR(fincore::conditional_sharpe_ratio(returns, 0.5),
+                -7.227274904005733, 1e-12);
+    EXPECT_NEAR(fincore::conditional_sharpe_ratio(returns, 0.2, 0.001),
+                -46.02238585731947, 1e-12);
+    EXPECT_NEAR(
+        fincore::conditional_sharpe_ratio(returns, 0.2, 0.0, 52.0),
+        -20.396078054371134, 1e-12);
+}
+
+TEST(Ratios, ConditionalSharpeGatesCountCutoffAndTailSize) {
+    const auto empty = fincore::make_series({}, "returns", {});
+    const auto singleton = fincore::make_series({1}, "returns", {0.01});
+    const auto ordinary = fincore::make_series(
+        {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, "returns",
+        {0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03});
+    const auto all_equal = fincore::make_series(
+        {1, 2, 3, 4}, "returns", {0.01, 0.01, 0.01, 0.01});
+    const auto graded = fincore::make_series(
+        {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, "returns",
+        {0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09});
+
+    EXPECT_TRUE(std::isnan(fincore::conditional_sharpe_ratio(empty)));
+    EXPECT_TRUE(std::isnan(fincore::conditional_sharpe_ratio(singleton)));
+    EXPECT_TRUE(std::isnan(fincore::conditional_sharpe_ratio(ordinary, 0.0)));
+    EXPECT_TRUE(std::isnan(fincore::conditional_sharpe_ratio(ordinary, 1.0)));
+    EXPECT_TRUE(std::isnan(fincore::conditional_sharpe_ratio(ordinary, -0.1)));
+    EXPECT_TRUE(std::isnan(fincore::conditional_sharpe_ratio(ordinary, nan)));
+    EXPECT_TRUE(std::isnan(fincore::conditional_sharpe_ratio(ordinary)));
+    EXPECT_TRUE(std::isnan(fincore::conditional_sharpe_ratio(all_equal)));
+    EXPECT_TRUE(std::isnan(fincore::conditional_sharpe_ratio(graded, 0.01)));
+}
+
+TEST(Ratios, ConditionalSharpeHandlesDuplicateEqualityBoundaries) {
+    const auto duplicates = fincore::make_series(
+        {1, 2, 3, 4, 5}, "returns", {0.01, 0.01, 0.02, 0.03, 0.04});
+    const auto descending = fincore::make_series(
+        {1, 2, 3, 4, 5}, "returns", {0.04, 0.03, 0.02, 0.01, 0.01});
+
+    EXPECT_TRUE(std::isnan(fincore::conditional_sharpe_ratio(duplicates, 0.4)));
+    EXPECT_TRUE(std::isnan(fincore::conditional_sharpe_ratio(duplicates, 0.2)));
+    EXPECT_NEAR(fincore::conditional_sharpe_ratio(duplicates, 0.6),
+                36.66060555964672, 1e-12);
+    EXPECT_DOUBLE_EQ(fincore::conditional_sharpe_ratio(descending, 0.6),
+                     fincore::conditional_sharpe_ratio(duplicates, 0.6));
+}
+
+TEST(Ratios, ConditionalSharpePropagatesNaNInfinityAndAnnualizationClasses) {
+    const double infinity = std::numeric_limits<double>::infinity();
+    const auto ordinary_values = std::vector<double>{
+        0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03};
+    const auto ordinary = fincore::make_series(
+        {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, "returns", ordinary_values);
+    const auto with_nan = adjusted_series({0.01, nan, -0.05, 0.03});
+    const auto all_nan = adjusted_series({nan, nan, nan});
+    const auto positive_inf = adjusted_series({infinity, 0.01, -0.02, 0.03});
+    const auto negative_inf = adjusted_series({-infinity, 0.01, -0.02, 0.03});
+    const auto inf_not_selected = adjusted_series(
+        {infinity, 0.01, -0.02, 0.03, -0.04, 0.02});
+
+    EXPECT_TRUE(std::isnan(fincore::conditional_sharpe_ratio(with_nan)));
+    EXPECT_TRUE(std::isnan(fincore::conditional_sharpe_ratio(all_nan)));
+    EXPECT_TRUE(std::isnan(fincore::conditional_sharpe_ratio(positive_inf)));
+    EXPECT_TRUE(std::isnan(fincore::conditional_sharpe_ratio(negative_inf)));
+    EXPECT_NEAR(fincore::conditional_sharpe_ratio(inf_not_selected, 0.2),
+                -33.67491648096547, 1e-12);
+
+    const double infinite_annualization =
+        fincore::conditional_sharpe_ratio(ordinary, 0.2, 0.0, infinity);
+    EXPECT_TRUE(std::isinf(infinite_annualization));
+    EXPECT_LT(infinite_annualization, 0.0);
+    EXPECT_TRUE(
+        std::isnan(fincore::conditional_sharpe_ratio(ordinary, 0.2, 0.0, nan)));
+    EXPECT_TRUE(std::isnan(fincore::conditional_sharpe_ratio(ordinary, 0.2, nan)));
+    EXPECT_TRUE(std::isnan(
+        fincore::conditional_sharpe_ratio(ordinary, 0.2, infinity)));
+}
+
+TEST(Ratios, ConditionalSharpeSupportsNamedAndBoundedSelectors) {
+    const auto strategy = fincore::make_series(
+        {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, "strategy",
+        {0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03});
+    constexpr std::array<char, 8> bounded_name{
+        's', 't', 'r', 'a', 't', 'e', 'g', 'y'};
+    const std::string_view bounded_selector{bounded_name.data(),
+                                            bounded_name.size()};
+
+    EXPECT_NEAR(fincore::conditional_sharpe_ratio(strategy, 0.2, 0.0, 252.0,
+                                                  "strategy"),
+                -44.89988864128729, 1e-12);
+    EXPECT_DOUBLE_EQ(
+        fincore::conditional_sharpe_ratio(strategy, 0.2, 0.0, 252.0,
+                                          bounded_selector),
+        fincore::conditional_sharpe_ratio(strategy, 0.2, 0.0, 252.0,
+                                          "strategy"));
+}
+
+TEST(Ratios, ConditionalSharpeValidatesSelectorsAndStructureBeforeCount) {
+    fincore::dataframe empty_missing_column;
+    empty_missing_column.load_index(std::vector<fincore::timestamp>{});
+    const auto singleton = fincore::make_series({1}, "returns", {0.01});
+    const std::array<char, 13> embedded_storage{
+        'r', 'e', 't', 'u', 'r', 'n', 's', '\0', 'e', 'v', 'i', 'l', '!'};
+    const std::string_view embedded_selector{embedded_storage.data(),
+                                             embedded_storage.size()};
+
+    const auto expect_error_message = [](const auto& call,
+                                         const char* expected_message) {
+        try {
+            static_cast<void>(call());
+            ADD_FAILURE() << "expected fincore::input_error";
+        } catch (const fincore::input_error& error) {
+            EXPECT_STREQ(error.what(), expected_message);
+        }
+    };
+
+    EXPECT_THROW(static_cast<void>(
+                     fincore::conditional_sharpe_ratio(empty_missing_column)),
+                 fincore::input_error);
+    EXPECT_THROW(
+        static_cast<void>(
+            fincore::conditional_sharpe_ratio(singleton, 0.05, 0.0, 252.0, "")),
+        fincore::input_error);
+    EXPECT_THROW(static_cast<void>(fincore::conditional_sharpe_ratio(
+                     singleton, 0.05, 0.0, 252.0, "missing")),
+                 fincore::input_error);
+
+    const auto valid_prefix_frame =
+        fincore::make_series({1, 2}, "returns", {0.01, -0.02});
+    expect_error_message(
+        [&] {
+            return fincore::conditional_sharpe_ratio(
+                valid_prefix_frame, 0.05, 0.0, 252.0, embedded_selector);
+        },
+        "column name must not contain an embedded NUL");
+
+    fincore::dataframe wrong_type;
+    wrong_type.load_index(std::vector<fincore::timestamp>{1});
+    wrong_type.load_column<int>("returns", std::vector<int>{1},
+                                hmdf::nan_policy::dont_pad_with_nans);
+    EXPECT_THROW(
+        static_cast<void>(fincore::conditional_sharpe_ratio(wrong_type)),
+        fincore::input_error);
+
+    fincore::dataframe malformed;
+    malformed.load_index(std::vector<fincore::timestamp>{1, 2});
+    malformed.load_column<double>("returns", std::vector<double>{0.01},
+                                  hmdf::nan_policy::dont_pad_with_nans);
+    EXPECT_THROW(
+        static_cast<void>(fincore::conditional_sharpe_ratio(malformed)),
+        fincore::input_error);
+    expect_error_message(
+        [&] {
+            return fincore::conditional_sharpe_ratio(
+                malformed, 0.05, 0.0, 252.0, embedded_selector);
+        },
+        "column name must not contain an embedded NUL");
+}
+
+TEST(Ratios, ConditionalSharpeReturnsOwnedScalarAfterInputLifetimesEnd) {
+    const double result = [] {
+        const std::string column{"returns"};
+        const std::string_view selector{column.data(), column.size()};
+        const auto returns = fincore::make_series(
+            {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, "returns",
+            {0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03});
+        return fincore::conditional_sharpe_ratio(returns, 0.2, 0.0, 252.0,
+                                                 selector);
+    }();
+
+    EXPECT_NEAR(result, -44.89988864128729, 1e-12);
 }
 
 }  // namespace

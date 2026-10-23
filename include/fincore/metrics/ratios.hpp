@@ -30,6 +30,12 @@ double mar_ratio(const dataframe& returns,
                  double annualization = daily_annualization,
                  std::string_view column = returns_column);
 
+double conditional_sharpe_ratio(const dataframe& returns,
+                                double cutoff = 0.05,
+                                double risk_free = 0.0,
+                                double annualization = daily_annualization,
+                                std::string_view column = returns_column);
+
 double common_sense_ratio(const dataframe& returns,
                           std::string_view column = returns_column);
 
