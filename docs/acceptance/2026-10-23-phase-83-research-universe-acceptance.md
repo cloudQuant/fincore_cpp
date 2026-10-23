@@ -34,5 +34,5 @@ Full Release and ASan+UBSan suites: **730/730 passed**. Visual NOT_RUN.
 
 ## Remaining research gaps
 
-Group mappings and multi-factor evaluator assembly remain open. Segments are provenance only in the source, so no
+Multi-factor evaluator assembly remains open; signals/groups are accepted. Segments are provenance only in the source, so no
 multi-segment result table is missing.

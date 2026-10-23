@@ -192,9 +192,51 @@ factor_series research_panel(const factor_series& factors,
             panel.values[row] *= static_cast<double>(direction->second);
         }
     }
+    for (const auto& [asset, group] : spec.groups) {
+        if (asset.empty() || group.empty()) {
+            throw factor_data_error{
+                "groups must have non-empty asset and group names"};
+        }
+    }
+    if (!spec.groups.empty()) {
+        for (const auto& asset : panel.assets) {
+            if (!spec.groups.contains(asset)) {
+                throw factor_data_error{
+                    "groups do not cover every evaluated asset"};
+            }
+        }
+    }
     preprocess(panel, spec.preprocess);
 
     return panel;
+}
+
+std::vector<research_signal_row> build_signals(
+    const factor_series& factors, const factor_series& panel,
+    const research_spec& spec) {
+    std::map<std::pair<timestamp, std::string>, double> raw;
+    for (std::size_t row = 0; row < factors.dates.size(); ++row) {
+        raw[{factors.dates[row], factors.assets[row]}] = factors.values[row];
+    }
+    std::vector<research_signal_row> signals;
+    signals.reserve(panel.dates.size());
+    for (std::size_t row = 0; row < panel.dates.size(); ++row) {
+        const auto direction =
+            spec.direction_overrides.find(panel.assets[row]);
+        const int sign = direction != spec.direction_overrides.end()
+                             ? direction->second
+                             : 1;
+        const auto found = raw.find({panel.dates[row], panel.assets[row]});
+        const double value = found != raw.end()
+                                 ? found->second * static_cast<double>(sign)
+                                 : panel.values[row];
+        const auto group = spec.groups.find(panel.assets[row]);
+        signals.push_back(
+            {panel.dates[row], panel.assets[row], "factor", sign, value,
+             panel.values[row], spec.preprocess,
+             group != spec.groups.end() ? group->second : "default"});
+    }
+    return signals;
 }
 
 
@@ -317,8 +359,11 @@ research_result evaluate_factor_research(const factor_series& factors,
     }
     if (spec.label == "next_open_to_open") {
         const factor_series panel = research_panel(factors, spec);
-        return evaluate_with_table(panel, next_open_table(prices, spec), spec,
-                                   "next_open_to_open");
+        auto result = evaluate_with_table(
+            panel, next_open_table(prices, spec), spec,
+            "next_open_to_open");
+        result.signals = build_signals(factors, panel, spec);
+        return result;
     }
     const factor_series panel = research_panel(factors, spec);
 
@@ -328,8 +373,9 @@ research_result evaluate_factor_research(const factor_series& factors,
     config.max_loss = spec.max_loss;
     const auto prepared =
         prepare_factor_data_by_horizon(panel, prices, config);
-
-    return assemble_research(prepared, spec);
+    auto result = assemble_research(prepared, spec);
+    result.signals = build_signals(factors, panel, spec);
+    return result;
 }
 
 research_result assemble_research(
@@ -346,7 +392,8 @@ research_result assemble_research(
         {"label", spec.label},
         {"preprocess", spec.preprocess},
         {"quantiles", std::to_string(spec.quantiles)},
-        {"periods", std::to_string(spec.periods.size())}};
+        {"periods", std::to_string(spec.periods.size())},
+        {"groups", std::to_string(spec.groups.size())}};
     for (const auto& [name, bounds] : spec.segments) {
         result.manifest["segment." + name] =
             bounds.first + ".." + bounds.second;
@@ -550,6 +597,7 @@ research_result evaluate_factor_research(const factor_series& factors,
     const auto prepared =
         prepare_factor_data_by_horizon(panel, prices, config);
     auto result = assemble_research(prepared, spec);
+    result.signals = build_signals(factors, panel, spec);
     result.manifest["universe"] = "applied";
     return result;
 }
@@ -648,8 +696,11 @@ research_result evaluate_factor_research(
         throw factor_data_error{
             "next-open labels require the price-based evaluator"};
     }
-    return evaluate_with_table(research_panel(factors, spec),
-                               precomputed_returns, spec, "precomputed");
+    const factor_series panel = research_panel(factors, spec);
+    auto result = evaluate_with_table(panel, precomputed_returns, spec,
+                                      "precomputed");
+    result.signals = build_signals(factors, panel, spec);
+    return result;
 }
 
 research_export_result export_factor_research(

@@ -3,7 +3,7 @@
 **Pin:** Python `4b8f31b1b59707480d5db9603704d83bbf7e6946`
 **Machine ledger:** [2026-10-23-program-parity-ledger.tsv](2026-10-23-program-parity-ledger.tsv)
 **Generator:** `tools/parity_ledger.py`
-**Native tests:** 731/731 Release CTest
+**Native tests:** 732/732 Release CTest
 
 ## Method
 
@@ -101,8 +101,8 @@ function route remains.
 
 ## Gate status
 
-- Release CTest: **731/731 passed** (this audit).
-- Sanitizer: full ASan+UBSan suite **731/731 passed** at the final HEAD
+- Release CTest: **732/732 passed** (this audit).
+- Sanitizer: full ASan+UBSan suite **732/732 passed** at the final HEAD
   (Homebrew LLVM 22.1.8, Ninja Debug; no reports). See
   [the sanitizer gate record](2026-10-23-sanitizer-gate-acceptance.md).
 - HTML artifacts: visually inspected in headless Chrome (synthetic report,

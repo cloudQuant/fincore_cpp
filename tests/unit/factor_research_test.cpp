@@ -558,4 +558,60 @@ TEST(FactorResearch, DerivesNextOpenToOpenLabels) {
                  fincore::factor_data_error);
 }
 
+TEST(FactorResearch, RecordsSignalsWithGroupsAndDirections) {
+    auto fixture = make_fixture();
+    auto config = spec();
+    config.groups = {{"A", "G1"}, {"B", "G1"}, {"C", "G2"},
+                     {"D", "G2"}, {"E", "G2"}};
+    config.direction_overrides = {{"A", -1}};
+    const auto result = fincore::evaluate_factor_research(
+        fixture.factor, fixture.prices, config);
+    ASSERT_EQ(result.signals.size(), 300U);
+    ASSERT_EQ(result.manifest.count("groups"), 1U);
+    EXPECT_EQ(result.manifest.at("groups"), "5");
+    bool found_a = false;
+    bool found_c = false;
+    for (const auto& signal : result.signals) {
+        if (signal.date == fincore::utc_timestamp(2021, 1, 4) &&
+            signal.asset == "A") {
+            found_a = true;
+            EXPECT_EQ(signal.factor, "factor");
+            EXPECT_EQ(signal.direction, -1);
+            EXPECT_EQ(signal.group, "G1");
+            EXPECT_EQ(signal.preprocess, "cross_section_rank");
+            const double raw = 0.3 * std::sin(0.17) + 0.1 * std::cos(0.05);
+            EXPECT_NEAR(signal.value, -raw, 1e-12);
+            EXPECT_TRUE(std::isfinite(signal.processed_value));
+        }
+        if (signal.date == fincore::utc_timestamp(2021, 1, 4) &&
+            signal.asset == "C") {
+            found_c = true;
+            EXPECT_EQ(signal.direction, 1);
+            EXPECT_EQ(signal.group, "G2");
+        }
+    }
+    EXPECT_TRUE(found_a);
+    EXPECT_TRUE(found_c);
+
+    const auto defaults = fincore::evaluate_factor_research(
+        fixture.factor, fixture.prices, spec());
+    ASSERT_FALSE(defaults.signals.empty());
+    for (const auto& signal : defaults.signals) {
+        EXPECT_EQ(signal.group, "default");
+    }
+
+    auto missing = config;
+    missing.groups.erase("E");
+    EXPECT_THROW(
+        static_cast<void>(fincore::evaluate_factor_research(
+            fixture.factor, fixture.prices, missing)),
+        fincore::factor_data_error);
+    auto empty = config;
+    empty.groups["A"] = "";
+    EXPECT_THROW(
+        static_cast<void>(fincore::evaluate_factor_research(
+            fixture.factor, fixture.prices, empty)),
+        fincore::factor_data_error);
+}
+
 }  // namespace

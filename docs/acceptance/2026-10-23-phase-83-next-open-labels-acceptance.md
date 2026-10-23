@@ -43,7 +43,7 @@ precomputed-on-price, and unsorted-price cases.
 
 ## Remaining research gaps
 
-Group mappings and multi-factor evaluator assembly remain open; grid-driven
+Multi-factor evaluator assembly remains open; grid-driven
 non-day label naming is not implemented.
 
 ## Gates

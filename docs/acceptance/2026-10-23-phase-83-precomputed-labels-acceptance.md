@@ -38,4 +38,4 @@ Full Release and ASan+UBSan suites: **729/729 passed**. Visual NOT_RUN.
 
 ## Remaining research gaps
 
-Group mappings and multi-factor evaluator assembly remain open.
+Multi-factor evaluator assembly remains open; signals/groups are accepted.

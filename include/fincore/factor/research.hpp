@@ -48,14 +48,27 @@ struct research_spec {
     std::vector<int> stability_lags{1, 5, 20};
     std::map<std::string, int> direction_overrides;
     std::map<std::string, std::pair<std::string, std::string>> segments;
+    std::map<std::string, std::string> groups;
     std::string snapshot_id = "unspecified";
     std::string price_basis = "unspecified";
     std::string calendar_id = "unspecified";
     std::string frequency = "unspecified";
 };
 
+struct research_signal_row {
+    timestamp date = 0;
+    std::string asset;
+    std::string factor;
+    int direction = 1;
+    double value = 0.0;
+    double processed_value = 0.0;
+    std::string preprocess;
+    std::string group;
+};
+
 struct research_result {
     std::string status;
+    std::vector<research_signal_row> signals;
     factor_ic_table information_coefficient;
     factor_ic_summary information_coefficient_summary;
     quantile_return_table quantile_returns;
