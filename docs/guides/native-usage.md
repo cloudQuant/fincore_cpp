@@ -87,16 +87,16 @@ native design maps capabilities with typed C++ models:
 
 ## Supported platforms and CI
 
-- macOS arm64 is the evidenced platform (714/714 Release suite,
-  install/export and downstream consumer).
+- macOS arm64 is the evidenced platform (722/722 Release suite,
+  722/722 ASan+UBSan, install/export and downstream consumer).
 - Linux and Windows are **not validated locally**. A GitHub Actions workflow
   (`.github/workflows/ci.yml`) builds and tests on `ubuntu-latest` and
   `macos-latest`, checking out DataFrame at the pinned commit
   `90aa4acf6437d5a34f7ab8dfb6e9250c3d53d230`; it has **not been executed**
   here, so no Linux/CI result is claimed.
 - Sanitizers are available via `FINCORE_ENABLE_ASAN` and
-  `FINCORE_ENABLE_UBSAN`. The last complete ASan+UBSan run was 661/661 at the
-  Iteration 3 close; later slices do not claim a sanitizer run.
+  `FINCORE_ENABLE_UBSAN`. The full suite passes 722/722 under ASan+UBSan with
+  Homebrew LLVM 22.1.8 (Ninja Debug).
 - `benchmarks/factor_pipeline_benchmark.cpp` records the Phase 87 native
   measurements
   (`cmake --build build --target fincore_factor_benchmark`), but no automated
