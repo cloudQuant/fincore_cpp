@@ -2392,3 +2392,20 @@ Clean detached oracle at `4b8f31b` reproduced all goldens. Full headless
 CTest and LLVM 22 ASan+UBSan each passed 576/576. Evidence is recorded in [the
 Phase 53 acceptance
 record](docs/acceptance/2026-10-23-phase-53-twr-acceptance.md).
+
+## Accepted Phase 55 native XIRR
+
+Phase 55 adds `fincore::xirr(cashflows, amount_column)` with the shared
+conventional-IRR solver. Amounts are aggregated by UTC calendar day, zero
+days dropped, day differences divided by 365, and a single-sign-transition
+stream solved on the scaled log-gross NPV domain
+`[log1p(nextafter(-1,0)), log(DBL_MAX)]` with bracket opposition as the
+existence certificate. Deterministic bisection reaches a `1e-15` relative
+log-rate interval; non-conventional streams return NaN.
+
+Clean detached oracle at `4b8f31b` reproduced the goldens (two flows
+`0.09971358593414104`, three flows `0.11684905803770408`, same-day
+`0.06647859284144313`, loss `-0.4990521803938817`). Full headless CTest and
+LLVM 22 ASan+UBSan each passed 579/579. Evidence is recorded in [the Phase 55
+acceptance
+record](docs/acceptance/2026-10-23-phase-55-xirr-acceptance.md).
