@@ -20,10 +20,11 @@ builder accepts a typed `std::span<const portfolio_transaction>` ledger
   `daily_transaction_notional` (notional), in date order.
 - The `transactions` section appears only when the ledger is non-empty and is
   appended after performance/benchmark/portfolio.
-
-Declared gap: the source portfolio section also reports turnover when both
-positions and transactions are supplied; the native report does not yet
-derive turnover from the typed ledger.
+- When positions and transactions are both supplied, daily traded notional is
+  aggregated into a one-row-per-day ledger and passed through the accepted
+  `get_turnover` kernel. The portfolio section adds a `turnover` series and
+  an `average_turnover` metric. Oracle values for the fixture: `2.0` and
+  `0.08571428571428572` on the two days, mean `1.042857142857143`.
 
 ## Tests and gates
 
@@ -31,4 +32,4 @@ derive turnover from the typed ledger.
 days (two on day one), asserts the series (`2/1` trades and `150/12` notional),
 the transaction/day metrics and the section order, and asserts that a
 non-finite price fails with `input_error`. Full headless CTest:
-**715/715 passed**. Sanitizer not re-run; visual NOT_RUN.
+**722/722 passed**. Sanitizer not re-run; visual NOT_RUN.

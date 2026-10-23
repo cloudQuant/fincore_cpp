@@ -175,4 +175,49 @@ TEST(ReportPortfolio, ProjectsTransactionActivity) {
                  fincore::input_error);
 }
 
+TEST(ReportPortfolio, ProjectsTurnoverFromPositionsAndTransactions) {
+    const auto day = 86'400'000'000'000LL;
+    const auto start = fincore::utc_timestamp(2022, 1, 3);
+    fincore::dataframe returns;
+    returns.load_index(std::vector<fincore::timestamp>{start, start + day});
+    returns.load_column<double>(
+        "returns", {0.01, 0.02}, hmdf::nan_policy::dont_pad_with_nans);
+    fincore::dataframe positions;
+    positions.load_index(std::vector<fincore::timestamp>{start, start + day});
+    positions.load_column<double>(
+        "A", {100.0, 80.0}, hmdf::nan_policy::dont_pad_with_nans);
+    positions.load_column<double>(
+        "B", {-50.0, -50.0}, hmdf::nan_policy::dont_pad_with_nans);
+    positions.load_column<double>(
+        "cash", {10.0, 30.0}, hmdf::nan_policy::dont_pad_with_nans);
+    const std::vector<fincore::portfolio_transaction> transactions{
+        {start, "A", 10.0, 5.0},
+        {start, "B", -5.0, 20.0},
+        {start + day, "A", -2.0, 6.0}};
+    const auto document = fincore::build_portfolio_report(
+        returns, nullptr, "Portfolio", &positions, 63U, transactions);
+    ASSERT_EQ(document.sections.size(), 3U);
+    EXPECT_EQ(document.sections[1].key, "portfolio");
+    EXPECT_EQ(document.sections[2].key, "transactions");
+    bool has_average_turnover = false;
+    for (const auto& metric : document.sections[1].metrics) {
+        if (metric.key == "average_turnover") {
+            has_average_turnover = true;
+            ASSERT_TRUE(metric.number.has_value());
+            EXPECT_NEAR(*metric.number, 1.042857142857143, 1e-12);
+        }
+    }
+    EXPECT_TRUE(has_average_turnover);
+    const fincore::report_series* turnover = nullptr;
+    for (const auto& series : document.sections[1].series) {
+        if (series.key == "turnover") {
+            turnover = &series;
+        }
+    }
+    ASSERT_NE(turnover, nullptr);
+    ASSERT_EQ(turnover->y.size(), 2U);
+    EXPECT_NEAR(turnover->y[0], 2.0, 1e-12);
+    EXPECT_NEAR(turnover->y[1], 0.08571428571428572, 1e-12);
+}
+
 }  // namespace

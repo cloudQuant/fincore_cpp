@@ -3196,3 +3196,14 @@ routes**: 243 exact-name + 36 renamed, 51 deferred, 21 non-port out of 351.
 Full headless CTest passed 721/721; sanitizer not re-run; visual NOT_RUN.
 Evidence is in [the gap-closure acceptance
 record](docs/acceptance/2026-10-23-attribution-portfolio-gap-closure-acceptance.md).
+
+## Portfolio turnover slice — ledger-derived turnover accepted
+
+When positions and the typed transaction ledger are both supplied, the
+portfolio report now aggregates daily traded notional and runs the accepted
+`get_turnover` kernel, publishing a `turnover` series and `average_turnover`
+metric (oracle `2.0`, `0.08571428571428572`, mean `1.042857142857143`). This
+closes the transaction-turnover item in the Phase 91/88b gap list.
+
+Full headless CTest passed 722/722; sanitizer run is in progress in a separate
+LLVM 22 ASan+UBSan build; visual NOT_RUN.

@@ -3,7 +3,7 @@
 **Pin:** Python `4b8f31b1b59707480d5db9603704d83bbf7e6946`
 **Machine ledger:** [2026-10-23-program-parity-ledger.tsv](2026-10-23-program-parity-ledger.tsv)
 **Generator:** `tools/parity_ledger.py`
-**Native tests:** 721/721 Release CTest
+**Native tests:** 722/722 Release CTest
 
 ## Method
 
@@ -101,7 +101,7 @@ function route remains.
 
 ## Gate status
 
-- Release CTest: **721/721 passed** (this audit).
+- Release CTest: **722/722 passed** (this audit).
 - Sanitizer: last complete ASan+UBSan run **661/661** (Iteration 3 close and
   layout alignment). No later slice claims a sanitizer run; the gate remains
   **NOT_RUN** for Iterations 4–6.
@@ -118,7 +118,7 @@ function route remains.
 The native program covers the accepted compute, model, report, runtime and
 packaging paths with 279 exact/renamed public routes, zero unresolved routes
 and 72 explicitly deferred or non-port routes. The iteration-level items above
-(visual, sanitizer re-run, CI matrix, 88b fields, transaction turnover) remain
-outside the function ledger. Program-level parity is therefore **partial and explicitly
+(visual, sanitizer re-run, CI matrix, 88b fields) remain outside the function
+ledger. Program-level parity is therefore **partial and explicitly
 bounded**; this record is the authoritative close-out of Phase 92 and must be
 updated if any listed gap is closed.

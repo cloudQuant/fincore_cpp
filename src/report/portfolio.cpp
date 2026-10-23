@@ -9,6 +9,7 @@
 #include <fincore/metrics/risk.hpp>
 #include <fincore/metrics/rolling.hpp>
 #include <fincore/portfolio/positions.hpp>
+#include <fincore/portfolio/transactions.hpp>
 
 #include <cmath>
 #include <cstdint>
@@ -222,7 +223,9 @@ report_section transactions_section(
     return section;
 }
 
-report_section portfolio_section(const dataframe& positions) {
+report_section portfolio_section(
+    const dataframe& positions,
+    const std::optional<dataframe>& turnover_frame) {
     report_section section;
     section.key = "portfolio";
     section.title = "Portfolio exposure";
@@ -258,6 +261,26 @@ report_section portfolio_section(const dataframe& positions) {
     section.series.push_back(frame_series(leverage_frame, "gross_leverage",
                                           "Gross leverage", "leverage",
                                           "ratio"));
+    if (turnover_frame.has_value()) {
+        const auto& turnover_values =
+            require_double_column(*turnover_frame, "turnover");
+        double total_turnover = 0.0;
+        std::size_t turnover_count = 0U;
+        for (const double value : turnover_values) {
+            if (std::isfinite(value)) {
+                total_turnover += value;
+                ++turnover_count;
+            }
+        }
+        section.metrics.push_back(number_metric(
+            "average_turnover", "Average turnover", "ratio",
+            turnover_count > 0U
+                ? total_turnover / static_cast<double>(turnover_count)
+                : std::nan("")));
+        section.series.push_back(frame_series(*turnover_frame, "turnover",
+                                              "Turnover", "turnover",
+                                              "ratio"));
+    }
     return section;
 }
 
@@ -415,8 +438,35 @@ report_document build_portfolio_report(const dataframe& returns,
         document.sections.push_back(std::move(section));
     }
     if (positions != nullptr) {
+        const auto aligned = align_positions(returns, *positions);
+        std::optional<dataframe> turnover_frame;
+        if (!transactions.empty()) {
+            std::map<timestamp, double> daily_volume;
+            for (const auto& transaction : transactions) {
+                timestamp day = transaction.date / day_ns;
+                if (transaction.date % day_ns < 0) {
+                    --day;
+                }
+                daily_volume[day * day_ns] +=
+                    std::abs(transaction.amount) * transaction.price;
+            }
+            dataframe ledger;
+            std::vector<timestamp> days;
+            std::vector<double> amounts;
+            for (const auto& [day, volume] : daily_volume) {
+                days.push_back(day);
+                amounts.push_back(volume);
+            }
+            ledger.load_index(std::move(days));
+            ledger.load_column<double>("amount", std::move(amounts),
+                                       hmdf::nan_policy::dont_pad_with_nans);
+            ledger.load_column<double>(
+                "price", std::vector<double>(daily_volume.size(), 1.0),
+                hmdf::nan_policy::dont_pad_with_nans);
+            turnover_frame = get_turnover(aligned, ledger);
+        }
         document.sections.push_back(
-            portfolio_section(align_positions(returns, *positions)));
+            portfolio_section(aligned, turnover_frame));
     }
     if (!transactions.empty()) {
         document.sections.push_back(transactions_section(transactions));

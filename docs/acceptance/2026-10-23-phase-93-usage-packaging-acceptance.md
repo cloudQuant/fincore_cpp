@@ -43,8 +43,9 @@ The consumer supplies its own DataFrame checkout and links
 
 ## Declared gaps
 
-- Supported-platform CI is **NOT_RUN**; Linux/Windows are unvalidated and no
-  workflow is configured because DataFrame is a consumer-provided dependency.
+- Supported-platform CI is **NOT_RUN**. A pinned GitHub Actions workflow now
+  exists for Ubuntu and macOS, but it was not executed in this environment;
+  Linux and Windows remain unvalidated.
 - Sanitizer status remains the last green 661/661 at Iteration 3 close; no
   later slice claims a run.
 - The benchmark baseline is recorded but not enforced as an automated

@@ -22,7 +22,7 @@ and [ledger](2026-10-23-program-parity-ledger.tsv).
 
 - Fresh component install at this revision and a downstream consumer printing
   `version=0.1.0 sharpe=6.928203230275507`.
-- Full headless CTest **721/721** passed at the final HEAD.
+- Full headless CTest **722/722** passed at the final HEAD.
 - Sanitizer **NOT_RUN** for Iterations 4–6 (last complete 661/661 at
   Iteration 3 close).
 - Supported-platform CI matrix **NOT_RUN**; only macOS arm64 is evidenced.
@@ -37,5 +37,4 @@ and [ledger](2026-10-23-program-parity-ledger.tsv).
   attribution/report domains need typed input contracts; data utilities are
   explicitly excluded.
 - The deferred/non-port ledger rows (no unresolved function gap).
-- Transaction turnover (beyond the accepted count/notional series), automated
-  benchmark regression gating and portable CI.
+- Automated benchmark regression gating and portable CI.
