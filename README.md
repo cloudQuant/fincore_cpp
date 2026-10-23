@@ -2234,3 +2234,25 @@ record](docs/acceptance/2026-10-23-phase-48-hurst-exponent-acceptance.md).
 
 This phase does not add window/lag parameters, adapters, reports, plots,
 packages, or release actions.
+
+## Accepted Phase 49 native Stutzer index
+
+Phase 49 adds `fincore::stutzer_index(returns, target_return = 0.0, column)`:
+the exponent-tilted performance index with the source's bounded scalar
+optimization. A NaN-only excess sample is required; zero mean excess returns
+`0.0`; the objective `ln(mean(exp(theta*excess)))` is minimized over the
+source bounds with golden-section search (converged to `1e-12`, declared 1e-6
+parity tolerance against SciPy's `xatol=1e-5`), and the signed square root of
+the maximized index is returned. This replaces the earlier LPM1 assumption
+with the actual contract.
+
+Clean detached oracle at `4b8f31b` reproduced the goldens (ordinary
+`0.14630936783628698`, target 0.001 `0.11013897196625373`, negative
+`-0.14630936783628545`, NaN-mixed `0.12766869919010967`, overflow guard
+`-0.7294427821824202`, ±infinity samples `0.8242437395987398` /
+`-0.7585275606810086`). Full headless CTest and LLVM 22 ASan+UBSan each
+passed 551/551. Evidence is recorded in [the Phase 49 acceptance
+record](docs/acceptance/2026-10-23-phase-49-stutzer-index-acceptance.md).
+
+This phase does not add public solver parameters, adapters, reports, plots,
+packages, or release actions.
