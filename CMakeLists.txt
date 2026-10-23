@@ -47,6 +47,7 @@ add_library(fincore
     src/risk/walk_forward.cpp
     src/risk/specs.cpp
     src/risk/report.cpp
+    src/risk/models.cpp
     src/metrics/stats.cpp
     src/metrics/risk.cpp
     src/metrics/alpha_beta.cpp
