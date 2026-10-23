@@ -36,6 +36,10 @@ add_library(fincore
     src/performance/disclosures.cpp
     src/portfolio/capacity.cpp
     src/optimization/numerics.cpp
+    src/optimization/portfolio_solver.cpp
+    src/optimization/objectives.cpp
+    src/optimization/frontier.cpp
+    src/optimization/risk_parity.cpp
     src/detail/digest.cpp
     src/risk/garch.cpp
     src/risk/evt.cpp

@@ -41,6 +41,7 @@ add_executable(fincore_tests
     unit/transactions_test.cpp
     unit/capacity_test.cpp
     unit/optimization_numerics_test.cpp
+    unit/optimization_portfolio_test.cpp
     unit/risk_garch_test.cpp
     unit/risk_evt_test.cpp
     unit/risk_backtesting_test.cpp

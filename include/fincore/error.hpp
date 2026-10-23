@@ -9,4 +9,9 @@ public:
     using std::invalid_argument::invalid_argument;
 };
 
+class optimization_error : public std::runtime_error {
+public:
+    using std::runtime_error::runtime_error;
+};
+
 }  // namespace fincore
