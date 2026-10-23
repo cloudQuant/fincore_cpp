@@ -59,4 +59,8 @@ std::optional<timestamp> max_consecutive_down_end_date(
     const dataframe& returns,
     std::string_view column = returns_column);
 
+std::map<std::string, double> consecutive_stats(
+    const dataframe& returns,
+    std::string_view column = returns_column);
+
 }  // namespace fincore

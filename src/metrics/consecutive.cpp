@@ -294,4 +294,23 @@ double max_consecutive_down_months(const dataframe& returns,
     return max_consecutive_buckets(returns, column, false, false);
 }
 
+std::map<std::string, double> consecutive_stats(
+    const dataframe& returns, std::string_view column) {
+    if (column.find(' ') != std::string_view::npos) {
+        throw input_error{"column name must not contain an embedded NUL"};
+    }
+    return {
+        {"max_consecutive_up_days", max_consecutive_up_days(returns, column)},
+        {"max_consecutive_down_days",
+         max_consecutive_down_days(returns, column)},
+        {"max_consecutive_up_weeks", max_consecutive_up_weeks(returns, column)},
+        {"max_consecutive_down_weeks",
+         max_consecutive_down_weeks(returns, column)},
+        {"max_consecutive_up_months",
+         max_consecutive_up_months(returns, column)},
+        {"max_consecutive_down_months",
+         max_consecutive_down_months(returns, column)},
+    };
+}
+
 }  // namespace fincore

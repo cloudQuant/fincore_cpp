@@ -2,7 +2,9 @@
 
 #include <fincore/metrics/basic.hpp>
 
+#include <cstddef>
 #include <optional>
+#include <span>
 #include <string_view>
 #include <utility>
 
@@ -15,6 +17,15 @@ double beta(const dataframe& returns,
             double risk_free = 0.0,
             std::string_view returns_column_name = returns_column,
             std::string_view benchmark_column_name = benchmark_column);
+
+double alpha_percentile_rank(
+    const dataframe& strategy_returns,
+    std::span<const dataframe> peer_returns,
+    const dataframe& benchmark,
+    double risk_free = 0.0,
+    double annualization = daily_annualization,
+    std::string_view returns_column_name = returns_column,
+    std::string_view benchmark_column_name = benchmark_column);
 
 double alpha(const dataframe& returns,
              const dataframe& benchmark,

@@ -328,4 +328,52 @@ std::pair<double, double> down_alpha_beta(
                                benchmark_selection::down);
 }
 
+double alpha_percentile_rank(
+    const dataframe& strategy_returns,
+    std::span<const dataframe> peer_returns,
+    const dataframe& benchmark,
+    double risk_free,
+    double annualization,
+    std::string_view returns_column_name,
+    std::string_view benchmark_column_name) {
+    if (returns_column_name.find(' ') != std::string_view::npos ||
+        benchmark_column_name.find(' ') != std::string_view::npos) {
+        throw input_error{"column name must not contain an embedded NUL"};
+    }
+    if (require_double_column(strategy_returns, returns_column_name).size() <
+        3U) {
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+    const double strategy_alpha =
+        alpha(strategy_returns, benchmark, risk_free, annualization,
+              returns_column_name, benchmark_column_name);
+    if (std::isnan(strategy_alpha)) {
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+
+    std::vector<double> peer_alphas;
+    for (const dataframe& peer : peer_returns) {
+        if (require_double_column(peer, returns_column_name).size() < 3U) {
+            continue;
+        }
+        const double peer_alpha = alpha(peer, benchmark, risk_free,
+                                        annualization, returns_column_name,
+                                        benchmark_column_name);
+        if (!std::isnan(peer_alpha)) {
+            peer_alphas.push_back(peer_alpha);
+        }
+    }
+    if (peer_alphas.empty()) {
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+    std::size_t below = 0;
+    for (const double peer_alpha : peer_alphas) {
+        if (peer_alpha < strategy_alpha) {
+            ++below;
+        }
+    }
+    return static_cast<double>(below) /
+           static_cast<double>(peer_alphas.size());
+}
+
 }  // namespace fincore

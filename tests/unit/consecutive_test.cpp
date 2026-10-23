@@ -367,4 +367,39 @@ TEST(Consecutive, WeeklyAndMonthlyRunsHandleEmptyAndSelectors) {
     EXPECT_DOUBLE_EQ(owned, 1.0);
 }
 
+TEST(Consecutive, ConsecutiveStatsComposesAllSixRuns) {
+    const std::vector<fincore::timestamp> index{
+        fincore::utc_timestamp(2020, 1, 1), fincore::utc_timestamp(2020, 1, 2),
+        fincore::utc_timestamp(2020, 1, 3), fincore::utc_timestamp(2020, 1, 4),
+        fincore::utc_timestamp(2020, 1, 5), fincore::utc_timestamp(2020, 1, 6),
+        fincore::utc_timestamp(2020, 1, 7), fincore::utc_timestamp(2020, 1, 8),
+        fincore::utc_timestamp(2020, 1, 9),
+        fincore::utc_timestamp(2020, 1, 10)};
+    const auto returns = fincore::make_series(
+        index, "returns",
+        {0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03});
+    const auto stats = fincore::consecutive_stats(returns);
+
+    ASSERT_EQ(stats.size(), 6U);
+    EXPECT_EQ(stats.at("max_consecutive_up_days"), 3.0);
+    EXPECT_EQ(stats.at("max_consecutive_down_days"), 1.0);
+    EXPECT_EQ(stats.at("max_consecutive_up_weeks"), 2.0);
+    EXPECT_EQ(stats.at("max_consecutive_down_weeks"), 0.0);
+    EXPECT_EQ(stats.at("max_consecutive_up_months"), 1.0);
+    EXPECT_EQ(stats.at("max_consecutive_down_months"), 0.0);
+
+    const auto empty = fincore::make_series({}, "returns", {});
+    const auto empty_stats = fincore::consecutive_stats(empty);
+    EXPECT_TRUE(std::isnan(empty_stats.at("max_consecutive_up_days")));
+
+    const std::array<char, 13> embedded_storage{
+        'r', 'e', 't', 'u', 'r', 'n', 's', '\0', 'e', 'v', 'i', 'l', '!'};
+    const std::string_view embedded_selector{embedded_storage.data(),
+                                             embedded_storage.size()};
+    EXPECT_THROW(
+        static_cast<void>(
+            fincore::consecutive_stats(returns, embedded_selector)),
+        fincore::input_error);
+}
+
 }  // namespace
