@@ -139,6 +139,90 @@ TEST(FactorAnalysis, InfersFromStoredAggregateIcSnapshot) {
     }
 }
 
+TEST(FactorAnalysis, BuildsOptionalEventModelFromEventReturns) {
+    const auto start = fincore::utc_timestamp(2022, 1, 3);
+    const auto day = 86'400'000'000'000LL;
+    fincore::prepared_factor_data prepared;
+    prepared.forward_labels = {"1D"};
+    std::vector<fincore::timestamp> dates;
+    for (int date = 0; date < 5; ++date) {
+        dates.push_back(start + date * day);
+    }
+    const char* assets[] = {"A", "B", "C"};
+    for (int date = 0; date < 5; ++date) {
+        for (int asset = 0; asset < 3; ++asset) {
+            fincore::factor_row row;
+            row.date = dates[static_cast<std::size_t>(date)];
+            row.asset = assets[asset];
+            row.factor = static_cast<double>(asset + 1);
+            row.quantile = asset + 1;
+            row.forward_returns = {
+                0.01 * (asset + 1) + 0.001 * date};
+            prepared.rows.push_back(row);
+        }
+    }
+    fincore::dataframe event_returns;
+    event_returns.load_index(std::vector<fincore::timestamp>{dates});
+    event_returns.load_column<double>(
+        "A", {0.010, 0.020, 0.030, 0.010, 0.040},
+        hmdf::nan_policy::dont_pad_with_nans);
+    event_returns.load_column<double>(
+        "B", {0.020, 0.010, 0.020, 0.030, 0.010},
+        hmdf::nan_policy::dont_pad_with_nans);
+    event_returns.load_column<double>(
+        "C", {0.030, 0.040, 0.010, 0.020, 0.030},
+        hmdf::nan_policy::dont_pad_with_nans);
+    fincore::factor_analysis_config config;
+    config.periods = {"1D"};
+    config.turnover_periods = {1};
+    config.include_portfolio_inputs = false;
+    const auto model = fincore::analyze_factor(prepared, config,
+                                               event_returns, 1, 2);
+    ASSERT_TRUE(model.event_analysis.has_value());
+    const auto& event = *model.event_analysis;
+    EXPECT_EQ(event.offsets, (std::vector<int>{-1, 0, 1, 2}));
+    EXPECT_EQ(event.event_dates.size(), 5U);
+    ASSERT_EQ(event.mean_returns.size(), 4U);
+    for (const double value : event.mean_returns) {
+        EXPECT_NEAR(value, 0.0, 1e-15);
+    }
+    EXPECT_EQ(event.return_distribution.size(), 16U);
+    ASSERT_EQ(event.quantile_average_returns.size(), 3U);
+    const auto& q1 = event.quantile_average_returns[0];
+    EXPECT_EQ(q1.quantile, 1);
+    EXPECT_NEAR(q1.means[0], -0.003333333333333334, 1e-15);
+    EXPECT_NEAR(q1.means[2], 0.002499999999999999, 1e-15);
+    EXPECT_NEAR(q1.means[3], 0.004444444444444444, 1e-15);
+    EXPECT_NEAR(q1.standard_deviations[0], 0.009428090415820633, 1e-15);
+    const auto& q2 = event.quantile_average_returns[1];
+    EXPECT_NEAR(q2.means[0], -0.0008333333333333339, 1e-15);
+    EXPECT_NEAR(q2.means[1], -0.004000000000000001, 1e-15);
+    const auto& q3 = event.quantile_average_returns[2];
+    EXPECT_NEAR(q3.means[0], 0.004166666666666666, 1e-15);
+    EXPECT_NEAR(q3.means[3], -0.002222222222222223, 1e-15);
+    ASSERT_TRUE(model.event_input_snapshot.has_value());
+    EXPECT_EQ(model.event_input_snapshot->get_index().size(), 5U);
+
+    const auto without_event = fincore::analyze_factor(prepared, config);
+    EXPECT_NE(model.result_fingerprint, without_event.result_fingerprint);
+    auto changed = event_returns;
+    changed.load_column<double>(
+        "A", {0.011, 0.020, 0.030, 0.010, 0.040},
+        hmdf::nan_policy::dont_pad_with_nans);
+    const auto changed_model = fincore::analyze_factor(prepared, config,
+                                                       changed, 1, 2);
+    EXPECT_NE(changed_model.result_fingerprint, model.result_fingerprint);
+
+    auto neutral = config;
+    neutral.group_neutral = true;
+    EXPECT_THROW(static_cast<void>(fincore::analyze_factor(
+                     prepared, neutral, event_returns, 1, 2)),
+                 fincore::factor_data_error);
+    EXPECT_THROW(static_cast<void>(fincore::analyze_factor(
+                     prepared, config, event_returns, -1, 2)),
+                 fincore::factor_data_error);
+}
+
 }  // namespace
 
 TEST(FactorAnalysis, MatchesCleanPythonModelSnapshot) {

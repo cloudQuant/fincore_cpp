@@ -315,7 +315,9 @@ factor_time_information_table monthly_information(
 
 std::string fingerprint_of(const prepared_factor_data& data,
                            const factor_analysis_config& config,
-                           const std::vector<std::string>& periods) {
+                           const std::vector<std::string>& periods,
+                           const dataframe* event_returns,
+                           const int event_before, const int event_after) {
     std::vector<std::uint8_t> payload;
     const auto append_u64 = [&payload](const std::uint64_t value) {
         for (int shift = 56; shift >= 0; shift -= 8) {
@@ -362,14 +364,35 @@ std::string fingerprint_of(const prepared_factor_data& data,
             append_double(value);
         }
     }
+    append_u64(event_returns != nullptr ? 1U : 0U);
+    if (event_returns != nullptr) {
+        append_u64(static_cast<std::uint64_t>(event_before));
+        append_u64(static_cast<std::uint64_t>(event_after));
+        append_u64(event_returns->get_index().size());
+        for (std::size_t row = 0; row < event_returns->get_index().size();
+             ++row) {
+            append_u64(static_cast<std::uint64_t>(
+                event_returns->get_index()[row]));
+            for (const auto& info : event_returns->get_columns_info<double>()) {
+                if (std::get<2>(info) != typeid(double)) {
+                    continue;
+                }
+                const std::string name{std::get<0>(info).c_str()};
+                append_text(name);
+                append_double(
+                    event_returns->get_column<double>(name.c_str())[row]);
+            }
+        }
+    }
     return detail::sha256_hex(payload);
 }
 
 }  // namespace
 
-factor_analysis_model analyze_factor(
+static factor_analysis_model analyze_factor_impl(
     const prepared_factor_data& factor_data,
-    const factor_analysis_config& config) {
+    const factor_analysis_config& config, const dataframe* event_returns,
+    const int event_before, const int event_after) {
     if (factor_data.rows.empty()) {
         throw factor_data_error{
             "factor_data must contain at least one prepared observation"};
@@ -446,15 +469,88 @@ factor_analysis_model analyze_factor(
     model.time_aggregated_information.push_back(
         monthly_information(model.information_coefficient, "M"));
 
+    if (event_returns != nullptr) {
+        if (event_before < 0 || event_after < 0) {
+            throw factor_data_error{
+                "event_before and event_after must be non-negative integers"};
+        }
+        if (config.group_neutral) {
+            throw factor_data_error{
+                "group-neutral event analysis is not supported natively"};
+        }
+        if (event_returns->get_index().empty()) {
+            throw factor_data_error{
+                "event_returns must contain at least one row"};
+        }
+        factor_series quantile_events;
+        for (const auto& row : analysis_data.rows) {
+            quantile_events.dates.push_back(row.date);
+            quantile_events.assets.push_back(row.asset);
+            quantile_events.values.push_back(
+                static_cast<double>(row.quantile));
+        }
+        const auto windows = common_start_returns(
+            quantile_events, *event_returns, event_before, event_after, true,
+            true, config.long_short ? &quantile_events : nullptr);
+        factor_event_model event_model;
+        event_model.offsets = windows.offsets;
+        event_model.event_dates = windows.event_dates;
+        std::map<int, std::vector<double>> by_offset;
+        std::vector<event_window_cell> ordered = windows.cells;
+        std::sort(ordered.begin(), ordered.end(),
+                  [](const event_window_cell& left,
+                     const event_window_cell& right) {
+                      if (left.offset != right.offset) {
+                          return left.offset < right.offset;
+                      }
+                      return left.event_date < right.event_date;
+                  });
+        for (const auto& cell : ordered) {
+            event_model.return_distribution.push_back(cell.value);
+            by_offset[cell.offset].push_back(cell.value);
+        }
+        for (const int offset : event_model.offsets) {
+            const auto found = by_offset.find(offset);
+            if (found == by_offset.end() || found->second.empty()) {
+                event_model.mean_returns.push_back(nan);
+                continue;
+            }
+            const auto& entries = found->second;
+            event_model.mean_returns.push_back(
+                std::accumulate(entries.begin(), entries.end(), 0.0) /
+                static_cast<double>(entries.size()));
+        }
+        event_model.quantile_average_returns =
+            average_cumulative_return_by_quantile(
+                analysis_data, *event_returns, event_before, event_after,
+                config.long_short);
+        model.event_analysis = std::move(event_model);
+        model.event_input_snapshot = *event_returns;
+    }
+
     if (config.include_portfolio_inputs) {
         model.portfolio_inputs = build_factor_portfolio_inputs(
             analysis_data, periods.front(), config.long_short,
             config.group_neutral, config.equal_weight);
     }
 
-    model.result_fingerprint =
-        fingerprint_of(factor_data, config, periods);
+    model.result_fingerprint = fingerprint_of(
+        factor_data, config, periods, event_returns, event_before,
+        event_after);
     return model;
+}
+
+factor_analysis_model analyze_factor(const prepared_factor_data& factor_data,
+                                     const factor_analysis_config& config) {
+    return analyze_factor_impl(factor_data, config, nullptr, 0, 0);
+}
+
+factor_analysis_model analyze_factor(
+    const prepared_factor_data& factor_data,
+    const factor_analysis_config& config, const dataframe& event_returns,
+    const int event_before, const int event_after) {
+    return analyze_factor_impl(factor_data, config, &event_returns,
+                               event_before, event_after);
 }
 
 ic_inference_result factor_model_inference(const factor_analysis_model& model,

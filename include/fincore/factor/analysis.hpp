@@ -68,6 +68,14 @@ struct factor_rank_autocorrelation_series {
     factor_series_result values;
 };
 
+struct factor_event_model {
+    std::vector<int> offsets;
+    std::vector<timestamp> event_dates;
+    std::vector<double> mean_returns;         // per offset
+    std::vector<double> return_distribution;  // flattened finite window cells
+    std::vector<quantile_event_statistics> quantile_average_returns;
+};
+
 struct factor_time_information_table {
     std::string frequency;
     std::vector<timestamp> dates;
@@ -93,6 +101,8 @@ struct factor_analysis_model {
     std::vector<factor_quantile_curve> quantile_cumulative_returns;
     std::vector<factor_position_series> factor_positions;
     std::vector<factor_time_information_table> time_aggregated_information;
+    std::optional<factor_event_model> event_analysis;
+    std::optional<dataframe> event_input_snapshot;
     std::optional<factor_portfolio_inputs> portfolio_inputs;
     std::string result_fingerprint;
 };
@@ -100,6 +110,13 @@ struct factor_analysis_model {
 factor_analysis_model analyze_factor(
     const prepared_factor_data& factor_data,
     const factor_analysis_config& config = {});
+
+/// Analyze with an optional event-return ledger (`event_before`/`event_after`
+/// index offsets). Event analysis requires `group_neutral=false`.
+factor_analysis_model analyze_factor(
+    const prepared_factor_data& factor_data,
+    const factor_analysis_config& config, const dataframe& event_returns,
+    int event_before, int event_after);
 
 /// IC/FDR inference over the model's stored aggregate IC snapshot.
 ic_inference_result factor_model_inference(

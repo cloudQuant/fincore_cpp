@@ -3,7 +3,7 @@
 **Pin:** Python `4b8f31b1b59707480d5db9603704d83bbf7e6946`
 **Machine ledger:** [2026-10-23-program-parity-ledger.tsv](2026-10-23-program-parity-ledger.tsv)
 **Generator:** `tools/parity_ledger.py`
-**Native tests:** 722/722 Release CTest
+**Native tests:** 723/723 Release CTest
 
 ## Method
 
@@ -97,12 +97,12 @@ function route remains.
 | 3 — risk/optimization | Phases 60–71 accepted; 661/661 CTest+ASan+UBSan at close | none at function level |
 | 4 — visualization | chart data and ImPlot adapter accepted for compute/build | visual rendering **NOT_RUN**; sanitizer not re-run after the changes |
 | 5 — factor analysis | 77–87 slices accepted: prep/PIT, performance/inference/event windows, costs, analysis model, research, export, tears, four-section report, portfolio constructor, performance study | group analysis absent; tear-sheet plotting deferred |
-| 6 — report/runtime | 88a/89/90/91/92/93 accepted: schema, HTML, XLSX, risk/portfolio/transactions projections, runtime catalog, install/export consumer, usage/migration notes | 88b integration fields partial; transaction turnover metric open; 93 CI matrix NOT_RUN |
+| 6 — report/runtime | 88a/89/90/91/92/93 accepted: schema, HTML, XLSX, risk/portfolio/transactions projections, runtime catalog, install/export consumer, usage/migration notes, factor event model | 88b group-level fields absent; 93 CI matrix NOT_RUN |
 
 ## Gate status
 
-- Release CTest: **722/722 passed** (this audit).
-- Sanitizer: full ASan+UBSan suite **722/722 passed** at the final HEAD
+- Release CTest: **723/723 passed** (this audit).
+- Sanitizer: full ASan+UBSan suite **723/723 passed** at the final HEAD
   (Homebrew LLVM 22.1.8, Ninja Debug; no reports). See
   [the sanitizer gate record](2026-10-23-sanitizer-gate-acceptance.md).
 - Visual rendering: **NOT_RUN** (no screenshots; ImPlot adapter build not
@@ -118,7 +118,7 @@ function route remains.
 The native program covers the accepted compute, model, report, runtime and
 packaging paths with 279 exact/renamed public routes, zero unresolved routes
 and 72 explicitly deferred or non-port routes. The iteration-level items above
-(visual, sanitizer re-run, CI matrix, 88b fields) remain outside the function
+(visual, CI matrix, 88b group-level fields) remain outside the function
 ledger. Program-level parity is therefore **partial and explicitly
 bounded**; this record is the authoritative close-out of Phase 92 and must be
 updated if any listed gap is closed.
