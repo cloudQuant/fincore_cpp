@@ -92,8 +92,9 @@ native design maps capabilities with typed C++ models:
 - Linux and Windows are **not validated locally**. A GitHub Actions workflow
   (`.github/workflows/ci.yml`) builds and tests on `ubuntu-latest` and
   `macos-latest`, checking out DataFrame at the pinned commit
-  `90aa4acf6437d5a34f7ab8dfb6e9250c3d53d230`; it has **not been executed**
-  here, so no Linux/CI result is claimed.
+  `90aa4acf6437d5a34f7ab8dfb6e9250c3d53d230`. Its macOS steps were reproduced
+  in a clean clone (726/726); the Ubuntu leg has **not been executed** here,
+  so no Linux result is claimed.
 - Sanitizers are available via `FINCORE_ENABLE_ASAN` and
   `FINCORE_ENABLE_UBSAN`. The full suite passes 722/722 under ASan+UBSan with
   Homebrew LLVM 22.1.8 (Ninja Debug).

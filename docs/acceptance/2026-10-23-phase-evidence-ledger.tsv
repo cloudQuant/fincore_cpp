@@ -61,4 +61,4 @@ phase	iteration	scope	evidence	status	notes
 90	6	XLSX renderer	iteration-6-xlsx-packaging	accepted_bounded	byte parity not claimed
 91	6	portfolio/risk builders	phase-91-portfolio-report; phase-91-portfolio-report-completion; phase-91-transactions	accepted	
 92	6	runtime core and catalog	phase-92-runtime-catalog	accepted_bounded	38 of 273 operations selected
-93	6	packaging/consumer/notes	phase-93-usage-packaging; iteration-6-xlsx-packaging	accepted_bounded	CI matrix NOT_RUN
+93	6	packaging/consumer/notes	phase-93-usage-packaging; iteration-6-xlsx-packaging	accepted_bounded	native macOS leg reproduced; Ubuntu CI NOT_RUN

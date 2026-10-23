@@ -45,9 +45,10 @@ Re-verified after the later attribution/portfolio slices at commit
 
 ## Declared gaps
 
-- Supported-platform CI is **NOT_RUN**. A pinned GitHub Actions workflow now
-  exists for Ubuntu and macOS, but it was not executed in this environment;
-  Linux and Windows remain unvalidated.
+- A pinned GitHub Actions workflow exists for Ubuntu and macOS. Its macOS
+  steps were reproduced in a clean clone at commit `e9d1cef` with DataFrame
+  `90aa4acf`: configure/build/ctest rc 0, **726/726 passed**. The Ubuntu leg
+  and Windows remain **NOT_RUN** (no runner or Docker locally).
 - Sanitizer status remains the last green 661/661 at Iteration 3 close; no
   later slice claims a run.
 - The benchmark baseline is recorded but not enforced as an automated

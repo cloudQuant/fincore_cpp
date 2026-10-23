@@ -9,6 +9,7 @@
 #include <fincore/metrics/returns.hpp>
 #include <fincore/metrics/risk.hpp>
 #include <fincore/metrics/stats.hpp>
+#include <fincore/metrics/rolling.hpp>
 #include <fincore/risk/backtesting.hpp>
 
 #include <algorithm>
@@ -63,6 +64,19 @@ const std::int64_t& require_integer(const runtime_inputs& inputs,
     const auto found = inputs.find(name);
     if (found == inputs.end()) {
         throw input_error{"missing runtime input: " + name};
+    }
+    const auto* value = std::get_if<std::int64_t>(&found->second.data);
+    if (value == nullptr) {
+        throw input_error{"runtime input must be an integer: " + name};
+    }
+    return *value;
+}
+
+std::optional<std::int64_t> optional_integer(const runtime_inputs& inputs,
+                                             const std::string& name) {
+    const auto found = inputs.find(name);
+    if (found == inputs.end()) {
+        return std::nullopt;
     }
     const auto* value = std::get_if<std::int64_t>(&found->second.data);
     if (value == nullptr) {
@@ -525,6 +539,62 @@ operation_catalog builtin_catalog() {
         [](const runtime_inputs& inputs) {
             return runtime_value(
                 win_rate(require_frame(inputs, "returns")));
+        });
+    add("metrics.rolling.roll_sharpe_ratio", "metrics", "roll_sharpe_ratio",
+        [](const runtime_inputs& inputs) {
+            const auto window = optional_integer(inputs, "window");
+            return runtime_value(roll_sharpe_ratio(
+                require_frame(inputs, "returns"),
+                window.has_value()
+                    ? static_cast<std::size_t>(*window)
+                    : 252U));
+        });
+    add("metrics.rolling.roll_sortino_ratio", "metrics",
+        "roll_sortino_ratio",
+        [](const runtime_inputs& inputs) {
+            const auto window = optional_integer(inputs, "window");
+            return runtime_value(roll_sortino_ratio(
+                require_frame(inputs, "returns"),
+                window.has_value()
+                    ? static_cast<std::size_t>(*window)
+                    : 252U));
+        });
+    add("metrics.rolling.roll_max_drawdown", "metrics", "roll_max_drawdown",
+        [](const runtime_inputs& inputs) {
+            const auto window = optional_integer(inputs, "window");
+            return runtime_value(roll_max_drawdown(
+                require_frame(inputs, "returns"),
+                window.has_value()
+                    ? static_cast<std::size_t>(*window)
+                    : 252U));
+        });
+    add("metrics.rolling.roll_annual_volatility", "metrics",
+        "roll_annual_volatility",
+        [](const runtime_inputs& inputs) {
+            const auto& window = require_integer(inputs, "window");
+            return runtime_value(roll_annual_volatility(
+                require_frame(inputs, "returns"),
+                static_cast<std::size_t>(window)));
+        });
+    add("metrics.rolling.roll_beta", "metrics", "roll_beta",
+        [](const runtime_inputs& inputs) {
+            const auto window = optional_integer(inputs, "window");
+            return runtime_value(roll_beta(
+                require_frame(inputs, "returns"),
+                require_frame(inputs, "benchmark"),
+                window.has_value()
+                    ? static_cast<std::size_t>(*window)
+                    : 252U));
+        });
+    add("metrics.rolling.rolling_beta", "metrics", "rolling_beta",
+        [](const runtime_inputs& inputs) {
+            const auto window = optional_integer(inputs, "rolling_window");
+            return runtime_value(rolling_beta(
+                require_frame(inputs, "returns"),
+                require_frame(inputs, "benchmark"),
+                window.has_value()
+                    ? static_cast<std::size_t>(*window)
+                    : 126U));
         });
     return operation_catalog(std::move(operations));
 }

@@ -84,7 +84,7 @@ function route remains.
   Python lazy-import catalog composition, timezone-normalization helpers
   (native timestamps are UTC), and internal validation helpers replaced by
   typed native validation.
-- Runtime catalog: 38 of 273 source operations are registered under exact
+- Runtime catalog: 44 of 273 source operations are registered under exact
   source IDs; the other domains are classified in the Phase 92 acceptance
   record (typed inputs pending, data utilities excluded, plot-only deferred).
 

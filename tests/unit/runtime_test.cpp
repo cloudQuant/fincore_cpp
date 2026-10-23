@@ -4,6 +4,7 @@
 #include <fincore/metrics/ratios.hpp>
 #include <fincore/metrics/returns.hpp>
 #include <fincore/metrics/risk.hpp>
+#include <fincore/metrics/rolling.hpp>
 #include <fincore/metrics/stats.hpp>
 #include <fincore/risk/backtesting.hpp>
 #include <fincore/runtime/runtime.hpp>
@@ -147,8 +148,8 @@ TEST(Runtime, SnapshotsAndValueDigestsAreStable) {
 
 TEST(Runtime, BuiltinCatalogRunsAcceptedOperations) {
     const auto catalog = fincore::builtin_catalog();
-    ASSERT_EQ(catalog.operations().size(), 38U);
-    EXPECT_EQ(catalog.operation_ids().size(), 38U);
+    ASSERT_EQ(catalog.operations().size(), 44U);
+    EXPECT_EQ(catalog.operation_ids().size(), 44U);
     const auto frame = returns_fixture();
     const auto benchmark = benchmark_fixture();
     const fincore::runtime_inputs pair{{"returns", frame},
@@ -245,6 +246,41 @@ TEST(Runtime, BuiltinCatalogRunsAcceptedOperations) {
     const auto* lr = std::get_if<double>(&kupiec.value.data);
     ASSERT_NE(lr, nullptr);
     EXPECT_NEAR(*lr, 5.025167926750753, 1e-12);
+
+    const auto rolling = fincore::run(
+        "metrics.rolling.roll_sharpe_ratio",
+        {{"returns", fincore::runtime_value(frame)},
+         {"window", fincore::runtime_value(3)}},
+        {}, catalog);
+    EXPECT_EQ(fincore::runtime_value_digest(rolling.value),
+              fincore::runtime_value_digest(fincore::runtime_value(
+                  fincore::roll_sharpe_ratio(frame, 3))));
+    const auto volatility = fincore::run(
+        "metrics.rolling.roll_annual_volatility",
+        {{"returns", fincore::runtime_value(frame)},
+         {"window", fincore::runtime_value(2)}},
+        {}, catalog);
+    EXPECT_EQ(fincore::runtime_value_digest(volatility.value),
+              fincore::runtime_value_digest(fincore::runtime_value(
+                  fincore::roll_annual_volatility(frame, 2))));
+    const auto rolling_beta_result = fincore::run(
+        "metrics.rolling.rolling_beta",
+        {{"returns", fincore::runtime_value(frame)},
+         {"benchmark", fincore::runtime_value(benchmark)},
+         {"rolling_window", fincore::runtime_value(2)}},
+        {}, catalog);
+    EXPECT_EQ(fincore::runtime_value_digest(rolling_beta_result.value),
+              fincore::runtime_value_digest(fincore::runtime_value(
+                  fincore::rolling_beta(frame, benchmark, 2))));
+    const auto roll_beta_result = fincore::run(
+        "metrics.rolling.roll_beta",
+        {{"returns", fincore::runtime_value(frame)},
+         {"benchmark", fincore::runtime_value(benchmark)},
+         {"window", fincore::runtime_value(2)}},
+        {}, catalog);
+    EXPECT_EQ(fincore::runtime_value_digest(roll_beta_result.value),
+              fincore::runtime_value_digest(fincore::runtime_value(
+                  fincore::roll_beta(frame, benchmark, 2))));
 
     const auto expected = fincore::run(
         "risk.calibration.expected_exception_count",
