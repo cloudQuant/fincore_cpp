@@ -1,3 +1,4 @@
+#include <fincore/calendar.hpp>
 #include <fincore/error.hpp>
 #include <fincore/metrics/positions.hpp>
 
@@ -5,6 +6,8 @@
 
 #include <array>
 #include <cmath>
+#include <string>
+#include <vector>
 #include <cstddef>
 #include <vector>
 #include <limits>
@@ -372,6 +375,145 @@ TEST(Positions, StackPositionsMatchesPythonOracleIncludingNanCells) {
     for (const auto& record : stacked) {
         EXPECT_NE(record.symbol, "cash");
     }
+}
+
+std::vector<fincore::timestamp> exposure_index() {
+    return {fincore::utc_timestamp(2021, 1, 1),
+            fincore::utc_timestamp(2021, 1, 2),
+            fincore::utc_timestamp(2021, 1, 3),
+            fincore::utc_timestamp(2021, 1, 4)};
+}
+
+fincore::dataframe exposure_positions() {
+    fincore::dataframe frame;
+    frame.load_index(exposure_index());
+    frame.load_column<double>("AAA", {100.0, 50.0, -20.0, 80.0},
+                              hmdf::nan_policy::dont_pad_with_nans);
+    frame.load_column<double>("BBB", {-50.0, -80.0, 30.0, -40.0},
+                              hmdf::nan_policy::dont_pad_with_nans);
+    frame.load_column<double>("CCC", {20.0, 10.0, 15.0, 25.0},
+                              hmdf::nan_policy::dont_pad_with_nans);
+    frame.load_column<double>("cash", std::vector<double>(4, 1000.0),
+                              hmdf::nan_policy::dont_pad_with_nans);
+    return frame;
+}
+
+fincore::dataframe exposure_panel(const std::vector<double>& aaa,
+                                  const std::vector<double>& bbb,
+                                  const std::vector<double>& ccc) {
+    fincore::dataframe frame;
+    frame.load_index(exposure_index());
+    frame.load_column<double>("AAA", aaa,
+                              hmdf::nan_policy::dont_pad_with_nans);
+    frame.load_column<double>("BBB", bbb,
+                              hmdf::nan_policy::dont_pad_with_nans);
+    frame.load_column<double>("CCC", ccc,
+                              hmdf::nan_policy::dont_pad_with_nans);
+    return frame;
+}
+
+TEST(Positions, SectorAndStyleExposuresMatchPythonOracle) {
+    const auto positions = exposure_positions();
+    const std::vector<fincore::sector_assignment> assignments{
+        {"AAA", "Materials"}, {"BBB", "Financials"}, {"CCC", "Materials"}};
+    const auto sector = fincore::get_sector_exposures(positions, assignments);
+    ASSERT_EQ(sector.get_columns_info<double>().size(), 3U);
+    EXPECT_TRUE(sector.has_column("Financials"));
+    EXPECT_TRUE(sector.has_column("Materials"));
+    EXPECT_TRUE(sector.has_column("cash"));
+    const auto& financials = sector.get_column<double>("Financials");
+    EXPECT_DOUBLE_EQ(financials[0], -50.0);
+    EXPECT_DOUBLE_EQ(financials[2], 30.0);
+    const auto& materials = sector.get_column<double>("Materials");
+    EXPECT_DOUBLE_EQ(materials[0], 120.0);
+    EXPECT_DOUBLE_EQ(materials[2], -5.0);
+    EXPECT_DOUBLE_EQ(materials[3], 105.0);
+
+    const auto factors = exposure_panel({1.0, 1.1, 0.9, 1.2},
+                                        {0.5, 0.6, 0.4, 0.7},
+                                        {0.2, 0.3, 0.25, 0.35});
+    const auto style =
+        fincore::compute_style_factor_exposures(positions, factors);
+    const auto& exposure = style.get_column<double>("exposure");
+    EXPECT_NEAR(exposure[0], 0.4647058823529412, 1e-15);
+    EXPECT_NEAR(exposure[1], 0.07142857142857148, 1e-15);
+    EXPECT_NEAR(exposure[2], -0.03461538461538462, 1e-15);
+    EXPECT_NEAR(exposure[3], 0.5293103448275862, 1e-15);
+}
+
+TEST(Positions, SectorAndCapBundlesMatchPythonOracle) {
+    const auto positions = exposure_positions();
+    const std::vector<fincore::sector_definition> definitions{
+        {101.0, "Basic Materials"}, {102.0, "Consumer Cyclical"}};
+    const auto sectors =
+        exposure_panel({101.0, 101.0, 101.0, 101.0},
+                       {102.0, 102.0, 102.0, 102.0},
+                       {101.0, 101.0, 101.0, 101.0});
+    const auto bundle =
+        fincore::compute_sector_exposures(positions, sectors, definitions);
+    const auto& sector_long = bundle.long_exposure;
+    ASSERT_EQ(sector_long.get_columns_info<double>().size(), 2U);
+    EXPECT_DOUBLE_EQ(sector_long.get_column<double>("Basic Materials")[0],
+                     1.0);
+    EXPECT_NEAR(sector_long.get_column<double>("Consumer Cyclical")[2],
+                0.6666666666666666, 1e-15);
+    EXPECT_DOUBLE_EQ(bundle.short_exposure.get_column<double>(
+                         "Consumer Cyclical")[0],
+                     -1.0);
+    EXPECT_NEAR(bundle.gross_exposure.get_column<double>("Basic Materials")[0],
+                0.7058823529411765, 1e-15);
+    EXPECT_NEAR(bundle.net_exposure.get_column<double>("Basic Materials")[2],
+                1.3333333333333333, 1e-15);
+
+    const auto caps = exposure_panel(
+        {1.5e9, 1.5e9, 1.5e9, 1.5e9}, {4e10, 4e10, 4e10, 4e10},
+        {1e11, 1e11, 1e11, 1e11});
+    const auto cap_bundle = fincore::compute_cap_exposures(positions, caps);
+    ASSERT_EQ(cap_bundle.long_exposure.get_columns_info<double>().size(), 5U);
+    EXPECT_NEAR(cap_bundle.long_exposure.get_column<double>("Small")[0],
+                0.8333333333333334, 1e-15);
+    EXPECT_NEAR(cap_bundle.long_exposure.get_column<double>("Large")[0],
+                0.16666666666666666, 1e-15);
+    EXPECT_NEAR(cap_bundle.short_exposure.get_column<double>("Large")[0],
+                -1.0, 1e-15);
+    EXPECT_NEAR(cap_bundle.gross_exposure.get_column<double>("Small")[0],
+                0.5882352941176471, 1e-15);
+    EXPECT_NEAR(cap_bundle.net_exposure.get_column<double>("Large")[3],
+                1.2380952380952381, 1e-15);
+}
+
+TEST(Positions, VolumeExposuresMatchPythonOracleAndValidateVolumes) {
+    const auto shares =
+        exposure_panel({10.0, 5.0, -2.0, 8.0}, {-5.0, -8.0, 3.0, -4.0},
+                       {2.0, 1.0, 1.5, 2.5});
+    const auto volumes =
+        exposure_panel({100.0, 120.0, 90.0, 110.0},
+                       {50.0, 60.0, 55.0, 70.0}, {30.0, 40.0, 35.0, 45.0});
+    const auto bundle =
+        fincore::compute_volume_exposures(shares, volumes, 0.5);
+    const auto& long_values = bundle.long_exposure.get_column<double>("exposure");
+    const auto& short_values =
+        bundle.short_exposure.get_column<double>("exposure");
+    const auto& gross_values =
+        bundle.gross_exposure.get_column<double>("exposure");
+    EXPECT_NEAR(long_values[0], 8.333333333333334, 1e-14);
+    EXPECT_NEAR(long_values[1], 3.3333333333333335, 1e-14);
+    EXPECT_NEAR(long_values[2], 4.870129870129871, 1e-14);
+    EXPECT_NEAR(long_values[3], 6.4141414141414135, 1e-14);
+    EXPECT_NEAR(short_values[0], 10.0, 1e-14);
+    EXPECT_NEAR(short_values[1], 13.333333333333334, 1e-14);
+    EXPECT_NEAR(gross_values[0], 10.0, 1e-14);
+    EXPECT_NEAR(gross_values[1], 4.166666666666666, 1e-14);
+
+    const auto zero_volumes =
+        exposure_panel({100.0, 120.0, 90.0, 110.0},
+                       {50.0, 60.0, 0.0, 70.0}, {30.0, 40.0, 35.0, 45.0});
+    EXPECT_THROW(static_cast<void>(
+                     fincore::compute_volume_exposures(shares, zero_volumes, 0.5)),
+                 fincore::input_error);
+    EXPECT_THROW(static_cast<void>(
+                     fincore::compute_volume_exposures(shares, volumes, 1.5)),
+                 fincore::input_error);
 }
 
 }  // namespace

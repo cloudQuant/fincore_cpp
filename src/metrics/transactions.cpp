@@ -694,6 +694,41 @@ std::vector<ticker_liquidity> get_max_days_to_liquidate_by_ticker(
     return result;
 }
 
+std::vector<daily_txn_bar> daily_txns_with_bar_data(
+    const std::span<const trade_record> transactions, const dataframe& prices,
+    const dataframe& volumes) {
+    require_same_index(prices, volumes);
+    std::map<std::pair<std::string, timestamp>, double> daily_amounts;
+    for (const auto& trade : transactions) {
+        if (!std::isfinite(trade.amount)) {
+            throw input_error{"transaction amounts must be finite"};
+        }
+        daily_amounts[{trade.symbol, trade.date}] += std::fabs(trade.amount);
+    }
+    std::map<timestamp, std::size_t> row_positions;
+    for (std::size_t row = 0; row < prices.get_index().size(); ++row) {
+        row_positions[prices.get_index()[row]] = row;
+    }
+    std::vector<daily_txn_bar> result;
+    result.reserve(daily_amounts.size());
+    for (const auto& [key, amount] : daily_amounts) {
+        const auto row = row_positions.find(key.second);
+        if (row == row_positions.end()) {
+            throw input_error{"transaction dates must be present in the price index"};
+        }
+        if (!prices.has_column(key.first.c_str()) ||
+            !volumes.has_column(key.first.c_str())) {
+            throw input_error{"every traded symbol must have price and volume columns"};
+        }
+        const double price =
+            prices.get_column<double>(key.first.c_str())[row->second];
+        const double volume =
+            volumes.get_column<double>(key.first.c_str())[row->second];
+        result.push_back({key.second, key.first, amount, price, volume});
+    }
+    return result;
+}
+
 std::vector<transaction_liquidity> get_low_liquidity_transactions(
     const std::span<const trade_record> transactions, const dataframe& prices,
     const dataframe& volumes, const std::optional<std::size_t> last_n_days) {

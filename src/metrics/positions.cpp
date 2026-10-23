@@ -3,6 +3,8 @@
 #include <fincore/error.hpp>
 
 #include <algorithm>
+#include <functional>
+#include <map>
 #include <cmath>
 #include <cstddef>
 #include <limits>
@@ -363,6 +365,382 @@ std::vector<position_record> stack_positions(
         }
     }
     return result;
+}
+
+namespace {
+
+void require_same_wide_index(const dataframe& left, const dataframe& right) {
+    if (left.get_index() != right.get_index()) {
+        throw input_error{"exposure panels must share the same index"};
+    }
+}
+
+std::vector<std::string> asset_column_names(const dataframe& positions,
+                                            const std::string& cash_name) {
+    std::vector<std::string> names;
+    for (const auto& column : numeric_columns(positions)) {
+        if (column.name != cash_name) {
+            names.push_back(column.name);
+        }
+    }
+    return names;
+}
+
+std::vector<double> positive_row_sums(
+    const dataframe& positions, const std::vector<std::string>& names) {
+    const std::size_t rows = positions.get_index().size();
+    std::vector<double> result(rows, 0.0);
+    for (const auto& name : names) {
+        const auto& values = positions.get_column<double>(name.c_str());
+        for (std::size_t row = 0; row < rows; ++row) {
+            if (!std::isnan(values[row]) && values[row] > 0.0) {
+                result[row] += values[row];
+            }
+        }
+    }
+    return result;
+}
+
+std::vector<double> negative_abs_row_sums(
+    const dataframe& positions, const std::vector<std::string>& names) {
+    const std::size_t rows = positions.get_index().size();
+    std::vector<double> result(rows, 0.0);
+    for (const auto& name : names) {
+        const auto& values = positions.get_column<double>(name.c_str());
+        for (std::size_t row = 0; row < rows; ++row) {
+            if (!std::isnan(values[row]) && values[row] < 0.0) {
+                result[row] -= values[row];
+            }
+        }
+    }
+    return result;
+}
+
+std::vector<double> abs_row_sums(const dataframe& positions,
+                                 const std::vector<std::string>& names) {
+    const std::size_t rows = positions.get_index().size();
+    std::vector<double> result(rows, 0.0);
+    for (const auto& name : names) {
+        const auto& values = positions.get_column<double>(name.c_str());
+        for (std::size_t row = 0; row < rows; ++row) {
+            if (!std::isnan(values[row])) {
+                result[row] += std::fabs(values[row]);
+            }
+        }
+    }
+    return result;
+}
+
+std::vector<double> divide_or_zero(std::vector<double> numerator,
+                                   std::vector<double> denominator) {
+    for (std::size_t row = 0; row < numerator.size(); ++row) {
+        if (denominator[row] == 0.0) {
+            numerator[row] = 0.0;
+        } else {
+            const double value = numerator[row] / denominator[row];
+            numerator[row] = std::isfinite(value) ? value : 0.0;
+        }
+    }
+    return numerator;
+}
+
+double linear_quantile(std::vector<double> values, const double q) {
+    values.erase(std::remove_if(values.begin(), values.end(),
+                                [](const double value) {
+                                    return std::isnan(value);
+                                }),
+                 values.end());
+    if (values.empty()) {
+        return std::nan("");
+    }
+    std::sort(values.begin(), values.end());
+    const double virtual_index =
+        static_cast<double>(values.size() - 1) * q;
+    const auto lower = static_cast<std::size_t>(std::floor(virtual_index));
+    const auto upper = static_cast<std::size_t>(std::ceil(virtual_index));
+    if (lower == upper) {
+        return values[lower];
+    }
+    const double difference = values[upper] - values[lower];
+    const double fraction = virtual_index - static_cast<double>(lower);
+    return fraction < 0.5 ? values[lower] + difference * fraction
+                          : values[upper] - difference * (1.0 - fraction);
+}
+
+}  // namespace
+
+dataframe get_sector_exposures(
+    const dataframe& positions,
+    const std::span<const sector_assignment> assignments,
+    const std::string_view cash_column_name) {
+    const std::string cash_name = checked_cash_column_name(cash_column_name);
+    const auto& cash = positions.get_column<double>(cash_name.c_str());
+    const auto assets = asset_column_names(positions, cash_name);
+    std::map<std::string, std::vector<std::string>> by_sector;
+    for (const auto& assignment : assignments) {
+        by_sector[assignment.sector].push_back(assignment.symbol);
+    }
+    std::vector<output_column> output;
+    const std::size_t rows = positions.get_index().size();
+    for (const auto& [sector, symbols] : by_sector) {
+        output.push_back({sector, std::vector<double>(rows, 0.0)});
+        for (const auto& symbol : symbols) {
+            if (std::find(assets.begin(), assets.end(), symbol) ==
+                assets.end()) {
+                continue;
+            }
+            const auto& values = positions.get_column<double>(symbol.c_str());
+            for (std::size_t row = 0; row < rows; ++row) {
+                if (!std::isnan(values[row])) {
+                    output.back().values[row] += values[row];
+                }
+            }
+        }
+    }
+    output.push_back({cash_name, std::vector<double>(cash.begin(),
+                                                     cash.end())});
+    return make_frame(positions.get_index(), std::move(output));
+}
+
+dataframe compute_style_factor_exposures(
+    const dataframe& positions, const dataframe& risk_factors,
+    const std::string_view cash_column_name) {
+    const std::string cash_name = checked_cash_column_name(cash_column_name);
+    require_same_wide_index(positions, risk_factors);
+    const auto assets = asset_column_names(positions, cash_name);
+    const std::size_t rows = positions.get_index().size();
+    std::vector<double> exposure(rows, 0.0);
+    for (std::size_t row = 0; row < rows; ++row) {
+        double numerator = 0.0;
+        double gross = 0.0;
+        for (const auto& asset : assets) {
+            const double position =
+                positions.get_column<double>(asset.c_str())[row];
+            if (std::isnan(position)) {
+                continue;
+            }
+            gross += std::fabs(position);
+            const auto& factor_values =
+                risk_factors.get_column<double>(asset.c_str());
+            if (!std::isnan(factor_values[row])) {
+                numerator += position * factor_values[row];
+            }
+        }
+        if (gross != 0.0) {
+            const double value = numerator / gross;
+            exposure[row] = std::isfinite(value) ? value : 0.0;
+        }
+    }
+    return make_frame(positions.get_index(), {{"exposure", exposure}});
+}
+
+namespace {
+
+exposure_bundle compute_panel_exposures(
+    const dataframe& positions, const dataframe& panel,
+    const std::span<const sector_definition> definitions,
+    const std::string& cash_name,
+    const std::function<bool(const double, const sector_definition&)>& in_group) {
+    require_same_wide_index(positions, panel);
+    const auto assets = asset_column_names(positions, cash_name);
+    const std::size_t rows = positions.get_index().size();
+    auto total_long = positive_row_sums(positions, assets);
+    auto total_short = negative_abs_row_sums(positions, assets);
+    auto total_gross = abs_row_sums(positions, assets);
+    for (auto& value : total_long) {
+        if (value == 0.0) {
+            value = std::nan("");
+        }
+    }
+    for (auto& value : total_short) {
+        if (value == 0.0) {
+            value = std::nan("");
+        }
+    }
+    for (auto& value : total_gross) {
+        if (value == 0.0) {
+            value = std::nan("");
+        }
+    }
+
+    std::vector<output_column> long_columns;
+    std::vector<output_column> short_columns;
+    std::vector<output_column> gross_columns;
+    for (const auto& definition : definitions) {
+        std::vector<double> long_values(rows, 0.0);
+        std::vector<double> short_values(rows, 0.0);
+        std::vector<double> gross_values(rows, 0.0);
+        for (const auto& asset : assets) {
+            const auto& position_values =
+                positions.get_column<double>(asset.c_str());
+            const auto& panel_values =
+                panel.get_column<double>(asset.c_str());
+            for (std::size_t row = 0; row < rows; ++row) {
+                const double position = position_values[row];
+                const double panel_value = panel_values[row];
+                if (std::isnan(position) || std::isnan(panel_value) ||
+                    !in_group(panel_value, definition)) {
+                    continue;
+                }
+                if (position > 0.0) {
+                    long_values[row] += position;
+                } else if (position < 0.0) {
+                    short_values[row] += position;
+                }
+                gross_values[row] += std::fabs(position);
+            }
+        }
+        long_columns.push_back(
+            {definition.name, divide_or_zero(std::move(long_values),
+                                             total_long)});
+        short_columns.push_back(
+            {definition.name, divide_or_zero(std::move(short_values),
+                                             total_short)});
+        gross_columns.push_back(
+            {definition.name, divide_or_zero(std::move(gross_values),
+                                             total_gross)});
+    }
+    std::vector<output_column> net_columns;
+    for (std::size_t column = 0; column < definitions.size(); ++column) {
+        std::vector<double> net(rows, 0.0);
+        for (std::size_t row = 0; row < rows; ++row) {
+            net[row] = long_columns[column].values[row] -
+                       short_columns[column].values[row];
+        }
+        net_columns.push_back({definitions[column].name, std::move(net)});
+    }
+    return {make_frame(positions.get_index(), std::move(long_columns)),
+            make_frame(positions.get_index(), std::move(short_columns)),
+            make_frame(positions.get_index(), std::move(gross_columns)),
+            make_frame(positions.get_index(), std::move(net_columns))};
+}
+
+}  // namespace
+
+exposure_bundle compute_sector_exposures(
+    const dataframe& positions, const dataframe& sectors,
+    const std::span<const sector_definition> definitions,
+    const std::string_view cash_column_name) {
+    const std::string cash_name = checked_cash_column_name(cash_column_name);
+    return compute_panel_exposures(
+        positions, sectors, definitions, cash_name,
+        [](const double value, const sector_definition& definition) {
+            return value == definition.id;
+        });
+}
+
+exposure_bundle compute_cap_exposures(
+    const dataframe& positions, const dataframe& caps,
+    const std::string_view cash_column_name) {
+    static const std::vector<sector_definition> buckets{
+        {1.0, "Micro"}, {2.0, "Small"}, {3.0, "Mid"}, {4.0, "Large"},
+        {5.0, "Mega"}};
+    const std::string cash_name = checked_cash_column_name(cash_column_name);
+    return compute_panel_exposures(
+        positions, caps, buckets, cash_name,
+        [](const double value, const sector_definition& definition) {
+            if (definition.name == "Micro") {
+                return value >= 50'000'000.0 && value <= 300'000'000.0;
+            }
+            if (definition.name == "Small") {
+                return value >= 300'000'000.0 && value <= 2'000'000'000.0;
+            }
+            if (definition.name == "Mid") {
+                return value >= 2'000'000'000.0 && value <= 10'000'000'000.0;
+            }
+            if (definition.name == "Large") {
+                return value >= 10'000'000'000.0 &&
+                       value <= 200'000'000'000.0;
+            }
+            return value >= 200'000'000'000.0;
+        });
+}
+
+exposure_bundle compute_volume_exposures(
+    const dataframe& shares_held, const dataframe& volumes,
+    const double percentile) {
+    require_same_wide_index(shares_held, volumes);
+    if (!(percentile >= 0.0 && percentile <= 1.0)) {
+        throw input_error{"percentile must be in [0, 1]"};
+    }
+    const auto shares_columns = shares_held.get_columns_info<double>();
+    std::vector<std::string> columns;
+    for (const auto& info : shares_columns) {
+        columns.emplace_back(std::get<0>(info).c_str());
+    }
+    const auto& index = shares_held.get_index();
+    std::vector<std::string> volume_columns;
+    for (const auto& info : volumes.get_columns_info<double>()) {
+        volume_columns.emplace_back(std::get<0>(info).c_str());
+    }
+    std::vector<std::string> common;
+    for (const auto& column : columns) {
+        if (std::find(volume_columns.begin(), volume_columns.end(), column) !=
+            volume_columns.end()) {
+            common.push_back(column);
+        }
+    }
+    for (const auto& column : columns) {
+        const auto& share_values =
+            shares_held.get_column<double>(column.c_str());
+        const bool has_volume =
+            std::find(volume_columns.begin(), volume_columns.end(), column) !=
+            volume_columns.end();
+        for (std::size_t row = 0; row < share_values.size(); ++row) {
+            if (std::isnan(share_values[row]) || share_values[row] == 0.0) {
+                continue;
+            }
+            if (!has_volume) {
+                throw input_error{"active nonzero shares require matching finite positive volume observations"};
+            }
+            const double volume =
+                volumes.get_column<double>(column.c_str())[row];
+            if (std::isnan(volume) || !(volume > 0.0)) {
+                throw input_error{"active nonzero shares require matching finite positive volume observations"};
+            }
+        }
+    }
+
+    std::vector<double> long_values(index.size(), 0.0);
+    std::vector<double> short_values(index.size(), 0.0);
+    std::vector<double> gross_values(index.size(), 0.0);
+    for (std::size_t row = 0; row < index.size(); ++row) {
+        std::vector<double> long_fraction;
+        std::vector<double> short_fraction;
+        std::vector<double> gross_fraction;
+        for (const auto& column : common) {
+            const double share =
+                shares_held.get_column<double>(column.c_str())[row];
+            const double volume =
+                volumes.get_column<double>(column.c_str())[row];
+            if (std::isnan(share) || share == 0.0 || std::isnan(volume) ||
+                volume == 0.0) {
+                continue;
+            }
+            const double fraction = share / volume;
+            if (share > 0.0) {
+                long_fraction.push_back(fraction);
+            } else if (share < 0.0) {
+                short_fraction.push_back(-fraction);
+            }
+            gross_fraction.push_back(std::fabs(fraction));
+        }
+        long_values[row] = 100.0 * linear_quantile(long_fraction, percentile);
+        short_values[row] = 100.0 * linear_quantile(short_fraction, percentile);
+        gross_values[row] = 100.0 * linear_quantile(gross_fraction, percentile);
+        if (!std::isfinite(long_values[row])) {
+            long_values[row] = 0.0;
+        }
+        if (!std::isfinite(short_values[row])) {
+            short_values[row] = 0.0;
+        }
+        if (!std::isfinite(gross_values[row])) {
+            gross_values[row] = 0.0;
+        }
+    }
+    return {make_frame(index, {{"exposure", std::move(long_values)}}),
+            make_frame(index, {{"exposure", std::move(short_values)}}),
+            make_frame(index, {{"exposure", std::move(gross_values)}})};
 }
 
 }  // namespace fincore

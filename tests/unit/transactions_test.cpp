@@ -1312,4 +1312,48 @@ TEST(Transactions, LiquiditiyHelpersValidateInputs) {
                  fincore::input_error);
 }
 
+TEST(Transactions, DailyTransactionBarsMatchPythonOracle) {
+    const std::vector<fincore::timestamp> bar_index{
+        fincore::utc_timestamp(2021, 1, 1),
+        fincore::utc_timestamp(2021, 1, 2),
+        fincore::utc_timestamp(2021, 1, 3),
+        fincore::utc_timestamp(2021, 1, 4)};
+    auto price_panel = wide_frame(bar_index, "AAA", {10.0, 11.0, 12.0, 13.0},
+                                  "BBB", {20.0, 19.0, 21.0, 22.0});
+    price_panel.load_column<double>("CCC", {14.0, 15.0, 16.0, 17.0},
+                                    hmdf::nan_policy::dont_pad_with_nans);
+    auto volume_panel = price_panel;
+    volume_panel.load_column<double>(
+        "AAA", {100.0, 200.0, 150.0, 120.0},
+        hmdf::nan_policy::dont_pad_with_nans);
+    volume_panel.load_column<double>(
+        "BBB", {50.0, 60.0, 55.0, 70.0},
+        hmdf::nan_policy::dont_pad_with_nans);
+    volume_panel.load_column<double>(
+        "CCC", {30.0, 40.0, 35.0, 45.0},
+        hmdf::nan_policy::dont_pad_with_nans);
+    const std::vector<fincore::trade_record> trades{
+        {fincore::utc_timestamp(2021, 1, 2), "AAA", 10.0},
+        {fincore::utc_timestamp(2021, 1, 2), "BBB", -5.0},
+        {fincore::utc_timestamp(2021, 1, 3), "AAA", -20.0},
+        {fincore::utc_timestamp(2021, 1, 4), "CCC", 3.0}};
+
+    const auto bars =
+        fincore::daily_txns_with_bar_data(trades, price_panel, volume_panel);
+    ASSERT_EQ(bars.size(), 4U);
+    EXPECT_EQ(bars[0].symbol, "AAA");
+    EXPECT_EQ(bars[0].date, fincore::utc_timestamp(2021, 1, 2));
+    EXPECT_DOUBLE_EQ(bars[0].amount, 10.0);
+    EXPECT_DOUBLE_EQ(bars[0].price, 11.0);
+    EXPECT_DOUBLE_EQ(bars[0].volume, 200.0);
+    EXPECT_EQ(bars[1].symbol, "AAA");
+    EXPECT_EQ(bars[1].date, fincore::utc_timestamp(2021, 1, 3));
+    EXPECT_DOUBLE_EQ(bars[1].amount, 20.0);
+    EXPECT_EQ(bars[2].symbol, "BBB");
+    EXPECT_DOUBLE_EQ(bars[2].amount, 5.0);
+    EXPECT_EQ(bars[3].symbol, "CCC");
+    EXPECT_DOUBLE_EQ(bars[3].price, 17.0);
+    EXPECT_DOUBLE_EQ(bars[3].volume, 45.0);
+}
+
 }  // namespace

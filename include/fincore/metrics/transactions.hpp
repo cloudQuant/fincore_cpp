@@ -66,6 +66,14 @@ struct ticker_liquidity {
     double position_allocation_pct;
 };
 
+struct daily_txn_bar {
+    timestamp date;
+    std::string symbol;
+    double amount;
+    double price;
+    double volume;
+};
+
 struct transaction_liquidity {
     std::string symbol;
     timestamp date;
@@ -90,6 +98,11 @@ std::vector<ticker_liquidity> get_max_days_to_liquidate_by_ticker(
     std::size_t mean_volume_window = 5U,
     std::optional<std::size_t> last_n_days = std::nullopt,
     std::string_view cash_column_name = cash_column);
+
+std::vector<daily_txn_bar> daily_txns_with_bar_data(
+    std::span<const trade_record> transactions,
+    const dataframe& prices,
+    const dataframe& volumes);
 
 std::vector<transaction_liquidity> get_low_liquidity_transactions(
     std::span<const trade_record> transactions,
