@@ -2678,3 +2678,18 @@ pandas CSV bytes, and the ES bootstrap uses `mt19937_64` rather than NumPy's
 headless CTest and LLVM 22 ASan+UBSan each passed 631/631. Evidence is
 recorded in [the Phase 65 acceptance
 record](docs/acceptance/2026-10-23-phase-65-risk-backtesting-acceptance.md).
+
+## Accepted Phase 66 native walk-forward VaR
+
+Phase 66 adds `risk_model_spec` and `walk_forward_var`: strict return
+validation, structured unsupported/insufficient statuses, rolling-window
+refits at the configured cadence, Weibull historical and normal forecasts,
+and an out-of-sample VaR backtest. Normal (window 50, cadence 5): 250
+forecasts with the oracle's first/last values and 50 refits, inconclusive
+backtest; historical (window 100, cadence 10): 200 forecasts, 20 refits,
+19 exceptions and Kupiec `6.823658870683893` (fail). SHA-256 moved to
+`fincore::detail` for shared use.
+
+Full headless CTest and LLVM 22 ASan+UBSan each passed 634/634. Evidence is
+recorded in [the Phase 66 acceptance
+record](docs/acceptance/2026-10-23-phase-66-walk-forward-var-acceptance.md).
