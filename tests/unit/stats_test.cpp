@@ -641,4 +641,54 @@ TEST(Stats, StutzerIndexReturnsOwnedScalarAfterInputLifetimeEnds) {
     EXPECT_NEAR(result, 0.14630936783628698, 1e-6);
 }
 
+std::vector<fincore::timestamp> turtle_index(int year, int month, int day,
+                                             int count) {
+    constexpr std::int64_t nanoseconds_per_day = 86'400'000'000'000LL;
+    std::vector<fincore::timestamp> index;
+    index.reserve(static_cast<std::size_t>(count));
+    const fincore::timestamp start = fincore::utc_timestamp(year, month, day);
+    for (int position = 0; position < count; ++position) {
+        index.push_back(start + position * nanoseconds_per_day);
+    }
+    return index;
+}
+
+TEST(Stats, RCubedTurtleMatchesPythonOracleForSeriesAndYears) {
+    const auto ordinary = fincore::make_series(
+        turtle_index(2020, 1, 1, 10), "returns",
+        {0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03});
+    EXPECT_NEAR(fincore::r_cubed_turtle(ordinary), 28.394903817964696, 1e-12);
+
+    std::vector<double> long_values;
+    long_values.reserve(400);
+    for (int position = 0; position < 400; ++position) {
+        long_values.push_back(0.01 * std::sin(static_cast<double>(position) * 0.3));
+    }
+    const auto long_series =
+        fincore::make_series(turtle_index(2019, 11, 1, 400), "returns", long_values);
+    EXPECT_NEAR(fincore::r_cubed_turtle(long_series), -0.10352738136922, 1e-9);
+}
+
+TEST(Stats, RCubedTurtleGatesShortInputAndSupportsSelectors) {
+    const auto singleton = fincore::make_series({1}, "returns", {0.01});
+    const auto empty = fincore::make_series({}, "returns", {});
+    EXPECT_TRUE(std::isnan(fincore::r_cubed_turtle(singleton)));
+    EXPECT_TRUE(std::isnan(fincore::r_cubed_turtle(empty)));
+
+    const auto strategy = fincore::make_series(
+        turtle_index(2020, 1, 1, 10), "strategy",
+        {0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03});
+    EXPECT_NEAR(fincore::r_cubed_turtle(strategy, 252.0, "strategy"),
+                28.394903817964696, 1e-12);
+
+    const std::array<char, 13> embedded_storage{
+        'r', 'e', 't', 'u', 'r', 'n', 's', '\0', 'e', 'v', 'i', 'l', '!'};
+    const std::string_view embedded_selector{embedded_storage.data(),
+                                             embedded_storage.size()};
+    EXPECT_THROW(static_cast<void>(
+                     fincore::r_cubed_turtle(strategy, 252.0,
+                                             embedded_selector)),
+                 fincore::input_error);
+}
+
 }  // namespace

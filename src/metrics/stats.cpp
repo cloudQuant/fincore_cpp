@@ -1,3 +1,5 @@
+#include <fincore/calendar.hpp>
+#include <fincore/metrics/drawdown.hpp>
 #include <fincore/metrics/stats.hpp>
 
 #include <fincore/detail/numeric.hpp>
@@ -511,6 +513,106 @@ double stutzer_index(const dataframe& returns,
     }
     const double sign = mean_excess > 0.0 ? 1.0 : -1.0;
     return sign * std::sqrt(2.0 * index_of_precision);
+}
+
+double r_cubed_turtle(const dataframe& returns,
+                      double annualization,
+                      std::string_view column) {
+    if (column.find(' ') != std::string_view::npos) {
+        throw input_error{"column name must not contain an embedded NUL"};
+    }
+    const auto values = require_double_column(returns, column);
+    if (values.size() < 2) {
+        return nan;
+    }
+
+    std::vector<double> nav;
+    nav.reserve(values.size());
+    double wealth = 1.0;
+    for (const double value : values) {
+        if (std::isnan(value)) {
+            nav.push_back(nan);
+        } else {
+            wealth *= 1.0 + value;
+            nav.push_back(wealth);
+        }
+    }
+
+    double time_total = 0.0;
+    double nav_total = 0.0;
+    std::size_t count = 0;
+    for (std::size_t position = 0; position < nav.size(); ++position) {
+        if (!std::isnan(nav[position])) {
+            time_total += static_cast<double>(position);
+            nav_total += nav[position];
+            ++count;
+        }
+    }
+    if (count < 2) {
+        return nan;
+    }
+    const double time_mean = time_total / static_cast<double>(count);
+    const double nav_mean = nav_total / static_cast<double>(count);
+    double covariance = 0.0;
+    double time_variance = 0.0;
+    for (std::size_t position = 0; position < nav.size(); ++position) {
+        if (std::isnan(nav[position])) {
+            continue;
+        }
+        const double time_delta =
+            static_cast<double>(position) - time_mean;
+        covariance += time_delta * (nav[position] - nav_mean);
+        time_variance += time_delta * time_delta;
+    }
+    if (time_variance == 0.0) {
+        return nan;
+    }
+    const double rar = covariance / time_variance * annualization;
+
+    const auto& index = returns.get_index();
+    std::vector<int> years;
+    for (const timestamp point : index) {
+        const int year = utc_year(point);
+        if (std::find(years.begin(), years.end(), year) == years.end()) {
+            years.push_back(year);
+        }
+    }
+    if (years.empty()) {
+        return nan;
+    }
+
+    std::vector<double> maximum_drawdowns;
+    maximum_drawdowns.reserve(years.size());
+    for (const int year : years) {
+        std::vector<timestamp> year_index;
+        std::vector<double> year_values;
+        for (std::size_t position = 0; position < index.size(); ++position) {
+            if (utc_year(index[position]) == year) {
+                year_index.push_back(index[position]);
+                year_values.push_back(values[position]);
+            }
+        }
+        if (year_values.empty()) {
+            continue;
+        }
+        const auto year_frame =
+            make_series(std::move(year_index), column, std::move(year_values));
+        maximum_drawdowns.push_back(
+            std::fabs(max_drawdown(year_frame, column)));
+    }
+    if (maximum_drawdowns.empty()) {
+        return nan;
+    }
+    double total = 0.0;
+    for (const double drawdown : maximum_drawdowns) {
+        total += drawdown;
+    }
+    const double average =
+        total / static_cast<double>(maximum_drawdowns.size());
+    if (average < 1e-15) {
+        return rar > 0.0 ? std::numeric_limits<double>::infinity() : nan;
+    }
+    return rar / average;
 }
 
 }  // namespace fincore

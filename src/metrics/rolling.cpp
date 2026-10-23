@@ -511,4 +511,30 @@ dataframe roll_up_down_capture(const dataframe& returns,
         });
 }
 
+dataframe roll_annual_volatility(const dataframe& returns,
+                                 const std::size_t window,
+                                 const frequency period,
+                                 const std::optional<double> annualization,
+                                 const std::string_view column) {
+    const double factor = annualization_factor(period, annualization);
+    return endpoint_output(
+        returns, window, column, [factor, column](const dataframe& complete) {
+            return annual_volatility(complete, factor, column);
+        });
+}
+
+dataframe roll_sortino_ratio(const dataframe& returns,
+                             const std::size_t window,
+                             const double required_return,
+                             const frequency period,
+                             const std::optional<double> annualization,
+                             const std::string_view column) {
+    const double factor = annualization_factor(period, annualization);
+    return endpoint_output(
+        returns, window, column,
+        [factor, required_return, column](const dataframe& complete) {
+            return sortino_ratio(complete, required_return, factor, column);
+        });
+}
+
 }  // namespace fincore

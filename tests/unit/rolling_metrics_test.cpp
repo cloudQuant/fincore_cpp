@@ -18,6 +18,7 @@
 namespace {
 
 constexpr double tolerance = 1.0e-12;
+constexpr double nan = std::numeric_limits<double>::quiet_NaN();
 
 const std::vector<fincore::timestamp> reference_index{1, 2, 3, 4, 5, 6};
 const std::vector<double> reference_returns{.01, -.02, .03, 0.0, -.01, .02};
@@ -971,6 +972,86 @@ TEST(RollingMetrics, NewRollingFacadesValidateInputsAndInvalidateFixedWindows) {
                                           3U)
                   .get_index(),
               (std::vector<fincore::timestamp>{6}));
+}
+
+void expect_special_values(const fincore::dataframe& actual,
+                           std::string_view column,
+                           const std::vector<double>& expected) {
+    const auto& values = actual.get_column<double>(std::string{column}.c_str());
+    ASSERT_EQ(values.size(), expected.size());
+    for (std::size_t position = 0; position < expected.size(); ++position) {
+        if (std::isnan(expected[position])) {
+            EXPECT_TRUE(std::isnan(values[position]));
+        } else if (std::isinf(expected[position])) {
+            EXPECT_TRUE(std::isinf(values[position]));
+            EXPECT_EQ(std::signbit(values[position]),
+                      std::signbit(expected[position]));
+        } else {
+            EXPECT_NEAR(values[position], expected[position], tolerance);
+        }
+    }
+}
+
+TEST(RollingMetrics, RollAnnualVolatilityAndSortinoMatchPythonOracle) {
+    const std::vector<fincore::timestamp> index{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    const std::vector<double> values{0.01, 0.02, -0.05, 0.03, 0.01,
+                                     -0.02, 0.04, 0.01, 0.02, -0.03};
+    const auto returns = fincore::make_series(index, "returns", values);
+
+    const auto volatility = fincore::roll_annual_volatility(returns, 3U);
+    EXPECT_EQ(volatility.get_index(),
+              (std::vector<fincore::timestamp>{3, 4, 5, 6, 7, 8, 9, 10}));
+    expect_special_values(
+        volatility, "returns",
+        {0.6009991680526688, 0.6919537556802478, 0.6609084656743323,
+         0.3994996871087636, 0.4762352359916263, 0.4762352359916263,
+         0.24248711305964282, 0.42});
+
+    const auto sortino = fincore::roll_sortino_ratio(returns, 3U);
+    EXPECT_EQ(sortino.get_index(),
+              (std::vector<fincore::timestamp>{3, 4, 5, 6, 7, 8, 9, 10}));
+    expect_special_values(
+        sortino, "returns",
+        {-3.6660605559646724, -6.359601310784501e-16, -1.8330302779823364,
+         9.16515138991168, 13.747727084867519, 13.747727084867519,
+         std::numeric_limits<double>::infinity(), 0.0});
+}
+
+TEST(RollingMetrics, RollingVolatilityAndSortinoPreserveNanAndAnnualization) {
+    const std::vector<fincore::timestamp> index{1, 2, 3, 4, 5, 6, 7};
+    const std::vector<double> values{0.01, nan, -0.05, 0.03, 0.01, -0.02, 0.04};
+    const auto returns = fincore::make_series(index, "returns", values);
+
+    const auto volatility = fincore::roll_annual_volatility(returns, 3U);
+    expect_special_values(volatility, "returns",
+                          {0.6734983296193096, 0.897997772825746,
+                           0.6609084656743323, 0.3994996871087636,
+                           0.4762352359916263});
+    const auto sortino = fincore::roll_sortino_ratio(returns, 3U);
+    expect_special_values(sortino, "returns",
+                          {-8.979977728257458, -4.48998886412873,
+                           -1.8330302779823364, 9.16515138991168,
+                           13.747727084867519});
+
+    const std::vector<double> clean_values{0.01, 0.02, -0.05, 0.03, 0.01,
+                                           -0.02, 0.04, 0.01, 0.02, -0.03};
+    const auto clean = fincore::make_series(
+        std::vector<fincore::timestamp>{1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
+        "returns", clean_values);
+    const auto annualized =
+        fincore::roll_annual_volatility(clean, 3U, fincore::frequency::daily,
+                                        52.0);
+    expect_special_values(
+        annualized, "returns",
+        {0.2730079363925769, 0.3143246729100342, 0.30022213997860536,
+         0.18147543451754933, 0.21633307652783934, 0.21633307652783934,
+         0.11015141094572203, 0.1907878402833891});
+
+    EXPECT_TRUE(
+        fincore::roll_annual_volatility(clean, 11U).get_index().empty());
+    EXPECT_THROW(
+        static_cast<void>(fincore::roll_sortino_ratio(clean, 0U)),
+        fincore::input_error);
 }
 
 }  // namespace

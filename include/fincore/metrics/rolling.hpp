@@ -47,6 +47,21 @@ dataframe roll_beta(const dataframe& returns, const dataframe& benchmark,
                     std::string_view returns_column_name = returns_column,
                     std::string_view benchmark_column_name = benchmark_column);
 
+dataframe roll_annual_volatility(
+    const dataframe& returns,
+    std::size_t window,
+    frequency period = frequency::daily,
+    std::optional<double> annualization = std::nullopt,
+    std::string_view column = returns_column);
+
+dataframe roll_sortino_ratio(
+    const dataframe& returns,
+    std::size_t window,
+    double required_return = 0.0,
+    frequency period = frequency::daily,
+    std::optional<double> annualization = std::nullopt,
+    std::string_view column = returns_column);
+
 dataframe roll_alpha_beta(
     const dataframe& returns,
     const dataframe& benchmark,

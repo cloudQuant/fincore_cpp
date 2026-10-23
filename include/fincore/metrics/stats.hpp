@@ -24,6 +24,10 @@ double stutzer_index(const dataframe& returns,
                      double target_return = 0.0,
                      std::string_view column = returns_column);
 
+double r_cubed_turtle(const dataframe& returns,
+                      double annualization = daily_annualization,
+                      std::string_view column = returns_column);
+
 double win_rate(const dataframe& returns,
                 std::string_view column = returns_column);
 
