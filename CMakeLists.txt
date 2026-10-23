@@ -35,6 +35,7 @@ add_library(fincore
     src/performance/inference.cpp
     src/performance/disclosures.cpp
     src/portfolio/capacity.cpp
+    src/optimization/numerics.cpp
     src/metrics/stats.cpp
     src/metrics/risk.cpp
     src/metrics/alpha_beta.cpp
