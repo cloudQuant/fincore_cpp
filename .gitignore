@@ -70,3 +70,6 @@ Testing/
 
 # Per-plan isolated worktrees created by the development workflow
 .worktrees/
+
+# macOS Finder metadata
+.DS_Store
