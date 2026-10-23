@@ -2595,3 +2595,18 @@ result to be at least as good rather than equal to a stalled optimum. Full
 headless CTest and LLVM 22 ASan+UBSan each passed 615/615. Evidence is
 recorded in [the Phase 61 acceptance
 record](docs/acceptance/2026-10-23-phase-61-garch11-acceptance.md).
+
+## Accepted Phase 62 native GARCH family
+
+Phase 62 completes the GARCH family with EGARCH and GJR-GARCH fits/forecasts
+and the `forecast_volatility`, `conditional_var`, and `conditional_es`
+dispatchers. Bounds are transform-enforced, likelihoods are optimized with
+deterministic multi-start Nelder-Mead, and the normal quantile uses
+Acklam+Newton. EGARCH parameters match the oracle within 2e-3, GJR within
+1e-4 (gamma at its 0 bound), and the conditional VaR/ES values match for both;
+the native GARCH VaR test asserts closed-form composition because the source's
+GARCH optimizer stalls.
+
+Full headless CTest and LLVM 22 ASan+UBSan each passed 619/619. Evidence is
+recorded in [the Phase 62 acceptance
+record](docs/acceptance/2026-10-23-phase-62-garch-family-acceptance.md).
