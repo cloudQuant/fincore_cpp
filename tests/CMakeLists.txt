@@ -43,6 +43,7 @@ add_executable(fincore_tests
     unit/optimization_numerics_test.cpp
     unit/risk_garch_test.cpp
     unit/risk_evt_test.cpp
+    unit/risk_backtesting_test.cpp
     unit/round_trips_test.cpp
     unit/perf_attrib_test.cpp
     unit/brinson_test.cpp
