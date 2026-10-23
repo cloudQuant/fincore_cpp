@@ -2530,3 +2530,19 @@ Clean detached oracle at `4b8f31b` reproduced every table value. Full
 headless CTest and LLVM 22 ASan+UBSan each passed 602/602. Evidence is
 recorded in [the Phase 59c acceptance
 record](docs/acceptance/2026-10-23-phase-59c-round-trip-stats-acceptance.md).
+
+## Accepted Phase 59d exposures and daily transaction bars
+
+Phase 59d adds `get_sector_exposures`, `compute_style_factor_exposures`,
+`compute_sector_exposures`, `compute_cap_exposures`,
+`compute_volume_exposures`, and `daily_txns_with_bar_data`. Sector/cap
+exposures use frozen ordered definitions for long/short/gross/net shares;
+style exposure is `sum(position*factor)/sum(|position|)`; volume exposures use
+per-row linear quantiles of shares/volume with strict positive-volume
+validation; daily bars join absolute daily amounts with price and volume in
+symbol-major order.
+
+Clean detached oracle at `4b8f31b` reproduced every value. Full headless CTest
+and LLVM 22 ASan+UBSan each passed 606/606. Evidence is recorded in [the
+Phase 59d acceptance
+record](docs/acceptance/2026-10-23-phase-59d-exposures-acceptance.md).
