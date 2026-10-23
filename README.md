@@ -2610,3 +2610,16 @@ GARCH optimizer stalls.
 Full headless CTest and LLVM 22 ASan+UBSan each passed 619/619. Evidence is
 recorded in [the Phase 62 acceptance
 record](docs/acceptance/2026-10-23-phase-62-garch-family-acceptance.md).
+
+## Accepted Phase 63 slice 1 — GPD risk estimates
+
+Phase 63 slice 1 adds `gpd_risk_estimates`: positive-loss tail selection, the
+descending threshold loop, a GPD Nelder-Mead fit at the source's default
+tolerances, and the closed-form VaR/ES. The 200-point heavy-tail oracle
+fixture yields threshold 0.1, scale 0.10505964641693998, shape
+7.484505235073074e-07, VaR 0.16571361940540646, ES 0.2707733936377823.
+
+Full headless CTest and LLVM 22 ASan+UBSan each passed 620/620. Evidence is
+recorded in [the Phase 63 slice-1 acceptance
+record](docs/acceptance/2026-10-23-phase-63-gpd-risk-estimates-acceptance.md).
+`risk/evt.py` remains the second slice.
