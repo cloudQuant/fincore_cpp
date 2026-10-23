@@ -9,7 +9,11 @@
 
 #include <gtest/gtest.h>
 
+#include <array>
 #include <cmath>
+#include <string>
+#include <string_view>
+#include <vector>
 #include <limits>
 #include <map>
 #include <set>
@@ -276,6 +280,143 @@ TEST(PerfStats, ValidatesColumnsBeforeResolvingFrequency) {
     } catch (const fincore::input_error& error) {
         EXPECT_STREQ(error.what(), "required column is not a double column");
     }
+}
+
+TEST(PerfStats, CalcDistributionStatsMatchesPythonOracle) {
+    const std::vector<double> values{0.01, 0.02, -0.05, 0.03, 0.01,
+                                     -0.02, 0.04, 0.01, 0.02, -0.03};
+    const auto stats = fincore::calc_distribution_stats(values);
+
+    EXPECT_NEAR(stats.mean, 0.003999999999999999, 1e-18);
+    EXPECT_NEAR(stats.median, 0.01, 1e-18);
+    EXPECT_NEAR(stats.std, 0.02690724809414742, 1e-16);
+    EXPECT_NEAR(stats.p5, -0.041, 1e-18);
+    EXPECT_NEAR(stats.p25, -0.0125, 1e-18);
+    EXPECT_NEAR(stats.p75, 0.02, 1e-18);
+    EXPECT_NEAR(stats.p95, 0.03549999999999999, 1e-16);
+    EXPECT_NEAR(stats.iqr, 0.0325, 1e-18);
+}
+
+TEST(PerfStats, CalcDistributionStatsHandlesDegenerateSamples) {
+    const std::vector<double> single{0.02};
+    const auto one = fincore::calc_distribution_stats(single);
+    EXPECT_DOUBLE_EQ(one.mean, 0.02);
+    EXPECT_DOUBLE_EQ(one.median, 0.02);
+    EXPECT_DOUBLE_EQ(one.std, 0.0);
+    EXPECT_DOUBLE_EQ(one.p5, 0.02);
+    EXPECT_DOUBLE_EQ(one.iqr, 0.0);
+
+    const std::vector<double> empty;
+    const auto none = fincore::calc_distribution_stats(empty);
+    EXPECT_TRUE(std::isnan(none.mean));
+    EXPECT_TRUE(std::isnan(none.median));
+    EXPECT_TRUE(std::isnan(none.std));
+    EXPECT_TRUE(std::isnan(none.iqr));
+}
+
+void expect_samples_equal(const std::vector<double>& left,
+                          const std::vector<double>& right) {
+    ASSERT_EQ(left.size(), right.size());
+    for (std::size_t position = 0; position < left.size(); ++position) {
+        if (std::isnan(left[position]) || std::isnan(right[position])) {
+            EXPECT_TRUE(std::isnan(left[position]));
+            EXPECT_TRUE(std::isnan(right[position]));
+        } else {
+            EXPECT_EQ(left[position], right[position]);
+        }
+    }
+}
+
+fincore::dataframe bootstrap_fixture(std::string_view column = "returns") {
+    std::vector<fincore::timestamp> index(10);
+    for (std::size_t position = 0; position < index.size(); ++position) {
+        index[position] = static_cast<fincore::timestamp>(position + 1);
+    }
+    return fincore::make_series(
+        index, column,
+        {0.01, 0.02, -0.05, 0.03, 0.01, -0.02, 0.04, 0.01, 0.02, -0.03});
+}
+
+TEST(PerfStats, PerfStatsBootstrapIsDeterministicAndOrdered) {
+    const auto returns = bootstrap_fixture();
+    const auto first = fincore::perf_stats_bootstrap(returns, 8, 42);
+    const auto second = fincore::perf_stats_bootstrap(returns, 8, 42);
+
+    ASSERT_EQ(first.size(), 13U);
+    const std::array<const char*, 13> expected_names{
+        "Annual return",       "Cumulative returns", "Annual volatility",
+        "Sharpe ratio",        "Calmar ratio",       "Stability",
+        "Max drawdown",        "Omega ratio",        "Sortino ratio",
+        "Skew",                "Kurtosis",           "Tail ratio",
+        "Daily value at risk"};
+    for (std::size_t metric = 0; metric < first.size(); ++metric) {
+        EXPECT_EQ(first[metric].name, expected_names[metric]);
+        ASSERT_EQ(first[metric].samples.size(), 8U);
+        expect_samples_equal(first[metric].samples, second[metric].samples);
+        const auto recomputed =
+            fincore::calc_distribution_stats(first[metric].samples);
+        if (std::isnan(recomputed.mean) || std::isnan(first[metric].summary.mean)) {
+            EXPECT_TRUE(std::isnan(recomputed.mean));
+            EXPECT_TRUE(std::isnan(first[metric].summary.mean));
+        } else {
+            EXPECT_EQ(recomputed.mean, first[metric].summary.mean);
+        }
+        if (std::isnan(recomputed.p95) || std::isnan(first[metric].summary.p95)) {
+            EXPECT_TRUE(std::isnan(recomputed.p95));
+            EXPECT_TRUE(std::isnan(first[metric].summary.p95));
+        } else {
+            EXPECT_EQ(recomputed.p95, first[metric].summary.p95);
+        }
+    }
+
+    const auto different_seed = fincore::perf_stats_bootstrap(returns, 8, 43);
+    bool any_difference = false;
+    for (std::size_t metric = 0; metric < first.size(); ++metric) {
+        if (first[metric].samples != different_seed[metric].samples) {
+            any_difference = true;
+        }
+    }
+    EXPECT_TRUE(any_difference);
+}
+
+TEST(PerfStats, PerfStatsBootstrapHandlesSingleSampleAndEmptyInput) {
+    const auto returns = bootstrap_fixture();
+    const auto single = fincore::perf_stats_bootstrap(returns, 1, 7);
+    ASSERT_EQ(single.size(), 13U);
+    for (const auto& metric : single) {
+        EXPECT_EQ(metric.samples.size(), 1U);
+        EXPECT_DOUBLE_EQ(metric.summary.std, 0.0);
+    }
+
+    const auto empty = fincore::make_series({}, "returns", {});
+    const auto empty_result = fincore::perf_stats_bootstrap(empty, 4, 7);
+    ASSERT_EQ(empty_result.size(), 13U);
+    for (const auto& metric : empty_result) {
+        EXPECT_TRUE(metric.samples.empty());
+        EXPECT_TRUE(std::isnan(metric.summary.mean));
+    }
+}
+
+TEST(PerfStats, PerfStatsBootstrapSupportsSelectorsAndRejectsNul) {
+    const auto strategy = bootstrap_fixture("strategy");
+    constexpr std::array<char, 8> bounded_name{
+        's', 't', 'r', 'a', 't', 'e', 'g', 'y'};
+    const std::string_view bounded_selector{bounded_name.data(),
+                                            bounded_name.size()};
+    const std::array<char, 13> embedded_storage{
+        'r', 'e', 't', 'u', 'r', 'n', 's', '\0', 'e', 'v', 'i', 'l', '!'};
+    const std::string_view embedded_selector{embedded_storage.data(),
+                                             embedded_storage.size()};
+
+    EXPECT_EQ(
+        fincore::perf_stats_bootstrap(strategy, 2, 1, bounded_selector).size(),
+        13U);
+    EXPECT_THROW(static_cast<void>(fincore::perf_stats_bootstrap(
+                     strategy, 2, 1, embedded_selector)),
+                 fincore::input_error);
+    EXPECT_THROW(
+        static_cast<void>(fincore::perf_stats_bootstrap(strategy, 2, 1, "")),
+        fincore::input_error);
 }
 
 }  // namespace
