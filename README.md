@@ -2907,3 +2907,18 @@ builder and Phase 87 performance.
 Full headless CTest passed 699/699; sanitizer was not re-run for this slice.
 Evidence is recorded in [the HTML/risk/runtime acceptance
 record](docs/acceptance/2026-10-23-iteration-6-html-risk-runtime-acceptance.md).
+
+## Iteration 6 slice 2 — XLSX and native packaging accepted
+
+Adds a dependency-free XLSX renderer (one sheet per section; metrics, tables
+and series stacked; numeric/inline-text/boolean cells; deterministic stored
+ZIP/OOXML) and install/export packaging with a relocatable
+`fincoreConfig.cmake`. openpyxl 3.1.5 loads the generated workbook and reads
+the expected rows; a downstream consumer builds against the installed package
+and prints `version=0.1.0 sharpe=6.928203230275507`.
+
+Declared limits: native XLSX bytes are not Python-equal and use typed metric
+columns; the ImPlot adapter is not installed; CI/platform matrices are not
+run here. Full headless CTest passed 701/701; sanitizer was not re-run.
+Evidence is recorded in [the XLSX/packaging acceptance
+record](docs/acceptance/2026-10-23-iteration-6-xlsx-packaging-acceptance.md).
