@@ -2469,3 +2469,20 @@ Clean detached oracle at `4b8f31b` reproduced all three exact multiline
 outputs. Full headless CTest and LLVM 22 ASan+UBSan each passed 593/593.
 Evidence is recorded in [the Phase 57b acceptance
 record](docs/acceptance/2026-10-23-phase-57b-disclosures-acceptance.md).
+
+## Accepted Phase 59 native transaction liquidity
+
+Phase 59 adds `days_to_liquidate_positions`,
+`get_max_days_to_liquidate_by_ticker`, and
+`get_low_liquidity_transactions` plus the `trade_record` value type. Wide
+date×symbol positions/prices/volumes frames must share one index; allocation
+includes cash in the row total but excludes it from outputs; dollar volume is
+the shifted rolling mean with zero/NaN windows mapped to NaN; ticker maximums
+report the allocation on the maximum-days row; low-liquidity records report
+the maximum daily percent bar consumed with an optional recent-days filter.
+
+Clean detached oracle at `4b8f31b` reproduced the days matrix and all
+maximum/low-liquidity goldens at 1e-12. Full headless CTest and LLVM 22
+ASan+UBSan each passed 596/596. Evidence is recorded in [the Phase 59
+acceptance
+record](docs/acceptance/2026-10-23-phase-59-transaction-liquidity-acceptance.md).
