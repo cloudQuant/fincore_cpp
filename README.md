@@ -2847,3 +2847,26 @@ automated visual fixture; desktop capture not used). Sanitizer: deferred
 after an owner interruption; no sanitizer claim is made for this delivery.
 Evidence is recorded in [the Iteration 4 acceptance
 record](docs/acceptance/2026-10-23-iteration-4-visualization-acceptance.md).
+
+## Iteration 5 slice 1 — factor data and performance kernels accepted
+
+Adds the native factor panel (`factor_series`, `forward_return_table`,
+`prepared_factor_data`), forward-return computation, pandas-compatible
+qcut/cut/zero-aware quantization, the three non-PIT prepare routes with loss
+reports, and the first performance/inference set: Spearman IC/mean IC,
+demeaned/equal/group-adjusted weights, weighted factor returns, annualized
+alpha/beta, quantile means/SE, turnover, rank autocorrelation, IC
+mean/t/CI and Benjamini-Hochberg inference.
+
+The 15-row preparation oracle and the 60-day/five-asset performance oracle
+match exactly (IC mean `-0.1783333`, alpha/beta `-0.4490675/0.1626165`, IC
+t `-1.9944671`/p `0.0507280`, BH `[0.04, 0.0533333, 0.0533333, 0.2]`).
+
+Open factor routes: PIT preparation, group-IC/by-date quantile tables,
+Fama-MacBeth/model inference, analysis assembly, portfolio/costs, research,
+tears and reports. Declared divergences include `ND` period labels and
+full-date-index turnover for unbalanced universes.
+
+Full headless CTest passed 681/681; sanitizer was not re-run for this slice.
+Evidence is recorded in [the factor-core acceptance
+record](docs/acceptance/2026-10-23-iteration-5-factor-core-acceptance.md).
