@@ -2515,3 +2515,18 @@ Clean detached oracle at `4b8f31b` reproduced the ranked lists, notionals,
 and 12-entry stack exactly. Full headless CTest and LLVM 22 ASan+UBSan each
 passed 601/601. Evidence is recorded in [the Phase 59b acceptance
 record](docs/acceptance/2026-10-23-phase-59b-position-residuals-acceptance.md).
+
+## Accepted Phase 59c round-trip statistics
+
+Phase 59c adds `gen_round_trip_stats` over the native round-trip frame:
+PNL, summary, duration (days), returns, and per-symbol return tables for the
+`All trades`, `short`, and `long` groups. Duration group statistics use the
+close-max/open-min span with 21 trading days per month; absent groups and
+loss classes follow the source; empty input returns empty tables. The Python
+aggregation/preprocessing helpers map to this engine and to the accepted
+`groupby_consecutive_transactions`/`extract_round_trips` leaves.
+
+Clean detached oracle at `4b8f31b` reproduced every table value. Full
+headless CTest and LLVM 22 ASan+UBSan each passed 602/602. Evidence is
+recorded in [the Phase 59c acceptance
+record](docs/acceptance/2026-10-23-phase-59c-round-trip-stats-acceptance.md).
