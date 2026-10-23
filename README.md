@@ -2546,3 +2546,17 @@ Clean detached oracle at `4b8f31b` reproduced every value. Full headless CTest
 and LLVM 22 ASan+UBSan each passed 606/606. Evidence is recorded in [the
 Phase 59d acceptance
 record](docs/acceptance/2026-10-23-phase-59d-exposures-acceptance.md).
+
+## Iteration 2 close-out — performance and portfolio
+
+All assigned phases (53–59, including 57b and the 59b–59d residual slices) are
+accepted. The public-API audit found 39 Python definitions; 32 have same-named
+native leaves and the seven remaining names are pipeline/adapter helpers mapped
+to proven native equivalents (`agg_all_long_short`, `groupby_consecutive`,
+`add_closing_transactions`, `apply_sector_mappings_to_round_trips`,
+`extract_pos`, `make_transaction_frame`, `map_transaction`). Declared limits:
+single-currency cashflows, NaN for non-conventional IRRs, strict shared-index
+panels, `trade_record` long ledgers, and no GIPS compliance claim. Head
+evidence: 606/606 headless CTest and 606/606 ASan+UBSan. The full ledger and
+defect log are in [the Iteration 2
+close-out](docs/acceptance/2026-10-23-iteration-2-closeout.md).
