@@ -102,6 +102,9 @@ native design maps capabilities with typed C++ models:
   measurements
   (`cmake --build build --target fincore_factor_benchmark`), but no automated
   performance-regression gate is configured.
+- `examples/implot_dashboard.cpp` supports
+  `FINCORE_IMPLOT_CAPTURE=/tmp/dashboard.ppm` to render a hidden window
+  offscreen; PPM can be converted to PNG for visual inspection.
 
 ## Third-party notices
 
