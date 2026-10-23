@@ -2560,3 +2560,19 @@ panels, `trade_record` long ledgers, and no GIPS compliance claim. Head
 evidence: 606/606 headless CTest and 606/606 ASan+UBSan. The full ledger and
 defect log are in [the Iteration 2
 close-out](docs/acceptance/2026-10-23-iteration-2-closeout.md).
+
+## Accepted Phase 60 solver spike
+
+Phase 60 records the binding numerical-solver decision: **hand-ported
+deterministic kernels** (Nelder-Mead for unconstrained MLE, exact
+box-constrained simplex projection plus projected-gradient QP, and the ERC
+iteration to follow). No local OSQP checkout or package exists and the build
+is network-free, so vendoring is rejected with evidence; the internal kernels
+add one source and one test translation unit.
+
+The kernels are validated by analytic fixtures — quadratic `[1, -0.5]`,
+Rosenbrock, equal-covariance weights `[0.5, 0.5]`, inverse-variance
+`[1/7, 2/7, 4/7]`, simplex projection with bounds — and determinism checks.
+Full headless CTest and LLVM 22 ASan+UBSan each passed 610/610. Evidence is
+recorded in [the Phase 60 acceptance
+record](docs/acceptance/2026-10-23-phase-60-solver-spike-acceptance.md).
