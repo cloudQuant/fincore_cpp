@@ -2693,3 +2693,33 @@ backtest; historical (window 100, cadence 10): 200 forecasts, 20 refits,
 Full headless CTest and LLVM 22 ASan+UBSan each passed 634/634. Evidence is
 recorded in [the Phase 66 acceptance
 record](docs/acceptance/2026-10-23-phase-66-walk-forward-var-acceptance.md).
+
+## Accepted Phase 67 native risk spec and validation report
+
+Phase 67 adds `risk_model_spec` validation (including the `horizon` field),
+`risk_validation_report` with `build_risk_validation_report`, and the
+calibration helpers `expected_exception_count`, `basel_traffic_light` and
+`es_calibration_score`. Reports record status, native digest, spec echo,
+forecast events with exceptions/refit flags, refit parameters, diagnostics
+without `fit_parameters`, the recomputed backtest payload with the Basel
+traffic light, optional index name/timezone, the baseline disclosure and
+schema version 1.
+
+Normal, historical and small oracle fixtures match at 1e-12 (including the
+250/50, 200/20 and 7/4 event/refit splits, backtest statuses, Kupiec,
+Christoffersen and traffic-light zones). Unsupported and insufficient reports
+keep empty event/refit lists and `backtest: null`. `to_json()` matches
+Python's structure, key order, indentation, escaping and number formatting
+byte-for-byte after digest substitution; remaining numeric differences are
+last-bit `sin`/`erfc` input rounding. Traffic-light boundaries are exact
+against SciPy (n=1000, c=0.95 → 62/77). Tampered backtests, fits and cadence
+are rejected before serialization.
+
+Declared divergences: native digest (not CSV-equal), null
+`timestamp_timezone` (no native timezone metadata), explicit optional
+`timestamp_index_name`, no file-I/O `write_json`, and no report rendering or
+`ReportDocument` projection (Phase 88a/91).
+
+Full headless CTest and LLVM 22 ASan+UBSan each passed 644/644. Evidence is
+recorded in [the Phase 67 acceptance
+record](docs/acceptance/2026-10-23-phase-67-risk-report-acceptance.md).
