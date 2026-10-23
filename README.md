@@ -2649,3 +2649,15 @@ Full headless CTest and LLVM 22 ASan+UBSan each passed 627/627. GEV remains
 Phase 63 slice 4 and is explicitly rejected in this build. Evidence is
 recorded in [the Phase 63 slice-3 acceptance
 record](docs/acceptance/2026-10-23-phase-63c-evt-var-cvar-acceptance.md).
+
+## Accepted Phase 64 native beta fragility heuristic
+
+Phase 64 adds `beta_fragility_heuristic`: inner alignment, NaN-pair drop,
+stable factor sort, banker's-rounded midpoint, factor-gap weights (0.5/0.5 on
+a zero range), and the source's `w_start*r_start + w_end*r_end - r_mid`
+formula. All five oracle goldens match exactly (`0.0125`, short NaN, `-0.02`
+NaN-pair, `-0.005` constant factor, `-0.02` two-clean).
+
+Full headless CTest and LLVM 22 ASan+UBSan each passed 628/628. Evidence is
+recorded in [the Phase 64 acceptance
+record](docs/acceptance/2026-10-23-phase-64-beta-fragility-acceptance.md).
