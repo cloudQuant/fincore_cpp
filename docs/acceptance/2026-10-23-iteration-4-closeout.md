@@ -13,7 +13,7 @@
 ## Evidence and gates
 
 - Final Release tree builds the core, report and factor/risk/portfolio
-  consumers; full headless CTest **718/718** passed at the final HEAD.
+  consumers; full headless CTest **721/721** passed at the final HEAD.
 - The final verification build uses `FINCORE_BUILD_IMPLOT=OFF`; the adapter
   and demo are not compiled or linked in that tree, and no rendering was
   exercised.

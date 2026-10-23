@@ -732,4 +732,44 @@ std::vector<round_trip_transaction> add_closing_transactions(
     return result;
 }
 
+long_short_aggregate agg_all_long_short(
+    const dataframe& round_trips, const std::string_view column,
+    const std::span<const round_trip_statistic> statistics) {
+    const auto& values =
+        require_double_column(round_trips, std::string{column});
+    if (round_trips.get_index().size() != values.size()) {
+        throw input_error{
+            "round_trips columns must match the frame index length"};
+    }
+    const auto long_flags = round_trips.get_column<bool>("long");
+    if (long_flags.size() != values.size()) {
+        throw input_error{
+            "round_trips long column must match the frame index length"};
+    }
+    std::vector<double> all;
+    std::vector<double> long_trades;
+    std::vector<double> short_trades;
+    for (std::size_t row = 0; row < values.size(); ++row) {
+        all.push_back(values[row]);
+        (long_flags[row] ? long_trades : short_trades).push_back(values[row]);
+    }
+    long_short_aggregate result;
+    for (const auto& statistic : statistics) {
+        if (!statistic.compute) {
+            throw input_error{"round_trip statistic must be callable"};
+        }
+        result.statistic_names.push_back(statistic.name);
+        result.all_trades.push_back(statistic.compute(all));
+        result.long_trades.push_back(
+            long_trades.empty()
+                ? std::nan("")
+                : statistic.compute(long_trades));
+        result.short_trades.push_back(
+            short_trades.empty()
+                ? std::nan("")
+                : statistic.compute(short_trades));
+    }
+    return result;
+}
+
 }  // namespace fincore

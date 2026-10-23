@@ -83,6 +83,8 @@ add_executable(fincore_tests
     unit/attribution_style_analysis_umbrella_test.cpp
     unit/attribution_style_performance_umbrella_test.cpp
     unit/attribution_style_tilts_umbrella_test.cpp
+    unit/attribution_fama_french_test.cpp
+    unit/attribution_performance_test.cpp
     unit/attribution_style_regression_attribution_umbrella_test.cpp
     unit/stress_scenarios_test.cpp
     unit/correlation_breakdown_test.cpp

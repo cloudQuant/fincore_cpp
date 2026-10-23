@@ -3,6 +3,7 @@
 #include <fincore/portfolio/transactions.hpp>
 
 #include <chrono>
+#include <functional>
 #include <map>
 #include <span>
 #include <string>
@@ -28,6 +29,23 @@ dataframe groupby_consecutive_transactions(
     std::string_view symbol_column_name = transaction_symbol_column,
     std::string_view amount_column_name = transaction_amount_column,
     std::string_view price_column_name = transaction_price_column);
+
+struct round_trip_statistic {
+    std::string name;
+    std::function<double(std::span<const double>)> compute;
+};
+
+struct long_short_aggregate {
+    std::vector<std::string> statistic_names;
+    std::vector<double> all_trades;
+    std::vector<double> long_trades;
+    std::vector<double> short_trades;
+};
+
+/// Apply caller-supplied statistics to all, long and short round trips.
+long_short_aggregate agg_all_long_short(
+    const dataframe& round_trips, std::string_view column,
+    std::span<const round_trip_statistic> statistics);
 
 struct round_trip_transaction {
     timestamp date = 0;
