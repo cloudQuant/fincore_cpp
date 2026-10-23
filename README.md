@@ -2409,3 +2409,18 @@ Clean detached oracle at `4b8f31b` reproduced the goldens (two flows
 LLVM 22 ASan+UBSan each passed 579/579. Evidence is recorded in [the Phase 55
 acceptance
 record](docs/acceptance/2026-10-23-phase-55-xirr-acceptance.md).
+
+## Accepted Phase 54 native MWR
+
+Phase 54 adds `fincore::mwr(cashflows, period = nullopt, amount_column)`:
+positional cashflows, equally spaced by default or by a positive scalar
+interval, delegating to the Phase 55 conventional-IRR solver. Zero cashflows
+are dropped while their times are retained; non-conventional streams return
+NaN; invalid lengths, non-finite amounts, and non-positive periods raise.
+
+Clean detached oracle at `4b8f31b` reproduced the goldens (two flows `0.1`,
+half-period `0.21`, three flows `0.05691785736085275`, zero-dropped
+`0.048808848170151624`, loss `-0.5`). Full headless CTest and LLVM 22
+ASan+UBSan each passed 582/582. Evidence is recorded in [the Phase 54
+acceptance
+record](docs/acceptance/2026-10-23-phase-54-mwr-acceptance.md).
