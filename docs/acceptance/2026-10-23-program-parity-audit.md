@@ -119,7 +119,10 @@ function route remains.
 
 The native program covers the accepted compute, model, report, runtime and
 packaging paths with 279 exact/renamed public routes, zero unresolved routes
-and 72 explicitly deferred or non-port routes. The iteration-level items above
-(interactive windows, Ubuntu CI) remain outside the function ledger. Program-level parity is therefore **partial and explicitly
+and 72 explicitly deferred or non-port routes. Still open outside the function
+ledger: grid-driven non-day research label naming, on-screen grouped tear
+rendering, interactive ImPlot windows, and the Ubuntu CI leg (VM provisioning
+tracked separately). The runtime catalog remains a selected 44 of 273
+operations. Program-level parity is therefore **partial and explicitly
 bounded**; this record is the authoritative close-out of Phase 92 and must be
 updated if any listed gap is closed.
