@@ -2870,3 +2870,21 @@ full-date-index turnover for unbalanced universes.
 Full headless CTest passed 681/681; sanitizer was not re-run for this slice.
 Evidence is recorded in [the factor-core acceptance
 record](docs/acceptance/2026-10-23-iteration-5-factor-core-acceptance.md).
+
+## Iteration 5 slice 2 — factor costs and analysis assembly accepted
+
+Adds `estimate_factor_capacity` and `apply_factor_costs` (gross-normalized
+weight ledger, trades, participation, spread/impact/borrow costs, capacity
+binding date/asset) plus a reduced compute-once `analyze_factor` model that
+assembles IC, weights, factor returns, quantile means, alpha/beta, turnover
+and rank autocorrelation with a native fingerprint.
+
+Capacity and cost goldens match the oracle exactly (capacity
+`166666.6666666667`, net `-0.010553792706191447` first date, short borrow
+`0.0005`). Declared gaps: sorted wide inputs and 0/1 availability, a reduced
+analysis model (no cumulative/position/spread/grouped views), no overlapping
+portfolio constructor, and research/tears/reports still open.
+
+Full headless CTest passed 687/687; sanitizer was not re-run for this slice.
+Evidence is recorded in [the factor costs/analysis acceptance
+record](docs/acceptance/2026-10-23-iteration-5-factor-costs-analysis-acceptance.md).
