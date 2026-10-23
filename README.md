@@ -2809,3 +2809,16 @@ are versioned non-CSV recipes. The only domain residual is runtime
 Full headless CTest and LLVM 22 ASan+UBSan each passed 661/661. Evidence is
 recorded in [the Iteration 3 close-out
 record](docs/acceptance/2026-10-23-iteration-3-closeout.md).
+
+## Layout alignment — portfolio domain accepted
+
+The approved post-Iteration-3 layout alignment moves the position,
+transaction and round-trip APIs to `include/fincore/portfolio/` and
+`src/portfolio/`, matching the Python `fincore/portfolio` package. No alias
+headers or symbols were added; `fincore/metrics.hpp` is metrics-only, and
+cross-domain headers/tests include the concrete portfolio paths. Historical
+records keep their original paths as evidence.
+
+Full headless CTest and LLVM 22 ASan+UBSan each passed 661/661. Evidence is
+recorded in [the layout acceptance
+record](docs/acceptance/2026-10-23-layout-alignment-portfolio.md).
