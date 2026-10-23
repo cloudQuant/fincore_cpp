@@ -1,5 +1,5 @@
 #include <fincore/calendar.hpp>
-#include <fincore/metrics/round_trips.hpp>
+#include <fincore/portfolio/round_trips.hpp>
 
 #include <gtest/gtest.h>
 

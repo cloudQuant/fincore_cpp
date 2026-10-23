@@ -1,5 +1,8 @@
 #include <fincore/calendar.hpp>
 #include <fincore/metrics.hpp>
+#include <fincore/portfolio/positions.hpp>
+#include <fincore/portfolio/round_trips.hpp>
+#include <fincore/portfolio/transactions.hpp>
 
 #include <gtest/gtest.h>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <fincore/metrics/transactions.hpp>
+#include <fincore/portfolio/transactions.hpp>
 
 #include <chrono>
 #include <string>

@@ -55,9 +55,9 @@ add_library(fincore
     src/metrics/yearly.cpp
     src/metrics/rolling.cpp
     src/metrics/perf_stats.cpp
-    src/metrics/positions.cpp
-    src/metrics/transactions.cpp
-    src/metrics/round_trips.cpp
+    src/portfolio/positions.cpp
+    src/portfolio/transactions.cpp
+    src/portfolio/round_trips.cpp
     src/metrics/perf_attrib.cpp
     src/attribution/brinson.cpp
     src/attribution/factor_regression.cpp

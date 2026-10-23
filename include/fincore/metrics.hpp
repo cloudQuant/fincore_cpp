@@ -13,8 +13,5 @@
 #include <fincore/metrics/yearly.hpp>
 #include <fincore/metrics/rolling.hpp>
 #include <fincore/metrics/perf_stats.hpp>
-#include <fincore/metrics/positions.hpp>
-#include <fincore/metrics/transactions.hpp>
-#include <fincore/metrics/round_trips.hpp>
 #include <fincore/metrics/perf_attrib.hpp>
 #include <fincore/metrics/bayesian.hpp>

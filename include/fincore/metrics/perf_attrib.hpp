@@ -1,6 +1,6 @@
 #pragma once
 
-#include <fincore/metrics/positions.hpp>
+#include <fincore/portfolio/positions.hpp>
 #include <fincore/metrics/returns.hpp>
 
 #include <map>

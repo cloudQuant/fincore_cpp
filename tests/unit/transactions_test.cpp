@@ -1,6 +1,6 @@
 #include <fincore/error.hpp>
 #include <fincore/calendar.hpp>
-#include <fincore/metrics/transactions.hpp>
+#include <fincore/portfolio/transactions.hpp>
 
 #include <gtest/gtest.h>
 
