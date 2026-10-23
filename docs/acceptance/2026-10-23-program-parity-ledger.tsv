@@ -2,7 +2,7 @@ family	python_route	native_headers	python_public	exact_name	renamed_equivalent	d
 metrics	fincore/metrics	metrics/alpha_beta.hpp;metrics/basic.hpp;metrics/bayesian.hpp;metrics/consecutive.hpp;metrics/drawdown.hpp;metrics/perf_attrib.hpp;metrics/perf_stats.hpp;metrics/ratios.hpp;metrics/returns.hpp;metrics/risk.hpp;metrics/rolling.hpp;metrics/stats.hpp;metrics/timing.hpp;metrics/yearly.hpp;metrics.hpp	157	123	18	16	0	0	README + docs/acceptance (metrics phases 2A-52b)		
 performance	fincore/performance	performance/cashflows.hpp;performance/disclosures.hpp;performance/inference.hpp;performance/returns.hpp	9	9	0	0	0	0	README + docs/acceptance (performance 53-57)		
 portfolio	fincore/portfolio	portfolio/capacity.hpp;portfolio/positions.hpp;portfolio/round_trips.hpp;portfolio/transactions.hpp	30	23	2	0	2	3	README + docs/acceptance (portfolio 58-59, 91)	add_closing_transactions, agg_all_long_short, apply_sector_mappings_to_round_trips	transaction/round-trip helper surface not ported
-factor_analysis	fincore/factor_analysis	factor/analysis.hpp;factor/costs.hpp;factor/data.hpp;factor/exceptions.hpp;factor/performance.hpp;factor/pit.hpp;factor/portfolio.hpp;factor/report.hpp;factor/research.hpp;factor/tears.hpp	79	30	7	30	8	4	docs/acceptance/2026-10-23-iteration-5-*, phase-79/84/92	average_cumulative_return_by_quantile, common_start_returns, factor_model_inference, fama_macbeth	event cumulative returns and Fama-MacBeth/model inference not ported
+factor_analysis	fincore/factor_analysis	factor/analysis.hpp;factor/costs.hpp;factor/data.hpp;factor/exceptions.hpp;factor/performance.hpp;factor/pit.hpp;factor/portfolio.hpp;factor/report.hpp;factor/research.hpp;factor/tears.hpp	79	32	7	30	8	2	docs/acceptance/2026-10-23-iteration-5-*, phase-79/80/84/92	average_cumulative_return_by_quantile, common_start_returns	event cumulative returns not ported
 simulation	fincore/simulation	simulation/bootstrap.hpp;simulation/correlation.hpp;simulation/monte_carlo.hpp;simulation/parameters.hpp;simulation/paths.hpp;simulation/result.hpp;simulation/scenarios.hpp;simulation.hpp	14	9	4	0	1	0	README (historical simulation acceptance)		
 optimization	fincore/optimization	optimization/frontier.hpp;optimization/objectives.hpp;optimization/risk_parity.hpp	3	2	1	0	0	0	docs/acceptance/2026-10-23-phases-68-71-portfolio-optimization-acceptance.md		
 data	fincore/data		3	0	0	3	0	0	NON_PORT (network/data providers)		
@@ -12,4 +12,4 @@ report	fincore/report	report/html.hpp;report/models.hpp;report/portfolio.hpp;rep
 runtime	fincore/runtime	runtime/runtime.hpp	13	4	2	0	7	0	docs/acceptance/2026-10-23-phase-92-runtime-catalog-acceptance.md		
 extensions	fincore/extensions		3	1	0	0	2	0	NON_PORT (plugin loading)		
 viz	fincore/viz	viz/chart_data.hpp;viz/implot_backend.hpp	1	0	1	0	0	0	docs/acceptance/2026-10-23-iteration-4-visualization-acceptance.md		
-TOTAL	fincore/*	include/fincore/**	351	234	36	51	21	9			
+TOTAL	fincore/*	include/fincore/**	351	236	36	51	21	7			

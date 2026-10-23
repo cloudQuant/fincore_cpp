@@ -2,7 +2,8 @@
 
 **Pin:** Python `4b8f31b1b59707480d5db9603704d83bbf7e6946`
 **Machine ledger:** [2026-10-23-program-parity-ledger.tsv](2026-10-23-program-parity-ledger.tsv)
-**Native tests:** 712/712 Release CTest
+**Generator:** `tools/parity_ledger.py`
+**Native tests:** 714/714 Release CTest
 
 ## Method
 
@@ -35,7 +36,7 @@ record).
 | metrics | 157 | 123 | 18 | 16 | 0 | 0 |
 | performance | 9 | 9 | 0 | 0 | 0 | 0 |
 | portfolio | 30 | 23 | 2 | 0 | 2 | 3 |
-| factor_analysis | 79 | 30 | 7 | 30 | 8 | 4 |
+| factor_analysis | 79 | 32 | 7 | 30 | 8 | 2 |
 | simulation | 14 | 9 | 4 | 0 | 1 | 0 |
 | optimization | 3 | 2 | 1 | 0 | 0 | 0 |
 | data | 3 | 0 | 0 | 3 | 0 | 0 |
@@ -45,18 +46,20 @@ record).
 | runtime | 13 | 4 | 2 | 0 | 7 | 0 |
 | extensions | 3 | 1 | 0 | 0 | 2 | 0 |
 | viz | 1 | 0 | 1 | 0 | 0 | 0 |
-| **total** | **351** | **234** | **36** | **51** | **21** | **9** |
+| **total** | **351** | **236** | **36** | **51** | **21** | **7** |
 
-Exact-or-renamed coverage is 270/351 (76.9%); 51 deferred and 21 non-port
-rows bring classified coverage to 342/351 (97.4%). No full-domain parity is
+Exact-or-renamed coverage is 272/351 (77.5%); 51 deferred and 21 non-port
+rows bring classified coverage to 344/351 (98.0%). No full-domain parity is
 claimed.
 
-## Unresolved gaps (9)
+## Unresolved gaps (7)
 
 Gap closure during this audit: `simulation.annualize` is now a native public
 helper (`annualize(value, period)` with the source period factors, tested in
-`SimulationParameters.AnnualizesWithSourcePeriodFactors`), reducing the
-initial ten gaps to nine.
+`SimulationParameters.AnnualizesWithSourcePeriodFactors`), and
+`fama_macbeth` plus `factor_model_inference` are ported with a clean oracle
+fixture (`docs/acceptance/2026-10-23-phase-80-inference-acceptance.md`).
+These three closures reduce the initial ten gaps to seven.
 
 - `portfolio.add_closing_transactions`, `portfolio.agg_all_long_short`,
   `portfolio.apply_sector_mappings_to_round_trips` — the native round-trip
@@ -64,10 +67,8 @@ initial ten gaps to nine.
   synthesis or long/short aggregation.
 - `factor_analysis.average_cumulative_return_by_quantile`,
   `factor_analysis.common_start_returns` — event/common-start cumulative
-  return paths are not ported.
-- `factor_analysis.factor_model_inference`, `factor_analysis.fama_macbeth` —
-  the Phase 80 inference surface is incomplete (IC inference, BH and
-  confidence intervals are accepted).
+  return paths are not ported (IC/FDR, Fama-MacBeth and model inference are
+  accepted).
 - `attribution.align_and_warn` — the four-panel attribution alignment helper
   with warning policy is not ported.
 - `attribution.calculate_idiosyncratic_risk` — Fama-French idiosyncratic
@@ -93,16 +94,16 @@ initial ten gaps to nine.
 
 | iteration | accepted scope | open |
 | --- | --- | --- |
-| 1 — metrics completion | Phases 39–52b accepted with oracle evidence | 9 function-level gaps as above (metrics itself has 0) |
+| 1 — metrics completion | Phases 39–52b accepted with oracle evidence | 7 function-level gaps as above (metrics itself has 0) |
 | 2 — performance/portfolio | Phases 53–59 accepted | none at function level |
 | 3 — risk/optimization | Phases 60–71 accepted; 661/661 CTest+ASan+UBSan at close | none at function level |
 | 4 — visualization | chart data and ImPlot adapter accepted for compute/build | visual rendering **NOT_RUN**; sanitizer not re-run after the changes |
-| 5 — factor analysis | 77–87 slices accepted: prep/PIT, performance, costs, analysis model, research, export, tears, four-section report, portfolio constructor, performance study | 4 factor gaps; event/group analysis absent; tear-sheet plotting deferred |
+| 5 — factor analysis | 77–87 slices accepted: prep/PIT, performance/inference, costs, analysis model, research, export, tears, four-section report, portfolio constructor, performance study | 2 factor gaps; event/group analysis absent; tear-sheet plotting deferred |
 | 6 — report/runtime | 88a/89/90/91/92 accepted: schema, HTML, XLSX, risk/portfolio projections, runtime catalog, install/export consumer | 88b integration fields partial; transactions section open; 93 CI matrix and migration/usage notes not delivered |
 
 ## Gate status
 
-- Release CTest: **712/712 passed** (this audit).
+- Release CTest: **714/714 passed** (this audit).
 - Sanitizer: last complete ASan+UBSan run **661/661** (Iteration 3 close and
   layout alignment). No later slice claims a sanitizer run; the gate remains
   **NOT_RUN** for Iterations 4–6.
@@ -117,8 +118,8 @@ initial ten gaps to nine.
 ## Verdict
 
 The native program covers the accepted compute, model, report, runtime and
-packaging paths with 270 exact/renamed public routes and 72 explicitly
-deferred or non-port routes. Nine named gaps remain, plus the iteration-level
+packaging paths with 272 exact/renamed public routes and 72 explicitly
+deferred or non-port routes. Seven named gaps remain, plus the iteration-level
 items above (visual, sanitizer re-run, CI matrix, 88b fields, transactions
 section). Program-level parity is therefore **partial and explicitly
 bounded**; this record is the authoritative close-out of Phase 92 and must be

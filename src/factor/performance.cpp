@@ -276,8 +276,11 @@ std::vector<double> compute_weights(const prepared_factor_data& data,
 }
 
 double student_t_two_sided_p_value(const double statistic, const double df) {
-    if (!std::isfinite(statistic) || !(df > 0.0)) {
+    if (std::isnan(statistic) || !(df > 0.0)) {
         return nan;
+    }
+    if (std::isinf(statistic)) {
+        return 0.0;
     }
     const double x = df / (df + statistic * statistic);
     // Regularized incomplete beta I_x(df/2, 1/2).
@@ -1057,4 +1060,220 @@ ic_inference_result information_coefficient_inference(
     return result;
 }
 
-}  // namespace fincore
+namespace {
+
+std::vector<std::string> asset_columns(const dataframe& frame) {
+    std::vector<std::string> names;
+    for (const auto& info : frame.get_columns_info<double>()) {
+        if (std::get<2>(info) == typeid(double)) {
+            names.emplace_back(std::get<0>(info).c_str());
+        }
+    }
+    return names;
+}
+
+double sample_standard_error(const std::vector<double>& values) {
+    if (values.size() < 2U) {
+        return nan;
+    }
+    const double mean = std::accumulate(values.begin(), values.end(), 0.0) /
+                        static_cast<double>(values.size());
+    double variance = 0.0;
+    for (const double value : values) {
+        variance += (value - mean) * (value - mean);
+    }
+    variance /= static_cast<double>(values.size() - 1U);
+    return std::sqrt(variance) / std::sqrt(static_cast<double>(values.size()));
+}
+
+double newey_west_standard_error(const std::vector<double>& values,
+                                 const std::size_t lags) {
+    if (values.size() < 2U) {
+        return nan;
+    }
+    const double mean = std::accumulate(values.begin(), values.end(), 0.0) /
+                        static_cast<double>(values.size());
+    std::vector<double> centered(values.size(), 0.0);
+    for (std::size_t index = 0; index < values.size(); ++index) {
+        centered[index] = values[index] - mean;
+    }
+    double long_run = 0.0;
+    for (const double value : centered) {
+        long_run += value * value;
+    }
+    for (std::size_t lag = 1; lag <= lags; ++lag) {
+        const double weight =
+            1.0 - static_cast<double>(lag) /
+                      static_cast<double>(lags + 1U);
+        double cross = 0.0;
+        for (std::size_t index = lag; index < centered.size(); ++index) {
+            cross += centered[index] * centered[index - lag];
+        }
+        long_run += 2.0 * weight * cross;
+    }
+    const double variance =
+        long_run / static_cast<double>(values.size() *
+                                       values.size());
+    if (variance < 0.0) {
+        if (std::abs(variance) <=
+            std::numeric_limits<double>::epsilon()) {
+            return 0.0;
+        }
+        throw factor_data_error{
+            "Newey-West variance must not be negative"};
+    }
+    return std::sqrt(variance);
+}
+
+double mean_t_stat(const double mean, const double standard_error) {
+    if (!std::isfinite(standard_error)) {
+        return nan;
+    }
+    if (standard_error > 1e-15) {
+        return mean / standard_error;
+    }
+    if (mean > 0.0) {
+        return std::numeric_limits<double>::infinity();
+    }
+    if (mean < 0.0) {
+        return -std::numeric_limits<double>::infinity();
+    }
+    return 0.0;
+}
+
+fama_macbeth_estimate make_estimate(const std::vector<double>& values,
+                                    const bool newey_west,
+                                    const std::size_t lags) {
+    fama_macbeth_estimate estimate;
+    if (values.empty()) {
+        estimate.mean = nan;
+        estimate.std_error = nan;
+        estimate.t_stat = nan;
+        return estimate;
+    }
+    estimate.mean =
+        std::accumulate(values.begin(), values.end(), 0.0) /
+        static_cast<double>(values.size());
+    estimate.std_error =
+        newey_west ? newey_west_standard_error(values, lags)
+                   : sample_standard_error(values);
+    estimate.t_stat = mean_t_stat(estimate.mean, estimate.std_error);
+    return estimate;
+}
+
+}  // namespace
+
+fama_macbeth_result fama_macbeth(const dataframe& returns,
+                                 const dataframe& exposures,
+                                 const fama_macbeth_covariance covariance,
+                                 const std::size_t newey_west_lags) {
+    const auto assets = asset_columns(returns);
+    if (returns.get_index().empty() || assets.size() < 2U) {
+        throw factor_data_error{
+            "returns must contain at least two asset columns"};
+    }
+    if (exposures.get_index().empty()) {
+        throw factor_data_error{"exposures must contain at least one row"};
+    }
+    if (std::adjacent_find(returns.get_index().begin(),
+                           returns.get_index().end()) !=
+        returns.get_index().end()) {
+        throw factor_data_error{
+            "returns and exposures indices must not contain duplicates"};
+    }
+    if (exposures.get_index().size() > 1U &&
+        std::adjacent_find(exposures.get_index().begin(),
+                           exposures.get_index().end()) !=
+            exposures.get_index().end()) {
+        throw factor_data_error{
+            "returns and exposures indices must not contain duplicates"};
+    }
+    const auto exposure_assets = asset_columns(exposures);
+    for (const auto& asset : assets) {
+        if (std::find(exposure_assets.begin(), exposure_assets.end(),
+                      asset) == exposure_assets.end()) {
+            throw factor_data_error{
+                "exposures are missing return asset columns"};
+        }
+    }
+    if (covariance == fama_macbeth_covariance::newey_west &&
+        !std::is_sorted(returns.get_index().begin(),
+                        returns.get_index().end())) {
+        throw factor_data_error{
+            "newey-west covariance requires chronological returns index"};
+    }
+    std::map<timestamp, std::size_t> exposure_rows;
+    for (std::size_t row = 0; row < exposures.get_index().size(); ++row) {
+        exposure_rows[exposures.get_index()[row]] = row;
+    }
+    const bool static_exposure = exposures.get_index().size() == 1U;
+
+    std::vector<double> slopes;
+    std::vector<double> intercepts;
+    const auto& return_index = returns.get_index();
+    for (std::size_t position = 0; position < return_index.size();
+         ++position) {
+        const timestamp date = return_index[position];
+        std::size_t exposure_row = 0U;
+        if (!static_exposure) {
+            const auto found = exposure_rows.find(date);
+            if (found == exposure_rows.end()) {
+                continue;
+            }
+            exposure_row = found->second;
+        }
+        std::vector<double> y_values;
+        std::vector<double> x_values;
+        for (const auto& asset : assets) {
+            const auto& y = returns.get_column<double>(asset.c_str());
+            const auto& x = exposures.get_column<double>(asset.c_str());
+            const double y_value = y[position];
+            const double x_value = x[exposure_row];
+            if (std::isfinite(y_value) && std::isfinite(x_value)) {
+                y_values.push_back(y_value);
+                x_values.push_back(x_value);
+            }
+        }
+        if (y_values.size() < 2U) {
+            continue;
+        }
+        const double x_mean =
+            std::accumulate(x_values.begin(), x_values.end(), 0.0) /
+            static_cast<double>(x_values.size());
+        const double y_mean =
+            std::accumulate(y_values.begin(), y_values.end(), 0.0) /
+            static_cast<double>(y_values.size());
+        double xx = 0.0;
+        double xy = 0.0;
+        for (std::size_t index = 0; index < x_values.size(); ++index) {
+            const double dx = x_values[index] - x_mean;
+            xx += dx * dx;
+            xy += dx * (y_values[index] - y_mean);
+        }
+        if (std::sqrt(xx / static_cast<double>(x_values.size())) < 1e-15) {
+            continue;
+        }
+        const double slope = xy / xx;
+        slopes.push_back(slope);
+        intercepts.push_back(y_mean - slope * x_mean);
+    }
+
+    if (covariance == fama_macbeth_covariance::newey_west &&
+        newey_west_lags >= slopes.size()) {
+        throw factor_data_error{
+            "newey_west_lags must be smaller than the fitted cross-section "
+            "count"};
+    }
+    fama_macbeth_result result;
+    result.n_cross_sections = slopes.size();
+    result.covariance = covariance;
+    result.newey_west_lags = newey_west_lags;
+    const bool use_newey_west =
+        covariance == fama_macbeth_covariance::newey_west;
+    result.intercept =
+        make_estimate(intercepts, use_newey_west, newey_west_lags);
+    result.exposure = make_estimate(slopes, use_newey_west, newey_west_lags);
+    return result;
+}
+
+}

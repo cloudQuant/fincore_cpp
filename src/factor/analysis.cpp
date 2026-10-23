@@ -457,4 +457,10 @@ factor_analysis_model analyze_factor(
     return model;
 }
 
+ic_inference_result factor_model_inference(const factor_analysis_model& model,
+                                           const double alpha) {
+    return information_coefficient_inference(model.information_coefficient,
+                                             alpha);
+}
+
 }  // namespace fincore

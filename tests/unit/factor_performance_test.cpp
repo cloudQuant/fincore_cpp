@@ -198,4 +198,83 @@ TEST(FactorPerformance, InferenceMatchesOracle) {
     EXPECT_FALSE(correction.rejected[3]);
 }
 
+TEST(FactorPerformance, FamaMacbethMatchesCleanPythonOracle) {
+    const auto start = fincore::utc_timestamp(2022, 1, 3);
+    const auto day = 86'400'000'000'000LL;
+    std::vector<fincore::timestamp> index{start, start + day, start + 2 * day,
+                                          start + 3 * day};
+    fincore::dataframe returns;
+    returns.load_index(std::vector<fincore::timestamp>{index});
+    returns.load_column<double>("A", {0.010, 0.012, 0.008, 0.011},
+                                hmdf::nan_policy::dont_pad_with_nans);
+    returns.load_column<double>("B", {0.020, 0.018, 0.022, 0.019},
+                                hmdf::nan_policy::dont_pad_with_nans);
+    returns.load_column<double>("C", {0.030, 0.033, 0.028, 0.031},
+                                hmdf::nan_policy::dont_pad_with_nans);
+    fincore::dataframe exposures;
+    exposures.load_index(std::vector<fincore::timestamp>{index});
+    exposures.load_column<double>("A", {1.0, 1.5, 0.5, 1.2},
+                                  hmdf::nan_policy::dont_pad_with_nans);
+    exposures.load_column<double>("B", {2.0, 2.5, 1.5, 2.2},
+                                  hmdf::nan_policy::dont_pad_with_nans);
+    exposures.load_column<double>("C", {3.0, 3.5, 2.5, 3.2},
+                                  hmdf::nan_policy::dont_pad_with_nans);
+
+    const auto iid = fincore::fama_macbeth(returns, exposures);
+    EXPECT_EQ(iid.n_cross_sections, 4U);
+    EXPECT_EQ(iid.covariance, fincore::fama_macbeth_covariance::iid);
+    EXPECT_NEAR(iid.intercept.mean, -0.0006458333333333327, 1e-15);
+    EXPECT_NEAR(iid.intercept.std_error, 0.0019885013782950925, 1e-15);
+    EXPECT_NEAR(iid.intercept.t_stat, -0.32478395055831405, 1e-12);
+    EXPECT_NEAR(iid.exposure.mean, 0.010125, 1e-15);
+    EXPECT_NEAR(iid.exposure.std_error, 0.00012500000000000128, 1e-15);
+    EXPECT_NEAR(iid.exposure.t_stat, 80.99999999999918, 1e-12);
+
+    const auto nw1 = fincore::fama_macbeth(
+        returns, exposures, fincore::fama_macbeth_covariance::newey_west, 1);
+    EXPECT_NEAR(nw1.intercept.std_error, 0.0010145293235111015, 1e-15);
+    EXPECT_NEAR(nw1.intercept.t_stat, -0.636584195613214, 1e-12);
+    EXPECT_NEAR(nw1.exposure.std_error, 8.267972847077034e-05, 1e-15);
+    EXPECT_NEAR(nw1.exposure.t_stat, 122.46048925498683, 1e-9);
+    const auto nw2 = fincore::fama_macbeth(
+        returns, exposures, fincore::fama_macbeth_covariance::newey_west, 2);
+    EXPECT_NEAR(nw2.exposure.std_error, 6.25000000000015e-05, 1e-15);
+    EXPECT_NEAR(nw2.exposure.t_stat, 161.9999999999961, 1e-8);
+
+    fincore::dataframe static_exposures;
+    static_exposures.load_index(std::vector<fincore::timestamp>{start});
+    static_exposures.load_column<double>(
+        "A", {1.0}, hmdf::nan_policy::dont_pad_with_nans);
+    static_exposures.load_column<double>(
+        "B", {2.0}, hmdf::nan_policy::dont_pad_with_nans);
+    static_exposures.load_column<double>(
+        "C", {3.0}, hmdf::nan_policy::dont_pad_with_nans);
+    const auto broadcast =
+        fincore::fama_macbeth(returns, static_exposures);
+    EXPECT_NEAR(broadcast.intercept.mean, -8.333333333333462e-05, 1e-15);
+    EXPECT_NEAR(broadcast.exposure.mean, 0.010125000000000004, 1e-15);
+    EXPECT_NEAR(broadcast.exposure.std_error, 0.00012499999999999998,
+                1e-15);
+
+    auto missing = exposures;
+    missing.load_column<double>(
+        "B", {2.0, std::nan(""), 1.5, 2.2},
+        hmdf::nan_policy::dont_pad_with_nans);
+    const auto skipped = fincore::fama_macbeth(returns, missing);
+    EXPECT_NEAR(skipped.intercept.mean, -0.0002708333333333306, 1e-15);
+    EXPECT_NEAR(skipped.exposure.mean, 0.010124999999999999, 1e-15);
+
+    EXPECT_THROW(static_cast<void>(fincore::fama_macbeth(
+                     returns, exposures,
+                     fincore::fama_macbeth_covariance::newey_west, 4)),
+                 fincore::factor_data_error);
+    fincore::dataframe incomplete;
+    incomplete.load_index(std::vector<fincore::timestamp>{index});
+    incomplete.load_column<double>("A", {1.0, 1.5, 0.5, 1.2},
+                                   hmdf::nan_policy::dont_pad_with_nans);
+    EXPECT_THROW(
+        static_cast<void>(fincore::fama_macbeth(returns, incomplete)),
+        fincore::factor_data_error);
+}
+
 }  // namespace

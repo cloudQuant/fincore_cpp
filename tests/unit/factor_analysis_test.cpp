@@ -123,6 +123,22 @@ fincore::prepared_factor_data oracle_prepared() {
     return data;
 }
 
+TEST(FactorAnalysis, InfersFromStoredAggregateIcSnapshot) {
+    fincore::factor_analysis_config config;
+    config.periods = {"1D", "5D"};
+    const auto model = fincore::analyze_factor(oracle_prepared(), config);
+    const auto inference = fincore::factor_model_inference(model);
+    ASSERT_EQ(inference.hypotheses.size(), 2U);
+    EXPECT_EQ(inference.hypotheses[0].label, "1D");
+    EXPECT_EQ(inference.hypotheses[0].n_observations, 3U);
+    EXPECT_DOUBLE_EQ(inference.alpha, 0.05);
+    EXPECT_TRUE(inference.hypotheses[0].testable);
+    for (const auto& hypothesis : inference.hypotheses) {
+        EXPECT_TRUE(std::isfinite(hypothesis.p_value));
+        EXPECT_TRUE(std::isfinite(hypothesis.adjusted_p_value));
+    }
+}
+
 }  // namespace
 
 TEST(FactorAnalysis, MatchesCleanPythonModelSnapshot) {

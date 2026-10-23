@@ -101,4 +101,8 @@ factor_analysis_model analyze_factor(
     const prepared_factor_data& factor_data,
     const factor_analysis_config& config = {});
 
+/// IC/FDR inference over the model's stored aggregate IC snapshot.
+ic_inference_result factor_model_inference(
+    const factor_analysis_model& model, double alpha = 0.05);
+
 }  // namespace fincore

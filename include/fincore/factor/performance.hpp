@@ -125,6 +125,29 @@ struct fdr_result {
 fdr_result benjamini_hochberg(std::span<const double> p_values,
                               double alpha = 0.05);
 
+enum class fama_macbeth_covariance { iid, newey_west };
+
+struct fama_macbeth_estimate {
+    double mean = 0.0;
+    double std_error = 0.0;
+    double t_stat = 0.0;
+};
+
+struct fama_macbeth_result {
+    fama_macbeth_estimate intercept;
+    fama_macbeth_estimate exposure;
+    std::size_t n_cross_sections = 0U;
+    fama_macbeth_covariance covariance = fama_macbeth_covariance::iid;
+    std::size_t newey_west_lags = 1U;
+};
+
+/// Fama-MacBeth cross-sectional regressions with i.i.d. or Bartlett HAC
+/// standard errors. A single-row exposure panel is broadcast across dates.
+fama_macbeth_result fama_macbeth(
+    const dataframe& returns, const dataframe& exposures,
+    fama_macbeth_covariance covariance = fama_macbeth_covariance::iid,
+    std::size_t newey_west_lags = 1U);
+
 struct factor_hypothesis {
     std::string label;
     std::size_t n_observations = 0U;
