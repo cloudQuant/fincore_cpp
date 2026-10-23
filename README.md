@@ -2635,3 +2635,17 @@ the 1.0 bound), recorded rather than silently corrected.
 Full headless CTest and LLVM 22 ASan+UBSan each passed 624/624. Evidence is
 recorded in [the Phase 63 slice-2 acceptance
 record](docs/acceptance/2026-10-23-phase-63b-evt-kernels-acceptance.md).
+
+## Accepted Phase 63 slice 3 — EVT VaR/CVaR (GPD)
+
+Phase 63 slice 3 adds `evt_var`, `evt_cvar`, and `extreme_risk` for the GPD
+model, including the automatic threshold policy (`max(10, floor(alpha*n)+1)`
+strict exceedances with the `nextafter` fallback), source VaR/CVaR formulas,
+and explicit `xi >= 1` CVaR rejection. VaR/CVaR match the oracle within 5e-4
+on a xi~0.72 fixture; extreme-risk fields (tail index 0.7170, threshold
+0.020912878988368272, 21 exceedances) match.
+
+Full headless CTest and LLVM 22 ASan+UBSan each passed 627/627. GEV remains
+Phase 63 slice 4 and is explicitly rejected in this build. Evidence is
+recorded in [the Phase 63 slice-3 acceptance
+record](docs/acceptance/2026-10-23-phase-63c-evt-var-cvar-acceptance.md).
