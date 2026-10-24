@@ -167,6 +167,11 @@ add_executable(fincore_i8_artifacts EXCLUDE_FROM_ALL
 target_link_libraries(fincore_i8_artifacts PRIVATE fincore)
 fincore_enable_sanitizers(fincore_i8_artifacts)
 
+add_executable(fincore_alpha003_research EXCLUDE_FROM_ALL
+    benchmarks/alpha003_a_stocks/cpp/alpha003_research.cpp)
+target_link_libraries(fincore_alpha003_research PRIVATE fincore)
+fincore_enable_sanitizers(fincore_alpha003_research)
+
 if (FINCORE_BUILD_IMPLOT_DEMO AND NOT FINCORE_BUILD_IMPLOT)
     message(FATAL_ERROR
         "FINCORE_BUILD_IMPLOT_DEMO requires FINCORE_BUILD_IMPLOT=ON")
