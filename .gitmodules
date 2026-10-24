@@ -1,0 +1,9 @@
+[submodule "third_party/DataFrame"]
+	path = third_party/DataFrame
+	url = https://github.com/cloudQuant/DataFrame.git
+[submodule "third_party/implot"]
+	path = third_party/implot
+	url = https://github.com/cloudQuant/implot.git
+[submodule "third_party/imgui"]
+	path = third_party/imgui
+	url = https://github.com/cloudQuant/imgui.git

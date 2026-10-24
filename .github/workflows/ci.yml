@@ -15,16 +15,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - name: Checkout pinned DataFrame
-        uses: actions/checkout@v4
         with:
-          repository: cloudQuant/DataFrame
-          ref: 90aa4acf6437d5a34f7ab8dfb6e9250c3d53d230
-          path: dataframe
+          submodules: recursive
       - name: Configure
         run: >
           cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-          -DFINCORE_DATAFRAME_SOURCE_DIR=${{ github.workspace }}/dataframe
       - name: Build
         run: cmake --build build -j 4
       - name: Test

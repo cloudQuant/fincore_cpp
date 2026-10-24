@@ -2,6 +2,21 @@
 
 The C++23, DataFrame-native foundation for fincore analytics.
 
+## Dependencies
+
+The dependencies are pinned git submodules under `third_party/`:
+
+- `third_party/DataFrame` — [cloudQuant/DataFrame](https://github.com/cloudQuant/DataFrame)
+- `third_party/implot` — [cloudQuant/implot](https://github.com/cloudQuant/implot)
+- `third_party/imgui` — [cloudQuant/imgui](https://github.com/cloudQuant/imgui)
+
+Clone with `git clone --recurse-submodules <repo-url>` (or run
+`git submodule update --init --recursive` in an existing checkout). CMake uses
+these trees by default when present; `FINCORE_DATAFRAME_SOURCE_DIR`,
+`FINCORE_IMPLOT_SOURCE_DIR` and `FINCORE_IMGUI_SOURCE_DIR` still override them,
+and an installed `DataFrame` package is used when the DataFrame submodule is
+absent.
+
 ## Accepted Phase 2A scalar metrics
 
 Use the native scalar-metric surface through one public header:

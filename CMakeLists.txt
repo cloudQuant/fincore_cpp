@@ -6,17 +6,30 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(FINCORE_DATAFRAME_SOURCE_DIR "/Users/yunjinqi/Documents/new_projects/DataFrame"
-    CACHE PATH "Path to the local DataFrame source tree")
-set(FINCORE_IMPLOT_SOURCE_DIR "/Users/yunjinqi/Documents/new_projects/implot"
-    CACHE PATH "Path to the local ImPlot source tree")
-set(FINCORE_IMGUI_SOURCE_DIR "/Users/yunjinqi/Documents/new_projects/imgui"
-    CACHE PATH "Path to the Dear ImGui source tree")
+set(FINCORE_DATAFRAME_SOURCE_DIR ""
+    CACHE PATH "Path to the DataFrame source tree (defaults to third_party/DataFrame)")
+set(FINCORE_IMPLOT_SOURCE_DIR ""
+    CACHE PATH "Path to the ImPlot source tree (defaults to third_party/implot)")
+set(FINCORE_IMGUI_SOURCE_DIR ""
+    CACHE PATH "Path to the Dear ImGui source tree (defaults to third_party/imgui)")
 option(FINCORE_BUILD_TESTING "Build fincore tests" ON)
 option(FINCORE_BUILD_IMPLOT "Build the ImPlot adapter" OFF)
 option(FINCORE_BUILD_IMPLOT_DEMO "Build the ImPlot demo" OFF)
 option(FINCORE_ENABLE_ASAN "Enable AddressSanitizer for fincore targets" OFF)
 option(FINCORE_ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer for fincore targets" OFF)
+
+if(NOT FINCORE_DATAFRAME_SOURCE_DIR AND
+   EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/third_party/DataFrame/CMakeLists.txt")
+    set(FINCORE_DATAFRAME_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/DataFrame")
+endif()
+if(NOT FINCORE_IMPLOT_SOURCE_DIR AND
+   EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/third_party/implot/implot.h")
+    set(FINCORE_IMPLOT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/implot")
+endif()
+if(NOT FINCORE_IMGUI_SOURCE_DIR AND
+   EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/third_party/imgui/imgui.h")
+    set(FINCORE_IMGUI_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/imgui")
+endif()
 
 include(cmake/fincore_dependencies.cmake)
 include(cmake/fincore_sanitizers.cmake)
