@@ -66,6 +66,18 @@ Parity is unchanged: every primary comparison stays at 1e-15, and the full
 [alpha003 README](alpha003_a_stocks/README.md) for the before/after tables and
 the optimization notes.
 
+### 100x feasibility
+
+100x would require a C++ total of **0.075 s** at 500 symbols and **0.606 s**
+on the full panel. Current load+factor alone is 0.070 s and 0.532 s, and the
+mandatory full-result CSV payload is 32.5 MB and 347 MB respectively; the full
+budget leaves only ~0.074 s for the remaining research and serialization. A
+100x claim is therefore not achievable while preserving the complete CSV
+output and numeric parity. The realistic ceiling is roughly 10-30x depending
+on how much extra export/research parallelism is justified; a summary/hash or
+reduced-output profile would be a different benchmark contract. The current
+full-output result (10.1x full, 13.5x default) is retained and documented.
+
 ## Native-only harnesses
 
 | Source | Purpose | Build / use |

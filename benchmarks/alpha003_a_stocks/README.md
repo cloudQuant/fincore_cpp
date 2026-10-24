@@ -202,6 +202,19 @@ default and full medians.
   `to_chars`; 11.9x versus Python export. The remaining full-run gap to a
   larger speedup is dominated by this mandatory output volume.
 
+### 100x feasibility
+
+A 100x end-to-end result would require 0.075 s at 500 symbols and 0.606 s full.
+The current load+factor stages alone are 0.070 s and 0.532 s, while the full
+CSV result is 32.5 MB at 500 symbols and 347 MB full (173 MB labels + 114 MB
+signals + 61 MB factor values). The 500-symbol budget is effectively exhausted
+before research and export; the full budget leaves ~0.074 s for 347 MB of
+serialization. Therefore 100x is not physically achievable under the complete
+CSV/parity contract, even with more parallel export or research. A separate
+summary/hash or reduced-output profile could target a different number, but it
+would not be the same comparison. The full-output 10.1x full / 13.5x default
+result is retained by owner decision.
+
 ## Parity bugs found and fixed
 
 The comparison exposed three semantic divergences in the native research path.
