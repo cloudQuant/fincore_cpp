@@ -6,7 +6,16 @@
 #include <gtest/gtest.h>
 
 #include <cmath>
+#include <filesystem>
+#include <fstream>
+#include <limits>
+#include <map>
+#include <set>
+#include <sstream>
+#include <stdexcept>
 #include <string>
+#include <tuple>
+#include <utility>
 #include <vector>
 
 namespace {
@@ -61,6 +70,117 @@ fincore::prepared_factor_data prepare() {
     config.max_loss = 0.5;
     return fincore::prepare_factor_data(fixture.factor, fixture.prices,
                                         config);
+}
+
+std::filesystem::path group_snapshot_fixture_path(const std::string& name) {
+    const std::filesystem::path source_file{__FILE__};
+    auto path = source_file.parent_path().parent_path() / "fixtures" /
+                "group_snapshots" / name;
+    if (!std::filesystem::exists(path)) {
+        path = std::filesystem::current_path() / "tests" / "fixtures" /
+               "group_snapshots" / name;
+    }
+    return path;
+}
+
+std::vector<std::string> split_fixture_csv(const std::string& line) {
+    std::stringstream stream{line};
+    std::vector<std::string> fields;
+    std::string field;
+    while (std::getline(stream, field, ',')) {
+        fields.push_back(field);
+    }
+    return fields;
+}
+
+fincore::timestamp parse_fixture_date(const std::string& value) {
+    return fincore::utc_timestamp(std::stoi(value.substr(0, 4)),
+                                  static_cast<unsigned>(
+                                      std::stoi(value.substr(5, 2))),
+                                  static_cast<unsigned>(
+                                      std::stoi(value.substr(8, 2))));
+}
+
+fincore::prepared_factor_data load_group_snapshot_fixture() {
+    std::ifstream input{group_snapshot_fixture_path("unequal_groups.csv")};
+    if (!input) {
+        throw std::runtime_error{"unable to open unequal group fixture"};
+    }
+    fincore::prepared_factor_data data;
+    data.forward_labels = {"1D", "5D"};
+    std::string line;
+    std::getline(input, line);
+    while (std::getline(input, line)) {
+        const auto fields = split_fixture_csv(line);
+        if (fields.size() != 7U) {
+            throw std::runtime_error{"invalid unequal group fixture row"};
+        }
+        fincore::factor_row row;
+        row.date = parse_fixture_date(fields[0]);
+        row.asset = fields[1];
+        row.group = fields[2];
+        row.has_group = true;
+        row.quantile = std::stoi(fields[3]);
+        row.factor = std::stod(fields[4]);
+        row.forward_returns = {std::stod(fields[5]), std::stod(fields[6])};
+        data.rows.push_back(std::move(row));
+    }
+    return data;
+}
+
+using group_kernel_key =
+    std::tuple<std::string, fincore::timestamp, std::string, int,
+               std::string>;
+using group_kernel_values = std::pair<double, double>;
+
+struct group_kernel_oracle_row {
+    std::string view;
+    std::string mode;
+    std::string date;
+    std::string group;
+    int quantile = -1;
+    std::string label;
+    double value = 0.0;
+    double standard_error = 0.0;
+};
+
+std::vector<group_kernel_oracle_row> load_group_kernel_oracle() {
+    std::ifstream input{group_snapshot_fixture_path("python_oracle.csv")};
+    if (!input) {
+        throw std::runtime_error{"unable to open Python group oracle fixture"};
+    }
+    std::vector<group_kernel_oracle_row> rows;
+    std::string line;
+    std::getline(input, line);
+    while (std::getline(input, line)) {
+        const auto fields = split_fixture_csv(line);
+        if (fields.size() != 8U) {
+            throw std::runtime_error{"invalid Python group oracle row"};
+        }
+        group_kernel_oracle_row row;
+        row.view = fields[0];
+        row.mode = fields[1];
+        row.date = fields[2];
+        row.group = fields[3];
+        if (!fields[4].empty()) {
+            row.quantile = std::stoi(fields[4]);
+        }
+        row.label = fields[5];
+        row.value = std::stod(fields[6]);
+        row.standard_error = std::stod(fields[7]);
+        rows.push_back(std::move(row));
+    }
+    return rows;
+}
+
+void expect_oracle_value(const double actual, const double expected) {
+    if (std::isnan(expected)) {
+        EXPECT_TRUE(std::isnan(actual));
+        return;
+    }
+    ASSERT_TRUE(std::isfinite(actual));
+    EXPECT_LE(std::abs(actual - expected),
+              1e-12 + 1e-12 * std::abs(expected));
 }
 
 TEST(FactorPerformance, InformationCoefficientMatchesOracle) {
@@ -136,6 +256,162 @@ TEST(FactorPerformance, QuantileMeansMatchOracle) {
         fincore::factor_data_error);
 }
 
+TEST(FactorPerformance, ByGroupKernelsPreserveGroupRowsAgainstOracle) {
+    const auto prepared = load_group_snapshot_fixture();
+    const auto oracle = load_group_kernel_oracle();
+    for (const bool group_adjust : {false, true}) {
+        const std::string mode = group_adjust ? "group_neutral" : "ordinary";
+        std::map<group_kernel_key, group_kernel_values> actual;
+        const auto means = fincore::mean_return_by_quantile(
+            prepared, false, true, true, group_adjust);
+        ASSERT_EQ(means.quantiles.size(), means.groups.size());
+        for (std::size_t row = 0; row < means.quantiles.size(); ++row) {
+            for (std::size_t label = 0; label < means.labels.size(); ++label) {
+                const std::size_t position = row * means.labels.size() + label;
+                actual.emplace(
+                    group_kernel_key{"quantile_mean", 0, means.groups[row],
+                                     means.quantiles[row], means.labels[label]},
+                    group_kernel_values{means.means[position],
+                                        means.standard_errors[position]});
+            }
+        }
+
+        const auto by_date = fincore::mean_return_by_quantile_by_date(
+            prepared, true, group_adjust, true);
+        ASSERT_EQ(by_date.dates.size(), by_date.groups.size());
+        for (std::size_t row = 0; row < by_date.dates.size(); ++row) {
+            for (std::size_t quantile = 0;
+                 quantile < by_date.quantiles.size(); ++quantile) {
+                for (std::size_t label = 0; label < by_date.labels.size();
+                     ++label) {
+                    const std::size_t position =
+                        (row * by_date.quantiles.size() + quantile) *
+                            by_date.labels.size() +
+                        label;
+                    actual.emplace(
+                        group_kernel_key{"quantile_by_date",
+                                         by_date.dates[row], by_date.groups[row],
+                                         by_date.quantiles[quantile],
+                                         by_date.labels[label]},
+                        group_kernel_values{by_date.means[position],
+                                            by_date.standard_errors[position]});
+                }
+            }
+        }
+
+        const auto spread = fincore::mean_return_spread(means, 3, 1);
+        ASSERT_EQ(spread.labels.size(), spread.groups.size());
+        ASSERT_EQ(spread.labels.size(), spread.spreads.size());
+        ASSERT_EQ(spread.labels.size(), spread.standard_errors.size());
+        for (std::size_t row = 0; row < spread.labels.size(); ++row) {
+            actual.emplace(
+                group_kernel_key{"spread", 0, spread.groups[row], -1,
+                                 spread.labels[row]},
+                group_kernel_values{spread.spreads[row],
+                                    spread.standard_errors[row]});
+        }
+
+        const auto information =
+            fincore::factor_information_coefficient(prepared, group_adjust,
+                                                    true);
+        ASSERT_EQ(information.dates.size(), information.groups.size());
+        for (std::size_t row = 0; row < information.dates.size(); ++row) {
+            for (std::size_t label = 0; label < information.labels.size();
+                 ++label) {
+                actual.emplace(
+                    group_kernel_key{"ic", information.dates[row],
+                                     information.groups[row], -1,
+                                     information.labels[label]},
+                    group_kernel_values{
+                        information.values[row * information.labels.size() +
+                                           label],
+                        std::nan("")});
+            }
+        }
+        const auto mean_ic =
+            fincore::mean_information_coefficient(prepared, group_adjust, true);
+        ASSERT_EQ(mean_ic.groups.size() * mean_ic.labels.size(),
+                  mean_ic.means.size());
+        for (std::size_t group = 0; group < mean_ic.groups.size(); ++group) {
+            for (std::size_t label = 0; label < mean_ic.labels.size(); ++label) {
+                actual.emplace(
+                    group_kernel_key{"mean_ic", 0, mean_ic.groups[group], -1,
+                                     mean_ic.labels[label]},
+                    group_kernel_values{
+                        mean_ic.means[group * mean_ic.labels.size() + label],
+                        std::nan("")});
+            }
+        }
+
+        std::map<group_kernel_key, group_kernel_values> expected;
+        for (const auto& row : oracle) {
+            if (row.mode != mode || row.view == "monthly_ic" ||
+                row.view == "summary_ic") {
+                continue;
+            }
+            const fincore::timestamp date =
+                row.date.empty() ? 0 : parse_fixture_date(row.date);
+            expected.emplace(
+                group_kernel_key{row.view, date, row.group, row.quantile,
+                                 row.label},
+                group_kernel_values{row.value, row.standard_error});
+        }
+        for (const auto& [key, expected_values] : expected) {
+            const auto found = actual.find(key);
+            ASSERT_NE(found, actual.end()) << std::get<0>(key) << " "
+                                           << std::get<2>(key);
+            expect_oracle_value(found->second.first, expected_values.first);
+            expect_oracle_value(found->second.second,
+                                expected_values.second);
+        }
+        for (const auto& [key, values] : actual) {
+            if (expected.contains(key)) {
+                continue;
+            }
+            // Python omits absent quantile/date/group tuples. The native cube
+            // retains those cells and represents them with NaN.
+            ASSERT_EQ(std::get<0>(key), "quantile_by_date");
+            EXPECT_TRUE(std::isnan(values.first));
+            EXPECT_TRUE(std::isnan(values.second));
+        }
+    }
+
+    const auto aggregate_ic =
+        fincore::factor_information_coefficient(prepared, false, false);
+    EXPECT_TRUE(aggregate_ic.groups.empty());
+    EXPECT_EQ(aggregate_ic.dates.size(), 4U);
+    const auto aggregate_quantiles =
+        fincore::mean_return_by_quantile(prepared, false, false, true, false);
+    EXPECT_TRUE(aggregate_quantiles.groups.empty());
+    EXPECT_EQ(aggregate_quantiles.quantiles,
+              (std::vector<int>{1, 2, 3}));
+
+    auto missing_group = prepared;
+    for (auto& row : missing_group.rows) {
+        row.has_group = false;
+    }
+    EXPECT_THROW(static_cast<void>(fincore::factor_information_coefficient(
+                     missing_group, false, true)),
+                 fincore::factor_data_error);
+    EXPECT_THROW(static_cast<void>(fincore::mean_return_by_quantile(
+                     missing_group, false, true, true, false)),
+                 fincore::factor_data_error);
+    EXPECT_THROW(static_cast<void>(fincore::mean_return_by_quantile_by_date(
+                     missing_group, true, false, true)),
+                 fincore::factor_data_error);
+    auto partial_group = prepared;
+    partial_group.rows[0].has_group = false;
+    EXPECT_THROW(static_cast<void>(fincore::factor_information_coefficient(
+                     partial_group, false, true)),
+                 fincore::factor_data_error);
+    EXPECT_THROW(static_cast<void>(fincore::mean_return_by_quantile(
+                     partial_group, false, true, true, false)),
+                 fincore::factor_data_error);
+    EXPECT_THROW(static_cast<void>(fincore::mean_return_by_quantile_by_date(
+                     partial_group, true, false, true)),
+                 fincore::factor_data_error);
+}
+
 TEST(FactorPerformance, TurnoverAndRankAutocorrelationMatchOracle) {
     const auto prepared = prepare();
     const auto turnover = fincore::quantile_turnover(prepared, 1, 1);
@@ -153,49 +429,180 @@ TEST(FactorPerformance, TurnoverAndRankAutocorrelationMatchOracle) {
     EXPECT_NEAR(autocorrelation.values[2], 0.8999999999999998, 1e-12);
 }
 
-TEST(FactorPerformance, InferenceMatchesOracle) {
-    const auto prepared = prepare();
-    const auto information =
-        fincore::factor_information_coefficient(prepared);
-    std::vector<double> ic;
-    for (std::size_t date = 0; date < information.dates.size(); ++date) {
-        ic.push_back(information.values[date * 2U]);
+TEST(FactorPerformance, NonFiniteSuppliedRowAffectsTurnoverMembershipOnly) {
+  const auto first_date = fincore::utc_timestamp(2022, 1, 3);
+  const auto second_date = first_date + 86'400'000'000'000LL;
+  fincore::prepared_factor_data with_nonfinite_member;
+  with_nonfinite_member.forward_labels = {"1D"};
+
+  // These rows are supplied directly to the public kernels. Normal factor
+  // preparation drops rows with a non-finite factor or forward return.
+  const auto append_row =
+      [&with_nonfinite_member](const fincore::timestamp date, std::string asset,
+                               const double factor, const int quantile,
+                               const double forward) {
+        fincore::factor_row row;
+        row.date = date;
+        row.asset = std::move(asset);
+        row.factor = factor;
+        row.quantile = quantile;
+        row.forward_returns = {forward};
+        with_nonfinite_member.rows.push_back(std::move(row));
+      };
+  append_row(first_date, "A", 1.0, 2, 0.01);
+  append_row(first_date, "B", 2.0, 1, 0.02);
+  append_row(first_date, "C", 3.0, 2, 0.03);
+  append_row(second_date, "A", 1.1, 2, 0.01);
+  append_row(second_date, "B", 2.1, 1, 0.02);
+  append_row(second_date, "C", 2.9, 2, 0.03);
+  append_row(second_date, "D", std::numeric_limits<double>::quiet_NaN(), 2,
+             std::numeric_limits<double>::quiet_NaN());
+
+  auto without_member = with_nonfinite_member;
+  without_member.rows.pop_back();
+
+  const auto included_turnover =
+      fincore::quantile_turnover(with_nonfinite_member, 2, 1);
+  const auto absent_turnover = fincore::quantile_turnover(without_member, 2, 1);
+  EXPECT_EQ(included_turnover.dates,
+            (std::vector<fincore::timestamp>{first_date, second_date}));
+  EXPECT_EQ(absent_turnover.dates, included_turnover.dates);
+  ASSERT_EQ(included_turnover.values.size(), 2U);
+  ASSERT_EQ(absent_turnover.values.size(), 2U);
+  EXPECT_TRUE(std::isnan(included_turnover.values[0]));
+  EXPECT_TRUE(std::isnan(absent_turnover.values[0]));
+  EXPECT_NEAR(included_turnover.values[1], 1.0 / 3.0, 1e-15);
+  EXPECT_DOUBLE_EQ(absent_turnover.values[1], 0.0);
+
+  const auto included_rank =
+      fincore::factor_rank_autocorrelation(with_nonfinite_member, 1);
+  const auto absent_rank =
+      fincore::factor_rank_autocorrelation(without_member, 1);
+  EXPECT_EQ(included_rank.dates, included_turnover.dates);
+  EXPECT_EQ(absent_rank.dates, included_rank.dates);
+  ASSERT_EQ(included_rank.values.size(), 2U);
+  ASSERT_EQ(absent_rank.values.size(), 2U);
+  EXPECT_TRUE(std::isnan(included_rank.values[0]));
+  EXPECT_TRUE(std::isnan(absent_rank.values[0]));
+  EXPECT_DOUBLE_EQ(included_rank.values[1], 1.0);
+  EXPECT_DOUBLE_EQ(absent_rank.values[1], 1.0);
+}
+
+TEST(FactorPerformance, LongUnbalancedTurnoverMatchesExplicitMembershipOracle) {
+  constexpr std::size_t date_count = 325U;
+  constexpr int asset_count = 17;
+  const auto start = fincore::utc_timestamp(2020, 1, 2);
+  const auto day = 86'400'000'000'000LL;
+  fincore::prepared_factor_data prepared;
+  std::vector<fincore::timestamp> expected_dates;
+  std::vector<std::set<std::string>> selected_by_date(date_count);
+  expected_dates.reserve(date_count);
+
+  for (std::size_t date_index = 0; date_index < date_count; ++date_index) {
+    const auto date = start + static_cast<fincore::timestamp>(date_index) * day;
+    expected_dates.push_back(date);
+
+    fincore::factor_row anchor;
+    anchor.date = date;
+    anchor.asset = "anchor";
+    anchor.factor = -1.0;
+    anchor.quantile = 1;
+    prepared.rows.push_back(std::move(anchor));
+
+    // Leave every twenty-ninth date without this quantile. The other
+    // dates have changing, unbalanced set sizes and membership.
+    const std::size_t threshold =
+        date_index % 29U == 0U ? 0U : 1U + date_index % 8U;
+    for (int asset_index = 0; asset_index < asset_count; ++asset_index) {
+      const auto residue =
+          (date_index * 17U + static_cast<std::size_t>(asset_index) * 7U) % 23U;
+      if (residue >= threshold) {
+        continue;
+      }
+      const std::string asset = "asset-" + std::to_string(asset_index);
+      selected_by_date[date_index].insert(asset);
+      fincore::factor_row row;
+      row.date = date;
+      row.asset = asset;
+      row.factor = static_cast<double>(asset_index);
+      row.quantile = 2;
+      prepared.rows.push_back(std::move(row));
     }
-    EXPECT_NEAR(fincore::ic_mean(ic), -0.17833333333333332, 1e-12);
-    EXPECT_NEAR(fincore::ic_t_stat(ic), -1.9944670862798386, 1e-12);
-    const auto interval = fincore::ic_confidence_interval(ic);
-    EXPECT_NEAR(interval.lower, -0.35358482569327854, 1e-12);
-    EXPECT_NEAR(interval.upper, -0.0030818409733881225, 1e-12);
+  }
 
-    const auto result = fincore::information_coefficient_inference(
-        information);
-    ASSERT_EQ(result.hypotheses.size(), 2U);
-    EXPECT_EQ(result.hypotheses[0].label, "1D");
-    EXPECT_EQ(result.hypotheses[0].n_observations, 60U);
-    EXPECT_TRUE(result.hypotheses[0].testable);
-    EXPECT_NEAR(result.hypotheses[0].mean_ic, -0.17833333333333332, 1e-12);
-    EXPECT_NEAR(result.hypotheses[0].t_stat, -1.9944670862798386, 1e-12);
-    EXPECT_NEAR(result.hypotheses[0].p_value, 0.050727983191477095, 1e-10);
-    EXPECT_NEAR(result.hypotheses[0].adjusted_p_value,
-                0.10145596638295419, 1e-10);
-    EXPECT_FALSE(result.hypotheses[0].rejected);
-    EXPECT_NEAR(result.hypotheses[1].p_value, 0.2602986016902284, 1e-10);
-    EXPECT_NEAR(result.hypotheses[1].adjusted_p_value, 0.2602986016902284,
-                1e-10);
+  for (const int period : {1, 3}) {
+    const auto actual = fincore::quantile_turnover(prepared, 2, period);
+    ASSERT_EQ(actual.dates, expected_dates);
+    ASSERT_EQ(actual.values.size(), date_count);
+    std::vector<double> expected(date_count,
+                                 std::numeric_limits<double>::quiet_NaN());
+    for (std::size_t date_index = static_cast<std::size_t>(period);
+         date_index < date_count; ++date_index) {
+      const auto &current = selected_by_date[date_index];
+      const auto &previous =
+          selected_by_date[date_index - static_cast<std::size_t>(period)];
+      if (current.empty()) {
+        continue;
+      }
+      std::size_t entrants = 0U;
+      for (const auto &asset : current) {
+        if (previous.find(asset) == previous.end()) {
+          ++entrants;
+        }
+      }
+      expected[date_index] =
+          static_cast<double>(entrants) / static_cast<double>(current.size());
+    }
+    for (std::size_t date_index = 0; date_index < date_count; ++date_index) {
+      if (std::isnan(expected[date_index])) {
+        EXPECT_TRUE(std::isnan(actual.values[date_index]))
+            << "period=" << period << " date_index=" << date_index;
+      } else {
+        EXPECT_DOUBLE_EQ(actual.values[date_index], expected[date_index])
+            << "period=" << period << " date_index=" << date_index;
+      }
+    }
+  }
+}
 
-    const std::vector<double> p_values{0.01, 0.04, 0.03, 0.2};
-    const auto correction = fincore::benjamini_hochberg(p_values);
-    ASSERT_EQ(correction.adjusted_p_values.size(), 4U);
-    EXPECT_NEAR(correction.adjusted_p_values[0], 0.04, 1e-15);
-    EXPECT_NEAR(correction.adjusted_p_values[1], 0.05333333333333334,
-                1e-15);
-    EXPECT_NEAR(correction.adjusted_p_values[2], 0.05333333333333334,
-                1e-15);
-    EXPECT_NEAR(correction.adjusted_p_values[3], 0.2, 1e-15);
-    EXPECT_TRUE(correction.rejected[0]);
-    EXPECT_FALSE(correction.rejected[1]);
-    EXPECT_FALSE(correction.rejected[2]);
-    EXPECT_FALSE(correction.rejected[3]);
+TEST(FactorPerformance, InferenceMatchesOracle) {
+  const auto prepared = prepare();
+  const auto information = fincore::factor_information_coefficient(prepared);
+  std::vector<double> ic;
+  for (std::size_t date = 0; date < information.dates.size(); ++date) {
+    ic.push_back(information.values[date * 2U]);
+  }
+  EXPECT_NEAR(fincore::ic_mean(ic), -0.17833333333333332, 1e-12);
+  EXPECT_NEAR(fincore::ic_t_stat(ic), -1.9944670862798386, 1e-12);
+  const auto interval = fincore::ic_confidence_interval(ic);
+  EXPECT_NEAR(interval.lower, -0.35358482569327854, 1e-12);
+  EXPECT_NEAR(interval.upper, -0.0030818409733881225, 1e-12);
+
+  const auto result = fincore::information_coefficient_inference(information);
+  ASSERT_EQ(result.hypotheses.size(), 2U);
+  EXPECT_EQ(result.hypotheses[0].label, "1D");
+  EXPECT_EQ(result.hypotheses[0].n_observations, 60U);
+  EXPECT_TRUE(result.hypotheses[0].testable);
+  EXPECT_NEAR(result.hypotheses[0].mean_ic, -0.17833333333333332, 1e-12);
+  EXPECT_NEAR(result.hypotheses[0].t_stat, -1.9944670862798386, 1e-12);
+  EXPECT_NEAR(result.hypotheses[0].p_value, 0.050727983191477095, 1e-10);
+  EXPECT_NEAR(result.hypotheses[0].adjusted_p_value, 0.10145596638295419,
+              1e-10);
+  EXPECT_FALSE(result.hypotheses[0].rejected);
+  EXPECT_NEAR(result.hypotheses[1].p_value, 0.2602986016902284, 1e-10);
+  EXPECT_NEAR(result.hypotheses[1].adjusted_p_value, 0.2602986016902284, 1e-10);
+
+  const std::vector<double> p_values{0.01, 0.04, 0.03, 0.2};
+  const auto correction = fincore::benjamini_hochberg(p_values);
+  ASSERT_EQ(correction.adjusted_p_values.size(), 4U);
+  EXPECT_NEAR(correction.adjusted_p_values[0], 0.04, 1e-15);
+  EXPECT_NEAR(correction.adjusted_p_values[1], 0.05333333333333334, 1e-15);
+  EXPECT_NEAR(correction.adjusted_p_values[2], 0.05333333333333334, 1e-15);
+  EXPECT_NEAR(correction.adjusted_p_values[3], 0.2, 1e-15);
+  EXPECT_TRUE(correction.rejected[0]);
+  EXPECT_FALSE(correction.rejected[1]);
+  EXPECT_FALSE(correction.rejected[2]);
+  EXPECT_FALSE(correction.rejected[3]);
 }
 
 TEST(FactorPerformance, FamaMacbethMatchesCleanPythonOracle) {

@@ -7,6 +7,8 @@
 #include <fincore/metrics/risk.hpp>
 #include <fincore/metrics/stats.hpp>
 
+#include "../fixtures/bootstrap_fixed_indices.hpp"
+
 #include <gtest/gtest.h>
 
 #include <array>
@@ -69,6 +71,32 @@ statistics expected_unary_statistics(const fincore::dataframe& returns,
         {"Daily value at risk",
          fincore::historical_value_at_risk(returns, 0.05, column)},
     };
+}
+
+void expect_matches_python_fixture(
+    const double actual,
+    const bootstrap_fixed_indices_fixture::expected_number& expected) {
+    using bootstrap_fixed_indices_fixture::expected_class;
+    switch (expected.value_class) {
+    case expected_class::nan:
+        EXPECT_TRUE(std::isnan(actual));
+        return;
+    case expected_class::positive_infinity:
+        EXPECT_EQ(actual, std::numeric_limits<double>::infinity());
+        return;
+    case expected_class::negative_infinity:
+        EXPECT_EQ(actual, -std::numeric_limits<double>::infinity());
+        return;
+    case expected_class::finite:
+        ASSERT_TRUE(std::isfinite(actual));
+        const double budget =
+            bootstrap_fixed_indices_fixture::absolute_tolerance +
+            bootstrap_fixed_indices_fixture::relative_tolerance *
+                std::abs(expected.value);
+        EXPECT_LE(std::abs(actual - expected.value), budget);
+        return;
+    }
+    FAIL() << "unknown fixture value class";
 }
 
 void expect_same_value(const double actual, const double expected) {
@@ -417,6 +445,86 @@ TEST(PerfStats, PerfStatsBootstrapSupportsSelectorsAndRejectsNul) {
     EXPECT_THROW(
         static_cast<void>(fincore::perf_stats_bootstrap(strategy, 2, 1, "")),
         fincore::input_error);
+}
+
+TEST(PerfStats, PerfStatsBootstrapMatchesPinnedPythonFixedDrawFixture) {
+    using namespace bootstrap_fixed_indices_fixture;
+    std::vector<fincore::timestamp> index(performance_returns.size());
+    for (std::size_t position = 0; position < index.size(); ++position) {
+        index[position] = static_cast<fincore::timestamp>(position);
+    }
+    const auto returns =
+        fincore::make_series(index, "returns", performance_returns);
+    const auto actual = fincore::perf_stats_bootstrap(
+        returns, std::span<const std::vector<std::size_t>>{performance_draws});
+
+    ASSERT_EQ(actual.size(), performance_names.size());
+    ASSERT_EQ(performance_samples_by_draw.size(), performance_draws.size());
+    for (std::size_t metric = 0; metric < actual.size(); ++metric) {
+        EXPECT_EQ(actual[metric].name, performance_names[metric]);
+        ASSERT_EQ(actual[metric].samples.size(), performance_draws.size());
+        for (std::size_t draw = 0; draw < performance_draws.size(); ++draw) {
+            ASSERT_EQ(performance_samples_by_draw[draw].size(), actual.size());
+            expect_matches_python_fixture(
+                actual[metric].samples[draw],
+                performance_samples_by_draw[draw][metric]);
+        }
+
+        const std::array<double, 8> summary{
+            actual[metric].summary.mean,
+            actual[metric].summary.median,
+            actual[metric].summary.std,
+            actual[metric].summary.p5,
+            actual[metric].summary.p25,
+            actual[metric].summary.p75,
+            actual[metric].summary.p95,
+            actual[metric].summary.iqr,
+        };
+        for (std::size_t field = 0; field < summary.size(); ++field) {
+            expect_matches_python_fixture(summary[field],
+                                          performance_summary[metric][field]);
+        }
+    }
+}
+
+TEST(PerfStats, FixedDrawBootstrapPreservesEmptyAndRejectsMalformedDraws) {
+    const std::vector<std::vector<std::size_t>> no_draws;
+    const auto returns = bootstrap_fixture();
+    const auto empty_distribution = fincore::perf_stats_bootstrap(
+        returns, std::span<const std::vector<std::size_t>>{no_draws});
+    ASSERT_EQ(empty_distribution.size(), 13U);
+    for (const auto& metric : empty_distribution) {
+        EXPECT_TRUE(metric.samples.empty());
+        EXPECT_TRUE(std::isnan(metric.summary.mean));
+    }
+
+    const auto empty_input = fincore::make_series({}, "returns", {});
+    const auto empty_result = fincore::perf_stats_bootstrap(
+        empty_input, std::span<const std::vector<std::size_t>>{no_draws});
+    ASSERT_EQ(empty_result.size(), 13U);
+    for (const auto& metric : empty_result) {
+        EXPECT_TRUE(metric.samples.empty());
+        EXPECT_TRUE(std::isnan(metric.summary.mean));
+    }
+
+    const std::vector<std::vector<std::size_t>> one_short{{0U, 1U}};
+    EXPECT_THROW(static_cast<void>(fincore::perf_stats_bootstrap(
+                     returns, std::span<const std::vector<std::size_t>>{one_short})),
+                 fincore::input_error);
+    const std::vector<std::vector<std::size_t>> one_out_of_range{
+        {0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U, 8U, 10U}};
+    EXPECT_THROW(static_cast<void>(fincore::perf_stats_bootstrap(
+                     returns,
+                     std::span<const std::vector<std::size_t>>{one_out_of_range})),
+                 fincore::input_error);
+    const std::vector<std::vector<std::size_t>> one_empty_draw{{}};
+    EXPECT_THROW(static_cast<void>(fincore::perf_stats_bootstrap(
+                     empty_input,
+                     std::span<const std::vector<std::size_t>>{one_empty_draw})),
+                 fincore::input_error);
+    EXPECT_THROW(static_cast<void>(fincore::perf_stats_bootstrap(
+                     returns, std::span<const std::vector<std::size_t>>{no_draws}, "")),
+                 fincore::input_error);
 }
 
 }  // namespace

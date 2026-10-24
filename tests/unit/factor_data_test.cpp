@@ -4,6 +4,7 @@
 
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cmath>
 #include <limits>
 #include <string>
@@ -244,6 +245,83 @@ TEST(FactorData, AllEqualAndLossFailures) {
     EXPECT_THROW(static_cast<void>(fincore::prepare_factor_data(
                      factor_fixture(), price_fixture(), prepare)),
                  fincore::factor_loss_exceeded);
+}
+
+TEST(FactorData, PresentNaNAndAbsentForwardPairsBothAppearInLossAccounting) {
+  const auto date = fincore::utc_timestamp(2022, 1, 3);
+  fincore::factor_series factor;
+  factor.dates = {date, date, date, date, date};
+  factor.assets = {"A", "B", "C", "D", "E"};
+  factor.values = {1.0, 2.0, 3.0, 4.0,
+                   std::numeric_limits<double>::quiet_NaN()};
+
+  fincore::forward_return_table forward;
+  forward.labels = {"1D"};
+  forward.dates = {date, date, date, date};
+  forward.assets = {"A", "B", "D", "E"};
+  forward.values = {{0.1, std::numeric_limits<double>::quiet_NaN(), 0.4, 0.5}};
+  const auto present_nan =
+      std::find(forward.assets.begin(), forward.assets.end(), "B");
+  ASSERT_NE(present_nan, forward.assets.end());
+  EXPECT_TRUE(std::isnan(forward.values[0][static_cast<std::size_t>(
+      present_nan - forward.assets.begin())]));
+  EXPECT_EQ(std::find(forward.assets.begin(), forward.assets.end(), "C"),
+            forward.assets.end());
+
+  fincore::prepare_factor_config config;
+  config.quantiles = 2;
+  config.max_loss = 1.0;
+  const auto prepared = fincore::prepare_factor_data_from_forward_returns(
+      factor, forward, config);
+  ASSERT_EQ(prepared.rows.size(), 2U);
+  EXPECT_EQ(prepared.rows[0].asset, "A");
+  EXPECT_EQ(prepared.rows[1].asset, "D");
+  EXPECT_EQ(prepared.loss_report.input_count, 5U);
+  EXPECT_EQ(prepared.loss_report.finite_factor_count, 4U);
+  EXPECT_EQ(prepared.loss_report.forward_returns_count, 2U);
+  EXPECT_EQ(prepared.loss_report.binning_count, 2U);
+  EXPECT_NEAR(prepared.loss_report.factor_input_loss, 0.2, 1e-15);
+  EXPECT_NEAR(prepared.loss_report.forward_returns_loss, 0.4, 1e-15);
+  EXPECT_DOUBLE_EQ(prepared.loss_report.binning_loss, 0.0);
+  EXPECT_NEAR(prepared.loss_report.total_loss, 0.6, 1e-15);
+}
+
+TEST(FactorData,
+     InfiniteFactorValuesAreExcludedFromQuantizationAndPreparation) {
+  const auto date = fincore::utc_timestamp(2022, 1, 3);
+  fincore::factor_series factor;
+  factor.dates = {date, date, date, date};
+  factor.assets = {"A", "B", "C", "D"};
+  factor.values = {1.0, std::numeric_limits<double>::infinity(), 3.0,
+                   -std::numeric_limits<double>::infinity()};
+
+  fincore::quantization_config quantization;
+  quantization.quantiles = 2;
+  const auto labels = fincore::quantize_factor(factor, quantization);
+  ASSERT_EQ(labels.size(), 4U);
+  EXPECT_TRUE(labels[0].has_value());
+  EXPECT_FALSE(labels[1].has_value());
+  EXPECT_TRUE(labels[2].has_value());
+  EXPECT_FALSE(labels[3].has_value());
+
+  fincore::forward_return_table forward;
+  forward.labels = {"1D"};
+  forward.dates = factor.dates;
+  forward.assets = factor.assets;
+  forward.values = {{0.1, 0.2, 0.3, 0.4}};
+  fincore::prepare_factor_config config;
+  config.quantiles = 2;
+  config.max_loss = 1.0;
+  const auto prepared = fincore::prepare_factor_data_from_forward_returns(
+      factor, forward, config);
+  ASSERT_EQ(prepared.rows.size(), 2U);
+  EXPECT_EQ(prepared.rows[0].asset, "A");
+  EXPECT_EQ(prepared.rows[1].asset, "C");
+  EXPECT_EQ(prepared.loss_report.input_count, 4U);
+  EXPECT_EQ(prepared.loss_report.finite_factor_count, 2U);
+  EXPECT_EQ(prepared.loss_report.forward_returns_count, 2U);
+  EXPECT_EQ(prepared.loss_report.binning_count, 2U);
+  EXPECT_DOUBLE_EQ(prepared.loss_report.factor_input_loss, 0.5);
 }
 
 TEST(FactorData, RejectsInvalidFactorAndPriceInputs) {

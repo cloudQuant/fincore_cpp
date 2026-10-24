@@ -5,11 +5,12 @@
 #include <optional>
 #include <utility>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace fincore {
 
-inline constexpr int report_document_schema_version = 1;
+inline constexpr int report_document_schema_version = 2;
 
 struct report_cell {
     enum class kind { missing, number, text, boolean };
@@ -72,6 +73,10 @@ struct report_section {
     std::vector<report_table> tables;
     std::vector<report_series> series;
     std::vector<std::string> notes;
+    std::map<std::string, std::string> units;
+    std::map<std::string, std::string> legends;
+
+    std::string semantic_payload() const;
 };
 
 struct report_document {
@@ -80,8 +85,13 @@ struct report_document {
     std::vector<report_section> sections;
     std::map<std::string, std::string> metadata;
     int schema_version = report_document_schema_version;
+    std::map<std::string, std::string> offline_assets;
 
+    const report_section& section(std::string_view key) const;
+    report_section& section(std::string_view key);
     std::string to_json() const;
+    std::string semantic_payload() const;
+    std::string semantic_digest() const;
 };
 
 }  // namespace fincore

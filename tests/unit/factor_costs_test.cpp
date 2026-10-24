@@ -5,12 +5,16 @@
 #include <gtest/gtest.h>
 
 #include <cmath>
+#include <limits>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace {
 
-fincore::dataframe volume_fixture() {
+fincore::dataframe volume_fixture(
+    std::vector<double> a_values = {1e6, 1e6, 1e6},
+    std::vector<double> b_values = {2e6, 2e6, 2e6}) {
     std::vector<fincore::timestamp> index;
     for (int position = 0; position < 3; ++position) {
         index.push_back(fincore::utc_timestamp(2022, 1, 3) +
@@ -18,9 +22,9 @@ fincore::dataframe volume_fixture() {
     }
     fincore::dataframe frame;
     frame.load_index(std::move(index));
-    frame.load_column<double>("A", std::vector<double>{1e6, 1e6, 1e6},
+    frame.load_column<double>("A", std::move(a_values),
                               hmdf::nan_policy::dont_pad_with_nans);
-    frame.load_column<double>("B", std::vector<double>{2e6, 2e6, 2e6},
+    frame.load_column<double>("B", std::move(b_values),
                               hmdf::nan_policy::dont_pad_with_nans);
     return frame;
 }
@@ -151,4 +155,34 @@ TEST(FactorCosts, RejectsInvalidLedgers) {
                  fincore::factor_data_error);
 }
 
-}  // namespace
+TEST(FactorCosts, RejectsEmptyWeightsAndNonPositiveOrNonFiniteLiquidity) {
+  const auto empty_volume = volume_fixture();
+  EXPECT_THROW(static_cast<void>(
+                   fincore::estimate_factor_capacity({}, empty_volume, 0.1)),
+               fincore::factor_data_error);
+  EXPECT_THROW(
+      static_cast<void>(fincore::apply_factor_costs(
+          std::vector<double>{}, {}, empty_volume, 100000.0, cost_model())),
+      fincore::factor_data_error);
+
+  const std::vector<double> gross{0.01, -0.005, 0.002};
+  const auto expect_rejected_liquidity =
+      [&gross](const std::vector<double> &a_values) {
+        const auto volume = volume_fixture(a_values);
+        EXPECT_THROW(static_cast<void>(fincore::estimate_factor_capacity(
+                         long_weights(), volume, 0.1)),
+                     fincore::factor_data_error);
+        EXPECT_THROW(
+            static_cast<void>(fincore::apply_factor_costs(
+                gross, long_weights(), volume, 100000.0, cost_model())),
+            fincore::factor_data_error);
+      };
+  expect_rejected_liquidity({1e6, 0.0, 1e6});
+  expect_rejected_liquidity({1e6, -1.0, 1e6});
+  expect_rejected_liquidity(
+      {1e6, std::numeric_limits<double>::infinity(), 1e6});
+  expect_rejected_liquidity(
+      {1e6, std::numeric_limits<double>::quiet_NaN(), 1e6});
+}
+
+} // namespace

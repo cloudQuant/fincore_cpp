@@ -12,7 +12,8 @@
 
 namespace {
 
-fincore::dataframe report_fixture(int count) {
+fincore::dataframe report_fixture(int count, int shift_from = -1,
+                                  double future_shift = 0.0) {
     std::vector<fincore::timestamp> index;
     index.reserve(static_cast<std::size_t>(count));
     std::vector<double> values;
@@ -20,7 +21,11 @@ fincore::dataframe report_fixture(int count) {
     for (int position = 0; position < count; ++position) {
         index.push_back(fincore::utc_timestamp(2021, 1, 1) +
                         position * 86'400'000'000'000LL);
-        values.push_back(0.01 * std::sin(static_cast<double>(position) * 0.7));
+        double value = 0.01 * std::sin(static_cast<double>(position) * 0.7);
+        if (shift_from >= 0 && position >= shift_from) {
+            value += future_shift;
+        }
+        values.push_back(value);
     }
     return fincore::make_series(index, "returns", values);
 }
@@ -444,6 +449,42 @@ TEST(RiskReport, JsonFormatsFloatsTimestampsAndEscapesText) {
     auto invalid_text = report;
     invalid_text.timestamp_index_name = std::string(1U, '\xff');
     EXPECT_THROW(invalid_text.to_json(), fincore::input_error);
+}
+
+TEST(RiskReport, OwnsSnapshotAcrossInputAndResultDestruction) {
+    fincore::risk_validation_report report;
+    fincore::risk_validation_report copied_report;
+    std::string serialized_before;
+    {
+        auto source_returns = report_fixture(300);
+        auto result = fincore::walk_forward_var(source_returns, normal_spec());
+        ASSERT_EQ(result.status, fincore::walk_forward_status::ok);
+        report = fincore::build_risk_validation_report(result);
+        copied_report = report;
+        serialized_before = report.to_json();
+
+        source_returns.get_column<double>("returns")[0] += 1.0;
+        EXPECT_EQ(report.to_json(), serialized_before);
+        source_returns = report_fixture(300, 220, 0.25);
+        EXPECT_EQ(report.to_json(), serialized_before);
+        result.forecast.front() += 0.1;
+        result.index.front() += 1;
+        result.fits.front().mean += 1.0;
+        result.inputs_digest.assign(64U, '0');
+        EXPECT_EQ(report.to_json(), serialized_before);
+    }
+
+    EXPECT_EQ(report.to_json(), serialized_before);
+    EXPECT_EQ(copied_report.to_json(), serialized_before);
+
+    copied_report.forecast_events.front().forecast += 0.125;
+    const std::string copied_after_mutation = copied_report.to_json();
+    EXPECT_NE(copied_after_mutation, serialized_before);
+    EXPECT_EQ(report.to_json(), serialized_before);
+
+    report.refits.front().mean += 0.125;
+    EXPECT_NE(report.to_json(), serialized_before);
+    EXPECT_EQ(copied_report.to_json(), copied_after_mutation);
 }
 
 }  // namespace

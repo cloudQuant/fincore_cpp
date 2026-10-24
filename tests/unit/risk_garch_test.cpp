@@ -1,5 +1,6 @@
 #include <fincore/calendar.hpp>
 #include <fincore/risk/garch.hpp>
+#include "../../src/risk/garch_internal.hpp"
 
 #include <gtest/gtest.h>
 
@@ -53,14 +54,52 @@ fincore::dataframe garch_frame() {
     return fincore::make_series(index, "returns", garch_fixture());
 }
 
+fincore::dataframe returns_frame(const std::vector<double>& values) {
+    std::vector<fincore::timestamp> index;
+    index.reserve(values.size());
+    for (std::size_t position = 0; position < values.size(); ++position) {
+        index.push_back(static_cast<fincore::timestamp>(position + 1U));
+    }
+    return fincore::make_series(index, "returns", values);
+}
+
+void expect_fixture_close(const double actual, const double expected) {
+    constexpr double absolute_tolerance = 1e-12;
+    constexpr double relative_tolerance = 1e-10;
+    EXPECT_LE(std::abs(actual - expected),
+              absolute_tolerance + relative_tolerance * std::abs(expected));
+}
+
+template <typename Result>
+void expect_finite_converged_diagnostics(const Result& result) {
+    ASSERT_TRUE(result.converged);
+    ASSERT_TRUE(std::isfinite(result.log_likelihood));
+    ASSERT_EQ(result.conditional_variances.size(), result.residuals.size());
+    for (std::size_t position = 0;
+         position < result.conditional_variances.size(); ++position) {
+        EXPECT_GT(result.conditional_variances[position], 0.0);
+        EXPECT_TRUE(std::isfinite(result.conditional_variances[position]));
+        EXPECT_TRUE(std::isfinite(result.residuals[position]));
+    }
+}
+
+template <std::size_t Size>
+void expect_path_matches(const std::vector<double>& actual,
+                         const std::array<double, Size>& expected) {
+    ASSERT_EQ(actual.size(), Size);
+    for (std::size_t position = 0; position < Size; ++position) {
+        expect_fixture_close(actual[position], expected[position]);
+    }
+}
+
 TEST(RiskGarch, ZeroMeanFitMatchesPythonOracleWithinTolerance) {
     const auto result = fincore::fit_garch11(garch_frame(), false);
     EXPECT_TRUE(result.converged);
+    expect_finite_converged_diagnostics(result);
     EXPECT_DOUBLE_EQ(result.params.mu, 0.0);
-    // SciPy's L-BFGS-B stalls at a suboptimal zero-mean point
-    // (loglik 747.2805538792478 at its parameters). The native Nelder-Mead
-    // reaches the true constrained optimum; the closed-form likelihood at the
-    // native parameters was verified in Python at 747.7286069253973.
+    // SciPy's L-BFGS-B returned a zero-mean point with log-likelihood
+    // 747.2805538792478. The observed native local fit has a higher likelihood;
+    // this comparison does not establish global optimality.
     EXPECT_GE(result.log_likelihood, 747.2805538792478);
     EXPECT_NEAR(result.log_likelihood, 747.72860692539825, 1e-4);
     EXPECT_NEAR(result.params.omega, 2.7385584800554214e-05, 1e-7);
@@ -80,7 +119,8 @@ TEST(RiskGarch, ZeroMeanFitMatchesPythonOracleWithinTolerance) {
 TEST(RiskGarch, ConstantMeanFitMatchesPythonOracleAndIsDeterministic) {
     const auto first = fincore::fit_garch11(garch_frame(), true);
     const auto second = fincore::fit_garch11(garch_frame(), true);
-    EXPECT_TRUE(first.converged);
+    expect_finite_converged_diagnostics(first);
+    expect_finite_converged_diagnostics(second);
     EXPECT_NEAR(first.params.mu, -0.00010120350935733376, 1e-5);
     EXPECT_NEAR(first.params.omega, 2.7373511565588752e-05, 1e-7);
     EXPECT_NEAR(first.params.alpha, 0.2561245263089078, 1e-4);
@@ -100,9 +140,79 @@ TEST(RiskGarch, ConditionalVarianceAndLikelihoodMatchPythonExactly) {
     EXPECT_NEAR(variance, 747.2805538792478, 1e-9);
 }
 
+TEST(RiskGarch, FixedParameterKernelsMatchPinnedPythonAndDecimalReferences) {
+    const std::vector<double> observations{
+        0.03, -0.02, 0.015, -0.04, 0.01, 0.025, -0.035, 0.005};
+    constexpr std::array<double, 8> garch_python{
+        0.0006359375, 0.0007913125, 0.0008493975, 0.0008725421,
+        0.0010551319959999999, 0.00101390031696, 0.0010455642408896,
+        0.001141628823076096};
+    constexpr std::array<double, 8> garch_decimal{
+        0.0006359375, 0.0007913125, 0.0008493975, 0.0008725421,
+        0.001055131996, 0.00101390031696, 0.0010455642408896,
+        0.001141628823076096};
+    constexpr std::array<double, 8> egarch_python{
+        0.0006359375, 0.0018420670562673872, 0.005045592740486643,
+        0.010200734528895975, 0.021091491816108185, 0.03416307548209074,
+        0.05164532903841664, 0.07692316231927335};
+    constexpr std::array<double, 8> egarch_decimal{
+        0.0006359375, 0.0018420670562673868, 0.005045592740486641,
+        0.01020073452889597, 0.021091491816108175, 0.03416307548209073,
+        0.051645329038416614, 0.07692316231927332};
+    constexpr std::array<double, 8> gjr_python{
+        0.0006359375, 0.00074259375, 0.0008295193749999999,
+        0.0008318443374999999, 0.00113556480975, 0.001048317959215,
+        0.0010257552898190999, 0.001204058914466134};
+    constexpr std::array<double, 8> gjr_decimal{
+        0.0006359375, 0.00074259375, 0.000829519375, 0.0008318443375,
+        0.00113556480975, 0.001048317959215, 0.0010257552898191,
+        0.001204058914466134};
+
+    const auto garch_path =
+        fincore::risk::internal::garch11_conditional_variances(
+            observations, 0.0002, 0.12, 0.76);
+    expect_path_matches(garch_path, garch_python);
+    expect_path_matches(garch_path, garch_decimal);
+    expect_fixture_close(fincore::garch11_log_likelihood(
+                             observations, 0.0002, 0.12, 0.76),
+                         15.634736318382965);
+    expect_fixture_close(fincore::risk::internal::garch11_log_likelihood(
+                             observations, 0.0002, 0.12, 0.76),
+                         15.634736318382966);
+
+    const fincore::egarch_parameters egarch_params{
+        -0.1, 0.2, -0.15, 0.85};
+    const auto egarch_path =
+        fincore::risk::internal::egarch_conditional_variances(
+            observations, egarch_params);
+    expect_path_matches(egarch_path, egarch_python);
+    expect_path_matches(egarch_path, egarch_decimal);
+    expect_fixture_close(fincore::risk::internal::egarch_log_likelihood(
+                             observations, egarch_params),
+                         7.802194927683928);
+
+    const fincore::gjr_garch_parameters gjr_params{
+        0.0002, 0.08, 0.12, 0.74};
+    const auto gjr_path =
+        fincore::risk::internal::gjr_garch_conditional_variances(
+            observations, gjr_params);
+    expect_path_matches(gjr_path, gjr_python);
+    expect_path_matches(gjr_path, gjr_decimal);
+    expect_fixture_close(fincore::risk::internal::gjr_garch_log_likelihood(
+                             observations, gjr_params),
+                         15.56986849073046);
+}
+
 TEST(RiskGarch, EgarchFitMatchesPythonOracleWithinTolerance) {
     const auto result = fincore::fit_egarch(garch_frame());
-    EXPECT_TRUE(result.converged);
+    const auto repeated = fincore::fit_egarch(garch_frame());
+    expect_finite_converged_diagnostics(result);
+    expect_finite_converged_diagnostics(repeated);
+    EXPECT_DOUBLE_EQ(result.params.omega, repeated.params.omega);
+    EXPECT_DOUBLE_EQ(result.params.alpha, repeated.params.alpha);
+    EXPECT_DOUBLE_EQ(result.params.gamma, repeated.params.gamma);
+    EXPECT_DOUBLE_EQ(result.params.beta, repeated.params.beta);
+    EXPECT_DOUBLE_EQ(result.log_likelihood, repeated.log_likelihood);
     EXPECT_NEAR(result.params.omega, -0.4898979840671724, 2e-3);
     EXPECT_NEAR(result.params.alpha, 0.2513723688487509, 2e-3);
     EXPECT_NEAR(result.params.gamma, 0.29181294103945654, 2e-3);
@@ -119,7 +229,7 @@ TEST(RiskGarch, EgarchFitMatchesPythonOracleWithinTolerance) {
 
 TEST(RiskGarch, GjrGarchFitMatchesPythonOracleWithinTolerance) {
     const auto result = fincore::fit_gjr_garch(garch_frame());
-    EXPECT_TRUE(result.converged);
+    expect_finite_converged_diagnostics(result);
     EXPECT_NEAR(result.params.omega, 2.7366455496523534e-05, 1e-7);
     EXPECT_NEAR(result.params.alpha, 0.25611200984967286, 1e-4);
     EXPECT_LE(result.params.gamma, 1e-3);
@@ -149,9 +259,9 @@ TEST(RiskGarch, ConditionalVaRAndESComposeModelForecasts) {
         frame, fincore::garch_model::gjr_garch, 0.05, 3U);
     EXPECT_NEAR(gjr_var.value, -0.03927214673733541, 1e-5);
 
-    // The native zero-mean GARCH fit is the true optimum (the source
-    // optimizer stalls); assert closed-form composition instead of the
-    // oracle's stalled-fit values.
+    // The observed native zero-mean GARCH fit has a higher likelihood than the
+    // pinned source fit; assert closed-form composition without assuming either
+    // optimizer found a global optimum.
     const auto garch_fit = fincore::fit_garch11(frame, false);
     const auto garch_var = fincore::conditional_var(
         frame, fincore::garch_model::garch, 0.05, 3U);
@@ -202,6 +312,73 @@ TEST(RiskGarch, RejectsInsufficientAndAllNaNInput) {
                  fincore::input_error);
     EXPECT_THROW(static_cast<void>(fincore::forecast_garch11({}, 0U)),
                  fincore::input_error);
+}
+
+TEST(RiskGarch, FitsRejectNonfiniteOrZeroVarianceAfterNaNCleaning) {
+    const auto constant_garch = returns_frame(std::vector<double>(11U, 0.1));
+    const auto constant_family = returns_frame(std::vector<double>(10U, 0.1));
+    EXPECT_THROW(static_cast<void>(fincore::fit_garch11(constant_garch)),
+                 fincore::input_error);
+    EXPECT_THROW(static_cast<void>(fincore::fit_egarch(constant_family)),
+                 fincore::input_error);
+    EXPECT_THROW(static_cast<void>(fincore::fit_gjr_garch(constant_family)),
+                 fincore::input_error);
+
+    auto nonfinite_garch = garch_fixture();
+    nonfinite_garch[3] = std::numeric_limits<double>::infinity();
+    auto nonfinite_family = garch_fixture();
+    nonfinite_family[3] = -std::numeric_limits<double>::infinity();
+    EXPECT_THROW(static_cast<void>(fincore::fit_garch11(
+                     returns_frame(nonfinite_garch))),
+                 fincore::input_error);
+    EXPECT_THROW(static_cast<void>(fincore::fit_egarch(
+                     returns_frame(nonfinite_family))),
+                 fincore::input_error);
+    EXPECT_THROW(static_cast<void>(fincore::fit_gjr_garch(
+                     returns_frame(nonfinite_family))),
+                 fincore::input_error);
+
+    auto one_nan_garch = std::vector<double>(11U, 0.01);
+    one_nan_garch.front() = nan;
+    auto one_nan_family = std::vector<double>(10U, 0.01);
+    one_nan_family.front() = nan;
+    EXPECT_THROW(static_cast<void>(fincore::fit_garch11(
+                     returns_frame(one_nan_garch))),
+                 fincore::input_error);
+    EXPECT_THROW(static_cast<void>(fincore::fit_egarch(
+                     returns_frame(one_nan_family))),
+                 fincore::input_error);
+    EXPECT_THROW(static_cast<void>(fincore::fit_gjr_garch(
+                     returns_frame(one_nan_family))),
+                 fincore::input_error);
+}
+
+TEST(RiskGarch, ZeroIterationBudgetPropagatesNonconvergenceThroughFitResults) {
+    const auto frame = garch_frame();
+    const auto garch =
+        fincore::risk::internal::fit_garch11_with_max_iterations(
+            frame, false, "returns", 0U);
+    const auto egarch = fincore::risk::internal::fit_egarch_with_max_iterations(
+        frame, "returns", 0U);
+    const auto egarch_one_iteration =
+        fincore::risk::internal::fit_egarch_with_max_iterations(
+            frame, "returns", 1U);
+    const auto gjr = fincore::risk::internal::fit_gjr_garch_with_max_iterations(
+        frame, "returns", 0U);
+
+    EXPECT_FALSE(garch.converged);
+    EXPECT_FALSE(egarch.converged);
+    EXPECT_FALSE(egarch_one_iteration.converged);
+    EXPECT_FALSE(gjr.converged);
+    EXPECT_EQ(garch.conditional_variances.size(), garch_fixture().size());
+    EXPECT_EQ(egarch.conditional_variances.size(), garch_fixture().size());
+    EXPECT_EQ(gjr.conditional_variances.size(), garch_fixture().size());
+    EXPECT_EQ(garch.residuals.size(), garch_fixture().size());
+    EXPECT_EQ(egarch.residuals.size(), garch_fixture().size());
+    EXPECT_EQ(gjr.residuals.size(), garch_fixture().size());
+    EXPECT_TRUE(std::isfinite(garch.log_likelihood));
+    EXPECT_TRUE(std::isfinite(egarch.log_likelihood));
+    EXPECT_TRUE(std::isfinite(gjr.log_likelihood));
 }
 
 TEST(RiskGarch, SupportsSelectorsAndRejectsNul) {

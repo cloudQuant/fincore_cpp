@@ -155,3 +155,28 @@ ASan+UBSan at its head and be recorded as a dedicated acceptance record.
 Tests stay flat under `tests/unit/` (deliberate difference from Python's
 mirrored test tree). The internal `detail/optimization` kernels and the
 `viz/implot_backend` adapter remain non-Python-parallel by design.
+
+## Amendment 2026-10-24 — Iteration 7, latest-pin factor alignment
+
+Add [Iteration 7 requirements](../iterations/iteration-7-latest-fincore-alignment/requirements.md),
+[design](../iterations/iteration-7-latest-fincore-alignment/design.md) and
+[acceptance](../iterations/iteration-7-latest-fincore-alignment/acceptance.md),
+with the [source-backed review](../iterations/iteration-7-latest-fincore-alignment/review-2026-10-24.md).
+The six R2 iterations and their historical evidence remain unchanged.
+
+| Phase | Scope |
+|---|---|
+| 94 | Freeze the complete native base, Python pin `3e9ef205ef2023f92e89fddd1052d46b16429c64`, route delta, benchmark harness and justified budgets |
+| 95 | Correct full-panel/window target guards and processed-factor correlation, freeze a correctness-only reference, then optimize target lookup |
+| 96 | Reuse compatible quantile, portfolio, IC and original-factor preparation |
+| 97 | Consume prepared tables and stream byte-stable native exports |
+| 98 | Preserve v2 fingerprint with bounded hashing memory and native position semantics with dense accumulation |
+| 99 | Measure remaining optional C++ improvements and close required integration/performance gates |
+
+P94 has a source/harness checkpoint before P95a and a comparable-baseline
+checkpoint after its correctness-only reference, before any optimization.
+Shared-file ownership follows P95 → P96 → P97 → P98 → P99; disjoint digest
+work may overlap only with an agreed interface and explicit path ownership.
+No global ledger re-pin, runtime-catalog expansion, provider support, public
+model redesign or release action is implied. **Status: planning review complete;
+implementation and all Iteration 7 acceptance gates NOT_RUN.**

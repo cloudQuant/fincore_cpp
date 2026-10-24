@@ -1,9 +1,11 @@
 #include <fincore/factor/analysis.hpp>
 
 #include <fincore/detail/digest.hpp>
+#include <fincore/detail/factor_compute.hpp>
 #include <fincore/factor/exceptions.hpp>
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -83,7 +85,12 @@ int period_days(const std::string_view label) {
         int component = 0;
         while (index < label.size() && label[index] >= '0' &&
                label[index] <= '9') {
-            component = component * 10 + (label[index] - '0');
+            const int digit = label[index] - '0';
+            if (component > (std::numeric_limits<int>::max() - digit) / 10) {
+                throw factor_data_error{
+                    "analysis period labels must fit in a positive day count"};
+            }
+            component = component * 10 + digit;
             ++index;
         }
         if (index == begin || index == label.size() || label[index] != 'D') {
@@ -94,6 +101,10 @@ int period_days(const std::string_view label) {
         if (component <= 0) {
             throw factor_data_error{
                 "analysis period labels must contain whole day components"};
+        }
+        if (total > std::numeric_limits<int>::max() - component) {
+            throw factor_data_error{
+                "analysis period labels must fit in a positive day count"};
         }
         total += component;
     }
@@ -282,12 +293,17 @@ factor_time_information_table monthly_information(
     factor_time_information_table table;
     table.frequency = frequency;
     table.labels = information.labels;
-    std::map<timestamp, std::vector<double>> sums;
-    std::map<timestamp, std::vector<std::size_t>> counts;
+    using month_group = std::pair<timestamp, std::string>;
+    std::map<month_group, std::vector<double>> sums;
+    std::map<month_group, std::vector<std::size_t>> counts;
     for (std::size_t date = 0; date < information.dates.size(); ++date) {
         const timestamp month = month_end_of(information.dates[date]);
-        auto& row = sums[month];
-        auto& row_counts = counts[month];
+        const std::string group = information.groups.empty()
+                                      ? std::string{}
+                                      : information.groups[date];
+        const month_group key{month, group};
+        auto& row = sums[key];
+        auto& row_counts = counts[key];
         row.resize(information.labels.size(), 0.0);
         row_counts.resize(information.labels.size(), 0U);
         for (std::size_t label = 0; label < information.labels.size();
@@ -300,10 +316,14 @@ factor_time_information_table monthly_information(
             }
         }
     }
-    for (const auto& [month, row] : sums) {
+    for (const auto& [key, row] : sums) {
+        const auto& [month, group] = key;
         table.dates.push_back(month);
+        if (!information.groups.empty()) {
+            table.groups.push_back(group);
+        }
         for (std::size_t label = 0; label < row.size(); ++label) {
-            const std::size_t count = counts[month][label];
+            const std::size_t count = counts[key][label];
             table.means.push_back(count > 0U
                                       ? row[label] /
                                             static_cast<double>(count)
@@ -313,84 +333,323 @@ factor_time_information_table monthly_information(
     return table;
 }
 
-std::string fingerprint_of(const prepared_factor_data& data,
-                           const factor_analysis_config& config,
-                           const std::vector<std::string>& periods,
-                           const dataframe* event_returns,
-                           const int event_before, const int event_after) {
-    std::vector<std::uint8_t> payload;
-    const auto append_u64 = [&payload](const std::uint64_t value) {
-        for (int shift = 56; shift >= 0; shift -= 8) {
-            payload.push_back(
-                static_cast<std::uint8_t>((value >> shift) & 0xffU));
+quantile_return_table select_group_rows(
+    const quantile_return_table& table, const std::string& group) {
+    quantile_return_table selected;
+    selected.labels = table.labels;
+    const std::size_t labels = table.labels.size();
+    for (std::size_t row = 0; row < table.quantiles.size(); ++row) {
+        if (table.groups[row] != group) {
+            continue;
         }
-    };
-    const auto append_double = [&append_u64](const double value) {
+        selected.quantiles.push_back(table.quantiles[row]);
+        selected.groups.push_back(group);
+        for (std::size_t label = 0; label < labels; ++label) {
+            const std::size_t position = row * labels + label;
+            selected.means.push_back(table.means[position]);
+            selected.standard_errors.push_back(
+                table.standard_errors[position]);
+        }
+    }
+    return selected;
+}
+
+quantile_date_return_table select_group_rows(
+    const quantile_date_return_table& table, const std::string& group) {
+    quantile_date_return_table selected;
+    selected.quantiles = table.quantiles;
+    selected.labels = table.labels;
+    const std::size_t row_width = table.quantiles.size() * table.labels.size();
+    for (std::size_t row = 0; row < table.dates.size(); ++row) {
+        if (table.groups[row] != group) {
+            continue;
+        }
+        selected.dates.push_back(table.dates[row]);
+        selected.groups.push_back(group);
+        const std::size_t begin = row * row_width;
+        selected.means.insert(selected.means.end(),
+                              table.means.begin() +
+                                  static_cast<std::ptrdiff_t>(begin),
+                              table.means.begin() +
+                                  static_cast<std::ptrdiff_t>(begin + row_width));
+        selected.standard_errors.insert(
+            selected.standard_errors.end(),
+            table.standard_errors.begin() +
+                static_cast<std::ptrdiff_t>(begin),
+            table.standard_errors.begin() +
+                static_cast<std::ptrdiff_t>(begin + row_width));
+    }
+    return selected;
+}
+
+factor_ic_table select_group_rows(const factor_ic_table& table,
+                                  const std::string& group) {
+    factor_ic_table selected;
+    selected.labels = table.labels;
+    const std::size_t labels = table.labels.size();
+    for (std::size_t row = 0; row < table.dates.size(); ++row) {
+        if (table.groups[row] != group) {
+            continue;
+        }
+        selected.dates.push_back(table.dates[row]);
+        selected.groups.push_back(group);
+        const auto begin = table.values.begin() +
+                           static_cast<std::ptrdiff_t>(row * labels);
+        selected.values.insert(selected.values.end(), begin,
+                               begin + static_cast<std::ptrdiff_t>(labels));
+    }
+    return selected;
+}
+
+factor_ic_summary select_group_rows(const factor_ic_summary& summary,
+                                    const std::string& group) {
+    factor_ic_summary selected;
+    selected.labels = summary.labels;
+    selected.groups.push_back(group);
+    const auto found = std::find(summary.groups.begin(), summary.groups.end(),
+                                 group);
+    if (found == summary.groups.end()) {
+        selected.means.assign(summary.labels.size(), nan);
+        return selected;
+    }
+    const std::size_t row =
+        static_cast<std::size_t>(found - summary.groups.begin());
+    const auto begin = summary.means.begin() +
+                       static_cast<std::ptrdiff_t>(row * summary.labels.size());
+    selected.means.insert(selected.means.end(), begin,
+                          begin + static_cast<std::ptrdiff_t>(summary.labels.size()));
+    return selected;
+}
+
+std::vector<factor_spread_row> select_group_rows(
+    const quantile_spread_result& spread, const std::string& group) {
+    std::vector<factor_spread_row> selected;
+    for (std::size_t row = 0; row < spread.labels.size(); ++row) {
+        if (spread.groups[row] == group) {
+            selected.push_back({spread.labels[row], spread.spreads[row],
+                                spread.standard_errors[row], group});
+        }
+    }
+    return selected;
+}
+
+factor_time_information_table select_group_rows(
+    const factor_time_information_table& table, const std::string& group) {
+    factor_time_information_table selected;
+    selected.frequency = table.frequency;
+    selected.labels = table.labels;
+    const std::size_t labels = table.labels.size();
+    for (std::size_t row = 0; row < table.dates.size(); ++row) {
+        if (table.groups[row] != group) {
+            continue;
+        }
+        selected.dates.push_back(table.dates[row]);
+        selected.groups.push_back(group);
+        const auto begin = table.means.begin() +
+                           static_cast<std::ptrdiff_t>(row * labels);
+        selected.means.insert(selected.means.end(), begin,
+                              begin + static_cast<std::ptrdiff_t>(labels));
+    }
+    return selected;
+}
+
+void validate_event_input(const dataframe& event_returns) {
+    const auto [row_count, column_count] = event_returns.shape();
+    const auto columns = event_returns.get_columns_info<double>();
+    if (row_count == 0U || column_count == 0U || columns.empty() ||
+        event_returns.get_index().size() != row_count ||
+        columns.size() != column_count) {
+        throw factor_data_error{
+            "event_returns must contain a rectangular table of double columns"};
+    }
+    for (const auto& info : columns) {
+        if (std::get<1>(info) != row_count) {
+            throw factor_data_error{
+                "event_returns double columns must match the index row count"};
+        }
+    }
+}
+
+class fingerprint_sink {
+public:
+    void u64(const std::uint64_t value) {
+        std::array<std::uint8_t, 8> bytes{};
+        for (int index = 0; index < 8; ++index) {
+            bytes[static_cast<std::size_t>(index)] =
+                static_cast<std::uint8_t>(
+                    (value >> (56 - 8 * index)) & 0xffU);
+        }
+        write(std::span<const std::uint8_t>(bytes));
+    }
+
+    void i64(const std::int64_t value) {
+        u64(static_cast<std::uint64_t>(value));
+    }
+
+    void size(const std::size_t value) {
+        u64(static_cast<std::uint64_t>(value));
+    }
+
+    void double_value(const double value) {
         std::uint64_t bits = 0;
         std::memcpy(&bits, &value, sizeof(bits));
-        append_u64(bits);
-    };
-    const auto append_text = [&payload](const std::string& text) {
-        for (const char character : text) {
-            payload.push_back(static_cast<std::uint8_t>(character));
+        u64(bits);
+    }
+
+    void text(const std::string_view value) {
+        size(value.size());
+        write(std::span<const std::uint8_t>(
+            reinterpret_cast<const std::uint8_t*>(value.data()),
+            value.size()));
+    }
+
+    void write(const std::span<const std::uint8_t> data) {
+        if (data.size() >= buffer_.size()) {
+            flush();
+            hasher_.update(data);
+            return;
         }
-        payload.push_back(0U);
+        if (used_ + data.size() > buffer_.size()) {
+            flush();
+        }
+        std::memcpy(buffer_.data() + used_, data.data(), data.size());
+        used_ += data.size();
+    }
+
+    std::string finish() {
+        flush();
+        return hasher_.finish_hex();
+    }
+
+private:
+    void flush() {
+        if (used_ > 0U) {
+            hasher_.update(
+                std::span<const std::uint8_t>(buffer_.data(), used_));
+            used_ = 0U;
+        }
+    }
+
+    detail::sha256_hasher hasher_;
+    std::array<std::uint8_t, 65536> buffer_{};
+    std::size_t used_ = 0U;
+};
+
+std::string fingerprint_of(const prepared_factor_data& data,
+                           const factor_analysis_config& config,
+                           const std::vector<std::string>& selected_periods,
+                           const dataframe* event_returns,
+                           const int event_before, const int event_after) {
+    fingerprint_sink sink;
+    const auto append_u64 = [&sink](const std::uint64_t value) {
+        sink.u64(value);
     };
+    const auto append_i64 = [&sink](const std::int64_t value) {
+        sink.i64(value);
+    };
+    const auto append_size = [&sink](const std::size_t value) {
+        sink.size(value);
+    };
+    const auto append_double = [&sink](const double value) {
+        sink.double_value(value);
+    };
+    const auto append_text = [&sink](const std::string_view text) {
+        sink.text(text);
+    };
+    static_assert(sizeof(double) == sizeof(std::uint64_t));
+    append_text("fincore.factor-analysis.result-fingerprint");
+    append_u64(factor_analysis_fingerprint_version);
+    append_text("event-input-policy/double-columns-only/v1");
+
     append_u64(config.long_short ? 1U : 0U);
     append_u64(config.group_neutral ? 1U : 0U);
     append_u64(config.equal_weight ? 1U : 0U);
     append_u64(config.by_group ? 1U : 0U);
     append_u64(config.include_portfolio_inputs ? 1U : 0U);
     append_text(config.portfolio_benchmark_period);
-    append_u64(periods.size());
-    for (const auto& period : periods) {
+    append_size(config.periods.size());
+    for (const auto& period : config.periods) {
         append_text(period);
     }
-    append_u64(config.turnover_periods.size());
-    for (const int lag : config.turnover_periods) {
-        append_u64(static_cast<std::uint64_t>(lag));
+    append_size(selected_periods.size());
+    for (const auto& period : selected_periods) {
+        append_text(period);
     }
-    append_u64(config.time_aggregation.size());
+    append_size(config.turnover_periods.size());
+    for (const int lag : config.turnover_periods) {
+        append_i64(lag);
+    }
+    append_size(config.time_aggregation.size());
     for (const auto& frequency : config.time_aggregation) {
         append_text(frequency);
     }
-    append_u64(data.rows.size());
+
+    append_size(data.forward_labels.size());
+    for (const auto& label : data.forward_labels) {
+        append_text(label);
+    }
+    append_size(data.loss_report.input_count);
+    append_size(data.loss_report.finite_factor_count);
+    append_size(data.loss_report.forward_returns_count);
+    append_size(data.loss_report.binning_count);
+    append_double(data.loss_report.factor_input_loss);
+    append_double(data.loss_report.forward_returns_loss);
+    append_double(data.loss_report.binning_loss);
+    append_double(data.loss_report.total_loss);
+
+    append_size(data.rows.size());
     for (const auto& row : data.rows) {
-        append_u64(static_cast<std::uint64_t>(row.date));
+        append_i64(row.date);
         append_text(row.asset);
         append_double(row.factor);
-        append_u64(static_cast<std::uint64_t>(row.quantile));
-        append_text(row.has_group ? row.group : std::string{});
+        append_i64(row.quantile);
+        append_u64(row.has_group ? 1U : 0U);
+        append_text(row.group);
+        append_size(row.forward_returns.size());
         for (const double value : row.forward_returns) {
             append_double(value);
         }
     }
     append_u64(event_returns != nullptr ? 1U : 0U);
 
-
     if (event_returns != nullptr) {
-        append_u64(static_cast<std::uint64_t>(event_before));
-        append_u64(static_cast<std::uint64_t>(event_after));
-        append_u64(event_returns->get_index().size());
-        for (std::size_t row = 0; row < event_returns->get_index().size();
-             ++row) {
-            append_u64(static_cast<std::uint64_t>(
-                event_returns->get_index()[row]));
-            for (const auto& info : event_returns->get_columns_info<double>()) {
-                if (std::get<2>(info) != typeid(double)) {
-                    continue;
-                }
-                const std::string name{std::get<0>(info).c_str()};
-                append_text(name);
-                append_double(
-                    event_returns->get_column<double>(name.c_str())[row]);
+        const auto [row_count, column_count] = event_returns->shape();
+        const auto columns = event_returns->get_columns_info<double>();
+        append_i64(event_before);
+        append_i64(event_after);
+        append_size(row_count);
+        append_size(column_count);
+        append_size(event_returns->get_index().size());
+        for (const timestamp date : event_returns->get_index()) {
+            append_i64(date);
+        }
+        append_size(columns.size());
+        for (const auto& info : columns) {
+            const std::string name{std::get<0>(info).c_str()};
+            append_text("double");
+            append_text(name);
+            append_size(std::get<1>(info));
+            for (const double value :
+                 event_returns->get_column<double>(name.c_str())) {
+                append_double(value);
             }
         }
     }
-    return detail::sha256_hex(payload);
+    return sink.finish();
 }
 
 }  // namespace
+
+namespace detail {
+
+std::string factor_fingerprint_for_benchmark(
+    const prepared_factor_data& data,
+    const factor_analysis_config& config) {
+    const auto periods = selected_periods(data, config.periods);
+    return fingerprint_of(data, config, periods, nullptr, 0, 0);
+}
+
+}  // namespace detail
 
 static factor_analysis_model analyze_factor_impl(
     const prepared_factor_data& factor_data,
@@ -405,31 +664,42 @@ static factor_analysis_model analyze_factor_impl(
             "factor_data must contain at least one forward-return label"};
     }
     validate_config(config);
+    if (event_returns != nullptr) {
+        validate_event_input(*event_returns);
+    }
     const auto periods = selected_periods(factor_data, config.periods);
     const auto analysis_data = select_periods(factor_data, periods);
 
     factor_analysis_model model;
     model.factor_data = factor_data;
     model.forward_periods = periods;
+    model.config = config;
+    model.result_fingerprint_version =
+        factor_analysis_fingerprint_version;
     model.quantile_statistics = quantile_statistics(analysis_data);
     model.information_coefficient = factor_information_coefficient(
         analysis_data, config.group_neutral);
-    model.mean_information_coefficient = mean_information_coefficient(
-        analysis_data, config.group_neutral);
-    model.factor_returns = factor_returns(
-        analysis_data, config.long_short, config.group_neutral,
-        config.equal_weight);
+    model.mean_information_coefficient =
+        detail::summarize_information_coefficient(
+            model.information_coefficient);
+    if (config.group_neutral) {
+        // The source summary IC intentionally ignores group adjustment.
+        model.summary_information_coefficient =
+            factor_information_coefficient(analysis_data, false, false);
+    }
     model.factor_weights = factor_weights(
         analysis_data, config.long_short, config.group_neutral,
         config.equal_weight);
-    model.mean_returns_by_quantile = mean_return_by_quantile(
-        analysis_data, false, false, config.long_short,
-        config.group_neutral);
-    model.mean_returns_by_date = mean_return_by_quantile_by_date(
-        analysis_data, config.long_short, config.group_neutral);
-    model.alpha_beta = factor_alpha_beta(
-        analysis_data, config.long_short, config.group_neutral,
-        config.equal_weight);
+    model.factor_returns = detail::factor_returns_from_weights(
+        analysis_data,
+        std::span<const factor_weight_row>{model.factor_weights});
+    auto quantile_views = detail::build_quantile_return_views(
+        analysis_data, false, config.long_short, config.group_neutral, true,
+        true);
+    model.mean_returns_by_quantile = std::move(quantile_views.aggregate);
+    model.mean_returns_by_date = std::move(quantile_views.by_date);
+    model.alpha_beta = detail::factor_alpha_beta_from_returns(
+        analysis_data, model.factor_returns);
 
     std::set<int> quantiles;
     for (const auto& row : analysis_data.rows) {
@@ -459,18 +729,20 @@ static factor_analysis_model analyze_factor_impl(
     for (const auto& period : periods) {
         model.factor_cumulative_returns.push_back(
             {period,
-             factor_cumulative_returns(
-                 analysis_data, period, config.long_short,
-                 config.group_neutral, config.equal_weight)});
+             detail::factor_cumulative_returns_from_table(
+                 model.factor_returns, period)});
         model.factor_positions.push_back(
             {period,
              factor_positions(analysis_data, period, config.long_short,
-                              config.group_neutral, config.equal_weight)});
+                              config.group_neutral, config.equal_weight, {},
+                              {}, model.factor_weights)});
     }
     model.quantile_cumulative_returns =
         quantile_cumulative_curves(model.mean_returns_by_date, periods);
-    model.time_aggregated_information.push_back(
-        monthly_information(model.information_coefficient, "M"));
+    for (const auto& frequency : config.time_aggregation) {
+        model.time_aggregated_information.push_back(
+            monthly_information(model.information_coefficient, frequency));
+    }
 
     if (config.by_group) {
         std::set<std::string> group_names;
@@ -481,6 +753,51 @@ static factor_analysis_model analyze_factor_impl(
             }
             group_names.insert(row.group);
         }
+
+        // These tables are computed over the full date universe before the
+        // group rows are selected. In particular, ordinary long_short mode
+        // demeans returns across all groups for each date.
+        const auto grouped_views = detail::build_quantile_return_views(
+            analysis_data, true, config.long_short, config.group_neutral,
+            true, true);
+        const auto& grouped_quantile_returns = grouped_views.aggregate;
+        const auto& grouped_date_returns = grouped_views.by_date;
+        const auto grouped_information = factor_information_coefficient(
+            analysis_data, config.group_neutral, true);
+        const auto grouped_mean_information =
+            detail::summarize_information_coefficient(grouped_information);
+        std::vector<factor_time_information_table> grouped_time_information;
+        for (const auto& frequency : config.time_aggregation) {
+            grouped_time_information.push_back(
+                monthly_information(grouped_information, frequency));
+        }
+        quantile_spread_result grouped_spread;
+        if (quantiles.size() >= 2U) {
+            grouped_spread = mean_return_spread(
+                grouped_quantile_returns, *quantiles.rbegin(),
+                *quantiles.begin());
+        }
+
+        for (const auto& group : group_names) {
+            factor_group_snapshot snapshot;
+            snapshot.group = group;
+            snapshot.mean_returns_by_quantile =
+                select_group_rows(grouped_quantile_returns, group);
+            snapshot.mean_returns_by_date =
+                select_group_rows(grouped_date_returns, group);
+            snapshot.mean_return_spread =
+                select_group_rows(grouped_spread, group);
+            snapshot.information_coefficient =
+                select_group_rows(grouped_information, group);
+            snapshot.mean_information_coefficient =
+                select_group_rows(grouped_mean_information, group);
+            for (const auto& information : grouped_time_information) {
+                snapshot.time_aggregated_information.push_back(
+                    select_group_rows(information, group));
+            }
+            model.group_snapshots.push_back(std::move(snapshot));
+        }
+
         for (const auto& group : group_names) {
             prepared_factor_data group_data;
             group_data.forward_labels = analysis_data.forward_labels;
@@ -495,14 +812,16 @@ static factor_analysis_model analyze_factor_impl(
             grouped.quantile_statistics = quantile_statistics(group_data);
             grouped.factor_weights = factor_weights(
                 group_data, config.long_short, false, config.equal_weight);
-            grouped.factor_returns = factor_returns(
-                group_data, config.long_short, false, config.equal_weight);
+            grouped.factor_returns = detail::factor_returns_from_weights(
+                group_data,
+                std::span<const factor_weight_row>{grouped.factor_weights});
             grouped.mean_returns_by_quantile = mean_return_by_quantile(
                 group_data, false, false, config.long_short, false);
             grouped.information_coefficient =
                 factor_information_coefficient(group_data, false);
             grouped.mean_information_coefficient =
-                mean_information_coefficient(group_data, false);
+                detail::summarize_information_coefficient(
+                    grouped.information_coefficient);
             std::set<int> group_quantiles;
             for (const auto& row : group_data.rows) {
                 group_quantiles.insert(row.quantile);
@@ -580,9 +899,24 @@ static factor_analysis_model analyze_factor_impl(
     }
 
     if (config.include_portfolio_inputs) {
-        model.portfolio_inputs = build_factor_portfolio_inputs(
-            analysis_data, periods.front(), config.long_short,
-            config.group_neutral, config.equal_weight);
+        const auto position_entry = std::find_if(
+            model.factor_positions.begin(), model.factor_positions.end(),
+            [&periods](const factor_position_series& entry) {
+                return entry.period == periods.front();
+            });
+        if (position_entry != model.factor_positions.end()) {
+            model.portfolio_inputs =
+                detail::build_factor_portfolio_inputs_from_outputs(
+                    analysis_data, analysis_data, periods.front(),
+                    model.factor_returns, position_entry->positions);
+        } else {
+            model.portfolio_inputs =
+                detail::build_factor_portfolio_inputs_from_tables(
+                    analysis_data, analysis_data, periods.front(),
+                    config.long_short, config.group_neutral,
+                    config.equal_weight, model.factor_returns,
+                    std::span<const factor_weight_row>{model.factor_weights});
+        }
     }
 
     model.result_fingerprint = fingerprint_of(

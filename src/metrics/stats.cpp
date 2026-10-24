@@ -3,6 +3,7 @@
 #include <fincore/metrics/stats.hpp>
 
 #include <fincore/detail/numeric.hpp>
+#include <fincore/detail/stutzer.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -434,19 +435,6 @@ double hurst_exponent(const dataframe& returns, std::string_view column) {
     return hurst;
 }
 
-double stutzer_objective(double theta,
-                         const std::vector<double>& excess_returns) {
-    double total = 0.0;
-    for (const double value : excess_returns) {
-        const double tilted = std::exp(theta * value);
-        if (std::isinf(tilted) || std::isnan(tilted)) {
-            return 0.0;
-        }
-        total += tilted;
-    }
-    return std::log(total / static_cast<double>(excess_returns.size()));
-}
-
 double stutzer_index(const dataframe& returns,
                      double target_return,
                      std::string_view column) {
@@ -485,8 +473,8 @@ double stutzer_index(const dataframe& returns,
     constexpr double inverse_golden = 0.6180339887498949;
     double left = upper - inverse_golden * (upper - lower);
     double right = lower + inverse_golden * (upper - lower);
-    double left_value = stutzer_objective(left, excess_returns);
-    double right_value = stutzer_objective(right, excess_returns);
+    double left_value = detail::stutzer_objective(left, excess_returns);
+    double right_value = detail::stutzer_objective(right, excess_returns);
     for (int iteration = 0; iteration < 200; ++iteration) {
         if (upper - lower <= 1e-12) {
             break;
@@ -496,18 +484,18 @@ double stutzer_index(const dataframe& returns,
             right = left;
             right_value = left_value;
             left = upper - inverse_golden * (upper - lower);
-            left_value = stutzer_objective(left, excess_returns);
+            left_value = detail::stutzer_objective(left, excess_returns);
         } else {
             lower = left;
             left = right;
             left_value = right_value;
             right = lower + inverse_golden * (upper - lower);
-            right_value = stutzer_objective(right, excess_returns);
+            right_value = detail::stutzer_objective(right, excess_returns);
         }
     }
 
     double index_of_precision =
-        -stutzer_objective((lower + upper) / 2.0, excess_returns);
+        -detail::stutzer_objective((lower + upper) / 2.0, excess_returns);
     if (index_of_precision < 0.0) {
         index_of_precision = 0.0;
     }

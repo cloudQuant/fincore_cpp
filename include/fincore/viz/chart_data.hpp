@@ -17,6 +17,7 @@ inline constexpr std::string_view month_labels[] = {
     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
 struct heat_grid {
+    std::string title = "Monthly returns";
     std::vector<int> years;
     std::vector<std::string> columns;  // twelve month labels
     std::vector<double> values;        // years x 12, row-major; NaN when missing

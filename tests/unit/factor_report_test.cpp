@@ -36,7 +36,7 @@ TEST(FactorReport, ProjectsModelToSharedDocument) {
 
     EXPECT_EQ(report.domain, "factor");
     EXPECT_EQ(report.title, "Tiny Factor");
-    EXPECT_EQ(report.schema_version, 1);
+    EXPECT_EQ(report.schema_version, fincore::report_document_schema_version);
     ASSERT_EQ(report.metadata.count("factor_result_fingerprint"), 1U);
     EXPECT_EQ(report.metadata.at("factor_result_fingerprint").size(), 64U);
     EXPECT_EQ(report.metadata.at("forward_periods"), "1D");

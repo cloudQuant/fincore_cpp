@@ -259,6 +259,35 @@ TEST(OptimizationPortfolio, RiskParityMatchesPythonOracle) {
     EXPECT_NEAR(custom.volatility, 0.05959404492293703, 1e-8);
 }
 
+TEST(OptimizationPortfolio, MinVarianceHandlesSingularCovarianceFeasibly) {
+    fincore::dataframe frame;
+    frame.load_index(std::vector<fincore::timestamp>{1, 2, 3, 4});
+    const std::vector<double> common_returns{0.01, -0.02, 0.03, 0.0};
+    frame.load_column<double>("A", common_returns,
+                              hmdf::nan_policy::dont_pad_with_nans);
+    frame.load_column<double>("B", common_returns,
+                              hmdf::nan_policy::dont_pad_with_nans);
+    frame.load_column<double>("C", common_returns,
+                              hmdf::nan_policy::dont_pad_with_nans);
+
+    fincore::portfolio_optimization_config config;
+    config.objective = fincore::portfolio_objective::min_variance;
+    const auto result = fincore::optimize_portfolio(frame, config);
+
+    expect_weights(result.weights, {1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0},
+                   1e-10);
+    double total = 0.0;
+    for (const double weight : result.weights) {
+        total += weight;
+        EXPECT_GE(weight, 0.0);
+        EXPECT_LE(weight, 1.0);
+    }
+    EXPECT_NEAR(total, 1.0, 1e-12);
+    EXPECT_NEAR(result.expected_return, 0.005 * 252.0, 1e-12);
+    EXPECT_NEAR(result.volatility,
+                std::sqrt((0.0013 / 3.0) * 252.0), 1e-12);
+}
+
 TEST(OptimizationPortfolio, RejectsInvalidInputs) {
     const auto frame = optimization_fixture();
     fincore::portfolio_optimization_config config;

@@ -9,7 +9,8 @@
 
 namespace {
 
-fincore::dataframe walk_forward_fixture(int count) {
+fincore::dataframe walk_forward_fixture(int count, int shift_from = -1,
+                                        double future_shift = 0.0) {
     std::vector<fincore::timestamp> index;
     index.reserve(static_cast<std::size_t>(count));
     std::vector<double> values;
@@ -17,7 +18,11 @@ fincore::dataframe walk_forward_fixture(int count) {
     for (int position = 0; position < count; ++position) {
         index.push_back(fincore::utc_timestamp(2021, 1, 1) +
                         position * 86'400'000'000'000LL);
-        values.push_back(0.01 * std::sin(static_cast<double>(position) * 0.7));
+        double value = 0.01 * std::sin(static_cast<double>(position) * 0.7);
+        if (shift_from >= 0 && position >= shift_from) {
+            value += future_shift;
+        }
+        values.push_back(value);
     }
     return fincore::make_series(index, "returns", values);
 }
@@ -80,6 +85,106 @@ TEST(RiskWalkForward, HistoricalDistributionMatchesPythonOracle) {
     EXPECT_EQ(result.backtest.observations, 200U);
     EXPECT_EQ(result.backtest.exceptions, 19U);
     EXPECT_NEAR(result.backtest.kupiec_lr, 6.823658870683893, 1e-12);
+}
+
+TEST(RiskWalkForward, FutureReturnsCannotChangeEarlierNormalOrHistoricalFits) {
+    constexpr int observation_count = 360;
+    constexpr int first_perturbed_observation = 220;
+    constexpr double future_shift = 0.25;
+    constexpr auto day = 86'400'000'000'000LL;
+
+    for (const std::string distribution : {"normal", "historical"}) {
+        fincore::risk_model_spec spec;
+        spec.distribution = distribution;
+        spec.window = distribution == "normal" ? 50U : 100U;
+        spec.refit_cadence = distribution == "normal" ? 5U : 10U;
+        spec.confidence_level = distribution == "normal" ? 0.99 : 0.95;
+
+        const auto original = fincore::walk_forward_var(
+            walk_forward_fixture(observation_count), spec);
+        const auto perturbed = fincore::walk_forward_var(
+            walk_forward_fixture(observation_count, first_perturbed_observation,
+                                 future_shift),
+            spec);
+
+        ASSERT_EQ(original.status, fincore::walk_forward_status::ok);
+        ASSERT_EQ(perturbed.status, fincore::walk_forward_status::ok);
+        EXPECT_NE(original.inputs_digest, perturbed.inputs_digest);
+        ASSERT_EQ(original.inputs_digest.size(), 64U);
+        ASSERT_EQ(perturbed.inputs_digest.size(), 64U);
+        ASSERT_EQ(original.index, perturbed.index);
+        ASSERT_EQ(original.forecast.size(), perturbed.forecast.size());
+        ASSERT_EQ(original.realized.size(), perturbed.realized.size());
+        ASSERT_EQ(original.refit_timestamps, perturbed.refit_timestamps);
+        ASSERT_EQ(original.fits.size(), perturbed.fits.size());
+
+        const auto cutoff_date = fincore::utc_timestamp(2021, 1, 1) +
+                                 first_perturbed_observation * day;
+        for (std::size_t position = 0U; position < original.forecast.size();
+             ++position) {
+            const std::size_t source_position = spec.window + position;
+            if (source_position <=
+                static_cast<std::size_t>(first_perturbed_observation)) {
+                EXPECT_EQ(original.forecast[position],
+                          perturbed.forecast[position])
+                    << distribution << " source_position=" << source_position;
+            }
+            // The realized return at the first changed input index is already
+            // future data, even though its forecast used an unchanged window.
+            if (source_position <
+                static_cast<std::size_t>(first_perturbed_observation)) {
+                EXPECT_EQ(original.realized[position],
+                          perturbed.realized[position])
+                    << distribution << " source_position=" << source_position;
+            }
+        }
+
+        for (std::size_t position = 0U; position < original.fits.size();
+             ++position) {
+            const auto& before = original.fits[position];
+            const auto& after = perturbed.fits[position];
+            ASSERT_EQ(before.date, after.date);
+            if (before.date <= cutoff_date) {
+                EXPECT_EQ(before.forecast, after.forecast);
+                EXPECT_EQ(before.mean, after.mean);
+                EXPECT_EQ(before.standard_deviation, after.standard_deviation);
+                EXPECT_EQ(before.n_observations, after.n_observations);
+            }
+        }
+
+        ASSERT_EQ(static_cast<std::size_t>(first_perturbed_observation) %
+                      spec.refit_cadence,
+                  0U);
+        const std::size_t shifted_refit_position =
+            static_cast<std::size_t>(first_perturbed_observation) /
+            spec.refit_cadence;
+        ASSERT_LT(shifted_refit_position, original.fits.size());
+        const auto& original_shifted_fit =
+            original.fits[shifted_refit_position];
+        const auto& perturbed_shifted_fit =
+            perturbed.fits[shifted_refit_position];
+        ASSERT_EQ(
+            original_shifted_fit.date,
+            original
+                .index[static_cast<std::size_t>(first_perturbed_observation)]);
+        EXPECT_NE(original.forecast[static_cast<std::size_t>(
+                      first_perturbed_observation)],
+                  perturbed.forecast[static_cast<std::size_t>(
+                      first_perturbed_observation)]);
+        EXPECT_NEAR(perturbed.forecast[static_cast<std::size_t>(
+                        first_perturbed_observation)] -
+                        original.forecast[static_cast<std::size_t>(
+                            first_perturbed_observation)],
+                    future_shift, 1e-12);
+        EXPECT_NEAR(perturbed_shifted_fit.mean - original_shifted_fit.mean,
+                    future_shift, 1e-12);
+        EXPECT_NEAR(perturbed_shifted_fit.forecast -
+                        original_shifted_fit.forecast,
+                    future_shift, 1e-12);
+        EXPECT_NEAR(perturbed_shifted_fit.standard_deviation -
+                        original_shifted_fit.standard_deviation,
+                    0.0, 1e-14);
+    }
 }
 
 TEST(RiskWalkForward, ReportsUnsupportedInsufficientAndValidatesSpec) {

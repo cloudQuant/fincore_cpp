@@ -1,87 +1,70 @@
-# Iteration 1 — Metrics Completion: Design Document
+# Iteration 1 — Metrics Completion: Design
 
-**Iteration ID:** iteration-1-metrics-completion
-**Status:** Draft (per-phase design docs supersede this at implementation time)
-**Depends on:** Phase 37 head (accepted); nothing upstream.
+**Status:** Revised plan. Applies with [delivery-contract.md](../delivery-contract.md).
 
-## 1. Architecture Overview
+## 1. Existing architecture and Phase 38 close-out
 
-No new targets, dependencies, adapters, or facades. All work lands in the
-existing per-module leaf pattern:
+Use existing `include/fincore/metrics/<leaf>.hpp` and
+`src/metrics/<leaf>.cpp`. Phase 38's actual test owners are
+`tests/unit/ratios_test.cpp` and `tests/unit/metrics_umbrella_test.cpp`.
+Do not invent a `<leaf>_extended_test.cpp` convention: inspect
+`tests/CMakeLists.txt` and name real TUs per phase. Existing
+`metrics.hpp` already includes `ratios.hpp`; Phase 38 adds no umbrella include.
 
-```
-include/fincore/metrics/<leaf>.hpp   (one public declaration per phase)
-src/metrics/<leaf>.cpp               (private helpers live beside their consumer)
-tests/unit/<leaf>_test.cpp           (registered TU, exact-signature static_asserts)
-tests/unit/<leaf>_extended_test.cpp  (boundary hardening)
-```
+The current adjusted-Sharpe implementation has ordinary-path checks but
+not the full designed boundary matrix. Complete that matrix without changing
+the accepted public stats filtering to fit this ratio: its private NaN-only
+moment calculation has intentionally different semantics.
 
-New leaves required: none for ratios/stats (they exist); the drawdown table
-machinery (Phase 50) adds a **value type** `drawdown_table` to
-`metrics/drawdown.hpp` plus assembly in `src/metrics/drawdown.cpp`. Phase 51
-adds static period data in `src/metrics/timing.cpp`. Phase 52 composes
-existing `simulation/bootstrap` primitives with `perf_stats`.
+## 2. Baseline and scope design
 
-## 2. Key Design Decisions
+Phase 39 freezes the source/environment manifest and performs paired old/new
+oracle comparisons before updating any golden. Keep exact classifications
+and both result sets in the drift record. Enumerate public submodule routes,
+aliases, catalog operations and consumer scenarios into the capability ledger.
+Record historical native acceptance separately from new-pin regression status.
 
-### D1 — Reuse-before-implement ordering
-Each ratio phase must first enumerate existing native primitives it can call
-(`max_drawdown`, `value_at_risk`, `beta`, `sharpe_ratio`, `annualization_factor`,
-bootstrap/CI helpers) and reuse them. Rationale: parity errors compound when
-each phase re-derives shared numerics; the Python oracle shares helpers too.
-Constraint: reuse does **not** extend to public `skewness`/`kurtosis` where the
-oracle uses different filtering — the Phase 38 private-moment-helper precedent
-applies (private helper beside the consumer, public stats untouched).
+Create the benchmark baseline and data sizes before algorithm changes.
+Scope Phase 52b into small residual families using that inventory; preserve
+cross-iteration owners for EVT/beta fragility. A missing public route cannot
+be dismissed as a Python facade without examining its semantics.
 
-### D2 — Closed-form special functions stay private
-`deflated_sharpe_ratio` (Phase 42) needs the normal CDF and inverse CDF.
-Decision: private `detail::` implementation in `ratios.cpp` (or a private
-shared header inside `src/metrics/` if a second consumer appears), validated
-against the Python oracle's `scipy.stats.norm` outputs at hex-float
-tolerance via test goldens. No public special-function API, no vendored
-math library.
+## 3. Numerical reuse and public models
 
-### D3 — Drawdown table is a value type, not a DataFrame
-Phase 50's top-N table is returned as a `std::vector<drawdown_row>` (or small
-struct holding rows + underwater series view), not a `StdDataFrame`. Rationale:
-consumers (reports, viz) need typed field access; the oracle's DataFrame shape
-is an implementation detail. Field names and semantics are locked 1:1 to the
-Python column names so Iteration 6's report layer can map them directly.
+Before each leaf, write a reuse map of native return, drawdown, beta,
+annualization, percentile, rolling and bootstrap primitives. Reuse only when
+filtering, count, alignment and evaluation order match. Preserve a private
+helper with a documented reason where contracts differ.
 
-### D4 — Crisis periods as compile-time static data
-`extract_interesting_date_ranges` (Phase 51) ports `_historical_periods.py`
-to a `static constexpr`-friendly table in `src/metrics/timing.cpp` with the
-oracle's exact name strings and date boundaries. Boundary semantics
-(half-open vs closed) are transcribed from oracle tests, not inferred.
+Normal CDF/inverse and the Stutzer bounded minimizer remain internal. Their
+phase designs record algorithms, domains, stopping rules, numerical budgets
+and adversarial fixtures. Do not mandate bit equality with SciPy special
+functions or make an unmeasured dependency decision. Shared helpers move to
+an internal module only when there is an actual second consumer.
 
-### D5 — Oracle re-pin as a first-class phase (Phase 39)
-The re-pin is not a chore: it produces a committed design doc listing
-old/new SHAs, a full-suite re-run, and a classified drift log. This creates
-the audit trail that makes "no drift" a measured claim.
+Drawdown tables are owning rows with explicit date/recovery status and owned
+underwater values. C++ field/type choices may differ from pandas, but a
+column/shape/ordering mapping is mandatory. No returned view into a destroyed
+input frame. Historical-period data is versioned with the oracle pin.
 
-## 3. Component Plan
+For bootstrap, reuse accepted simulation primitives where semantics agree.
+Provide a test seam for explicit resampling indices or characterize kernels
+separately from sampling. Keep native RNG repeatability and the Python
+conditional-on-draws comparison as distinct evidence.
 
-| Phase | Files touched | New public surface |
-|---|---|---|
-| 38 | ratios.hpp/.cpp + 2 TUs (already in worktree) | `adjusted_sharpe_ratio` |
-| 39 | docs only + regenerated goldens in existing tests | none |
-| 40–47 | ratios.hpp/.cpp + 2 TUs | one function per phase |
-| 48–49 | stats.hpp/.cpp + 2 TUs | `hurst_exponent`, `stutzer_index` |
-| 50 | drawdown.hpp/.cpp + 2 TUs | `drawdown_table` value type + `top_drawdowns`-style entry |
-| 51 | timing.hpp/.cpp + 2 TUs | `extract_interesting_date_ranges` |
-| 52 | perf_stats.hpp/.cpp + 2 TUs | bootstrap variant(s) of `perf_stats` |
+## 4. Execution sequence
 
-## 4. Risks and Mitigations
+38 → 39 first. Independent ratio/statistic/table slices then follow their
+actual dependencies. Phase 49's scalar-minimizer proof is part of 49's entry,
+not a dependency on Phase 60. Phase 52b date aggregation supports any weekly/
+monthly consecutive and rolling gaps. Phase 52 builds on accepted bootstrap
+primitives and the frozen RNG contract. Close assigned coverage only after
+52b and the iteration regression run; retain external domain dependencies.
 
-| Risk | Mitigation |
-|---|---|
-| Phase 39 drift beyond factor_analysis (contrary to expectation) | Drift log classifies each item; any metrics drift blocks Phase 40 until re-baselined. |
-| `hurst_exponent` window policy ambiguity | Design doc must quote oracle source lines and lock window/lag enumeration; no invented defaults. |
-| Drawdown table grows beyond one phase's scope | Freeze at table assembly + underwater series; recovery-period enrichment only if already in the oracle's table. |
-| Unpushed-commit loss mid-iteration | Entry condition: push completes before Phase 40 starts. |
+## 5. Design outputs per slice
 
-## 5. Sequencing
-
-38 → 39 strictly first. Phases 40–47 are independent (any order within ratios;
-keep numeric order for ledger consistency). 48–49 independent. 50 may start
-after 39. 52 requires Phases 20–22 (already accepted) only.
+Exact native declaration and Python mapping; touched files and CMake test
+registration; input/ownership/error table; reusable helpers and deviations;
+fixed fixtures plus independent identities; comparison budgets; benchmark
+impact; commands and durable evidence paths. The phase design refines the
+requirements and cannot silently discard a residual capability.

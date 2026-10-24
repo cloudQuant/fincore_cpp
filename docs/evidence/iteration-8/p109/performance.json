@@ -1,0 +1,687 @@
+{
+  "cases": [
+    {
+      "case": "target_validation",
+      "ci95": [
+        0.9254344218826009,
+        1.331100194371989
+      ],
+      "digests_equal": true,
+      "dispersion": 0.23529900476943363,
+      "median_ratio": 1.127345404215157,
+      "pairs": [
+        {
+          "c4_ms": 1.94171,
+          "c4_rss": 23052288,
+          "current_ms": 5.84721,
+          "current_rss": 21168128,
+          "order": [
+            "c4",
+            "current"
+          ],
+          "pair": 0,
+          "ratio": 3.011371420036977
+        },
+        {
+          "c4_ms": 4.39304,
+          "c4_rss": 21446656,
+          "current_ms": 3.45696,
+          "current_rss": 20725760,
+          "order": [
+            "current",
+            "c4"
+          ],
+          "pair": 1,
+          "ratio": 0.7869174876623022
+        },
+        {
+          "c4_ms": 2.83292,
+          "c4_rss": 22183936,
+          "current_ms": 3.08829,
+          "current_rss": 21807104,
+          "order": [
+            "c4",
+            "current"
+          ],
+          "pair": 2,
+          "ratio": 1.0901437386159865
+        },
+        {
+          "c4_ms": 5.63975,
+          "c4_rss": 20742144,
+          "current_ms": 7.23137,
+          "current_rss": 19218432,
+          "order": [
+            "current",
+            "c4"
+          ],
+          "pair": 3,
+          "ratio": 1.2822146371736336
+        },
+        {
+          "c4_ms": 2.74004,
+          "c4_rss": 21086208,
+          "current_ms": 4.10363,
+          "current_rss": 22380544,
+          "order": [
+            "c4",
+            "current"
+          ],
+          "pair": 4,
+          "ratio": 1.4976533189296506
+        },
+        {
+          "c4_ms": 1.991,
+          "c4_rss": 22282240,
+          "current_ms": 2.62438,
+          "current_rss": 21708800,
+          "order": [
+            "current",
+            "c4"
+          ],
+          "pair": 5,
+          "ratio": 1.3181215469613259
+        },
+        {
+          "c4_ms": 5.30579,
+          "c4_rss": 23035904,
+          "current_ms": 1.86971,
+          "current_rss": 21430272,
+          "order": [
+            "c4",
+            "current"
+          ],
+          "pair": 6,
+          "ratio": 0.3523905016972025
+        },
+        {
+          "c4_ms": 3.92842,
+          "c4_rss": 22085632,
+          "current_ms": 4.57483,
+          "current_rss": 21823488,
+          "order": [
+            "current",
+            "c4"
+          ],
+          "pair": 7,
+          "ratio": 1.1645470698143274
+        },
+        {
+          "c4_ms": 4.51658,
+          "c4_rss": 22216704,
+          "current_ms": 4.33721,
+          "current_rss": 21168128,
+          "order": [
+            "c4",
+            "current"
+          ],
+          "pair": 8,
+          "ratio": 0.9602863228371908
+        },
+        {
+          "c4_ms": 3.43558,
+          "c4_rss": 21692416,
+          "current_ms": 3.65529,
+          "current_rss": 21266432,
+          "order": [
+            "current",
+            "c4"
+          ],
+          "pair": 9,
+          "ratio": 1.0639513561028997
+        }
+      ],
+      "reason": "ratio dispersion >5%",
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "case": "analysis_prepare",
+      "ci95": [
+        0.797915938324822,
+        1.1341771677869943
+      ],
+      "digests_equal": true,
+      "dispersion": 0.1786246826166002,
+      "median_ratio": 1.0083973372654724,
+      "pairs": [
+        {
+          "c4_ms": 213.628,
+          "c4_rss": 43466752,
+          "current_ms": 242.292,
+          "current_rss": 43302912,
+          "order": [
+            "c4",
+            "current"
+          ],
+          "pair": 0,
+          "ratio": 1.1341771677869943
+        },
+        {
+          "c4_ms": 113.487,
+          "c4_rss": 44187648,
+          "current_ms": 124.114,
+          "current_rss": 44761088,
+          "order": [
+            "current",
+            "c4"
+          ],
+          "pair": 1,
+          "ratio": 1.093640681311516
+        },
+        {
+          "c4_ms": 131.976,
+          "c4_rss": 44646400,
+          "current_ms": 117.616,
+          "current_rss": 43843584,
+          "order": [
+            "c4",
+            "current"
+          ],
+          "pair": 2,
+          "ratio": 0.8911923380008486
+        },
+        {
+          "c4_ms": 125.994,
+          "c4_rss": 42958848,
+          "current_ms": 84.0771,
+          "current_rss": 44433408,
+          "order": [
+            "current",
+            "c4"
+          ],
+          "pair": 3,
+          "ratio": 0.6673103481118149
+        },
+        {
+          "c4_ms": 146.907,
+          "c4_rss": 46366720,
+          "current_ms": 143.251,
+          "current_rss": 44236800,
+          "order": [
+            "c4",
+            "current"
+          ],
+          "pair": 4,
+          "ratio": 0.9751135071848176
+        },
+        {
+          "c4_ms": 349.357,
+          "c4_rss": 45121536,
+          "current_ms": 167.614,
+          "current_rss": 44105728,
+          "order": [
+            "current",
+            "c4"
+          ],
+          "pair": 5,
+          "ratio": 0.479778564620145
+        },
+        {
+          "c4_ms": 99.1028,
+          "c4_rss": 43253760,
+          "current_ms": 152.33,
+          "current_rss": 47120384,
+          "order": [
+            "c4",
+            "current"
+          ],
+          "pair": 6,
+          "ratio": 1.5370907784643826
+        },
+        {
+          "c4_ms": 171.772,
+          "c4_rss": 46612480,
+          "current_ms": 159.494,
+          "current_rss": 45006848,
+          "order": [
+            "current",
+            "c4"
+          ],
+          "pair": 7,
+          "ratio": 0.9285215285378292
+        },
+        {
+          "c4_ms": 160.912,
+          "c4_rss": 43679744,
+          "current_ms": 167.619,
+          "current_rss": 44072960,
+          "order": [
+            "c4",
+            "current"
+          ],
+          "pair": 8,
+          "ratio": 1.041681167346127
+        },
+        {
+          "c4_ms": 108.801,
+          "c4_rss": 47890432,
+          "current_ms": 129.158,
+          "current_rss": 47939584,
+          "order": [
+            "current",
+            "c4"
+          ],
+          "pair": 9,
+          "ratio": 1.1871030597145245
+        }
+      ],
+      "reason": "ratio dispersion >5%",
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "case": "research_assembly",
+      "ci95": [
+        0.8053175941384773,
+        1.2017167911655138
+      ],
+      "digests_equal": true,
+      "dispersion": 0.26416909831601687,
+      "median_ratio": 1.039312953581669,
+      "pairs": [
+        {
+          "c4_ms": 404.623,
+          "c4_rss": 135053312,
+          "current_ms": 442.187,
+          "current_rss": 134021120,
+          "order": [
+            "c4",
+            "current"
+          ],
+          "pair": 0,
+          "ratio": 1.092837035956928
+        },
+        {
+          "c4_ms": 366.16,
+          "c4_rss": 134135808,
+          "current_ms": 402.142,
+          "current_rss": 134414336,
+          "order": [
+            "current",
+            "c4"
+          ],
+          "pair": 1,
+          "ratio": 1.098268516495521
+        },
+        {
+          "c4_ms": 380.278,
+          "c4_rss": 133169152,
+          "current_ms": 683.708,
+          "current_rss": 130777088,
+          "order": [
+            "c4",
+            "current"
+          ],
+          "pair": 2,
+          "ratio": 1.797916261261498
+        },
+        {
+          "c4_ms": 655.936,
+          "c4_rss": 132743168,
+          "current_ms": 393.953,
+          "current_rss": 131661824,
+          "order": [
+            "current",
+            "c4"
+          ],
+          "pair": 3,
+          "ratio": 0.600596704556542
+        },
+        {
+          "c4_ms": 362.068,
+          "c4_rss": 134234112,
+          "current_ms": 419.018,
+          "current_rss": 131039232,
+          "order": [
+            "c4",
+            "current"
+          ],
+          "pair": 4,
+          "ratio": 1.1572908956328645
+        },
+        {
+          "c4_ms": 377.304,
+          "c4_rss": 131432448,
+          "current_ms": 492.444,
+          "current_rss": 128712704,
+          "order": [
+            "current",
+            "c4"
+          ],
+          "pair": 5,
+          "ratio": 1.3051650658355067
+        },
+        {
+          "c4_ms": 358.17,
+          "c4_rss": 132366336,
+          "current_ms": 353.08,
+          "current_rss": 134004736,
+          "order": [
+            "c4",
+            "current"
+          ],
+          "pair": 6,
+          "ratio": 0.9857888712064102
+        },
+        {
+          "c4_ms": 423.224,
+          "c4_rss": 130400256,
+          "current_ms": 380.432,
+          "current_rss": 135266304,
+          "order": [
+            "current",
+            "c4"
+          ],
+          "pair": 7,
+          "ratio": 0.8988904220932651
+        },
+        {
+          "c4_ms": 546.851,
+          "c4_rss": 129286144,
+          "current_ms": 442.603,
+          "current_rss": 129695744,
+          "order": [
+            "c4",
+            "current"
+          ],
+          "pair": 8,
+          "ratio": 0.8093667196366103
+        },
+        {
+          "c4_ms": 497.677,
+          "c4_rss": 128204800,
+          "current_ms": 354.219,
+          "current_rss": 134217728,
+          "order": [
+            "current",
+            "c4"
+          ],
+          "pair": 9,
+          "ratio": 0.7117447661836894
+        }
+      ],
+      "reason": "ratio dispersion >5%",
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "case": "positions",
+      "ci95": [
+        0.8072806234003712,
+        0.9972990436409627
+      ],
+      "digests_equal": true,
+      "dispersion": 0.11388635761123943,
+      "median_ratio": 0.8734205330975547,
+      "pairs": [
+        {
+          "c4_ms": 30.5922,
+          "c4_rss": 38633472,
+          "current_ms": 32.2756,
+          "current_rss": 36388864,
+          "order": [
+            "c4",
+            "current"
+          ],
+          "pair": 0,
+          "ratio": 1.055027098410706
+        },
+        {
+          "c4_ms": 33.8031,
+          "c4_rss": 37322752,
+          "current_ms": 30.968,
+          "current_rss": 35733504,
+          "order": [
+            "current",
+            "c4"
+          ],
+          "pair": 1,
+          "ratio": 0.9161289940863412
+        },
+        {
+          "c4_ms": 32.6551,
+          "c4_rss": 37208064,
+          "current_ms": 32.5669,
+          "current_rss": 36536320,
+          "order": [
+            "c4",
+            "current"
+          ],
+          "pair": 2,
+          "ratio": 0.9972990436409627
+        },
+        {
+          "c4_ms": 39.3347,
+          "c4_rss": 35553280,
+          "current_ms": 35.3256,
+          "current_rss": 35356672,
+          "order": [
+            "current",
+            "c4"
+          ],
+          "pair": 3,
+          "ratio": 0.8980772701965442
+        },
+        {
+          "c4_ms": 31.5037,
+          "c4_rss": 36438016,
+          "current_ms": 26.7392,
+          "current_rss": 36208640,
+          "order": [
+            "c4",
+            "current"
+          ],
+          "pair": 4,
+          "ratio": 0.8487637959985653
+        },
+        {
+          "c4_ms": 33.2499,
+          "c4_rss": 34701312,
+          "current_ms": 26.842,
+          "current_rss": 36700160,
+          "order": [
+            "current",
+            "c4"
+          ],
+          "pair": 5,
+          "ratio": 0.8072806234003712
+        },
+        {
+          "c4_ms": 47.8926,
+          "c4_rss": 37634048,
+          "current_ms": 40.4383,
+          "current_rss": 36601856,
+          "order": [
+            "c4",
+            "current"
+          ],
+          "pair": 6,
+          "ratio": 0.8443538250168083
+        },
+        {
+          "c4_ms": 31.7188,
+          "c4_rss": 34390016,
+          "current_ms": 31.8222,
+          "current_rss": 35848192,
+          "order": [
+            "current",
+            "c4"
+          ],
+          "pair": 7,
+          "ratio": 1.0032598963390795
+        },
+        {
+          "c4_ms": 44.2644,
+          "c4_rss": 35405824,
+          "current_ms": 35.6495,
+          "current_rss": 35356672,
+          "order": [
+            "c4",
+            "current"
+          ],
+          "pair": 8,
+          "ratio": 0.8053763295108485
+        },
+        {
+          "c4_ms": 51.483,
+          "c4_rss": 35897344,
+          "current_ms": 37.0076,
+          "current_rss": 37093376,
+          "order": [
+            "current",
+            "c4"
+          ],
+          "pair": 9,
+          "ratio": 0.7188314589281899
+        }
+      ],
+      "reason": "ratio dispersion >5%",
+      "status": "INCONCLUSIVE"
+    },
+    {
+      "case": "fingerprint",
+      "ci95": [
+        0.7497202195738888,
+        1.1433430547343666
+      ],
+      "digests_equal": true,
+      "dispersion": 0.2145038406592532,
+      "median_ratio": 0.9729535318273093,
+      "pairs": [
+        {
+          "c4_ms": 120.13,
+          "c4_rss": 43614208,
+          "current_ms": 72.8985,
+          "current_rss": 41910272,
+          "order": [
+            "c4",
+            "current"
+          ],
+          "pair": 0,
+          "ratio": 0.6068301007242154
+        },
+        {
+          "c4_ms": 79.0565,
+          "c4_rss": 42483712,
+          "current_ms": 69.6543,
+          "current_rss": 40517632,
+          "order": [
+            "current",
+            "c4"
+          ],
+          "pair": 1,
+          "ratio": 0.8810698677528098
+        },
+        {
+          "c4_ms": 68.7068,
+          "c4_rss": 42385408,
+          "current_ms": 61.3284,
+          "current_rss": 42434560,
+          "order": [
+            "c4",
+            "current"
+          ],
+          "pair": 2,
+          "ratio": 0.8926103384235622
+        },
+        {
+          "c4_ms": 70.5405,
+          "c4_rss": 37257216,
+          "current_ms": 63.9883,
+          "current_rss": 39534592,
+          "order": [
+            "current",
+            "c4"
+          ],
+          "pair": 3,
+          "ratio": 0.9071143527477125
+        },
+        {
+          "c4_ms": 66.9338,
+          "c4_rss": 40419328,
+          "current_ms": 72.5629,
+          "current_rss": 41451520,
+          "order": [
+            "c4",
+            "current"
+          ],
+          "pair": 4,
+          "ratio": 1.0840995132504054
+        },
+        {
+          "c4_ms": 60.3635,
+          "c4_rss": 41041920,
+          "current_ms": 69.0555,
+          "current_rss": 43089920,
+          "order": [
+            "current",
+            "c4"
+          ],
+          "pair": 5,
+          "ratio": 1.1439943011919453
+        },
+        {
+          "c4_ms": 60.2108,
+          "c4_rss": 42401792,
+          "current_ms": 68.8416,
+          "current_rss": 40861696,
+          "order": [
+            "c4",
+            "current"
+          ],
+          "pair": 6,
+          "ratio": 1.1433430547343666
+        },
+        {
+          "c4_ms": 106.888,
+          "c4_rss": 37109760,
+          "current_ms": 62.8085,
+          "current_rss": 40927232,
+          "order": [
+            "current",
+            "c4"
+          ],
+          "pair": 7,
+          "ratio": 0.5876103959284484
+        },
+        {
+          "c4_ms": 65.0228,
+          "c4_rss": 43106304,
+          "current_ms": 105.676,
+          "current_rss": 40812544,
+          "order": [
+            "c4",
+            "current"
+          ],
+          "pair": 8,
+          "ratio": 1.6252145401305387
+        },
+        {
+          "c4_ms": 68.0798,
+          "c4_rss": 41287680,
+          "current_ms": 70.7208,
+          "current_rss": 42893312,
+          "order": [
+            "current",
+            "c4"
+          ],
+          "pair": 9,
+          "ratio": 1.0387927109069062
+        }
+      ],
+      "reason": "ratio dispersion >5%",
+      "status": "INCONCLUSIVE"
+    }
+  ],
+  "current": "Iteration 8 candidate",
+  "phase": "P109",
+  "protocol": {
+    "alternating_ab_ba": true,
+    "bootstrap": 10000,
+    "cpu_affinity": "not available on macOS; dispersion gate applied",
+    "dispersion_gate": 0.05,
+    "fresh_processes": true,
+    "pairs": 10,
+    "ratio_ceiling": 1.1
+  },
+  "reference": "Iteration 7 C4 source archive",
+  "schema_version": "1"
+}

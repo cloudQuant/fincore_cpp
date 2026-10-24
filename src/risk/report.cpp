@@ -3,6 +3,7 @@
 #include <fincore/detail/json.hpp>
 #include <fincore/detail/numeric.hpp>
 #include <fincore/error.hpp>
+#include <fincore/errors.hpp>
 
 #include <algorithm>
 #include <charconv>
@@ -10,6 +11,8 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
+#include <filesystem>
+#include <fstream>
 #include <limits>
 #include <map>
 #include <string>
@@ -524,6 +527,90 @@ std::string risk_validation_report::to_json() const {
     writer.end_object();
     output.push_back('\n');
     return output;
+}
+
+namespace {
+
+void require_finite_report_values(const risk_validation_report& report) {
+    for (const auto& event : report.forecast_events) {
+        if (!std::isfinite(event.forecast) || !std::isfinite(event.realized)) {
+            throw fincore_error{validation_error(
+                "forecast events must contain only finite values")};
+        }
+    }
+    for (const auto& refit : report.refits) {
+        if (!std::isfinite(refit.forecast) || !std::isfinite(refit.mean) ||
+            !std::isfinite(refit.standard_deviation)) {
+            throw fincore_error{
+                validation_error("refits must contain only finite values")};
+        }
+    }
+    if (report.has_backtest) {
+        const auto& backtest = report.backtest;
+        for (const double value :
+             {backtest.confidence_level, backtest.expected_exceptions,
+              backtest.exception_rate, backtest.kupiec_lr,
+              backtest.kupiec_pvalue, backtest.christoffersen_lr,
+              backtest.christoffersen_pvalue}) {
+            if (!std::isfinite(value)) {
+                throw fincore_error{validation_error(
+                    "backtest fields must contain only finite values")};
+            }
+        }
+    }
+}
+
+}  // namespace
+
+risk_validation_report_dict risk_validation_report::to_dict() const {
+    require_finite_report_values(*this);
+
+    risk_validation_report_dict result;
+    result.schema_version = schema_version;
+    result.status = std::string{walk_forward_status_name(status)};
+    result.inputs_digest = inputs_digest;
+    result.timestamp_index_name = timestamp_index_name;
+    result.timestamp_timezone = timestamp_timezone;
+    result.specification = specification;
+    result.forecast_events = forecast_events;
+    result.refits = refits;
+    result.diagnostics = diagnostics;
+    if (has_backtest) {
+        result.backtest = backtest;
+    }
+    result.traffic_light_zone = traffic_light_zone;
+    result.disclosure = disclosure;
+    return result;
+}
+
+std::filesystem::path risk_validation_report::write_json(
+    const std::filesystem::path& path) const {
+    // Validate once through the native dict projection so contract failures
+    // surface as fincore_error rather than an I/O-side type error.
+    static_cast<void>(to_dict());
+
+    std::string text;
+    try {
+        text = to_json();
+    } catch (const fincore_error&) {
+        throw;
+    } catch (const std::exception& error) {
+        throw fincore_error{validation_error(error.what())};
+    }
+
+    std::ofstream output(path, std::ios::binary | std::ios::trunc);
+    if (!output) {
+        throw fincore_error{validation_error(
+            "could not open risk report path for writing", "path",
+            path.string())};
+    }
+    output.write(text.data(), static_cast<std::streamsize>(text.size()));
+    output.close();
+    if (!output) {
+        throw fincore_error{validation_error(
+            "could not write risk report JSON", "path", path.string())};
+    }
+    return path;
 }
 
 }  // namespace fincore

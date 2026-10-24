@@ -1,15 +1,19 @@
 #pragma once
 
+#include <fincore/factor/calendar.hpp>
 #include <fincore/factor/data.hpp>
 #include <fincore/factor/performance.hpp>
 #include <fincore/factor/portfolio.hpp>
 
 #include <cstddef>
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <vector>
 
 namespace fincore {
+
+inline constexpr std::uint32_t factor_analysis_fingerprint_version = 2U;
 
 struct factor_analysis_config {
     bool long_short = true;
@@ -39,6 +43,8 @@ struct factor_spread_row {
     std::string period;
     double spread = 0.0;
     double standard_error = 0.0;
+    /// Empty for aggregate rows; set for a by-group spread row.
+    std::string group;
 };
 
 struct factor_cumulative_curve {
@@ -91,15 +97,34 @@ struct factor_event_model {
 
 struct factor_time_information_table {
     std::string frequency;
-    std::vector<timestamp> dates;
+    std::vector<timestamp> dates;  // month rows; repeats once per group
     std::vector<std::string> labels;
-    std::vector<double> means;  // dates x labels
+    std::vector<double> means;  // (date[, group]) rows x labels
+    /// Empty for aggregate output; otherwise parallel to dates.
+    std::vector<std::string> groups;
+};
+
+/// Python's primary by_group result views, kept separate from grouped_results.
+/// These tables were computed from the full analysis universe before their
+/// group rows were selected, so long_short demeaning can span groups.
+struct factor_group_snapshot {
+    std::string group;
+    quantile_return_table mean_returns_by_quantile;
+    quantile_date_return_table mean_returns_by_date;
+    std::vector<factor_spread_row> mean_return_spread;
+    factor_ic_table information_coefficient;
+    factor_ic_summary mean_information_coefficient;
+    std::vector<factor_time_information_table> time_aggregated_information;
 };
 
 struct factor_analysis_model {
     prepared_factor_data factor_data;
     std::vector<std::string> forward_periods;
     std::vector<factor_quantile_statistics> quantile_statistics;
+    // Longstanding C++ table fields below remain aggregate views even when
+    // config.by_group is true. They map to Python aggregate_* snapshots;
+    // group_snapshots owns Python's primary by_group views. grouped_results
+    // remains a separate per-subgroup-universe analysis.
     factor_ic_table information_coefficient;
     factor_ic_summary mean_information_coefficient;
     factor_return_table factor_returns;
@@ -119,6 +144,20 @@ struct factor_analysis_model {
     std::optional<dataframe> event_input_snapshot;
     std::optional<factor_portfolio_inputs> portfolio_inputs;
     std::string result_fingerprint;
+    /// Present only when group_neutral makes the legacy summary IC differ
+    /// from information_coefficient; otherwise that field is the same view.
+    std::optional<factor_ic_table> summary_information_coefficient;
+    std::vector<factor_group_snapshot> group_snapshots;
+    /// Owning copy of the requested options, including the original periods.
+    factor_analysis_config config;
+    std::uint32_t result_fingerprint_version =
+        factor_analysis_fingerprint_version;
+
+    /// Deterministic JSON representation (native serialization envelope).
+    ///
+    /// Implemented in factor/serialization.cpp; declared here so the model
+    /// keeps the source's ``to_serializable`` member route.
+    std::string to_serializable() const;
 };
 
 factor_analysis_model analyze_factor(
@@ -135,5 +174,14 @@ factor_analysis_model analyze_factor(
 /// IC/FDR inference over the model's stored aggregate IC snapshot.
 ic_inference_result factor_model_inference(
     const factor_analysis_model& model, double alpha = 0.05);
+
+
+namespace detail {
+
+/// Benchmark-only entry to the native v2 fingerprint encoder.
+std::string factor_fingerprint_for_benchmark(
+    const prepared_factor_data& data, const factor_analysis_config& config);
+
+}  // namespace detail
 
 }  // namespace fincore

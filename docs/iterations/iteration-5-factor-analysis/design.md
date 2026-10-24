@@ -1,97 +1,83 @@
-# Iteration 5 — Factor Analysis: Design Document
+# Iteration 5 — Factor Analysis: Design
 
-**Iteration ID:** iteration-5-factor-analysis
-**Status:** Draft
-**Depends on:** Iteration 1 (metrics kernel), Iteration 4 (chart primitives);
-independent of Iterations 2–3 except shared numerics.
+**Status:** Revised plan. [Shared contract](../delivery-contract.md) applies.
 
-## 1. Architecture Overview
+## 1. Phase 77 panel spike
 
-New domain directory:
+Evaluate owning wide tables versus canonical long/columnar storage with
+compact date/asset IDs and indexed views. Benchmark dense and sparse,
+unbalanced universes before choosing; a T×A dense allocation is not forced
+when only a small fraction of pairs exists. Freeze complexity and peak-memory
+budgets using Phase 39 workloads. `factor_panel` is the single semantic
+boundary; internal iteration views may differ without changing its contract.
 
-```
-include/fincore/factor/{panel,prepare,analysis,performance,turnover,
-                        portfolio,research,models}.hpp
-src/factor/*.cpp + tests/unit/factor_*_test.cpp
-assets/echarts.min.js                      (Phase 86, verbatim port)
-src/report/factor_html.cpp                 (Phase 86 renderer)
-```
+Owned/immutable backing storage holds timestamps, asset IDs, factor values,
+forward-return columns, groups, weights and validity/membership masks.
+Describe multiple factors/horizons without ambiguous "optional factor
+columns" mixed into asset columns. Internal views cannot outlive backing
+ownership. Returned prepared/analysis/research/report objects own or retain
+immutable data, and tests destroy/mutate the caller's original inputs.
 
-The decisive structure is Phase 77's panel layer; everything else is the
-established leaf pattern plus the compute/render split from Iteration 4.
+Freeze sort/duplicate policy, calendar/day-count and timezone normalization,
+horizon meaning, label boundaries, group handling, ties/quantile errors,
+missingness, asset entry/exit and PIT/as-of availability. Adapt Python
+MultiIndex semantics explicitly; a scalar metric's preserve-input-order rule
+is not a blanket ban on oracle-required panel sorting.
 
-## 2. Key Design Decisions
+## 2. Kernel-first analysis and costs
 
-### D1 — `factor_panel`: a view layer, not a container
-`factor_panel` does **not** own data. It is a non-owning view over a
-`dataframe` (wide: date index × asset columns) plus optional factor-value
-columns, exposing typed iteration:
+78 builds prepared data from the adapter. 80/81/82 supply performance,
+turnover, portfolio and gross-to-net cost/capacity calculations. Only then
+79 assembles `FactorAnalysisModel`, including its portfolio inputs. Separate
+small designs within 80/82 keep their broad public inventories implementable.
 
-- `cross_sections()` — ordered date → column-name/value pairs (the
-  `groupby(level=date)` equivalent);
-- `asset_series(name)` — one asset's column as a series view (the `xs` /
-  `unstack` equivalent);
-- `quantile_buckets(values, q)` — bucket edges/labels matching pandas
-  `qcut` semantics (duplicate-edge dropping, NaN exclusion);
-- `forward_returns(period)` — `shift`-equivalent forward-return computation
-  on the aligned frame.
+Shared weights, membership and forward-return results are computed once per
+compatible analysis request. Cache identity includes input content/version,
+asset/date ordering, horizon, groups/weights, calendar, config and oracle/
+algorithm version as appropriate. Specify invalidation and deterministic
+ordering. Do not hash raw object addresses or rely on mutable caller storage.
 
-Rationale: the Python codebase's 110 MultiIndex call sites all reduce to
-these four operations on wide data; making them the only door forces every
-consumer through parity-tested semantics.
+Independent invariants include weight budgets, group-neutral conditions when
+selected, turnover bounds under declared conventions, gross/net/cost ledger
+identities and future-perturbation invariance of earlier computations.
+Regression/inference/special functions receive justified numerical budgets;
+"no iterative solver" does not imply all floating results are bit-exact.
 
-### D2 — Compute-once frozen models, mirroring `models.py`
-`analyze_factor` (Phase 79) produces one frozen value type; every downstream
-consumer (performance, turnover, portfolio, tears, HTML report) reads it and
-never recomputes. This mirrors the Python `models.py` renderer-ready design
-and is the mechanism Phase 87's reuse-parity measures.
+## 3. Models, research and rendering
 
-### D3 — Research entry validates, then delegates
-`evaluate_factor_research` (Phase 83) is a spec-driven façade: validate the
-plain wide frame (UTC index, double columns, required names) with the
-established structural-error machinery, then compose panel + prepare +
-analysis + report compute. Its artifacts (CSV paths, chart models) are part
-of the returned result value type.
+84 projects immutable analysis results into the 88a shared document schema.
+It does not create a competing factor-only document/asset type. 83 evaluates
+plain transport inputs into tables/manifest with no file I/O. A separate
+export function uses the 88a artifact contract, returns explicit paths and
+statuses, creates a unique evaluation directory and refuses overwrite,
+matching the pinned source. CSV serialization and optional chart export are
+accepted independently; headless computation does not require matplotlib.
 
-### D4 — ECharts report as string assembly, asset shipped verbatim
-Phase 86's renderer emits HTML/JS strings from the frozen model. The
-`echarts.min.js` asset is copied byte-for-byte from the Python repo into the
-C++ repo (`assets/`), never regenerated; a test pins its SHA-256. Chart
-options are generated by small deterministic serializer functions, one per
-chart family (line/bar/histogram/KPI/table), with zh/en label dictionaries as
-static data.
+85 consumes neutral chart data with ImPlot. 86 embeds the pinned ECharts
+asset with its version/hash and redistribution notices, uses a shared JSON/
+HTML serializer, and renders offline. Encode user-supplied labels, notes and
+asset names correctly inside HTML and script JSON, including `</script>`,
+quotes, Unicode and nonfinite numeric representations. No CDN fallback is
+needed for an offline artifact. Do not claim visual equivalence for
+substituted violin/QQ features.
 
-### D5 — Turnover kernels mirror the vectorized structure
-The Python side computes turnover with vectorized NumPy kernels (not pandas
-apply). The C++ port mirrors the same block structure (per-quantile
-membership matrices, then set-difference counts) so per-stage parity can be
-asserted on the intermediates, not just the final scalar.
+## 4. Measured compute-once and lifetime checks
 
-### D6 — PIT/calendar minimal subset
-Phase 78 design enumerates which PIT contract checks and calendar behaviors
-the ported functions consume and ports exactly those as static/leaf
-utilities, recording the exclusion list. No general CustomBusinessDay
-engine.
+Instrument expensive kernel invocation counts and allocation/copy counts;
+rendering a second format must not rerun analysis. Snapshot reuse must also
+preserve isolation when a consumer mutates a returned copy. Python snapshots
+can themselves copy on access; mirror the observable isolation semantics,
+not a presumed free view or every incidental internal allocation.
 
-## 3. Component Plan
+87 reports cold/warm computation, snapshot/projection, serialization and
+file-output costs separately with equivalent Python/C++ work, several panel
+sizes and peak RSS. Test cache-key changes and no stale output. A structural
+argument alone is insufficient for a performance or compute-once claim.
 
-As in requirements §3 (phases ↔ files 1:1); Phase 85 composes Iteration 4
-adapter functions into tear-sheet panels inside the existing demo/adapter
-surface; Phase 86 adds the HTML renderer + asset.
+## 5. Sequence
 
-## 4. Risks and Mitigations
-
-| Risk | Mitigation |
-|---|---|
-| Oracle drift during the iteration (factor analysis is active) | Drift checkpoint before Phase 77 (entry condition); re-check between phases 80–83; re-pin phase inserted on any advance. |
-| qcut duplicate-edge semantics subtle | D1 bucketing gets dedicated parity tests (edges, labels, duplicates, NaN) before any consumer exists. |
-| Panel adapter gaps discovered mid-consumer-phase | Standing rule: fix in the adapter with a parity test; consumer phases never reimplement. |
-| ECharts asset divergence | SHA-256 pin test; asset never regenerated. |
-| Tear-sheet fidelity (violin/QQ plots) | Iteration 4 substitution decisions apply; fidelity notes mandatory in Phase 85 acceptance. |
-| Byte-stability of HTML output | Deterministic serializer ordering (sorted keys, fixed locale, no timestamps unless oracle emits them). |
-
-## 5. Sequencing
-
-77 → 78 → 79 strictly ordered. 80, 81 after 78 (need prepare). 82 after 79.
-83 after 78–82. 84 after 79. 85 after 84 + Iteration 4. 86 after 84 (needs
-frozen models; can parallel 85). 87 last.
+39 → 77 → 78 → 80/81; 82 also requires the performance kernels it calls
+from 80. Complete required 80/81/82 before 79. Then 83 (plus artifact contract) and
+84 (plus 88a). 85 requires 84 and needed chart primitives; 86 requires 84 and
+88a. They can proceed separately. 87 closes measured behavior after the
+functional slices; baseline collection occurs before them, not only at 87.

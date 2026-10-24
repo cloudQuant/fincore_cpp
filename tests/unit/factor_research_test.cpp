@@ -1,6 +1,8 @@
 #include <fincore/calendar.hpp>
+#include <fincore/detail/factor_compute.hpp>
 #include <fincore/factor/exceptions.hpp>
 #include <fincore/factor/research.hpp>
+#include "../../src/factor/research_export_internal.hpp"
 
 #include <gtest/gtest.h>
 
@@ -8,7 +10,12 @@
 #include <cmath>
 #include <filesystem>
 #include <fstream>
+#include <functional>
+#include <limits>
+#include <atomic>
+#include <thread>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -66,6 +73,61 @@ fincore::research_spec spec() {
     value.preprocess = "cross_section_rank";
     value.stability_lags = {1, 5};
     return value;
+}
+
+research_fixture make_grid_fixture(
+    const std::vector<fincore::timestamp>& dates,
+    const fincore::timestamp start,
+    const fincore::timestamp end) {
+    const char* assets[] = {"A", "B", "C"};
+    research_fixture fixture;
+    fixture.prices.load_index(std::vector<fincore::timestamp>{dates});
+    for (std::size_t position = 0; position < dates.size(); ++position) {
+        if (dates[position] < start || dates[position] > end) {
+            continue;
+        }
+        for (int asset = 0; asset < 3; ++asset) {
+            fixture.factor.dates.push_back(dates[position]);
+            fixture.factor.assets.emplace_back(assets[asset]);
+            fixture.factor.values.push_back(
+                static_cast<double>(asset + 1) +
+                static_cast<double>(position) * 0.01);
+        }
+    }
+    for (int asset = 0; asset < 3; ++asset) {
+        std::vector<double> values;
+        values.reserve(dates.size());
+        for (std::size_t position = 0; position < dates.size(); ++position) {
+            values.push_back(100.0 + 10.0 * asset +
+                             static_cast<double>(position) * (asset + 1));
+        }
+        fixture.prices.load_column<double>(
+            assets[asset], std::move(values),
+            hmdf::nan_policy::dont_pad_with_nans);
+    }
+    return fixture;
+}
+
+fincore::research_spec grid_spec(const fincore::timestamp start,
+                                 const fincore::timestamp end,
+                                 std::vector<int> periods) {
+    auto config = spec();
+    config.targets = {"A", "B", "C"};
+    config.start = start;
+    config.end = end;
+    config.periods = std::move(periods);
+    config.quantiles = 3;
+    config.max_loss = 1.0;
+    config.preprocess = "none";
+    config.stability_lags = {1};
+    return config;
+}
+
+std::string read_text_file(const std::filesystem::path& path) {
+    std::ifstream stream(path, std::ios::binary);
+    std::stringstream contents;
+    contents << stream.rdbuf();
+    return contents.str();
 }
 
 TEST(FactorResearch, EvaluatesPanelsAndReportsTables) {
@@ -170,7 +232,11 @@ TEST(FactorResearch, ExportsCsvTablesWithoutOverwriting) {
     const auto directory =
         std::filesystem::temp_directory_path() /
         ("fincore-research-export-" + std::to_string(stamp));
+    const auto repeated_directory = directory.string() + "-repeat";
+    const auto sentinel_directory = directory.string() + "-sentinel";
     std::filesystem::remove_all(directory);
+    std::filesystem::remove_all(repeated_directory);
+    std::filesystem::remove_all(sentinel_directory);
 
     const auto exported = fincore::export_factor_research(
         result, directory.string());
@@ -206,6 +272,50 @@ TEST(FactorResearch, ExportsCsvTablesWithoutOverwriting) {
     turnover_text << turnover.rdbuf();
     EXPECT_NE(turnover_text.str().find("1,"), std::string::npos);
 
+    const auto repeated = fincore::export_factor_research(
+        result, repeated_directory);
+    EXPECT_EQ(repeated.files, exported.files);
+    for (const auto& name : exported.files) {
+        EXPECT_EQ(read_text_file(directory / name),
+                  read_text_file(std::filesystem::path{repeated_directory} /
+                                 name));
+    }
+    EXPECT_NE(read_text_file(directory / "manifest.json").find(
+                  "\"status\": \"OK\""),
+              std::string::npos);
+
+    auto optional_summaries = result;
+    optional_summaries.information_coefficient_summary = {};
+    optional_summaries.spread.clear();
+    optional_summaries.coverage.clear();
+    const auto fallback_directory = directory.string() + "-fallback";
+    static_cast<void>(fincore::export_factor_research(
+        optional_summaries, fallback_directory));
+    EXPECT_EQ(read_text_file(std::filesystem::path{fallback_directory} /
+                             "ic_summary.csv"),
+              "label,mean_ic\n1D,\n");
+    EXPECT_EQ(read_text_file(std::filesystem::path{fallback_directory} /
+                             "spreads.csv"),
+              "label,spread\n1D,\n");
+    EXPECT_EQ(read_text_file(std::filesystem::path{fallback_directory} /
+                             "coverage.csv"),
+              "label,count\n1D,\n");
+    std::filesystem::remove_all(fallback_directory);
+
+    ASSERT_TRUE(std::filesystem::create_directory(sentinel_directory));
+    const auto sentinel = std::filesystem::path{sentinel_directory} /
+                          "keep.txt";
+    {
+        std::ofstream stream(sentinel, std::ios::binary);
+        stream << "preserve me\n";
+    }
+    EXPECT_THROW(static_cast<void>(fincore::export_factor_research(
+                     result, sentinel_directory)),
+                 fincore::factor_data_error);
+    EXPECT_EQ(read_text_file(sentinel), "preserve me\n");
+    EXPECT_FALSE(std::filesystem::exists(
+        std::filesystem::path{sentinel_directory} / "ic.csv"));
+
     EXPECT_THROW(
         static_cast<void>(fincore::export_factor_research(
             result, directory.string())),
@@ -215,6 +325,161 @@ TEST(FactorResearch, ExportsCsvTablesWithoutOverwriting) {
         static_cast<void>(fincore::export_factor_research(
             result, charts_directory, true)),
         fincore::factor_data_error);
+    std::filesystem::remove_all(directory);
+    std::filesystem::remove_all(repeated_directory);
+    std::filesystem::remove_all(sentinel_directory);
+}
+
+TEST(FactorResearch,
+     RejectsMalformedIndexedExportShapesBeforeFilesystemWrites) {
+    const auto stamp = std::chrono::steady_clock::now()
+                           .time_since_epoch()
+                           .count();
+    const auto root = std::filesystem::temp_directory_path() /
+                      ("fincore-research-invalid-export-" +
+                       std::to_string(stamp));
+    std::filesystem::remove_all(root);
+    const auto date = fincore::utc_timestamp(2022, 1, 3);
+    const auto valid = [&] {
+        fincore::research_result result;
+        result.information_coefficient.labels = {"1D"};
+        result.information_coefficient.dates = {date};
+        result.information_coefficient.values = {0.1};
+        result.quantile_returns.labels = {"1D"};
+        return result;
+    };
+
+    std::vector<fincore::research_result> invalid_results;
+    {
+        auto result = valid();
+        result.information_coefficient.values.clear();
+        invalid_results.push_back(std::move(result));
+    }
+    {
+        auto result = valid();
+        result.quantile_returns.quantiles = {1};
+        result.quantile_returns.standard_errors = {0.001};
+        invalid_results.push_back(std::move(result));
+    }
+    {
+        auto result = valid();
+        result.quantile_returns.quantiles = {1};
+        result.quantile_returns.means = {0.01};
+        invalid_results.push_back(std::move(result));
+    }
+    {
+        auto result = valid();
+        result.quantile_returns.labels = {"5D"};
+        result.quantile_returns.quantiles = {1};
+        result.quantile_returns.means = {0.01};
+        result.quantile_returns.standard_errors = {0.001};
+        invalid_results.push_back(std::move(result));
+    }
+    {
+        auto result = valid();
+        result.turnover.push_back({{date}, {}});
+        invalid_results.push_back(std::move(result));
+    }
+    {
+        auto result = valid();
+        result.stability.push_back({{date}, {}});
+        invalid_results.push_back(std::move(result));
+    }
+
+    for (std::size_t index = 0; index < invalid_results.size(); ++index) {
+        const auto target = root / std::to_string(index);
+        EXPECT_THROW(static_cast<void>(fincore::export_factor_research(
+                         invalid_results[index], target.string())),
+                     fincore::factor_data_error);
+        EXPECT_FALSE(std::filesystem::exists(target));
+        EXPECT_FALSE(std::filesystem::exists(root));
+    }
+    std::filesystem::remove_all(root);
+}
+
+TEST(FactorResearch,
+     RejectsInvalidTargetAndReservedManifestKeysBeforeFilesystemWrites) {
+    const auto stamp = std::chrono::steady_clock::now()
+                           .time_since_epoch()
+                           .count();
+    const auto root = std::filesystem::temp_directory_path() /
+                      ("fincore-research-invalid-target-" +
+                       std::to_string(stamp));
+    std::filesystem::remove_all(root);
+
+    fincore::research_result valid;
+    valid.information_coefficient.labels = {"1D"};
+    valid.information_coefficient.dates = {
+        fincore::utc_timestamp(2022, 1, 3)};
+    valid.information_coefficient.values = {0.1};
+    valid.quantile_returns.labels = {"1D"};
+
+    std::string nul_path = (root / "artifact").string();
+    nul_path.push_back('\0');
+    nul_path += "suffix";
+    EXPECT_THROW(static_cast<void>(
+                     fincore::export_factor_research(valid, nul_path)),
+                 fincore::factor_data_error);
+    EXPECT_FALSE(std::filesystem::exists(root));
+
+    for (const std::string reserved_key : {"status", "exports"}) {
+        auto result = valid;
+        result.manifest[reserved_key] = "caller value";
+        EXPECT_THROW(static_cast<void>(fincore::export_factor_research(
+                         result, (root / reserved_key).string())),
+                     fincore::factor_data_error);
+        EXPECT_FALSE(std::filesystem::exists(root));
+    }
+    std::filesystem::remove_all(root);
+}
+
+TEST(FactorResearch, RemovesOwnedDirectoryAfterInjectedMidwriteFailure) {
+    fincore::research_result result;
+    result.status = "OK";
+    result.information_coefficient.labels = {"1D"};
+    result.information_coefficient.dates = {
+        fincore::utc_timestamp(2022, 1, 3)};
+    result.information_coefficient.values = {0.1};
+    result.quantile_returns.labels = {"1D"};
+
+    const auto stamp = std::chrono::steady_clock::now()
+                           .time_since_epoch()
+                           .count();
+    const auto directory = std::filesystem::temp_directory_path() /
+                          ("fincore-research-injected-failure-" +
+                           std::to_string(stamp));
+    std::filesystem::remove_all(directory);
+    std::size_t writes = 0U;
+    const fincore::research_export_detail::table_writer writer =
+        [&](const std::filesystem::path& path,
+            const std::vector<std::string>&,
+            const fincore::research_export_detail::table_generator&) {
+            if (writes == 0U) {
+                std::ofstream stream(path, std::ios::binary);
+                stream << "first table completed\n";
+                stream.flush();
+                if (!stream) {
+                    throw std::runtime_error{"injected test setup write failed"};
+                }
+                stream.close();
+                if (!stream) {
+                    throw std::runtime_error{"injected test setup close failed"};
+                }
+                ++writes;
+                return;
+            }
+            EXPECT_TRUE(std::filesystem::exists(directory / "ic.csv"));
+            ++writes;
+            throw fincore::factor_data_error{"injected table write failure"};
+        };
+
+    EXPECT_THROW(static_cast<void>(
+                     fincore::research_export_detail::
+                         export_factor_research_with_writer(
+                             result, directory.string(), false, writer)),
+                 fincore::factor_data_error);
+    EXPECT_EQ(writes, 2U);
+    EXPECT_FALSE(std::filesystem::exists(directory));
     std::filesystem::remove_all(directory);
 }
 
@@ -749,6 +1014,196 @@ TEST(FactorResearch, EvaluatesWeightedFactorCombinations) {
                  fincore::factor_data_error);
 }
 
+TEST(FactorResearch, DerivesIntradayLabelsFromTheStudyGrid) {
+    constexpr fincore::timestamp half_hour = 1'800'000'000'000LL;
+    const auto first_price = fincore::utc_timestamp(2022, 1, 3, 9, 30);
+    std::vector<fincore::timestamp> dates;
+    for (int row = 0; row < 5; ++row) {
+        dates.push_back(first_price + row * half_hour);
+    }
+    const auto start = dates[1];
+    const auto end = dates[3];
+    const auto fixture = make_grid_fixture(dates, start, end);
+    auto config = grid_spec(start, end, {1, 2});
+
+    for (const std::string label : {"close_to_close", "next_open_to_open"}) {
+        config.label = label;
+        const auto result = fincore::evaluate_factor_research(
+            fixture.factor, fixture.prices, config);
+        ASSERT_EQ(result.information_coefficient.labels.size(), 2U);
+        EXPECT_EQ(result.information_coefficient.labels[0], "30m");
+        EXPECT_EQ(result.information_coefficient.labels[1], "1h");
+    }
+}
+
+TEST(FactorResearch, DerivesIntradayLabelsWithUniverseForBothPriceModes) {
+    constexpr fincore::timestamp half_hour = 1'800'000'000'000LL;
+    const auto first_price = fincore::utc_timestamp(2022, 1, 3, 9, 30);
+    std::vector<fincore::timestamp> dates;
+    for (int row = 0; row < 5; ++row) {
+        dates.push_back(first_price + row * half_hour);
+    }
+    const auto start = dates[1];
+    const auto end = dates[3];
+    const auto fixture = make_grid_fixture(dates, start, end);
+    fincore::dataframe universe;
+    universe.load_index(std::vector<fincore::timestamp>{dates});
+    for (const std::string asset : {"A", "B", "C"}) {
+        universe.load_column<bool>(
+            asset.c_str(), std::vector<bool>(dates.size(), true),
+            hmdf::nan_policy::dont_pad_with_nans);
+    }
+
+    auto config = grid_spec(start, end, {1, 2});
+    for (const std::string label : {"close_to_close", "next_open_to_open"}) {
+        config.label = label;
+        const auto result = fincore::evaluate_factor_research(
+            fixture.factor, fixture.prices, config, universe);
+        ASSERT_EQ(result.information_coefficient.labels.size(), 2U);
+        EXPECT_EQ(result.information_coefficient.labels[0], "30m");
+        EXPECT_EQ(result.information_coefficient.labels[1], "1h");
+        ASSERT_EQ(result.manifest.count("universe"), 1U);
+        EXPECT_EQ(result.manifest.at("universe"), "applied");
+    }
+
+    auto unsupported = config;
+    unsupported.label = "unknown_basis";
+    EXPECT_THROW(static_cast<void>(fincore::evaluate_factor_research(
+                     fixture.factor, fixture.prices, unsupported, universe)),
+                 fincore::factor_data_error);
+    auto precomputed = config;
+    precomputed.label = "precomputed";
+    EXPECT_THROW(static_cast<void>(fincore::evaluate_factor_research(
+                     fixture.factor, fixture.prices, precomputed, universe)),
+                 fincore::factor_data_error);
+}
+
+TEST(FactorResearch, UsesTheFirstStudyDateAfterPriceBufferRows) {
+    const std::vector<fincore::timestamp> dates{
+        fincore::utc_timestamp(2022, 1, 3, 8, 30),
+        fincore::utc_timestamp(2022, 1, 3, 9, 0),
+        fincore::utc_timestamp(2022, 1, 3, 9, 30),
+        fincore::utc_timestamp(2022, 1, 3, 10, 30),
+        fincore::utc_timestamp(2022, 1, 3, 11, 30)};
+    const auto start = dates[2];
+    const auto end = dates[3];
+    const auto fixture = make_grid_fixture(dates, start, end);
+    auto config = grid_spec(start, end, {1});
+
+    for (const std::string label : {"close_to_close", "next_open_to_open"}) {
+        config.label = label;
+        const auto result = fincore::evaluate_factor_research(
+            fixture.factor, fixture.prices, config);
+        ASSERT_EQ(result.information_coefficient.labels.size(), 1U);
+        EXPECT_EQ(result.information_coefficient.labels[0], "1h");
+    }
+}
+
+TEST(FactorResearch, NormalizesWeekendAndHolidayGapsOnTheInferredCalendar) {
+    std::vector<fincore::timestamp> weekend_dates;
+    for (unsigned day = 3; day <= 7; ++day) {
+        weekend_dates.push_back(fincore::utc_timestamp(2022, 1, day, 9, 30));
+    }
+    weekend_dates.push_back(fincore::utc_timestamp(2022, 1, 10, 9, 30));
+    weekend_dates.push_back(fincore::utc_timestamp(2022, 1, 11, 9, 30));
+    const auto friday = weekend_dates[4];
+    const auto monday = weekend_dates[5];
+    const auto weekend_fixture =
+        make_grid_fixture(weekend_dates, friday, monday);
+
+    std::vector<fincore::timestamp> holiday_dates;
+    for (unsigned day = 3; day <= 7; ++day) {
+        holiday_dates.push_back(
+            day == 7 ? fincore::utc_timestamp(2022, 1, day, 15, 30)
+                     : fincore::utc_timestamp(2022, 1, day, 9, 30));
+    }
+    holiday_dates.push_back(fincore::utc_timestamp(2022, 1, 11, 9, 30));
+    holiday_dates.push_back(fincore::utc_timestamp(2022, 1, 12, 9, 30));
+    const auto holiday_start = holiday_dates[4];
+    const auto holiday_end = holiday_dates[5];
+    const auto holiday_fixture =
+        make_grid_fixture(holiday_dates, holiday_start, holiday_end);
+
+    for (const std::string label : {"close_to_close", "next_open_to_open"}) {
+        auto weekend_config = grid_spec(friday, monday, {1});
+        weekend_config.label = label;
+        const auto weekend_result = fincore::evaluate_factor_research(
+            weekend_fixture.factor, weekend_fixture.prices, weekend_config);
+        ASSERT_EQ(weekend_result.information_coefficient.labels.size(), 1U);
+        EXPECT_EQ(weekend_result.information_coefficient.labels[0], "1D");
+
+        auto holiday_config = grid_spec(holiday_start, holiday_end, {1});
+        holiday_config.label = label;
+        const auto holiday_result = fincore::evaluate_factor_research(
+            holiday_fixture.factor, holiday_fixture.prices, holiday_config);
+        ASSERT_EQ(holiday_result.information_coefficient.labels.size(), 1U);
+        EXPECT_EQ(holiday_result.information_coefficient.labels[0], "1D18h");
+    }
+}
+
+TEST(FactorResearch, FormatsSubsecondAndCalendarDurationComponents) {
+    constexpr fincore::timestamp second = 1'000'000'000LL;
+    const auto start = fincore::utc_timestamp(2022, 1, 3, 9, 30);
+    const std::vector<fincore::timestamp> offsets{
+        0LL, 1LL, 1'000LL, 1'000'000LL, second, 60LL * second,
+        3'600LL * second, 86'400LL * second, 86'400LL * second + second};
+    std::vector<fincore::timestamp> dates;
+    for (const auto offset : offsets) {
+        dates.push_back(start + offset);
+    }
+    const auto fixture = make_grid_fixture(dates, start, start);
+    auto config = grid_spec(start, start, {1, 2, 3, 4, 5, 6, 7});
+    const std::vector<std::string> expected{
+        "1ns", "1us", "1ms", "1s", "1m", "1h", "1D"};
+
+    for (const std::string label : {"close_to_close", "next_open_to_open"}) {
+        config.label = label;
+        const auto result = fincore::evaluate_factor_research(
+            fixture.factor, fixture.prices, config);
+        EXPECT_EQ(result.information_coefficient.labels, expected);
+    }
+}
+
+TEST(FactorResearch, RejectsDuplicateCanonicalLabelsForBothPriceLabelModes) {
+    const auto start = fincore::utc_timestamp(2022, 1, 3, 9, 30);
+    const std::vector<fincore::timestamp> dates{
+        start, start + 86'400'000'000'000LL,
+        start + 2 * 86'400'000'000'000LL};
+    const auto fixture = make_grid_fixture(dates, dates.front(), dates.front());
+    auto config = grid_spec(dates.front(), dates.front(), {1, 1});
+
+    for (const std::string label : {"close_to_close", "next_open_to_open"}) {
+        config.label = label;
+        try {
+            static_cast<void>(fincore::evaluate_factor_research(
+                fixture.factor, fixture.prices, config));
+            FAIL() << "expected duplicate canonical-label rejection";
+        } catch (const fincore::factor_data_error& error) {
+            EXPECT_STREQ(
+                error.what(),
+                "requested periods map to duplicate forward-return labels");
+        }
+    }
+}
+
+TEST(FactorResearch, FormatsIntervalsAcrossTheFullTimestampRangeWithoutOverflow) {
+    constexpr auto minimum = std::numeric_limits<fincore::timestamp>::min();
+    constexpr auto maximum = std::numeric_limits<fincore::timestamp>::max();
+    const std::vector<fincore::timestamp> dates{
+        minimum, minimum + 1, maximum - 1, maximum};
+    const auto fixture = make_grid_fixture(dates, minimum, minimum);
+    auto config = grid_spec(minimum, minimum, {2});
+
+    for (const std::string label : {"close_to_close", "next_open_to_open"}) {
+        config.label = label;
+        const auto result = fincore::evaluate_factor_research(
+            fixture.factor, fixture.prices, config);
+        ASSERT_EQ(result.information_coefficient.labels.size(), 1U);
+        EXPECT_EQ(result.information_coefficient.labels[0],
+                  "1D23h34m33s709ms551us614ns");
+    }
+}
+
 TEST(FactorResearch, DerivesCalendarPeriodLabelsForWeeklyGrid) {
     const auto start = fincore::utc_timestamp(2022, 1, 3);
     const auto week = 7 * 86'400'000'000'000LL;
@@ -789,7 +1244,7 @@ TEST(FactorResearch, DerivesCalendarPeriodLabelsForWeeklyGrid) {
     const auto next_open =
         fincore::evaluate_factor_research(factor, prices, config);
     ASSERT_EQ(next_open.information_coefficient.labels.size(), 1U);
-    EXPECT_EQ(next_open.information_coefficient.labels[0], "7D");
+    EXPECT_EQ(next_open.information_coefficient.labels[0], "1D");
     EXPECT_EQ(next_open.coverage[0], 15U);
     for (const double value : next_open.information_coefficient.values) {
         EXPECT_NEAR(value, 1.0, 1e-12);
@@ -799,8 +1254,300 @@ TEST(FactorResearch, DerivesCalendarPeriodLabelsForWeeklyGrid) {
     const auto close =
         fincore::evaluate_factor_research(factor, prices, config);
     ASSERT_EQ(close.information_coefficient.labels.size(), 1U);
-    EXPECT_EQ(close.information_coefficient.labels[0], "7D");
+    EXPECT_EQ(close.information_coefficient.labels[0], "1D");
     EXPECT_EQ(close.coverage[0], 15U);
 }
 
+std::string capture_factor_error(const std::function<void()>& action) {
+    try {
+        action();
+    } catch (const fincore::factor_data_error& error) {
+        return error.what();
+    }
+    return {};
+}
+
+TEST(FactorResearch, RejectsDuplicateCellsBeforeTargetMembership) {
+    auto fixture = make_fixture();
+    auto duplicated = fixture.factor;
+    duplicated.dates.push_back(duplicated.dates.front());
+    duplicated.assets.push_back(duplicated.assets.front());
+    duplicated.values.push_back(1.0);
+    auto config = spec();
+    config.targets = {"MISSING"};
+    const auto message = capture_factor_error([&] {
+        static_cast<void>(fincore::evaluate_factor_research(
+            duplicated, fixture.prices, config));
+    });
+    EXPECT_NE(message.find("duplicate (date, asset) keys"),
+              std::string::npos);
+    EXPECT_EQ(message.find("missing requested target"), std::string::npos);
+}
+
+TEST(FactorResearch, ReportsFullPanelMissingTargetsInRequestOrder) {
+    auto fixture = make_fixture();
+    auto config = spec();
+    config.targets = {"MISSING_Z", "A", "MISSING_A"};
+    const auto message = capture_factor_error([&] {
+        static_cast<void>(fincore::evaluate_factor_research(
+            fixture.factor, fixture.prices, config));
+    });
+    EXPECT_EQ(message,
+              "factor panel is missing requested target assets: "
+              "MISSING_Z, MISSING_A");
+}
+
+TEST(FactorResearch, RejectsTargetsAbsentFromWindowButPresentOutside) {
+    auto fixture = make_fixture();
+    auto factor = fixture.factor;
+    const auto day = 86'400'000'000'000LL;
+    const auto start = fincore::utc_timestamp(2021, 1, 4);
+    const auto end = fincore::utc_timestamp(2021, 3, 4);
+    factor.dates.push_back(start - day);
+    factor.assets.push_back("Z");
+    factor.values.push_back(1.0);
+    factor.dates.push_back(end + day);
+    factor.assets.push_back("Z");
+    factor.values.push_back(2.0);
+    auto config = spec();
+    config.targets = {"A", "B", "C", "D", "E", "Z"};
+    const auto message = capture_factor_error([&] {
+        static_cast<void>(fincore::evaluate_factor_research(
+            factor, fixture.prices, config));
+    });
+    EXPECT_EQ(message,
+              "research window is missing requested target assets: Z");
+}
+
+TEST(FactorResearch, EmptyWindowPrecedesInWindowTargetChecks) {
+    auto fixture = make_fixture();
+    auto config = spec();
+    const auto day = 86'400'000'000'000LL;
+    config.start = fincore::utc_timestamp(2021, 3, 4) + 10 * day;
+    config.end = config.start + 10 * day;
+    config.targets = {"A"};
+    const auto message = capture_factor_error([&] {
+        static_cast<void>(fincore::evaluate_factor_research(
+            fixture.factor, fixture.prices, config));
+    });
+    EXPECT_EQ(message,
+              "factors contain no cells inside the requested window");
+
+    config.targets = {"MISSING"};
+    const auto missing = capture_factor_error([&] {
+        static_cast<void>(fincore::evaluate_factor_research(
+            fixture.factor, fixture.prices, config));
+    });
+    EXPECT_EQ(missing,
+              "factor panel is missing requested target assets: MISSING");
+}
+
+TEST(FactorResearch, EmptyTargetsSelectAllObservedAssets) {
+    auto fixture = make_fixture();
+    auto config = spec();
+    config.targets.clear();
+    const auto result = fincore::evaluate_factor_research(
+        fixture.factor, fixture.prices, config);
+    EXPECT_EQ(result.status, "OK");
+    EXPECT_EQ(result.signals.size(), 300U);
+    ASSERT_FALSE(result.coverage.empty());
+    EXPECT_EQ(result.coverage.front(), 300U);
+}
+
+TEST(FactorResearch, CorrelationsConsumeProcessedOriginalPanels) {
+    auto fixture = make_fixture();
+    auto transformed = fixture.factor;
+    for (double& value : transformed.values) {
+        value = value * value * value;
+    }
+    std::vector<fincore::named_factor_panel> panels{
+        {"F", fixture.factor}, {"H", transformed}};
+    auto raw = spec();
+    raw.preprocess = "none";
+    raw.periods = {1};
+    raw.stability_lags = {1};
+    const auto raw_result =
+        fincore::evaluate_factor_research_panel(panels, fixture.prices, raw);
+    ASSERT_EQ(raw_result.correlations.size(), 1U);
+    EXPECT_NEAR(raw_result.correlations[0].mean_correlation,
+                0.9253973936793224, 1e-12);
+    EXPECT_EQ(raw_result.correlations[0].n_dates, 60U);
+
+    auto ranked = raw;
+    ranked.preprocess = "cross_section_rank";
+    const auto ranked_result =
+        fincore::evaluate_factor_research_panel(panels, fixture.prices, ranked);
+    ASSERT_EQ(ranked_result.correlations.size(), 1U);
+    EXPECT_NEAR(ranked_result.correlations[0].mean_correlation, 1.0, 1e-12);
+}
+
+TEST(FactorResearch, PrecomputedAndMultiFactorEntriesUseTargetGuards) {
+    auto fixture = make_fixture();
+    fincore::forward_return_table table;
+    table.assets = {"A", "B", "C", "D", "E"};
+    table.labels = {"1D"};
+    for (const auto date : fixture.factor.dates) {
+        if (table.dates.empty() || table.dates.back() != date) {
+            table.dates.push_back(date);
+        }
+    }
+    table.values = {std::vector<double>(
+        table.dates.size() * table.assets.size(), 0.01)};
+    auto config = spec();
+    config.targets = {"MISSING"};
+    const auto precomputed_message = capture_factor_error([&] {
+        static_cast<void>(fincore::evaluate_factor_research(
+            fixture.factor, table, config));
+    });
+    EXPECT_EQ(precomputed_message,
+              "factor panel is missing requested target assets: MISSING");
+
+    std::vector<fincore::named_factor_panel> panels{
+        {"F", fixture.factor}, {"G", fixture.factor}};
+    const auto panel_message = capture_factor_error([&] {
+        static_cast<void>(fincore::evaluate_factor_research_panel(
+            panels, fixture.prices, config));
+    });
+    EXPECT_EQ(panel_message,
+              "factor panel is missing requested target assets: MISSING");
+}
+
+TEST(FactorResearch, DirectionOverridesReachCorrelationPanels) {
+    auto fixture = make_fixture();
+    auto inverse = fixture.factor;
+    for (double& value : inverse.values) {
+        value = -value;
+    }
+    std::vector<fincore::named_factor_panel> panels{
+        {"F", fixture.factor}, {"G", inverse}};
+    auto config = spec();
+    config.preprocess = "cross_section_rank";
+    config.periods = {1};
+    config.stability_lags = {1};
+    const auto result =
+        fincore::evaluate_factor_research_panel(panels, fixture.prices, config);
+    ASSERT_EQ(result.correlations.size(), 1U);
+    EXPECT_NEAR(result.correlations[0].mean_correlation, -1.0, 1e-12);
+}
+
+TEST(FactorResearch, ReusesPanelsAndInformationCoefficients) {
+    auto fixture = make_fixture();
+    auto config = spec();
+    config.periods = {1, 5};
+    fincore::detail::reset_factor_compute_diagnostics();
+    const auto single = fincore::evaluate_factor_research(
+        fixture.factor, fixture.prices, config);
+    const auto single_counts =
+        fincore::detail::get_factor_compute_diagnostics();
+    EXPECT_EQ(single.status, "OK");
+    EXPECT_EQ(single_counts.panel_preprocessings, 1U);
+    EXPECT_EQ(single_counts.information_coefficient_kernel_calls, 2U);
+
+    std::vector<fincore::named_factor_panel> panels{
+        {"F", fixture.factor}, {"G", fixture.factor}};
+    fincore::detail::reset_factor_compute_diagnostics();
+    const auto multi =
+        fincore::evaluate_factor_research_panel(panels, fixture.prices, config);
+    const auto multi_counts =
+        fincore::detail::get_factor_compute_diagnostics();
+    EXPECT_EQ(multi.status, "OK");
+    EXPECT_EQ(multi_counts.panel_preprocessings, 2U);
+    EXPECT_EQ(multi_counts.information_coefficient_kernel_calls, 4U);
+
+    const auto diagnostics_before =
+        fincore::detail::get_factor_compute_diagnostics();
+    {
+        fincore::detail::factor_compute_diagnostics_scope scope;
+        static_cast<void>(fincore::evaluate_factor_research(
+            fixture.factor, fixture.prices, config));
+        EXPECT_EQ(scope.snapshot().panel_preprocessings, 1U);
+        EXPECT_EQ(scope.snapshot().information_coefficient_kernel_calls, 2U);
+    }
+    const auto diagnostics_after =
+        fincore::detail::get_factor_compute_diagnostics();
+    EXPECT_EQ(diagnostics_after.panel_preprocessings,
+              diagnostics_before.panel_preprocessings);
+    EXPECT_EQ(diagnostics_after.information_coefficient_kernel_calls,
+              diagnostics_before.information_coefficient_kernel_calls);
+}
+
+
+TEST(FactorResearch, DiagnosticsAreIsolatedAcrossConcurrentCalls) {
+    auto fixture = make_fixture();
+    auto config = spec();
+    config.periods = {1};
+    std::atomic<int> mismatches{0};
+    std::vector<std::thread> threads;
+    for (int worker = 0; worker < 4; ++worker) {
+        threads.emplace_back([&] {
+            fincore::detail::factor_compute_diagnostics_scope scope;
+            static_cast<void>(fincore::evaluate_factor_research(
+                fixture.factor, fixture.prices, config));
+            const auto counts = scope.snapshot();
+            if (counts.panel_preprocessings != 1U ||
+                counts.information_coefficient_kernel_calls != 1U) {
+                ++mismatches;
+            }
+        });
+    }
+    for (auto& thread : threads) {
+        thread.join();
+    }
+    EXPECT_EQ(mismatches.load(), 0);
+}
+
 }  // namespace
+
+TEST(FactorResearch, StreamingExportMatchesCollectingWriterBytes) {
+    auto fixture = make_fixture();
+    const auto result = fincore::evaluate_factor_research(
+        fixture.factor, fixture.prices, spec());
+    const auto stamp = std::chrono::steady_clock::now()
+                           .time_since_epoch()
+                           .count();
+    const auto root = std::filesystem::temp_directory_path() /
+                      ("fincore-research-export-equality-" +
+                       std::to_string(stamp));
+    const auto streaming = root / "streaming";
+    const auto collecting = root / "collecting";
+    std::filesystem::remove_all(root);
+
+    const auto streamed =
+        fincore::export_factor_research(result, streaming.string());
+    const fincore::research_export_detail::table_writer collector =
+        [](const std::filesystem::path& path,
+           const std::vector<std::string>& header,
+           const fincore::research_export_detail::table_generator& generate) {
+            std::vector<std::vector<std::string>> rows;
+            generate([&rows](const std::vector<std::string>& row) {
+                rows.push_back(row);
+            });
+            fincore::research_export_detail::write_table_rows(path, header,
+                                                              rows);
+        };
+    const auto collected =
+        fincore::research_export_detail::export_factor_research_with_writer(
+            result, collecting.string(), false, collector);
+    EXPECT_EQ(streamed.files, collected.files);
+
+    const auto read_bytes = [](const std::filesystem::path& path) {
+        std::ifstream stream(path, std::ios::binary);
+        return std::string(std::istreambuf_iterator<char>(stream),
+                           std::istreambuf_iterator<char>());
+    };
+    std::size_t compared = 0U;
+    for (const auto& entry :
+         std::filesystem::recursive_directory_iterator(streaming)) {
+        if (!entry.is_regular_file()) {
+            continue;
+        }
+        const auto relative = std::filesystem::relative(entry.path(), streaming);
+        EXPECT_TRUE(std::filesystem::exists(collecting / relative));
+        EXPECT_EQ(read_bytes(entry.path()),
+                  read_bytes(collecting / relative))
+            << relative.string();
+        ++compared;
+    }
+    EXPECT_EQ(compared, streamed.files.size());
+    std::filesystem::remove_all(root);
+}

@@ -1,0 +1,398 @@
+{
+  "checks": {
+    "checks": [
+      "row/kind counts",
+      "unique ids",
+      "all rows classified",
+      "operation canonical resolution",
+      "optional set exact",
+      "prerequisites only on optional",
+      "partial member-level evidence",
+      "10 scenarios present"
+    ],
+    "passed": true
+  },
+  "classification_evidence": {
+    "oracle": {
+      "head": "3e9ef205ef2023f92e89fddd1052d46b16429c64",
+      "head_matches_pin": true,
+      "root": "/Users/yunjinqi/Documents/new_projects/fincore",
+      "sources": [
+        {
+          "matches_expected": true,
+          "observed": "dda33c4eeff9bfe1e50269d0f9bf38b67d2c0b60ce545432a038616dbb49afb6",
+          "path": "fincore/metrics/bayesian.py",
+          "sha256": "dda33c4eeff9bfe1e50269d0f9bf38b67d2c0b60ce545432a038616dbb49afb6"
+        },
+        {
+          "matches_expected": true,
+          "observed": "895f51cd6fd60615abeafed13b39ef001251b3d02141c0da9eda139e7674e92f",
+          "path": "fincore/data/providers.py",
+          "sha256": "895f51cd6fd60615abeafed13b39ef001251b3d02141c0da9eda139e7674e92f"
+        },
+        {
+          "matches_expected": true,
+          "observed": "5c72f9bcde298c37d3a2c1acee9010d634aaa29c5ce89168663178e921af5232",
+          "path": "fincore/data/contracts.py",
+          "sha256": "5c72f9bcde298c37d3a2c1acee9010d634aaa29c5ce89168663178e921af5232"
+        },
+        {
+          "matches_expected": true,
+          "observed": "cea545427783bc14fda44d188ee79f0e4cd66dc8a70c4d8cc2f34c9306276792",
+          "path": "fincore/attribution/fama_french.py",
+          "sha256": "cea545427783bc14fda44d188ee79f0e4cd66dc8a70c4d8cc2f34c9306276792"
+        },
+        {
+          "matches_expected": true,
+          "observed": "cdd6ff570e1d61baeb3ed24ced593380183833af0470afcc9ffed749b982fcce",
+          "path": "fincore/attribution/style.py",
+          "sha256": "cdd6ff570e1d61baeb3ed24ced593380183833af0470afcc9ffed749b982fcce"
+        }
+      ]
+    },
+    "rules": [
+      "PyMC optional: bayesian.py functions that call _pymc()/pm.Model/pm.sample: model_best, model_returns_normal, model_returns_t, model_returns_t_alpha_beta, model_stoch_vol, run_model",
+      "PyMC native: compute_bayes_cone, compute_consistency_score, simulate_paths, summarize_paths, forecast_cone_bootstrap use NumPy only",
+      "Live-provider optional: providers.py classes whose constructors call load_optional_module for yfinance/requests/tushare/akshare, their fetch/get_info, and module-level get_provider/fetch_price_data/fetch_multiple_prices",
+      "Provider-model native: BatchFetchError, DataProvider and its abstract fetch/get_info contracts, fetch_multiple, to_returns, validate_dates; contracts.RequestPolicy",
+      "Injected-provider native: attribution.fama_french.fetch_ff_factors and attribution.style.fetch_style_factors take a caller-supplied provider, import no SDK and return a deep copy"
+    ],
+    "source_pin": "3e9ef205ef2023f92e89fddd1052d46b16429c64"
+  },
+  "counts": {
+    "canonical_routes": 669,
+    "categories": {
+      "consumer_scenario": 10,
+      "external_live_provider": 15,
+      "external_pymc_posterior": 6,
+      "native_compute": 331,
+      "native_data_model": 7,
+      "native_error_semantics": 43,
+      "native_factor_surface": 83,
+      "native_metadata": 1,
+      "native_plugin_abi": 17,
+      "native_provider_model": 10,
+      "native_report_artifact": 41,
+      "native_runtime_catalog": 55,
+      "native_visualization_artifact": 60,
+      "runtime_operation": 273
+    },
+    "consumer_scenarios": 10,
+    "implementation_phases": {
+      "101": 43,
+      "102": 381,
+      "103": 181,
+      "104": 162,
+      "105": 90,
+      "106": 42,
+      "107": 17,
+      "108": 25,
+      "109": 10,
+      "110": 1
+    },
+    "new_pin_survival": {
+      "PLAN_DERIVED": 10,
+      "SOURCE_BODY_CHANGED": 7,
+      "SOURCE_UNCHANGED": 935
+    },
+    "old_dispositions": {
+      "DEFERRED": 286,
+      "NON_PORT": 148,
+      "PLANNED": 518
+    },
+    "old_verification_status": {
+      "PARTIAL_NATIVE_EXPLICIT_CONTRACT_LIMITS": 2,
+      "PARTIAL_NATIVE_EXPLICIT_MEMBER_LIMITS": 8,
+      "PASS_CURRENT_NATIVE": 508,
+      "SCOPE_REVIEWED_DEFERRED": 286,
+      "SCOPE_REVIEWED_NON_PORT": 148
+    },
+    "optional_canonical": 21,
+    "optional_operations": 3,
+    "owner_phases": {
+      "100": 24,
+      "101": 43,
+      "102": 205,
+      "103": 126,
+      "104": 83,
+      "105": 342,
+      "106": 60,
+      "107": 17,
+      "108": 41,
+      "109": 10,
+      "110": 1
+    },
+    "partial_classes": 10,
+    "rows": 952,
+    "runtime_operations": 273,
+    "split": {
+      "EXTERNAL_OPTIONAL": 24,
+      "NATIVE_TARGET": 928
+    },
+    "split_by_kind": {
+      "canonical_route": {
+        "EXTERNAL_OPTIONAL": 21,
+        "NATIVE_TARGET": 648
+      },
+      "consumer_scenario": {
+        "NATIVE_TARGET": 10
+      },
+      "runtime_operation": {
+        "EXTERNAL_OPTIONAL": 3,
+        "NATIVE_TARGET": 270
+      }
+    }
+  },
+  "inputs": {
+    "generator": {
+      "path": "tools/iteration8_route_split.py",
+      "sha256": "02c73eb6829240f96d12c4e095dafdffc8bac60243bad0c123118588dd3b77bc"
+    },
+    "ledger": {
+      "path": "docs/iterations/capability-dispositions.json",
+      "sha256": "9042f0a1ed9c77aaf2ddb1cc49017e4a1d18d91868334b37e30ad8b0b2b659d3"
+    },
+    "operations": {
+      "path": "docs/evidence/revised-plan-20261023/capability-inventory/operation-catalog-reconciliation.tsv",
+      "sha256": "3ff69baaafb019d9268b436e7642bebd489bba5aee51ae24491cac9056095f7a"
+    },
+    "survival": {
+      "path": "docs/evidence/iteration-8/p100/new-pin-survival.json",
+      "sha256": "a1355622cd072cac27dc19b28051dda88e00ffc9a17b370c989541e3f3288870"
+    }
+  },
+  "iteration": 8,
+  "ledger_pin": "4b8f31b1b59707480d5db9603704d83bbf7e6946",
+  "notes": [
+    "The 273 runtime-operation rows are already part of the 952 ledger; joining them to canonical routes avoids counting 952+273 rows.",
+    "The ledger contains 669 canonical routes plus 273 runtime operations plus 10 reviewed consumer scenarios.",
+    "Path-text mentions of 'provider SDK' in historical scope decisions are not used for classification; only pinned runtime behaviour is.",
+    "Fama-French/style fetch wrappers are native because the pinned source uses an injected provider (tests/test_attribution/test_fama_french_provider.py) and imports no SDK.",
+    "Optional rows are not PASS; the native offline model is still in scope, and the prerequisite is named.",
+    "Owner authorized Iteration 8 execution on 2026-10-24; the native/optional split and its 24-row optional list are frozen at this identity for the acceptance record.",
+    "New-pin survival: 935 SOURCE_UNCHANGED (871 pre-reviewed + 64 rechecked identical), 7 SOURCE_BODY_CHANGED (factor analysis performance fixes; behavior recheck required), 10 PLAN_DERIVED scenarios with 10/10 text preservation recorded; zero missing or signature-changed routes."
+  ],
+  "optional_manifest": [
+    {
+      "accepted_as_pass": false,
+      "canonical_implementation": "",
+      "category": "external_live_provider",
+      "external_prerequisite": "akshare + live network",
+      "offline_model": "provider data/validation model",
+      "python_route": "fincore.data.providers.AkShareProvider",
+      "record_kind": "canonical_route"
+    },
+    {
+      "accepted_as_pass": false,
+      "canonical_implementation": "",
+      "category": "external_live_provider",
+      "external_prerequisite": "akshare + live network",
+      "offline_model": "provider data/validation model",
+      "python_route": "fincore.data.providers.AkShareProvider.fetch",
+      "record_kind": "canonical_route"
+    },
+    {
+      "accepted_as_pass": false,
+      "canonical_implementation": "",
+      "category": "external_live_provider",
+      "external_prerequisite": "akshare + live network",
+      "offline_model": "provider data/validation model",
+      "python_route": "fincore.data.providers.AkShareProvider.get_info",
+      "record_kind": "canonical_route"
+    },
+    {
+      "accepted_as_pass": false,
+      "canonical_implementation": "",
+      "category": "external_live_provider",
+      "external_prerequisite": "requests + AlphaVantage API key",
+      "offline_model": "provider data/validation model",
+      "python_route": "fincore.data.providers.AlphaVantageProvider",
+      "record_kind": "canonical_route"
+    },
+    {
+      "accepted_as_pass": false,
+      "canonical_implementation": "",
+      "category": "external_live_provider",
+      "external_prerequisite": "requests + AlphaVantage API key",
+      "offline_model": "provider data/validation model",
+      "python_route": "fincore.data.providers.AlphaVantageProvider.fetch",
+      "record_kind": "canonical_route"
+    },
+    {
+      "accepted_as_pass": false,
+      "canonical_implementation": "",
+      "category": "external_live_provider",
+      "external_prerequisite": "requests + AlphaVantage API key",
+      "offline_model": "provider data/validation model",
+      "python_route": "fincore.data.providers.AlphaVantageProvider.get_info",
+      "record_kind": "canonical_route"
+    },
+    {
+      "accepted_as_pass": false,
+      "canonical_implementation": "",
+      "category": "external_live_provider",
+      "external_prerequisite": "tushare + token",
+      "offline_model": "provider data/validation model",
+      "python_route": "fincore.data.providers.TushareProvider",
+      "record_kind": "canonical_route"
+    },
+    {
+      "accepted_as_pass": false,
+      "canonical_implementation": "",
+      "category": "external_live_provider",
+      "external_prerequisite": "tushare + token",
+      "offline_model": "provider data/validation model",
+      "python_route": "fincore.data.providers.TushareProvider.fetch",
+      "record_kind": "canonical_route"
+    },
+    {
+      "accepted_as_pass": false,
+      "canonical_implementation": "",
+      "category": "external_live_provider",
+      "external_prerequisite": "tushare + token",
+      "offline_model": "provider data/validation model",
+      "python_route": "fincore.data.providers.TushareProvider.get_info",
+      "record_kind": "canonical_route"
+    },
+    {
+      "accepted_as_pass": false,
+      "canonical_implementation": "",
+      "category": "external_live_provider",
+      "external_prerequisite": "yfinance + live network",
+      "offline_model": "provider data/validation model",
+      "python_route": "fincore.data.providers.YahooFinanceProvider",
+      "record_kind": "canonical_route"
+    },
+    {
+      "accepted_as_pass": false,
+      "canonical_implementation": "",
+      "category": "external_live_provider",
+      "external_prerequisite": "yfinance + live network",
+      "offline_model": "provider data/validation model",
+      "python_route": "fincore.data.providers.YahooFinanceProvider.fetch",
+      "record_kind": "canonical_route"
+    },
+    {
+      "accepted_as_pass": false,
+      "canonical_implementation": "",
+      "category": "external_live_provider",
+      "external_prerequisite": "yfinance + live network",
+      "offline_model": "provider data/validation model",
+      "python_route": "fincore.data.providers.YahooFinanceProvider.get_info",
+      "record_kind": "canonical_route"
+    },
+    {
+      "accepted_as_pass": false,
+      "canonical_implementation": "",
+      "category": "external_live_provider",
+      "external_prerequisite": "live provider SDK/network (default yfinance)",
+      "offline_model": "provider data/validation model",
+      "python_route": "fincore.data.providers.fetch_multiple_prices",
+      "record_kind": "canonical_route"
+    },
+    {
+      "accepted_as_pass": false,
+      "canonical_implementation": "",
+      "category": "external_live_provider",
+      "external_prerequisite": "live provider SDK/network (default yfinance)",
+      "offline_model": "provider data/validation model",
+      "python_route": "fincore.data.providers.fetch_price_data",
+      "record_kind": "canonical_route"
+    },
+    {
+      "accepted_as_pass": false,
+      "canonical_implementation": "",
+      "category": "external_live_provider",
+      "external_prerequisite": "live provider SDK selected by name",
+      "offline_model": "provider data/validation model",
+      "python_route": "fincore.data.providers.get_provider",
+      "record_kind": "canonical_route"
+    },
+    {
+      "accepted_as_pass": false,
+      "canonical_implementation": "",
+      "category": "external_pymc_posterior",
+      "external_prerequisite": "pymc",
+      "offline_model": "Bayesian model configuration (posterior objects not native)",
+      "python_route": "fincore.metrics.bayesian.model_best",
+      "record_kind": "canonical_route"
+    },
+    {
+      "accepted_as_pass": false,
+      "canonical_implementation": "",
+      "category": "external_pymc_posterior",
+      "external_prerequisite": "pymc",
+      "offline_model": "Bayesian model configuration (posterior objects not native)",
+      "python_route": "fincore.metrics.bayesian.model_returns_normal",
+      "record_kind": "canonical_route"
+    },
+    {
+      "accepted_as_pass": false,
+      "canonical_implementation": "",
+      "category": "external_pymc_posterior",
+      "external_prerequisite": "pymc",
+      "offline_model": "Bayesian model configuration (posterior objects not native)",
+      "python_route": "fincore.metrics.bayesian.model_returns_t",
+      "record_kind": "canonical_route"
+    },
+    {
+      "accepted_as_pass": false,
+      "canonical_implementation": "",
+      "category": "external_pymc_posterior",
+      "external_prerequisite": "pymc",
+      "offline_model": "Bayesian model configuration (posterior objects not native)",
+      "python_route": "fincore.metrics.bayesian.model_returns_t_alpha_beta",
+      "record_kind": "canonical_route"
+    },
+    {
+      "accepted_as_pass": false,
+      "canonical_implementation": "",
+      "category": "external_pymc_posterior",
+      "external_prerequisite": "pymc",
+      "offline_model": "Bayesian model configuration (posterior objects not native)",
+      "python_route": "fincore.metrics.bayesian.model_stoch_vol",
+      "record_kind": "canonical_route"
+    },
+    {
+      "accepted_as_pass": false,
+      "canonical_implementation": "",
+      "category": "external_pymc_posterior",
+      "external_prerequisite": "pymc",
+      "offline_model": "Bayesian model configuration (posterior objects not native)",
+      "python_route": "fincore.metrics.bayesian.run_model",
+      "record_kind": "canonical_route"
+    },
+    {
+      "accepted_as_pass": false,
+      "canonical_implementation": "fincore.data.providers.fetch_multiple_prices",
+      "category": "runtime_operation",
+      "external_prerequisite": "live provider SDK/network (default yfinance)",
+      "offline_model": "inherits canonical provider data/validation model",
+      "python_route": "data.providers.fetch_multiple_prices",
+      "record_kind": "runtime_operation"
+    },
+    {
+      "accepted_as_pass": false,
+      "canonical_implementation": "fincore.data.providers.fetch_price_data",
+      "category": "runtime_operation",
+      "external_prerequisite": "live provider SDK/network (default yfinance)",
+      "offline_model": "inherits canonical provider data/validation model",
+      "python_route": "data.providers.fetch_price_data",
+      "record_kind": "runtime_operation"
+    },
+    {
+      "accepted_as_pass": false,
+      "canonical_implementation": "fincore.data.providers.get_provider",
+      "category": "runtime_operation",
+      "external_prerequisite": "live provider SDK selected by name",
+      "offline_model": "inherits canonical provider data/validation model",
+      "python_route": "data.providers.get_provider",
+      "record_kind": "runtime_operation"
+    }
+  ],
+  "oracle_pin": "3e9ef205ef2023f92e89fddd1052d46b16429c64",
+  "ordering": "row_id is assigned after sorting by (record_kind, python_route, ledger_id); ledger inputs are hashed below",
+  "phase": "P100",
+  "schema_version": "1",
+  "status": "FROZEN_FOR_ITERATION_8_EXECUTION"
+}

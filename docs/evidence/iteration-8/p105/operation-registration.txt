@@ -1,0 +1,8 @@
+date: 2026-10-24
+source_operations: 273
+registered_native:      270
+unique_registered:      270
+optional_excluded: data.providers.get_provider data.providers.fetch_price_data data.providers.fetch_multiple_prices
+missing_native: none
+extra: none
+verification: python comparison against operation-catalog-reconciliation.tsv

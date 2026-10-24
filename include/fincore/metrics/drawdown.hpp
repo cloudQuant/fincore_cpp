@@ -52,6 +52,13 @@ std::optional<drawdown_window> max_drawdown_window(
     const dataframe& returns,
     std::string_view column = returns_column);
 
+// Peak/valley/recovery from a precomputed underwater series. The source
+// helper returns (NaT, NaT, NaT) when the series never goes below zero; the
+// native form returns nullopt for that case and for empty/non-finite data.
+std::optional<drawdown_window> max_drawdown_underwater(
+    const dataframe& underwater,
+    std::string_view column = "drawdown");
+
 std::vector<drawdown_window> get_top_drawdowns(
     const dataframe& returns,
     std::size_t top = 10,

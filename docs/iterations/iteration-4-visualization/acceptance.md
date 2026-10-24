@@ -1,72 +1,66 @@
-# Iteration 4 — Visualization Completion: Acceptance Document
+# Iteration 4 — Visualization: Acceptance
 
-**Iteration ID:** iteration-4-visualization
-**Status:** Template — completed and signed off per phase and at iteration close
+**Status:** PASS for the selected current native contracts, with the explicit
+exclusions, partial source models and historical variances below.
 
-## 1. Standard Per-Phase Gate (Phases 72–76)
 
-The SDD loop adapted to viz, per iteration requirements §4:
+Primary close-out: 2026-10-24, Codex main agent. Candidate is dirty Git HEAD
+`4859386ff8c260aa241553da4f0aca359d895517` plus the 305-file native snapshot
+`ef05555c5e7e0b39e385944b7b2b40a25a8d4710f1e8351625f37f0578083e7f`. A short `ef05555c5e7e` below names that snapshot, not a commit.
+The [candidate record][C] and [exact clause review][R] supply the execution
+results and the interpretation of each clause. Checked boxes apply to those
+explicit native contracts; they do not accept an excluded Python facade,
+unexecuted backend, or unsupported whole-class parity. Raw FAIL/GAP evidence
+retains its original status in [the resolution record][D].
 
-- [ ] Plan + design docs committed; design contains the compute-side oracle
-      run (pivot values, bin edges, axis ranges, tick layouts, colormap
-      control points — whichever apply) with hex-float goldens.
-- [ ] Clean-tree AppleClang build with `FINCORE_BUILD_IMPLOT=OFF` (core
-      headless) **and** with `FINCORE_BUILD_IMPLOT=ON` (adapter + demo).
-- [ ] ImPlot compile/link-only gate green; invalid-ImGui expected-failure
-      build fails exactly as expected when wiring changed.
-- [ ] Full CTest green; ASan/UBSan on the core compute additions.
-- [ ] Exact-index gate per commit; acceptance record + README ledger entry.
-- [ ] Manual demo run recorded when performed: screenshot path under the
-      evidence root (not blocking).
+## 1. Behavior and isolation
 
-## 2. Iteration-Specific Acceptance Items
+- [x] 72: monthly compounding/pivot values, years/months/order, missing-month
+      mask and date boundaries match the oracle; normalization and color
+      substitutions documented rather than assumed.
+- [x] 73: returns and rolling-Sharpe protocol mappings include benchmark,
+      alignment and metadata behavior; malformed/mismatched series rejected.
+- [x] 74: filled and line drawdown plots consume identical computed values.
+- [x] 75: edges, counts/densities, labels, empty/constant/NaN cases tested;
+      any unsupported violin/QQ capability has a named disposition.
+- [x] 76: correlation shape/labels tested; frontier consumes Phase 69's
+      result without adapter-side optimization or moment recomputation.
+- [x] All chart outputs survive input mutation/destruction; missing values
+      remain distinct from zero; public chart headers compile headlessly.
+- [x] Draw/render calls do not invoke financial kernels (instrumented call
+      counts or a dependency test, not a search for numeric literals).
 
-### Phase 72 (monthly heatmap)
-- [ ] Monthly pivot compute values bit-exact against the pandas pivot oracle
-      (values, month ordering, missing-month handling).
-- [ ] Colormap control points committed as data; zero-centered normalization
-      matches the oracle's `TwoSlopeNorm`/`Normalize` semantics.
-- [ ] Fidelity note for the colorbar if ImPlot's differs from matplotlib's.
+## 2. Build and runtime gates
 
-### Phase 73 (multi-series + benchmark)
-- [ ] Alignment reuse asserted: series built from one aligned frame; index
-      mismatch raises the established structural error.
-- [ ] Zero line and benchmark-dash styling parameters recorded in the design
-      doc (not inline magic numbers in the adapter).
+- [x] Clean headless core configure/build/full CTest and relevant sanitizers.
+- [x] Adapter ON build/link and `ImPlotAdapterCompile` pass. Separate demo
+      ON configure/build result recorded with actual dependency revisions.
+- [x] Invalid-ImGui check reports the expected failure when wiring changes.
+- [x] Deterministic demo fixtures actually rendered; screenshots and visual
+      checks cover all selected chart families, labels, scales, legends and
+      documented substitutions. Otherwise VISUAL stays NOT_RUN/INCOMPLETE.
+- [x] Four-method VizBackend mapping plus selected extras is complete; no
+      unsupported backend-specific feature is counted as passed.
 
-### Phase 74 (drawdown fill)
-- [ ] Fill renders from the same drawdown series as the existing line plot
-      (consistency identity: same input value type).
+## 3. Sign-off
 
-### Phase 75 (bars + histogram)
-- [ ] Bin edges match `np.histogram` oracle goldens (bin edges, not just
-      counts).
-- [ ] No violin attempt: seaborn violin substitution decision recorded
-      (histogram or per-bin bars) with fidelity note.
+| Phase | Candidate SHA | COMPUTE | BUILD | VISUAL | Durable evidence / reviewer |
+|---|---|---|---|---|---|
+| 72 | `ef05555c5e7e` | PASS selected | PASS macOS adapter | PASS selected macOS captures | [Clause evidence][R], [candidate][C]; Codex main |
+| 73 | `ef05555c5e7e` | PASS selected | PASS macOS adapter | PASS selected macOS captures | [Clause evidence][R], [candidate][C]; Codex main |
+| 74 | `ef05555c5e7e` | PASS selected | PASS macOS adapter | PASS selected macOS captures | [Clause evidence][R], [candidate][C]; Codex main |
+| 75 | `ef05555c5e7e` | PASS selected | PASS macOS adapter | PASS selected macOS captures | [Clause evidence][R], [candidate][C]; Codex main |
+| 76 | `ef05555c5e7e` | PASS selected | PASS macOS adapter | PASS selected macOS captures | [Clause evidence][R], [candidate][C]; Codex main |
+| Iteration close | `ef05555c5e7e` | PASS selected | PASS macOS adapter | PASS selected macOS captures | [Clause evidence][R], [candidate][C]; Codex main |
 
-### Phase 76 (correlation matrix + frontier)
-- [ ] Correlation matrix reuses the Phase 72 `heat_grid` machinery (asserted
-      by code structure, not duplication).
-- [ ] Frontier chart consumes Iteration 3's frontier value types directly —
-      no adapter-side recomputation of moments.
+Named DEFERRED/NON_PORT routes and partial source classes remain visible in
+the [master capability ledger](../capability-ledger.tsv) and its primary
+disposition input. This is a current native-scope close-out; historical phase
+records keep their original candidate identities and statuses. No hosted CI,
+Windows support, full Python-package parity or external publication is claimed.
 
-## 3. Iteration-Level Definition of Done
-
-- [ ] All phases 72–76 accepted per §1 and §2.
-- [ ] VizBackend protocol audit table committed: every non-factor protocol
-      method ↔ C++ adapter function ↔ chart value type ↔ fidelity notes.
-- [ ] Headless core build unchanged (`FINCORE_BUILD_IMPLOT=OFF` produces the
-      same library surface as before the iteration).
-- [ ] Iteration-head clean build + full CTest + ASan/UBSan evidence; commits
-      pushed.
-
-## 4. Sign-Off Record
-
-| Item | Date | Commit | Evidence root | Accepted by |
-|---|---|---|---|---|
-| Phase 72 | | | | |
-| Phase 73 | | | | |
-| Phase 74 | | | | |
-| Phase 75 | | | | |
-| Phase 76 | | | | |
-| Iteration head | | | | |
+[C]: ../../acceptance/2026-10-23-revised-plan-candidate-acceptance.md
+[R]: ../../acceptance/2026-10-23-revised-plan-checklist-review.md
+[D]: ../../acceptance/2026-10-23-revised-plan-evidence-resolutions.md
+[M]: ../../evidence/revised-plan-20261023/candidate/native-source-manifest.json
+[O]: ../../evidence/revised-plan-20261023/historical-oracles/phase-manifest.csv

@@ -1,5 +1,6 @@
 #include <fincore/factor/performance.hpp>
 
+#include <fincore/detail/factor_compute.hpp>
 #include <fincore/factor/exceptions.hpp>
 
 #include <algorithm>
@@ -7,6 +8,7 @@
 #include <limits>
 #include <map>
 #include <numeric>
+#include <optional>
 #include <set>
 #include <string>
 #include <tuple>
@@ -17,6 +19,8 @@ namespace fincore {
 namespace {
 
 constexpr double nan = std::numeric_limits<double>::quiet_NaN();
+
+thread_local detail::factor_compute_diagnostics compute_diagnostics;
 
 using bucket_key = std::pair<timestamp, std::string>;
 
@@ -230,6 +234,7 @@ std::vector<double> compute_weights(const prepared_factor_data& data,
                                     const bool demeaned,
                                     const bool group_adjust,
                                     const bool equal_weight) {
+    ++compute_diagnostics.weight_kernel_calls;
     const std::size_t count = data.rows.size();
     std::vector<double> weights(count, nan);
     std::map<bucket_key, std::vector<std::size_t>> buckets;
@@ -355,6 +360,215 @@ double student_t_two_sided_p_value(const double statistic, const double df) {
 
 }  // namespace
 
+namespace detail {
+
+void reset_factor_compute_diagnostics() noexcept {
+    compute_diagnostics = {};
+}
+
+factor_compute_diagnostics get_factor_compute_diagnostics() noexcept {
+    return compute_diagnostics;
+}
+
+void set_factor_compute_diagnostics(
+    const factor_compute_diagnostics& diagnostics) noexcept {
+    compute_diagnostics = diagnostics;
+}
+
+void note_quantile_view_build() noexcept {
+    ++compute_diagnostics.quantile_view_builds;
+}
+
+void note_panel_preprocessing() noexcept {
+    ++compute_diagnostics.panel_preprocessings;
+}
+
+void note_position_build() noexcept {
+    ++compute_diagnostics.position_builds;
+}
+
+void note_portfolio_input_build() noexcept {
+    ++compute_diagnostics.portfolio_input_builds;
+}
+
+quantile_return_views build_quantile_return_views(
+    const prepared_factor_data& factor_data, const bool by_group,
+    const bool demeaned, const bool group_adjust, const bool need_aggregate,
+    const bool need_by_date) {
+    if (!need_aggregate && !need_by_date) {
+        throw factor_data_error{
+            "at least one quantile view must be requested"};
+    }
+    note_quantile_view_build();
+    const std::size_t labels = factor_data.forward_labels.size();
+    auto forwards = group_adjust
+                        ? demean_returns(factor_data, true).values
+                        : (demeaned ? demean_returns(factor_data, false).values
+                                    : forward_matrix(factor_data));
+    using quantile_group = std::pair<int, std::string>;
+    using date_group = std::pair<timestamp, std::string>;
+    std::set<quantile_group> quantile_groups;
+    std::set<date_group> date_groups;
+    std::set<int> quantile_values;
+    using cell_key = std::tuple<int, timestamp, std::string>;
+    std::map<cell_key, std::map<std::size_t, std::vector<double>>> cells;
+    for (std::size_t row = 0; row < factor_data.rows.size(); ++row) {
+        const auto& observation = factor_data.rows[row];
+        if (by_group && !observation.has_group) {
+            throw factor_data_error{
+                "factor_data must contain a group column when by_group=True"};
+        }
+        const std::string group = by_group ? observation.group : "";
+        quantile_groups.emplace(observation.quantile, group);
+        date_groups.emplace(observation.date, group);
+        quantile_values.insert(observation.quantile);
+        auto& per_label =
+            cells[{observation.quantile, observation.date, group}];
+        for (std::size_t label = 0; label < labels; ++label) {
+            if (std::isfinite(forwards[label][row])) {
+                per_label[label].push_back(forwards[label][row]);
+            }
+        }
+    }
+
+    quantile_return_views views;
+    if (need_by_date) {
+        auto& table = views.by_date;
+        table.labels = factor_data.forward_labels;
+        table.quantiles.assign(quantile_values.begin(),
+                               quantile_values.end());
+        table.dates.reserve(date_groups.size());
+        if (by_group) {
+            table.groups.reserve(date_groups.size());
+        }
+        for (const auto& [date, group] : date_groups) {
+            table.dates.push_back(date);
+            if (by_group) {
+                table.groups.push_back(group);
+            }
+        }
+        const std::size_t date_count = date_groups.size();
+        const std::size_t quantile_count = table.quantiles.size();
+        table.means.assign(date_count * quantile_count * labels, nan);
+        table.standard_errors.assign(
+            date_count * quantile_count * labels, nan);
+        std::map<date_group, std::size_t> date_index;
+        for (std::size_t index = 0; index < date_count; ++index) {
+            date_index[{table.dates[index],
+                        by_group ? table.groups[index] : std::string{}}] =
+                index;
+        }
+        std::map<int, std::size_t> quantile_index;
+        for (std::size_t index = 0; index < quantile_count; ++index) {
+            quantile_index[table.quantiles[index]] = index;
+        }
+        for (const auto& [key, label_values] : cells) {
+            const auto& [quantile, date, group] = key;
+            const auto date_position =
+                date_index.find({date, by_group ? group : std::string{}});
+            const auto quantile_position = quantile_index.find(quantile);
+            if (date_position == date_index.end() ||
+                quantile_position == quantile_index.end()) {
+                continue;
+            }
+            for (const auto& [label, values] : label_values) {
+                if (values.empty()) {
+                    continue;
+                }
+                const double mean =
+                    std::accumulate(values.begin(), values.end(), 0.0) /
+                    static_cast<double>(values.size());
+                const std::size_t position =
+                    (date_position->second * quantile_count +
+                     quantile_position->second) *
+                        labels +
+                    label;
+                table.means[position] = mean;
+                if (values.size() > 1U) {
+                    double variance = 0.0;
+                    for (const double value : values) {
+                        variance += (value - mean) * (value - mean);
+                    }
+                    variance /= static_cast<double>(values.size() - 1U);
+                    table.standard_errors[position] =
+                        std::sqrt(variance) /
+                        std::sqrt(static_cast<double>(values.size()));
+                }
+            }
+        }
+    }
+
+    if (need_aggregate) {
+        std::map<quantile_group,
+                 std::map<std::size_t, std::vector<double>>>
+            daily_means;
+        for (const auto& [key, label_values] : cells) {
+            const auto& [quantile, date, group] = key;
+            static_cast<void>(date);
+            auto& grouped = daily_means[{quantile, group}];
+            for (const auto& [label, values] : label_values) {
+                if (values.empty()) {
+                    continue;
+                }
+                const double total =
+                    std::accumulate(values.begin(), values.end(), 0.0);
+                grouped[label].push_back(
+                    total / static_cast<double>(values.size()));
+            }
+        }
+        auto& table = views.aggregate;
+        table.quantiles.reserve(quantile_groups.size());
+        if (by_group) {
+            table.groups.reserve(quantile_groups.size());
+        }
+        for (const auto& [quantile, group] : quantile_groups) {
+            table.quantiles.push_back(quantile);
+            if (by_group) {
+                table.groups.push_back(group);
+            }
+        }
+        table.labels = factor_data.forward_labels;
+        const std::size_t row_count = table.quantiles.size();
+        table.means.assign(row_count * labels, nan);
+        table.standard_errors.assign(row_count * labels, nan);
+        for (std::size_t row_index = 0; row_index < row_count; ++row_index) {
+            const int quantile = table.quantiles[row_index];
+            const std::string group =
+                by_group ? table.groups[row_index] : "";
+            const auto daily = daily_means.find({quantile, group});
+            for (std::size_t label = 0; label < labels; ++label) {
+                if (daily == daily_means.end()) {
+                    continue;
+                }
+                const auto found = daily->second.find(label);
+                if (found == daily->second.end() ||
+                    found->second.empty()) {
+                    continue;
+                }
+                const auto& date_means = found->second;
+                const double mean =
+                    std::accumulate(date_means.begin(), date_means.end(),
+                                    0.0) /
+                    static_cast<double>(date_means.size());
+                table.means[row_index * labels + label] = mean;
+                if (date_means.size() > 1U) {
+                    double variance = 0.0;
+                    for (const double value : date_means) {
+                        variance += (value - mean) * (value - mean);
+                    }
+                    variance /= static_cast<double>(date_means.size() - 1U);
+                    table.standard_errors[row_index * labels + label] =
+                        std::sqrt(variance) /
+                        std::sqrt(static_cast<double>(date_means.size()));
+                }
+            }
+        }
+    }
+    return views;
+}
+
+}  // namespace detail
+
 double student_t_two_sided_p(const double statistic, const double df) {
     return student_t_two_sided_p_value(statistic, df);
 }
@@ -362,12 +576,10 @@ double student_t_two_sided_p(const double statistic, const double df) {
 factor_ic_table factor_information_coefficient(
     const prepared_factor_data& factor_data, const bool group_adjust,
     const bool by_group) {
-    const auto dates = unique_dates(factor_data);
+    ++compute_diagnostics.information_coefficient_kernel_calls;
     const std::size_t labels = factor_data.forward_labels.size();
     factor_ic_table table;
-    table.dates = dates;
     table.labels = factor_data.forward_labels;
-    table.values.assign(dates.size() * labels, nan);
     auto forwards = group_adjust
                         ? demean_returns(factor_data, true).values
                         : forward_matrix(factor_data);
@@ -382,20 +594,33 @@ factor_ic_table factor_information_coefficient(
         buckets[{factor_data.rows[row].date, group}].push_back(row);
     }
     std::map<timestamp, std::size_t> date_positions;
-    for (std::size_t position = 0; position < dates.size(); ++position) {
-        date_positions[dates[position]] = position;
+    std::map<bucket_key, std::size_t> group_positions;
+    if (by_group) {
+        table.dates.reserve(buckets.size());
+        table.groups.reserve(buckets.size());
+        for (const auto& [key, rows] : buckets) {
+            static_cast<void>(rows);
+            group_positions.emplace(key, table.dates.size());
+            table.dates.push_back(key.first);
+            table.groups.push_back(key.second);
+        }
+    } else {
+        table.dates = unique_dates(factor_data);
+        for (std::size_t position = 0; position < table.dates.size();
+             ++position) {
+            date_positions[table.dates[position]] = position;
+        }
     }
-    // When by_group is true, aggregate rows across groups per date by
-    // averaging their per-group ICs; otherwise a date has one bucket.
-    std::vector<double> sums(dates.size() * labels, 0.0);
-    std::vector<std::size_t> counts(dates.size() * labels, 0U);
+    table.values.assign(table.dates.size() * labels, nan);
     for (const auto& bucket : buckets) {
         std::vector<double> factors;
         factors.reserve(bucket.second.size());
         for (const std::size_t row : bucket.second) {
             factors.push_back(factor_data.rows[row].factor);
         }
-        const std::size_t position = date_positions[bucket.first.first];
+        const std::size_t position =
+            by_group ? group_positions.at(bucket.first)
+                     : date_positions.at(bucket.first.first);
         for (std::size_t label = 0; label < labels; ++label) {
             std::vector<double> left;
             std::vector<double> right;
@@ -411,46 +636,75 @@ factor_ic_table factor_information_coefficient(
             if (left.size() < 2U) {
                 continue;
             }
-            const double value = spearman(left, right);
-            if (std::isfinite(value)) {
-                sums[position * labels + label] += value;
-                ++counts[position * labels + label];
-            }
-        }
-    }
-    for (std::size_t index = 0; index < sums.size(); ++index) {
-        if (counts[index] > 0U) {
-            table.values[index] =
-                sums[index] / static_cast<double>(counts[index]);
+            table.values[position * labels + label] = spearman(left, right);
         }
     }
     return table;
 }
 
-factor_ic_summary mean_information_coefficient(
-    const prepared_factor_data& factor_data, const bool group_adjust,
-    const bool by_group) {
-    const auto table =
-        factor_information_coefficient(factor_data, group_adjust, by_group);
+namespace detail {
+
+factor_ic_summary summarize_information_coefficient(
+    const factor_ic_table& table) {
     factor_ic_summary summary;
     summary.labels = table.labels;
     const std::size_t labels = table.labels.size();
-    summary.means.assign(labels, nan);
-    for (std::size_t label = 0; label < labels; ++label) {
-        double total = 0.0;
-        std::size_t count = 0U;
-        for (std::size_t date = 0; date < table.dates.size(); ++date) {
-            const double value = table.values[date * labels + label];
-            if (std::isfinite(value)) {
-                total += value;
-                ++count;
+    if (table.groups.empty()) {
+        summary.means.assign(labels, nan);
+        for (std::size_t label = 0; label < labels; ++label) {
+            double total = 0.0;
+            std::size_t count = 0U;
+            for (std::size_t date = 0; date < table.dates.size(); ++date) {
+                const double value = table.values[date * labels + label];
+                if (std::isfinite(value)) {
+                    total += value;
+                    ++count;
+                }
+            }
+            if (count > 0U) {
+                summary.means[label] = total / static_cast<double>(count);
             }
         }
-        if (count > 0U) {
-            summary.means[label] = total / static_cast<double>(count);
+        return summary;
+    }
+
+    std::map<std::string, std::vector<double>> totals;
+    std::map<std::string, std::vector<std::size_t>> counts;
+    for (std::size_t row = 0; row < table.groups.size(); ++row) {
+        auto& group_totals = totals[table.groups[row]];
+        auto& group_counts = counts[table.groups[row]];
+        group_totals.resize(labels, 0.0);
+        group_counts.resize(labels, 0U);
+        for (std::size_t label = 0; label < labels; ++label) {
+            const double value = table.values[row * labels + label];
+            if (std::isfinite(value)) {
+                group_totals[label] += value;
+                ++group_counts[label];
+            }
+        }
+    }
+    summary.means.assign(totals.size() * labels, nan);
+    for (const auto& [group, group_totals] : totals) {
+        summary.groups.push_back(group);
+        const std::size_t group_row = summary.groups.size() - 1U;
+        for (std::size_t label = 0; label < labels; ++label) {
+            const std::size_t count = counts[group][label];
+            if (count > 0U) {
+                summary.means[group_row * labels + label] =
+                    group_totals[label] / static_cast<double>(count);
+            }
         }
     }
     return summary;
+}
+
+}  // namespace detail
+
+factor_ic_summary mean_information_coefficient(
+    const prepared_factor_data& factor_data, const bool group_adjust,
+    const bool by_group) {
+    return detail::summarize_information_coefficient(
+        factor_information_coefficient(factor_data, group_adjust, by_group));
 }
 
 std::vector<factor_weight_row> factor_weights(
@@ -467,11 +721,15 @@ std::vector<factor_weight_row> factor_weights(
     return rows;
 }
 
-factor_return_table factor_returns(
-    const prepared_factor_data& factor_data, const bool demeaned,
-    const bool group_adjust, const bool equal_weight) {
-    const auto weights = compute_weights(factor_data, demeaned, group_adjust,
-                                         equal_weight);
+namespace detail {
+
+factor_return_table factor_returns_from_weights(
+    const prepared_factor_data& factor_data,
+    const std::span<const double> weights) {
+    if (weights.size() != factor_data.rows.size()) {
+        throw factor_data_error{
+            "factor weights must match the prepared row count"};
+    }
     const auto dates = unique_dates(factor_data);
     const std::size_t labels = factor_data.forward_labels.size();
     factor_return_table table;
@@ -492,8 +750,7 @@ factor_return_table factor_returns(
             if (!std::isfinite(value) || !std::isfinite(weights[row])) {
                 continue;
             }
-            table.values[position * labels + label] +=
-                value * weights[row];
+            table.values[position * labels + label] += value * weights[row];
             seen[position][label] = true;
         }
     }
@@ -501,11 +758,38 @@ factor_return_table factor_returns(
     return table;
 }
 
-std::vector<factor_alpha_beta_row> factor_alpha_beta(
+factor_return_table factor_returns_from_weights(
+    const prepared_factor_data& factor_data,
+    const std::span<const factor_weight_row> weights) {
+    if (weights.size() != factor_data.rows.size()) {
+        throw factor_data_error{
+            "factor weights must match the prepared row count"};
+    }
+    std::vector<double> values;
+    values.reserve(weights.size());
+    for (const auto& row : weights) {
+        values.push_back(row.weight);
+    }
+    return factor_returns_from_weights(factor_data,
+                                      std::span<const double>{values});
+}
+
+}  // namespace detail
+
+factor_return_table factor_returns(
     const prepared_factor_data& factor_data, const bool demeaned,
     const bool group_adjust, const bool equal_weight) {
-    const auto portfolio =
-        factor_returns(factor_data, demeaned, group_adjust, equal_weight);
+    const auto weights = compute_weights(factor_data, demeaned, group_adjust,
+                                         equal_weight);
+    return detail::factor_returns_from_weights(
+        factor_data, std::span<const double>{weights});
+}
+
+namespace detail {
+
+std::vector<factor_alpha_beta_row> factor_alpha_beta_from_returns(
+    const prepared_factor_data& factor_data,
+    const factor_return_table& portfolio) {
     const auto dates = unique_dates(factor_data);
     const std::size_t labels = factor_data.forward_labels.size();
     // Universe mean per date and label.
@@ -589,6 +873,16 @@ std::vector<factor_alpha_beta_row> factor_alpha_beta(
     return results;
 }
 
+}  // namespace detail
+
+std::vector<factor_alpha_beta_row> factor_alpha_beta(
+    const prepared_factor_data& factor_data, const bool demeaned,
+    const bool group_adjust, const bool equal_weight) {
+    return detail::factor_alpha_beta_from_returns(
+        factor_data,
+        factor_returns(factor_data, demeaned, group_adjust, equal_weight));
+}
+
 quantile_return_table mean_return_by_quantile(
     const prepared_factor_data& factor_data, const bool by_date,
     const bool by_group, const bool demeaned, const bool group_adjust) {
@@ -596,71 +890,90 @@ quantile_return_table mean_return_by_quantile(
         throw factor_data_error{
             "by_date=true is not available in the native quantile table"};
     }
-    if (by_group) {
-        throw factor_data_error{
-            "by_group=true is not available in the native quantile table"};
-    }
     const std::size_t labels = factor_data.forward_labels.size();
     auto forwards = group_adjust
                         ? demean_returns(factor_data, true).values
                         : (demeaned ? demean_returns(factor_data, false).values
                                     : forward_matrix(factor_data));
-    std::set<int> quantile_values;
-    for (const auto& row : factor_data.rows) {
-        quantile_values.insert(row.quantile);
-    }
-    std::map<std::tuple<int, timestamp>,
+    using quantile_group = std::pair<int, std::string>;
+    std::set<quantile_group> quantile_groups;
+    std::map<std::tuple<int, timestamp, std::string>,
              std::map<std::size_t, std::vector<double>>>
         per_date;
     for (std::size_t row = 0; row < factor_data.rows.size(); ++row) {
+        const auto& observation = factor_data.rows[row];
+        if (by_group && !observation.has_group) {
+            throw factor_data_error{
+                "factor_data must contain a group column when by_group=True"};
+        }
+        const std::string group = by_group ? observation.group : "";
+        quantile_groups.emplace(observation.quantile, group);
         for (std::size_t label = 0; label < labels; ++label) {
             if (std::isfinite(forwards[label][row])) {
-                per_date[{factor_data.rows[row].quantile,
-                          factor_data.rows[row].date}][label]
+                per_date[{observation.quantile, observation.date, group}][label]
                     .push_back(forwards[label][row]);
             }
         }
     }
-    quantile_return_table table;
-    table.quantiles.assign(quantile_values.begin(), quantile_values.end());
-    table.labels = factor_data.forward_labels;
-    const std::size_t quantile_count = table.quantiles.size();
-    table.means.assign(quantile_count * labels, nan);
-    table.standard_errors.assign(quantile_count * labels, nan);
-    for (std::size_t quantile_index = 0;
-         quantile_index < quantile_count; ++quantile_index) {
-        const int quantile = table.quantiles[quantile_index];
-        for (std::size_t label = 0; label < labels; ++label) {
-            std::vector<double> date_means;
-            for (const auto& entry : per_date) {
-                if (std::get<0>(entry.first) != quantile) {
-                    continue;
-                }
-                const auto found = entry.second.find(label);
-                if (found == entry.second.end() ||
-                    found->second.empty()) {
-                    continue;
-                }
-                const double total =
-                    std::accumulate(found->second.begin(),
-                                    found->second.end(), 0.0);
-                date_means.push_back(
-                    total / static_cast<double>(found->second.size()));
+
+    std::map<quantile_group, std::map<std::size_t, std::vector<double>>>
+        daily_means;
+    for (const auto& [key, label_values] : per_date) {
+        const auto& [quantile, date, group] = key;
+        static_cast<void>(date);
+        auto& grouped = daily_means[{quantile, group}];
+        for (const auto& [label, values] : label_values) {
+            if (values.empty()) {
+                continue;
             }
+            const double total =
+                std::accumulate(values.begin(), values.end(), 0.0);
+            grouped[label].push_back(total / static_cast<double>(values.size()));
+        }
+    }
+
+    quantile_return_table table;
+    table.quantiles.reserve(quantile_groups.size());
+    if (by_group) {
+        table.groups.reserve(quantile_groups.size());
+    }
+    for (const auto& [quantile, group] : quantile_groups) {
+        table.quantiles.push_back(quantile);
+        if (by_group) {
+            table.groups.push_back(group);
+        }
+    }
+    table.labels = factor_data.forward_labels;
+    const std::size_t row_count = table.quantiles.size();
+    table.means.assign(row_count * labels, nan);
+    table.standard_errors.assign(row_count * labels, nan);
+    for (std::size_t row_index = 0; row_index < row_count; ++row_index) {
+        const int quantile = table.quantiles[row_index];
+        const std::string group = by_group ? table.groups[row_index] : "";
+        const auto daily = daily_means.find({quantile, group});
+        for (std::size_t label = 0; label < labels; ++label) {
+            if (daily == daily_means.end()) {
+                continue;
+            }
+            const auto found = daily->second.find(label);
+            if (found == daily->second.end() || found->second.empty()) {
+                continue;
+            }
+            const auto& date_means = found->second;
             if (date_means.empty()) {
                 continue;
             }
             const double mean =
                 std::accumulate(date_means.begin(), date_means.end(), 0.0) /
                 static_cast<double>(date_means.size());
-            table.means[quantile_index * labels + label] = mean;
+            table.means[row_index * labels + label] = mean;
             if (date_means.size() > 1U) {
                 double variance = 0.0;
                 for (const double value : date_means) {
                     variance += (value - mean) * (value - mean);
                 }
                 variance /= static_cast<double>(date_means.size() - 1U);
-                table.standard_errors[quantile_index * labels + label] =
+                table.standard_errors[row_index * labels + label] =
                     std::sqrt(variance) /
                     std::sqrt(static_cast<double>(date_means.size()));
             }
@@ -671,28 +984,45 @@ quantile_return_table mean_return_by_quantile(
 
 quantile_date_return_table mean_return_by_quantile_by_date(
     const prepared_factor_data& factor_data, const bool demeaned,
-    const bool group_adjust) {
+    const bool group_adjust, const bool by_group) {
     const std::size_t labels = factor_data.forward_labels.size();
     auto forwards = group_adjust
                         ? demean_returns(factor_data, true).values
                         : (demeaned ? demean_returns(factor_data, false).values
                                     : forward_matrix(factor_data));
     quantile_date_return_table table;
-    table.dates = unique_dates(factor_data);
     table.labels = factor_data.forward_labels;
+    using date_group = std::pair<timestamp, std::string>;
+    std::set<date_group> date_groups;
     std::set<int> quantile_values;
     for (const auto& row : factor_data.rows) {
+        if (by_group && !row.has_group) {
+            throw factor_data_error{
+                "factor_data must contain a group column when by_group=True"};
+        }
+        date_groups.emplace(row.date, by_group ? row.group : std::string{});
         quantile_values.insert(row.quantile);
     }
     table.quantiles.assign(quantile_values.begin(), quantile_values.end());
-    const std::size_t date_count = table.dates.size();
+    table.dates.reserve(date_groups.size());
+    if (by_group) {
+        table.groups.reserve(date_groups.size());
+    }
+    for (const auto& [date, group] : date_groups) {
+        table.dates.push_back(date);
+        if (by_group) {
+            table.groups.push_back(group);
+        }
+    }
+    const std::size_t date_count = date_groups.size();
     const std::size_t quantile_count = table.quantiles.size();
     table.means.assign(date_count * quantile_count * labels, nan);
     table.standard_errors.assign(date_count * quantile_count * labels, nan);
 
-    std::map<timestamp, std::size_t> date_index;
+    std::map<date_group, std::size_t> date_index;
     for (std::size_t index = 0; index < date_count; ++index) {
-        date_index[table.dates[index]] = index;
+        date_index[{table.dates[index], by_group ? table.groups[index]
+                                                 : std::string{}}] = index;
     }
     std::map<int, std::size_t> quantile_index;
     for (std::size_t index = 0; index < quantile_count; ++index) {
@@ -701,9 +1031,11 @@ quantile_date_return_table mean_return_by_quantile_by_date(
     using cell = std::tuple<std::size_t, std::size_t, std::size_t>;
     std::map<cell, std::vector<double>> buckets;
     for (std::size_t row = 0; row < factor_data.rows.size(); ++row) {
-        const auto date = date_index.find(factor_data.rows[row].date);
+        const auto& observation = factor_data.rows[row];
+        const auto date = date_index.find(
+            {observation.date, by_group ? observation.group : std::string{}});
         const auto quantile =
-            quantile_index.find(factor_data.rows[row].quantile);
+            quantile_index.find(observation.quantile);
         if (date == date_index.end() || quantile == quantile_index.end()) {
             continue;
         }
@@ -743,36 +1075,79 @@ quantile_date_return_table mean_return_by_quantile_by_date(
 quantile_spread_result mean_return_spread(
     const quantile_return_table& table, const int upper_quantile,
     const int lower_quantile) {
-    const auto upper = std::find(table.quantiles.begin(),
-                                 table.quantiles.end(), upper_quantile);
-    const auto lower = std::find(table.quantiles.begin(),
-                                 table.quantiles.end(), lower_quantile);
-    if (upper == table.quantiles.end() || lower == table.quantiles.end()) {
-        throw factor_data_error{
-            "spread quantiles must both be present in the quantile table"};
-    }
-    const std::size_t upper_index =
-        static_cast<std::size_t>(upper - table.quantiles.begin());
-    const std::size_t lower_index =
-        static_cast<std::size_t>(lower - table.quantiles.begin());
     const std::size_t labels = table.labels.size();
     quantile_spread_result result;
-    result.labels = table.labels;
-    result.spreads.assign(labels, nan);
-    result.standard_errors.assign(labels, nan);
-    for (std::size_t label = 0; label < labels; ++label) {
-        const double upper_mean = table.means[upper_index * labels + label];
-        const double lower_mean = table.means[lower_index * labels + label];
-        result.spreads[label] = upper_mean - lower_mean;
-        const double upper_error =
-            table.standard_errors[upper_index * labels + label];
-        const double lower_error =
-            table.standard_errors[lower_index * labels + label];
-        if (std::isfinite(upper_error) && std::isfinite(lower_error)) {
-            result.standard_errors[label] =
-                std::sqrt(upper_error * upper_error +
-                          lower_error * lower_error);
+    const auto append_spread = [&](const std::size_t output_row,
+                                   const std::size_t upper_index,
+                                   const std::size_t lower_index) {
+        for (std::size_t label = 0; label < labels; ++label) {
+            const double upper_mean = table.means[upper_index * labels + label];
+            const double lower_mean = table.means[lower_index * labels + label];
+            result.spreads[output_row * labels + label] = upper_mean - lower_mean;
+            const double upper_error =
+                table.standard_errors[upper_index * labels + label];
+            const double lower_error =
+                table.standard_errors[lower_index * labels + label];
+            if (std::isfinite(upper_error) && std::isfinite(lower_error)) {
+                result.standard_errors[output_row * labels + label] =
+                    std::sqrt(upper_error * upper_error +
+                              lower_error * lower_error);
+            }
         }
+    };
+
+    if (table.groups.empty()) {
+        const auto upper = std::find(table.quantiles.begin(),
+                                     table.quantiles.end(), upper_quantile);
+        const auto lower = std::find(table.quantiles.begin(),
+                                     table.quantiles.end(), lower_quantile);
+        if (upper == table.quantiles.end() || lower == table.quantiles.end()) {
+            throw factor_data_error{
+                "spread quantiles must both be present in the quantile table"};
+        }
+        const std::size_t upper_index =
+            static_cast<std::size_t>(upper - table.quantiles.begin());
+        const std::size_t lower_index =
+            static_cast<std::size_t>(lower - table.quantiles.begin());
+        result.labels = table.labels;
+        result.spreads.assign(labels, nan);
+        result.standard_errors.assign(labels, nan);
+        append_spread(0U, upper_index, lower_index);
+        return result;
+    }
+
+    if (table.groups.size() != table.quantiles.size()) {
+        throw factor_data_error{
+            "quantile groups must be parallel to quantile rows"};
+    }
+    std::set<std::string> groups(table.groups.begin(), table.groups.end());
+    result.labels.reserve(groups.size() * labels);
+    result.groups.reserve(groups.size() * labels);
+    result.spreads.assign(groups.size() * labels, nan);
+    result.standard_errors.assign(groups.size() * labels, nan);
+    std::size_t group_row = 0U;
+    for (const auto& group : groups) {
+        std::optional<std::size_t> upper_index;
+        std::optional<std::size_t> lower_index;
+        for (std::size_t row = 0; row < table.quantiles.size(); ++row) {
+            if (table.groups[row] != group) {
+                continue;
+            }
+            if (table.quantiles[row] == upper_quantile) {
+                upper_index = row;
+            }
+            if (table.quantiles[row] == lower_quantile) {
+                lower_index = row;
+            }
+        }
+        for (std::size_t label = 0; label < labels; ++label) {
+            result.labels.push_back(table.labels[label]);
+            result.groups.push_back(group);
+        }
+        if (upper_index && lower_index) {
+            append_spread(group_row, *upper_index, *lower_index);
+        }
+        ++group_row;
     }
     return result;
 }

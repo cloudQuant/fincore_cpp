@@ -1,18 +1,27 @@
 #include <fincore/factor/research.hpp>
 
+#include "research_export_internal.hpp"
+
+#include <fincore/detail/factor_compute.hpp>
 #include <fincore/detail/json.hpp>
 #include <fincore/factor/exceptions.hpp>
 
 #include <algorithm>
+#include <cmath>
+#include <cstdint>
 #include <filesystem>
 #include <fstream>
-#include <sstream>
-#include <cmath>
+#include <iterator>
 #include <limits>
 #include <map>
 #include <set>
 #include <span>
+#include <sstream>
 #include <string>
+#include <string_view>
+#include <system_error>
+#include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -123,27 +132,38 @@ void preprocess(factor_series& factors, const std::string& method) {
     }
 }
 
-factor_series window_and_targets(const factor_series& factors,
-                                 const research_spec& spec) {
-    factor_series filtered;
-    for (std::size_t row = 0; row < factors.dates.size(); ++row) {
-        if (factors.dates[row] < spec.start ||
-            factors.dates[row] > spec.end) {
-            continue;
+std::string join_names(const std::vector<std::string>& names) {
+    std::string result;
+    for (std::size_t index = 0; index < names.size(); ++index) {
+        if (index != 0U) {
+            result += ", ";
         }
-        if (!spec.targets.empty()) {
-            const auto found = std::find(spec.targets.begin(),
-                                         spec.targets.end(),
-                                         factors.assets[row]);
-            if (found == spec.targets.end()) {
-                continue;
-            }
-        }
-        filtered.dates.push_back(factors.dates[row]);
-        filtered.assets.push_back(factors.assets[row]);
-        filtered.values.push_back(factors.values[row]);
+        result += names[index];
     }
-    return filtered;
+    return result;
+}
+
+struct id_cell_hash {
+    std::size_t operator()(
+        const std::pair<timestamp, std::size_t>& key) const noexcept {
+        const std::size_t left = std::hash<timestamp>{}(key.first);
+        const std::size_t right = std::hash<std::size_t>{}(key.second);
+        return left ^ (right + 0x9e3779b9U + (left << 6U) + (left >> 2U));
+    }
+};
+
+void require_targets_present(const std::unordered_set<std::string>& observed,
+                             const std::vector<std::string>& targets,
+                             const std::string& message) {
+    std::vector<std::string> missing;
+    for (const auto& target : targets) {
+        if (!observed.contains(target)) {
+            missing.push_back(target);
+        }
+    }
+    if (!missing.empty()) {
+        throw factor_data_error{message + ": " + join_names(missing)};
+    }
 }
 
 }  // namespace
@@ -154,6 +174,7 @@ research_capabilities research_capabilities_report() {
 
 factor_series research_panel(const factor_series& factors,
                               const research_spec& spec) {
+    detail::note_panel_preprocessing();
     if (!(spec.max_loss >= 0.0 && spec.max_loss <= 1.0)) {
         throw factor_data_error{
             "max_loss must be a number between 0 and 1"};
@@ -182,13 +203,92 @@ factor_series research_panel(const factor_series& factors,
                 "segments must have non-empty names and bounds"};
         }
     }
-    factor_series panel = window_and_targets(factors, spec);
-    for (auto& value : panel.values) {
-        value = std::isfinite(value) ? value : nan;
+    std::unordered_map<std::string, std::size_t> asset_ids;
+    asset_ids.reserve(factors.assets.size());
+    std::unordered_set<std::pair<timestamp, std::size_t>, id_cell_hash> seen;
+    seen.reserve(factors.dates.size());
+    std::vector<unsigned char> full_seen;
+    std::vector<unsigned char> window_seen;
+    std::vector<std::size_t> window_indices;
+    window_indices.reserve(factors.dates.size());
+    bool duplicate = false;
+    for (std::size_t row = 0; row < factors.dates.size(); ++row) {
+        const auto [entry, inserted] =
+            asset_ids.try_emplace(factors.assets[row], asset_ids.size());
+        const std::size_t id = entry->second;
+        if (inserted) {
+            full_seen.push_back(0U);
+            window_seen.push_back(0U);
+        }
+        full_seen[id] = 1U;
+        if (!seen.emplace(factors.dates[row], id).second) {
+            duplicate = true;
+        }
+        if (factors.dates[row] >= spec.start &&
+            factors.dates[row] <= spec.end) {
+            window_indices.push_back(row);
+            window_seen[id] = 1U;
+        }
     }
-    if (panel.dates.empty()) {
+    if (duplicate) {
+        throw factor_data_error{
+            "factor panel contains duplicate (date, asset) keys"};
+    }
+    const auto missing_targets =
+        [&](const std::vector<unsigned char>& observed) {
+            std::vector<std::string> missing;
+            for (const auto& target : spec.targets) {
+                const auto found = asset_ids.find(target);
+                if (found == asset_ids.end() || observed[found->second] == 0U) {
+                    missing.push_back(target);
+                }
+            }
+            return missing;
+        };
+    if (!spec.targets.empty()) {
+        const auto missing = missing_targets(full_seen);
+        if (!missing.empty()) {
+            throw factor_data_error{
+                "factor panel is missing requested target assets: " +
+                join_names(missing)};
+        }
+    }
+    if (window_indices.empty()) {
         throw factor_data_error{
             "factors contain no cells inside the requested window"};
+    }
+    if (!spec.targets.empty()) {
+        const auto missing = missing_targets(window_seen);
+        if (!missing.empty()) {
+            throw factor_data_error{
+                "research window is missing requested target assets: " +
+                join_names(missing)};
+        }
+    }
+    std::vector<unsigned char> selected(asset_ids.size(), 0U);
+    for (const auto& target : spec.targets) {
+        const auto found = asset_ids.find(target);
+        if (found != asset_ids.end()) {
+            selected[found->second] = 1U;
+        }
+    }
+    factor_series panel;
+    panel.dates.reserve(window_indices.size());
+    panel.assets.reserve(window_indices.size());
+    panel.values.reserve(window_indices.size());
+    for (const std::size_t row : window_indices) {
+        if (!spec.targets.empty()) {
+            const auto found = asset_ids.find(factors.assets[row]);
+            if (found == asset_ids.end() || selected[found->second] == 0U) {
+                continue;
+            }
+        }
+        panel.dates.push_back(factors.dates[row]);
+        panel.assets.push_back(factors.assets[row]);
+        panel.values.push_back(factors.values[row]);
+    }
+    for (auto& value : panel.values) {
+        value = std::isfinite(value) ? value : nan;
     }
     for (std::size_t row = 0; row < panel.dates.size(); ++row) {
         const auto direction =
@@ -216,6 +316,15 @@ factor_series research_panel(const factor_series& factors,
 
     return panel;
 }
+
+namespace detail {
+
+factor_series research_panel_for_benchmark(
+    const factor_series& factors, const research_spec& spec) {
+    return research_panel(factors, spec);
+}
+
+}  // namespace detail
 
 std::vector<research_signal_row> build_signals(
     const factor_series& factors, const factor_series& panel,
@@ -299,30 +408,151 @@ research_result assemble_research(
 static research_result evaluate_with_table(
     const factor_series& panel,
     const forward_return_table& precomputed_returns,
-    const research_spec& spec, const std::string& label);
+    const research_spec& spec, const std::string& label,
+    bool positional_period_selection);
 
 namespace {
 
-std::string canonical_period_label(const dataframe& prices,
-                                   const int period) {
+constexpr timestamp nanoseconds_per_day = 86'400'000'000'000LL;
+
+timestamp utc_day(const timestamp value) {
+    timestamp day = value / nanoseconds_per_day;
+    if (value % nanoseconds_per_day < 0) {
+        --day;
+    }
+    return day;
+}
+
+void append_duration_component(std::string& result,
+                               const std::int64_t value,
+                               const char* suffix) {
+    if (value > 0) {
+        result += std::to_string(value);
+        result += suffix;
+    }
+}
+
+std::string timedelta_label(const std::int64_t days,
+                            timestamp remainder) {
+    constexpr timestamp nanoseconds_per_hour = 3'600'000'000'000LL;
+    constexpr timestamp nanoseconds_per_minute = 60'000'000'000LL;
+    constexpr timestamp nanoseconds_per_second = 1'000'000'000LL;
+    constexpr timestamp nanoseconds_per_millisecond = 1'000'000LL;
+    constexpr timestamp nanoseconds_per_microsecond = 1'000LL;
+
+    const auto hours = remainder / nanoseconds_per_hour;
+    remainder %= nanoseconds_per_hour;
+    const auto minutes = remainder / nanoseconds_per_minute;
+    remainder %= nanoseconds_per_minute;
+    const auto seconds = remainder / nanoseconds_per_second;
+    remainder %= nanoseconds_per_second;
+    const auto milliseconds = remainder / nanoseconds_per_millisecond;
+    remainder %= nanoseconds_per_millisecond;
+    const auto microseconds = remainder / nanoseconds_per_microsecond;
+    remainder %= nanoseconds_per_microsecond;
+
+    std::string result;
+    append_duration_component(result, days, "D");
+    append_duration_component(result, hours, "h");
+    append_duration_component(result, minutes, "m");
+    append_duration_component(result, seconds, "s");
+    append_duration_component(result, milliseconds, "ms");
+    append_duration_component(result, microseconds, "us");
+    append_duration_component(result, remainder, "ns");
+    return result;
+}
+
+timestamp utc_day_remainder(const timestamp value) {
+    timestamp remainder = value % nanoseconds_per_day;
+    if (remainder < 0) {
+        remainder += nanoseconds_per_day;
+    }
+    return remainder;
+}
+
+std::string canonical_period_label(
+    const dataframe& prices,
+    const std::vector<timestamp>& study_dates,
+    const int period) {
     const auto& index = prices.get_index();
-    for (std::size_t row = 0;
-         row + static_cast<std::size_t>(period) < index.size(); ++row) {
-        const timestamp difference =
-            index[row + static_cast<std::size_t>(period)] - index[row];
-        if (difference <= 0) {
+    std::set<timestamp> observed_days;
+    for (const timestamp date : index) {
+        observed_days.insert(utc_day(date));
+    }
+    for (const timestamp date : study_dates) {
+        observed_days.insert(utc_day(date));
+    }
+
+    const auto period_size = static_cast<std::size_t>(period);
+    for (const timestamp date : study_dates) {
+        const auto found = std::find(index.begin(), index.end(), date);
+        if (found == index.end()) {
             continue;
         }
-        constexpr timestamp day = 86'400'000'000'000LL;
-        if (difference % day == 0) {
-            return std::to_string(difference / day) + "D";
+        const auto row = static_cast<std::size_t>(found - index.begin());
+        if (period_size >= index.size() - row) {
+            continue;
         }
+
+        const timestamp start = index[row];
+        const timestamp end = index[row + period_size];
+        if (end <= start) {
+            continue;
+        }
+
+        const timestamp start_day = utc_day(start);
+        const timestamp end_day = utc_day(end);
+        const auto first_session = observed_days.lower_bound(start_day);
+        const auto last_session = observed_days.lower_bound(end_day);
+        const auto trading_days = static_cast<std::int64_t>(
+            std::distance(first_session, last_session));
+
+        // The inferred custom calendar treats each observed weekday as active
+        // and every missing date within the grid span as a holiday. Thus its
+        // sessions between these endpoints are the distinct observed dates
+        // in the half-open [start, end) range.
+        timestamp wall_clock_remainder =
+            utc_day_remainder(end) - utc_day_remainder(start);
+        if (wall_clock_remainder < 0) {
+            wall_clock_remainder += nanoseconds_per_day;
+        }
+        return timedelta_label(trading_days, wall_clock_remainder);
     }
     return std::to_string(period) + "D";
 }
 
+std::vector<timestamp> research_study_dates(const dataframe& prices,
+                                            const research_spec& spec) {
+    std::vector<timestamp> dates;
+    for (const timestamp date : prices.get_index()) {
+        if (date >= spec.start && date <= spec.end) {
+            dates.push_back(date);
+        }
+    }
+    return dates;
+}
+
+std::vector<std::string> canonical_period_labels(
+    const dataframe& prices,
+    const research_spec& spec,
+    const std::vector<timestamp>& study_dates) {
+    std::vector<std::string> labels;
+    labels.reserve(spec.periods.size());
+    std::set<std::string> unique_labels;
+    for (const int period : spec.periods) {
+        const auto label = canonical_period_label(prices, study_dates, period);
+        if (!unique_labels.insert(label).second) {
+            throw factor_data_error{
+                "requested periods map to duplicate forward-return labels"};
+        }
+        labels.push_back(label);
+    }
+    return labels;
+}
+
 forward_return_table next_open_table(const dataframe& prices,
-                                     const research_spec& spec) {
+                                     const research_spec& spec,
+                                     const std::vector<std::string>& labels) {
     std::vector<std::string> assets;
     for (const auto& info : prices.get_columns_info<double>()) {
         if (std::get<2>(info) == typeid(double)) {
@@ -343,8 +573,8 @@ forward_return_table next_open_table(const dataframe& prices,
     forward_return_table table;
     table.dates = prices.get_index();
     table.assets = assets;
+    table.labels = labels;
     for (const int period : spec.periods) {
-        table.labels.push_back(canonical_period_label(prices, period));
         std::vector<double> values(table.dates.size() * assets.size(), nan);
         for (std::size_t row = 0; row < table.dates.size(); ++row) {
             const std::size_t numerator_row = row +
@@ -370,9 +600,16 @@ forward_return_table next_open_table(const dataframe& prices,
 
 }  // namespace
 
-research_result evaluate_factor_research(const factor_series& factors,
-                                         const dataframe& prices,
-                                         const research_spec& spec) {
+namespace {
+
+struct evaluated_research {
+    research_result result;
+    factor_series panel;
+};
+
+evaluated_research evaluate_factor_research_with_panel(
+    const factor_series& factors, const dataframe& prices,
+    const research_spec& spec) {
     if (spec.label == "precomputed") {
         throw factor_data_error{
             "precomputed labels require the precomputed evaluator"};
@@ -381,15 +618,16 @@ research_result evaluate_factor_research(const factor_series& factors,
         spec.label != "next_open_to_open") {
         throw factor_data_error{"unsupported research label: " + spec.label};
     }
+    factor_series panel = research_panel(factors, spec);
+    const auto labels = canonical_period_labels(
+        prices, spec, research_study_dates(prices, spec));
     if (spec.label == "next_open_to_open") {
-        const factor_series panel = research_panel(factors, spec);
         auto result = evaluate_with_table(
-            panel, next_open_table(prices, spec), spec,
-            "next_open_to_open");
+            panel, next_open_table(prices, spec, labels), spec,
+            "next_open_to_open", true);
         result.signals = build_signals(factors, panel, spec);
-        return result;
+        return {std::move(result), std::move(panel)};
     }
-    const factor_series panel = research_panel(factors, spec);
 
     prepare_factor_config config;
     config.periods = spec.periods;
@@ -401,20 +639,23 @@ research_result evaluate_factor_research(const factor_series& factors,
         throw factor_data_error{
             "prepared horizons must match the requested periods"};
     }
-    std::set<std::string> labels;
     for (std::size_t index = 0; index < spec.periods.size(); ++index) {
-        const std::string label =
-            canonical_period_label(prices, spec.periods[index]);
-        if (!labels.insert(label).second) {
-            throw factor_data_error{
-                "requested periods map to duplicate forward-return labels"};
-        }
+        const std::string& label = labels[index];
         prepared.by_horizon[index].first = label;
         prepared.by_horizon[index].second.forward_labels = {label};
     }
     auto result = assemble_research(prepared, spec);
     result.signals = build_signals(factors, panel, spec);
-    return result;
+    return {std::move(result), std::move(panel)};
+}
+
+}  // namespace
+
+research_result evaluate_factor_research(const factor_series& factors,
+                                         const dataframe& prices,
+                                         const research_spec& spec) {
+    return std::move(
+        evaluate_factor_research_with_panel(factors, prices, spec).result);
 }
 
 research_result assemble_research(
@@ -446,10 +687,12 @@ research_result assemble_research(
     }
 
     // Combine per-horizon ICs into one date x horizon table and summaries.
+    std::vector<factor_ic_table> ics;
+    ics.reserve(prepared.by_horizon.size());
     std::set<timestamp> dates_set;
     for (const auto& entry : prepared.by_horizon) {
-        const auto ic = factor_information_coefficient(entry.second);
-        for (const auto date : ic.dates) {
+        ics.push_back(factor_information_coefficient(entry.second));
+        for (const auto date : ics.back().dates) {
             dates_set.insert(date);
         }
     }
@@ -485,14 +728,15 @@ research_result assemble_research(
     }
     for (std::size_t label = 0; label < labels; ++label) {
         const auto& prepared_horizon = prepared.by_horizon[label].second;
-        const auto ic = factor_information_coefficient(prepared_horizon);
+        const auto& ic = ics[label];
         for (std::size_t index = 0; index < ic.dates.size(); ++index) {
             result.information_coefficient.values
                 [date_position[ic.dates[index]] * labels + label] =
                 ic.values[index];
         }
         result.coverage[label] = prepared_horizon.rows.size();
-        const auto summary = mean_information_coefficient(prepared_horizon);
+        const auto summary =
+            detail::summarize_information_coefficient(ic);
         if (!summary.means.empty()) {
             result.information_coefficient_summary.means[label] =
                 summary.means.front();
@@ -612,9 +856,101 @@ std::string row_text(const std::vector<std::string>& cells) {
     return line;
 }
 
-void write_table(const std::filesystem::path& path,
-                 const std::vector<std::string>& header,
-                 const std::vector<std::vector<std::string>>& rows) {
+void finish_output_stream(std::ofstream& stream,
+                          const char* write_error_message) {
+    stream.flush();
+    if (!stream) {
+        throw factor_data_error{write_error_message};
+    }
+    stream.close();
+    if (!stream) {
+        throw factor_data_error{write_error_message};
+    }
+}
+
+void validate_matrix_size(const char* name, const std::size_t rows,
+                          const std::size_t columns,
+                          const std::size_t actual_size) {
+    if (columns != 0U &&
+        rows > std::numeric_limits<std::size_t>::max() / columns) {
+        throw factor_data_error{std::string{"research export "} + name +
+                               " dimensions overflow"};
+    }
+    if (actual_size != rows * columns) {
+        throw factor_data_error{std::string{"research export "} + name +
+                               " dimensions do not match"};
+    }
+}
+
+void validate_export_shapes(const research_result& result) {
+    const auto label_count = result.information_coefficient.labels.size();
+    validate_matrix_size("information coefficient",
+                         result.information_coefficient.dates.size(),
+                         label_count,
+                         result.information_coefficient.values.size());
+
+    const auto& quantile_table = result.quantile_returns;
+    if (quantile_table.labels != result.information_coefficient.labels) {
+        throw factor_data_error{
+            "research export quantile labels do not match IC labels"};
+    }
+    const auto quantile_count = quantile_table.quantiles.size();
+    validate_matrix_size("quantile means", quantile_count, label_count,
+                         quantile_table.means.size());
+    validate_matrix_size("quantile standard errors", quantile_count,
+                         label_count, quantile_table.standard_errors.size());
+
+    const auto validate_series = [](const char* name,
+                                    const std::vector<factor_series_result>&
+                                        series_collection) {
+        for (const auto& series : series_collection) {
+            if (series.dates.size() != series.values.size()) {
+                throw factor_data_error{std::string{"research export "} +
+                                       name +
+                                       " dates and values dimensions do not match"};
+            }
+        }
+    };
+    validate_series("turnover", result.turnover);
+    validate_series("stability", result.stability);
+}
+
+void validate_export_manifest(const research_result& result) {
+    for (const std::string_view reserved_key : {"status", "exports"}) {
+        if (result.manifest.contains(std::string{reserved_key})) {
+            throw factor_data_error{
+                "research export manifest contains reserved key: " +
+                std::string{reserved_key}};
+        }
+    }
+}
+
+class created_directory_guard {
+public:
+    explicit created_directory_guard(std::filesystem::path path)
+        : path_(std::move(path)) {}
+
+    created_directory_guard(const created_directory_guard&) = delete;
+    created_directory_guard& operator=(const created_directory_guard&) = delete;
+
+    ~created_directory_guard() {
+        if (active_) {
+            std::error_code ignored;
+            std::filesystem::remove_all(path_, ignored);
+        }
+    }
+
+    void arm() noexcept { active_ = true; }
+    void release() noexcept { active_ = false; }
+
+private:
+    std::filesystem::path path_;
+    bool active_{false};
+};
+
+void write_table_rows_impl(const std::filesystem::path& path,
+                           const std::vector<std::string>& header,
+                           const std::vector<std::vector<std::string>>& rows) {
     std::ofstream stream(path, std::ios::binary);
     if (!stream) {
         throw factor_data_error{"could not create research export file"};
@@ -626,23 +962,82 @@ void write_table(const std::filesystem::path& path,
     if (!stream) {
         throw factor_data_error{"could not write research export file"};
     }
+    finish_output_stream(stream, "could not write research export file");
+}
+
+using research_export_detail::row_emitter;
+using research_export_detail::table_generator;
+
+void write_table(const std::filesystem::path& path,
+                 const std::vector<std::string>& header,
+                 const table_generator& generate) {
+    std::ofstream stream(path, std::ios::binary);
+    if (!stream) {
+        throw factor_data_error{"could not create research export file"};
+    }
+    stream << row_text(header);
+    generate([&stream](const std::vector<std::string>& row) {
+        stream << row_text(row);
+    });
+    if (!stream) {
+        throw factor_data_error{"could not write research export file"};
+    }
+    finish_output_stream(stream, "could not write research export file");
 }
 
 }  // namespace
 
+namespace research_export_detail {
+
+void write_table_rows(
+    const std::filesystem::path& path,
+    const std::vector<std::string>& header,
+    const std::vector<std::vector<std::string>>& rows) {
+    write_table_rows_impl(path, header, rows);
+}
+
+}  // namespace research_export_detail
 
 research_result evaluate_factor_research(const factor_series& factors,
                                          const dataframe& prices,
                                          const research_spec& spec,
                                          const dataframe& universe) {
+    if (spec.label == "precomputed") {
+        throw factor_data_error{
+            "precomputed labels require the precomputed evaluator"};
+    }
+    if (spec.label != "close_to_close" &&
+        spec.label != "next_open_to_open") {
+        throw factor_data_error{"unsupported research label: " + spec.label};
+    }
     const factor_series panel =
         apply_universe(research_panel(factors, spec), universe);
+    const auto labels = canonical_period_labels(
+        prices, spec, research_study_dates(prices, spec));
+
+    if (spec.label == "next_open_to_open") {
+        auto result = evaluate_with_table(
+            panel, next_open_table(prices, spec, labels), spec,
+            "next_open_to_open", true);
+        result.signals = build_signals(factors, panel, spec);
+        result.manifest["universe"] = "applied";
+        return result;
+    }
+
     prepare_factor_config config;
     config.periods = spec.periods;
     config.quantiles = spec.quantiles;
     config.max_loss = spec.max_loss;
-    const auto prepared =
+    auto prepared =
         prepare_factor_data_by_horizon(panel, prices, config);
+    if (prepared.by_horizon.size() != labels.size()) {
+        throw factor_data_error{
+            "prepared horizons must match the requested periods"};
+    }
+    for (std::size_t index = 0; index < labels.size(); ++index) {
+        prepared.by_horizon[index].first = labels[index];
+        prepared.by_horizon[index].second.forward_labels = {labels[index]};
+    }
     auto result = assemble_research(prepared, spec);
     result.signals = build_signals(factors, panel, spec);
     result.manifest["universe"] = "applied";
@@ -652,7 +1047,8 @@ research_result evaluate_factor_research(const factor_series& factors,
 static research_result evaluate_with_table(
     const factor_series& panel,
     const forward_return_table& precomputed_returns,
-    const research_spec& spec, const std::string& label) {
+    const research_spec& spec, const std::string& label,
+    const bool positional_period_selection) {
     const std::size_t asset_count = precomputed_returns.assets.size();
     const std::size_t date_count = precomputed_returns.dates.size();
     const std::size_t label_count = precomputed_returns.labels.size();
@@ -685,6 +1081,14 @@ static research_result evaluate_with_table(
     std::vector<std::size_t> label_indices;
     for (std::size_t period_index = 0; period_index < spec.periods.size();
          ++period_index) {
+        if (positional_period_selection) {
+            if (period_index >= precomputed_returns.labels.size()) {
+                throw factor_data_error{
+                    "forward-return table is missing requested periods"};
+            }
+            label_indices.push_back(period_index);
+            continue;
+        }
         const std::string label =
             std::to_string(spec.periods[period_index]) + "D";
         const auto found = std::find(precomputed_returns.labels.begin(),
@@ -751,7 +1155,7 @@ research_result evaluate_factor_research(
     }
     const factor_series panel = research_panel(factors, spec);
     auto result = evaluate_with_table(panel, precomputed_returns, spec,
-                                      "precomputed");
+                                      "precomputed", false);
     result.signals = build_signals(factors, panel, spec);
     return result;
 }
@@ -867,11 +1271,13 @@ research_panel_result evaluate_factor_research_panel(
     research_panel_result result;
     std::size_t ok_count = 0U;
     std::size_t unevaluable_count = 0U;
+    std::map<std::string, factor_series> processed;
     for (const auto& factor : factors) {
+        auto evaluated = evaluate_factor_research_with_panel(
+            factor.values, prices, spec);
         named_research_result named;
         named.name = factor.name;
-        named.result =
-            evaluate_factor_research(factor.values, prices, spec);
+        named.result = std::move(evaluated.result);
         if (named.result.status == "OK") {
             ++ok_count;
         } else if (named.result.status == "UNEVALUABLE") {
@@ -881,16 +1287,13 @@ research_panel_result evaluate_factor_research_panel(
             signal.factor = factor.name;
             result.signals.push_back(signal);
         }
+        processed[factor.name] = std::move(evaluated.panel);
         result.factors.push_back(std::move(named));
-    }
-    std::map<std::string, factor_series> processed;
-    for (const auto& factor : factors) {
-        processed[factor.name] = research_panel(factor.values, spec);
     }
     std::vector<research_factor_panel> panels;
     panels.reserve(factors.size() + spec.combinations.size());
     for (const auto& factor : factors) {
-        panels.push_back({factor.name, factor.values});
+        panels.push_back({factor.name, processed.at(factor.name)});
     }
     for (const auto& [name, weights] : spec.combinations) {
         factor_series blended =
@@ -938,9 +1341,11 @@ research_panel_result evaluate_factor_research_panel(
     return result;
 }
 
-research_export_result export_factor_research(
+research_export_result research_export_detail::
+    export_factor_research_with_writer(
     const research_result& result, const std::string& directory,
-    const bool charts) {
+    const bool charts,
+    const research_export_detail::table_writer& writer) {
     if (charts) {
         throw factor_data_error{
             "chart export requires a raster renderer that is not available "
@@ -949,150 +1354,183 @@ research_export_result export_factor_research(
     if (directory.empty()) {
         throw factor_data_error{"research export directory must not be empty"};
     }
-    const std::filesystem::path target{directory};
-    if (std::filesystem::exists(target)) {
+    if (directory.find('\0') != std::string::npos) {
         throw factor_data_error{
-            "evaluation export already exists and will not be overwritten"};
+            "research export directory must not contain a null byte"};
     }
+    validate_export_shapes(result);
+    validate_export_manifest(result);
+    if (!writer) {
+        throw factor_data_error{"research export writer must not be empty"};
+    }
+
+    const std::filesystem::path target{directory};
+    created_directory_guard cleanup{target};
     std::error_code error;
-    std::filesystem::create_directories(target, error);
+    const auto parent = target.parent_path();
+    if (!parent.empty()) {
+        std::filesystem::create_directories(parent, error);
+        if (error) {
+            throw factor_data_error{
+                "could not create research export directory"};
+        }
+    }
+    error.clear();
+    const bool created = std::filesystem::create_directory(target, error);
+    if (created) {
+        cleanup.arm();
+    }
     if (error) {
         throw factor_data_error{"could not create research export directory"};
+    }
+    if (!created) {
+        throw factor_data_error{
+            "evaluation export already exists and will not be overwritten"};
     }
 
     research_export_result exported;
     exported.directory = directory;
     const auto labels = result.information_coefficient.labels;
 
-    std::vector<std::vector<std::string>> ic_rows;
-    for (std::size_t date = 0;
-         date < result.information_coefficient.dates.size(); ++date) {
-        std::vector<std::string> row{
-            detail::format_timestamp(result.information_coefficient.dates[date])};
-        for (std::size_t label = 0; label < labels.size(); ++label) {
-            row.push_back(csv_number(
-                result.information_coefficient.values[date * labels.size() +
-                                                      label]));
+    std::unordered_map<timestamp, std::string> timestamp_text;
+    timestamp_text.reserve(result.information_coefficient.dates.size());
+    const auto format_date =
+        [&timestamp_text](const timestamp value) -> const std::string& {
+        auto [entry, inserted] = timestamp_text.try_emplace(value);
+        if (inserted) {
+            entry->second = detail::format_timestamp(value);
         }
-        ic_rows.push_back(std::move(row));
-    }
+        return entry->second;
+    };
+
     std::vector<std::string> ic_header{"date"};
     ic_header.insert(ic_header.end(), labels.begin(), labels.end());
-    write_table(target / "ic.csv", ic_header, ic_rows);
+    writer(target / "ic.csv", ic_header, [&](const row_emitter& emit) {
+        for (std::size_t date = 0;
+             date < result.information_coefficient.dates.size(); ++date) {
+            std::vector<std::string> row{
+                format_date(result.information_coefficient.dates[date])};
+            for (std::size_t label = 0; label < labels.size(); ++label) {
+                row.push_back(csv_number(
+                    result.information_coefficient.values
+                        [date * labels.size() + label]));
+            }
+            emit(row);
+        }
+    });
     exported.files.push_back("ic.csv");
 
-    std::vector<std::vector<std::string>> summary_rows;
-    for (std::size_t label = 0; label < labels.size(); ++label) {
-        summary_rows.push_back(
-            {labels[label],
-             csv_number(label < result.information_coefficient_summary.means.size()
-                            ? result.information_coefficient_summary.means[label]
-                            : std::nan(""))});
-    }
-    write_table(target / "ic_summary.csv", {"label", "mean_ic"}, summary_rows);
+    writer(target / "ic_summary.csv", {"label", "mean_ic"},
+           [&](const row_emitter& emit) {
+        for (std::size_t label = 0; label < labels.size(); ++label) {
+            emit({labels[label],
+                  csv_number(label < result.information_coefficient_summary.means.size()
+                                 ? result.information_coefficient_summary.means[label]
+                                 : std::nan(""))});
+        }
+    });
     exported.files.push_back("ic_summary.csv");
 
-    std::vector<std::vector<std::string>> quantile_rows;
     const std::size_t quantiles = result.quantile_returns.quantiles.size();
-    for (std::size_t quantile = 0; quantile < quantiles; ++quantile) {
-        for (std::size_t label = 0; label < labels.size(); ++label) {
-            quantile_rows.push_back(
-                {std::to_string(
-                     result.quantile_returns.quantiles[quantile]),
-                 labels[label],
-                 csv_number(result.quantile_returns.means
-                                [quantile * labels.size() + label]),
-                 csv_number(result.quantile_returns.standard_errors
-                                [quantile * labels.size() + label])});
+    writer(target / "quantile_returns.csv",
+           {"quantile", "label", "mean", "standard_error"},
+           [&](const row_emitter& emit) {
+        for (std::size_t quantile = 0; quantile < quantiles; ++quantile) {
+            for (std::size_t label = 0; label < labels.size(); ++label) {
+                emit({std::to_string(
+                          result.quantile_returns.quantiles[quantile]),
+                      labels[label],
+                      csv_number(result.quantile_returns.means
+                                     [quantile * labels.size() + label]),
+                      csv_number(result.quantile_returns.standard_errors
+                                     [quantile * labels.size() + label])});
+            }
         }
-    }
-    write_table(target / "quantile_returns.csv",
-                {"quantile", "label", "mean", "standard_error"},
-                quantile_rows);
+    });
     exported.files.push_back("quantile_returns.csv");
 
-    std::vector<std::vector<std::string>> turnover_rows;
-    for (std::size_t index = 0; index < result.turnover.size(); ++index) {
-        const std::string quantile =
-            index < quantiles
-                ? std::to_string(result.quantile_returns.quantiles[index])
-                : std::to_string(index + 1U);
-        const auto& series = result.turnover[index];
-        for (std::size_t date = 0; date < series.dates.size(); ++date) {
-            turnover_rows.push_back(
-                {quantile, detail::format_timestamp(series.dates[date]),
-                 csv_number(series.values[date])});
+    writer(target / "turnover.csv", {"quantile", "date", "value"},
+           [&](const row_emitter& emit) {
+        for (std::size_t index = 0; index < result.turnover.size(); ++index) {
+            const std::string quantile =
+                index < quantiles
+                    ? std::to_string(result.quantile_returns.quantiles[index])
+                    : std::to_string(index + 1U);
+            const auto& series = result.turnover[index];
+            for (std::size_t date = 0; date < series.dates.size(); ++date) {
+                emit({quantile, format_date(series.dates[date]),
+                      csv_number(series.values[date])});
+            }
         }
-    }
-    write_table(target / "turnover.csv", {"quantile", "date", "value"},
-                turnover_rows);
+    });
     exported.files.push_back("turnover.csv");
 
-    std::vector<std::vector<std::string>> stability_rows;
-    for (std::size_t index = 0; index < result.stability.size(); ++index) {
-        const std::string lag =
-            index < result.stability_lags.size()
-                ? std::to_string(result.stability_lags[index])
-                : std::to_string(index + 1U);
-        const auto& series = result.stability[index];
-        for (std::size_t date = 0; date < series.dates.size(); ++date) {
-            stability_rows.push_back(
-                {lag, detail::format_timestamp(series.dates[date]),
-                 csv_number(series.values[date])});
+    writer(target / "stability.csv", {"lag", "date", "value"},
+           [&](const row_emitter& emit) {
+        for (std::size_t index = 0; index < result.stability.size(); ++index) {
+            const std::string lag =
+                index < result.stability_lags.size()
+                    ? std::to_string(result.stability_lags[index])
+                    : std::to_string(index + 1U);
+            const auto& series = result.stability[index];
+            for (std::size_t date = 0; date < series.dates.size(); ++date) {
+                emit({lag, format_date(series.dates[date]),
+                      csv_number(series.values[date])});
+            }
         }
-    }
-    write_table(target / "stability.csv", {"lag", "date", "value"},
-                stability_rows);
+    });
     exported.files.push_back("stability.csv");
 
-    std::vector<std::vector<std::string>> spread_rows;
-    std::vector<std::vector<std::string>> coverage_rows;
-    for (std::size_t label = 0; label < labels.size(); ++label) {
-        spread_rows.push_back(
-            {labels[label],
-             csv_number(label < result.spread.size() ? result.spread[label]
-                                                     : std::nan(""))});
-        coverage_rows.push_back(
-            {labels[label],
-             label < result.coverage.size()
-                 ? std::to_string(result.coverage[label])
-                 : std::string{}});
-    }
-    write_table(target / "spreads.csv", {"label", "spread"}, spread_rows);
+    writer(target / "spreads.csv", {"label", "spread"},
+           [&](const row_emitter& emit) {
+        for (std::size_t label = 0; label < labels.size(); ++label) {
+            emit({labels[label],
+                  csv_number(label < result.spread.size()
+                                 ? result.spread[label]
+                                 : std::nan(""))});
+        }
+    });
     exported.files.push_back("spreads.csv");
-    write_table(target / "coverage.csv", {"label", "count"}, coverage_rows);
+
+    writer(target / "coverage.csv", {"label", "count"},
+           [&](const row_emitter& emit) {
+        for (std::size_t label = 0; label < labels.size(); ++label) {
+            emit({labels[label],
+                  label < result.coverage.size()
+                      ? std::to_string(result.coverage[label])
+                      : std::string{}});
+        }
+    });
     exported.files.push_back("coverage.csv");
 
-    std::vector<std::vector<std::string>> label_rows;
-    for (const auto& row : result.labels) {
-        label_rows.push_back(
-            {detail::format_timestamp(row.date), row.asset, row.period,
-             csv_number(row.value)});
-    }
-    write_table(target / "labels.csv", {"date", "asset", "period", "value"},
-                label_rows);
+    writer(target / "labels.csv", {"date", "asset", "period", "value"},
+           [&](const row_emitter& emit) {
+        for (const auto& row : result.labels) {
+            emit({format_date(row.date), row.asset, row.period,
+                  csv_number(row.value)});
+        }
+    });
     exported.files.push_back("labels.csv");
 
-    std::vector<std::vector<std::string>> signal_rows;
-    for (const auto& row : result.signals) {
-        signal_rows.push_back(
-            {detail::format_timestamp(row.date), row.asset, row.factor,
-             std::to_string(row.direction), csv_number(row.value),
-             csv_number(row.processed_value), row.preprocess, row.group});
-    }
-    write_table(target / "signals.csv",
-                {"date", "asset", "factor", "direction", "value",
-                 "processed_value", "preprocess", "group"},
-                signal_rows);
+    writer(target / "signals.csv",
+           {"date", "asset", "factor", "direction", "value",
+            "processed_value", "preprocess", "group"},
+           [&](const row_emitter& emit) {
+        for (const auto& row : result.signals) {
+            emit({format_date(row.date), row.asset, row.factor,
+                  std::to_string(row.direction), csv_number(row.value),
+                  csv_number(row.processed_value), row.preprocess, row.group});
+        }
+    });
     exported.files.push_back("signals.csv");
 
-    std::vector<std::vector<std::string>> diagnostic_rows;
-    for (std::size_t index = 0; index < result.diagnostics.size(); ++index) {
-        diagnostic_rows.push_back(
-            {std::to_string(index + 1U), result.diagnostics[index]});
-    }
-    write_table(target / "diagnostics.csv", {"index", "message"},
-                diagnostic_rows);
+    writer(target / "diagnostics.csv", {"index", "message"},
+           [&](const row_emitter& emit) {
+        for (std::size_t index = 0; index < result.diagnostics.size();
+             ++index) {
+            emit({std::to_string(index + 1U), result.diagnostics[index]});
+        }
+    });
     exported.files.push_back("diagnostics.csv");
 
     std::ostringstream manifest;
@@ -1116,9 +1554,18 @@ research_export_result export_factor_research(
             throw factor_data_error{"could not create research manifest"};
         }
         stream << manifest.str();
+        finish_output_stream(stream, "could not write research manifest");
     }
     exported.files.push_back("manifest.json");
+    cleanup.release();
     return exported;
+}
+
+research_export_result export_factor_research(
+    const research_result& result, const std::string& directory,
+    const bool charts) {
+    return research_export_detail::export_factor_research_with_writer(
+        result, directory, charts, write_table);
 }
 
 

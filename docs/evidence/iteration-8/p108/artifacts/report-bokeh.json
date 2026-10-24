@@ -1,0 +1,48 @@
+{
+  "title": "Iteration 8 Native Artifact Check",
+  "height": 500,
+  "width": 800,
+  "sizing_mode": "fixed",
+  "x_axis_type": "datetime",
+  "x_axis_label": "",
+  "y_axis_label": "",
+  "background_fill_color": "#FFFFFF",
+  "border_fill_color": "#FFFFFF",
+  "grid_line_color": "#E0E0E0",
+  "text_color": "#424242",
+  "grid_visible": true,
+  "axis_visible": true,
+  "glyphs": [
+    {
+      "type": "line",
+      "x_field": "index",
+      "y_field": "cumulative",
+      "x": [
+        0.0,
+        1.0,
+        2.0,
+        3.0,
+        4.0
+      ],
+      "y": [
+        1.0,
+        1.01,
+        1.03,
+        1.02,
+        1.05
+      ],
+      "line": {
+        "width": 2.0
+      },
+      "legend_label": "Cumulative Return"
+    }
+  ],
+  "tools": {
+    "hovers": [],
+    "spans": []
+  },
+  "legend": {
+    "location": "",
+    "click_policy": ""
+  }
+}

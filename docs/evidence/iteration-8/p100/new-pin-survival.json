@@ -1,0 +1,631 @@
+{
+  "new_pin": "3e9ef205ef2023f92e89fddd1052d46b16429c64",
+  "old_pin": "4b8f31b1b59707480d5db9603704d83bbf7e6946",
+  "route_rows_checked": 81,
+  "rows": [
+    {
+      "module": "fincore/factor_analysis/analysis.py",
+      "new_body_sha256": "38ca7d1bac745af991bc470ba4c1c4ad630e458243e8439617aaabe0c6dec0d0",
+      "old_body_sha256": "38ca7d1bac745af991bc470ba4c1c4ad630e458243e8439617aaabe0c6dec0d0",
+      "python_route": "fincore.factor_analysis.analysis.analyze_factor",
+      "symbol": "analyze_factor",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/models.py",
+      "new_body_sha256": "2b57e18745164ba8da26c471f57b01689d8217ee2fc8b60aa90df669d89d11b6",
+      "old_body_sha256": "2b57e18745164ba8da26c471f57b01689d8217ee2fc8b60aa90df669d89d11b6",
+      "python_route": "fincore.factor_analysis.models.EventAnalysisModel",
+      "symbol": "EventAnalysisModel",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/models.py",
+      "new_body_sha256": "fffd45335fa3fe15d619a9ee4d6f84f3c3e6b03b0359792f60bc3df0c7b2549b",
+      "old_body_sha256": "fffd45335fa3fe15d619a9ee4d6f84f3c3e6b03b0359792f60bc3df0c7b2549b",
+      "python_route": "fincore.factor_analysis.models.FactorAnalysisConfig",
+      "symbol": "FactorAnalysisConfig",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/models.py",
+      "new_body_sha256": "d84d67cc9a05ee469df3a1daf67d019028f13a5578f9cf759bc147587c93456c",
+      "old_body_sha256": "d84d67cc9a05ee469df3a1daf67d019028f13a5578f9cf759bc147587c93456c",
+      "python_route": "fincore.factor_analysis.models.FactorAnalysisModel",
+      "symbol": "FactorAnalysisModel",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/models.py",
+      "new_body_sha256": "fead375d56266c0f4379d5ff726aff7d8737205b6f61e1491994130a5c3d0c5b",
+      "old_body_sha256": "fead375d56266c0f4379d5ff726aff7d8737205b6f61e1491994130a5c3d0c5b",
+      "python_route": "fincore.factor_analysis.models.FactorAnalysisModel.to_serializable",
+      "symbol": "FactorAnalysisModel.to_serializable",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/models.py",
+      "new_body_sha256": "3f07f6e7833c57f094c223bd145be1272709b8332358648da1a3038884e4815d",
+      "old_body_sha256": "3f07f6e7833c57f094c223bd145be1272709b8332358648da1a3038884e4815d",
+      "python_route": "fincore.factor_analysis.models.FactorGroupAnalysis",
+      "symbol": "FactorGroupAnalysis",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/models.py",
+      "new_body_sha256": "e5385d45d3c29446cbd748da2c1057ab7c96729e22bdf50a3f50d884440b507b",
+      "old_body_sha256": "e5385d45d3c29446cbd748da2c1057ab7c96729e22bdf50a3f50d884440b507b",
+      "python_route": "fincore.factor_analysis.models.deserialize_serializable_value",
+      "symbol": "deserialize_serializable_value",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/models.py",
+      "new_body_sha256": "c1e77ba14285ce802126465c9996215284cdb460f5c6e6514309f450333a4b28",
+      "old_body_sha256": "23260d395ffa6673010b50d04ab3534a16b102cb61580880f04a0f2937c4c9ce",
+      "python_route": "fincore.factor_analysis.models.fingerprint_value",
+      "symbol": "fingerprint_value",
+      "verdict": "SURVIVED_BODY_CHANGED"
+    },
+    {
+      "module": "fincore/factor_analysis/models.py",
+      "new_body_sha256": "2d298f195cac6ec3fa8b0b6863b95b7d62e1169f274a54c6771444cd99cd06a1",
+      "old_body_sha256": "2d298f195cac6ec3fa8b0b6863b95b7d62e1169f274a54c6771444cd99cd06a1",
+      "python_route": "fincore.factor_analysis.models.frozen_mapping",
+      "symbol": "frozen_mapping",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/models.py",
+      "new_body_sha256": "079e96442d93b1429bb9fb07bdce9916df72c23205f7a6e9eb00250d4b747047",
+      "old_body_sha256": "079e96442d93b1429bb9fb07bdce9916df72c23205f7a6e9eb00250d4b747047",
+      "python_route": "fincore.factor_analysis.models.serializable_value",
+      "symbol": "serializable_value",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/models.py",
+      "new_body_sha256": "2706de67ed0d84a9a847303b684a99d961d91e518c88e096d6c3e695cf42084b",
+      "old_body_sha256": "2706de67ed0d84a9a847303b684a99d961d91e518c88e096d6c3e695cf42084b",
+      "python_route": "fincore.factor_analysis.models.snapshot_pandas",
+      "symbol": "snapshot_pandas",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/performance.py",
+      "new_body_sha256": "83ae44aa238276c790c69055e1ad6a6d97c4e15ad0491735a27abb6ff275f3be",
+      "old_body_sha256": "83ae44aa238276c790c69055e1ad6a6d97c4e15ad0491735a27abb6ff275f3be",
+      "python_route": "fincore.factor_analysis.performance.average_cumulative_return_by_quantile",
+      "symbol": "average_cumulative_return_by_quantile",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/performance.py",
+      "new_body_sha256": "51badc2dd3b2749ab32f60846087ce3365c627dfc1743eb925027ef46819c0c8",
+      "old_body_sha256": "51badc2dd3b2749ab32f60846087ce3365c627dfc1743eb925027ef46819c0c8",
+      "python_route": "fincore.factor_analysis.performance.common_start_returns",
+      "symbol": "common_start_returns",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/performance.py",
+      "new_body_sha256": "a2a8148ed5327f98168572ca6839756d9de9b35d2c7c0c9c8655240f9efdac18",
+      "old_body_sha256": "a2a8148ed5327f98168572ca6839756d9de9b35d2c7c0c9c8655240f9efdac18",
+      "python_route": "fincore.factor_analysis.performance.compute_mean_returns_spread",
+      "symbol": "compute_mean_returns_spread",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/performance.py",
+      "new_body_sha256": "7f58a82063a072e4bc80380713f9aff48f2617140895809b73a5836c96e7987f",
+      "old_body_sha256": "7f58a82063a072e4bc80380713f9aff48f2617140895809b73a5836c96e7987f",
+      "python_route": "fincore.factor_analysis.performance.cumulative_returns",
+      "symbol": "cumulative_returns",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/performance.py",
+      "new_body_sha256": "19e9ca04f3483a3c2c446f4a48591458bec8a656dfec1f67d57f8beade4d29d3",
+      "old_body_sha256": "19e9ca04f3483a3c2c446f4a48591458bec8a656dfec1f67d57f8beade4d29d3",
+      "python_route": "fincore.factor_analysis.performance.factor_alpha_beta",
+      "symbol": "factor_alpha_beta",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/performance.py",
+      "new_body_sha256": "83cc78e2a0bfa1195104ca39bf308d40d205058156640b8347f2990fe634c78f",
+      "old_body_sha256": "83cc78e2a0bfa1195104ca39bf308d40d205058156640b8347f2990fe634c78f",
+      "python_route": "fincore.factor_analysis.performance.factor_information_coefficient",
+      "symbol": "factor_information_coefficient",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/performance.py",
+      "new_body_sha256": "ef4c23f44b04457f6e30bb27e430343a6eeea5b4d787ac536cc6dda2fbfee942",
+      "old_body_sha256": "ef4c23f44b04457f6e30bb27e430343a6eeea5b4d787ac536cc6dda2fbfee942",
+      "python_route": "fincore.factor_analysis.performance.factor_rank_autocorrelation",
+      "symbol": "factor_rank_autocorrelation",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/performance.py",
+      "new_body_sha256": "115b4f09fe9b3e197f4e31288257e8c41e1ef07c4a8a14b97666fc2f9f766597",
+      "old_body_sha256": "115b4f09fe9b3e197f4e31288257e8c41e1ef07c4a8a14b97666fc2f9f766597",
+      "python_route": "fincore.factor_analysis.performance.factor_returns",
+      "symbol": "factor_returns",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/performance.py",
+      "new_body_sha256": "82f9ed88137b4829a4700cf85498868d6b740b915ddbafaa2daa9b1b64806248",
+      "old_body_sha256": "82f9ed88137b4829a4700cf85498868d6b740b915ddbafaa2daa9b1b64806248",
+      "python_route": "fincore.factor_analysis.performance.factor_weights",
+      "symbol": "factor_weights",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/performance.py",
+      "new_body_sha256": "82c498124f9707a7ea3bb6b66321da00811d383a295722103897e8dcbadfea35",
+      "old_body_sha256": "82c498124f9707a7ea3bb6b66321da00811d383a295722103897e8dcbadfea35",
+      "python_route": "fincore.factor_analysis.performance.mean_information_coefficient",
+      "symbol": "mean_information_coefficient",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/performance.py",
+      "new_body_sha256": "74ef4919e82e539cf2bc6ce033452bdaea908f7eada374b05ba2c47980ee2e5d",
+      "old_body_sha256": "34f6ffb6e85ce3a3becac7b60e742545c03806040da1f8a1b2405c62fe98d380",
+      "python_route": "fincore.factor_analysis.performance.mean_return_by_quantile",
+      "symbol": "mean_return_by_quantile",
+      "verdict": "SURVIVED_BODY_CHANGED"
+    },
+    {
+      "module": "fincore/factor_analysis/performance.py",
+      "new_body_sha256": "d5371881a0f69dff1e8e42ab66eaff19e046ce848a131cf7215f9bffdbc2ff35",
+      "old_body_sha256": "d5371881a0f69dff1e8e42ab66eaff19e046ce848a131cf7215f9bffdbc2ff35",
+      "python_route": "fincore.factor_analysis.performance.quantile_turnover",
+      "symbol": "quantile_turnover",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/portfolio.py",
+      "new_body_sha256": "bcdae30be7e8d1d47b68930a66389c749ed92846eafd11efb4e3ec5a6a5efa44",
+      "old_body_sha256": "bcdae30be7e8d1d47b68930a66389c749ed92846eafd11efb4e3ec5a6a5efa44",
+      "python_route": "fincore.factor_analysis.portfolio.FactorPortfolioInputs",
+      "symbol": "FactorPortfolioInputs",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/portfolio.py",
+      "new_body_sha256": "f4ff082c218e13c1c0f94044694828e1b750d7c9955fc5853cb9d56715cefbff",
+      "old_body_sha256": "43eae5a841eb172dd46ffc6070895c48c248c8debc2acca65f51fb72f3f22ab7",
+      "python_route": "fincore.factor_analysis.portfolio.build_factor_portfolio_inputs",
+      "symbol": "build_factor_portfolio_inputs",
+      "verdict": "SURVIVED_BODY_CHANGED"
+    },
+    {
+      "module": "fincore/factor_analysis/portfolio.py",
+      "new_body_sha256": "c5a2111002c8c2d9db25b00f62bffa71223ed440cfbfc6700cdcce3a97e937fe",
+      "old_body_sha256": "c5a2111002c8c2d9db25b00f62bffa71223ed440cfbfc6700cdcce3a97e937fe",
+      "python_route": "fincore.factor_analysis.portfolio.factor_cumulative_returns",
+      "symbol": "factor_cumulative_returns",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/portfolio.py",
+      "new_body_sha256": "e1f52c4af47357c6d9588bd23ef479c462405b70e5df9732a94446a2c7e90e72",
+      "old_body_sha256": "e1f52c4af47357c6d9588bd23ef479c462405b70e5df9732a94446a2c7e90e72",
+      "python_route": "fincore.factor_analysis.portfolio.factor_positions",
+      "symbol": "factor_positions",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/portfolio.py",
+      "new_body_sha256": "9eb5822a191dc7e01d154c2070d89b49fafbbce06b992065afcde51aa2778584",
+      "old_body_sha256": "aba046f72bd18071d1bee080951f578baa2e8a2900462d60fdb5930df5513755",
+      "python_route": "fincore.factor_analysis.portfolio.positions",
+      "symbol": "positions",
+      "verdict": "SURVIVED_BODY_CHANGED"
+    },
+    {
+      "module": "fincore/factor_analysis/render_matplotlib.py",
+      "new_body_sha256": "4ea64441988ce338c6be469b7efedb3e20f0e31635d605508d160e62bfd411e1",
+      "old_body_sha256": "4ea64441988ce338c6be469b7efedb3e20f0e31635d605508d160e62bfd411e1",
+      "python_route": "fincore.factor_analysis.render_matplotlib.axes_style",
+      "symbol": "axes_style",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/render_matplotlib.py",
+      "new_body_sha256": "1f22a0e0b8b58759339af2babc9519c00c8a4377e61e02157e60538f6896e1b4",
+      "old_body_sha256": "1f22a0e0b8b58759339af2babc9519c00c8a4377e61e02157e60538f6896e1b4",
+      "python_route": "fincore.factor_analysis.render_matplotlib.build_information_table",
+      "symbol": "build_information_table",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/render_matplotlib.py",
+      "new_body_sha256": "bb7c21ce8931907eba2453cde7998c62a7df03bbd85c68d55e39a7ca3843d286",
+      "old_body_sha256": "bb7c21ce8931907eba2453cde7998c62a7df03bbd85c68d55e39a7ca3843d286",
+      "python_route": "fincore.factor_analysis.render_matplotlib.build_quantile_statistics_table",
+      "symbol": "build_quantile_statistics_table",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/render_matplotlib.py",
+      "new_body_sha256": "5c39e6f00f397fd4a40587ed338a2b72c0244f3fc3b52451d5cb33bbecc06e21",
+      "old_body_sha256": "5c39e6f00f397fd4a40587ed338a2b72c0244f3fc3b52451d5cb33bbecc06e21",
+      "python_route": "fincore.factor_analysis.render_matplotlib.build_returns_table",
+      "symbol": "build_returns_table",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/render_matplotlib.py",
+      "new_body_sha256": "b10831d771a7a3cd2c97f4cca8e93d87c225f206b1cd4ce05275ff3b2cfe0408",
+      "old_body_sha256": "b10831d771a7a3cd2c97f4cca8e93d87c225f206b1cd4ce05275ff3b2cfe0408",
+      "python_route": "fincore.factor_analysis.render_matplotlib.build_turnover_tables",
+      "symbol": "build_turnover_tables",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/render_matplotlib.py",
+      "new_body_sha256": "63b8076ae1cba73c362fb7c0f7e11353df0c0b2c6f41fffbe41e6461eb0ad1ea",
+      "old_body_sha256": "63b8076ae1cba73c362fb7c0f7e11353df0c0b2c6f41fffbe41e6461eb0ad1ea",
+      "python_route": "fincore.factor_analysis.render_matplotlib.customize",
+      "symbol": "customize",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/render_matplotlib.py",
+      "new_body_sha256": "5ac92bb21244de7203c28547be2cb2258bfcbe71cdea792b3d2ebad957de17b4",
+      "old_body_sha256": "5ac92bb21244de7203c28547be2cb2258bfcbe71cdea792b3d2ebad957de17b4",
+      "python_route": "fincore.factor_analysis.render_matplotlib.plot_cumulative_returns",
+      "symbol": "plot_cumulative_returns",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/render_matplotlib.py",
+      "new_body_sha256": "cc051ee1ed79154ec8d03dcd9214a023805d0963536385ceeb29e46674f5a4a8",
+      "old_body_sha256": "cc051ee1ed79154ec8d03dcd9214a023805d0963536385ceeb29e46674f5a4a8",
+      "python_route": "fincore.factor_analysis.render_matplotlib.plot_cumulative_returns_by_quantile",
+      "symbol": "plot_cumulative_returns_by_quantile",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/render_matplotlib.py",
+      "new_body_sha256": "635e5b278851bce391ba44f2aa32e6c687db6e559942be32706ebcbb0f3e80c6",
+      "old_body_sha256": "635e5b278851bce391ba44f2aa32e6c687db6e559942be32706ebcbb0f3e80c6",
+      "python_route": "fincore.factor_analysis.render_matplotlib.plot_events_distribution",
+      "symbol": "plot_events_distribution",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/render_matplotlib.py",
+      "new_body_sha256": "82d29de05c49f4ac8861aa8acd762f2235baf37c8c59737aec09dafd878a174e",
+      "old_body_sha256": "82d29de05c49f4ac8861aa8acd762f2235baf37c8c59737aec09dafd878a174e",
+      "python_route": "fincore.factor_analysis.render_matplotlib.plot_factor_rank_auto_correlation",
+      "symbol": "plot_factor_rank_auto_correlation",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/render_matplotlib.py",
+      "new_body_sha256": "d60a26b51df97b43b8d47c087afd2726072d7e61eec01079433faf758c02ad6f",
+      "old_body_sha256": "d60a26b51df97b43b8d47c087afd2726072d7e61eec01079433faf758c02ad6f",
+      "python_route": "fincore.factor_analysis.render_matplotlib.plot_ic_by_group",
+      "symbol": "plot_ic_by_group",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/render_matplotlib.py",
+      "new_body_sha256": "fd206d75f8c84f9a66c8f46d00d3eeaae2cbffbbf27fc1de1b46f3c0cacf066c",
+      "old_body_sha256": "fd206d75f8c84f9a66c8f46d00d3eeaae2cbffbbf27fc1de1b46f3c0cacf066c",
+      "python_route": "fincore.factor_analysis.render_matplotlib.plot_ic_hist",
+      "symbol": "plot_ic_hist",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/render_matplotlib.py",
+      "new_body_sha256": "b76e55047a1e4f22130ba87111eecbaafcf0cfa67ee53497991453d676e46962",
+      "old_body_sha256": "b76e55047a1e4f22130ba87111eecbaafcf0cfa67ee53497991453d676e46962",
+      "python_route": "fincore.factor_analysis.render_matplotlib.plot_ic_qq",
+      "symbol": "plot_ic_qq",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/render_matplotlib.py",
+      "new_body_sha256": "d034aee97361093f193bd29eefde7b31052b88ba94a90720d13d960c812cb9ec",
+      "old_body_sha256": "d034aee97361093f193bd29eefde7b31052b88ba94a90720d13d960c812cb9ec",
+      "python_route": "fincore.factor_analysis.render_matplotlib.plot_ic_ts",
+      "symbol": "plot_ic_ts",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/render_matplotlib.py",
+      "new_body_sha256": "653c7d9dcd3e99aee196dca0f10b68cc7397c53f064e9a1bb3ec3e6530e715c9",
+      "old_body_sha256": "653c7d9dcd3e99aee196dca0f10b68cc7397c53f064e9a1bb3ec3e6530e715c9",
+      "python_route": "fincore.factor_analysis.render_matplotlib.plot_mean_quantile_returns_spread_time_series",
+      "symbol": "plot_mean_quantile_returns_spread_time_series",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/render_matplotlib.py",
+      "new_body_sha256": "cb3c5bb51e8146b9df10fefe30556ceacb4cace8d1d4ecda9492266c0f189704",
+      "old_body_sha256": "cb3c5bb51e8146b9df10fefe30556ceacb4cace8d1d4ecda9492266c0f189704",
+      "python_route": "fincore.factor_analysis.render_matplotlib.plot_monthly_ic_heatmap",
+      "symbol": "plot_monthly_ic_heatmap",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/render_matplotlib.py",
+      "new_body_sha256": "ab72da1a22c6a191c36cc16fee84b7941cc0fc735ae0fda13d2b081c5491260f",
+      "old_body_sha256": "ab72da1a22c6a191c36cc16fee84b7941cc0fc735ae0fda13d2b081c5491260f",
+      "python_route": "fincore.factor_analysis.render_matplotlib.plot_quantile_average_cumulative_return",
+      "symbol": "plot_quantile_average_cumulative_return",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/render_matplotlib.py",
+      "new_body_sha256": "20e22bd201e411461ead364af9d11a316e93dfda31ed0203342f8d0601095acf",
+      "old_body_sha256": "20e22bd201e411461ead364af9d11a316e93dfda31ed0203342f8d0601095acf",
+      "python_route": "fincore.factor_analysis.render_matplotlib.plot_quantile_returns_bar",
+      "symbol": "plot_quantile_returns_bar",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/render_matplotlib.py",
+      "new_body_sha256": "aa42038e3157dc68215426a9d4555aa61a5b33de560a859eabbf9a4d6bf271b7",
+      "old_body_sha256": "aa42038e3157dc68215426a9d4555aa61a5b33de560a859eabbf9a4d6bf271b7",
+      "python_route": "fincore.factor_analysis.render_matplotlib.plot_quantile_returns_violin",
+      "symbol": "plot_quantile_returns_violin",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/render_matplotlib.py",
+      "new_body_sha256": "a67e29f06229938c6023e43426b7245ad8180e71dd9565f8cc0dcc6893be1ede",
+      "old_body_sha256": "a67e29f06229938c6023e43426b7245ad8180e71dd9565f8cc0dcc6893be1ede",
+      "python_route": "fincore.factor_analysis.render_matplotlib.plot_top_bottom_quantile_turnover",
+      "symbol": "plot_top_bottom_quantile_turnover",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/render_matplotlib.py",
+      "new_body_sha256": "9334566b282efe63a4797a0ca2f85929dded20c774ad8a4e9b3b119a2c664157",
+      "old_body_sha256": "9334566b282efe63a4797a0ca2f85929dded20c774ad8a4e9b3b119a2c664157",
+      "python_route": "fincore.factor_analysis.render_matplotlib.plotting_context",
+      "symbol": "plotting_context",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/research.py",
+      "new_body_sha256": "d706624a08158d8414f4c7a526a7e11c75be471801cc8a78cc5b1a1e99ee5ab9",
+      "old_body_sha256": "d706624a08158d8414f4c7a526a7e11c75be471801cc8a78cc5b1a1e99ee5ab9",
+      "python_route": "fincore.factor_analysis.research.ConfigError",
+      "symbol": "ConfigError",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/research.py",
+      "new_body_sha256": "589a11618a1a49e5e9765eeee6d0efb54ea2e2637b19726dd0e5bd73763e7497",
+      "old_body_sha256": "589a11618a1a49e5e9765eeee6d0efb54ea2e2637b19726dd0e5bd73763e7497",
+      "python_route": "fincore.factor_analysis.research.DataQualityError",
+      "symbol": "DataQualityError",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/research.py",
+      "new_body_sha256": "c6388519158b18a1adc57d178bcc606d928bc6f4c162c55a676110328d7eacea",
+      "old_body_sha256": "c6388519158b18a1adc57d178bcc606d928bc6f4c162c55a676110328d7eacea",
+      "python_route": "fincore.factor_analysis.research.DatasetError",
+      "symbol": "DatasetError",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/research.py",
+      "new_body_sha256": "edf822dbfc7d8096f2ab42d98b845041f9f22375f636b173b349a6dc98ab322f",
+      "old_body_sha256": "edf822dbfc7d8096f2ab42d98b845041f9f22375f636b173b349a6dc98ab322f",
+      "python_route": "fincore.factor_analysis.research.DependencyError",
+      "symbol": "DependencyError",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/research.py",
+      "new_body_sha256": "fa6412c68c2c46f2eb736f27e1a4b72def662e1661148a1fc6a161e3feaa941b",
+      "old_body_sha256": "fa6412c68c2c46f2eb736f27e1a4b72def662e1661148a1fc6a161e3feaa941b",
+      "python_route": "fincore.factor_analysis.research.FactorComputationError",
+      "symbol": "FactorComputationError",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/research.py",
+      "new_body_sha256": "eb0ce5ce449766e07560c8ff5b98f94bf17b6fd9555a98e33785cc3b9975c296",
+      "old_body_sha256": "0cc71655a2b82027197785ba9a61788ea9e3667d328b05c57fce224db976ccb6",
+      "python_route": "fincore.factor_analysis.research.ResearchEvaluationResult",
+      "symbol": "ResearchEvaluationResult",
+      "verdict": "SURVIVED_BODY_CHANGED"
+    },
+    {
+      "module": "fincore/factor_analysis/research.py",
+      "new_body_sha256": "71992cd1c7abb2bf0ee056cea8674d2a1ab857c06aee45a15eef6effe821b364",
+      "old_body_sha256": "d27c63c9188c7406547874994736ad672e866ae441e806aeb4005d3d4c1ef620",
+      "python_route": "fincore.factor_analysis.research.ResearchEvaluationResult.export",
+      "symbol": "ResearchEvaluationResult.export",
+      "verdict": "SURVIVED_BODY_CHANGED"
+    },
+    {
+      "module": "fincore/factor_analysis/research.py",
+      "new_body_sha256": "b4114f9051eb14b970e7f9761a3b6ed476fa0ddf2222931232965a3e9848cb41",
+      "old_body_sha256": "b4114f9051eb14b970e7f9761a3b6ed476fa0ddf2222931232965a3e9848cb41",
+      "python_route": "fincore.factor_analysis.research.ResearchEvaluationResult.table",
+      "symbol": "ResearchEvaluationResult.table",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/research.py",
+      "new_body_sha256": "1154101c65c2384d8c392c30ed252b0e0ed91bd9b2c532616bd0402b3509e34a",
+      "old_body_sha256": "1154101c65c2384d8c392c30ed252b0e0ed91bd9b2c532616bd0402b3509e34a",
+      "python_route": "fincore.factor_analysis.research.ResearchEvaluationResult.to_serializable",
+      "symbol": "ResearchEvaluationResult.to_serializable",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/research.py",
+      "new_body_sha256": "c26306ae385cf9d4619b75b03f6bf6f19c21a5d66b8dc2b004ff01928ffd7008",
+      "old_body_sha256": "c26306ae385cf9d4619b75b03f6bf6f19c21a5d66b8dc2b004ff01928ffd7008",
+      "python_route": "fincore.factor_analysis.research.ResearchEvaluationSpec",
+      "symbol": "ResearchEvaluationSpec",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/research.py",
+      "new_body_sha256": "e126a3a569dcd79ebf39292df41261a0c3382a3b825961c78a39efda7e01a8e4",
+      "old_body_sha256": "b81114ec6912465b297d6dbe9bda4609cac201f92aa8d90bd659741332a3af65",
+      "python_route": "fincore.factor_analysis.research.evaluate_factor_research",
+      "symbol": "evaluate_factor_research",
+      "verdict": "SURVIVED_BODY_CHANGED"
+    },
+    {
+      "module": "fincore/factor_analysis/research.py",
+      "new_body_sha256": "851f1e3427eab17e7e5c3c06d3038ce2ac4206aa10ac47086712d546cd885a81",
+      "old_body_sha256": "851f1e3427eab17e7e5c3c06d3038ce2ac4206aa10ac47086712d546cd885a81",
+      "python_route": "fincore.factor_analysis.research.normalize_research_evaluation_spec",
+      "symbol": "normalize_research_evaluation_spec",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/research.py",
+      "new_body_sha256": "e06b7d9efff8a30723b76e5f97066aca4b12ca5a311749a785e2487c10f11cf8",
+      "old_body_sha256": "e06b7d9efff8a30723b76e5f97066aca4b12ca5a311749a785e2487c10f11cf8",
+      "python_route": "fincore.factor_analysis.research.research_capabilities",
+      "symbol": "research_capabilities",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/report/factor/compute.py",
+      "new_body_sha256": "341ae78ee51cb32c2c88df3415bb26d9e0685fbf7774bea9135d0de2fb85ffa1",
+      "old_body_sha256": "341ae78ee51cb32c2c88df3415bb26d9e0685fbf7774bea9135d0de2fb85ffa1",
+      "python_route": "fincore.report.factor.compute.build_factor_report",
+      "symbol": "build_factor_report",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/report/factor/html.py",
+      "new_body_sha256": "a2be9893fa4a94bf4b203f3c48e9c771b1fa96ef3e33b246437a3d3bd0bd07e5",
+      "old_body_sha256": "a2be9893fa4a94bf4b203f3c48e9c771b1fa96ef3e33b246437a3d3bd0bd07e5",
+      "python_route": "fincore.report.factor.html.render_factor_html",
+      "symbol": "render_factor_html",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/report/factor/html.py",
+      "new_body_sha256": "894172204e033ddded09b0f21b0ad538a8bf2b81862f0121c1a9b4cecd8016b4",
+      "old_body_sha256": "894172204e033ddded09b0f21b0ad538a8bf2b81862f0121c1a9b4cecd8016b4",
+      "python_route": "fincore.report.factor.html.write_factor_html",
+      "symbol": "write_factor_html",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/report/factor/html.py",
+      "new_body_sha256": "19d83d20347806a10d272ef1b3334e93bc2c008871b45d2136cb6805a3c706f8",
+      "old_body_sha256": "19d83d20347806a10d272ef1b3334e93bc2c008871b45d2136cb6805a3c706f8",
+      "python_route": "fincore.report.factor.html.write_factor_report",
+      "symbol": "write_factor_report",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/report/factor/html.py",
+      "new_body_sha256": "aecc3fd9edc78af4e62813b9cdd186ef7bc753e18cec7548bd56e1baa0befaf9",
+      "old_body_sha256": "aecc3fd9edc78af4e62813b9cdd186ef7bc753e18cec7548bd56e1baa0befaf9",
+      "python_route": "fincore.report.factor.html.write_factor_report_from_model",
+      "symbol": "write_factor_report_from_model",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "evidence": "scenario-text-preservation.json exact_scenario_texts_unchanged=10",
+      "python_route": "revised-plan-scenario:01",
+      "verdict": "PLAN_DERIVED_SCENARIO"
+    },
+    {
+      "evidence": "scenario-text-preservation.json exact_scenario_texts_unchanged=10",
+      "python_route": "revised-plan-scenario:02",
+      "verdict": "PLAN_DERIVED_SCENARIO"
+    },
+    {
+      "evidence": "scenario-text-preservation.json exact_scenario_texts_unchanged=10",
+      "python_route": "revised-plan-scenario:03",
+      "verdict": "PLAN_DERIVED_SCENARIO"
+    },
+    {
+      "evidence": "scenario-text-preservation.json exact_scenario_texts_unchanged=10",
+      "python_route": "revised-plan-scenario:04",
+      "verdict": "PLAN_DERIVED_SCENARIO"
+    },
+    {
+      "evidence": "scenario-text-preservation.json exact_scenario_texts_unchanged=10",
+      "python_route": "revised-plan-scenario:05",
+      "verdict": "PLAN_DERIVED_SCENARIO"
+    },
+    {
+      "evidence": "scenario-text-preservation.json exact_scenario_texts_unchanged=10",
+      "python_route": "revised-plan-scenario:06",
+      "verdict": "PLAN_DERIVED_SCENARIO"
+    },
+    {
+      "evidence": "scenario-text-preservation.json exact_scenario_texts_unchanged=10",
+      "python_route": "revised-plan-scenario:07",
+      "verdict": "PLAN_DERIVED_SCENARIO"
+    },
+    {
+      "evidence": "scenario-text-preservation.json exact_scenario_texts_unchanged=10",
+      "python_route": "revised-plan-scenario:08",
+      "verdict": "PLAN_DERIVED_SCENARIO"
+    },
+    {
+      "evidence": "scenario-text-preservation.json exact_scenario_texts_unchanged=10",
+      "python_route": "revised-plan-scenario:09",
+      "verdict": "PLAN_DERIVED_SCENARIO"
+    },
+    {
+      "evidence": "scenario-text-preservation.json exact_scenario_texts_unchanged=10",
+      "python_route": "revised-plan-scenario:10",
+      "verdict": "PLAN_DERIVED_SCENARIO"
+    },
+    {
+      "module": "fincore/factor_analysis/render_matplotlib.py",
+      "new_body_sha256": "5d1bdb262116046ee94e4634cdac64d13a34081f0143cc29a2624faff2c60068",
+      "old_body_sha256": "5d1bdb262116046ee94e4634cdac64d13a34081f0143cc29a2624faff2c60068",
+      "python_route": "fincore.factor_analysis.render_matplotlib.DECIMAL_TO_BPS",
+      "symbol": "DECIMAL_TO_BPS",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/research.py",
+      "new_body_sha256": "ce5cf257d111f6a30fc91407f88e507e6cb0805f3f3ac65160e18d453f251691",
+      "old_body_sha256": "ce5cf257d111f6a30fc91407f88e507e6cb0805f3f3ac65160e18d453f251691",
+      "python_route": "fincore.factor_analysis.research.API_VERSION",
+      "symbol": "API_VERSION",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/research.py",
+      "new_body_sha256": "fb1c94bb78ce327dc54c948a8ccc84bd2fb20cd50f436fd33930b99f40dd420a",
+      "old_body_sha256": "fb1c94bb78ce327dc54c948a8ccc84bd2fb20cd50f436fd33930b99f40dd420a",
+      "python_route": "fincore.factor_analysis.research.EVALUATION_CONFIG_SCHEMA_VERSION",
+      "symbol": "EVALUATION_CONFIG_SCHEMA_VERSION",
+      "verdict": "SURVIVED_IDENTICAL"
+    },
+    {
+      "module": "fincore/factor_analysis/research.py",
+      "new_body_sha256": "4d2ae568827e7995d7d201ee1b062bb4feea2fe1c7832fcb0204d41ec1cae02a",
+      "old_body_sha256": "4d2ae568827e7995d7d201ee1b062bb4feea2fe1c7832fcb0204d41ec1cae02a",
+      "python_route": "fincore.factor_analysis.research.RESULT_SCHEMA_VERSION",
+      "symbol": "RESULT_SCHEMA_VERSION",
+      "verdict": "SURVIVED_IDENTICAL"
+    }
+  ],
+  "schema_version": "1",
+  "verdicts": {
+    "PLAN_DERIVED_SCENARIO": 10,
+    "SURVIVED_BODY_CHANGED": 7,
+    "SURVIVED_IDENTICAL": 64
+  }
+}

@@ -1,0 +1,6 @@
+Homebrew clang version 22.1.8
+Target: arm64-apple-darwin25.5.0
+ASAN_OPTIONS=detect_container_overflow=0:detect_leaks=1:abort_on_error=1
+UBSAN_OPTIONS=halt_on_error=1
+qualification: AppleClang ASan runtime hangs at startup on this host (tiny binary rc=124); Homebrew LLVM 22.1.8 used.
+container-overflow annotation false positive reproduced in factor/timedelta.cpp vector reserve/insert/sort; heap/stack/global/UAF and UBSan remain enabled.

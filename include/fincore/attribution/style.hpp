@@ -4,8 +4,13 @@
 
 #include <array>
 #include <cstddef>
+#include <functional>
+#include <map>
+#include <optional>
 #include <span>
+#include <string>
 #include <string_view>
+#include <vector>
 
 namespace fincore {
 
@@ -63,5 +68,54 @@ struct style_analysis_result {
     const dataframe& portfolio_returns,
     const dataframe& style_returns,
     std::span<const std::string_view> selected_styles);
+
+/// Native owning facade for ``StyleResult``.
+///
+/// The source container exposes ``exposures``, ``returns_by_style`` and
+/// ``overall_returns`` plus deterministic summary/dictionary projections. The
+/// native class owns copies of all three frames.
+class StyleResult {
+  public:
+    StyleResult(dataframe exposures, dataframe returns_by_style,
+                dataframe overall_returns);
+
+    explicit StyleResult(style_analysis_result result);
+
+    [[nodiscard]] const dataframe& exposures() const noexcept;
+    [[nodiscard]] const dataframe& returns_by_style() const noexcept;
+    [[nodiscard]] const dataframe& overall_returns() const noexcept;
+
+    /// ``style -> average return`` mapping in deterministic key order.
+    [[nodiscard]] std::map<std::string, double> style_summary() const;
+
+    /// Source keys ``exposures``, ``returns_by_style`` and
+    /// ``overall_returns`` mapped to detached frames.
+    [[nodiscard]] std::map<std::string, dataframe> to_dict() const;
+
+  private:
+    dataframe exposures_;
+    dataframe returns_by_style_;
+    dataframe overall_returns_;
+};
+
+/// Injected style-factor provider boundary.
+///
+/// The provider receives an explicit ``factors`` option (``nullopt`` mirrors
+/// the source's ``None``) and returns a validated, detached frame.
+using style_factor_provider = std::function<dataframe(
+    const std::vector<std::string>& tickers,
+    const std::optional<std::vector<std::string>>& factors,
+    std::string_view library)>;
+
+dataframe fetch_style_factors(
+    const std::vector<std::string>& tickers,
+    const std::optional<std::vector<std::string>>& factors,
+    std::string_view library, const style_factor_provider& provider);
+
+/// Convenience overload mirroring the keyword-only provider in the source.
+dataframe fetch_style_factors(
+    const std::vector<std::string>& tickers,
+    const std::optional<std::vector<std::string>>& factors,
+    const style_factor_provider& provider, std::string_view library = "us");
 
 }  // namespace fincore

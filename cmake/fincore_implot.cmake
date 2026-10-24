@@ -9,6 +9,7 @@ set(_fincore_imgui_sources
     imgui_widgets.cpp)
 set(_fincore_imgui_required_headers
     imgui.h
+    imconfig.h
     imgui_internal.h
     imstb_rectpack.h
     imstb_textedit.h
@@ -78,7 +79,9 @@ target_sources(imgui PRIVATE
     ${FINCORE_IMGUI_SOURCE_DIR}/imgui_tables.cpp
     ${FINCORE_IMGUI_SOURCE_DIR}/imgui_widgets.cpp)
 target_compile_features(imgui PUBLIC cxx_std_23)
-target_include_directories(imgui PUBLIC "${FINCORE_IMGUI_SOURCE_DIR}")
+target_include_directories(imgui PUBLIC
+    $<BUILD_INTERFACE:${FINCORE_IMGUI_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/fincore/third_party/imgui>)
 
 if (TARGET implot)
     message(FATAL_ERROR
@@ -90,17 +93,22 @@ target_sources(implot PRIVATE
     ${FINCORE_IMPLOT_SOURCE_DIR}/implot.cpp
     ${FINCORE_IMPLOT_SOURCE_DIR}/implot_items.cpp)
 target_compile_features(implot PUBLIC cxx_std_23)
-target_include_directories(implot PUBLIC "${FINCORE_IMPLOT_SOURCE_DIR}")
+target_include_directories(implot PUBLIC
+    $<BUILD_INTERFACE:${FINCORE_IMPLOT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/fincore/third_party/implot>)
 target_link_libraries(implot PUBLIC imgui)
+set_target_properties(implot PROPERTIES EXPORT_NAME implot_vendor)
 
 add_library(fincore_implot src/viz/implot_backend.cpp)
 add_library(fincore::implot ALIAS fincore_implot)
 target_compile_features(fincore_implot PUBLIC cxx_std_23)
 target_include_directories(fincore_implot PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 target_link_libraries(fincore_implot
     PUBLIC fincore::fincore
     PRIVATE implot)
+set_target_properties(fincore_implot PROPERTIES EXPORT_NAME implot)
 
 fincore_enable_sanitizers(fincore_implot)
 

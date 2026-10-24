@@ -5,7 +5,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <optional>
+#include <span>
 #include <string_view>
+#include <vector>
 
 namespace fincore {
 
@@ -44,6 +46,15 @@ dataframe bootstrap_distribution(
     std::size_t resample_count = 10000U,
     bootstrap_statistic statistic = bootstrap_statistic::mean,
     std::optional<std::uint64_t> seed = std::nullopt,
+    std::string_view column = returns_column);
+
+// Draw indices address the NaN-cleaned positional input population. Every row
+// must have the same length as that population; an empty draw span returns an
+// empty distribution after validating the input and statistic.
+dataframe bootstrap_distribution(
+    const dataframe& returns,
+    std::span<const std::vector<std::size_t>> draw_indices,
+    bootstrap_statistic statistic = bootstrap_statistic::mean,
     std::string_view column = returns_column);
 
 bootstrap_confidence_interval_result bootstrap_confidence_interval(

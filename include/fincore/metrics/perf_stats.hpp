@@ -49,4 +49,12 @@ std::vector<bootstrap_metric_stats> perf_stats_bootstrap(
     std::uint64_t seed = 0,
     std::string_view column = returns_column);
 
+// Each draw contains positional row indices into the original input column.
+// Rows must have the same length as the input population. Empty input accepts
+// only an empty draw matrix and preserves the seeded overload's empty result.
+std::vector<bootstrap_metric_stats> perf_stats_bootstrap(
+    const dataframe& returns,
+    std::span<const std::vector<std::size_t>> draw_indices,
+    std::string_view column = returns_column);
+
 }  // namespace fincore

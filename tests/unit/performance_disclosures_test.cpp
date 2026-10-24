@@ -83,4 +83,39 @@ TEST(PerformanceDisclosures, RendersEmptyFieldsAsUnspecified) {
     EXPECT_EQ(fincore::render_disclosure(context), expected);
 }
 
+TEST(PerformanceDisclosures, PreservesUnicodeAndRepeatedNotesDeterministically) {
+    fincore::disclosure_context context;
+    context.convention = "时间加权收益率（TWR）";
+    context.sample_period = "2021年第一季度";
+    context.data_quality = "经审计的数据";
+    context.fees = "扣除管理费后";
+    context.cashflows = "月度申购与赎回";
+    context.benchmark = "沪深300指数";
+    context.risk_free = "中国国债收益率";
+    context.annualized = false;
+    context.notes = {"流动性提示：低", "相同说明", "相同说明"};
+    context.return_type = "简单收益率";
+    context.units = "人民币";
+    context.frequency = "月度";
+
+    const std::string expected =
+        "Convention: 时间加权收益率（TWR）\n"
+        "Return type: 简单收益率\n"
+        "Units: 人民币\n"
+        "Frequency: 月度\n"
+        "Sample period: 2021年第一季度\n"
+        "Data quality: 经审计的数据\n"
+        "Fees: 扣除管理费后\n"
+        "Cashflows: 月度申购与赎回\n"
+        "Benchmark: 沪深300指数\n"
+        "Risk-free: 中国国债收益率\n"
+        "Annualized: no\n"
+        "Notes: 流动性提示：低; 相同说明; 相同说明";
+
+    const auto first = fincore::render_disclosure(context);
+    EXPECT_EQ(first, expected);
+    EXPECT_EQ(fincore::render_disclosure(context), first);
+    EXPECT_NE(first.find("相同说明; 相同说明"), std::string::npos);
+}
+
 }  // namespace

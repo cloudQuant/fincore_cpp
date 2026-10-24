@@ -13,7 +13,9 @@ The dependencies are pinned git submodules under `third_party/`:
 Clone with `git clone --recurse-submodules <repo-url>` (or run
 `git submodule update --init --recursive` in an existing checkout). CMake uses
 these trees by default when present; `FINCORE_DATAFRAME_SOURCE_DIR`,
-`FINCORE_IMPLOT_SOURCE_DIR` and `FINCORE_IMGUI_SOURCE_DIR` still override them.
+`FINCORE_IMPLOT_SOURCE_DIR` and `FINCORE_IMGUI_SOURCE_DIR` still override them,
+and an installed `DataFrame` package is used when the DataFrame submodule is
+absent.
 
 ## Accepted Phase 2A scalar metrics
 
@@ -3449,3 +3451,27 @@ bringing the artifact set to eleven files, with headers checked by the export
 test. Missing label cells are omitted rather than written as NaN.
 
 Full Release and ASan+UBSan suites pass 734/734; visual NOT_RUN.
+
+## Revised R2 plan — current native completion audit
+
+The current dirty candidate adds full grouped factor snapshots and reuse
+counters, pinned intraday research labels, owning portfolio inputs, typed
+runtime risk/report operations, deterministic-only session caching, explicit
+validation/alignment, report schema 2, native result serialization, and
+relocatable headless/optional-ImPlot packaging. The offline factor report now
+has complete standard-label Chinese localization, a language switch and the
+reference fincore layout; the user confirmed the replacement reports and
+offline browser checks pass.
+
+Current local evidence is macOS Release 850/850, ASan+UBSan
+849/849 and x86_64 Ubuntu QEMU 849/849, with no failures or skips,
+plus a fresh offline package build and relocated consumers after scratch
+source/build removal. Linux used GCC 13.3 cross-compilation on aarch64 Ubuntu
+and execution in an x86_64 guest. The revised six-iteration native scope and
+capability ledger are reconciled in the
+[candidate acceptance](docs/acceptance/2026-10-23-revised-plan-candidate-acceptance.md).
+The raw performance comparator remains FAIL with 14 explicitly dispositioned
+triggers; no speedup or no-regression claim is made. The
+[scope decisions](docs/acceptance/2026-10-23-revised-plan-scope-decisions.md)
+retain partial models, deferred routes and native-versus-Python boundaries.
+No full Python package parity, hosted CI or external release is claimed.

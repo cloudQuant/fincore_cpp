@@ -1,106 +1,69 @@
-# Iteration 3 — Risk Models and Optimization: Design Document
+# Iteration 3 — Risk and Optimization: Design
 
-**Iteration ID:** iteration-3-risk-optimization
-**Status:** Draft
-**Depends on:** Iteration 1 (drawdown table, inference helpers), Iteration 2
-(cashflow model not directly, but performance inference patterns).
+**Status:** Revised plan. [Shared contract](../delivery-contract.md) applies.
 
-## 1. Architecture Overview
+## 1. Solver decision before dependent implementation
 
-New leaf families:
+Phase 60 is a bounded experimental delivery, not documentation alone. Its
+proof may include small harness/build changes that are clearly separated
+from production API. Enumerate each algorithm's objective, derivative needs,
+constraints, initialization, scale and failure semantics from the pinned
+source before choosing a solver.
 
-```
-include/fincore/risk/{garch,gpd,backtest,walk_forward,specs}.hpp
-src/risk/*.cpp + tests/unit/risk_*_test.cpp
-include/fincore/optimization/{frontier,objectives,risk_parity,solver}.hpp
-src/optimization/*.cpp + tests/unit/optimization_*_test.cpp
-```
+Compare suitable pinned libraries and bounded internal implementations.
+A QP solver candidate such as OSQP addresses a QP subset only; it does not
+by itself cover nonlinear GARCH/max-Sharpe/risk-parity problems. Likewise
+Nelder-Mead/L-BFGS without a constraint strategy is not a complete replacement
+for constrained optimization. A transformed formulation must prove its
+feasibility/objective equivalence and supported cases.
 
-An internal numerical core is introduced (see D1) — the first shared
-implementation detail across leaves, kept private under
-`src/optimization/detail/` (or vendored via CMake per the Phase 60 decision).
+The decision records representative easy, ill-conditioned, infeasible and
+nonconvergent fixtures; numerical error/residual budgets; time/RSS;
+compiler/sanitizer integration; dependency version, transitive requirements,
+license/notices and offline preparation. The invalid-ImGui gate applies only
+if related wiring changes, not as a fictional solver capability proof.
+If no candidate satisfies the required problem classes, dependent phases
+remain `BLOCKED` with a bounded alternative decision, not a relaxed pass.
 
-## 2. Key Design Decisions
+## 2. Kernels, variants and results
 
-### D1 — Phase 60 solver decision (open until the spike)
+Keep solver details private (for example `src/numerics/`); public risk and
+optimization headers expose domain configs/results. Share mathematical
+primitives only where the variants actually share equations. EGARCH's
+log-variance recursion must not be forced into a GARCH variance recursion
+merely to satisfy a single-kernel rule. Common validation/objective machinery
+may be shared while distinct recursions retain independent tests.
 
-**Option A — vendor:** OSQP (QP, for frontier/objective problems) plus a
-small unconstrained solver. Pros: industrial quality, sparse QP support;
-Cons: vendoring friction across four gate configurations, license/version
-drift, larger attack surface for the sanitizer gates.
+Results own parameter/weight/forecast arrays and labels. Include convergence
+and diagnostic fields needed by the mapped Python result, with precise
+mapping of internal solver errors. Freeze covariance estimation/ddof,
+annualization, risk-free units, constraints and warm-start semantics before
+implementation. Never silently normalize or clip a failed solver result
+into an apparently feasible portfolio.
 
-**Option B — hand-ported:** Nelder-Mead + projected-gradient/L-BFGS with
-bounded scope. Pros: zero new dependencies, full control of determinism,
-every line under our parity regime; Cons: convergence quality risk on hard
-frontier instances, maintenance of numerical code.
+## 3. Walk-forward and model provenance
 
-Selection criteria (binding order): (1) parity feasibility against SciPy
-within the declared-tolerance policy on representative fixtures; (2)
-build-system friction across the four gate configurations; (3) maintenance
-cost. The spike produces a comparative doc with measured evidence, not a
-vote.
+Walk-forward fixtures prove each fit sees only permitted training dates;
+forecast t must not consume t's realized return when the contract excludes
+it. Enumerate estimators, windows, refit schedule, warmup and missing-date
+handling. Lock discrete schedule/exception classes exactly and apply
+numerical budgets to predictions/statistics.
 
-### D2 — Parity contract shape for iterative solvers (fixed)
-Every optimizer-dependent phase defines three layers, and its tests assert
-each:
+Risk specs/reports are immutable values. Phase 67 determines the actual
+`inputs_digest` source/serialization recipe rather than assuming CSV → SHA256.
+Define label order, encoding, timestamps, floating/nonfinite values and
+metadata scope. Require cross-language digest equality only for a proven
+common canonical byte schema; otherwise version a native digest and preserve
+explicit source provenance without making a false equality claim.
 
-1. **Bit-exact closed-form layer:** log-likelihood, gradient, portfolio
-   moments, ERC residuals evaluated at oracle-supplied fixed points — hex-float
-   goldens.
-2. **Tolerance-banded output layer:** final parameters/weights within a
-   tolerance declared in the design doc, measured on a frozen fixture against
-   a clean detached oracle run.
-3. **Determinism layer:** two C++ runs with identical inputs and seed produce
-   bit-identical outputs.
+Use Phase 88a's common report section/artifact contracts for projection;
+keep the domain `RiskValidationReport` separate from rendering. Phase 91
+later renders the already computed result.
 
-### D3 — GARCH likelihood as the shared numerical kernel
-The GARCH(1,1) conditional-variance recursion is implemented once in
-`src/risk/detail/garch_recursion.{cpp,h}` (private). Variants (Phase 62)
-compose it; the walk-forward loop (Phase 66) re-invokes the same estimator
-with a deterministic window schedule. No variant re-derives the recursion.
+## 4. Execution graph
 
-### D4 — RiskModelSpec is a frozen value type with digest semantics
-Mirrors the Python `inputs_digest` fingerprint: the spec value type carries
-its inputs and a digest computed with the same content-addressing recipe the
-Python side uses (`to_csv`-equivalent canonical serialization → SHA-256).
-The serialization recipe is locked by the Phase 67 design doc so digests are
-cross-language comparable where the Python oracle's tests assert them.
-
-### D5 — Optimization results are value types, not matrices
-Frontier = `std::vector<frontier_point>` (weights vector + moments);
-objectives return a result struct (weights + converged flag + iterations).
-`hmdf` stays the input boundary; outputs are plain C++ value types consumed
-by viz (Iteration 4) and reports (Iteration 6).
-
-## 3. Component Plan
-
-| Phase | Files | New public surface |
-|---|---|---|
-| 60 | docs + `cmake/` proof only | none (decision doc) |
-| 61 | risk/garch.hpp/.cpp + TUs + detail recursion | `garch11_fit` (+ result type) |
-| 62 | risk/garch.hpp variants | per oracle enumeration |
-| 63 | risk/gpd.hpp/.cpp + TUs | GPD fit/estimate entries |
-| 64 | metrics/risk.hpp/.cpp | `beta_fragility_heuristic` |
-| 65 | risk/backtest.hpp/.cpp + TUs | VaR/ES backtest entries |
-| 66 | risk/walk_forward.hpp/.cpp + TUs | `walk_forward_var` |
-| 67 | risk/specs.hpp/.cpp + TUs | `RiskModelSpec` + report compute model |
-| 68 | optimization/solver wiring | (per Phase 60) |
-| 69 | optimization/frontier.hpp/.cpp + TUs | `efficient_frontier` |
-| 70 | optimization/objectives.hpp/.cpp + TUs | `optimize` |
-| 71 | optimization/risk_parity.hpp/.cpp + TUs | `risk_parity` |
-
-## 4. Risks and Mitigations
-
-| Risk | Mitigation |
-|---|---|
-| Solver parity mismatch makes acceptance impossible | D2 contract shape agreed up front; Phase 60 measures feasibility before any metric phase starts. |
-| Convergence quality of hand-ported solver (Option B) | Spike includes a hard-frontier benchmark; failure there forces Option A. |
-| GARCH recursion divergence across variants | D3 single kernel; variant tests share recursion goldens. |
-| Digest recipe drift from Python | D4 recipe locked by design doc; cross-language digest test against oracle fixture. |
-| Sanitizer failures in numerical kernels | Mandatory per-phase ASan/UBSan; iterative code gets dedicated aliasing tests. |
-
-## 5. Sequencing
-
-60 strictly first. 61 → 62 → 66 (recursion chain). 63, 64, 65 independent
-after 61 exists (63 needs fitting machinery; 64/65 closed-form). 67 after
-61–66. 68 after 60; 69 → 70 → 71 in order.
+60 → solver-dependent 61/63/68. 61 → 62; required estimators and 65 → 66;
+61–66 plus 88a → 67. 64 and independent 65 calculations can proceed after
+39 without waiting for GARCH. 68 → 69/70/71 according to their actual shared
+helpers, not an invented mandatory sequential chain. Phase 69 exposes the
+frontier result required by Iteration 4's frontier chart.

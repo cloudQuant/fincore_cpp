@@ -1,0 +1,17 @@
+{
+  "notes": [
+    "NATIVE_MODULE_COVERAGE means native tests exist for the same module surface; it is not a claim that every Python case was copied one-to-one.",
+    "DECLARED_VARIANCE and EXTERNAL_OPTIONAL rows are not PASS claims.",
+    "META_GATE_EQUIVALENT rows are repository/packaging/quality gates whose native equivalent is CTest, the route ledger, or benchmark evidence.",
+    "UNMAPPED rows are explicit remaining work, not silently skipped."
+  ],
+  "python_test_files": 228,
+  "python_test_functions": 1944,
+  "schema_version": "1",
+  "status_counts": {
+    "DECLARED_VARIANCE": 5,
+    "EXTERNAL_OPTIONAL": 8,
+    "META_GATE_EQUIVALENT": 53,
+    "NATIVE_MODULE_COVERAGE": 162
+  }
+}

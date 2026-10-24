@@ -4,8 +4,17 @@
 
 #include <gtest/gtest.h>
 
+#include <algorithm>
+#include <bit>
 #include <cmath>
+#include <cstdint>
+#include <cstring>
+#include <limits>
+#include <map>
+#include <set>
 #include <string>
+#include <string_view>
+#include <vector>
 
 namespace {
 
@@ -142,6 +151,179 @@ TEST(FactorPortfolio, RollsExpiryOffWeekends) {
     EXPECT_EQ(raw[2].date, fincore::utc_timestamp(2022, 1, 10));
     EXPECT_DOUBLE_EQ(raw[2].weight, 0.0);
     EXPECT_DOUBLE_EQ(raw[3].weight, 0.0);
+}
+
+
+fincore::timestamp legacy_normalize_day(const fincore::timestamp value) {
+    constexpr fincore::timestamp day_ns = 86'400'000'000'000LL;
+    fincore::timestamp day = value / day_ns;
+    if (value % day_ns < 0) {
+        --day;
+    }
+    return day * day_ns;
+}
+
+bool legacy_business_day(const fincore::timestamp day) {
+    constexpr fincore::timestamp day_ns = 86'400'000'000'000LL;
+    fincore::timestamp weekday = (day / day_ns + 4) % 7;
+    if (weekday < 0) {
+        weekday += 7;
+    }
+    return weekday != 0 && weekday != 6;
+}
+
+fincore::timestamp legacy_add_business_days(const fincore::timestamp start,
+                                            const int days) {
+    constexpr fincore::timestamp day_ns = 86'400'000'000'000LL;
+    fincore::timestamp day = legacy_normalize_day(start);
+    int remaining = days;
+    if (!legacy_business_day(day)) {
+        while (!legacy_business_day(day)) {
+            day += day_ns;
+        }
+        remaining = days > 0 ? days - 1 : 0;
+    }
+    while (remaining > 0) {
+        day += day_ns;
+        if (legacy_business_day(day)) {
+            --remaining;
+        }
+    }
+    return day;
+}
+
+int legacy_period_days(const std::string_view label) {
+    int total = 0;
+    std::size_t index = 0;
+    while (index < label.size()) {
+        int component = 0;
+        const std::size_t begin = index;
+        while (index < label.size() && label[index] >= '0' &&
+               label[index] <= '9') {
+            component = component * 10 + (label[index] - '0');
+            ++index;
+        }
+        if (index == begin || index == label.size() || label[index] != 'D') {
+            return -1;
+        }
+        ++index;
+        total += component;
+    }
+    return total;
+}
+
+std::vector<fincore::factor_weight_row> legacy_positions(
+    const std::string_view label,
+    const std::vector<fincore::factor_weight_row>& weights) {
+    struct active_trade {
+        fincore::timestamp expires;
+        std::vector<fincore::factor_weight_row> weights;
+    };
+    const int days = legacy_period_days(label);
+    std::map<fincore::timestamp,
+             std::vector<fincore::factor_weight_row>>
+        trades;
+    std::set<std::string> assets;
+    for (const auto& row : weights) {
+        trades[row.date].push_back(row);
+        assets.insert(row.asset);
+    }
+    std::vector<active_trade> active;
+    std::set<fincore::timestamp> all_dates;
+    for (const auto& entry : trades) {
+        all_dates.insert(entry.first);
+        all_dates.insert(legacy_add_business_days(entry.first, days));
+    }
+    std::vector<fincore::factor_weight_row> positions;
+    for (const fincore::timestamp date : all_dates) {
+        const auto trade = trades.find(date);
+        if (trade != trades.end()) {
+            active.push_back(
+                {legacy_add_business_days(date, days), trade->second});
+        }
+        active.erase(std::remove_if(active.begin(), active.end(),
+                                    [date](const active_trade& entry) {
+                                        return entry.expires <= date;
+                                    }),
+                     active.end());
+        std::map<std::string, double> totals;
+        for (const auto& entry : active) {
+            for (const auto& row : entry.weights) {
+                totals[row.asset] += row.weight;
+            }
+        }
+        double gross = 0.0;
+        for (const auto& entry : totals) {
+            gross += std::abs(entry.second);
+        }
+        for (const auto& asset : assets) {
+            const double value = gross > 0.0 ? totals[asset] / gross : 0.0;
+            positions.push_back({date, asset, value});
+        }
+    }
+    return positions;
+}
+
+void expect_bitwise_positions(
+    const std::vector<fincore::factor_weight_row>& actual,
+    const std::vector<fincore::factor_weight_row>& expected) {
+    ASSERT_EQ(actual.size(), expected.size());
+    for (std::size_t index = 0; index < actual.size(); ++index) {
+        EXPECT_EQ(actual[index].date, expected[index].date) << index;
+        EXPECT_EQ(actual[index].asset, expected[index].asset) << index;
+        if (std::isnan(expected[index].weight)) {
+            EXPECT_TRUE(std::isnan(actual[index].weight)) << index;
+        } else {
+            std::uint64_t actual_bits = 0;
+            std::uint64_t expected_bits = 0;
+            std::memcpy(&actual_bits, &actual[index].weight,
+                        sizeof(actual_bits));
+            std::memcpy(&expected_bits, &expected[index].weight,
+                        sizeof(expected_bits));
+            EXPECT_EQ(actual_bits, expected_bits) << index;
+        }
+    }
+}
+
+TEST(FactorPortfolio, DensePositionsMatchIndependentLegacyReducer) {
+    fincore::prepared_factor_data data;
+    data.forward_labels = {"1D2D"};
+    const fincore::timestamp dates[] = {
+        fincore::utc_timestamp(2022, 1, 7),
+        fincore::utc_timestamp(2022, 1, 8),
+        fincore::utc_timestamp(2022, 1, 10),
+        fincore::utc_timestamp(2022, 1, 11)};
+    const char* assets[] = {"A", "B", "C"};
+    for (int date = 0; date < 4; ++date) {
+        for (int asset = 0; asset < 3; ++asset) {
+            fincore::factor_row row;
+            row.date = dates[date];
+            row.asset = assets[asset];
+            row.factor = static_cast<double>(asset + 1);
+            row.quantile = asset + 1;
+            row.forward_returns = {0.01};
+            data.rows.push_back(row);
+        }
+    }
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+    const double inf = std::numeric_limits<double>::infinity();
+    const std::vector<double> weights{
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+    std::vector<fincore::factor_weight_row> raw;
+    const double values[4][3] = {
+        {0.5, -0.5, nan}, {inf, -1.0, 0.0},
+        {-0.0, 0.25, -0.75}, {1.0, 1.0, -2.0}};
+    for (int date = 0; date < 4; ++date) {
+        for (int asset = 0; asset < 3; ++asset) {
+            raw.push_back(
+                {dates[date], assets[asset], values[date][asset]});
+        }
+    }
+    static_cast<void>(weights);
+    const auto dense = fincore::factor_positions(
+        data, "1D2D", true, false, false, {}, {}, raw);
+    const auto legacy = legacy_positions("1D2D", raw);
+    expect_bitwise_positions(dense, legacy);
 }
 
 }  // namespace

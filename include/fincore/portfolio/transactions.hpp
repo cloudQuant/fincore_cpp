@@ -2,6 +2,7 @@
 
 #include <fincore/portfolio/positions.hpp>
 #include <fincore/metrics/returns.hpp>
+#include <fincore/report/portfolio.hpp>
 
 #include <cstddef>
 #include <optional>
@@ -109,5 +110,17 @@ std::vector<transaction_liquidity> get_low_liquidity_transactions(
     const dataframe& prices,
     const dataframe& volumes,
     std::optional<std::size_t> last_n_days = std::nullopt);
+
+// Native transaction normalization: finite amount/price and a non-empty
+// symbol. The pinned source dict also carries sid/order_id/commission; the
+// native record intentionally keeps the numeric/table fields owned by the
+// portfolio report model.
+portfolio_transaction map_transaction(
+    const portfolio_transaction& transaction);
+
+// Build an owning transaction frame indexed by date with symbol, amount and
+// price columns. Duplicate dates and input order are preserved.
+dataframe make_transaction_frame(
+    std::span<const portfolio_transaction> transactions);
 
 }  // namespace fincore

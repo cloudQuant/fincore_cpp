@@ -2,6 +2,7 @@
 
 #include <fincore/detail/numeric.hpp>
 #include <fincore/error.hpp>
+#include <fincore/errors.hpp>
 
 #include <algorithm>
 #include <array>
@@ -9,7 +10,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <limits>
+#include <map>
 #include <new>
+#include <optional>
 #include <span>
 #include <stdexcept>
 #include <string>
@@ -1478,6 +1481,152 @@ dataframe calculate_regression_attribution(
     } catch (const std::exception&) {
         throw input_error{"style attribution input is malformed"};
     }
+}
+
+}  // namespace fincore
+
+namespace fincore {
+namespace {
+
+void require_provider_frame(const dataframe& frame,
+                            const std::string_view context) {
+    if (frame.get_index().empty()) {
+        throw fincore_error{validation_error(
+            std::string(context) + " must return a non-empty dataframe")};
+    }
+    const auto columns = frame.get_columns_info<double, int, std::string,
+                                                bool>();
+    if (columns.empty()) {
+        throw fincore_error{validation_error(
+            std::string(context) + " must return at least one column")};
+    }
+}
+
+std::string indexed_style_label(const timestamp value) {
+    return std::to_string(value);
+}
+
+}  // namespace
+
+StyleResult::StyleResult(dataframe exposures, dataframe returns_by_style,
+                         dataframe overall_returns)
+    : exposures_(std::move(exposures)),
+      returns_by_style_(std::move(returns_by_style)),
+      overall_returns_(std::move(overall_returns)) {}
+
+StyleResult::StyleResult(style_analysis_result result)
+    : StyleResult(std::move(result.exposures),
+                  std::move(result.returns_by_style),
+                  std::move(result.overall_returns)) {}
+
+const dataframe& StyleResult::exposures() const noexcept { return exposures_; }
+
+const dataframe& StyleResult::returns_by_style() const noexcept {
+    return returns_by_style_;
+}
+
+const dataframe& StyleResult::overall_returns() const noexcept {
+    return overall_returns_;
+}
+
+std::map<std::string, double> StyleResult::style_summary() const {
+    std::map<std::string, double> summary;
+    const auto& index = returns_by_style_.get_index();
+    const auto string_columns = returns_by_style_.get_columns_info<std::string>();
+    const auto double_columns = returns_by_style_.get_columns_info<double>();
+
+    const std::string style_column{style_name_column};
+    std::string return_column{style_return_column};
+    bool has_style_column = false;
+    for (const auto& info : string_columns) {
+        if (std::string{std::get<0>(info).c_str()} == style_column) {
+            has_style_column = true;
+        }
+    }
+    bool has_return_column = false;
+    for (const auto& info : double_columns) {
+        if (std::string{std::get<0>(info).c_str()} == return_column) {
+            has_return_column = true;
+        }
+    }
+    if (!has_return_column) {
+        if (double_columns.empty()) {
+            throw fincore_error{validation_error(
+                "returns_by_style must contain a numeric return column",
+                "returns_by_style")};
+        }
+        return_column = std::string{std::get<0>(double_columns.front()).c_str()};
+    }
+
+    const auto& values =
+        returns_by_style_.get_column<double>(return_column.c_str());
+    if (has_style_column) {
+        const auto& labels = returns_by_style_.get_column<std::string>(
+            style_column.c_str());
+        if (labels.size() != values.size() || labels.size() != index.size()) {
+            throw fincore_error{validation_error(
+                "returns_by_style style and return columns must align",
+                "returns_by_style")};
+        }
+        for (std::size_t row = 0U; row < labels.size(); ++row) {
+            summary[labels[row]] = values[row];
+        }
+        return summary;
+    }
+
+    if (index.size() != values.size()) {
+        throw fincore_error{validation_error(
+            "returns_by_style index must align with its return column",
+            "returns_by_style")};
+    }
+    for (std::size_t row = 0U; row < index.size(); ++row) {
+        summary[indexed_style_label(index[row])] = values[row];
+    }
+    return summary;
+}
+
+std::map<std::string, dataframe> StyleResult::to_dict() const {
+    std::map<std::string, dataframe> result;
+    result.emplace("exposures", exposures_);
+    result.emplace("returns_by_style", returns_by_style_);
+    result.emplace("overall_returns", overall_returns_);
+    return result;
+}
+
+dataframe fetch_style_factors(
+    const std::vector<std::string>& tickers,
+    const std::optional<std::vector<std::string>>& factors,
+    const std::string_view library,
+    const style_factor_provider& provider) {
+    if (tickers.empty()) {
+        throw fincore_error{validation_error(
+            "Style factor tickers must not be empty", "tickers")};
+    }
+    for (const std::string& ticker : tickers) {
+        if (ticker.empty()) {
+            throw fincore_error{validation_error(
+                "Style factor tickers must not contain an empty ticker",
+                "tickers")};
+        }
+    }
+    if (library.empty()) {
+        throw fincore_error{
+            validation_error("Style factor library must not be empty", "library")};
+    }
+    if (!provider) {
+        throw fincore_error{
+            validation_error("Style factor provider must be callable", "provider")};
+    }
+    dataframe frame = provider(tickers, factors, library);
+    require_provider_frame(frame, "Style factor provider");
+    return frame;
+}
+
+dataframe fetch_style_factors(
+    const std::vector<std::string>& tickers,
+    const std::optional<std::vector<std::string>>& factors,
+    const style_factor_provider& provider, const std::string_view library) {
+    return fetch_style_factors(tickers, factors, library, provider);
 }
 
 }  // namespace fincore

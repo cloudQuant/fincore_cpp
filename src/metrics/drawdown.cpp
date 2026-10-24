@@ -239,6 +239,40 @@ std::optional<drawdown_window> max_drawdown_window(
                            maximum->recovery};
 }
 
+std::optional<drawdown_window> max_drawdown_underwater(
+    const dataframe& underwater, std::string_view column) {
+    const auto values = require_double_column(underwater, column);
+    const auto& index = underwater.get_index();
+    if (values.empty()) {
+        return std::nullopt;
+    }
+    std::size_t valley = 0U;
+    double minimum = values[0];
+    for (std::size_t position = 1U; position < values.size(); ++position) {
+        if (values[position] < minimum) {
+            minimum = values[position];
+            valley = position;
+        }
+    }
+    if (!std::isfinite(minimum) || minimum >= 0.0) {
+        return std::nullopt;
+    }
+    std::size_t peak = 0U;
+    for (std::size_t position = 0U; position <= valley; ++position) {
+        if (values[position] == 0.0) {
+            peak = position;
+        }
+    }
+    std::optional<timestamp> recovery;
+    for (std::size_t position = valley; position < values.size(); ++position) {
+        if (values[position] == 0.0) {
+            recovery = index[position];
+            break;
+        }
+    }
+    return drawdown_window{index[peak], index[valley], recovery};
+}
+
 double max_drawdown_days(const dataframe& returns, std::string_view column) {
     const auto values = require_double_column(returns, column);
     if (values.empty()) {
@@ -249,7 +283,6 @@ double max_drawdown_days(const dataframe& returns, std::string_view column) {
     return event == nullptr ? 0.0
                             : elapsed_utc_days(event->peak, event->valley);
 }
-
 double max_drawdown_weeks(const dataframe& returns, std::string_view column) {
     return max_drawdown_days(returns, column) / 7.0;
 }

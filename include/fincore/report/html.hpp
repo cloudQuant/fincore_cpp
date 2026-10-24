@@ -6,12 +6,17 @@
 
 namespace fincore {
 
-struct report_html_options {
-    std::string language = "en";
+enum class report_chart_backend {
+  inline_svg,
+  echarts,
 };
 
-std::string render_html(
-    const report_document& document,
-    const report_html_options& options = {});
+struct report_html_options {
+  std::string language = "en";
+  report_chart_backend chart_backend = report_chart_backend::inline_svg;
+};
 
-}  // namespace fincore
+std::string render_html(const report_document &document,
+                        const report_html_options &options = {});
+
+} // namespace fincore

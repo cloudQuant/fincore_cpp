@@ -2,6 +2,7 @@
 
 #include <fincore/calendar.hpp>
 #include <fincore/error.hpp>
+#include <fincore/errors.hpp>
 
 #include <algorithm>
 #include <chrono>
@@ -791,6 +792,56 @@ std::vector<transaction_liquidity> get_low_liquidity_transactions(
         result.push_back({symbol, entry.date, entry.percent});
     }
     return result;
+}
+
+portfolio_transaction map_transaction(
+    const portfolio_transaction& transaction) {
+    if (transaction.symbol.empty()) {
+        throw fincore_error{
+            validation_error("transaction symbol must be a non-empty string",
+                             "symbol")};
+    }
+    if (!std::isfinite(transaction.amount)) {
+        throw fincore_error{
+            validation_error("transaction amount must be a finite real number",
+                             "amount", std::to_string(transaction.amount))};
+    }
+    if (!std::isfinite(transaction.price)) {
+        throw fincore_error{
+            validation_error("transaction price must be a finite real number",
+                             "price", std::to_string(transaction.price))};
+    }
+    return transaction;
+}
+
+dataframe make_transaction_frame(
+    std::span<const portfolio_transaction> transactions) {
+    std::vector<timestamp> index;
+    std::vector<std::string> symbols;
+    std::vector<double> amounts;
+    std::vector<double> prices;
+    index.reserve(transactions.size());
+    symbols.reserve(transactions.size());
+    amounts.reserve(transactions.size());
+    prices.reserve(transactions.size());
+    for (const auto& raw : transactions) {
+        const auto transaction = map_transaction(raw);
+        index.push_back(transaction.date);
+        symbols.push_back(transaction.symbol);
+        amounts.push_back(transaction.amount);
+        prices.push_back(transaction.price);
+    }
+    dataframe frame;
+    frame.load_index(std::move(index));
+    frame.load_column<std::string>("symbol", std::move(symbols),
+                                   hmdf::nan_policy::dont_pad_with_nans);
+    frame.load_column<double>(transaction_amount_column.data(),
+                              std::move(amounts),
+                              hmdf::nan_policy::dont_pad_with_nans);
+    frame.load_column<double>(transaction_price_column.data(),
+                              std::move(prices),
+                              hmdf::nan_policy::dont_pad_with_nans);
+    return frame;
 }
 
 }  // namespace fincore

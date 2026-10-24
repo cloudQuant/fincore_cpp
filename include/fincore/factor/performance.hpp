@@ -12,12 +12,17 @@ namespace fincore {
 struct factor_ic_table {
     std::vector<timestamp> dates;
     std::vector<std::string> labels;
-    std::vector<double> values;  // dates x labels, NaN missing
+    std::vector<double> values;  // (date[, group]) rows x labels, NaN missing
+    /// Empty for aggregate output; otherwise parallel to dates, where dates
+    /// repeats once per observed (date, group) row in date/group order.
+    std::vector<std::string> groups;
 };
 
 struct factor_ic_summary {
     std::vector<std::string> labels;
-    std::vector<double> means;
+    std::vector<double> means;  // labels or groups x labels
+    /// Empty for aggregate output; otherwise one entry per group row in means.
+    std::vector<std::string> groups;
 };
 
 struct factor_weight_row {
@@ -39,18 +44,22 @@ struct factor_alpha_beta_row {
 };
 
 struct quantile_return_table {
-    std::vector<int> quantiles;
+    std::vector<int> quantiles;  // row keys; repeats when multiple groups exist
     std::vector<std::string> labels;
-    std::vector<double> means;           // quantiles x labels
-    std::vector<double> standard_errors; // quantiles x labels
+    std::vector<double> means;           // (quantile[, group]) rows x labels
+    std::vector<double> standard_errors; // (quantile[, group]) rows x labels
+    /// Empty for aggregate output; otherwise parallel to quantiles.
+    std::vector<std::string> groups;
 };
 
 struct quantile_date_return_table {
-    std::vector<timestamp> dates;
+    std::vector<timestamp> dates;  // row keys; repeats for each observed group
     std::vector<int> quantiles;
     std::vector<std::string> labels;
-    std::vector<double> means;           // dates x quantiles x labels
-    std::vector<double> standard_errors; // dates x quantiles x labels
+    std::vector<double> means;           // (date[, group]) x quantiles x labels
+    std::vector<double> standard_errors; // (date[, group]) x quantiles x labels
+    /// Empty for aggregate output; otherwise parallel to dates.
+    std::vector<std::string> groups;
 };
 
 struct event_window_cell {
@@ -77,9 +86,11 @@ struct quantile_event_statistics {
 };
 
 struct quantile_spread_result {
-    std::vector<std::string> labels;
+    std::vector<std::string> labels;  // periods; repeats for each group
     std::vector<double> spreads;
     std::vector<double> standard_errors;
+    /// Empty for aggregate output; otherwise parallel to labels.
+    std::vector<std::string> groups;
 };
 
 struct factor_series_result {
@@ -114,7 +125,7 @@ quantile_return_table mean_return_by_quantile(
 
 quantile_date_return_table mean_return_by_quantile_by_date(
     const prepared_factor_data& factor_data, bool demeaned = true,
-    bool group_adjust = false);
+    bool group_adjust = false, bool by_group = false);
 
 event_window_result common_start_returns(
     const factor_series& factor, const dataframe& returns, int before,

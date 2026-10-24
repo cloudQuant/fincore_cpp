@@ -1,7 +1,9 @@
 #include <fincore/risk/garch.hpp>
 
 #include <fincore/detail/optimization.hpp>
+#include "garch_internal.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <limits>
 #include <vector>
@@ -11,6 +13,7 @@ namespace {
 
 constexpr double nan = std::numeric_limits<double>::quiet_NaN();
 constexpr double omega_floor = 1e-6;
+constexpr double invalid_likelihood_penalty = 1e100;
 
 struct transform_context {
     bool constant_mean;
@@ -22,6 +25,50 @@ double sigmoid(const double value) {
 
 double logit(const double value) {
     return std::log(value / (1.0 - value));
+}
+
+double population_variance(const std::vector<double>& values) {
+    double mean = 0.0;
+    for (const double value : values) {
+        mean += value;
+    }
+    mean /= static_cast<double>(values.size());
+    double total = 0.0;
+    for (const double value : values) {
+        const double deviation = value - mean;
+        total += deviation * deviation;
+    }
+    return total / static_cast<double>(values.size());
+}
+
+void require_finite_positive_variance(const std::vector<double>& values,
+                                      const char* message) {
+    for (const double value : values) {
+        if (!std::isfinite(value)) {
+            throw input_error{message};
+        }
+    }
+    if (std::all_of(values.begin() + 1, values.end(),
+                    [first = values.front()](const double value) {
+                        return value == first;
+                    })) {
+        throw input_error{message};
+    }
+    const double variance = population_variance(values);
+    if (!(variance > 0.0) || !std::isfinite(variance)) {
+        throw input_error{message};
+    }
+}
+
+bool all_finite(const std::vector<double>& values) {
+    return std::all_of(values.begin(), values.end(),
+                       [](const double value) { return std::isfinite(value); });
+}
+
+bool all_positive_finite(const std::vector<double>& values) {
+    return std::all_of(values.begin(), values.end(), [](const double value) {
+        return value > 0.0 && std::isfinite(value);
+    });
 }
 
 garch11_parameters from_unconstrained(const std::vector<double>& theta,
@@ -106,8 +153,9 @@ double garch11_log_likelihood(const std::span<const double> eps,
     return -negative_log_likelihood({0.0, omega, alpha, beta}, values);
 }
 
-garch11_result fit_garch11(const dataframe& returns, const bool constant_mean,
-                           const std::string_view column) {
+garch11_result risk::internal::fit_garch11_with_max_iterations(
+    const dataframe& returns, const bool constant_mean,
+    const std::string_view column, const std::size_t max_iterations) {
     if (column.find('\0') != std::string_view::npos) {
         throw input_error{"column name must not contain an embedded NUL"};
     }
@@ -122,6 +170,8 @@ garch11_result fit_garch11(const dataframe& returns, const bool constant_mean,
     if (clean.size() < 11U) {
         throw input_error{"Insufficient data for GARCH estimation"};
     }
+    require_finite_positive_variance(
+        clean, "GARCH estimation requires finite returns with positive variance");
 
     double mean = 0.0;
     for (const double value : clean) {
@@ -156,7 +206,7 @@ garch11_result fit_garch11(const dataframe& returns, const bool constant_mean,
     detail::nelder_mead_options options;
     options.function_tolerance = 1e-13;
     options.simplex_tolerance = 1e-11;
-    options.max_iterations = 8000U;
+    options.max_iterations = max_iterations;
     const auto optimized =
         detail::minimize_nelder_mead(objective, initial_theta, options);
 
@@ -177,10 +227,20 @@ garch11_result fit_garch11(const dataframe& returns, const bool constant_mean,
     result.converged =
         optimized.converged && std::isfinite(result.params.omega) &&
         std::isfinite(result.params.alpha) &&
-        std::isfinite(result.params.beta) && result.params.omega > 0.0 &&
+        std::isfinite(result.params.beta) && std::isfinite(result.params.mu) &&
+        std::isfinite(optimized.value) &&
+        all_positive_finite(result.conditional_variances) &&
+        all_finite(result.residuals) && std::isfinite(result.log_likelihood) &&
+        result.params.omega > 0.0 &&
         result.params.alpha >= 0.0 && result.params.beta >= 0.0 &&
         result.params.alpha + result.params.beta < 1.0;
     return result;
+}
+
+garch11_result fit_garch11(const dataframe& returns, const bool constant_mean,
+                           const std::string_view column) {
+    return risk::internal::fit_garch11_with_max_iterations(
+        returns, constant_mean, column, 8000U);
 }
 
 std::vector<double> forecast_garch11(const garch11_result& result,
@@ -248,20 +308,6 @@ double normal_pdf(const double value) {
     return std::exp(-0.5 * value * value) / std::sqrt(2.0 * 3.14159265358979323846);
 }
 
-double population_variance(const std::vector<double>& values) {
-    double mean = 0.0;
-    for (const double value : values) {
-        mean += value;
-    }
-    mean /= static_cast<double>(values.size());
-    double total = 0.0;
-    for (const double value : values) {
-        const double deviation = value - mean;
-        total += deviation * deviation;
-    }
-    return total / static_cast<double>(values.size());
-}
-
 egarch_parameters egarch_from_theta(const std::vector<double>& theta) {
     egarch_parameters params{};
     params.omega = theta[0];
@@ -307,7 +353,7 @@ double egarch_negative_log_likelihood(const std::vector<double>& values,
     const auto variances = egarch_variances(values, params);
     for (const double value : variances) {
         if (!std::isfinite(value) || value <= 0.0) {
-            return 1e100;
+            return invalid_likelihood_penalty;
         }
     }
     double total = 0.0;
@@ -317,7 +363,7 @@ double egarch_negative_log_likelihood(const std::vector<double>& values,
                  eps * eps;
     }
     const double loglik = -0.5 * total;
-    return std::isfinite(loglik) ? -loglik : 1e100;
+    return std::isfinite(loglik) ? -loglik : invalid_likelihood_penalty;
 }
 
 gjr_garch_parameters gjr_from_theta(const std::vector<double>& theta) {
@@ -361,7 +407,7 @@ double gjr_negative_log_likelihood(const std::vector<double>& values,
     double total = 0.0;
     for (std::size_t index = 1; index < values.size(); ++index) {
         if (!(variances[index] > 0.0) || !std::isfinite(variances[index])) {
-            return 1e100;
+            return invalid_likelihood_penalty;
         }
         total += std::log(2.0 * 3.14159265358979323846 * variances[index]) +
                  values[index] * values[index] / variances[index];
@@ -371,7 +417,7 @@ double gjr_negative_log_likelihood(const std::vector<double>& values,
 
 std::vector<double> clean_series(const dataframe& returns,
                                  const std::string_view column) {
-    if (column.find(' ') != std::string_view::npos) {
+    if (column.find('\0') != std::string_view::npos) {
         throw input_error{"column name must not contain an embedded NUL"};
     }
     const auto values = require_double_column(returns, column);
@@ -387,32 +433,46 @@ std::vector<double> clean_series(const dataframe& returns,
 
 }  // namespace
 
-egarch_result fit_egarch(const dataframe& returns,
-                         const std::string_view column) {
+egarch_result risk::internal::fit_egarch_with_max_iterations(
+    const dataframe& returns, const std::string_view column,
+    const std::size_t max_iterations) {
     const auto clean = clean_series(returns, column);
     if (clean.size() < 10U) {
         throw input_error{"Insufficient data for EGARCH estimation"};
     }
-    const double initial_variance = population_variance(clean);
-    for (const double value : clean) {
-        if (!std::isfinite(value)) {
-            throw input_error{"EGARCH estimation requires finite returns with positive variance"};
-        }
-    }
-    if (!(initial_variance > 0.0) || !std::isfinite(initial_variance)) {
-        throw input_error{"EGARCH estimation requires finite returns with positive variance"};
-    }
+    require_finite_positive_variance(
+        clean,
+        "EGARCH estimation requires finite returns with positive variance");
 
-    const auto objective = [&clean](const std::vector<double>& theta) {
-        return egarch_negative_log_likelihood(clean, egarch_from_theta(theta));
-    };
-    detail::nelder_mead_options options;
-    options.function_tolerance = 1e-13;
-    options.simplex_tolerance = 1e-11;
-    options.max_iterations = 10000U;
     const std::vector<egarch_parameters> starts{
         {0.01, 0.1, -0.1, 0.95}, {0.01, 0.3, 0.2, 0.95},
         {0.01, 0.3, -0.2, 0.9},  {-0.2, 0.2, 0.1, 0.8}};
+    double objective_scale = 1.0;
+    for (const auto& start : starts) {
+        const double initial_value =
+            egarch_negative_log_likelihood(clean, start);
+        if (std::isfinite(initial_value) &&
+            initial_value < invalid_likelihood_penalty) {
+            objective_scale =
+                std::max(objective_scale, std::fabs(initial_value));
+        }
+    }
+    // Normalize the summed likelihood by a common starting-objective scale.
+    // This keeps the absolute objective tolerance meaningful at large
+    // likelihood magnitudes without changing start comparisons; the strict
+    // simplex tolerance remains in parameter space.
+    const auto objective =
+        [&clean, objective_scale](const std::vector<double>& theta) {
+            const double value =
+                egarch_negative_log_likelihood(clean, egarch_from_theta(theta));
+            return std::isfinite(value) && value < invalid_likelihood_penalty
+                       ? value / objective_scale
+                       : value;
+        };
+    detail::nelder_mead_options options;
+    options.function_tolerance = 1e-13;
+    options.simplex_tolerance = 1e-11;
+    options.max_iterations = max_iterations;
     detail::nelder_mead_result optimized =
         detail::minimize_nelder_mead(objective, egarch_to_theta(starts[0]),
                                      options);
@@ -438,9 +498,18 @@ egarch_result fit_egarch(const dataframe& returns,
         optimized.converged && std::isfinite(result.params.omega) &&
         std::isfinite(result.params.alpha) &&
         std::isfinite(result.params.gamma) &&
-        std::isfinite(result.params.beta) && result.params.alpha >= 0.0 &&
-        std::fabs(result.params.beta) < 1.0;
+        std::isfinite(result.params.beta) && std::isfinite(optimized.value) &&
+        optimized.value < invalid_likelihood_penalty &&
+        all_positive_finite(result.conditional_variances) &&
+        all_finite(result.residuals) && std::isfinite(result.log_likelihood) &&
+        result.params.alpha >= 0.0 && std::fabs(result.params.beta) < 1.0;
     return result;
+}
+
+egarch_result fit_egarch(const dataframe& returns,
+                         const std::string_view column) {
+    return risk::internal::fit_egarch_with_max_iterations(returns, column,
+                                                          10000U);
 }
 
 std::vector<double> forecast_egarch(const egarch_result& result,
@@ -470,19 +539,23 @@ std::vector<double> forecast_egarch(const egarch_result& result,
     return forecasts;
 }
 
-gjr_garch_result fit_gjr_garch(const dataframe& returns,
-                               const std::string_view column) {
+gjr_garch_result risk::internal::fit_gjr_garch_with_max_iterations(
+    const dataframe& returns, const std::string_view column,
+    const std::size_t max_iterations) {
     const auto clean = clean_series(returns, column);
     if (clean.size() < 10U) {
         throw input_error{"Insufficient data for GJR-GARCH estimation"};
     }
+    require_finite_positive_variance(
+        clean,
+        "GJR-GARCH estimation requires finite returns with positive variance");
     const auto objective = [&clean](const std::vector<double>& theta) {
         return gjr_negative_log_likelihood(clean, gjr_from_theta(theta));
     };
     detail::nelder_mead_options options;
     options.function_tolerance = 1e-13;
     options.simplex_tolerance = 1e-11;
-    options.max_iterations = 10000U;
+    options.max_iterations = max_iterations;
     const std::vector<gjr_garch_parameters> starts{
         {0.01, 0.05, 0.05, 0.9}, {0.01, 0.2, 0.1, 0.8},
         {0.0001, 0.1, 0.2, 0.7}};
@@ -512,12 +585,22 @@ gjr_garch_result fit_gjr_garch(const dataframe& returns,
         std::isfinite(result.params.alpha) &&
         std::isfinite(result.params.gamma) &&
         std::isfinite(result.params.beta) && result.params.omega > 0.0 &&
+        std::isfinite(optimized.value) &&
+        optimized.value < invalid_likelihood_penalty &&
+        all_positive_finite(result.conditional_variances) &&
+        all_finite(result.residuals) && std::isfinite(result.log_likelihood) &&
         result.params.alpha >= 0.0 && result.params.gamma >= 0.0 &&
         result.params.beta >= 0.0 && result.params.alpha +
                                              0.5 * result.params.gamma +
                                              result.params.beta <
                                          1.0;
     return result;
+}
+
+gjr_garch_result fit_gjr_garch(const dataframe& returns,
+                               const std::string_view column) {
+    return risk::internal::fit_gjr_garch_with_max_iterations(
+        returns, column, 10000U);
 }
 
 std::vector<double> forecast_gjr_garch(const gjr_garch_result& result,
@@ -610,5 +693,46 @@ garch_conditional_estimate conditional_es(const dataframe& returns,
     result.converged = forecast.converged;
     return result;
 }
+
+namespace risk::internal {
+
+std::vector<double> garch11_conditional_variances(
+    const std::span<const double> eps, const double omega, const double alpha,
+    const double beta) {
+    const std::vector<double> values(eps.begin(), eps.end());
+    return conditional_variances(values, omega, alpha, beta);
+}
+
+double garch11_log_likelihood(const std::span<const double> eps,
+                              const double omega, const double alpha,
+                              const double beta) {
+    return fincore::garch11_log_likelihood(eps, omega, alpha, beta);
+}
+
+std::vector<double> egarch_conditional_variances(
+    const std::span<const double> values, const egarch_parameters& params) {
+    const std::vector<double> observations(values.begin(), values.end());
+    return egarch_variances(observations, params);
+}
+
+double egarch_log_likelihood(const std::span<const double> values,
+                             const egarch_parameters& params) {
+    const std::vector<double> observations(values.begin(), values.end());
+    return -egarch_negative_log_likelihood(observations, params);
+}
+
+std::vector<double> gjr_garch_conditional_variances(
+    const std::span<const double> values, const gjr_garch_parameters& params) {
+    const std::vector<double> observations(values.begin(), values.end());
+    return gjr_variances(observations, params);
+}
+
+double gjr_garch_log_likelihood(
+    const std::span<const double> values, const gjr_garch_parameters& params) {
+    const std::vector<double> observations(values.begin(), values.end());
+    return -gjr_negative_log_likelihood(observations, params);
+}
+
+}  // namespace risk::internal
 
 }  // namespace fincore

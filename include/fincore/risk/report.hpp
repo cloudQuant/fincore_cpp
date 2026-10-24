@@ -3,6 +3,7 @@
 #include <fincore/risk/walk_forward.hpp>
 
 #include <cstddef>
+#include <filesystem>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -43,6 +44,26 @@ struct risk_report_diagnostics {
     std::size_t n_observations = 0U;
 };
 
+/// Native detached dictionary projection of :struct:`risk_validation_report`.
+///
+/// This is the C++ equivalent of the source's JSON-compatible ``to_dict``
+/// mapping: every native report field is represented exactly once. Python
+/// object identity and mapping subclassing are not claimed.
+struct risk_validation_report_dict {
+    int schema_version = risk_validation_report_schema_version;
+    std::string status;
+    std::string inputs_digest;
+    std::optional<std::string> timestamp_index_name;
+    std::optional<std::string> timestamp_timezone;
+    risk_model_spec specification;
+    std::vector<risk_forecast_event> forecast_events;
+    std::vector<risk_refit_event> refits;
+    risk_report_diagnostics diagnostics;
+    std::optional<risk_backtest_result> backtest;
+    std::string traffic_light_zone;
+    std::string disclosure;
+};
+
 struct risk_validation_report {
     walk_forward_status status = walk_forward_status::unsupported;
     std::string inputs_digest;
@@ -58,7 +79,16 @@ struct risk_validation_report {
     std::string disclosure{basel_reference_disclosure};
     int schema_version = risk_validation_report_schema_version;
 
+    /// Detached native dict representation of the report fields.
+    [[nodiscard]] risk_validation_report_dict to_dict() const;
+
     std::string to_json() const;
+
+    /// Write the deterministic JSON artifact to ``path`` and return it.
+    ///
+    /// Parent directories are not created, matching the source contract.
+    [[nodiscard]] std::filesystem::path write_json(
+        const std::filesystem::path& path) const;
 };
 
 risk_validation_report build_risk_validation_report(

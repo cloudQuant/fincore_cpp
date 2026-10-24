@@ -1,96 +1,58 @@
-# Iteration 5 — Factor Analysis: Requirements Specification
+# Iteration 5 — Factor Analysis: Requirements
 
-**Iteration ID:** iteration-5-factor-analysis
-**Phase range:** Phases 77–87
-**Source of truth:** fincore Python `dev@4b8f31b`: `fincore/factor_analysis/` (incl. `research.py`), `fincore/report/factor/`
-**Status:** Draft
+**Phases:** 77–87. **Status:** Revised plan; NOT_RUN.
+**Oracle:** Python `4b8f31b1b59707480d5db9603704d83bbf7e6946`.
+The [shared delivery contract](../delivery-contract.md) applies.
 
-> Roadmap amendment 2026-10-23: former Iteration 6 (factor analysis)
-> renumbered to 5 after the risk/optimization merge.
+## 1. Scope and entry
 
-## 1. Purpose and Scope
+Port factor preparation, performance/turnover/portfolio/costs, full analysis,
+research and selected reports. Phase 39 freezes the ledger/oracle; upstream
+changes are recorded without automatic re-pinning. Native primitives used
+by each slice must be accepted; compute phases need no GUI. Rendering uses
+72–75 as applicable. Shared report/artifact contracts from 88a precede 84/86.
 
-Port the factor-analysis domain — the largest single block of the port and
-the area where the Python oracle is **actively changing**. Scope: factor data
-preparation (quantile bucketing, forward returns), the compute-once analysis
-model, factor performance (mean returns by quantile, IC, turnover including
-the newest quantile-turnover/long-universe features), factor portfolio
-construction, the plain-frame research-evaluation entry, tear-sheet compute
-models, ImPlot tear-sheet rendering, and the bilingual offline-ECharts HTML
-factor report.
+## 2. Functional scope and owners
 
-## 2. Entry Conditions
+| Phase | Pinned source | Required delivery |
+|---|---|---|
+| 77 | `factor_analysis/data.py`, `calendar.py`, `pit.py`, consumers | Panel schema/layout spike: identities, date/asset ordering, missingness, membership, groups/weights, horizons, calendar/PIT, lifetime and memory. Quantization/forward-return primitives validated before consumers. |
+| 78 | `factor_analysis/data.py` | `prepare_factor_data`, `prepare_factor_data_by_horizon`, `prepare_factor_data_from_forward_returns`, `prepare_pit_factor_data`, `quantize_factor`, `compute_forward_returns` and ledger-required models. |
+| 80 | `factor_analysis/performance.py`, `inference.py` | Mean/dispersion by quantile, IC/group IC, factor returns/alpha-beta and event cumulative-return capabilities; all exported statistical inference paths mapped, including optional dependency/error behavior. Split into bounded design slices. |
+| 81 | `factor_analysis/performance.py` turnover routes | Quantile turnover, long/unbalanced universes, rank/autocorrelation and lag semantics from the ledger. Preserve absent-versus-missing observations and denominator membership. |
+| 82 | `factor_analysis/portfolio.py`, `costs.py` | After the required Phase 80 performance kernels: portfolio inputs/weights/returns and cost/capacity ledger: `FactorCostModel`, `FactorCapacityResult`, `FactorCostResult`, `estimate_factor_capacity`, `apply_factor_costs`; gross/net return and unit/sign identities. |
+| 79 | `factor_analysis/analysis.py`, `models.py` | `analyze_factor` assembles the full immutable model after its required 80/81/82 kernels. No backward dependency or duplicate implementation in consumers. |
+| 83 | `factor_analysis/research.py` | `ResearchEvaluationSpec`, `ResearchEvaluationResult`, `research_capabilities`, `evaluate_factor_research`; pure evaluation returns tables/manifest. Separate explicit export operation writes CSV/optional chart artifacts with no overwrite. |
+| 84 | `factor_analysis/models.py`, tears and `report/factor/compute.py` | Renderer-ready tear models and projection to the shared `ReportDocument`, preserving sections, metrics/tables/series, units, legends/notes and metadata. |
+| 85 | factor tears/rendering | ImPlot summary/returns/information/turnover/event panels from frozen data; supported chart mappings and fidelity differences explicit. |
+| 86 | `report/factor/html.py`, `report/assets/echarts.min.js` | Self-contained zh/en offline HTML; shared 88a model/serialization, pinned asset/hash/notices, correct chart values and browser rendering. |
+| 87 | Whole factor pipeline | Measure compute-once, weight/snapshot reuse, cost of copies, sparse/dense scaling, runtime/RSS and report output; preserve numerical and isolation contracts. |
 
-- Iteration 1 accepted (drawdown table, stats kernel).
-- Iteration 4 accepted (bar/histogram/heatmap/line chart primitives) for
-  Phase 85.
-- **Oracle drift checkpoint:** re-check fincore `dev` head immediately before
-  Phase 77. If past `4b8f31b`, insert a re-pin phase (Phase 39 procedure)
-  first. Factor analysis is where drift bites hardest — never port against a
-  moving target.
+Phase IDs intentionally appear in execution order above. No blanket
+exclusion of `inference.py`, calendar or PIT is permitted just because the
+old draft omitted them. Phase 39/77 explicitly assigns each public capability
+and any unsupported scenario, with a narrowed coverage claim if deferred.
+The pin contains no separate `fincore/alphalens` facade to recreate.
 
-## 3. Functional Requirements
+## 3. Data correctness
 
-### 3.1 Panel adapter (mandatory design gate)
+Use one panel contract, but choose layout from measured dense and sparse
+workloads instead of mandating a wide non-owning view. Represent absent
+asset/date pairs, present NaNs, tradability/universe membership, groups,
+weights and multiple forward-return horizons unambiguously. Lock duplicate
+keys, unsorted dates, ties/duplicate quantile edges, all-equal values,
+zero-aware/group quantization and data-loss accounting to actual source
+behavior; do not assume every qcut path drops duplicate edges.
 
-| Phase | Requirement |
-|---|---|
-| 77 | Establish the wide-table convention (UTC-ns date index, one double column per asset) and a thin, explicitly-owned `factor_panel` layer over `StdDataFrame<std::int64_t>` providing: cross-section iteration (date → asset-value row view), per-asset column iteration, quantile bucketing, and forward-return computation. **No factor metric lands in this phase.** The design doc locks the data-shape contract every later phase builds on. Acceptance = compile+test-gated adapter with parity tests on bucketing/forward-return primitives against pandas `qcut`/`shift` oracles. |
+PIT fixtures must include publication/as-of timing, membership changes and
+calendar gaps. Future returns used as labels must not leak into eligibility,
+weights or earlier feature/analysis windows beyond the oracle contract.
+Returned models survive caller mutation/destruction; cache reuse cannot
+expose mutable shared results.
 
-### 3.2 Core factor phases
+## 4. Exit
 
-| Phase | Public API | Python source | Requirement summary |
-|---|---|---|---|
-| 78 | `prepare_factor_data` | `factor_analysis/data.py` | Factor quantization into buckets + forward returns on the Phase 77 adapter; bucket-edge and label semantics parity (incl. duplicate-drop and NaN handling). |
-| 79 | `analyze_factor` | `factor_analysis/analysis.py` | Compute-once assembly of the full factor model — frozen value type aggregating all downstream-computable sections. |
-| 80 | factor performance | `factor_analysis/performance.py` | Mean returns by quantile, IC by group; exact aggregation semantics (equal/cap weighting per oracle). |
-| 81 | turnover kernels | `factor_analysis/performance.py` | Turnover incl. **quantile turnover + long universes** (commit `9027733`); mirror the vectorized kernel structure of the Python side. |
-| 82 | factor portfolio construction | `factor_analysis/portfolio.py` | Weights and capacity-aware positions. |
-| 83 | `evaluate_factor_research` / `ResearchEvaluationSpec` | `factor_analysis/research.py` (`5399498`) | Plain-frame research evaluation entry: validates UTC-indexed wide frames, evaluates periods, stability, correlations; emits CSV + chart artifacts (artifact paths, not rendering, in the compute model). |
-| 84 | tear-sheet compute models | `factor_analysis/models.py` | Frozen renderer-ready models (`FactorTearSheetArtifacts` equivalent) — compute only, no rendering. |
-
-### 3.3 Rendering phases
-
-| Phase | Public API | Python source | Requirement summary |
-|---|---|---|---|
-| 85 | ImPlot tear sheets | `factor_analysis/tears.py`, `render_matplotlib.py` | Summary/returns/information/turnover/event tear sheets as multi-panel ImPlot compositions of Iteration 4 primitives. Grid layout parameters from the oracle's `GridFigure`; violin → histogram/bar substitution with fidelity notes. |
-| 86 | bilingual factor HTML report | `report/factor/html.py` (`7679c71`) | Self-contained zh/en HTML embedding offline ECharts (`echarts.min.js` ported verbatim as an asset): line charts, bar charts, histogram bins, KPI cards, coverage tables — built from the frozen report model with no recomputation. |
-| 87 | factor report perf parity | commits `280c28c`, `dcc1c89`, `e04bd08`, `fc512cd` | Mirror the weight/snapshot-reuse semantics so large-fixture behavior (result fingerprints streamed, model snapshots reused, weights reused within one analysis) matches; a performance-parity phase, not a new feature. |
-
-### 3.4 Cross-cutting requirements
-
-- **MultiIndex prohibition:** no phase may invent its own panel
-  representation; all factor data flows through the Phase 77 `factor_panel`
-  layer. Any discovered gap in the adapter is fixed **in the adapter** with
-  its own parity test, not worked around in a consumer.
-- Rendering phases (85–86) consume frozen value types only; the compute/render
-  split from Iteration 4's `chart_data.hpp` pattern extends here.
-- PIT (point-in-time) contracts (`pit.py`) and calendar semantics
-  (`calendar.py`, CustomBusinessDay): enumerate at Phase 78 design time and
-  port the minimal subset the ported functions actually consume — record the
-  subset decision.
-
-## 4. Non-Functional Requirements
-
-- Hex-float parity for all closed-form aggregation paths; tolerance policy
-  not expected to be needed (no iterative solvers in this domain) — any
-  exception must be declared in that phase's design.
-- Determinism: identical inputs → bit-identical models and report bytes.
-- Standard SDD gates; evidence conventions unchanged.
-
-## 5. Exit Criteria
-
-- Phases 77–87 accepted.
-- `factor_analysis` public surface at parity for the ported subset, with the
-  PIT/calendar subset decision recorded; anything excluded is listed with a
-  reason in the final acceptance record.
-- The bilingual HTML report for the design-doc fixture is byte-stable across
-  two runs (determinism test) and structurally validated against the Python
-  oracle's report (same sections, same values within parity policy).
-
-## 6. Out of Scope
-
-- `factor_analysis/inference.py` statistical extras beyond what ported
-  functions consume (enumerate at 78; exclude with reasons).
-- Plotly/bokeh factor rendering (non-port; ECharts + ImPlot are the targets).
-- Any new data provider for factor inputs.
+All ledger-assigned factor functions/models/scenarios reconciled and accepted;
+no unexplained gap or hidden calendar/inference loss; compute and rendering
+statuses separate; measured factor performance and durable evidence retained.
+No network provider or new execution/trading engine is introduced.

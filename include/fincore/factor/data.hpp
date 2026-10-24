@@ -34,6 +34,12 @@ struct factor_loss_report {
     double total_loss = 0.0;
 };
 
+/// Loss wording used by the pinned strict facade's stdout projection.
+///
+/// Returns ``(input_count - forward_returns_count) / input_count`` and 0 for
+/// an empty input.
+double legacy_forward_returns_loss(const factor_loss_report& report);
+
 struct factor_grouping {
     std::map<std::string, std::string> group_by_asset;
     std::map<std::string, std::string> group_labels;
@@ -62,11 +68,11 @@ struct prepare_factor_config {
 };
 
 struct factor_row {
-    timestamp date;
+    timestamp date = 0;
     std::string asset;
-    double factor;
-    int quantile;
-    bool has_group;
+    double factor = 0.0;
+    int quantile = 0;
+    bool has_group = false;
     std::string group;
     std::vector<double> forward_returns;
 };

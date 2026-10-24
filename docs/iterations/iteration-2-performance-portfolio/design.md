@@ -1,80 +1,61 @@
-# Iteration 2 — Performance (GIPS) and Portfolio Completion: Design Document
+# Iteration 2 — Performance and Portfolio: Design
 
-**Iteration ID:** iteration-2-performance-portfolio
-**Status:** Draft
-**Depends on:** Iteration 1 (private normal-quantile helper pattern, drawdown
-table value type, metrics kernel).
+**Status:** Revised plan. [Shared contract](../delivery-contract.md) applies.
 
-## 1. Architecture Overview
+## 1. Native leaves and reuse
 
-Two new leaf families:
+Add `include/fincore/performance/{returns,cashflows,inference,disclosures}.hpp`
+and matching source/test entries. Capacity types may use
+`include/fincore/portfolio/capacity.hpp`; transaction liquidity primitives
+should extend the existing native transaction leaf unless the phase design
+justifies a different owner. Python source path and native layout need not
+be identical, but one canonical implementation is required. Register actual
+new source/test TUs and public consumer tests in CMake.
 
-```
-include/fincore/performance/{returns,cashflows,inference,disclosures}.hpp
-src/performance/*.cpp + tests/unit/performance_*_test.cpp
-include/fincore/portfolio/{capacity,liquidity}.hpp
-src/portfolio/*.cpp + tests/unit/portfolio_{capacity,liquidity}_test.cpp
-```
+No new solver target is assumed. Phase 55 compares an internal bracketed
+solver or a pinned dependency using measured parity and maintenance costs.
+Share private IRR preprocessing and solve routines between MWR and XIRR.
+Do not commit to an inaccurate solver merely to avoid a dependency.
 
-New CMake source list entries only; no new targets or dependencies. The
-`performance` directory is new to the C++ tree.
+## 2. IRR and calendar design before implementation
 
-## 2. Key Design Decisions
+Characterize preprocessing separately from the solver: validation order,
+stable equal-period aggregation, sign transition count, finite/degenerate
+flows and representable rate domain. Solve the scaled NPV in log-gross-rate
+space, then convert to a rate. Preserve convergence status internally and
+map public failure results to the pinned contract.
 
-### D1 — One private root finder, shared by mwr/xirr
-Both `mwr` and `xirr` solve an IRR-type equation. Decision: a single private
-solver (Brent's method, transcribed with the oracle's bracketing and
-tolerance semantics) in `src/performance/returns.cpp`. The design doc for
-Phase 55 must first record what the Python side actually calls (typically
-`numpy_financial.irr`-style or a scipy brentq). **If the oracle pins scipy's
-brentq**, the tolerance-parity policy (roadmap §2) applies: fixed fixture,
-declared tolerance, deterministic C++ result; the design doc records the
-oracle's iteration count/convergence criterion as informational parity.
-Root-finder internals never become public API.
+The native date model must preserve the oracle's local-calendar-day
+semantics. The phase design chooses explicit normalized local dates or
+additional timezone metadata at the boundary; it cannot reinterpret local
+midnight as a UTC date and claim equality. Include daylight-saving and
+same-local-day cases as applicable to the declared supported input contract.
+XIRR's 365-day convention is explicit, including leap-year fixtures.
 
-### D2 — Cashflow event model
-Cashflows enter as a DataFrame (date index + amount column, double), not as
-parallel vectors. Rationale: keeps the boundary DataFrame-native per the
-foundation design; the oracle's Series-with-index maps 1:1. Validation
-(amount column type, index monotonicity, date-vs-returns alignment) follows
-the established precedence rules.
+Phase 56 freezes start/end cashflow timing, valuation ownership and units.
+53 remains simple return chaining; 56 composes it after adjusting returns.
+Use owning cashflow/disclosure/capacity result types and stable label order.
 
-### D3 — Disclosure records as value types
-GIPS disclosure output is a frozen vector of `{code, text, applicable}` value
-records computed once. No locale, no formatting, no I/O. Rendering belongs to
-Iteration 6.
+## 3. Liquidity and disclosures
 
-### D4 — Capacity/liquidity reuse map
-Before implementing Phase 58/59, enumerate the existing portfolio leaves for
-reusable primitives (slippage penalty from Phase 6b, turnover from 5b). Any
-divergence between the oracle's formula and an existing native primitive is a
-finding, resolved in the phase design — either the native primitive is reused
-(and its parity re-attested), or the new leaf carries a private helper with a
-recorded reason.
+Phase 59 first inventories existing liquidation/turnover/slippage primitives;
+add only missing behavior with explicit zero/missing volume, cash column,
+asset-label and date alignment semantics. Phase 58 then composes those
+primitives into `assess_liquidity`. Do not rename this composition as a
+capacity sweep.
 
-## 3. Component Plan
+57b preserves both context fields and emitted disclosure text. Freeze field
+order, missing applicability, Unicode and template semantics separately
+from future HTML escaping. Phase 57 can reuse a validated private normal
+quantile helper after its contract is proven, rather than depending on all
+of Iteration 1.
 
-| Phase | Files | New public surface |
-|---|---|---|
-| 53 | performance/returns.{hpp,cpp} + TU | `twr` |
-| 54 | same | `mwr` |
-| 55 | same | `xirr` (+ private Brent solver) |
-| 56 | performance/cashflows.{hpp,cpp} + TU | `cashflow_adjusted_returns` (+ enumerated helpers) |
-| 57 | performance/inference.{hpp,cpp} + TU | `sharpe_confidence_interval` |
-| 57b | performance/disclosures.{hpp,cpp} + TU | disclosure record types |
-| 58 | portfolio/capacity.{hpp,cpp} + TU | capacity sweep + max-commission/slippage entries |
-| 59 | portfolio/liquidity.{hpp,cpp} + TU | liquidity entries |
+## 4. Sequence
 
-## 4. Risks and Mitigations
+After 39: 55 solver/date contract → 54; 53 can run independently and precedes
+56's TWR composition; 59 → 58. 57 and 57b are independent subject to their
+actual helpers. Phase numbers are identifiers, so this corrects the old
+54-before-its-solver and 58-before-its-primitives inversions without renumbering.
 
-| Risk | Mitigation |
-|---|---|
-| Root-finder parity mismatch if oracle uses scipy | Declared tolerance policy in Phase 55 design; fixture frozen; convergence-criterion parity documented. |
-| Cashflow sign/valuation-date conventions differ from intuition | Transcribe from oracle tests verbatim; add a dedicated convention fixture with named cases. |
-| Oracle surface drift (performance module is younger) | Enumerate the public surface at Phase 53 design time and re-check at 57b; drift policy applies. |
-
-## 5. Sequencing
-
-53 → 54 → 55 share the cashflow model and solver; strict order. 56 after 53
-(chaining semantics). 57, 57b independent. 58 → 59 (liquidity reuses capacity
-sweep shapes). All after Iteration 1 acceptance.
+Each design freezes exact signatures, error/shape tables, numerical budgets,
+fixtures, benchmark workload and reusable helper mappings before coding.

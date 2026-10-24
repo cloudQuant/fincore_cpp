@@ -1,84 +1,74 @@
-# Iteration 6 — Report and Runtime: Requirements Specification
+# Iteration 6 — Report, Runtime and Native Delivery: Requirements
 
-**Iteration ID:** iteration-6-report-runtime
-**Phase range:** Phases 88–92
-**Source of truth:** fincore Python `dev@4b8f31b`: `fincore/report/`, `fincore/runtime/`
-**Status:** Draft
+**Phases:** 88a early contract, 88b completion, 89–93.
+**Status:** Revised plan; NOT_RUN.
+**Oracle:** Python `4b8f31b1b59707480d5db9603704d83bbf7e6946`.
+The [shared delivery contract](../delivery-contract.md) applies.
 
-> Roadmap amendment 2026-10-23: former Iteration 7 (report + runtime)
-> renumbered to 6 after the risk/optimization merge.
+## 1. Scope and entry
 
-## 1. Purpose and Scope
+Deliver shared report/artifact models, report renderers/builders, native
+runtime orchestration and an installable native package. Start the narrow
+88a schema after Phase 39 before its consumers (67/84/86); do not wait for
+all compute domains. Later report/runtime slices require only their named
+accepted operations, with final reconciliation over the complete selected
+scope. Phase 93 gates release readiness without publishing anything.
 
-Port the "compute once, render many" spine: the `ReportDocument` compute-once
-model and its renderers (HTML, XLSX; matplotlib/plotly equivalents are
-covered by the ImPlot adapter), the portfolio and risk validation report
-builders that close the loop from Iterations 1–5, and the runtime
-orchestration core (`OperationCatalog`, `OperationSpec`, `plan/run/batch`,
-`AnalysisSession`).
+## 2. Functional scope
 
-This iteration also formalizes the explicit non-port list (§6) as a
-requirements decision, revisitable only by dated roadmap amendment.
-
-## 2. Entry Conditions
-
-- Iterations 1–3 accepted (metrics, performance/portfolio, risk/optimization)
-  — the portfolio report needs the full compute surface.
-- Iteration 5 accepted if factor report rendering is in scope for a phase;
-  otherwise factor reports are excluded (see 3.2).
-
-## 3. Functional Requirements
-
-### 3.1 Report phases
-
-| Phase | Public API | Python source | Requirement summary |
-|---|---|---|---|
-| 88 | `ReportDocument` compute-once model | `fincore/report/` (document core) | Frozen document value type: sections, tables (name → column/row data), series (name → points), KPI entries; compute-once semantics (renderers never recompute). Consumes chart value types from Iteration 4. |
-| 89 | HTML renderer | `report/renderers/html.py` | Escaped HTML tables + document assembly; byte-deterministic output; matches the oracle's table structure and escaping rules exactly. |
-| 90 | XLSX renderer | `report/renderers/xlsx.py` | Minimal XLSX writer producing sheets per table. Design-time decision: vendored writer library vs. minimal OOXML emitter (see design D2). |
-| 91 | portfolio + risk validation report builders | `report/portfolio/compute.py`, risk validation report | `build_portfolio_report`-equivalent (returns, positions, rolling window inputs) and the risk validation report rendering that closes Phase 67's deferred item. |
-| 92 | runtime core | `fincore/runtime/` | `OperationCatalog`, `builtin_catalog`, `OperationSpec`/`OperationRequest`, `plan()`, `run()`, `batch()`, `AnalysisSession`, `AnalysisSnapshot`, `Result`, `ArtifactBundle`. The native compute path *is* the backend — no NumPyBackend analogue. |
-
-### 3.2 Scope boundary on factor reports
-The bilingual factor HTML report is already delivered by Iteration 5
-(Phase 86). Iteration 6 renders only if the oracle's portfolio/risk report
-surfaces require shared renderer infrastructure that the factor report
-predates; that determination is made in Phase 88's design and recorded.
-
-### 3.3 Cross-cutting requirements
-
-- **Renderer parity basis:** HTML/XLSX output is validated structurally
-  (same tables, sections, values within parity policy) plus byte-determinism
-  (two runs → identical bytes). Byte-parity with the Python renderer is not
-  required where formatting differs (fonts, CSS), but table structure and
-  cell values must match on the frozen fixture.
-- **Runtime semantics:** `plan`/`run`/`batch` mirror the Python operation
-  catalog semantics — deterministic ordering, explicit error propagation per
-  operation, snapshot immutability. The C++ catalog registers exactly the
-  ported operations; unported operations are absent, not stubbed.
-- `AnalysisSession` owns frames by value (the established ownership rule);
-  no shared mutable state.
-
-## 4. Non-Functional Requirements
-
-- Standard SDD loop and gates; oracle runs against a clean detached checkout.
-- Byte-determinism tests are mandatory for both renderers.
-- No new heavyweight dependency without a design-time decision recorded in
-  the phase design doc (XLSX is the only candidate).
-
-## 5. Exit Criteria
-
-- Phases 88–92 accepted.
-- `report` and `runtime` public surfaces at parity for the ported subset;
-  audit tables in the final acceptance record.
-- The non-port list §6 remains accurate or is amended by dated entry.
-
-## 6. Explicit Non-Ports (requirements decision, 2026-10-23)
-
-| Item | Reason | Reversible by |
+| Phase | Source / delivery | Requirements |
 |---|---|---|
-| `metrics/bayesian.py` (PyMC) | No C++ equivalent; Bayesian return cone (Phase 28) is the extent of Bayesian support. | Dated roadmap amendment |
-| `data/providers.py` network SDKs (yfinance/tushare/akshare/AlphaVantage) | Heavy SDK/network surface, low C++ value. `DataSnapshot` content-addressing *model* may be ported if a phase needs it. | Dated roadmap amendment |
-| `viz` plotly/bokeh backends | ImPlot is the interactive target; HTML backend covered by Phase 89. | Dated roadmap amendment |
-| PDF renderer (Playwright/Chromium) | External browser dependency; HTML output is the portable equivalent. | Dated roadmap amendment |
-| `extensions/` entry-point discovery | Python packaging mechanism. | Dated roadmap amendment |
+| 88a | `report/models.py`, runtime artifact/result contracts | Minimal common `ReportDocument`/`ReportSection`, typed tables/series/metrics, metadata, units, legends/notes, offline assets and `ArtifactBundle` boundary. Owning immutable data, versioned schemas and serializer contracts before consumers. Domain calculation and full runtime are not required here. |
+| 88b | Shared model completion/integration | Complete fields and integration mapping across factor, portfolio and risk projections; preserve the 88a schema or explicitly migrate consumers. No second report framework. |
+| 89 | `report/renderers/html.py` | Structural parity in sections/tables/values and safe escaping, deterministic native bytes under declared metadata; use common asset/artifact handling. |
+| 90 | `report/renderers/xlsx.py` | One sheet per ReportSection, stacking metrics/tables/series as the pinned writer does; mapped names, order, labels and cell types. Choose writer/ZIP dependency by evidence, not an assumed hand-written OOXML default. |
+| 91 | `report/portfolio/compute.py`, `report/risk.py` | Portfolio builder and projection/rendering of Phase 67 risk validation results. Sections, missing optional inputs and builder failures from the ledger; no render-time recalculation. |
+| 92 | `runtime/` | Catalog/spec/request, `ExecutionPlan`, `plan/run/batch`, session/snapshot/result/bundle and validation helpers. Register the source catalog's selected native equivalents; classify utilities and unported operations explicitly. |
+| 93 | Native package and consumer validation | Install/export/config/version rules, optional GUI separation, dependency pins/notices/assets, supported-platform CI, relocatable downstream consumer, benchmark regression and migration/usage notes. |
+
+The pinned Python `plan()` stores a validated **ordered request sequence**,
+not a dependency DAG. `batch()` checks the catalog digest and replays order;
+`run()` invokes the registered callable using the request snapshot. Preserve
+input/config/provenance/error semantics, including config that is recorded
+but not forwarded into the domain function. Do not invent graph scheduling,
+cycle rejection or concurrency guarantees as parity requirements.
+
+## 3. Ownership, serialization and artifacts
+
+Own returned models/snapshots or retain immutable backing ownership. Freeze
+snapshot isolation, copying and cache invalidation. Model schemas distinguish
+missing/null, finite values, NaN/±inf, strings, booleans, dates and labels;
+HTML/JSON/XLSX conversions have explicit policies, never silent numeric loss.
+Version canonical bytes and digest domain. Runtime catalog fingerprints are
+language-specific implementation identities unless a shared cross-language
+schema is intentionally established; they are not output-value hashes.
+
+Separate pure compute/render-to-bytes from explicit artifact writing.
+Specify output root, path normalization, overwrite policy, failure cleanup
+and bundle metadata. Test untrusted label text in HTML/script contexts;
+XLSX and CSV text must not accidentally become formulas. Byte determinism
+is a native repeatability promise under normalized metadata, not byte equality
+with Python ZIP/HTML files. Structural/cell parity remains independently tested.
+
+## 4. Carried-forward scope dispositions
+
+| Capability | Disposition for this native plan | Required mapping |
+|---|---|---|
+| PyMC-dependent Bayesian APIs | NON_PORT | Keep accepted Bayesian cone; do not exclude that native capability with the rest of the module |
+| Network provider SDK adapters | NON_PORT | File/in-memory inputs still supported; any consumed snapshot/digest model is mapped separately |
+| Plotly/Bokeh-specific backends | NON_PORT | Selected visual capabilities mapped to ImPlot/HTML with explicit fidelity differences |
+| Browser-driven PDF renderer | NON_PORT | HTML delivery does not imply PDF feature parity |
+| Python entry-point discovery | NON_PORT | Native explicit catalog registration only |
+| NumPyBackend implementation | Native equivalent | Native execution is the backend; map supported dispatch and validators, do not discard their observable semantics |
+| Python bindings/wheels | Outside current native delivery target | No drop-in Python-package claim; separate scope decision required for a binding iteration |
+
+Do not add factor inference/calendar, custom renderer or other discovered
+public capabilities to this table by omission. The master ledger records
+individual mappings/deferrals and their effect on completion.
+
+## 5. Exit
+
+88a–93 accepted for the frozen selected scope; cross-domain integration,
+report/runtime behavior, native installed consumer and supported platform
+matrix demonstrated; all exclusions and remaining gaps explicit. Full native
+port closure is distinct from Python package replacement or actual release.

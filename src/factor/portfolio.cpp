@@ -1,15 +1,18 @@
 #include <fincore/factor/portfolio.hpp>
 
+#include <fincore/detail/factor_compute.hpp>
 #include <fincore/factor/exceptions.hpp>
 
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <limits>
 #include <map>
 #include <optional>
 #include <set>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -61,7 +64,12 @@ int period_days(const std::string_view label) {
         int component = 0;
         while (index < label.size() && label[index] >= '0' &&
                label[index] <= '9') {
-            component = component * 10 + (label[index] - '0');
+            const int digit = label[index] - '0';
+            if (component > (std::numeric_limits<int>::max() - digit) / 10) {
+                throw factor_data_error{
+                    "period label must fit in a positive day count"};
+            }
+            component = component * 10 + digit;
             ++index;
         }
         if (index == begin || index == label.size() || label[index] != 'D') {
@@ -72,6 +80,10 @@ int period_days(const std::string_view label) {
         if (component <= 0) {
             throw factor_data_error{
                 "period label must contain only positive day components"};
+        }
+        if (total > std::numeric_limits<int>::max() - component) {
+            throw factor_data_error{
+                "period label must fit in a positive day count"};
         }
         total += component;
     }
@@ -214,6 +226,101 @@ std::vector<factor_weight_row> daily_positions(
 
 }  // namespace
 
+namespace detail {
+
+factor_series_result factor_cumulative_returns_from_table(
+    const factor_return_table& returns,
+    const std::string_view period_label) {
+    const auto period =
+        std::find(returns.labels.begin(), returns.labels.end(), period_label);
+    if (period == returns.labels.end()) {
+        throw factor_data_error{"period label is absent"};
+    }
+    const std::size_t label =
+        static_cast<std::size_t>(period - returns.labels.begin());
+    return cumulative_from_table(returns, label);
+}
+
+factor_portfolio_inputs build_factor_portfolio_inputs_from_tables(
+    const prepared_factor_data& filtered_factor_data,
+    const prepared_factor_data& benchmark_source_data,
+    const std::string_view period_label, const bool long_short,
+    const bool group_neutral, const bool equal_weight,
+    const factor_return_table& returns,
+    const std::span<const factor_weight_row> weights) {
+    if (weights.size() != filtered_factor_data.rows.size()) {
+        throw factor_data_error{
+            "factor weights must match the prepared row count"};
+    }
+    factor_portfolio_inputs inputs;
+    const std::size_t label = period_column(filtered_factor_data, period_label);
+    inputs.returns = daily_returns_from_cumulative(
+        cumulative_from_table(returns, label));
+
+    std::vector<factor_weight_row> owned_weights(weights.begin(),
+                                                 weights.end());
+    inputs.positions = daily_positions(factor_positions(
+        filtered_factor_data, period_label, long_short, group_neutral,
+        equal_weight, {}, {}, std::move(owned_weights)));
+
+    const auto benchmark_label =
+        std::find(benchmark_source_data.forward_labels.begin(),
+                  benchmark_source_data.forward_labels.end(), period_label);
+    if (benchmark_label != benchmark_source_data.forward_labels.end()) {
+        prepared_factor_data benchmark_data = benchmark_source_data;
+        for (auto& row : benchmark_data.rows) {
+            row.factor = std::abs(row.factor);
+        }
+        const auto benchmark_weights =
+            factor_weights(benchmark_data, false, false, true);
+        const auto benchmark_table = factor_returns_from_weights(
+            benchmark_data,
+            std::span<const factor_weight_row>{benchmark_weights});
+        const std::size_t benchmark_column = period_column(
+            benchmark_data, period_label);
+        inputs.benchmark_returns = daily_returns_from_cumulative(
+            cumulative_from_table(benchmark_table, benchmark_column));
+    }
+    return inputs;
+}
+
+factor_portfolio_inputs build_factor_portfolio_inputs_from_outputs(
+    const prepared_factor_data& filtered_factor_data,
+    const prepared_factor_data& benchmark_source_data,
+    const std::string_view period_label,
+    const factor_return_table& returns,
+    const std::span<const factor_weight_row> positions) {
+    note_portfolio_input_build();
+    factor_portfolio_inputs inputs;
+    const std::size_t label = period_column(filtered_factor_data, period_label);
+    inputs.returns = daily_returns_from_cumulative(
+        cumulative_from_table(returns, label));
+    inputs.positions = daily_positions(
+        std::vector<factor_weight_row>(positions.begin(), positions.end()));
+
+    const auto benchmark_label =
+        std::find(benchmark_source_data.forward_labels.begin(),
+                  benchmark_source_data.forward_labels.end(), period_label);
+    if (benchmark_label != benchmark_source_data.forward_labels.end()) {
+        prepared_factor_data benchmark_data = benchmark_source_data;
+        for (auto& row : benchmark_data.rows) {
+            row.factor = std::abs(row.factor);
+        }
+        const auto benchmark_weights =
+            factor_weights(benchmark_data, false, false, true);
+        const auto benchmark_table = factor_returns_from_weights(
+            benchmark_data,
+            std::span<const factor_weight_row>{benchmark_weights});
+        const std::size_t benchmark_column = period_column(
+            benchmark_data, period_label);
+        inputs.benchmark_returns = daily_returns_from_cumulative(
+            cumulative_from_table(benchmark_table, benchmark_column));
+    }
+    return inputs;
+}
+
+}  // namespace detail
+
 std::vector<factor_weight_row> factor_positions(
     const prepared_factor_data& factor_data,
     const std::string_view period_label, const bool long_short,
@@ -227,23 +334,42 @@ std::vector<factor_weight_row> factor_positions(
                                  equal_weight);
     }
     const auto days = period_days(period_label);
+    detail::note_position_build();
     std::map<timestamp, std::vector<factor_weight_row>> trades;
-    std::set<std::string> assets;
+    std::set<std::string> asset_set;
     for (const auto& row : *weights) {
         trades[row.date].push_back(row);
-        assets.insert(row.asset);
+        asset_set.insert(row.asset);
+    }
+    const std::vector<std::string> assets(asset_set.begin(),
+                                          asset_set.end());
+    std::unordered_map<std::string, std::size_t> asset_index;
+    asset_index.reserve(assets.size());
+    for (std::size_t index = 0; index < assets.size(); ++index) {
+        asset_index.emplace(assets[index], index);
     }
     struct active_trade {
         timestamp expires;
         std::vector<factor_weight_row> weights;
     };
     std::vector<active_trade> active;
-    std::set<timestamp> all_dates;
+    std::vector<timestamp> all_dates;
+    all_dates.reserve(trades.size() * 2U);
     for (const auto& entry : trades) {
-        all_dates.insert(entry.first);
-        all_dates.insert(add_business_days(entry.first, days));
+        all_dates.push_back(entry.first);
+        all_dates.push_back(add_business_days(entry.first, days));
     }
+    std::sort(all_dates.begin(), all_dates.end());
+    all_dates.erase(std::unique(all_dates.begin(), all_dates.end()),
+                    all_dates.end());
+
     std::vector<factor_weight_row> positions;
+    if (!assets.empty() &&
+        all_dates.size() <=
+            std::numeric_limits<std::size_t>::max() / assets.size()) {
+        positions.reserve(all_dates.size() * assets.size());
+    }
+    std::vector<double> totals(assets.size());
     for (const timestamp date : all_dates) {
         const auto trade = trades.find(date);
         if (trade != trades.end()) {
@@ -255,20 +381,20 @@ std::vector<factor_weight_row> factor_positions(
                                         return entry.expires <= date;
                                     }),
                      active.end());
-        std::map<std::string, double> totals;
+        std::fill(totals.begin(), totals.end(), 0.0);
         for (const auto& entry : active) {
             for (const auto& row : entry.weights) {
-                totals[row.asset] += row.weight;
+                totals[asset_index.at(row.asset)] += row.weight;
             }
         }
         double gross = 0.0;
-        for (const auto& entry : totals) {
-            gross += std::abs(entry.second);
+        for (const double value : totals) {
+            gross += std::abs(value);
         }
-        for (const auto& asset : assets) {
+        for (std::size_t index = 0; index < assets.size(); ++index) {
             const double value =
-                gross > 0.0 ? totals[asset] / gross : 0.0;
-            positions.push_back({date, asset, value});
+                gross > 0.0 ? totals[index] / gross : 0.0;
+            positions.push_back({date, assets[index], value});
         }
     }
     return positions;
@@ -283,7 +409,7 @@ factor_series_result factor_cumulative_returns(
     auto filtered = filter_rows(factor_data, quantiles, groups, period_label);
     const auto table = factor_returns(filtered, long_short, group_neutral,
                                       equal_weight);
-    return cumulative_from_table(table, period_column(filtered, period_label));
+    return detail::factor_cumulative_returns_from_table(table, period_label);
 }
 
 factor_portfolio_inputs build_factor_portfolio_inputs(
@@ -292,36 +418,14 @@ factor_portfolio_inputs build_factor_portfolio_inputs(
     const bool group_neutral, const bool equal_weight,
     const std::vector<int>& quantiles,
     const std::vector<std::string>& groups) {
-    factor_portfolio_inputs inputs;
     auto filtered = filter_rows(factor_data, quantiles, groups, period_label);
-    const auto table = factor_returns(filtered, long_short, group_neutral,
-                                      equal_weight);
-    const std::size_t label = period_column(filtered, period_label);
-    inputs.returns = daily_returns_from_cumulative(
-        cumulative_from_table(table, label));
-
     const auto weights = factor_weights(filtered, long_short, group_neutral,
                                         equal_weight);
-    inputs.positions = daily_positions(factor_positions(
-        filtered, period_label, long_short, group_neutral, equal_weight, {},
-        {}, weights));
-
-    const auto benchmark_label =
-        std::find(factor_data.forward_labels.begin(),
-                  factor_data.forward_labels.end(), period_label);
-    if (benchmark_label != factor_data.forward_labels.end()) {
-        prepared_factor_data benchmark_data = factor_data;
-        for (auto& row : benchmark_data.rows) {
-            row.factor = std::abs(row.factor);
-        }
-        const auto benchmark_table =
-            factor_returns(benchmark_data, false, false, true);
-        const std::size_t benchmark_column =
-            period_column(benchmark_data, period_label);
-        inputs.benchmark_returns = daily_returns_from_cumulative(
-            cumulative_from_table(benchmark_table, benchmark_column));
-    }
-    return inputs;
+    const auto table = detail::factor_returns_from_weights(
+        filtered, std::span<const factor_weight_row>{weights});
+    return detail::build_factor_portfolio_inputs_from_tables(
+        filtered, factor_data, period_label, long_short, group_neutral,
+        equal_weight, table, std::span<const factor_weight_row>{weights});
 }
 
 }  // namespace fincore

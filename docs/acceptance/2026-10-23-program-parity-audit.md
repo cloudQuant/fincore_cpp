@@ -98,6 +98,7 @@ function route remains.
 | 4 — visualization | chart data and ImPlot adapter accepted; offscreen 2560x4800 render inspected after fixing axis/heatmap defects; sanitizer 734/734 | interactive window/input behaviour and Linux/Windows rendering **NOT_RUN** |
 | 5 — factor analysis | 77–87 slices accepted: prep/PIT, performance/inference/event windows, costs, analysis model (event/group models), full bounded research (calendar/precomputed/next-open labels, universe, signals/groups, segments, correlations, comparisons, multi-factor, weighted combinations), export, grouped tear data, four-section report, portfolio constructor, performance study | intraday labels; interactive grouped tear rendering |
 | 6 — report/runtime | 88a/89/90/91/92/93 accepted: schema, HTML, XLSX, risk/portfolio/transactions projections, runtime catalog, install/export consumer, usage/migration notes, factor event and group models | group tear rendering absent; Windows CI leg NOT_RUN |
+| 7 — latest fincore alignment | 94–99 accepted: oracle re-pin, research semantic corrections, compute-once reuse, streaming export, incremental SHA/dense positions, measured performance, x86_64 functional container, installed consumer | P94 baseline reconstructed from frozen B (owner-accepted variance); optional audit N/A |
 
 ## Gate status
 
@@ -123,7 +124,9 @@ The native program covers the accepted compute, model, report, runtime and
 packaging paths with 279 exact/renamed public routes, zero unresolved routes
 and 72 explicitly deferred or non-port routes. Still open outside the function
 ledger: intraday label formatting, on-screen grouped
-tear rendering, interactive ImPlot windows, and Windows CI. The runtime
-catalog remains a selected 44 of 273 operations. Program-level parity is
+tear rendering, interactive ImPlot windows, and Windows CI. Iteration 7
+(Phases 94–99) is accepted for the selected native contracts; its P94
+baseline was reconstructed from the frozen archive with owner acceptance.
+The runtime catalog remains a selected 44 of 273 operations. Program-level parity is
 therefore **partial and explicitly bounded**; this record is the authoritative
 close-out of Phase 92 and must be updated if any listed gap is closed.

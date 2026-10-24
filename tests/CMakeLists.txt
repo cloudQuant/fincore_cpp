@@ -11,7 +11,16 @@ add_executable(fincore_tests
     unit/build_contract_test.cpp
     unit/calendar_test.cpp
     unit/dataframe_test.cpp
+    unit/dataframe_semantics_test.cpp
+    unit/errors_test.cpp
+    unit/data_models_test.cpp
+    unit/extensions_snapshot_test.cpp
+    unit/extensions_discovery_test.cpp
     unit/basic_test.cpp
+    unit/metrics_helpers_test.cpp
+    unit/metrics_frequencies_test.cpp
+    unit/metrics_bayesian_pure_test.cpp
+    unit/numpy_mt19937_test.cpp
     unit/bayesian_cone_test.cpp
     unit/returns_test.cpp
     unit/drawdown_test.cpp
@@ -38,11 +47,18 @@ add_executable(fincore_tests
     unit/performance_disclosures_test.cpp
     unit/perf_stats_public_header_test.cpp
     unit/positions_test.cpp
+    unit/portfolio_models_test.cpp
     unit/transactions_test.cpp
+    unit/transaction_mapping_test.cpp
     unit/capacity_test.cpp
     unit/optimization_numerics_test.cpp
     unit/optimization_portfolio_test.cpp
     unit/chart_data_test.cpp
+    unit/viz_render_model_test.cpp
+    unit/viz_documents_test.cpp
+    unit/viz_html_builder_test.cpp
+    unit/report_renderers_test.cpp
+    unit/factor_calendar_test.cpp
     unit/factor_data_test.cpp
     unit/factor_performance_test.cpp
     unit/factor_costs_test.cpp
@@ -53,9 +69,19 @@ add_executable(fincore_tests
     unit/factor_tears_test.cpp
     unit/factor_pit_test.cpp
     unit/factor_portfolio_test.cpp
+    unit/factor_artifacts_test.cpp
+    unit/factor_serialization_test.cpp
+    unit/factor_timedelta_test.cpp
+    unit/factor_workflows_test.cpp
     unit/report_html_test.cpp
     unit/report_risk_test.cpp
     unit/runtime_test.cpp
+    unit/runtime_lifecycle_test.cpp
+    unit/runtime_operations_metrics_test.cpp
+    unit/runtime_operations_portfolio_test.cpp
+    unit/runtime_operations_factor_test.cpp
+    unit/runtime_utilities_test.cpp
+    unit/runtime_serialization_test.cpp
     unit/report_xlsx_test.cpp
     unit/report_portfolio_test.cpp
     unit/risk_garch_test.cpp
@@ -84,7 +110,11 @@ add_executable(fincore_tests
     unit/attribution_style_performance_umbrella_test.cpp
     unit/attribution_style_tilts_umbrella_test.cpp
     unit/attribution_fama_french_test.cpp
+    unit/attribution_facades_test.cpp
     unit/attribution_performance_test.cpp
+    unit/risk_report_serialization_test.cpp
+    unit/simulation_base_test.cpp
+    unit/operations_descriptors_test.cpp
     unit/attribution_style_regression_attribution_umbrella_test.cpp
     unit/stress_scenarios_test.cpp
     unit/correlation_breakdown_test.cpp

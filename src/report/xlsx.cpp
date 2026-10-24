@@ -51,8 +51,59 @@ xlsx_cell boolean_cell(const bool value) {
 std::string escape_xml(const std::string_view text) {
     std::string output;
     output.reserve(text.size());
-    for (const char character : text) {
-        switch (character) {
+    for (std::size_t index = 0; index < text.size();) {
+        const auto first = static_cast<unsigned char>(text[index]);
+        std::size_t length = 0U;
+        std::uint32_t codepoint = 0U;
+        if (first < 0x80U) {
+            length = 1U;
+            codepoint = first;
+        } else if (first >= 0xC2U && first <= 0xDFU) {
+            length = 2U;
+            codepoint = first & 0x1FU;
+        } else if (first >= 0xE0U && first <= 0xEFU) {
+            length = 3U;
+            codepoint = first & 0x0FU;
+        } else if (first >= 0xF0U && first <= 0xF4U) {
+            length = 4U;
+            codepoint = first & 0x07U;
+        }
+
+        bool valid_sequence = length != 0U && length <= text.size() - index;
+        for (std::size_t offset = 1U; valid_sequence && offset < length;
+             ++offset) {
+            const auto continuation =
+                static_cast<unsigned char>(text[index + offset]);
+            valid_sequence = continuation >= 0x80U && continuation <= 0xBFU;
+            if (valid_sequence) {
+                codepoint = (codepoint << 6U) | (continuation & 0x3FU);
+            }
+        }
+        if ((length == 3U && codepoint < 0x800U) ||
+            (length == 4U && codepoint < 0x10000U) ||
+            (codepoint >= 0xD800U && codepoint <= 0xDFFFU) ||
+            codepoint > 0x10FFFFU) {
+            valid_sequence = false;
+        }
+        if (!valid_sequence) {
+            output.push_back(' ');
+            ++index;
+            continue;
+        }
+
+        // Keep emitted text valid UTF-8 and within XML 1.0's character set.
+        const bool valid_xml_character =
+            codepoint == 0x9U || codepoint == 0xAU || codepoint == 0xDU ||
+            (codepoint >= 0x20U && codepoint <= 0xD7FFU) ||
+            (codepoint >= 0xE000U && codepoint <= 0xFFFDU) ||
+            (codepoint >= 0x10000U && codepoint <= 0x10FFFFU);
+        if (!valid_xml_character) {
+            output.push_back(' ');
+            index += length;
+            continue;
+        }
+
+        switch (codepoint) {
             case '&':
                 output += "&amp;";
                 break;
@@ -69,15 +120,14 @@ std::string escape_xml(const std::string_view text) {
                 output += "&apos;";
                 break;
             default:
-                if (static_cast<unsigned char>(character) < 0x20U &&
-                    character != '\t' && character != '\n' &&
-                    character != '\r') {
-                    output.push_back(' ');
+                if (codepoint < 0x80U) {
+                    output.push_back(static_cast<char>(codepoint));
                 } else {
-                    output.push_back(character);
+                    output.append(text.substr(index, length));
                 }
                 break;
         }
+        index += length;
     }
     return output;
 }
@@ -86,8 +136,11 @@ std::string column_name(std::size_t index) {
     std::string name;
     do {
         name.insert(name.begin(), static_cast<char>('A' + index % 26U));
-        index = index / 26U;
-    } while (index > 0U);
+        if (index < 26U) {
+            break;
+        }
+        index = index / 26U - 1U;
+    } while (true);
     return name;
 }
 
@@ -407,7 +460,9 @@ std::string render_xlsx(const report_document& document,
         "count=\"1\"><border/></borders><cellStyleXfs count=\"1\"><xf "
         "numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/></cellStyleXfs>"
         "<cellXfs count=\"1\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" "
-        "borderId=\"0\" xfId=\"0\"/></cellXfs></styleSheet>");
+        "borderId=\"0\" xfId=\"0\"/></cellXfs><cellStyles count=\"1\">"
+        "<cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/>"
+        "</cellStyles></styleSheet>");
 
     for (std::size_t index = 0; index < sheets.size(); ++index) {
         entries.emplace_back("xl/worksheets/sheet" +

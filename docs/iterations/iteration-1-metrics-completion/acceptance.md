@@ -1,87 +1,95 @@
-# Iteration 1 — Metrics Completion: Acceptance Document
+# Iteration 1 — Metrics Completion: Acceptance
 
-**Iteration ID:** iteration-1-metrics-completion
-**Status:** Template — completed and signed off per phase and at iteration close
+**Status:** PASS for the selected current native contracts, with the explicit
+exclusions, partial source models and historical variances below.
+The [shared gates](../delivery-contract.md#5-execution-and-evidence-gates)
+apply to native implementation; Phase 39 separately supplies baseline evidence.
 
-## 1. Standard Per-Phase Gate (applies to Phases 38–52)
 
-Each phase is accepted only when **all** of the following hold, with evidence
-retained under a unique `/tmp/fincore-phase<N>-*` root:
+Primary close-out: 2026-10-24, Codex main agent. Candidate is dirty Git HEAD
+`4859386ff8c260aa241553da4f0aca359d895517` plus the 305-file native snapshot
+`ef05555c5e7e0b39e385944b7b2b40a25a8d4710f1e8351625f37f0578083e7f`. A short `ef05555c5e7e` below names that snapshot, not a commit.
+The [candidate record][C] and [exact clause review][R] supply the execution
+results and the interpretation of each clause. Checked boxes apply to those
+explicit native contracts; they do not accept an excluded Python facade,
+unexecuted backend, or unsupported whole-class parity. Raw FAIL/GAP evidence
+retains its original status in [the resolution record][D].
 
-- [ ] Plan doc committed (`docs/plans/<date>-phase-N-*.md`) with exact-signature
-      constraints and the exact-index commit gate.
-- [ ] Design doc committed, containing a clean detached Python oracle run
-      (Anaconda base interpreter, pinned fincore checkout) with hex-float
-      goldens and edge-case result classes.
-- [ ] Clean-tree AppleClang build; full CTest run green, no regressions in
-      the previously accepted phases.
-- [ ] Homebrew LLVM 22 ASan+UBSan run green on the phase's new tests and the
-      full suite.
-- [ ] Exact-index gate used before every commit; staging-scope evidence
-      directory retained.
-- [ ] Acceptance record committed (`docs/acceptance/...`) and README ledger
-      section updated.
+## 1. Preparatory acceptance
 
-## 2. Iteration-Specific Acceptance Items
+- [x] Phase 38 uses the existing exact declaration and original pin; tests
+      cover raw/clean n, n=19/20/49/50, constant/near-constant and NaN/±inf
+      returns/risk-free, selector precedence, input order and ownership.
+- [x] Fresh Phase 38 full suite/sanitizers, acceptance record and README entry
+      exist. A committed implementation alone does not pass this gate.
+- [x] Phase 39 records full old/new source/environment identities and import
+      paths, paired outputs before replacement, classified drift and zero
+      unresolved dependency drift; script/fixture/output hashes retained.
+- [x] Phase 39 capability ledger reconciles exports, catalog, direct modules
+      and consumers. Benchmark baseline and supported-platform decision exist.
 
-### Phase 38 close-out
-- [ ] Clean-oracle run re-executed (not reusing the design-doc run) covering:
-      raw-count gates 0–4, dampening, clamp boundaries at n=19/20/49/50,
-      zero-std NaN/+inf/−inf classes, order-sensitivity fixtures.
-- [ ] Working-tree `adjusted_sharpe_ratio` code committed via exact-index
-      gate; tree clean at phase head.
+## 2. Behavior acceptance
 
-### Phase 39 oracle re-pin
-- [ ] Fresh detached checkout of fincore `dev@4b8f31b`; old pin `2354bb5`
-      and new pin SHA recorded in the design doc.
-- [ ] Full C++ suite re-run against regenerated goldens; drift log committed
-      with every item classified (`no-drift` / `re-baselined` / `blocked-on`).
-- [ ] Zero unresolved drift items at phase close.
+- [x] 40–47: source-correct canonical names and formulas; fixtures distinguish
+      arithmetic MAR from CAGR and left-tail conditional Sharpe from an
+      above-cutoff implementation. Alias dispositions are explicit.
+- [x] 42/48: special-function/regression budgets declared numerically before
+      implementation; exact structural and nonfinite classes preserved.
+- [x] 49: objective evaluation on fixed θ values, boundary/nonconvergence
+      cases and final optimizer result satisfy the declared budget; repeated
+      native runs satisfy the stated reproducibility contract.
+- [x] 50: row order, every field, timestamps and unrecovered episodes match
+      oracle mapping; underwater series matches the accepted native kernel;
+      owned results survive input destruction.
+- [x] 51: names, inclusive/exclusive date boundaries, empty windows and
+      historical-data pin asserted.
+- [x] 52: all bootstrap/distribution routes mapped; identical resampling
+      indices exercise numeric parity; seeded native runs repeat; no NumPy
+      stream equality claimed without explicit matching evidence.
+- [x] 52b: weekly/monthly consecutive, residual rolling/aligned, turtle and
+      remaining discovered capabilities have implemented mappings or dated
+      explicit dispositions. No unexplained `GAP` is closed by omission.
 
-### Phase 50 (drawdown table)
-- [ ] Table row count, ordering, and every field matches the oracle table on
-      the design-doc fixture at exact parity (hex-float where numeric,
-      exact-match where ordinal/date).
-- [ ] Underwater series matches the existing native drawdown series
-      (consistency identity asserted in tests).
+## 3. Iteration close
 
-### Phase 52 (bootstrap perf_stats)
-- [ ] Deterministic seeding contract: two runs with the same seed produce
-      bit-identical results; seed handling matches oracle semantics.
-- [ ] Bootstrap variant reuses Phases 20–22 primitives (asserted by include
-      graph, not duplicated code).
+- [x] Every assigned phase has a public route/test/oracle/acceptance mapping.
+- [x] Full registered CTest and ASan+UBSan pass on the recorded candidate;
+      public consumer compilation and ownership checks pass; durable evidence
+      is retrievable. Identical candidate evidence may be reused.
+- [x] Metric domain coverage explicitly lists outstanding Phases 63–64 and
+      other deferred rows; no premature full-domain parity claim.
+- [x] README trace is updated; Git delivery status is recorded separately.
 
-## 3. Iteration-Level Definition of Done
+## 4. Current-candidate sign-off
 
-- [ ] All phases 38–52 accepted per §1 and §2.
-- [ ] Public API parity audit: enumerate `fincore/metrics/*.py` public
-      functions (minus `bayesian.py`) and the C++ headers; every Python
-      function either has a C++ counterpart or appears in the roadmap's
-      non-port list. Audit table committed in the final acceptance record.
-- [ ] Clean-tree build + full CTest + one ASan/UBSan run at the iteration
-      head commit (recorded as the iteration-head evidence, distinct from
-      per-phase runs).
-- [ ] README ledger contains one section per phase with commit chains and
-      fresh-build evidence.
-- [ ] All iteration commits pushed to origin.
-
-## 4. Sign-Off Record
-
-| Item | Date | Commit | Evidence root | Accepted by |
+| Phase | Candidate SHA | Oracle/fixture manifest | Status | Durable evidence / reviewer |
 |---|---|---|---|---|
-| Phase 38 | | | | |
-| Phase 39 | | | | |
-| Phase 40 | | | | |
-| Phase 41 | | | | |
-| Phase 42 | | | | |
-| Phase 43 | | | | |
-| Phase 44 | | | | |
-| Phase 45 | | | | |
-| Phase 46 | | | | |
-| Phase 47 | | | | |
-| Phase 48 | | | | |
-| Phase 49 | | | | |
-| Phase 50 | | | | |
-| Phase 51 | | | | |
-| Phase 52 | | | | |
-| Iteration head | | | | |
+| 38 | `ef05555c5e7e` | [Source][M], [fixtures][O] | PASS selected native scope | [Clause evidence][R], [candidate][C]; Codex main |
+| 39 | `ef05555c5e7e` | [Source][M], [fixtures][O] | PASS current evidence; historical ordering variance | [Clause evidence][R], [candidate][C]; Codex main |
+| 40 | `ef05555c5e7e` | [Source][M], [fixtures][O] | PASS selected native scope | [Clause evidence][R], [candidate][C]; Codex main |
+| 41 | `ef05555c5e7e` | [Source][M], [fixtures][O] | PASS selected native scope | [Clause evidence][R], [candidate][C]; Codex main |
+| 42 | `ef05555c5e7e` | [Source][M], [fixtures][O] | PASS selected native scope | [Clause evidence][R], [candidate][C]; Codex main |
+| 43 | `ef05555c5e7e` | [Source][M], [fixtures][O] | PASS selected native scope | [Clause evidence][R], [candidate][C]; Codex main |
+| 44 | `ef05555c5e7e` | [Source][M], [fixtures][O] | PASS selected native scope | [Clause evidence][R], [candidate][C]; Codex main |
+| 45 | `ef05555c5e7e` | [Source][M], [fixtures][O] | PASS selected native scope | [Clause evidence][R], [candidate][C]; Codex main |
+| 46 | `ef05555c5e7e` | [Source][M], [fixtures][O] | PASS selected native scope | [Clause evidence][R], [candidate][C]; Codex main |
+| 47 | `ef05555c5e7e` | [Source][M], [fixtures][O] | PASS selected native scope | [Clause evidence][R], [candidate][C]; Codex main |
+| 48 | `ef05555c5e7e` | [Source][M], [fixtures][O] | PASS selected native scope | [Clause evidence][R], [candidate][C]; Codex main |
+| 49 | `ef05555c5e7e` | [Source][M], [fixtures][O] | PASS selected native scope | [Clause evidence][R], [candidate][C]; Codex main |
+| 50 | `ef05555c5e7e` | [Source][M], [fixtures][O] | PASS selected native scope | [Clause evidence][R], [candidate][C]; Codex main |
+| 51 | `ef05555c5e7e` | [Source][M], [fixtures][O] | PASS selected native scope | [Clause evidence][R], [candidate][C]; Codex main |
+| 52 | `ef05555c5e7e` | [Source][M], [fixtures][O] | PASS selected native scope | [Clause evidence][R], [candidate][C]; Codex main |
+| 52b | `ef05555c5e7e` | [Source][M], [fixtures][O] | PASS selected native scope | [Clause evidence][R], [candidate][C]; Codex main |
+| Iteration close | `ef05555c5e7e` | [Source][M], [fixtures][O] | PASS selected native scope | [Clause evidence][R], [candidate][C]; Codex main |
+
+Named DEFERRED/NON_PORT routes and partial source classes remain visible in
+the [master capability ledger](../capability-ledger.tsv) and its primary
+disposition input. This is a current native-scope close-out; historical phase
+records keep their original candidate identities and statuses. No hosted CI,
+Windows support, full Python-package parity or external publication is claimed.
+
+[C]: ../../acceptance/2026-10-23-revised-plan-candidate-acceptance.md
+[R]: ../../acceptance/2026-10-23-revised-plan-checklist-review.md
+[D]: ../../acceptance/2026-10-23-revised-plan-evidence-resolutions.md
+[M]: ../../evidence/revised-plan-20261023/candidate/native-source-manifest.json
+[O]: ../../evidence/revised-plan-20261023/historical-oracles/phase-manifest.csv

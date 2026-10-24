@@ -57,8 +57,14 @@ TEST(PerformanceCashflows, MatchesPythonOracleForLedgerPaths) {
     EXPECT_NEAR(values[1], 0.0, 1e-12);
     EXPECT_NEAR(values[2], 0.0714285714285714, 1e-12);
     EXPECT_NEAR(values[3], 0.04166666666666674, 1e-12);
+
+    double composed = 1.0;
+    for (const double value : values) {
+        composed *= 1.0 + value;
+    }
     EXPECT_NEAR(fincore::cashflow_adjusted_twr(valuations, ledger),
-                0.1160714285714286, 1e-12);
+                composed - 1.0, 1e-12);
+    EXPECT_NEAR(composed - 1.0, 0.1160714285714286, 1e-12);
 }
 
 TEST(PerformanceCashflows, GrossFeeTreatmentMatchesPythonOracle) {
@@ -165,6 +171,29 @@ TEST(PerformanceCashflows, PreservesTerminalLossAndValidationErrors) {
     EXPECT_THROW(static_cast<void>(fincore::cashflow_adjusted_returns(
                      valuations_fixture(), ledger_fixture(), std::nullopt,
                      fincore::fee_treatment::net, embedded_selector)),
+                 fincore::input_error);
+}
+
+TEST(PerformanceCashflows, RejectsMissingValuationsAndOffIndexCashflows) {
+    auto missing_valuation = valuations_fixture();
+    missing_valuation.get_column<double>("value")[2] =
+        std::numeric_limits<double>::quiet_NaN();
+    EXPECT_THROW(static_cast<void>(fincore::cashflow_adjusted_returns(
+                     missing_valuation)),
+                 fincore::input_error);
+    EXPECT_THROW(static_cast<void>(fincore::cashflow_adjusted_twr(
+                     missing_valuation)),
+                 fincore::input_error);
+
+    auto off_index_flow = fincore::make_series(
+        {fincore::utc_timestamp(2021, 1, 6)}, "amount", {1.0});
+    off_index_flow.load_column<double>("timing", {0.0},
+                                       hmdf::nan_policy::dont_pad_with_nans);
+    EXPECT_THROW(static_cast<void>(fincore::cashflow_adjusted_returns(
+                     valuations_fixture(), off_index_flow)),
+                 fincore::input_error);
+    EXPECT_THROW(static_cast<void>(fincore::cashflow_adjusted_twr(
+                     valuations_fixture(), off_index_flow)),
                  fincore::input_error);
 }
 

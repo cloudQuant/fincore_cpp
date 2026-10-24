@@ -62,3 +62,9 @@ phase	iteration	scope	evidence	status	notes
 91	6	portfolio/risk builders	phase-91-portfolio-report; phase-91-portfolio-report-completion; phase-91-transactions	accepted	
 92	6	runtime core and catalog	phase-92-runtime-catalog	accepted_bounded	44 of 273 operations selected
 93	6	packaging/consumer/notes	phase-93-usage-packaging; phase-93-ubuntu-ci; iteration-6-xlsx-packaging	accepted_bounded	macOS and Ubuntu legs reproduced; Windows NOT_RUN
+94	7	base, oracle and benchmark freeze	iteration-7-latest-fincore-alignment; iteration-7 acceptance	accepted_bounded	B baseline reconstructed post-optimization
+95	7	research semantics and target lookup	iteration-7-latest-fincore-alignment; iteration-7 acceptance	accepted	processed-correlation parity
+96	7	compute-once analysis/research reuse	iteration-7 acceptance	accepted	counters and full-output parity
+97	7	streaming research export	iteration-7 acceptance	accepted	byte-identical collecting path
+98	7	incremental SHA and dense positions	iteration-7 acceptance	accepted	v2 digest stable; independent reducer
+99	7	integration audit and platform matrix	iteration-7 acceptance	accepted	all gates PASS; C4 865/865 on four platforms; owner accepted P94 variance

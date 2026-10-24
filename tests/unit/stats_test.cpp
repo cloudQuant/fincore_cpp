@@ -1,4 +1,5 @@
 #include <fincore/metrics/stats.hpp>
+#include <fincore/detail/stutzer.hpp>
 
 #include <gtest/gtest.h>
 
@@ -596,13 +597,43 @@ TEST(Stats, StutzerIndexHandlesConstantsOverflowAndInfinity) {
     const auto negative_inf = fincore::make_series(
         hurst_index(4), "returns", {-infinity, 0.01, -0.02, 0.03});
 
-    EXPECT_NEAR(fincore::stutzer_index(positive), 1.0, 1e-6);
-    EXPECT_NEAR(fincore::stutzer_index(negative), -1.0, 1e-6);
+    const double positive_index = fincore::stutzer_index(positive);
+    const double negative_index = fincore::stutzer_index(negative);
+    EXPECT_NEAR(positive_index, 1.0, 1e-6);
+    EXPECT_NEAR(negative_index, -1.0, 1e-6);
+    EXPECT_EQ(positive_index, fincore::stutzer_index(positive));
+    EXPECT_EQ(negative_index, fincore::stutzer_index(negative));
     EXPECT_NEAR(fincore::stutzer_index(overflow), -0.7294427821824202, 1e-6);
     EXPECT_NEAR(fincore::stutzer_index(positive_inf), 0.8242437395987398,
                 1e-6);
     EXPECT_NEAR(fincore::stutzer_index(negative_inf), -0.7585275606810086,
                 1e-6);
+}
+
+TEST(Stats, StutzerObjectiveMatchesIndependentFixedThetaReferences) {
+    const std::vector<double> excess_returns{0.012, -0.007, 0.003, 0.019};
+    // References computed independently with 80-digit decimal exp/log.
+    const auto expect_reference = [&](double theta, double expected) {
+        const double actual =
+            fincore::detail::stutzer_objective(theta, excess_returns);
+        const double tolerance = 1e-12 + 1e-10 * std::fabs(expected);
+        EXPECT_LE(std::fabs(actual - expected), tolerance)
+            << "theta=" << theta;
+    };
+
+    expect_reference(-13.5, -0.08239988263567560188588145519324124);
+    expect_reference(8.25, 0.05890883641899698073079053200563730);
+}
+
+TEST(Stats, StutzerObjectivePreservesNonfiniteFallback) {
+    const std::vector<double> overflowing_excess{1.0};
+    const std::vector<double> infinite_excess{
+        std::numeric_limits<double>::infinity()};
+
+    EXPECT_DOUBLE_EQ(
+        fincore::detail::stutzer_objective(1000.0, overflowing_excess), 0.0);
+    EXPECT_DOUBLE_EQ(fincore::detail::stutzer_objective(0.0, infinite_excess),
+                     0.0);
 }
 
 TEST(Stats, StutzerIndexSupportsSelectorsAndRejectsNul) {

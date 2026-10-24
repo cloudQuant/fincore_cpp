@@ -1,115 +1,128 @@
 # Native Usage, Packaging and Migration Notes
 
-## Requirements
+The delivery is a C++23/DataFrame library. It has no Python bindings or
+`import fincore` compatibility. Use the [current candidate acceptance](../acceptance/2026-10-23-revised-plan-candidate-acceptance.md)
+for measured compiler/platform/test results and the [capability ledger](../iterations/capability-ledger.tsv)
+for exact route mappings and exclusions. Historical counts in older phase
+records describe those earlier candidates.
 
-- CMake 3.25 or newer and a C++23 compiler (validated with Apple clang
-  17.0.0 / Xcode 26.5 on macOS arm64).
-- A local checkout of cloudQuant/DataFrame. Its path is a cache variable
-  (`FINCORE_DATAFRAME_SOURCE_DIR`), not an installed dependency.
-- Optional: local ImPlot and Dear ImGui checkouts plus
-  `-DFINCORE_BUILD_IMPLOT=ON` (and `-DFINCORE_BUILD_IMPLOT_DEMO=ON` for the
-  demo). GUI headers never enter the core library.
-- GoogleTest is fetched only when `FINCORE_BUILD_TESTING=ON` (default).
+## Build and install
 
-## Build, test and install
+CMake 3.25+ and a C++23 compiler are required. Pin DataFrame to
+`90aa4acf6437d5a34f7ab8dfb6e9250c3d53d230`. Either provide an existing
+`DataFrame::DataFrame` target, set `FINCORE_DATAFRAME_SOURCE_DIR` for a source
+build, or install DataFrame first so that CMake can find its package:
 
 ```sh
+cmake -S /path/to/DataFrame -B dataframe-build \
+  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/path/to/prefix \
+  -DHMDF_TESTING=OFF -DHMDF_EXAMPLES=OFF -DHMDF_BENCHMARKS=OFF
+cmake --build dataframe-build -j2
+cmake --install dataframe-build
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
-  -DFINCORE_DATAFRAME_SOURCE_DIR=/path/to/DataFrame
-cmake --build build -j
+  -DCMAKE_PREFIX_PATH=/path/to/prefix -DCMAKE_INSTALL_PREFIX=/path/to/prefix
+cmake --build build -j2
 ctest --test-dir build --output-on-failure
-cmake --install build --prefix /path/to/prefix --component fincore
+cmake --install build --component fincore
 ```
 
-`--component fincore` installs only the library, headers and CMake package
-files; omitting it also runs the fetched GoogleTest install rules. The
-installed package exports the target `fincore::fincore` and version `0.1.0`.
+The `fincore` component installs the core library, public headers, CMake
+config/version/targets, report asset and notices. GoogleTest is needed only
+when `FINCORE_BUILD_TESTING=ON`; offline test builds require its source to be
+prepopulated, for example with `FETCHCONTENT_SOURCE_DIR_GOOGLETEST`. An offline
+build with supplied dependencies is different from the first dependency download.
 
-## Consuming the installed package
+Enable `FINCORE_BUILD_IMPLOT=ON` with `FINCORE_IMGUI_SOURCE_DIR` and
+`FINCORE_IMPLOT_SOURCE_DIR` for the optional adapter. Pins are ImGui
+`46d39d56febc2a00bdd2270dc88c8a13f2a0441a` and ImPlot
+`7eeb9168d2e5e6b14e266d8782ecf7e649dfc3a4`. Install that separate component with
+`cmake --install build --component implot`. The demo additionally needs
+`FINCORE_BUILD_IMPLOT_DEMO=ON` and its platform window/OpenGL dependencies.
+Core headers do not require GUI headers.
+
+## Consume a relocated installed prefix
 
 ```cmake
 cmake_minimum_required(VERSION 3.25)
 project(consumer LANGUAGES CXX)
-set(CMAKE_CXX_STANDARD 23)
-set(FINCORE_DATAFRAME_SOURCE_DIR "/path/to/DataFrame" CACHE PATH "")
-add_subdirectory("${FINCORE_DATAFRAME_SOURCE_DIR}" dataframe EXCLUDE_FROM_ALL)
-find_package(fincore 0.1 CONFIG REQUIRED)
+find_package(fincore 0.1 CONFIG REQUIRED COMPONENTS core)
 add_executable(consumer main.cpp)
 target_link_libraries(consumer PRIVATE fincore::fincore)
 ```
 
-The consumer supplies DataFrame; `fincoreConfig.cmake` only describes the
-native library target. A verified run at this revision prints:
+Configure the consumer with `-DCMAKE_PREFIX_PATH=/relocated/prefix`.
+`fincoreConfig.cmake` resolves the installed DataFrame dependency automatically
+unless its target already exists. Consumers need neither source checkout.
+GUI consumers request `COMPONENTS implot` and link `fincore::implot` in addition
+to the core as needed. A missing required component fails configuration;
+`OPTIONAL_COMPONENTS implot` can be queried through `fincore_implot_FOUND`.
 
-```
-version=0.1.0 sharpe=6.928203230275507
-```
+The executable public-only examples used for acceptance are under
+`tests/consumer/`. `tools/verify_installed_package.py` builds in a fresh scratch
+root, relocates the prefix, makes source/build roots unavailable, and executes
+headless and optional GUI consumers plus negative component checks. C++ ABI
+compatibility across arbitrary compilers/standard libraries is not guaranteed;
+build DataFrame, fincore and the consumer with compatible toolchains.
 
-## Data and error conventions
+## Data, runtime and report contracts
 
-- Timestamps are UTC nanoseconds (`fincore::timestamp`); `utc_timestamp`
-  builds them. DataFrames use a sorted unique `timestamp` index.
-- Numeric columns are genuine `double` columns. String metadata (symbols,
-  groups, periods) uses typed fields in owning model structs instead of
-  object-dtype DataFrame columns.
-- Validation failures use `fincore::input_error`; factor contracts use
-  `fincore::factor_data_error` (loss overruns derive from it); unknown
-  runtime operations use `operation_resolution_error`.
-- Result models own their vectors and frames; copying a model or report and
-  mutating the copy never changes the source.
-- The runtime catalog exposes 20 selected native operations under pinned
-  source IDs; `builtin_catalog()` returns them and `run`/`plan`/`batch`
-  require an operation request and typed `runtime_inputs`.
+Timestamps are UTC nanoseconds (`fincore::timestamp`); `utc_timestamp` builds
+them. Labelled frames generally require sorted unique indices. Native numeric
+columns are `double`; assets, groups, horizons and metadata use typed owning
+fields. Multi-input alignment follows each API's declared strict, inner or
+outer-drop-NaN policy. MWR is positional; XIRR sorts and aggregates UTC days
+and uses /365. Validation uses native exceptions or explicit status values.
 
-## Migration from the Python package
+Result models own their data. `portfolio_inputs` preserves absent versus
+supplied-empty optional tables and copies at ingestion/materialization.
+Factor processing is `prepare_*` → `analyze_factor` → report/chart projection;
+renderers consume already computed values. Requested full-universe group
+snapshots differ from independent subgroup analyses.
 
-There are no Python bindings and no drop-in `import fincore` surface. The
-native design maps capabilities with typed C++ models:
+`builtin_catalog()` contains 48 selected exact source operation IDs.
+`plan` is a flat ordered request list, not a dependency graph. `run`/`batch`
+use typed inputs; config is provenance and is not forwarded implicitly.
+Sessions cache deterministic operations only, own inputs/outputs and reject
+execution after close. The ledger lists each omitted operation separately.
 
-- pandas Series/DataFrames become `fincore::dataframe` (one or more double
-  columns) or typed result structs (reports, factor models, risk estimates).
-- Some routes are renamed: `cum_returns` → `cumulative_returns`,
-  `cum_returns_final` → `cumulative_return`, `value_at_risk` →
-  `historical_value_at_risk`, `treynor_ratio` → `cal_treynor_ratio`, `extract_pos`/`normalize_and_stack_positions`
-  → `stack_positions`, `positions` (factor analysis) → `factor_positions`,
-  `research_capabilities` → `research_capabilities_report`, `optimize` →
-  `optimize_portfolio`, and the simulation bootstrap/statistics helpers to
-  their native equivalents.
-- [The program parity audit](../acceptance/2026-10-23-program-parity-audit.md)
-  and its machine-readable ledger list exact, renamed, deferred, non-port
-  and unresolved routes. Read them before migrating a workflow: event
-  cumulative returns, three portfolio round-trip helpers and two attribution
-  helpers are not ported.
-- Reports are shared `report_document` values rendered by the offline HTML
-  and XLSX writers; there is no matplotlib tear-sheet renderer.
-- The factor runtime path is `prepare_*` → `analyze_factor` → report/research;
-  models are compute-once and renderers never recalculate values.
+Shared report schema 2 includes units, legends and offline asset text. HTML
+and XLSX have explicit missing/nonfinite policies and do not promise Python
+byte parity. `report_html_options.language` accepts `en` or `zh`; standard
+labels are localized while caller text and computed values are preserved.
+The offline ECharts 5.5.0 backend embeds the pinned asset. Its SHA-256 is
+`42f8329d989b6f6539dd2b15bbdf0d82025762ac112fbb60dc57b27d7bcf3946`;
+license and notices are installed with the core. The default inline SVG
+backend remains available.
 
-## Supported platforms and CI
+The native runtime serialization envelope is version 1, the report schema is
+version 2, and artifact bundle manifest is version 2; these are separate
+version domains. Runtime serialization supports its documented variant,
+including exact numeric tags, not arbitrary Python objects or a full factor
+model transport envelope. Artifact bundles optionally attach per-path media
+type/provenance descriptors. Writers calculate byte size and SHA-256 from
+actual bytes, reject unsafe/preexisting destinations and clean up their own
+partial outputs. Undescribed legacy artifacts default to
+`application/octet-stream` with empty provenance.
 
-- macOS arm64 is the evidenced platform (722/722 Release suite,
-  722/722 ASan+UBSan, install/export and downstream consumer).
-- Linux and Windows are **not validated locally**. A GitHub Actions workflow
-  (`.github/workflows/ci.yml`) builds and tests on `ubuntu-latest` and
-  `macos-latest`, checking out DataFrame at the pinned commit
-  `90aa4acf6437d5a34f7ab8dfb6e9250c3d53d230`. Its macOS steps were reproduced
-  in a clean clone (726/726); the Ubuntu leg has **not been executed** here,
-  so no Linux result is claimed.
-- Sanitizers are available via `FINCORE_ENABLE_ASAN` and
-  `FINCORE_ENABLE_UBSAN`. The full suite passes 722/722 under ASan+UBSan with
-  Homebrew LLVM 22.1.8 (Ninja Debug).
-- `benchmarks/factor_pipeline_benchmark.cpp` records the Phase 87 native
-  measurements
-  (`cmake --build build --target fincore_factor_benchmark`), but no automated
-  performance-regression gate is configured.
-- `examples/implot_dashboard.cpp` supports
-  `FINCORE_IMPLOT_CAPTURE=/tmp/dashboard.ppm` to render a hidden window
-  offscreen; PPM can be converted to PNG for visual inspection.
+## Validation and migration limits
 
-## Third-party notices
+Use the candidate record for macOS Release/ASan+UBSan, local Linux x86_64,
+installed consumers and visual evidence. Local QEMU execution is not hosted
+CI; Windows and Linux GUI are not claimed. Sanitizers are enabled with
+`FINCORE_ENABLE_ASAN` and `FINCORE_ENABLE_UBSAN`; the macOS sanitizer gate uses
+Homebrew LLVM rather than inferring success from an AppleClang build.
 
-- DataFrame (cloudQuant) is the required consumer-provided data structure.
-- GoogleTest is fetched for the test build only (BSD-3-Clause).
-- ImPlot and Dear ImGui are optional, GUI-only dependencies (MIT).
-- The Python report asset ECharts is not bundled; HTML uses inline SVG, so
-  no asset hash/notice is shipped.
+The benchmark runner covers scalar, batched, rolling, portfolio and panel
+workloads with separate conversion/compute/copy/render/I/O measurements,
+repetitions and per-process RSS. Retained comparator failures and documented
+tradeoffs are not speedup claims. Full Python/native factor-model and report
+costs are not equivalent workloads.
+
+Read the [scope decisions](../acceptance/2026-10-23-revised-plan-scope-decisions.md)
+before migrating Python workflows. Network SDKs, Python discovery/object
+facades and backend artist objects are excluded; specialized plots, calendar
+helpers and additional runtime registrations have individually named deferred
+rows. Native GARCH fits reject nonfinite/zero-variance observations after NaN
+cleaning, and IRR rejects a returned rate whose normalized NPV residual exceeds
+1e-10. These explicit failure policies can differ from Python edge behavior.
+Native capability acceptance does not establish GIPS compliance.

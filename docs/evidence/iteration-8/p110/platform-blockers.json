@@ -1,0 +1,25 @@
+{
+  "schema_version": "1",
+  "phase": "P110",
+  "ubuntu_arm64": {
+    "status": "EXTERNAL_BLOCKED",
+    "runner": "Docker Desktop ubuntu:24.04 linux/arm64",
+    "attempts": [
+      "GCC 13 Release -O3: stopped after the DataFrame template compile did not complete in the execution window",
+      "GCC 13 Release -O1: stopped after 20+ minutes with ~78/131 test objects",
+      "Clang 18 Release -O1: stopped after ~20 minutes with 15/243 objects"
+    ],
+    "missing": "a native Ubuntu arm64 runner or a dedicated longer container build budget; no CTest result was produced"
+  },
+  "ubuntu_x86_64": {
+    "status": "EXTERNAL_BLOCKED",
+    "runner": "Docker Desktop linux/amd64 under Rosetta",
+    "attempt": "apt-get toolchain installation did not complete in 15+ minutes; the build was not started",
+    "missing": "a native Ubuntu x86_64 runner or a working prebuilt amd64 toolchain image; no CTest result was produced"
+  },
+  "windows": {
+    "status": "EXTERNAL_BLOCKED",
+    "missing": "a Windows runner; no Windows build or test was attempted"
+  },
+  "note": "The macOS arm64 Release and ASan+UBSan legs are the executed platform evidence. Linux/Windows rows are explicit blockers, not PASS."
+}

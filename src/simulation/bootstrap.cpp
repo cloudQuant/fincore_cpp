@@ -176,6 +176,23 @@ std::size_t random_index(std::mt19937_64& engine, const std::size_t bound) {
     return static_cast<std::size_t>(word % bound_as_word);
 }
 
+void validate_draw_indices(
+    const std::span<const std::vector<std::size_t>> draw_indices,
+    const std::size_t population_size) {
+    for (const auto& draw : draw_indices) {
+        if (draw.size() != population_size) {
+            throw input_error{
+                "bootstrap draw length must match the NaN-cleaned input population"};
+        }
+        for (const std::size_t index : draw) {
+            if (index >= population_size) {
+                throw input_error{
+                    "bootstrap draw index is outside the NaN-cleaned input population"};
+            }
+        }
+    }
+}
+
 double checked_mean(const std::vector<double>& values) {
     double mean = 0.0;
     for (std::size_t position = 0U; position < values.size(); ++position) {
@@ -289,6 +306,19 @@ double statistic_value(const std::vector<double>& sample,
     throw input_error{"unknown bootstrap statistic"};
 }
 
+double statistic_for_draw(const std::vector<double>& population,
+                          const std::span<const std::size_t> draw,
+                          const bootstrap_statistic statistic,
+                          std::vector<double>& sample) {
+    if (sample.size() != draw.size()) {
+        sample.resize(draw.size());
+    }
+    for (std::size_t position = 0; position < draw.size(); ++position) {
+        sample[position] = population[draw[position]];
+    }
+    return statistic_value(sample, statistic);
+}
+
 double require_finite_summary_value(const double value) {
     if (!std::isfinite(value)) {
         throw input_error{"bootstrap summary requires finite statistics"};
@@ -349,6 +379,37 @@ dataframe bootstrap_distribution(const dataframe& returns,
 
         dataframe result;
         result.load_index(ordinal_index(resample_count));
+        result.load_column<double>(bootstrap_statistic_column.data(), std::move(results),
+                                   hmdf::nan_policy::dont_pad_with_nans);
+        return result;
+    } catch (const std::bad_alloc&) {
+        throw input_error{"bootstrap allocation failed"};
+    } catch (const std::length_error&) {
+        throw input_error{"bootstrap allocation is not representable"};
+    }
+}
+
+dataframe bootstrap_distribution(
+    const dataframe& returns,
+    const std::span<const std::vector<std::size_t>> draw_indices,
+    const bootstrap_statistic statistic,
+    const std::string_view column) {
+    try {
+        const auto column_name = checked_column_name(column);
+        validate_statistic(statistic);
+        const auto retained = retained_values(require_double_column(returns, column_name));
+        validate_output_shape(draw_indices.size());
+        validate_draw_indices(draw_indices, retained.size());
+
+        std::vector<double> results;
+        results.reserve(draw_indices.size());
+        std::vector<double> sample(retained.size());
+        for (const auto& draw : draw_indices) {
+            results.push_back(statistic_for_draw(retained, draw, statistic, sample));
+        }
+
+        dataframe result;
+        result.load_index(ordinal_index(draw_indices.size()));
         result.load_column<double>(bootstrap_statistic_column.data(), std::move(results),
                                    hmdf::nan_policy::dont_pad_with_nans);
         return result;

@@ -1,5 +1,7 @@
 #include <fincore/simulation/bootstrap.hpp>
 
+#include "../fixtures/bootstrap_fixed_indices.hpp"
+
 #include <gtest/gtest.h>
 
 #include <array>
@@ -19,13 +21,49 @@ namespace {
 using bootstrap_function = fincore::dataframe (*) (
     const fincore::dataframe&, std::size_t, fincore::bootstrap_statistic,
     std::optional<std::uint64_t>, std::string_view);
+using bootstrap_draw_function = fincore::dataframe (*) (
+    const fincore::dataframe&,
+    std::span<const std::vector<std::size_t>>,
+    fincore::bootstrap_statistic,
+    std::string_view);
 
-static_assert(std::is_same_v<decltype(&fincore::bootstrap_distribution),
-                             bootstrap_function>);
+static_assert(std::is_same_v<
+              decltype(static_cast<bootstrap_function>(
+                  &fincore::bootstrap_distribution)),
+              bootstrap_function>);
+static_assert(std::is_same_v<
+              decltype(static_cast<bootstrap_draw_function>(
+                  &fincore::bootstrap_distribution)),
+              bootstrap_draw_function>);
 static_assert(std::is_same_v<decltype(fincore::bootstrap_statistic_column),
                              const std::string_view>);
 
 constexpr double tolerance = 1.0e-12;
+
+void expect_matches_python_fixture(
+    const double actual,
+    const bootstrap_fixed_indices_fixture::expected_number& expected) {
+    using bootstrap_fixed_indices_fixture::expected_class;
+    switch (expected.value_class) {
+    case expected_class::nan:
+        EXPECT_TRUE(std::isnan(actual));
+        return;
+    case expected_class::positive_infinity:
+        EXPECT_EQ(actual, std::numeric_limits<double>::infinity());
+        return;
+    case expected_class::negative_infinity:
+        EXPECT_EQ(actual, -std::numeric_limits<double>::infinity());
+        return;
+    case expected_class::finite:
+        ASSERT_TRUE(std::isfinite(actual));
+        EXPECT_LE(std::abs(actual - expected.value),
+                  bootstrap_fixed_indices_fixture::absolute_tolerance +
+                      bootstrap_fixed_indices_fixture::relative_tolerance *
+                          std::abs(expected.value));
+        return;
+    }
+    FAIL() << "unknown fixture value class";
+}
 
 void expect_schema(const fincore::dataframe& actual, const std::size_t row_count) {
     std::vector<fincore::timestamp> expected_index;
@@ -180,6 +218,97 @@ TEST(BootstrapDistribution, RepeatsNativeSeedButDoesNotRequireNumPyParity) {
 
     EXPECT_EQ(bootstrap_values(first), bootstrap_values(repeated));
     EXPECT_NE(bootstrap_values(first), bootstrap_values(distinct));
+}
+
+TEST(BootstrapDistribution, UsesExplicitDrawsOverNaNCleanedPositions) {
+    const auto returns = fincore::make_series(
+        {10, 20, 30, 40}, "returns",
+        {0.01, std::numeric_limits<double>::quiet_NaN(), 0.0, -0.02});
+    const std::vector<std::vector<std::size_t>> draws{
+        {0U, 0U, 0U}, {2U, 2U, 2U}, {0U, 1U, 2U},
+        {1U, 1U, 1U}, {2U, 0U, 2U}};
+
+    const auto input = fincore::bootstrap_distribution(
+        returns, std::span<const std::vector<std::size_t>>{draws},
+        fincore::bootstrap_statistic::mean);
+    expect_schema(input, draws.size());
+    const auto& means = bootstrap_values(input);
+    ASSERT_EQ(means.size(), draws.size());
+    EXPECT_DOUBLE_EQ(means[0], 0.01);
+    EXPECT_DOUBLE_EQ(means[1], -0.02);
+    EXPECT_NEAR(means[2], -1.0 / 300.0, tolerance);
+    EXPECT_DOUBLE_EQ(means[3], 0.0);
+    EXPECT_DOUBLE_EQ(means[4], -0.01);
+
+    const auto standard_deviations = fincore::bootstrap_distribution(
+        returns, std::span<const std::vector<std::size_t>>{draws},
+        fincore::bootstrap_statistic::sample_standard_deviation);
+    const auto& deviations = bootstrap_values(standard_deviations);
+    ASSERT_EQ(deviations.size(), draws.size());
+    EXPECT_DOUBLE_EQ(deviations[0], 0.0);
+    EXPECT_DOUBLE_EQ(deviations[1], 0.0);
+    EXPECT_NEAR(deviations[2], std::sqrt(0.00023333333333333334), tolerance);
+    EXPECT_DOUBLE_EQ(deviations[3], 0.0);
+    EXPECT_NEAR(deviations[4], std::sqrt(0.0003), tolerance);
+}
+
+TEST(BootstrapDistribution, ExplicitDrawsPreserveNoDrawAndValidateShapeIndicesAndSelector) {
+    const auto returns = nonconstant_returns();
+    const std::vector<std::vector<std::size_t>> no_draws;
+    const auto empty = fincore::bootstrap_distribution(
+        returns, std::span<const std::vector<std::size_t>>{no_draws},
+        fincore::bootstrap_statistic::mean);
+    expect_schema(empty, 0U);
+    EXPECT_TRUE(bootstrap_values(empty).empty());
+
+    const std::vector<std::vector<std::size_t>> short_draw{{0U, 1U}};
+    EXPECT_THROW(static_cast<void>(fincore::bootstrap_distribution(
+                     returns, std::span<const std::vector<std::size_t>>{short_draw},
+                     fincore::bootstrap_statistic::mean)),
+                 fincore::input_error);
+    const std::vector<std::vector<std::size_t>> out_of_range{{0U, 1U, 2U, 4U}};
+    EXPECT_THROW(static_cast<void>(fincore::bootstrap_distribution(
+                     returns, std::span<const std::vector<std::size_t>>{out_of_range},
+                     fincore::bootstrap_statistic::mean)),
+                 fincore::input_error);
+    EXPECT_THROW(static_cast<void>(fincore::bootstrap_distribution(
+                     returns, std::span<const std::vector<std::size_t>>{no_draws},
+                     static_cast<fincore::bootstrap_statistic>(99))),
+                 fincore::input_error);
+
+    const auto empty_input = fincore::make_series({}, "returns", {});
+    EXPECT_THROW(static_cast<void>(fincore::bootstrap_distribution(
+                     empty_input, std::span<const std::vector<std::size_t>>{no_draws})),
+                 fincore::input_error);
+}
+
+TEST(BootstrapDistribution, ExplicitDrawsMatchPinnedPythonStatisticsAndClasses) {
+    using namespace bootstrap_fixed_indices_fixture;
+    const auto returns =
+        fincore::make_series({10, 20, 30, 40}, "returns", simulation_returns);
+    const std::array<fincore::bootstrap_statistic, 7> statistics{
+        fincore::bootstrap_statistic::mean,
+        fincore::bootstrap_statistic::sample_standard_deviation,
+        fincore::bootstrap_statistic::median,
+        fincore::bootstrap_statistic::sharpe_ratio,
+        fincore::bootstrap_statistic::sortino_ratio,
+        fincore::bootstrap_statistic::minimum,
+        fincore::bootstrap_statistic::maximum,
+    };
+
+    for (std::size_t statistic = 0; statistic < statistics.size(); ++statistic) {
+        const auto actual = fincore::bootstrap_distribution(
+            returns, std::span<const std::vector<std::size_t>>{simulation_draws},
+            statistics[statistic]);
+        expect_schema(actual, simulation_draws.size());
+        const auto& values = bootstrap_values(actual);
+        ASSERT_EQ(values.size(), simulation_draws.size());
+        ASSERT_EQ(values.size(), simulation_samples[statistic].size());
+        for (std::size_t draw = 0; draw < values.size(); ++draw) {
+            expect_matches_python_fixture(values[draw],
+                                          simulation_samples[statistic][draw]);
+        }
+    }
 }
 
 TEST(BootstrapDistribution, ProducesFiniteUnseededMeanOutput) {

@@ -1,101 +1,87 @@
-# Iteration 5 — Factor Analysis: Acceptance Document
+# Iteration 5 — Factor Analysis: Acceptance
 
-**Iteration ID:** iteration-5-factor-analysis
-**Status:** Template — completed and signed off per phase and at iteration close
+**Status:** PASS for the selected current native contracts, with the explicit
+exclusions, partial source models and historical variances below.
 
-## 1. Standard Per-Phase Gate (Phases 77–87)
 
-Identical to Iteration 1 §1 (full SDD loop, clean-oracle design run with
-hex-float goldens, clean-tree build, full CTest, ASan+UBSan, exact-index
-gate, acceptance record + README ledger). Rendering phases (85–86) add the
-Iteration 4 viz gates where adapter code changes.
+Primary close-out: 2026-10-24, Codex main agent. Candidate is dirty Git HEAD
+`4859386ff8c260aa241553da4f0aca359d895517` plus the 305-file native snapshot
+`ef05555c5e7e0b39e385944b7b2b40a25a8d4710f1e8351625f37f0578083e7f`. A short `ef05555c5e7e` below names that snapshot, not a commit.
+The [candidate record][C] and [exact clause review][R] supply the execution
+results and the interpretation of each clause. Checked boxes apply to those
+explicit native contracts; they do not accept an excluded Python facade,
+unexecuted backend, or unsupported whole-class parity. Raw FAIL/GAP evidence
+retains its original status in [the resolution record][D].
 
-## 2. Iteration-Specific Acceptance Items
+## 1. Data and kernel checks
 
-### Phase 77 (panel adapter — hard gate)
-- [ ] No factor metric in the phase diff (audit).
-- [ ] `qcut`-parity tests: bucket edges, labels, duplicate-edge handling, NaN
-      exclusion — goldens from a clean detached pandas oracle.
-- [ ] `shift`/forward-return parity tests, including period > 1 and
-      trailing-NaN classes.
-- [ ] Cross-section iteration order and per-asset view order locked by tests
-      (value order preserved; no sort/dedup).
+- [x] 77: dense/sparse layout comparison and memory budgets recorded;
+      one panel schema covers identity, dates/assets, membership/missingness,
+      groups, weights and horizons. Ownership survives input destruction.
+- [x] 77–78: tied/all-equal quantiles, duplicate edges, NaN/inf, duplicate
+      pairs, unsorted dates, absent assets, group/zero-aware behavior and
+      forward-return boundaries match the pinned paths; no assumed qcut mode.
+- [x] 78: every preparation entry and horizon/precomputed/PIT variant mapped;
+      loss accounting, publication/as-of and calendar-gap fixtures covered.
+      Future-data perturbations do not affect earlier eligible computations.
+- [x] 80: performance and inference ledger reconciled; regression/error
+      budgets fixed; intermediate values and independent identities checked.
+- [x] 81: long/unbalanced universe, changing membership, lag/period and
+      turnover denominators matched; present NaN differs from absent pair.
+- [x] 82: portfolio models/constraints plus cost/capacity units and gross/net
+      identities matched; empty/zero-liquidity/degenerate cases included.
+- [x] 79: full model assembled from accepted kernels; invocation counts
+      verify reuse, and consumer mutation cannot corrupt cached snapshots.
 
-### Phase 78 (prepare_factor_data)
-- [ ] PIT/calendar subset decision recorded with the exclusion list.
-- [ ] Prepared frame parity: bucket assignment per (date, asset) cell matches
-      oracle on the frozen fixture.
+## 2. Research and rendering checks
 
-### Phase 79 (analyze_factor)
-- [ ] Frozen model fields enumerate the oracle model 1:1 (audit table in the
-      acceptance record).
-- [ ] Compute-once asserted: no downstream section recomputes a model field
-      (structural test or include-graph audit).
+- [x] 83: evaluation returns tables/manifest without creating files; explicit
+      export covers CSV schema, deterministic ordering, unique directories,
+      no overwrite and partial-failure cleanup/status. Chart export is
+      independently tested or explicitly NOT_RUN, never silently skipped.
+- [x] 84: shared ReportDocument/section metadata mapping complete; no second
+      incompatible factor schema or expensive render-time computation.
+- [x] 85: ImPlot compute/build/visual results tracked per Iteration 4;
+      every selected panel and substituted primitive has evidence.
+- [x] 86: ECharts source/hash/notices pinned; HTML loads with network disabled,
+      no external fetch or JS error, and actually renders expected charts
+      in zh/en. Values/sections, escaping, missing/NaN/inf and non-ASCII labels
+      validated. Repeated native rendering gives identical declared bytes.
+- [x] 86: labels containing HTML/script delimiters cannot escape their data
+      context; no raw JSON NaN/Infinity tokens emitted as valid JSON numbers.
+- [x] 87: instrumentation proves reuse, allocation/copy behavior and cache
+      invalidation. Equivalent workload time/RSS/scaling reported against
+      the frozen baseline; numerical output and snapshot isolation preserved.
 
-### Phase 80–81 (performance, turnover)
-- [ ] Per-stage intermediates (membership matrices, set-difference counts)
-      parity-asserted, not just final scalars.
-- [ ] Long-universe and quantile-turnover fixtures from the Python tests
-      (`9027733`) ported with matching values.
+## 3. Close-out and sign-off
 
-### Phase 82 (factor portfolio)
-- [ ] Weight/capacity-aware position semantics parity; degenerate-universe
-      classes locked.
+- [x] Complete factor capability ledger and explicit deferrals, full
+      candidate CTest/sanitizers, affected benchmark results, public consumer
+      checks and durable manifests/logs. No moving-head parity claim.
 
-### Phase 83 (evaluate_factor_research)
-- [ ] Validation parity: non-UTC index, wrong-typed columns, missing names →
-      the established error classes in the oracle's precedence order.
-- [ ] Artifact result type carries CSV paths + chart models; no I/O side
-      effects beyond documented artifact writing.
-
-### Phase 84 (tear-sheet models)
-- [ ] Model types frozen; no rendering code in the diff.
-
-### Phase 85 (ImPlot tear sheets)
-- [ ] Panels compose Iteration 4 primitives (reuse audit).
-- [ ] Fidelity notes for every matplotlib/seaborn primitive without an ImPlot
-      equivalent (violin, QQ) recorded in the acceptance.
-- [ ] Viz gates apply (headless core, compile/link-only, invalid-ImGui).
-
-### Phase 86 (bilingual ECharts HTML report)
-- [ ] `echarts.min.js` SHA-256 pin test committed; asset byte-identical to
-      the Python repo's.
-- [ ] Byte-stability determinism test: two runs → identical report bytes.
-- [ ] Structural validation vs the Python oracle report: same sections,
-      same chart families, values within the parity policy; zh/en label
-      dictionaries complete against the oracle's.
-
-### Phase 87 (perf parity)
-- [ ] Reuse-parity measurements recorded: weight reuse within one analysis,
-      model-snapshot reuse across sections, fingerprint streaming — behavior
-      demonstrated on a large fixture (identical results, reuse asserted by
-      instrumentation or structural argument).
-- [ ] No numerical-output change vs Phase 86 head (full suite green).
-
-## 3. Iteration-Level Definition of Done
-
-- [ ] All phases 77–87 accepted per §1 and §2.
-- [ ] Public API parity audit for `factor_analysis/` ported subset +
-      exclusion list with reasons, committed in the final acceptance record.
-- [ ] Oracle drift log: every fincore `dev` advance detected during the
-      iteration has a recorded response (re-pin phase inserted or
-      no-impact classification).
-- [ ] Iteration-head clean build + full CTest + ASan/UBSan evidence; commits
-      pushed.
-
-## 4. Sign-Off Record
-
-| Item | Date | Commit | Evidence root | Accepted by |
+| Phase | Candidate SHA | Manifest | Status | Durable evidence / reviewer |
 |---|---|---|---|---|
-| Phase 77 | | | | |
-| Phase 78 | | | | |
-| Phase 79 | | | | |
-| Phase 80 | | | | |
-| Phase 81 | | | | |
-| Phase 82 | | | | |
-| Phase 83 | | | | |
-| Phase 84 | | | | |
-| Phase 85 | | | | |
-| Phase 86 | | | | |
-| Phase 87 | | | | |
-| Iteration head | | | | |
+| 77 | `ef05555c5e7e` | [Source][M], [fixtures][O] | PASS selected native scope | [Clause evidence][R], [candidate][C]; Codex main |
+| 78 | `ef05555c5e7e` | [Source][M], [fixtures][O] | PASS selected native scope | [Clause evidence][R], [candidate][C]; Codex main |
+| 80 | `ef05555c5e7e` | [Source][M], [fixtures][O] | PASS selected native scope | [Clause evidence][R], [candidate][C]; Codex main |
+| 81 | `ef05555c5e7e` | [Source][M], [fixtures][O] | PASS selected native scope | [Clause evidence][R], [candidate][C]; Codex main |
+| 82 | `ef05555c5e7e` | [Source][M], [fixtures][O] | PASS selected native scope | [Clause evidence][R], [candidate][C]; Codex main |
+| 79 | `ef05555c5e7e` | [Source][M], [fixtures][O] | PASS selected native scope | [Clause evidence][R], [candidate][C]; Codex main |
+| 83 | `ef05555c5e7e` | [Source][M], [fixtures][O] | PASS tables/CSV; chart export deferred | [Clause evidence][R], [candidate][C]; Codex main |
+| 84 | `ef05555c5e7e` | [Source][M], [fixtures][O] | PASS selected native scope | [Clause evidence][R], [candidate][C]; Codex main |
+| 85 | `ef05555c5e7e` | [Source][M], [fixtures][O] | PASS selected native scope | [Clause evidence][R], [candidate][C]; Codex main |
+| 86 | `ef05555c5e7e` | [Source][M], [fixtures][O] | PASS selected native scope | [Clause evidence][R], [candidate][C]; Codex main |
+| 87 | `ef05555c5e7e` | [Source][M], [fixtures][O] | PASS execution/semantics; comparator FAIL dispositioned | [Clause evidence][R], [candidate][C]; Codex main |
+| Iteration close | `ef05555c5e7e` | [Source][M], [fixtures][O] | PASS selected native scope | [Clause evidence][R], [candidate][C]; Codex main |
+
+Named DEFERRED/NON_PORT routes and partial source classes remain visible in
+the [master capability ledger](../capability-ledger.tsv) and its primary
+disposition input. This is a current native-scope close-out; historical phase
+records keep their original candidate identities and statuses. No hosted CI,
+Windows support, full Python-package parity or external publication is claimed.
+
+[C]: ../../acceptance/2026-10-23-revised-plan-candidate-acceptance.md
+[R]: ../../acceptance/2026-10-23-revised-plan-checklist-review.md
+[D]: ../../acceptance/2026-10-23-revised-plan-evidence-resolutions.md
+[M]: ../../evidence/revised-plan-20261023/candidate/native-source-manifest.json
+[O]: ../../evidence/revised-plan-20261023/historical-oracles/phase-manifest.csv
