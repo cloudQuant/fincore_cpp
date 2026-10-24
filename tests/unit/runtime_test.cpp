@@ -24,6 +24,7 @@
 #include <cmath>
 #include <complex>
 #include <cstdint>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <functional>
@@ -1136,7 +1137,17 @@ TEST(Runtime, ArtifactBundleRejectsUnsafePathsAndCleansPartialWrites) {
     const auto real_parent = temporary.path() / "real-parent";
     ASSERT_TRUE(std::filesystem::create_directory(real_parent));
     const auto symlink_parent = temporary.path() / "symlink-parent";
+#if defined(_WIN32)
+    // Directory symlinks need Developer Mode; a junction is the unprivileged
+    // reparse-point equivalent and must be rejected just the same.
+    const auto junction = "cmd /c mklink /J \"" +
+                          symlink_parent.string() + "\" \"" +
+                          real_parent.string() + "\" >nul 2>&1";
+    ASSERT_EQ(std::system(junction.c_str()), 0)
+        << "cannot create a directory junction";
+#else
     std::filesystem::create_directory_symlink(real_parent, symlink_parent);
+#endif
     EXPECT_THROW(
         fincore::write_artifact_bundle(valid, symlink_parent / "output"),
         fincore::input_error);

@@ -8,6 +8,10 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+if(MSVC)
+    add_compile_options(/utf-8)
+endif()
+
 set(FINCORE_DATAFRAME_SOURCE_DIR ""
     CACHE PATH "Path to the DataFrame source tree (defaults to third_party/DataFrame)")
 set(FINCORE_IMPLOT_SOURCE_DIR ""

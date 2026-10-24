@@ -248,7 +248,7 @@ std::vector<bootstrap_metric_stats> perf_stats_bootstrap(
     const std::size_t n_samples,
     const std::uint64_t seed,
     const std::string_view column) {
-    if (column.find(' ') != std::string_view::npos) {
+    if (column.find('\0') != std::string_view::npos) {
         throw input_error{"column name must not contain an embedded NUL"};
     }
     const auto values = require_double_column(returns, column);

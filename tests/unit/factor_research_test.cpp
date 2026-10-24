@@ -245,32 +245,34 @@ TEST(FactorResearch, ExportsCsvTablesWithoutOverwriting) {
     for (const auto& name : exported.files) {
         EXPECT_TRUE(std::filesystem::exists(directory / name));
     }
-    std::ifstream ic(directory / "ic.csv");
-    std::stringstream ic_text;
-    ic_text << ic.rdbuf();
-    EXPECT_EQ(ic_text.str().rfind("date,1D\n", 0), 0U);
-    EXPECT_NE(ic_text.str().find("0.1"), std::string::npos);
-    std::ifstream manifest(directory / "manifest.json");
-    std::stringstream manifest_text;
-    manifest_text << manifest.rdbuf();
-    EXPECT_NE(manifest_text.str().find("\"ic.csv\""), std::string::npos);
-    EXPECT_NE(manifest_text.str().find("api_version"), std::string::npos);
-    std::ifstream labels(directory / "labels.csv");
-    std::stringstream labels_text;
-    labels_text << labels.rdbuf();
-    EXPECT_EQ(labels_text.str().rfind("date,asset,period,value\n", 0), 0U);
-    std::ifstream signals(directory / "signals.csv");
-    std::stringstream signals_text;
-    signals_text << signals.rdbuf();
-    EXPECT_EQ(signals_text.str().rfind(
-                  "date,asset,factor,direction,value,processed_value,preprocess,"
-                  "group\n",
-                  0),
-              0U);
-    std::ifstream turnover(directory / "turnover.csv");
-    std::stringstream turnover_text;
-    turnover_text << turnover.rdbuf();
-    EXPECT_NE(turnover_text.str().find("1,"), std::string::npos);
+    {
+        std::ifstream ic(directory / "ic.csv");
+        std::stringstream ic_text;
+        ic_text << ic.rdbuf();
+        EXPECT_EQ(ic_text.str().rfind("date,1D\n", 0), 0U);
+        EXPECT_NE(ic_text.str().find("0.1"), std::string::npos);
+        std::ifstream manifest(directory / "manifest.json");
+        std::stringstream manifest_text;
+        manifest_text << manifest.rdbuf();
+        EXPECT_NE(manifest_text.str().find("\"ic.csv\""), std::string::npos);
+        EXPECT_NE(manifest_text.str().find("api_version"), std::string::npos);
+        std::ifstream labels(directory / "labels.csv");
+        std::stringstream labels_text;
+        labels_text << labels.rdbuf();
+        EXPECT_EQ(labels_text.str().rfind("date,asset,period,value\n", 0), 0U);
+        std::ifstream signals(directory / "signals.csv");
+        std::stringstream signals_text;
+        signals_text << signals.rdbuf();
+        EXPECT_EQ(signals_text.str().rfind(
+                      "date,asset,factor,direction,value,processed_value,"
+                      "preprocess,group\n",
+                      0),
+                  0U);
+        std::ifstream turnover(directory / "turnover.csv");
+        std::stringstream turnover_text;
+        turnover_text << turnover.rdbuf();
+        EXPECT_NE(turnover_text.str().find("1,"), std::string::npos);
+    }
 
     const auto repeated = fincore::export_factor_research(
         result, repeated_directory);

@@ -4,6 +4,13 @@
 native error/container behaviour and the Python test corpus.
 **Status:** **NOT_RUN** — plan template. No row below is accepted until the
 candidate source snapshot and evidence exist.
+
+**Execution note (2026-10-24):** the candidate acceptance is recorded in
+[2026-10-24-iteration-8-native-parity-acceptance.md](../../acceptance/2026-10-24-iteration-8-native-parity-acceptance.md).
+Windows 11 Release (1044/1044 CTest) and the relocated consumer now pass;
+Ubuntu remains `EXTERNAL_BLOCKED`; P109 performance remains `INCONCLUSIVE`
+because the C4 baseline archive is unavailable. The checklist below is retained
+as the plan template and is not itself execution evidence.
 **Oracle:** `3e9ef205ef2023f92e89fddd1052d46b16429c64` (`0.5.2.dev0`).
 **Base:** C4 native manifest
 `245ae75336912e30bcf6f34016ed4451116ec4ed719771a02d4b6e46ab0516e3`.
@@ -132,7 +139,9 @@ candidate source snapshot and evidence exist.
 - [ ] Native install/export and headless consumer on macOS arm64 and Ubuntu
   arm64/x86_64.
 - [ ] macOS Release and ASan+UBSan; Ubuntu release; execution mode declared.
-- [ ] Windows result recorded or `EXTERNAL_BLOCKED` with a named runner.
+- [x] Windows result recorded or `EXTERNAL_BLOCKED` with a named runner.
+  Windows 11 x86_64 Release: 1044/1044 CTest and relocated consumer exit 0
+  (`docs/evidence/iteration-8/p110/windows-*`).
 - [ ] Source manifests, fixtures, test-port ledger, visual/artifact captures,
   benchmark samples and route ledger hashed and retained under
   `docs/evidence/iteration-8/`.
@@ -154,10 +163,10 @@ candidate source snapshot and evidence exist.
 | Reports/tears | HTML/XLSX/PDF fixtures | NOT_RUN |
 | 228-file test port | ledger complete; native tests pass | NOT_RUN |
 | Oracle differential | route budgets | NOT_RUN |
-| Performance | native no-regression | NOT_RUN |
-| Platforms/consumer | macOS/Ubuntu/install | NOT_RUN |
+| Performance | native no-regression | INCONCLUSIVE (macOS dispersion >5%; C4 archive unavailable for a Windows run) |
+| Platforms/consumer | macOS/Ubuntu/install | macOS and Windows PASS; Ubuntu `EXTERNAL_BLOCKED` |
 | Optional manifest | exact list + owner sign-off | NOT_RUN |
-| Reproducibility | manifests, hashes, logs | NOT_RUN |
+| Reproducibility | manifests, hashes, logs | PASS (Windows logs added; source archive regenerated) |
 
 ## 11. Performance and artifact protocol
 

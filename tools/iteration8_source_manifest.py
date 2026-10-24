@@ -14,6 +14,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PATHS = [
+    ".gitattributes",
+    ".github",
     "CMakeLists.txt",
     "README.md",
     "include",
@@ -22,14 +24,21 @@ PATHS = [
     "examples",
     "benchmarks",
     "assets",
+    "licenses",
     "cmake",
     "tools",
     "docs/iterations/iteration-8-full-python-parity",
     "docs/iterations/capability-dispositions.json",
     "docs/acceptance/2026-10-24-iteration-8-native-parity-acceptance.md",
+    "docs/handoff/iteration-8-windows-11-handoff.md",
     "docs/evidence/iteration-8",
 ]
 EXCLUDED_NAMES = {".DS_Store", "source.tar.gz", "source-manifest.json", "SHA256SUMS"}
+EXCLUDED_DIRS = {"__pycache__", ".pytest_cache"}
+EXCLUDED_PREFIXES = {
+    "benchmarks/alpha003_a_stocks/data/a_stocks",
+    "benchmarks/alpha003_a_stocks/results",
+}
 
 
 def collect() -> list[Path]:
@@ -43,7 +52,14 @@ def collect() -> list[Path]:
                 relative = candidate.relative_to(ROOT)
                 if any(part.startswith("build") for part in relative.parts):
                     continue
-                if candidate.name in EXCLUDED_NAMES or candidate.suffix == ".ppm":
+                relative_posix = relative.as_posix()
+                if any(part in EXCLUDED_DIRS for part in relative.parts):
+                    continue
+                if any(relative_posix.startswith(prefix)
+                       for prefix in EXCLUDED_PREFIXES):
+                    continue
+                if (candidate.name in EXCLUDED_NAMES or
+                        candidate.suffix in {".ppm", ".pyc"}):
                     continue
                 if candidate.is_file():
                     files.append(candidate)
@@ -58,7 +74,7 @@ def main() -> int:
     payload = io.BytesIO()
     with tarfile.open(fileobj=payload, mode="w") as archive:
         for path in files:
-            info = archive.gettarinfo(str(path), arcname=str(path.relative_to(ROOT)))
+            info = archive.gettarinfo(str(path), arcname=path.relative_to(ROOT).as_posix())
             info.mtime = 0
             info.uid = 0
             info.gid = 0
@@ -69,10 +85,15 @@ def main() -> int:
     compressed = gzip.compress(payload.getvalue(), mtime=0)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_bytes(compressed)
-    head = subprocess.check_output(["git", "-C", str(ROOT), "rev-parse", "HEAD"], text=True).strip()
-    status = subprocess.check_output(["git", "-C", str(ROOT), "status", "--porcelain"], text=True)
+    head = subprocess.check_output(
+        ["git", "-C", str(ROOT), "rev-parse", "HEAD"],
+        text=True, encoding="utf-8").strip()
+    status = subprocess.check_output(
+        ["git", "-C", str(ROOT), "status", "--porcelain"],
+        text=True, encoding="utf-8")
     submodules = subprocess.check_output(
-        ["git", "-C", str(ROOT), "submodule", "status"], text=True
+        ["git", "-C", str(ROOT), "submodule", "status"],
+        text=True, encoding="utf-8"
     ).strip().splitlines()
     manifest = {
         "schema_version": "1",
@@ -84,15 +105,17 @@ def main() -> int:
         "dirty_path_count": len([line for line in status.splitlines() if line.strip()]),
         "submodules": submodules,
         "archive": {
-            "path": str(args.output.relative_to(ROOT)),
+            "path": args.output.relative_to(ROOT).as_posix(),
             "sha256": hashlib.sha256(compressed).hexdigest(),
             "bytes": len(compressed),
         },
         "file_count": len(files),
-        "files": [str(path.relative_to(ROOT)) for path in files],
+        "files": [path.relative_to(ROOT).as_posix() for path in files],
     }
     manifest_path = args.output.parent / "source-manifest.json"
-    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8", newline="\n")
     print(json.dumps({"sha256": manifest["archive"]["sha256"], "bytes": len(compressed),
                       "files": len(files), "dirty": manifest["dirty_path_count"]}))
     return 0

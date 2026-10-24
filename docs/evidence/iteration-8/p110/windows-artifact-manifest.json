@@ -1,0 +1,108 @@
+{
+  "all_passed": true,
+  "artifact_dir": "ephemeral; regenerate with fincore_i8_artifacts (hashes retained in this manifest)",
+  "artifacts": {
+    "report-bokeh.json": {
+      "sha256": "64266f26ee68f4e0abf9dafd6e5947e7f5f2c3893b67b2f5c79353893b4b05d5",
+      "size_bytes": 850
+    },
+    "report-echarts.html": {
+      "sha256": "b835cde721518ad5ae162c49d730f4dc7f4d050436fa84180af889217c3eebac",
+      "size_bytes": 1039755
+    },
+    "report-plotly.json": {
+      "sha256": "1e7124391727ac6f16ddc04226575cfd4cd5263b558a15d1fdb485474f514e41",
+      "size_bytes": 843
+    },
+    "report.html": {
+      "sha256": "805c69e9e75987d72578c2228c18fba3dd2b3c952ef0d993983373456c43b1b1",
+      "size_bytes": 9808
+    },
+    "report.pdf": {
+      "sha256": "17211ece285e5faa0a3af73c56fcbf9af1b479b0c39c65dbc963397309cc7bb9",
+      "size_bytes": 2359
+    },
+    "report.xlsx": {
+      "sha256": "269713140ef7406d70af4405f2b67926642792da4d6b1c7df50421b20b78fc98",
+      "size_bytes": 5250
+    }
+  },
+  "checks": [
+    {
+      "check": "plotly_trace_values",
+      "detail": "trace y equals report series",
+      "passed": true
+    },
+    {
+      "check": "plotly_legend",
+      "detail": "legend from section map",
+      "passed": true
+    },
+    {
+      "check": "plotly_title",
+      "detail": "document title",
+      "passed": true
+    },
+    {
+      "check": "bokeh_glyph_values",
+      "detail": "glyph y equals report series",
+      "passed": true
+    },
+    {
+      "check": "bokeh_legend",
+      "detail": "glyph legend",
+      "passed": true
+    },
+    {
+      "check": "html_title",
+      "detail": "title present",
+      "passed": true
+    },
+    {
+      "check": "html_values",
+      "detail": "metric/table values present",
+      "passed": true
+    },
+    {
+      "check": "html_self_contained",
+      "detail": "no external asset URL",
+      "passed": true
+    },
+    {
+      "check": "echarts_embedded",
+      "detail": "ECharts payload embedded offline",
+      "passed": true
+    },
+    {
+      "check": "echarts_series_values",
+      "detail": "ECharts series values present",
+      "passed": true
+    },
+    {
+      "check": "xlsx_values",
+      "detail": "numeric cells present",
+      "passed": true
+    },
+    {
+      "check": "xlsx_labels",
+      "detail": "table/series labels present",
+      "passed": true
+    },
+    {
+      "check": "pdf_text_values",
+      "detail": "PDF text contains metrics/tables/series",
+      "passed": true
+    }
+  ],
+  "declared_variances": [
+    "Native PDF uses base-14 fonts and vector paths, not Chromium PDF bytes.",
+    "Plotly/Bokeh documents are native value-equivalent JSON, not Python object identity.",
+    "Interactive display is NOT_RUN; only headless artifacts are claimed."
+  ],
+  "phase": "P108",
+  "retention": "Report artifacts were generated on Windows and value/hash checked; binary artifacts are not committed. macOS committed artifacts remain under p108/artifacts.",
+  "schema_version": "1",
+  "skipped": [
+    "pdf_page_rendered"
+  ]
+}

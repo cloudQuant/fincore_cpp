@@ -333,7 +333,7 @@ TEST(Positions, TopLongShortAbsoluteMatchesPythonOracle) {
     EXPECT_DOUBLE_EQ(top.absolute_positions[1].value, 100.0);
 
     const std::array<char, 13> embedded_storage{
-        'c', 'a', 's', 'h', ' ', 'x', '!', '!', '!', '!', '!', '!', '!'};
+        'c', 'a', 's', 'h', '\0', 'x', '!', '!', '!', '!', '!', '!', '!'};
     const std::string_view embedded_selector{embedded_storage.data(),
                                              embedded_storage.size()};
     EXPECT_THROW(static_cast<void>(fincore::get_top_long_short_abs(

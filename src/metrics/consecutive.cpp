@@ -264,7 +264,7 @@ double max_consecutive_buckets(const dataframe& returns,
 
 double max_consecutive_up_weeks(const dataframe& returns,
                                 std::string_view column) {
-    if (column.find(' ') != std::string_view::npos) {
+    if (column.find('\0') != std::string_view::npos) {
         throw input_error{"column name must not contain an embedded NUL"};
     }
     return max_consecutive_buckets(returns, column, true, true);
@@ -272,7 +272,7 @@ double max_consecutive_up_weeks(const dataframe& returns,
 
 double max_consecutive_down_weeks(const dataframe& returns,
                                   std::string_view column) {
-    if (column.find(' ') != std::string_view::npos) {
+    if (column.find('\0') != std::string_view::npos) {
         throw input_error{"column name must not contain an embedded NUL"};
     }
     return max_consecutive_buckets(returns, column, true, false);
@@ -280,7 +280,7 @@ double max_consecutive_down_weeks(const dataframe& returns,
 
 double max_consecutive_up_months(const dataframe& returns,
                                  std::string_view column) {
-    if (column.find(' ') != std::string_view::npos) {
+    if (column.find('\0') != std::string_view::npos) {
         throw input_error{"column name must not contain an embedded NUL"};
     }
     return max_consecutive_buckets(returns, column, false, true);
@@ -288,7 +288,7 @@ double max_consecutive_up_months(const dataframe& returns,
 
 double max_consecutive_down_months(const dataframe& returns,
                                    std::string_view column) {
-    if (column.find(' ') != std::string_view::npos) {
+    if (column.find('\0') != std::string_view::npos) {
         throw input_error{"column name must not contain an embedded NUL"};
     }
     return max_consecutive_buckets(returns, column, false, false);
@@ -296,7 +296,7 @@ double max_consecutive_down_months(const dataframe& returns,
 
 std::map<std::string, double> consecutive_stats(
     const dataframe& returns, std::string_view column) {
-    if (column.find(' ') != std::string_view::npos) {
+    if (column.find('\0') != std::string_view::npos) {
         throw input_error{"column name must not contain an embedded NUL"};
     }
     return {

@@ -260,7 +260,7 @@ std::vector<numeric_column> asset_columns(const dataframe& positions,
 top_positions get_top_long_short_abs(const dataframe& positions,
                                      const std::size_t top,
                                      const std::string_view cash_column_name) {
-    if (cash_column_name.find(' ') != std::string_view::npos) {
+    if (cash_column_name.find('\0') != std::string_view::npos) {
         throw input_error{"column name must not contain an embedded NUL"};
     }
     const std::string cash_name = checked_cash_column_name(cash_column_name);
@@ -323,7 +323,7 @@ top_positions get_top_long_short_abs(const dataframe& positions,
 
 std::pair<std::vector<double>, std::vector<double>> get_long_short_notional(
     const dataframe& positions, const std::string_view cash_column_name) {
-    if (cash_column_name.find(' ') != std::string_view::npos) {
+    if (cash_column_name.find('\0') != std::string_view::npos) {
         throw input_error{"column name must not contain an embedded NUL"};
     }
     const std::string cash_name = checked_cash_column_name(cash_column_name);
@@ -351,7 +351,7 @@ std::vector<position_record> stack_positions(
     const dataframe& positions, const bool pos_in_dollars,
     const std::string_view cash_column_name) {
     static_cast<void>(pos_in_dollars);
-    if (cash_column_name.find(' ') != std::string_view::npos) {
+    if (cash_column_name.find('\0') != std::string_view::npos) {
         throw input_error{"column name must not contain an embedded NUL"};
     }
     const std::string cash_name = checked_cash_column_name(cash_column_name);

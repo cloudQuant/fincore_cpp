@@ -598,7 +598,7 @@ dataframe days_to_liquidate_positions(
     const dataframe& volumes, const double max_bar_consumption,
     const double capital_base, const std::size_t mean_volume_window,
     const std::string_view cash_column_name) {
-    if (cash_column_name.find(' ') != std::string_view::npos) {
+    if (cash_column_name.find('\0') != std::string_view::npos) {
         throw input_error{"column name must not contain an embedded NUL"};
     }
     validate_liquidity_parameters(max_bar_consumption, capital_base,

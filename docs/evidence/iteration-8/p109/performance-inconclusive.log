@@ -1,0 +1,6 @@
+target_validation: INCONCLUSIVE median=1.2504 dispersion=0.2111 ci=[0.3151,1.4285]
+analysis_prepare: INCONCLUSIVE median=1.1993 dispersion=0.1241 ci=[0.8725,1.2997]
+research_assembly: INCONCLUSIVE median=0.8847 dispersion=0.2292 ci=[0.7479,1.3181]
+positions: INCONCLUSIVE median=0.8542 dispersion=0.2606 ci=[0.7041,2.2902]
+fingerprint: INCONCLUSIVE median=1.0511 dispersion=0.2303 ci=[0.5707,1.6462]
+{"statuses": ["INCONCLUSIVE", "INCONCLUSIVE", "INCONCLUSIVE", "INCONCLUSIVE", "INCONCLUSIVE"], "all_pass": false}

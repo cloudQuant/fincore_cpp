@@ -1426,7 +1426,7 @@ TEST(Ratios, CalTreynorValidatesSelectorsAndStructure) {
     const auto returns = treynor_returns();
     const auto benchmark = positive_beta_benchmark();
     const std::array<char, 13> embedded_storage{
-        'b', 'e', 'n', 'c', 'h', 'm', 'a', 'r', 'k', ' ', 'x', '!', '!'};
+        'b', 'e', 'n', 'c', 'h', 'm', 'a', 'r', 'k', '\0', 'x', '!', '!'};
     const std::string_view embedded_selector{embedded_storage.data(),
                                              embedded_storage.size()};
 
@@ -1640,7 +1640,7 @@ TEST(Ratios, CaptureReturnsSupportNamedSelectorsAndRejectNul) {
         sequence_index(10), "factor",
         {-0.04, -0.03, -0.02, -0.01, -0.005, 0.005, 0.01, 0.02, 0.03, 0.04});
     const std::array<char, 13> embedded_storage{
-        'f', 'a', 'c', 't', 'o', 'r', ' ', 'x', '!', '!', '!', '!', '!'};
+        'f', 'a', 'c', 't', 'o', 'r', '\0', 'x', '!', '!', '!', '!', '!'};
     const std::string_view embedded_selector{embedded_storage.data(),
                                              embedded_storage.size()};
 

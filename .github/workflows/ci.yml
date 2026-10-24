@@ -24,3 +24,20 @@ jobs:
         run: cmake --build build -j 4
       - name: Test
         run: ctest --test-dir build --output-on-failure
+
+  windows:
+    name: windows-latest
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Configure
+        run: >
+          cmake -S . -B build
+          -DFINCORE_BUILD_TESTING=ON
+          -DFINCORE_DATAFRAME_SOURCE_DIR=${{ github.workspace }}/third_party/DataFrame
+      - name: Build
+        run: cmake --build build --config Release --parallel 4
+      - name: Test
+        run: ctest --test-dir build -C Release --output-on-failure

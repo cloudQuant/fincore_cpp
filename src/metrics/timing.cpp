@@ -296,7 +296,7 @@ const std::vector<crisis_period>& crisis_periods() {
 
 std::vector<named_returns> extract_interesting_date_ranges(
     const dataframe& returns, std::string_view column) {
-    if (column.find(' ') != std::string_view::npos) {
+    if (column.find('\0') != std::string_view::npos) {
         throw input_error{"column name must not contain an embedded NUL"};
     }
     const auto values = require_double_column(returns, column);

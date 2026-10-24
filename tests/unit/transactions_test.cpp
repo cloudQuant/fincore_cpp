@@ -1303,7 +1303,7 @@ TEST(Transactions, LiquiditiyHelpersValidateInputs) {
                  fincore::input_error);
 
     const std::array<char, 13> embedded_storage{
-        'c', 'a', 's', 'h', ' ', 'x', '!', '!', '!', '!', '!', '!', '!'};
+        'c', 'a', 's', 'h', '\0', 'x', '!', '!', '!', '!', '!', '!', '!'};
     const std::string_view embedded_selector{embedded_storage.data(),
                                              embedded_storage.size()};
     EXPECT_THROW(static_cast<void>(fincore::days_to_liquidate_positions(

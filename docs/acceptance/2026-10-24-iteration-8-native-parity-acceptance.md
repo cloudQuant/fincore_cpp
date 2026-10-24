@@ -5,7 +5,11 @@
 (`0.5.2.dev0`)
 **Base:** C4 native manifest
 `245ae75336912e30bcf6f34016ed4451116ec4ed719771a02d4b6e46ab0516e3`
-**Status:** IN_PROGRESS / PLATFORM-BLOCKED — functional gates pass; Ubuntu x86_64/arm64 and Windows have no runner and are `EXTERNAL_BLOCKED`; performance is being rerun quietly. No gate is claimed PASS without a raw evidence file.
+**Status:** IN_PROGRESS — functional gates pass; Windows 11 Release and the
+relocated consumer PASS on 2026-10-24; Ubuntu x86_64/arm64 remain
+`EXTERNAL_BLOCKED` (no Linux runner on the execution host); P109 performance
+remains `INCONCLUSIVE` because the C4 baseline archive is unavailable. No gate
+is claimed PASS without a raw evidence file.
 
 ## 1. Scope and claim boundaries
 
@@ -103,20 +107,54 @@ Test suite: **1044/1044 passed** on macOS arm64 Release
 | macOS ASan+UBSan | PASS (qualified) | [1044/1044](../evidence/iteration-8/p110/macos-asan-qualified-ctest.log) with Homebrew LLVM 22.1.8; container-overflow annotations disabled for a reproducible libc++ false positive; heap/stack/global/UAF and UBSan enabled ([qualification](../evidence/iteration-8/p110/macos-asan-qualification.txt)) |
 | Ubuntu 24.04 arm64 | EXTERNAL_BLOCKED | no Linux runner; Docker attempts and prerequisites recorded in [platform-blockers.json](../evidence/iteration-8/p110/platform-blockers.json) |
 | Ubuntu 24.04 x86_64 | EXTERNAL_BLOCKED | Rosetta toolchain install did not complete; prerequisites in [platform-blockers.json](../evidence/iteration-8/p110/platform-blockers.json) |
-| Installed relocated consumer | PASS | [build/run logs](../evidence/iteration-8/p110/consumer-run.log), exit 0; the consumer checks the v2 artifact manifest and prints `fincore_headless_consumer: ok` |
-| Windows | EXTERNAL_BLOCKED | no Windows runner; prerequisite in [platform-blockers.json](../evidence/iteration-8/p110/platform-blockers.json) |
+| Installed relocated consumer | PASS | macOS: [build/run logs](../evidence/iteration-8/p110/consumer-run.log); Windows: [configure](../evidence/iteration-8/p110/windows-consumer-configure.log), [build](../evidence/iteration-8/p110/windows-consumer-build.log), [run](../evidence/iteration-8/p110/windows-consumer-run.log), [prefix](../evidence/iteration-8/p110/windows-consumer-prefix.txt); both exit 0 and print `fincore_headless_consumer: ok` |
+| Windows 11 x86_64 Release | PASS | [build](../evidence/iteration-8/p110/windows-build.log) 246/246 steps, [CTest](../evidence/iteration-8/p110/windows-ctest.log) **1044/1044** in 25.12 s, MSVC 19.42.34435.0, `/std:c++latest /utf-8 /O2 /MD`; [environment](../evidence/iteration-8/p110/windows-environment.txt), [command](../evidence/iteration-8/p110/windows-build-command.txt) |
+| Windows report artifacts | PASS (qualified) | [13/13 value checks](../evidence/iteration-8/p110/windows-artifact-manifest.json) on HTML/ECharts/XLSX/Plotly/Bokeh/PDF text; PDF page rasterization skipped (no `pdftoppm`); embedded asset [byte-identical](../evidence/iteration-8/p110/windows-asset-embedding.json) to the pinned SHA-256 |
+
+### 5.1 Windows 11 portability closure
+
+The Windows leg required a bounded portability refactor; the exact list and
+rationale are in
+[windows-portability-changes.md](../evidence/iteration-8/p110/windows-portability-changes.md).
+Highlights:
+
+- restored the missing ECharts 5.5.0 license/NOTICE/manifest assets and made
+  the pinned browser asset byte-preserving under `core.autocrlf=true`
+  (`.gitattributes`);
+- replaced 31 raw-NUL character literals with `'\0'` (MSVC C2137), removed
+  `__int128` from drawdown day arithmetic with an exact int64 floor-divmod,
+  added `/utf-8`, and mapped MSVC ASan while failing fast on MSVC UBSan;
+- ported exclusive artifact writes to `_wopen/_write/_close/_wunlink` with
+  `_O_BINARY | _O_NOINHERIT`; POSIX `O_NOFOLLOW` semantics are unchanged and
+  Windows-only validation now rejects ADS colons, reserved device names and
+  trailing dots/spaces;
+- replaced the raw-string asset embedder with 16 KiB hex chunks decoded once,
+  avoiding both the MSVC literal-size limit and CMake's text-mode newline
+  translation; the embedded asset is byte-identical to the pinned SHA-256;
+- fixed two test-only Windows behaviours (open streams before `remove_all`;
+  junction fallback when the symbolic-link privilege is unavailable).
+
+Not exercised on Windows: ASan/UBSan, ImPlot captures and the GLFW demo, and
+the Ubuntu legs. These are declared non-claims, not PASS.
 
 ## 6. Performance
 
-Paired C4-vs-current runs with the Iteration 7 harness were executed twice,
-including a 10-pair run after the fincore build gate was quiet. The host still
-carried unrelated compiles/Docker work (loadavg 22-31 on 8 cores), so all five
-cases reported dispersion 11-26% and are `INCONCLUSIVE`, not PASS. All case
-digests were equal across arms. Raw samples and the quiet-gate record:
+Paired C4-vs-current runs with the Iteration 7 harness were executed twice on
+macOS, including a 10-pair run after the fincore build gate was quiet. The host
+still carried unrelated compiles/Docker work (loadavg 22-31 on 8 cores), so
+all five cases reported dispersion 11-26% and are `INCONCLUSIVE`, not PASS.
+All case digests were equal across arms. Raw samples and the quiet-gate record:
 [performance.json](../evidence/iteration-8/p109/performance.json),
 [performance-quiet.log](../evidence/iteration-8/p109/performance-quiet.log).
-No threshold was lowered; a genuinely idle paired run remains a closeout
-blocker.
+
+No Windows paired run was executed: the Iteration 7 C4 archive
+(`sha256 168789ea…a7da`) is absent from the repository, git history, public
+releases/actions artifacts and the execution host. The exact searches and
+conclusion are in
+[windows-performance-blocker.txt](../evidence/iteration-8/p110/windows-performance-blocker.txt).
+No substitute baseline was used and the 1.10 ceiling was not relaxed; a
+genuinely idle paired run on both platforms remains the closeout blocker for a
+performance PASS.
 
 ## 7. Declared variances
 
@@ -130,6 +168,15 @@ blocker.
 - `simulate_paths` matches NumPy legacy RandomState for explicit 32-bit seeds;
   the source `None` default is not reproduced.
 - Module-level route evidence grain is declared in the route ledger.
+- Windows PDF text was checked, but the page rasterization step was skipped
+  because `pdftoppm` is not installed on the host. The macOS page image and
+  inspection remain the visual PDF evidence.
+- On Windows the symlink-parent artifact test uses a directory junction when
+  the symbolic-link privilege is unavailable; the library rejects the junction
+  as a non-directory reparse parent. The true-symlink case remains covered by
+  the macOS/Linux legs.
+- Windows performance is not claimed; the C4 baseline archive is unavailable.
+  The macOS P109 result remains `INCONCLUSIVE`, not PASS.
 
 ## 8. Sign-off
 

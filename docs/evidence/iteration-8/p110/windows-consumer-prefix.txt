@@ -1,0 +1,14 @@
+fincore_DIR=D:/source_code/fincore_cpp/build-win/stage-relocated/lib/cmake/fincore
+DataFrame_DIR=D:/source_code/fincore_cpp/build-win/stage-relocated/lib/cmake/DataFrame
+CMAKE_PREFIX_PATH=D:\source_code\fincore_cpp\build-win\stage-relocated
+EXPECTED_PACKAGE_PREFIX=D:\source_code\fincore_cpp\build-win\stage-relocated
+prefix=D:\source_code\fincore_cpp\build-win\stage-relocated
+installed_files:
+  lib/fincore.lib exists=True size=234042122
+  include/fincore/runtime/runtime.hpp exists=True size=9325
+  lib/cmake/fincore/fincoreConfig.cmake exists=True size=2073
+  lib/cmake/DataFrame/DataFrameConfig.cmake exists=True size=1073
+  share/fincore/report/assets/echarts.min.js exists=True size=1029203
+  share/licenses/fincore/echarts-5.5.0/LICENSE.txt exists=True size=11990
+  share/licenses/fincore/echarts-5.5.0/NOTICE.txt exists=True size=168
+  share/licenses/fincore/echarts-5.5.0/manifest.json exists=True size=610

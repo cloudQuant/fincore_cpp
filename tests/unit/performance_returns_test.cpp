@@ -223,7 +223,7 @@ TEST(PerformanceReturns, XirrSupportsSelectorsAndOwnsItsResult) {
     EXPECT_NEAR(fincore::xirr(named, "amount"), 0.09971358593414104, 1e-12);
 
     const std::array<char, 13> embedded_storage{
-        'c', 'a', 's', 'h', 'f', 'l', 'o', 'w', ' ', 'x', '!', '!', '!'};
+        'c', 'a', 's', 'h', 'f', 'l', 'o', 'w', '\0', 'x', '!', '!', '!'};
     const std::string_view embedded_selector{embedded_storage.data(),
                                              embedded_storage.size()};
     EXPECT_THROW(static_cast<void>(fincore::xirr(named, embedded_selector)),
@@ -383,7 +383,7 @@ TEST(PerformanceReturns, MwrSupportsSelectorsAndOwnsItsResult) {
                 0.10000000000000002, 1e-12);
 
     const std::array<char, 13> embedded_storage{
-        'c', 'a', 's', 'h', 'f', 'l', 'o', 'w', ' ', 'x', '!', '!', '!'};
+        'c', 'a', 's', 'h', 'f', 'l', 'o', 'w', '\0', 'x', '!', '!', '!'};
     const std::string_view embedded_selector{embedded_storage.data(),
                                              embedded_storage.size()};
     EXPECT_THROW(static_cast<void>(fincore::mwr(named, std::nullopt,

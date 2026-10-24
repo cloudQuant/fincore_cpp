@@ -18,8 +18,17 @@
     "missing": "a native Ubuntu x86_64 runner or a working prebuilt amd64 toolchain image; no CTest result was produced"
   },
   "windows": {
-    "status": "EXTERNAL_BLOCKED",
-    "missing": "a Windows runner; no Windows build or test was attempted"
+    "status": "PASS",
+    "runner": "Windows 11 10.0.26300 (AMD64), MSVC 19.42.34435.0, CMake 3.28.0-rc4, Ninja 1.11.1",
+    "evidence": [
+      "windows-build.log",
+      "windows-ctest.log",
+      "windows-consumer-configure.log",
+      "windows-consumer-build.log",
+      "windows-consumer-run.log",
+      "windows-artifact-manifest.json"
+    ],
+    "result": "clean build 246/246 steps; CTest 1044/1044; relocated consumer exit 0"
   },
-  "note": "The macOS arm64 Release and ASan+UBSan legs are the executed platform evidence. Linux/Windows rows are explicit blockers, not PASS."
+  "note": "The macOS arm64 Release/ASan+UBSan legs, the Windows 11 Release leg and the relocated consumer are executed. Ubuntu rows are explicit blockers, not PASS. P109 performance remains INCONCLUSIVE on macOS and NOT_RUN on Windows because the C4 archive is unavailable; see windows-performance-blocker.txt."
 }

@@ -1,0 +1,35 @@
+# Iteration 8 P109 native performance gate - quiet-host run
+# started_utc: 2026-10-24T12:31:20Z  local: Sat Oct 24 20:31:20 CST 2026
+# ===== quiet gate (poll loop /tmp/i8-quiet-poll.log, 60s cadence) =====
+# QUIET reached at 2026-10-24 20:29:55 after 20 polls (1178s elapsed).
+# Pre-run re-check at 20:31:00: fincore docker builds with `cmake -S /src` = 0
+#                              fincore clang++/cc1plus compiles in ps     = 0
+# No container was killed by this gate. The two fincore build containers
+# (stoic_shaw arm64, awesome_mcnulty x86_64) exited on their own; the arm64
+# wrapper log records arm64_clang_exit=137 (external SIGKILL, not this gate).
+# ===== ambient load NOT covered by the gate (documented, not waited on) =====
+# all_host_compiles (any project) = 8 clang++/cc1plus, all bt_api_cpp, 0 fincore
+# non-fincore docker builds still running: dazzling_shaw (woniunote cmake --build),
+#   upbeat_visvesvaraya; reqdocs redis/mysql/mongodb test containers
+# loadavg at 20:31:00 = 22.12 23.89 25.44 (8-core arm64)
+# ===== binaries =====
+# current: /tmp/i8-bench-final  sha256 50d6b90aa9dc55165cc8e1b569eb7b2905c9b01e34e8d6c51f0f635bdece4e5e
+# c4:      /tmp/i8-bench-c4     sha256 aaeadc96a7b948399bc0544be53d5bae7c00574e34e669e83602652c131aa74b (pre-existing, not rebuilt)
+# libfincore.a build-i8 mtime 2026-10-24 19:29:59, 0 sources newer
+# ===== command =====
+# python3 tools/iteration8_performance_check.py --c4 /tmp/i8-bench-c4 \
+#   --current /tmp/i8-bench-final --pairs 10
+# ===== script output (stdout+stderr) =====
+target_validation: INCONCLUSIVE median=1.1273 dispersion=0.2353 ci=[0.9254,1.3311]
+analysis_prepare: INCONCLUSIVE median=1.0084 dispersion=0.1786 ci=[0.7979,1.1342]
+research_assembly: INCONCLUSIVE median=1.0393 dispersion=0.2642 ci=[0.8053,1.2017]
+positions: INCONCLUSIVE median=0.8734 dispersion=0.1139 ci=[0.8073,0.9973]
+fingerprint: INCONCLUSIVE median=0.9730 dispersion=0.2145 ci=[0.7497,1.1433]
+{"statuses": ["INCONCLUSIVE", "INCONCLUSIVE", "INCONCLUSIVE", "INCONCLUSIVE", "INCONCLUSIVE"], "all_pass": false}
+# ===== post-run record =====
+# script_exit=1 (not all PASS; script returns 1 unless every case PASS)
+# finished_local: 2026-10-24 20:33:14
+# post-run fincore containers cmake -S /src: 0
+# post-run fincore host compiles: 0 ; all-host compiles: 4 ; loadavg: { 31.84 26.61 26.27 }
+# result: 5/5 INCONCLUSIVE, all reasons "ratio dispersion >5%", digests_equal=true for all cases
+# raw data: docs/evidence/iteration-8/p109/performance.json (pairs=10)

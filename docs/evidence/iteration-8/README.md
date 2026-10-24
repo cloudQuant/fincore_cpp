@@ -14,6 +14,17 @@ qualified passes; no failed run was deleted.
 | P108 | `p108/artifact-manifest.json`, `p108/artifacts/`, `p108/report-page-1.png` | all value checks passed |
 | P109 | `p109/macos-release-ctest.log`, `p109/performance.json` | 1044/1044 release; performance status per JSON |
 | P110 | `p110/macos-asan-*.log`, `p110/macos-asan-qualification.txt`, `p110/consumer-*`, platform logs | release/ASan/consumer; Ubuntu rows per logs |
+| P110 Windows | `p110/windows-build.log`, `p110/windows-ctest.log`, `p110/windows-consumer-*`, `p110/windows-artifact-manifest.json`, `p110/windows-portability-changes.md` | clean build 246/246; CTest 1044/1044; relocated consumer exit 0; 13/13 artifact value checks |
+
+Windows performance is not claimed: the Iteration 7 C4 archive is absent and
+the gate cannot be executed (`p110/windows-performance-blocker.txt`). The PDF
+page raster check is declared skipped on Windows because `pdftoppm` is not
+installed; PDF text values passed.
+
+The macOS logs linked from the acceptance record were restored from the
+previous source archive as loose files and verified against `SHA256SUMS`.
+Windows logs are also loose files. All evidence is included in the regenerated
+source archive.
 
 The Python test-port ledger is under
 `docs/iterations/iteration-8-full-python-parity/test-port-ledger.tsv`; the route

@@ -55,6 +55,7 @@ compile_commands.json
 # Temporary files
 *.tmp
 *.log
+!docs/evidence/**/*.log
 *.bak
 *.swp
 
@@ -67,9 +68,16 @@ vcpkg_installed/
 # test output & cache
 Testing/
 .cache/
+__pycache__/
+*.pyc
+.pytest_cache/
 
 # Per-plan isolated worktrees created by the development workflow
 .worktrees/
 
 # macOS Finder metadata
 .DS_Store
+
+# Alpha003 benchmark data and generated results (94 MB source panel)
+benchmarks/alpha003_a_stocks/data/a_stocks/
+benchmarks/alpha003_a_stocks/results*/

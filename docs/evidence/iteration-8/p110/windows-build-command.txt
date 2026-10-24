@@ -1,0 +1,51 @@
+Windows 11 Release execution record (2026-10-24)
+=================================================
+
+Host: Microsoft Windows 11 10.0.26300, AMD64, 32 logical CPUs
+Toolchain: MSVC 19.42.34435.0 (Visual Studio 2022 17.12),
+           CMake 3.28.0-rc4, Ninja 1.11.1
+Source: dev @ 8629d79f699c142c438a9f43038ba922e32eb077 with the
+        Windows portability patch set; the exact tree is captured in
+        ../source.tar.gz and ../source-manifest.json.
+
+Configure (from a vcvars64 environment):
+  cmake -S . -B build-win -G Ninja -DCMAKE_BUILD_TYPE=Release ^
+    -DFINCORE_BUILD_TESTING=ON ^
+    -DFINCORE_DATAFRAME_SOURCE_DIR=D:/source_code/fincore_cpp/third_party/DataFrame
+
+Clean rebuild and test:
+  cmake --build build-win --target clean
+  cmake --build build-win --parallel 32
+  ctest --test-dir build-win --output-on-failure
+
+Install and relocated consumer:
+  cmake --install build-win/_deps/dataframe-build --prefix build-win/stage --config Release
+  cmake --install build-win --prefix build-win/stage --component fincore --config Release
+  move build-win/stage build-win/stage-relocated
+  xcopy /E /I /Y tests\consumer\headless %TEMP%\i8-windows-consumer\src
+  cmake -S %TEMP%\i8-windows-consumer\src -B %TEMP%\i8-windows-consumer\build ^
+    -G Ninja -DCMAKE_BUILD_TYPE=Release ^
+    -DCMAKE_PREFIX_PATH=D:/source_code/fincore_cpp/build-win/stage-relocated ^
+    -DEXPECTED_PACKAGE_PREFIX=D:/source_code/fincore_cpp/build-win/stage-relocated
+  cmake --build %TEMP%\i8-windows-consumer\build --parallel 8
+  %TEMP%\i8-windows-consumer\build\fincore_headless_consumer.exe
+
+Report artifacts:
+  cmake --build build-win --target fincore_i8_artifacts --parallel 8
+  build-win\fincore_i8_artifacts.exe %TEMP%\fincore-i8-windows-evidence\windows-artifacts
+  python tools/iteration8_artifact_check.py ^
+    --dir %TEMP%\fincore-i8-windows-evidence\windows-artifacts --skip-pdf-raster
+
+Release compiler flags:
+  /std:c++latest /utf-8 /O2 /Ob2 /DNDEBUG /MD /EHsc
+  (/utf-8 and the sanitizer mapping are Windows portability changes; no
+  sanitizer was enabled on this Release leg.)
+
+Result summary:
+  Clean build: 246/246 steps, exit 0.
+  CTest: 1044/1044 passed, 0 failed, 25.12 s.
+  Installed consumer: configure/build/run exit 0, `fincore_headless_consumer: ok`.
+  Artifact checks: 13/13 value checks passed; PDF page rasterization skipped
+  because `pdftoppm` is absent on the host (PDF text checks passed).
+  Embedded ECharts asset: exact byte containment, SHA-256
+  42f8329d989b6f6539dd2b15bbdf0d82025762ac112fbb60dc57b27d7bcf3946.

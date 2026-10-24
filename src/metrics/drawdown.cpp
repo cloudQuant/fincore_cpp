@@ -2,9 +2,11 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
 #include <limits>
 #include <optional>
 #include <span>
+#include <utility>
 #include <vector>
 
 namespace {
@@ -83,13 +85,25 @@ std::vector<underwater_event> scan_underwater_events(
 
 double elapsed_utc_days(const fincore::timestamp start,
                         const fincore::timestamp end) {
-    constexpr __int128 nanoseconds_per_day =
-        static_cast<__int128>(86'400) * 1'000'000'000;
-    const __int128 elapsed =
-        static_cast<__int128>(end) - static_cast<__int128>(start);
-    __int128 days = elapsed / nanoseconds_per_day;
-    if (elapsed < 0 && elapsed % nanoseconds_per_day != 0) {
+    constexpr std::int64_t nanoseconds_per_day =
+        86'400LL * 1'000'000'000LL;
+    const auto floor_divmod = [](const std::int64_t value) {
+        auto quotient = value / nanoseconds_per_day;
+        auto remainder = value % nanoseconds_per_day;
+        if (remainder < 0) {
+            --quotient;
+            remainder += nanoseconds_per_day;
+        }
+        return std::pair{quotient, remainder};
+    };
+    const auto [end_days, end_remainder] = floor_divmod(end);
+    const auto [start_days, start_remainder] = floor_divmod(start);
+    auto days = end_days - start_days;
+    const auto remainder = end_remainder - start_remainder;
+    if (remainder < 0) {
         --days;
+    } else if (remainder >= nanoseconds_per_day) {
+        ++days;
     }
     return static_cast<double>(days);
 }

@@ -336,8 +336,8 @@ double alpha_percentile_rank(
     double annualization,
     std::string_view returns_column_name,
     std::string_view benchmark_column_name) {
-    if (returns_column_name.find(' ') != std::string_view::npos ||
-        benchmark_column_name.find(' ') != std::string_view::npos) {
+    if (returns_column_name.find('\0') != std::string_view::npos ||
+        benchmark_column_name.find('\0') != std::string_view::npos) {
         throw input_error{"column name must not contain an embedded NUL"};
     }
     if (require_double_column(strategy_returns, returns_column_name).size() <

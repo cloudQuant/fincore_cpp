@@ -39,8 +39,13 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
+#if defined(_WIN32)
+#include <io.h>
+#include <sys/stat.h>
+#else
 #include <sys/types.h>
 #include <unistd.h>
+#endif
 
 namespace fincore {
 namespace {
@@ -594,6 +599,24 @@ bool path_entry_exists(const std::filesystem::path& path) {
     return status.type() != std::filesystem::file_type::not_found;
 }
 
+#if defined(_WIN32)
+bool is_windows_reserved_component(const std::string& component) {
+    auto stem = component.substr(0, component.find('.'));
+    for (auto& character : stem) {
+        if (character >= 'A' && character <= 'Z') {
+            character = static_cast<char>(character - 'A' + 'a');
+        }
+    }
+    if (stem == "con" || stem == "prn" || stem == "aux" || stem == "nul") {
+        return true;
+    }
+    return stem.size() == 4 &&
+           (stem.compare(0, 3, "com") == 0 ||
+            stem.compare(0, 3, "lpt") == 0) &&
+           stem[3] >= '1' && stem[3] <= '9';
+}
+#endif
+
 std::filesystem::path validate_artifact_name(const std::string& name) {
     if (name.empty() || name.find('\0') != std::string::npos ||
         name.find('\\') != std::string::npos) {
@@ -608,6 +631,15 @@ std::filesystem::path validate_artifact_name(const std::string& name) {
         if (component == ".." || component == ".") {
             throw input_error{"artifact names must not contain dot paths"};
         }
+#if defined(_WIN32)
+        const auto text = component.string();
+        if (text.find(':') != std::string::npos ||
+            (!text.empty() &&
+             (text.back() == '.' || text.back() == ' ')) ||
+            is_windows_reserved_component(text)) {
+            throw input_error{"artifact names must be portable to Windows"};
+        }
+#endif
     }
     const auto normalized = path.lexically_normal();
     if (normalized.empty() || normalized == ".") {
@@ -743,6 +775,43 @@ std::string artifact_manifest(const artifact_bundle& bundle) {
     return output;
 }
 
+#if defined(_WIN32)
+constexpr int exclusive_write_flags =
+    _O_WRONLY | _O_CREAT | _O_EXCL | _O_BINARY | _O_NOINHERIT;
+constexpr std::size_t max_write_chunk =
+    std::numeric_limits<unsigned int>::max();
+
+int open_exclusive(const std::filesystem::path& path) {
+    return _wopen(path.c_str(), exclusive_write_flags,
+                  _S_IREAD | _S_IWRITE);
+}
+int write_bytes(const int descriptor, const char* data,
+                const std::size_t size) {
+    return _write(descriptor, data, static_cast<unsigned int>(size));
+}
+int close_file(const int descriptor) { return _close(descriptor); }
+int remove_file(const std::filesystem::path& path) {
+    return _wunlink(path.c_str());
+}
+#else
+constexpr int exclusive_write_flags =
+    O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW;
+constexpr std::size_t max_write_chunk =
+    static_cast<std::size_t>(std::numeric_limits<ssize_t>::max());
+
+int open_exclusive(const std::filesystem::path& path) {
+    return ::open(path.c_str(), exclusive_write_flags, 0666);
+}
+ssize_t write_bytes(const int descriptor, const char* data,
+                    const std::size_t size) {
+    return ::write(descriptor, data, size);
+}
+int close_file(const int descriptor) { return ::close(descriptor); }
+int remove_file(const std::filesystem::path& path) {
+    return ::unlink(path.c_str());
+}
+#endif
+
 void write_bundle_file(const std::filesystem::path& root,
                        const std::filesystem::path& canonical_root,
                        const std::filesystem::path& relative_path,
@@ -803,8 +872,7 @@ void write_bundle_file(const std::filesystem::path& root,
     if (path_entry_exists(destination)) {
         throw input_error{"refusing to overwrite an artifact path"};
     }
-    const int open_flags = O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW;
-    int descriptor = ::open(destination.c_str(), open_flags, 0666);
+    int descriptor = open_exclusive(destination);
     if (descriptor < 0) {
         throw std::filesystem::filesystem_error(
             "could not create artifact exclusively", destination,
@@ -813,19 +881,18 @@ void write_bundle_file(const std::filesystem::path& root,
     try {
         created_paths.push_back(destination);
     } catch (...) {
-        ::close(descriptor);
-        ::unlink(destination.c_str());
+        close_file(descriptor);
+        remove_file(destination);
         throw;
     }
 
     try {
         std::size_t written = 0U;
-        const auto max_chunk = static_cast<std::size_t>(
-            std::numeric_limits<ssize_t>::max());
         while (written < bytes.size()) {
-            const auto chunk = std::min(bytes.size() - written, max_chunk);
-            const auto count = ::write(descriptor, bytes.data() + written,
-                                       chunk);
+            const auto chunk = std::min(bytes.size() - written,
+                                        max_write_chunk);
+            const auto count = write_bytes(descriptor, bytes.data() + written,
+                                           chunk);
             if (count < 0) {
                 if (errno == EINTR) {
                     continue;
@@ -839,7 +906,7 @@ void write_bundle_file(const std::filesystem::path& root,
             }
             written += static_cast<std::size_t>(count);
         }
-        const int close_status = ::close(descriptor);
+        const int close_status = close_file(descriptor);
         descriptor = -1;
         if (close_status != 0) {
             throw std::system_error(errno, std::generic_category(),
@@ -847,7 +914,7 @@ void write_bundle_file(const std::filesystem::path& root,
         }
     } catch (...) {
         if (descriptor >= 0) {
-            ::close(descriptor);
+            close_file(descriptor);
         }
         throw;
     }

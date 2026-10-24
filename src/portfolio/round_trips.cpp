@@ -500,12 +500,12 @@ round_trip_stats gen_round_trip_stats(
     const std::string_view symbol_column_name,
     const std::string_view open_column_name,
     const std::string_view close_column_name) {
-    if (pnl_column_name.find(' ') != std::string_view::npos ||
-        returns_column_name.find(' ') != std::string_view::npos ||
-        long_column_name.find(' ') != std::string_view::npos ||
-        symbol_column_name.find(' ') != std::string_view::npos ||
-        open_column_name.find(' ') != std::string_view::npos ||
-        close_column_name.find(' ') != std::string_view::npos) {
+    if (pnl_column_name.find('\0') != std::string_view::npos ||
+        returns_column_name.find('\0') != std::string_view::npos ||
+        long_column_name.find('\0') != std::string_view::npos ||
+        symbol_column_name.find('\0') != std::string_view::npos ||
+        open_column_name.find('\0') != std::string_view::npos ||
+        close_column_name.find('\0') != std::string_view::npos) {
         throw input_error{"column name must not contain an embedded NUL"};
     }
     if (round_trips.get_index().empty()) {
