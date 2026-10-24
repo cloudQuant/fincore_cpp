@@ -10,6 +10,7 @@
 #include <cmath>
 #include <cstdint>
 #include <filesystem>
+#include <future>
 #include <fstream>
 #include <iterator>
 #include <limits>
@@ -326,9 +327,30 @@ factor_series research_panel_for_benchmark(
 std::vector<research_signal_row> build_signals(
     const factor_series& factors, const factor_series& panel,
     const research_spec& spec) {
-    std::map<std::pair<timestamp, std::string>, double> raw;
+    std::unordered_map<timestamp, std::size_t> dates;
+    std::unordered_map<std::string, std::size_t> assets;
+    dates.reserve(factors.dates.size());
+    assets.reserve(factors.assets.size());
     for (std::size_t row = 0; row < factors.dates.size(); ++row) {
-        raw[{factors.dates[row], factors.assets[row]}] = factors.values[row];
+        dates.try_emplace(factors.dates[row], dates.size());
+        assets.try_emplace(factors.assets[row], assets.size());
+    }
+    for (std::size_t row = 0; row < panel.dates.size(); ++row) {
+        dates.try_emplace(panel.dates[row], dates.size());
+        assets.try_emplace(panel.assets[row], assets.size());
+    }
+    const auto width = assets.size();
+    std::vector<double> raw(dates.size() * width, nan);
+    std::vector<unsigned char> has_raw(dates.size() * width, 0U);
+    for (std::size_t row = 0; row < factors.dates.size(); ++row) {
+        const auto date = dates.find(factors.dates[row]);
+        const auto asset = assets.find(factors.assets[row]);
+        if (date == dates.end() || asset == assets.end()) {
+            continue;
+        }
+        const auto index = date->second * width + asset->second;
+        raw[index] = factors.values[row];
+        has_raw[index] = 1U;
     }
     std::vector<research_signal_row> signals;
     signals.reserve(panel.dates.size());
@@ -338,9 +360,11 @@ std::vector<research_signal_row> build_signals(
         const int sign = direction != spec.direction_overrides.end()
                              ? direction->second
                              : 1;
-        const auto found = raw.find({panel.dates[row], panel.assets[row]});
-        const double value = found != raw.end()
-                                 ? found->second * static_cast<double>(sign)
+        const auto date = dates.find(panel.dates[row]);
+        const auto asset = assets.find(panel.assets[row]);
+        const auto index = date->second * width + asset->second;
+        const double value = has_raw[index] != 0U
+                                 ? raw[index] * static_cast<double>(sign)
                                  : panel.values[row];
         const auto group = spec.groups.find(panel.assets[row]);
         signals.push_back(
@@ -350,7 +374,6 @@ std::vector<research_signal_row> build_signals(
     }
     return signals;
 }
-
 
 factor_series apply_universe(const factor_series& panel,
                              const dataframe& universe) {
@@ -571,6 +594,11 @@ forward_return_table next_open_table(const dataframe& prices,
     table.dates = prices.get_index();
     table.assets = assets;
     table.labels = labels;
+    std::vector<const std::vector<double>*> columns;
+    columns.reserve(assets.size());
+    for (const auto& asset : assets) {
+        columns.push_back(&prices.get_column<double>(asset.c_str()));
+    }
     for (const int period : spec.periods) {
         std::vector<double> values(table.dates.size() * assets.size(), nan);
         for (std::size_t row = 0; row < table.dates.size(); ++row) {
@@ -581,8 +609,7 @@ forward_return_table next_open_table(const dataframe& prices,
                 continue;
             }
             for (std::size_t asset = 0; asset < assets.size(); ++asset) {
-                const auto& column =
-                    prices.get_column<double>(assets[asset].c_str());
+                const auto& column = *columns[asset];
                 const double numerator = column[numerator_row];
                 const double denominator = column[row + 1U];
                 const double value = numerator / denominator - 1.0;
@@ -684,12 +711,34 @@ research_result assemble_research(
     }
 
     // Combine per-horizon ICs into one date x horizon table and summaries.
-    std::vector<factor_ic_table> ics;
-    ics.reserve(prepared.by_horizon.size());
-    std::set<timestamp> dates_set;
+    std::size_t total_prepared_rows = 0U;
     for (const auto& entry : prepared.by_horizon) {
-        ics.push_back(factor_information_coefficient(entry.second));
-        for (const auto date : ics.back().dates) {
+        total_prepared_rows += entry.second.rows.size();
+    }
+    const bool parallel_horizons =
+        prepared.by_horizon.size() > 1U && total_prepared_rows >= 100000U;
+    std::vector<factor_ic_table> ics(prepared.by_horizon.size());
+    if (parallel_horizons) {
+        std::vector<std::future<factor_ic_table>> futures;
+        futures.reserve(prepared.by_horizon.size());
+        for (const auto& entry : prepared.by_horizon) {
+            futures.push_back(std::async(
+                std::launch::async,
+                [&entry] { return factor_information_coefficient(entry.second); }));
+        }
+        for (std::size_t index = 0; index < futures.size(); ++index) {
+            ics[index] = futures[index].get();
+        }
+    } else {
+        for (std::size_t index = 0; index < prepared.by_horizon.size();
+             ++index) {
+            ics[index] = factor_information_coefficient(
+                prepared.by_horizon[index].second);
+        }
+    }
+    std::set<timestamp> dates_set;
+    for (const auto& ic : ics) {
+        for (const auto date : ic.dates) {
             dates_set.insert(date);
         }
     }
@@ -719,6 +768,29 @@ research_result assemble_research(
         result.quantile_returns.quantiles.size() * labels, nan);
     result.quantile_returns.standard_errors.assign(
         result.quantile_returns.quantiles.size() * labels, nan);
+    std::vector<quantile_return_table> quantile_tables(
+        prepared.by_horizon.size());
+    if (parallel_horizons) {
+        std::vector<std::future<quantile_return_table>> futures;
+        futures.reserve(prepared.by_horizon.size());
+        for (const auto& entry : prepared.by_horizon) {
+            futures.push_back(std::async(
+                std::launch::async,
+                [&entry] {
+                    return mean_return_by_quantile(
+                        entry.second, false, false, false, false);
+                }));
+        }
+        for (std::size_t index = 0; index < futures.size(); ++index) {
+            quantile_tables[index] = futures[index].get();
+        }
+    } else {
+        for (std::size_t index = 0; index < prepared.by_horizon.size();
+             ++index) {
+            quantile_tables[index] = mean_return_by_quantile(
+                prepared.by_horizon[index].second, false, false, false, false);
+        }
+    }
     std::map<timestamp, std::size_t> date_position;
     for (std::size_t index = 0; index < dates; ++index) {
         date_position[result.information_coefficient.dates[index]] = index;
@@ -741,8 +813,7 @@ research_result assemble_research(
         // Research tables report raw quantile returns; demeaning is an
         // analysis-view option and would make the table incomparable with the
         // Python research contract.
-        const auto quantile_table = mean_return_by_quantile(
-            prepared_horizon, false, false, false, false);
+        const auto& quantile_table = quantile_tables[label];
         for (std::size_t quantile = 0;
              quantile < result.quantile_returns.quantiles.size();
              ++quantile) {
@@ -774,14 +845,11 @@ research_result assemble_research(
             result.spread[label] = top - bottom;
         }
         if (label == 0U) {
-            for (const int lag : spec.stability_lags) {
-                result.stability.push_back(
-                    factor_rank_autocorrelation(prepared_horizon, lag));
-            }
-            for (const int quantile : result.quantile_returns.quantiles) {
-                result.turnover.push_back(
-                    quantile_turnover(prepared_horizon, quantile, 1));
-            }
+            result.stability =
+                detail::factor_rank_autocorrelation_many(
+                    prepared_horizon, spec.stability_lags);
+            result.turnover = detail::quantile_turnover_many(
+                prepared_horizon, result.quantile_returns.quantiles, 1);
         }
     }
     result.stability_lags = spec.stability_lags;
@@ -793,6 +861,11 @@ research_result assemble_research(
             }
         }
     }
+    std::size_t label_row_count = 0U;
+    for (const auto& entry : prepared.by_horizon) {
+        label_row_count += entry.second.rows.size();
+    }
+    result.labels.reserve(label_row_count);
     result.status = result.coverage.empty() ? "UNEVALUABLE" : "OK";
     for (const std::size_t count : result.coverage) {
         if (count == 0U) {
@@ -807,26 +880,28 @@ research_result assemble_research(
 
 namespace {
 
-std::string csv_escape(const std::string& text) {
+void append_csv_escape(std::string& output, const std::string& text) {
     if (text.find_first_of(",\"\n\r") == std::string::npos) {
-        return text;
+        output += text;
+        return;
     }
-    std::string escaped{"\""};
+    output.push_back('"');
     for (const char character : text) {
         if (character == '"') {
-            escaped.push_back('"');
+            output.push_back('"');
         }
-        escaped.push_back(character);
+        output.push_back(character);
     }
-    escaped.push_back('"');
-    return escaped;
+    output.push_back('"');
 }
 
 std::string csv_number(const double value) {
     if (!std::isfinite(value)) {
         return {};
     }
-    return detail::python_float(value, "research export");
+    std::string result;
+    detail::append_python_float(result, value, "research export");
+    return result;
 }
 
 std::string json_escape(const std::string& text) {
@@ -844,16 +919,39 @@ std::string json_escape(const std::string& text) {
     return escaped;
 }
 
-std::string row_text(const std::vector<std::string>& cells) {
-    std::string line;
+void append_row_text(std::string& line,
+                     const std::vector<std::string>& cells) {
+    std::size_t reserve = cells.size();
+    for (const auto& cell : cells) {
+        reserve += cell.size() + 3U;
+    }
+    line.reserve(line.size() + reserve);
     for (std::size_t index = 0; index < cells.size(); ++index) {
         if (index > 0U) {
             line.push_back(',');
         }
-        line += csv_escape(cells[index]);
+        append_csv_escape(line, cells[index]);
     }
     line.push_back('\n');
+}
+
+std::string row_text(const std::vector<std::string>& cells) {
+    std::string line;
+    append_row_text(line, cells);
     return line;
+}
+
+constexpr std::size_t export_buffer_bytes = 1U << 20;
+
+void flush_export_buffer(std::ofstream& stream, std::string& buffer) {
+    if (buffer.empty()) {
+        return;
+    }
+    stream.write(buffer.data(), static_cast<std::streamsize>(buffer.size()));
+    if (!stream) {
+        throw factor_data_error{"could not write research export file"};
+    }
+    buffer.clear();
 }
 
 void finish_output_stream(std::ofstream& stream,
@@ -955,13 +1053,16 @@ void write_table_rows_impl(const std::filesystem::path& path,
     if (!stream) {
         throw factor_data_error{"could not create research export file"};
     }
-    stream << row_text(header);
+    std::string buffer;
+    buffer.reserve(export_buffer_bytes + 65536U);
+    append_row_text(buffer, header);
     for (const auto& row : rows) {
-        stream << row_text(row);
+        append_row_text(buffer, row);
+        if (buffer.size() >= export_buffer_bytes) {
+            flush_export_buffer(stream, buffer);
+        }
     }
-    if (!stream) {
-        throw factor_data_error{"could not write research export file"};
-    }
+    flush_export_buffer(stream, buffer);
     finish_output_stream(stream, "could not write research export file");
 }
 
@@ -975,13 +1076,16 @@ void write_table(const std::filesystem::path& path,
     if (!stream) {
         throw factor_data_error{"could not create research export file"};
     }
-    stream << row_text(header);
-    generate([&stream](const std::vector<std::string>& row) {
-        stream << row_text(row);
+    std::string buffer;
+    buffer.reserve(export_buffer_bytes + 65536U);
+    append_row_text(buffer, header);
+    generate([&stream, &buffer](const std::vector<std::string>& row) {
+        append_row_text(buffer, row);
+        if (buffer.size() >= export_buffer_bytes) {
+            flush_export_buffer(stream, buffer);
+        }
     });
-    if (!stream) {
-        throw factor_data_error{"could not write research export file"};
-    }
+    flush_export_buffer(stream, buffer);
     finish_output_stream(stream, "could not write research export file");
 }
 
@@ -1066,16 +1170,44 @@ static research_result evaluate_with_table(
                 "precomputed return rows must match dates x assets"};
         }
     }
-    std::map<std::pair<timestamp, std::string>, std::size_t> rows;
+    std::unordered_map<timestamp, std::size_t> date_index;
+    date_index.reserve(date_count);
     for (std::size_t date = 0; date < date_count; ++date) {
+        date_index.try_emplace(precomputed_returns.dates[date], date);
+    }
+    std::unordered_map<std::string, std::size_t> asset_index;
+    asset_index.reserve(asset_count);
+    for (std::size_t asset = 0; asset < asset_count; ++asset) {
+        asset_index.try_emplace(precomputed_returns.assets[asset], asset);
+    }
+    std::vector<unsigned char> present(date_count * asset_count, 0U);
+    for (std::size_t date = 0; date < date_count; ++date) {
+        const auto date_position =
+            date_index.find(precomputed_returns.dates[date]);
         for (std::size_t asset = 0; asset < asset_count; ++asset) {
-            const auto key =
-                std::pair{precomputed_returns.dates[date],
-                          precomputed_returns.assets[asset]};
-            if (!rows.emplace(key, date * asset_count + asset).second) {
+            const auto asset_position =
+                asset_index.find(precomputed_returns.assets[asset]);
+            const auto index =
+                date_position->second * asset_count + asset_position->second;
+            if (present[index] != 0U) {
                 throw factor_data_error{
                     "precomputed returns keys must be unique"};
             }
+            present[index] = 1U;
+        }
+    }
+    constexpr std::size_t missing_index =
+        std::numeric_limits<std::size_t>::max();
+    std::vector<std::size_t> panel_index(panel.dates.size(), missing_index);
+    for (std::size_t row = 0; row < panel.dates.size(); ++row) {
+        const auto date = date_index.find(panel.dates[row]);
+        const auto asset = asset_index.find(panel.assets[row]);
+        if (date == date_index.end() || asset == asset_index.end()) {
+            continue;
+        }
+        const auto index = date->second * asset_count + asset->second;
+        if (present[index] != 0U) {
+            panel_index[row] = index;
         }
     }
     std::vector<std::size_t> label_indices;
@@ -1118,14 +1250,18 @@ static research_result evaluate_with_table(
         // contract. Binning the whole panel would shift edges on dates with
         // missing labels.
         factor_series labeled_panel;
+        labeled_panel.dates.reserve(panel.dates.size());
+        labeled_panel.assets.reserve(panel.dates.size());
+        labeled_panel.values.reserve(panel.dates.size());
         std::vector<std::size_t> labeled_rows;
+        labeled_rows.reserve(panel.dates.size());
         for (std::size_t row = 0; row < panel.dates.size(); ++row) {
-            const auto found = rows.find({panel.dates[row], panel.assets[row]});
-            if (found == rows.end()) {
+            const auto index = panel_index[row];
+            if (index == missing_index) {
                 continue;
             }
             const double value =
-                precomputed_returns.values[label_index][found->second];
+                precomputed_returns.values[label_index][index];
             if (!std::isfinite(value)) {
                 continue;
             }
@@ -1136,27 +1272,20 @@ static research_result evaluate_with_table(
         }
         const auto labeled_quantiles =
             quantize_factor(labeled_panel, quantile_config);
-        std::vector<std::optional<int>> quantiles(panel.dates.size());
+        horizon.rows.reserve(labeled_rows.size());
         for (std::size_t index = 0; index < labeled_rows.size(); ++index) {
-            quantiles[labeled_rows[index]] = labeled_quantiles[index];
-        }
-        for (std::size_t row = 0; row < panel.dates.size(); ++row) {
-            const auto found = rows.find({panel.dates[row], panel.assets[row]});
-            if (found == rows.end()) {
+            if (!labeled_quantiles[index].has_value()) {
                 continue;
             }
-            const double value =
-                precomputed_returns.values[label_index][found->second];
-            if (!std::isfinite(value) || !quantiles[row].has_value()) {
-                continue;
-            }
+            const auto row = labeled_rows[index];
             factor_row factor;
             factor.date = panel.dates[row];
             factor.asset = panel.assets[row];
             factor.factor = panel.values[row];
-            factor.quantile = *quantiles[row];
+            factor.quantile = *labeled_quantiles[index];
             factor.has_group = false;
-            factor.forward_returns = {value};
+            factor.forward_returns = {
+                precomputed_returns.values[label_index][panel_index[row]]};
             horizon.rows.push_back(std::move(factor));
         }
         if (horizon.rows.empty()) {

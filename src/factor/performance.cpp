@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
 #include <limits>
 #include <map>
 #include <numeric>
@@ -12,6 +13,7 @@
 #include <set>
 #include <string>
 #include <tuple>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -25,11 +27,14 @@ thread_local detail::factor_compute_diagnostics compute_diagnostics;
 using bucket_key = std::pair<timestamp, std::string>;
 
 std::vector<timestamp> unique_dates(const prepared_factor_data& data) {
-    std::set<timestamp> dates;
+    std::vector<timestamp> dates;
+    dates.reserve(data.rows.size());
     for (const auto& row : data.rows) {
-        dates.insert(row.date);
+        dates.push_back(row.date);
     }
-    return {dates.begin(), dates.end()};
+    std::sort(dates.begin(), dates.end());
+    dates.erase(std::unique(dates.begin(), dates.end()), dates.end());
+    return dates;
 }
 
 std::vector<double> average_ranks(std::span<const double> values) {
@@ -580,6 +585,56 @@ factor_ic_table factor_information_coefficient(
     const std::size_t labels = factor_data.forward_labels.size();
     factor_ic_table table;
     table.labels = factor_data.forward_labels;
+    if (!by_group && !group_adjust) {
+        table.dates = unique_dates(factor_data);
+        table.values.assign(table.dates.size() * labels, nan);
+        if (table.dates.empty() || labels == 0U) {
+            return table;
+        }
+        std::unordered_map<timestamp, std::size_t> date_index;
+        date_index.reserve(table.dates.size());
+        for (std::size_t index = 0; index < table.dates.size(); ++index) {
+            date_index.emplace(table.dates[index], index);
+        }
+        std::vector<std::vector<std::size_t>> buckets(table.dates.size());
+        for (std::size_t row = 0; row < factor_data.rows.size(); ++row) {
+            const auto date = date_index.find(factor_data.rows[row].date);
+            if (date != date_index.end()) {
+                buckets[date->second].push_back(row);
+            }
+        }
+        std::vector<double> left;
+        std::vector<double> right;
+        std::size_t max_bucket = 0U;
+        for (const auto& bucket : buckets) {
+            max_bucket = std::max(max_bucket, bucket.size());
+        }
+        left.reserve(max_bucket);
+        right.reserve(max_bucket);
+        for (std::size_t date = 0; date < buckets.size(); ++date) {
+            for (std::size_t label = 0; label < labels; ++label) {
+                left.clear();
+                right.clear();
+                for (const std::size_t row : buckets[date]) {
+                    if (!std::isfinite(factor_data.rows[row].factor) ||
+                        label >=
+                            factor_data.rows[row].forward_returns.size() ||
+                        !std::isfinite(
+                            factor_data.rows[row].forward_returns[label])) {
+                        continue;
+                    }
+                    left.push_back(factor_data.rows[row].factor);
+                    right.push_back(
+                        factor_data.rows[row].forward_returns[label]);
+                }
+                if (left.size() >= 2U) {
+                    table.values[date * labels + label] =
+                        spearman(left, right);
+                }
+            }
+        }
+        return table;
+    }
     auto forwards = group_adjust
                         ? demean_returns(factor_data, true).values
                         : forward_matrix(factor_data);
@@ -890,6 +945,92 @@ quantile_return_table mean_return_by_quantile(
         throw factor_data_error{
             "by_date=true is not available in the native quantile table"};
     }
+    if (!by_group && !demeaned && !group_adjust) {
+        // Research evaluation uses the raw daily quantile means. Build the
+        // same date-major table with flat accumulators instead of a map per
+        // row; the arithmetic and ordering match the general path.
+        const std::size_t labels = factor_data.forward_labels.size();
+        const auto dates = unique_dates(factor_data);
+        std::set<int> quantile_set;
+        for (const auto& row : factor_data.rows) {
+            quantile_set.insert(row.quantile);
+        }
+        quantile_return_table table;
+        table.quantiles.assign(quantile_set.begin(), quantile_set.end());
+        table.labels = factor_data.forward_labels;
+        const std::size_t quantile_count = table.quantiles.size();
+        table.means.assign(quantile_count * labels, nan);
+        table.standard_errors.assign(quantile_count * labels, nan);
+        if (dates.empty() || quantile_count == 0U || labels == 0U) {
+            return table;
+        }
+        std::unordered_map<timestamp, std::size_t> date_index;
+        date_index.reserve(dates.size());
+        for (std::size_t index = 0; index < dates.size(); ++index) {
+            date_index.emplace(dates[index], index);
+        }
+        std::map<int, std::size_t> quantile_index;
+        for (std::size_t index = 0; index < quantile_count; ++index) {
+            quantile_index.emplace(table.quantiles[index], index);
+        }
+        const auto cells = quantile_count * dates.size() * labels;
+        std::vector<double> sums(cells, 0.0);
+        std::vector<std::size_t> counts(cells, 0U);
+        for (const auto& row : factor_data.rows) {
+            const auto date = date_index.find(row.date);
+            const auto quantile = quantile_index.find(row.quantile);
+            if (date == date_index.end() || quantile == quantile_index.end()) {
+                continue;
+            }
+            const auto base =
+                (quantile->second * dates.size() + date->second) * labels;
+            for (std::size_t label = 0; label < labels; ++label) {
+                if (label >= row.forward_returns.size()) {
+                    continue;
+                }
+                const auto value = row.forward_returns[label];
+                if (!std::isfinite(value)) {
+                    continue;
+                }
+                sums[base + label] += value;
+                ++counts[base + label];
+            }
+        }
+        std::vector<double> date_means;
+        date_means.reserve(dates.size());
+        for (std::size_t quantile = 0; quantile < quantile_count; ++quantile) {
+            for (std::size_t label = 0; label < labels; ++label) {
+                date_means.clear();
+                for (std::size_t date = 0; date < dates.size(); ++date) {
+                    const auto index =
+                        (quantile * dates.size() + date) * labels + label;
+                    if (counts[index] != 0U) {
+                        date_means.push_back(
+                            sums[index] /
+                            static_cast<double>(counts[index]));
+                    }
+                }
+                if (date_means.empty()) {
+                    continue;
+                }
+                const double mean =
+                    std::accumulate(date_means.begin(), date_means.end(), 0.0) /
+                    static_cast<double>(date_means.size());
+                table.means[quantile * labels + label] = mean;
+                if (date_means.size() > 1U) {
+                    double variance = 0.0;
+                    for (const double value : date_means) {
+                        variance += (value - mean) * (value - mean);
+                    }
+                    variance /= static_cast<double>(date_means.size() - 1U);
+                    table.standard_errors[quantile * labels + label] =
+                        std::sqrt(variance) /
+                        std::sqrt(static_cast<double>(date_means.size()));
+                }
+            }
+        }
+        return table;
+    }
     const std::size_t labels = factor_data.forward_labels.size();
     auto forwards = group_adjust
                         ? demean_returns(factor_data, true).values
@@ -1159,33 +1300,59 @@ factor_series_result quantile_turnover(
         throw factor_data_error{"period must be a positive integer"};
     }
     const auto dates = unique_dates(factor_data);
-    std::map<timestamp, std::set<std::string>> names;
+    std::unordered_map<timestamp, std::size_t> date_index;
+    date_index.reserve(dates.size());
+    for (std::size_t index = 0; index < dates.size(); ++index) {
+        date_index.emplace(dates[index], index);
+    }
+    std::unordered_map<std::string, std::uint32_t> asset_ids;
+    asset_ids.reserve(factor_data.rows.size());
+    std::vector<std::vector<std::uint32_t>> names(dates.size());
     for (const auto& row : factor_data.rows) {
-        if (row.quantile == quantile) {
-            names[row.date].insert(row.asset);
+        if (row.quantile != quantile) {
+            continue;
         }
+        const auto date = date_index.find(row.date);
+        if (date == date_index.end()) {
+            continue;
+        }
+        const auto [entry, inserted] =
+            asset_ids.try_emplace(row.asset,
+                                  static_cast<std::uint32_t>(asset_ids.size()));
+        static_cast<void>(inserted);
+        names[date->second].push_back(entry->second);
+    }
+    for (auto& date_names : names) {
+        std::sort(date_names.begin(), date_names.end());
     }
     factor_series_result result;
     result.dates = dates;
     result.values.assign(dates.size(), nan);
     for (std::size_t position = static_cast<std::size_t>(period);
          position < dates.size(); ++position) {
-        const auto current = names.find(dates[position]);
-        if (current == names.end() || current->second.empty()) {
+        const auto& current = names[position];
+        if (current.empty()) {
             continue;
         }
-        const auto previous = names.find(dates[position -
-                                               static_cast<std::size_t>(period)]);
-        std::size_t entering = 0U;
-        for (const auto& asset : current->second) {
-            if (previous == names.end() ||
-                previous->second.find(asset) == previous->second.end()) {
-                ++entering;
+        const auto& previous =
+            names[position - static_cast<std::size_t>(period)];
+        std::size_t left = 0U;
+        std::size_t right = 0U;
+        std::size_t common = 0U;
+        while (left < current.size() && right < previous.size()) {
+            if (current[left] < previous[right]) {
+                ++left;
+            } else if (previous[right] < current[left]) {
+                ++right;
+            } else {
+                ++common;
+                ++left;
+                ++right;
             }
         }
         result.values[position] =
-            static_cast<double>(entering) /
-            static_cast<double>(current->second.size());
+            static_cast<double>(current.size() - common) /
+            static_cast<double>(current.size());
     }
     return result;
 }
@@ -1196,40 +1363,75 @@ factor_series_result factor_rank_autocorrelation(
         throw factor_data_error{"period must be a positive integer"};
     }
     const auto dates = unique_dates(factor_data);
-    std::map<timestamp, std::map<std::string, double>> ranks;
-    std::map<timestamp, std::vector<std::string>> assets;
-    for (const auto& date : dates) {
-        std::vector<std::string> names;
-        std::vector<double> values;
-        for (const auto& row : factor_data.rows) {
-            if (row.date == date && std::isfinite(row.factor)) {
-                names.push_back(row.asset);
-                values.push_back(row.factor);
-            }
-        }
-        const auto ranked = average_ranks(values);
-        for (std::size_t index = 0; index < names.size(); ++index) {
-            ranks[date][names[index]] = ranked[index];
-        }
-        assets[date] = std::move(names);
-    }
     factor_series_result result;
     result.dates = dates;
     result.values.assign(dates.size(), nan);
+    if (dates.empty()) {
+        return result;
+    }
+    std::unordered_map<timestamp, std::size_t> date_index;
+    date_index.reserve(dates.size());
+    for (std::size_t index = 0; index < dates.size(); ++index) {
+        date_index.emplace(dates[index], index);
+    }
+    std::unordered_map<std::string, std::uint32_t> asset_ids;
+    asset_ids.reserve(factor_data.rows.size());
+    std::vector<std::vector<std::size_t>> rows_by_date(dates.size());
+    for (std::size_t row_index = 0; row_index < factor_data.rows.size();
+         ++row_index) {
+        const auto& row = factor_data.rows[row_index];
+        if (!std::isfinite(row.factor)) {
+            continue;
+        }
+        const auto date = date_index.find(row.date);
+        if (date == date_index.end()) {
+            continue;
+        }
+        const auto [entry, inserted] = asset_ids.try_emplace(
+            row.asset, static_cast<std::uint32_t>(asset_ids.size()));
+        static_cast<void>(inserted);
+        rows_by_date[date->second].push_back(row_index);
+    }
+    const auto width = asset_ids.size();
+    std::vector<double> ranks(dates.size() * width, nan);
+    std::vector<std::vector<std::uint32_t>> ids_by_date(dates.size());
+    std::vector<double> values;
+    std::vector<std::uint32_t> ids;
+    for (std::size_t date_position = 0; date_position < dates.size();
+         ++date_position) {
+        values.clear();
+        ids.clear();
+        for (const auto row_index : rows_by_date[date_position]) {
+            const auto& row = factor_data.rows[row_index];
+            const auto id = asset_ids.find(row.asset);
+            values.push_back(row.factor);
+            ids.push_back(id->second);
+        }
+        if (values.empty()) {
+            continue;
+        }
+        const auto ranked = average_ranks(values);
+        for (std::size_t index = 0; index < ids.size(); ++index) {
+            ranks[date_position * width + ids[index]] = ranked[index];
+        }
+        ids_by_date[date_position] = ids;
+    }
+    std::vector<double> left;
+    std::vector<double> right;
     for (std::size_t position = static_cast<std::size_t>(period);
          position < dates.size(); ++position) {
-        const auto& current_date = dates[position];
-        const auto& previous_date =
-            dates[position - static_cast<std::size_t>(period)];
-        std::vector<double> left;
-        std::vector<double> right;
-        for (const auto& asset : assets[current_date]) {
-            const auto previous = ranks[previous_date].find(asset);
-            if (previous == ranks[previous_date].end()) {
+        left.clear();
+        right.clear();
+        const auto previous_position =
+            position - static_cast<std::size_t>(period);
+        for (const auto id : ids_by_date[position]) {
+            const auto previous =
+                ranks[previous_position * width + id];
+            if (!std::isfinite(previous)) {
                 continue;
             }
-            left.push_back(ranks[current_date][asset]);
-            right.push_back(previous->second);
+            left.push_back(ranks[position * width + id]);
+            right.push_back(previous);
         }
         result.values[position] = pearson(left, right);
     }
@@ -1867,5 +2069,179 @@ average_cumulative_return_by_quantile(
     }
     return result;
 }
+
+namespace detail {
+
+std::vector<factor_series_result> factor_rank_autocorrelation_many(
+    const prepared_factor_data& factor_data, const std::vector<int>& lags) {
+    for (const int lag : lags) {
+        if (lag <= 0) {
+            throw factor_data_error{"period must be a positive integer"};
+        }
+    }
+    const auto dates = unique_dates(factor_data);
+    std::vector<factor_series_result> results;
+    results.reserve(lags.size());
+    for (const int lag : lags) {
+        static_cast<void>(lag);
+        factor_series_result result;
+        result.dates = dates;
+        result.values.assign(dates.size(), nan);
+        results.push_back(std::move(result));
+    }
+    if (dates.empty() || factor_data.rows.empty()) {
+        return results;
+    }
+    std::unordered_map<timestamp, std::size_t> date_index;
+    date_index.reserve(dates.size());
+    for (std::size_t index = 0; index < dates.size(); ++index) {
+        date_index.emplace(dates[index], index);
+    }
+    std::unordered_map<std::string, std::uint32_t> asset_ids;
+    asset_ids.reserve(factor_data.rows.size());
+    std::vector<std::vector<std::size_t>> rows_by_date(dates.size());
+    for (std::size_t row_index = 0; row_index < factor_data.rows.size();
+         ++row_index) {
+        const auto& row = factor_data.rows[row_index];
+        if (!std::isfinite(row.factor)) {
+            continue;
+        }
+        const auto date = date_index.find(row.date);
+        if (date == date_index.end()) {
+            continue;
+        }
+        asset_ids.try_emplace(row.asset,
+                              static_cast<std::uint32_t>(asset_ids.size()));
+        rows_by_date[date->second].push_back(row_index);
+    }
+    const auto width = asset_ids.size();
+    std::vector<double> ranks(dates.size() * width, nan);
+    std::vector<std::vector<std::uint32_t>> ids_by_date(dates.size());
+    std::vector<double> values;
+    std::vector<std::uint32_t> ids;
+    for (std::size_t date = 0; date < dates.size(); ++date) {
+        values.clear();
+        ids.clear();
+        for (const auto row_index : rows_by_date[date]) {
+            const auto& row = factor_data.rows[row_index];
+            const auto id = asset_ids.find(row.asset);
+            values.push_back(row.factor);
+            ids.push_back(id->second);
+        }
+        if (values.empty()) {
+            continue;
+        }
+        const auto ranked = average_ranks(values);
+        for (std::size_t index = 0; index < ids.size(); ++index) {
+            ranks[date * width + ids[index]] = ranked[index];
+        }
+        ids_by_date[date] = ids;
+    }
+    std::vector<double> left;
+    std::vector<double> right;
+    for (std::size_t lag_index = 0; lag_index < lags.size(); ++lag_index) {
+        const auto lag = static_cast<std::size_t>(lags[lag_index]);
+        auto& result = results[lag_index];
+        for (std::size_t position = lag; position < dates.size();
+             ++position) {
+            left.clear();
+            right.clear();
+            const auto previous = position - lag;
+            for (const auto id : ids_by_date[position]) {
+                const auto previous_rank = ranks[previous * width + id];
+                if (!std::isfinite(previous_rank)) {
+                    continue;
+                }
+                left.push_back(ranks[position * width + id]);
+                right.push_back(previous_rank);
+            }
+            result.values[position] = pearson(left, right);
+        }
+    }
+    return results;
+}
+
+std::vector<factor_series_result> quantile_turnover_many(
+    const prepared_factor_data& factor_data, const std::vector<int>& quantiles,
+    const int period) {
+    if (period <= 0) {
+        throw factor_data_error{"period must be a positive integer"};
+    }
+    const auto dates = unique_dates(factor_data);
+    std::vector<factor_series_result> results;
+    results.reserve(quantiles.size());
+    for (const int quantile : quantiles) {
+        static_cast<void>(quantile);
+        factor_series_result result;
+        result.dates = dates;
+        result.values.assign(dates.size(), nan);
+        results.push_back(std::move(result));
+    }
+    if (dates.empty() || quantiles.empty() || factor_data.rows.empty()) {
+        return results;
+    }
+    std::unordered_map<timestamp, std::size_t> date_index;
+    date_index.reserve(dates.size());
+    for (std::size_t index = 0; index < dates.size(); ++index) {
+        date_index.emplace(dates[index], index);
+    }
+    std::unordered_map<int, std::size_t> quantile_index;
+    quantile_index.reserve(quantiles.size());
+    for (std::size_t index = 0; index < quantiles.size(); ++index) {
+        quantile_index.emplace(quantiles[index], index);
+    }
+    std::unordered_map<std::string, std::uint32_t> asset_ids;
+    asset_ids.reserve(factor_data.rows.size());
+    std::vector<std::vector<std::vector<std::uint32_t>>> names(
+        quantiles.size(), std::vector<std::vector<std::uint32_t>>(dates.size()));
+    for (const auto& row : factor_data.rows) {
+        const auto quantile = quantile_index.find(row.quantile);
+        const auto date = date_index.find(row.date);
+        if (quantile == quantile_index.end() || date == date_index.end()) {
+            continue;
+        }
+        const auto [asset, inserted] = asset_ids.try_emplace(
+            row.asset, static_cast<std::uint32_t>(asset_ids.size()));
+        static_cast<void>(inserted);
+        names[quantile->second][date->second].push_back(asset->second);
+    }
+    for (auto& quantile_names : names) {
+        for (auto& date_names : quantile_names) {
+            std::sort(date_names.begin(), date_names.end());
+        }
+    }
+    for (std::size_t quantile = 0; quantile < quantiles.size(); ++quantile) {
+        auto& values = results[quantile].values;
+        for (std::size_t position = static_cast<std::size_t>(period);
+             position < dates.size(); ++position) {
+            const auto& current = names[quantile][position];
+            if (current.empty()) {
+                continue;
+            }
+            const auto& previous =
+                names[quantile][position - static_cast<std::size_t>(period)];
+            std::size_t left = 0U;
+            std::size_t right = 0U;
+            std::size_t common = 0U;
+            while (left < current.size() && right < previous.size()) {
+                if (current[left] < previous[right]) {
+                    ++left;
+                } else if (previous[right] < current[left]) {
+                    ++right;
+                } else {
+                    ++common;
+                    ++left;
+                    ++right;
+                }
+            }
+            values[position] =
+                static_cast<double>(current.size() - common) /
+                static_cast<double>(current.size());
+        }
+    }
+    return results;
+}
+
+}  // namespace detail
 
 }  // namespace fincore

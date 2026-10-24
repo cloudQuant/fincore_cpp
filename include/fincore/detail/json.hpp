@@ -17,14 +17,15 @@
 
 namespace fincore::detail {
 
-inline std::string python_float(const double value,
-                         const std::string_view context) {
+inline void append_python_float(std::string& result, const double value,
+                               const std::string_view context) {
     if (!std::isfinite(value)) {
         throw input_error{std::string(context) +
                           " must not contain non-finite numeric values"};
     }
     if (value == 0.0) {
-        return std::signbit(value) ? "-0.0" : "0.0";
+        result += std::signbit(value) ? "-0.0" : "0.0";
+        return;
     }
 
     char buffer[64];
@@ -34,22 +35,23 @@ inline std::string python_float(const double value,
         throw input_error{std::string(context) +
                           " could not be serialized"};
     }
-    const std::string text(buffer, conversion.ptr);
-
+    const char* text = buffer;
+    const auto length = static_cast<std::size_t>(conversion.ptr - buffer);
     std::size_t position = 0U;
-    const bool negative = text[position] == '-';
+    const bool negative = length > 0U && text[0] == '-';
     if (negative) {
         ++position;
     }
-    std::string digits;
+    char digits[64];
+    std::size_t digit_count = 0U;
     std::size_t digits_before_point = 0U;
     bool seen_point = false;
-    while (position < text.size() && text[position] != 'e' &&
+    while (position < length && text[position] != 'e' &&
            text[position] != 'E') {
         if (text[position] == '.') {
             seen_point = true;
         } else {
-            digits.push_back(text[position]);
+            digits[digit_count++] = text[position];
             if (!seen_point) {
                 ++digits_before_point;
             }
@@ -57,21 +59,32 @@ inline std::string python_float(const double value,
         ++position;
     }
     int exponent = 0;
-    if (position < text.size()) {
-        exponent = std::atoi(text.c_str() + position + 1U);
+    if (position < length) {
+        int sign = 1;
+        ++position;
+        if (position < length && (text[position] == '+' ||
+                                  text[position] == '-')) {
+            sign = text[position] == '-' ? -1 : 1;
+            ++position;
+        }
+        int magnitude = 0;
+        while (position < length) {
+            magnitude = magnitude * 10 + (text[position] - '0');
+            ++position;
+        }
+        exponent = sign * magnitude;
     }
     const int decimal_position =
         static_cast<int>(digits_before_point) + exponent;
 
-    std::string result;
     if (negative) {
         result.push_back('-');
     }
     if (decimal_position <= -4 || decimal_position > 16) {
-        result.push_back(digits.front());
-        if (digits.size() > 1U) {
+        result.push_back(digits[0]);
+        if (digit_count > 1U) {
             result.push_back('.');
-            result.append(digits.substr(1U));
+            result.append(digits + 1U, digit_count - 1U);
         }
         const int scientific_exponent = decimal_position - 1;
         result.push_back('e');
@@ -80,27 +93,39 @@ inline std::string python_float(const double value,
         if (magnitude < 10) {
             result.push_back('0');
         }
-        result += std::to_string(magnitude);
-        return result;
+        char exponent_buffer[16];
+        const auto exponent_conversion = std::to_chars(
+            exponent_buffer, exponent_buffer + sizeof(exponent_buffer),
+            magnitude);
+        result.append(exponent_buffer,
+                      static_cast<std::size_t>(exponent_conversion.ptr -
+                                               exponent_buffer));
+        return;
     }
 
     if (decimal_position <= 0) {
         result += "0.";
         result.append(static_cast<std::size_t>(-decimal_position), '0');
-        result += digits;
-        return result;
+        result.append(digits, digit_count);
+        return;
     }
-    if (static_cast<std::size_t>(decimal_position) >= digits.size()) {
-        result += digits;
+    if (static_cast<std::size_t>(decimal_position) >= digit_count) {
+        result.append(digits, digit_count);
         result.append(
-            static_cast<std::size_t>(decimal_position) - digits.size(), '0');
+            static_cast<std::size_t>(decimal_position) - digit_count, '0');
         result += ".0";
-        return result;
+        return;
     }
-    result.append(digits.substr(0U,
-                                static_cast<std::size_t>(decimal_position)));
+    result.append(digits, static_cast<std::size_t>(decimal_position));
     result.push_back('.');
-    result.append(digits.substr(static_cast<std::size_t>(decimal_position)));
+    result.append(digits + decimal_position,
+                  digit_count - static_cast<std::size_t>(decimal_position));
+}
+
+inline std::string python_float(const double value,
+                         const std::string_view context) {
+    std::string result;
+    append_python_float(result, value, context);
     return result;
 }
 

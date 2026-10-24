@@ -211,4 +211,15 @@ struct ic_inference_result {
 ic_inference_result information_coefficient_inference(
     const factor_ic_table& information, double alpha = 0.05);
 
+namespace detail {
+
+std::vector<factor_series_result> factor_rank_autocorrelation_many(
+    const prepared_factor_data& factor_data, const std::vector<int>& lags);
+
+std::vector<factor_series_result> quantile_turnover_many(
+    const prepared_factor_data& factor_data, const std::vector<int>& quantiles,
+    int period);
+
+}  // namespace detail
+
 }  // namespace fincore

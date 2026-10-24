@@ -120,7 +120,7 @@ Data scale: 498 evaluated assets, 243 grid dates, 212 research dates after the
 | stability, published summary | 3 / 3 / 3 | 1.82e-04 | PASS (secondary) |
 | stability, per-date kernel | 610 common rows | 1.44e-15 | PASS |
 
-## Numeric result — full universe, 1 repeat
+## Numeric result — full universe, 3 repeats
 
 Data scale: 5,449 evaluated assets (5,471 files minus late-history/no-window
 assets), 1,255,737 factor cells and 1,136,571 signal cells.
@@ -143,53 +143,64 @@ exactly.
 
 ## Performance
 
-Stage medians on the same Windows 11 host (MSVC 19.42, 32 logical CPUs). Python
-runs pandas + fincore; C++ runs native fincore_cpp. Neither runner uses
-parallelism.
+Final medians on the same Windows 11 host (MSVC 19.42 Release). The Python
+runner is single-threaded. The native runner uses 8 parallel file-loading
+threads and, for large runs, 3 parallel horizon workers for IC and quantile
+aggregation; the threading is part of the measured C++ result and is disclosed
+here rather than hidden in the factor stage.
 
-### 500 symbols, 3 repeats
-
-| Stage | Python | C++ | Python / C++ |
-|---|---:|---:|---:|
-| load | 1.061 s | 0.226 s | 4.7x |
-| factor | 0.074 s | 0.092 s | 0.8x |
-| research | 3.406 s | 0.761 s | 4.5x |
-| export | 2.408 s | 0.657 s | 3.7x |
-| **total stage** | **7.083 s** | **1.740 s** | **4.1x** |
-| wall (process) | 7.709 s | 1.785 s | 4.3x |
-
-### Full universe, 1 repeat
+### Optimized 500 symbols, 3 repeats
 
 | Stage | Python | C++ | Python / C++ |
 |---|---:|---:|---:|
-| load | 12.906 s | 2.350 s | 5.5x |
-| factor | 1.026 s | 1.072 s | 1.0x |
-| research | 23.825 s | 12.231 s | 1.9x |
-| export | 29.562 s | 8.832 s | 3.3x |
-| **total stage** | **67.319 s** | **24.531 s** | **2.7x** |
-| wall (process) | 68.202 s | 24.626 s | 2.8x |
+| load | 1.247 s | 0.045 s | 27.9x |
+| factor | 0.086 s | 0.026 s | 3.3x |
+| research | 3.660 s | 0.247 s | 14.8x |
+| export | 2.657 s | 0.247 s | 10.8x |
+| **total stage** | **7.477 s** | **0.555 s** | **13.5x** |
+| wall (process) | 8.094 s | 0.579 s | 14.0x |
+
+### Optimized full universe, 3 repeats
+
+5,449 evaluated assets, 1,255,737 factor cells, 1,136,571 signal cells and
+3,404,416 exported label rows; the CSV output is roughly 300 MB.
+
+| Stage | Python | C++ | Python / C++ |
+|---|---:|---:|---:|
+| load | 11.520 s | 0.195 s | 59.2x |
+| factor | 0.889 s | 0.337 s | 2.6x |
+| research | 20.397 s | 3.007 s | 6.8x |
+| export | 28.220 s | 2.364 s | 11.9x |
+| **total stage** | **60.585 s** | **5.975 s** | **10.1x** |
+| wall (process) | 61.395 s | 6.068 s | 10.1x |
+
+### Before vs after
+
+The first accepted benchmark (before this optimization pass) measured
+1.740 s C++ at 500 symbols and 24.531 s full. The final medians are 0.555 s and
+5.975 s: the native implementation itself became **3.1x** faster at 500
+symbols and **4.1x** faster on the full panel. Relative to the Python fincore
+run, the end-to-end speedup moved from **4.1x to 13.5x** at 500 symbols and
+from **2.7x to 10.1x** full. The target of at least 10x is met for both the
+default and full medians.
 
 ### Interpretation
 
-- **C++ is consistently faster overall**, but the end-to-end advantage is
-  **4.1x at 500 symbols and 2.7x on the full universe**, not an order of
-  magnitude. Load, research and CSV export dominate both stacks.
-- **The factor kernel is essentially tied.** Pandas/NumPy rank plus a
-  sliding-window stable correlation is slightly faster at 500 symbols
-  (0.074 s vs 0.092 s) and tied at full scale (1.026 s vs 1.072 s). The native
-  runner intentionally uses scalar per-date sorting and per-window
-  correlation; it was not micro-optimized.
-- **C++ research advantage shrinks with scale** (4.5x at 500, 1.9x full).
-  Native research time grows from 0.76 s to 12.23 s (16x) while the asset count
-  grows 10.9x; Python grows 7.0x (3.41 s to 23.83 s). Per-date maps, sorting and
-  quantile construction in the native path do not scale as well as pandas'
-  vectorized grouping on this workload.
-- **Export is a large fraction of both totals** (34% of Python and 38% of C++
-  at 500 symbols; 44% and 36% full). Both write the same multi-million-row CSV
-  tables, so I/O limits the end-to-end speedup.
-- These numbers are single-host observations, not a cross-platform performance
-  claim. The 500-symbol rows are medians of three repeats; the full-universe
-  row is one repeat.
+- **Load dominates Python, not native:** whole-file parsing plus 8-way file
+  reads moved the full load stage to 0.195 s (59x faster than pandas).
+- **The factor kernel is no longer a native weakness:** fixed 10-element
+  correlation scratch arrays and contiguous rank sorting bring it to 0.337 s
+  full (2.6x faster than the vectorized pandas/NumPy implementation).
+- **Research is the largest remaining absolute cost** (3.007 s full). The
+  O(dates x rows) rank-autocorrelation scan was removed, multi-lag and
+  multi-quantile passes replaced repeated scans, and horizon IC/quantile work
+  runs on three workers for large inputs. Further single-thread gains would
+  require touching the label/signal materialization or the per-date quantile
+  sorts.
+- **Export is I/O- and formatting-bound:** 2.364 s for ~300 MB. The default
+  writer already uses 1 MB buffers, in-place float formatting, cached dates and
+  `to_chars`; 11.9x versus Python export. The remaining full-run gap to a
+  larger speedup is dominated by this mandatory output volume.
 
 ## Parity bugs found and fixed
 

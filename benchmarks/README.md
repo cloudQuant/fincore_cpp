@@ -41,31 +41,30 @@ errors, spreads, turnover and stability.
   or `--max-symbols 0 --results-dir benchmarks/alpha003_a_stocks/results-full`
   for the full universe.
 
-### Baseline performance
+### Performance (optimized)
 
-The baseline measured on the same Windows 11 host (MSVC 19.42, 32 logical
-CPUs, no parallelism in either runner):
+The optimization pass targeting the native load, factor, research and export
+hot paths is complete. Measured on the same Windows 11 host; Python is
+single-threaded, native uses 8 file-loading threads and 3 horizon workers for
+large inputs:
 
-| Scale | Python total | C++ total | C++ speedup | Wall speedup |
+| Scale | Python total | C++ total | C++ speedup | Native improvement |
 |---|---:|---:|---:|---:|
-| 500 symbols, 3-repeat median | 7.083 s | 1.740 s | 4.1x | 4.3x |
-| 5,449 assets, 1 run | 67.319 s | 24.531 s | 2.7x | 2.8x |
+| 500 symbols, 3-repeat median | 7.477 s | 0.555 s | 13.5x | 3.1x |
+| 5,449 assets, 3-repeat median | 60.585 s | 5.975 s | 10.1x | 4.1x |
 
-Stage detail shows the native advantage is concentrated in data loading
-(4.7-5.5x), research evaluation (1.9-4.5x) and CSV export (3.3-3.7x). The
-factor kernel itself is effectively tied (0.8-1.0x): pandas/NumPy vectorized
-rank plus a sliding-window stable correlation is already efficient, while the
-native runner uses scalar rank/correlation loops.
+The target of at least 10x end-to-end versus Python is met for the default
+500-symbol run and the full A-share panel. The native code itself is 3-4x
+faster than the first accepted benchmark (24.531 s full -> 5.975 s). Stage
+detail: load 59x, factor 2.6x, research 6.8x and export 11.9x versus Python on
+the full panel. The remaining full-run cost is research (3.0 s) and the
+mandatory ~300 MB CSV export (2.4 s); export is I/O/formatting bound, not a
+regression.
 
-The next optimization pass targets the native load, research and export hot
-paths with a goal of **at least 10x end-to-end speedup versus Python** on the
-full A-share panel, without changing the factor/research semantics or the
-1,044-test result. Current reports:
-
-- [500-symbol report](alpha003_a_stocks/results/report.md) (generated, local)
-- [full-universe report](alpha003_a_stocks/results-full/report.md) (generated, local)
-- [benchmark README](alpha003_a_stocks/README.md) (method, tables, parity fixes)
-- [comparison runner](alpha003_a_stocks/run_benchmark.py)
+Parity is unchanged: every primary comparison stays at 1e-15, and the full
+1,044-test suite passes. See the
+[alpha003 README](alpha003_a_stocks/README.md) for the before/after tables and
+the optimization notes.
 
 ## Native-only harnesses
 

@@ -12,6 +12,7 @@
 #include <set>
 #include <string>
 #include <tuple>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -266,6 +267,28 @@ std::vector<std::optional<int>> quantize_series(
     const std::vector<bool>* include) {
     std::vector<std::optional<int>> labels(factor.dates.size(),
                                           std::nullopt);
+    if (!config.by_group) {
+        std::unordered_map<timestamp, std::vector<std::size_t>> buckets;
+        buckets.reserve(256U);
+        for (std::size_t row = 0; row < factor.dates.size(); ++row) {
+            if (include != nullptr && !(*include)[row]) {
+                continue;
+            }
+            if (!std::isfinite(factor.values[row])) {
+                continue;
+            }
+            buckets[factor.dates[row]].push_back(row);
+        }
+        for (const auto& entry : buckets) {
+            const auto bucket_labels =
+                quantize_bucket(entry.second, factor, config);
+            for (std::size_t position = 0; position < entry.second.size();
+                 ++position) {
+                labels[entry.second[position]] = bucket_labels[position];
+            }
+        }
+        return labels;
+    }
     std::map<std::pair<timestamp, std::string>, std::vector<std::size_t>>
         buckets;
     for (std::size_t row = 0; row < factor.dates.size(); ++row) {
@@ -402,7 +425,10 @@ prepared_factor_data prepare_impl(
         forward_rows.emplace(key{forward.dates[row], forward.assets[row]},
                              row);
     }
-    const auto groups = resolve_groups(factor, config.grouping);
+    const auto groups =
+        config.grouping.group_by_asset.empty()
+            ? std::vector<std::optional<std::string>>{}
+            : resolve_groups(factor, config.grouping);
     const bool has_groups = !config.grouping.group_by_asset.empty();
     std::vector<bool> finite(factor.dates.size(), false);
     std::vector<bool> merged(factor.dates.size(), false);
@@ -607,7 +633,10 @@ std::vector<std::optional<int>> quantize_factor(
         throw factor_data_error{
             "factor_data must contain a 'group' column when by_group=True"};
     }
-    const auto groups = resolve_groups(factor, grouping);
+    const auto groups =
+        grouping.group_by_asset.empty()
+            ? std::vector<std::optional<std::string>>{}
+            : resolve_groups(factor, grouping);
     return quantize_series(factor, groups, config, nullptr);
 }
 
@@ -644,7 +673,10 @@ multi_horizon_prepared_factor_data prepare_factor_data_by_horizon(
         factor, prices, config.periods, std::nullopt,
         config.cumulative_returns);
     require_unique_labels(forward);
-    const auto groups = resolve_groups(factor, config.grouping);
+    const auto groups =
+        config.grouping.group_by_asset.empty()
+            ? std::vector<std::optional<std::string>>{}
+            : resolve_groups(factor, config.grouping);
     const bool has_groups = !config.grouping.group_by_asset.empty();
     std::vector<bool> finite(factor.dates.size(), false);
     std::size_t finite_count = 0U;

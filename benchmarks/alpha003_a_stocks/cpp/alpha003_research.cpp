@@ -3,17 +3,22 @@
 #include <fincore/factor/research.hpp>
 
 #include <algorithm>
+#include <array>
+#include <charconv>
 #include <chrono>
 #include <cmath>
+#include <cstdint>
 #include <cstdio>
 #include <filesystem>
 #include <fstream>
+#include <future>
 #include <iomanip>
 #include <limits>
 #include <numeric>
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
@@ -54,38 +59,82 @@ void trim_carriage_return(std::string& value) {
     }
 }
 
-double parse_number(const std::string& text) {
+double parse_number(const std::string_view text) {
     if (text.empty()) {
         return nan;
     }
-    try {
-        std::size_t consumed = 0U;
-        const double value = std::stod(text, &consumed);
-        if (consumed != text.size() || !std::isfinite(value)) {
+    auto remaining = text;
+    if (remaining.front() == '+') {
+        remaining.remove_prefix(1U);
+        if (remaining.empty()) {
             return nan;
         }
-        return value;
-    } catch (const std::exception&) {
+    }
+    double value = 0.0;
+    const auto result = std::from_chars(
+        remaining.data(), remaining.data() + remaining.size(), value);
+    if (result.ec != std::errc{} ||
+        result.ptr != remaining.data() + remaining.size() ||
+        !std::isfinite(value)) {
         return nan;
     }
+    return value;
 }
 
-timestamp parse_local_timestamp(const std::string& text) {
-    int year = 0;
-    int month = 0;
-    int day = 0;
-    int hour = 0;
-    int minute = 0;
-    int second = 0;
-    if (std::sscanf(text.c_str(), "%d-%d-%d %d:%d:%d", &year, &month, &day,
-                    &hour, &minute, &second) != 6) {
-        throw std::runtime_error("cannot parse timestamp: " + text);
+timestamp parse_local_timestamp(const std::string_view text) {
+    const auto digit = [](const char character) {
+        if (character < '0' || character > '9') {
+            throw std::runtime_error("cannot parse timestamp");
+        }
+        return static_cast<int>(character - '0');
+    };
+    if (text.size() < 19U || text[4] != '-' || text[7] != '-' ||
+        text[10] != ' ' || text[13] != ':' || text[16] != ':') {
+        throw std::runtime_error("cannot parse timestamp");
     }
+    const int year = digit(text[0]) * 1000 + digit(text[1]) * 100 +
+                     digit(text[2]) * 10 + digit(text[3]);
+    const int month = digit(text[5]) * 10 + digit(text[6]);
+    const int day = digit(text[8]) * 10 + digit(text[9]);
+    const int hour = digit(text[11]) * 10 + digit(text[12]);
+    const int minute = digit(text[14]) * 10 + digit(text[15]);
+    const int second = digit(text[17]) * 10 + digit(text[18]);
     return fincore::utc_timestamp(
                static_cast<unsigned>(year), static_cast<unsigned>(month),
                static_cast<unsigned>(day), static_cast<unsigned>(hour),
                static_cast<unsigned>(minute), static_cast<unsigned>(second)) -
            shanghai_offset_ns;
+}
+
+struct csv_fields {
+    std::array<std::string_view, 8> values{};
+    std::size_t count = 0U;
+};
+
+csv_fields split_fields(const std::string_view line) {
+    csv_fields fields;
+    std::size_t start = 0U;
+    while (start <= line.size() && fields.count < fields.values.size()) {
+        const auto separator = line.find(',', start);
+        const auto end = separator == std::string_view::npos
+                             ? line.size()
+                             : separator;
+        fields.values[fields.count++] = line.substr(start, end - start);
+        if (separator == std::string_view::npos) {
+            break;
+        }
+        start = separator + 1U;
+    }
+    return fields;
+}
+
+std::size_t header_index(const csv_fields& header, const std::string_view name) {
+    for (std::size_t index = 0; index < header.count; ++index) {
+        if (header.values[index] == name) {
+            return index;
+        }
+    }
+    throw std::runtime_error("CSV is missing column: " + std::string(name));
 }
 
 std::string format_utc(const timestamp value) {
@@ -210,132 +259,172 @@ panel load_panel(const std::filesystem::path& data_dir, const int limit) {
     result.close.assign(cells, nan);
     result.volume.assign(cells, nan);
 
-    std::unordered_map<timestamp, std::size_t> row_for_date;
-    row_for_date.reserve(result.grid.size());
-    for (std::size_t row = 0; row < result.grid.size(); ++row) {
-        row_for_date.emplace(result.grid[row], row);
+    const auto columns = result.columns();
+    const auto load_range = [&result, &files, columns](
+                                const std::size_t begin,
+                                const std::size_t end) {
+        std::vector<unsigned char> seen(result.rows(), 0U);
+        std::string text;
+        for (std::size_t asset = begin; asset < end; ++asset) {
+            std::ifstream stream(files[asset], std::ios::binary);
+            if (!stream) {
+                throw std::runtime_error("cannot open " +
+                                         files[asset].string());
+            }
+            stream.seekg(0, std::ios::end);
+            const auto size = stream.tellg();
+            stream.seekg(0, std::ios::beg);
+            text.resize(static_cast<std::size_t>(size));
+            stream.read(text.data(),
+                        static_cast<std::streamsize>(text.size()));
+            if (!stream) {
+                throw std::runtime_error("cannot read " +
+                                         files[asset].string());
+            }
+            std::size_t position = 0U;
+            const auto next_line = [&text, &position]() -> std::string_view {
+                if (position >= text.size()) {
+                    return {};
+                }
+                const auto newline = text.find('\n', position);
+                auto end =
+                    newline == std::string::npos ? text.size() : newline;
+                if (end > position && text[end - 1U] == '\r') {
+                    --end;
+                }
+                const std::string_view line(text.data() + position,
+                                            end - position);
+                position =
+                    newline == std::string::npos ? text.size() : newline + 1U;
+                return line;
+            };
+            const auto header = split_fields(next_line());
+            const auto time_column = header_index(header, "trade_time");
+            const auto open_column = header_index(header, "open");
+            const auto close_column = header_index(header, "close");
+            const auto volume_column = header_index(header, "volume");
+            const auto required = std::max({time_column, open_column,
+                                            close_column, volume_column});
+            std::fill(seen.begin(), seen.end(), 0U);
+            while (position < text.size()) {
+                const auto line = next_line();
+                if (line.empty()) {
+                    continue;
+                }
+                const auto fields = split_fields(line);
+                if (fields.count <= required) {
+                    throw std::runtime_error("malformed CSV row: " +
+                                             files[asset].string());
+                }
+                const auto date =
+                    parse_local_timestamp(fields.values[time_column]);
+                const auto grid_position = std::lower_bound(
+                    result.grid.begin(), result.grid.end(), date);
+                if (grid_position == result.grid.end() ||
+                    *grid_position != date) {
+                    continue;
+                }
+                const auto row = static_cast<std::size_t>(
+                    grid_position - result.grid.begin());
+                if (seen[row] != 0U) {
+                    throw std::runtime_error("duplicate trade_time: " +
+                                             files[asset].string());
+                }
+                seen[row] = 1U;
+                result.open[row * columns + asset] =
+                    parse_number(fields.values[open_column]);
+                result.close[row * columns + asset] =
+                    parse_number(fields.values[close_column]);
+                result.volume[row * columns + asset] =
+                    parse_number(fields.values[volume_column]);
+            }
+        }
+    };
+    const auto thread_count = std::min<std::size_t>(8U, files.size());
+    std::vector<std::future<void>> futures;
+    futures.reserve(thread_count);
+    for (std::size_t thread = 0; thread < thread_count; ++thread) {
+        const auto begin = files.size() * thread / thread_count;
+        const auto end = files.size() * (thread + 1U) / thread_count;
+        if (begin != end) {
+            futures.push_back(
+                std::async(std::launch::async, load_range, begin, end));
+        }
     }
-
-    for (std::size_t asset = 0; asset < files.size(); ++asset) {
-        std::ifstream stream(files[asset]);
-        if (!stream) {
-            throw std::runtime_error("cannot open " + files[asset].string());
-        }
-        std::string line;
-        if (!std::getline(stream, line)) {
-            throw std::runtime_error("empty CSV: " + files[asset].string());
-        }
-        trim_carriage_return(line);
-        const auto header = split_csv(line);
-        const auto time_column = column_index(header, "trade_time");
-        const auto open_column = column_index(header, "open");
-        const auto close_column = column_index(header, "close");
-        const auto volume_column = column_index(header, "volume");
-        std::unordered_set<timestamp> seen;
-        while (std::getline(stream, line)) {
-            trim_carriage_return(line);
-            if (line.empty()) {
-                continue;
-            }
-            const auto fields = split_csv(line);
-            if (fields.size() <= std::max({time_column, open_column,
-                                           close_column, volume_column})) {
-                throw std::runtime_error("malformed CSV row: " +
-                                         files[asset].string());
-            }
-            const auto date = parse_local_timestamp(fields[time_column]);
-            if (!seen.insert(date).second) {
-                throw std::runtime_error("duplicate trade_time: " +
-                                         files[asset].string());
-            }
-            const auto found = row_for_date.find(date);
-            if (found == row_for_date.end()) {
-                continue;
-            }
-            const auto row = found->second;
-            result.at(result.open, row, asset) =
-                parse_number(fields[open_column]);
-            result.at(result.close, row, asset) =
-                parse_number(fields[close_column]);
-            result.at(result.volume, row, asset) =
-                parse_number(fields[volume_column]);
-        }
+    for (auto& future : futures) {
+        future.get();
     }
     return result;
 }
 
-std::vector<double> average_ranks(const std::vector<double>& values,
-                                  const std::vector<std::size_t>& members) {
-    std::vector<std::size_t> order = members;
+void average_ranks(
+    const double* values, const std::vector<std::uint32_t>& members,
+    std::vector<std::pair<double, std::uint32_t>>& order, double* ranks) {
+    order.clear();
+    for (const auto member : members) {
+        order.emplace_back(values[member], member);
+    }
     std::sort(order.begin(), order.end(),
-              [&values](const std::size_t left, const std::size_t right) {
-                  return values[left] < values[right];
+              [](const auto& left, const auto& right) {
+                  return left.first < right.first;
               });
-    std::vector<double> ranks(values.size(), nan);
     const auto count = static_cast<double>(order.size());
     std::size_t start = 0U;
     while (start < order.size()) {
         std::size_t end = start + 1U;
         while (end < order.size() &&
-               values[order[end]] == values[order[start]]) {
+               order[end].first == order[start].first) {
             ++end;
         }
         const auto rank =
             (static_cast<double>(start + 1U) + static_cast<double>(end)) /
             2.0 / count;
         for (std::size_t position = start; position < end; ++position) {
-            ranks[order[position]] = rank;
+            ranks[order[position].second] = rank;
         }
         start = end;
     }
-    return ranks;
 }
 
-bool unit_deviations(const std::vector<double>& values,
-                      std::vector<double>& unit) {
+bool unit_deviations(const std::array<double, window>& values,
+                     std::array<double, window>& unit) {
     const auto anchor = values[0];
-    std::vector<double> differences(values.size());
-    for (std::size_t index = 0; index < values.size(); ++index) {
+    std::array<double, window> differences{};
+    double scale = 0.0;
+    for (std::size_t index = 0; index < window; ++index) {
         differences[index] = values[index] - anchor;
         if (!std::isfinite(differences[index])) {
             return false;
         }
+        scale = std::max(scale, std::abs(differences[index]));
     }
-    const auto difference_scale = *std::max_element(
-        differences.begin(), differences.end(),
-        [](const double left, const double right) {
-            return std::abs(left) < std::abs(right);
-        });
-    if (difference_scale == 0.0) {
+    if (scale == 0.0) {
         return false;
     }
-    const auto scale = std::abs(difference_scale);
-    std::vector<double> normalized(values.size());
     double mean = 0.0;
-    for (std::size_t index = 0; index < values.size(); ++index) {
-        normalized[index] = differences[index] / scale;
-        mean += normalized[index];
+    for (std::size_t index = 0; index < window; ++index) {
+        differences[index] /= scale;
+        mean += differences[index];
     }
-    mean /= static_cast<double>(normalized.size());
+    mean /= static_cast<double>(window);
     double centered_scale = 0.0;
-    for (auto& value : normalized) {
-        value -= mean;
-        centered_scale = std::max(centered_scale, std::abs(value));
+    for (std::size_t index = 0; index < window; ++index) {
+        differences[index] -= mean;
+        centered_scale = std::max(centered_scale, std::abs(differences[index]));
     }
     if (centered_scale == 0.0) {
         return false;
     }
-    unit.resize(values.size());
-    for (std::size_t index = 0; index < values.size(); ++index) {
-        unit[index] = normalized[index] / centered_scale;
+    for (std::size_t index = 0; index < window; ++index) {
+        unit[index] = differences[index] / centered_scale;
     }
     return true;
 }
 
-double correlation(const std::vector<double>& left,
-                   const std::vector<double>& right) {
-    std::vector<double> left_unit;
-    std::vector<double> right_unit;
+double correlation(const std::array<double, window>& left,
+                   const std::array<double, window>& right) {
+    std::array<double, window> left_unit{};
+    std::array<double, window> right_unit{};
     if (!unit_deviations(left, left_unit) ||
         !unit_deviations(right, right_unit)) {
         return nan;
@@ -343,7 +432,7 @@ double correlation(const std::vector<double>& left,
     double numerator = 0.0;
     double left_squares = 0.0;
     double right_squares = 0.0;
-    for (std::size_t index = 0; index < left.size(); ++index) {
+    for (std::size_t index = 0; index < window; ++index) {
         numerator += left_unit[index] * right_unit[index];
         left_squares += left_unit[index] * left_unit[index];
         right_squares += right_unit[index] * right_unit[index];
@@ -369,7 +458,6 @@ double correlation(const std::vector<double>& left,
     return value;
 }
 
-
 struct factor_output {
     fincore::factor_series series;
     std::vector<std::size_t> target_columns;
@@ -380,42 +468,43 @@ factor_output compute_alpha003(const panel& prices) {
     const auto columns = prices.columns();
     std::vector<double> rank_open(rows * columns, nan);
     std::vector<double> rank_volume(rows * columns, nan);
-    std::vector<std::size_t> members;
+    std::vector<std::uint32_t> members;
     members.reserve(columns);
+    std::vector<std::pair<double, std::uint32_t>> order;
+    order.reserve(columns);
 
     for (std::size_t row = 0; row < rows; ++row) {
         members.clear();
+        const auto* open_row = prices.open.data() + row * columns;
+        const auto* volume_row = prices.volume.data() + row * columns;
         for (std::size_t column = 0; column < columns; ++column) {
-            if (std::isfinite(prices.at(prices.open, row, column)) &&
-                std::isfinite(prices.at(prices.volume, row, column))) {
-                members.push_back(column);
+            if (std::isfinite(open_row[column]) &&
+                std::isfinite(volume_row[column])) {
+                members.push_back(static_cast<std::uint32_t>(column));
             }
         }
         if (members.empty()) {
             continue;
         }
-        std::vector<double> open_values(columns, nan);
-        std::vector<double> volume_values(columns, nan);
-        for (const auto column : members) {
-            open_values[column] = prices.at(prices.open, row, column);
-            volume_values[column] = prices.at(prices.volume, row, column);
-        }
-        const auto open_ranks = average_ranks(open_values, members);
-        const auto volume_ranks = average_ranks(volume_values, members);
-        for (const auto column : members) {
-            rank_open[row * columns + column] = open_ranks[column];
-            rank_volume[row * columns + column] = volume_ranks[column];
-        }
+        average_ranks(open_row, members, order,
+                      rank_open.data() + row * columns);
+        average_ranks(volume_row, members, order,
+                      rank_volume.data() + row * columns);
     }
 
     factor_output output;
+    if (rows >= window) {
+        const auto reserve =
+            (rows - window + 1U) * columns;
+        output.series.dates.reserve(reserve);
+        output.series.assets.reserve(reserve);
+        output.series.values.reserve(reserve);
+    }
     std::vector<char> has_factor(columns, 0);
     for (std::size_t row = window - 1U; row < rows; ++row) {
         for (std::size_t column = 0; column < columns; ++column) {
-            std::vector<double> open_window;
-            std::vector<double> volume_window;
-            open_window.reserve(window);
-            volume_window.reserve(window);
+            std::array<double, window> open_window{};
+            std::array<double, window> volume_window{};
             bool complete = true;
             for (std::size_t offset = 0; offset < window; ++offset) {
                 const auto source_row = row + offset - (window - 1U);
@@ -428,8 +517,8 @@ factor_output compute_alpha003(const panel& prices) {
                     complete = false;
                     break;
                 }
-                open_window.push_back(open_value);
-                volume_window.push_back(volume_value);
+                open_window[offset] = open_value;
+                volume_window[offset] = volume_value;
             }
             if (!complete) {
                 continue;
@@ -453,18 +542,51 @@ factor_output compute_alpha003(const panel& prices) {
 }
 
 void write_factor_values(const std::filesystem::path& path,
-                         const factor_output& factor,
-                         const panel& prices) {
+                         const factor_output& factor) {
     std::ofstream stream(path, std::ios::binary);
     if (!stream) {
         throw std::runtime_error("cannot write " + path.string());
     }
-    stream << "date,asset," << factor_name << '\n';
-    stream << std::setprecision(17);
+    std::string buffer;
+    buffer.reserve((1U << 20) + 65536U);
+    buffer += "date,asset,";
+    buffer += factor_name;
+    buffer.push_back('\n');
+    std::string date_text;
+    timestamp last_date = 0;
+    bool have_date = false;
     for (std::size_t index = 0; index < factor.series.values.size(); ++index) {
-        stream << format_utc(factor.series.dates[index]) << ','
-               << factor.series.assets[index] << ','
-               << factor.series.values[index] << '\n';
+        const auto date = factor.series.dates[index];
+        if (!have_date || date != last_date) {
+            date_text = format_utc(date);
+            last_date = date;
+            have_date = true;
+        }
+        buffer += date_text;
+        buffer.push_back(',');
+        buffer += factor.series.assets[index];
+        buffer.push_back(',');
+        char number[32];
+        const auto conversion = std::to_chars(
+            number, number + sizeof(number), factor.series.values[index]);
+        if (conversion.ec != std::errc{}) {
+            throw std::runtime_error("cannot format factor value");
+        }
+        buffer.append(number,
+                      static_cast<std::size_t>(conversion.ptr - number));
+        buffer.push_back('\n');
+        if (buffer.size() >= (1U << 20)) {
+            stream.write(buffer.data(),
+                         static_cast<std::streamsize>(buffer.size()));
+            buffer.clear();
+        }
+    }
+    if (!buffer.empty()) {
+        stream.write(buffer.data(),
+                     static_cast<std::streamsize>(buffer.size()));
+    }
+    if (!stream) {
+        throw std::runtime_error("cannot write " + path.string());
     }
 }
 
@@ -594,7 +716,7 @@ int main(int argc, char** argv) {
         auto export_start = clock_type::now();
         const auto exported = fincore::export_factor_research(
             result, tables_dir.string(), false);
-        write_factor_values(out_dir / "factor_values.csv", factor, prices);
+        write_factor_values(out_dir / "factor_values.csv", factor);
         const auto export_seconds = seconds_since(export_start);
 
         const auto total_seconds = seconds_since(started);
