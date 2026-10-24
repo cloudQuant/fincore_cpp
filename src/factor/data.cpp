@@ -665,23 +665,31 @@ multi_horizon_prepared_factor_data prepare_factor_data_by_horizon(
     quantize_config.by_group = config.binning_by_group;
     quantize_config.no_raise = config.max_loss != 0.0;
     quantize_config.zero_aware = config.zero_aware;
-    const auto quantiles =
-        quantize_series(factor, groups, quantize_config, &finite);
 
     multi_horizon_prepared_factor_data result;
     for (std::size_t label = 0; label < forward.labels.size(); ++label) {
         prepared_factor_data prepared;
         prepared.forward_labels = {forward.labels[label]};
         std::size_t forward_count = 0U;
+        // Quantiles use the cross-section that actually has a label for this
+        // horizon. This mirrors the single-horizon preparation path and the
+        // Python research contract; binning on the full factor panel would
+        // shift bucket edges on dates with missing forward returns.
+        std::vector<bool> horizon_include(factor.dates.size(), false);
         for (std::size_t row = 0; row < factor.dates.size(); ++row) {
             if (!finite[row] || !std::isfinite(forward.values[label][row])) {
                 continue;
             }
             ++forward_count;
-            if (!quantiles[row].has_value()) {
+            if (has_groups && !groups[row].has_value()) {
                 continue;
             }
-            if (has_groups && !groups[row].has_value()) {
+            horizon_include[row] = true;
+        }
+        const auto quantiles = quantize_series(
+            factor, groups, quantize_config, &horizon_include);
+        for (std::size_t row = 0; row < factor.dates.size(); ++row) {
+            if (!horizon_include[row] || !quantiles[row].has_value()) {
                 continue;
             }
             factor_row record;

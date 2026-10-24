@@ -114,10 +114,7 @@ void preprocess(factor_series& factors, const std::string& method) {
             const auto ranked = ranks(values);
             for (std::size_t index = 0; index < entry.second.size(); ++index) {
                 factors.values[entry.second[index]] =
-                    values.size() > 1U
-                        ? (ranked[index] - 1.0) /
-                              static_cast<double>(values.size() - 1U)
-                        : 0.0;
+                    ranked[index] / static_cast<double>(values.size());
             }
         } else {
             const double mean = mean_of(values);
@@ -741,8 +738,11 @@ research_result assemble_research(
             result.information_coefficient_summary.means[label] =
                 summary.means.front();
         }
-        const auto quantile_table =
-            mean_return_by_quantile(prepared_horizon);
+        // Research tables report raw quantile returns; demeaning is an
+        // analysis-view option and would make the table incomparable with the
+        // Python research contract.
+        const auto quantile_table = mean_return_by_quantile(
+            prepared_horizon, false, false, false, false);
         for (std::size_t quantile = 0;
              quantile < result.quantile_returns.quantiles.size();
              ++quantile) {
@@ -1108,12 +1108,38 @@ static research_result evaluate_with_table(
     quantization_config quantile_config;
     quantile_config.quantiles = spec.quantiles;
     quantile_config.no_raise = spec.max_loss != 0.0;
-    const auto quantiles = quantize_factor(panel, quantile_config);
     multi_horizon_prepared_factor_data prepared;
     for (const std::size_t label_index : label_indices) {
         const std::string& label = precomputed_returns.labels[label_index];
         prepared_factor_data horizon;
         horizon.forward_labels = {label};
+        // Quantile buckets are assigned on the cross-section that has a
+        // forward return for this horizon, matching the Python research
+        // contract. Binning the whole panel would shift edges on dates with
+        // missing labels.
+        factor_series labeled_panel;
+        std::vector<std::size_t> labeled_rows;
+        for (std::size_t row = 0; row < panel.dates.size(); ++row) {
+            const auto found = rows.find({panel.dates[row], panel.assets[row]});
+            if (found == rows.end()) {
+                continue;
+            }
+            const double value =
+                precomputed_returns.values[label_index][found->second];
+            if (!std::isfinite(value)) {
+                continue;
+            }
+            labeled_panel.dates.push_back(panel.dates[row]);
+            labeled_panel.assets.push_back(panel.assets[row]);
+            labeled_panel.values.push_back(panel.values[row]);
+            labeled_rows.push_back(row);
+        }
+        const auto labeled_quantiles =
+            quantize_factor(labeled_panel, quantile_config);
+        std::vector<std::optional<int>> quantiles(panel.dates.size());
+        for (std::size_t index = 0; index < labeled_rows.size(); ++index) {
+            quantiles[labeled_rows[index]] = labeled_quantiles[index];
+        }
         for (std::size_t row = 0; row < panel.dates.size(); ++row) {
             const auto found = rows.find({panel.dates[row], panel.assets[row]});
             if (found == rows.end()) {
