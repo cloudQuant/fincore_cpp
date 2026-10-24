@@ -13,9 +13,7 @@ The dependencies are pinned git submodules under `third_party/`:
 Clone with `git clone --recurse-submodules <repo-url>` (or run
 `git submodule update --init --recursive` in an existing checkout). CMake uses
 these trees by default when present; `FINCORE_DATAFRAME_SOURCE_DIR`,
-`FINCORE_IMPLOT_SOURCE_DIR` and `FINCORE_IMGUI_SOURCE_DIR` still override them,
-and an installed `DataFrame` package is used when the DataFrame submodule is
-absent.
+`FINCORE_IMPLOT_SOURCE_DIR` and `FINCORE_IMGUI_SOURCE_DIR` still override them.
 
 ## Accepted Phase 2A scalar metrics
 
