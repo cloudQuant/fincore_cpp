@@ -809,6 +809,208 @@ TEST(FactorResearchDetailed,
 }
 
 TEST(FactorResearchDetailed,
+     RefiltersCachedDateOrderForEachHorizonQuantilesAndRanks) {
+    const auto start = fincore::utc_timestamp(2024, 2, 20);
+    constexpr fincore::timestamp day = 86'400'000'000'000LL;
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+    const std::vector<std::string> assets{"A", "B", "C", "D", "E"};
+    const std::vector<double> factor_values{1.0, 2.0, 3.0, 4.0, 5.0};
+    const std::vector<double> one_day_returns{
+        0.4, 0.1, 0.11, nan, 0.12};
+    const std::vector<double> two_day_returns{
+        0.1, nan, 0.3, 0.2, 0.4};
+
+    fincore::factor_series factors;
+    for (std::size_t asset = 0U; asset < assets.size(); ++asset) {
+        factors.dates.push_back(start);
+        factors.assets.push_back(assets[asset]);
+        factors.values.push_back(factor_values[asset]);
+    }
+    fincore::dataframe prices;
+    prices.load_index(
+        std::vector<fincore::timestamp>{start, start + day, start + 2 * day});
+    for (std::size_t asset = 0U; asset < assets.size(); ++asset) {
+        const double first_price = std::isfinite(one_day_returns[asset])
+                                       ? 100.0 * (1.0 + one_day_returns[asset])
+                                       : nan;
+        const double second_price = std::isfinite(two_day_returns[asset])
+                                        ? 100.0 * (1.0 + two_day_returns[asset])
+                                        : nan;
+        prices.load_column<double>(
+            assets[asset].c_str(), {100.0, first_price, second_price},
+            hmdf::nan_policy::dont_pad_with_nans);
+    }
+
+    fincore::research_spec spec;
+    spec.targets = assets;
+    spec.start = start;
+    spec.end = start;
+    spec.periods = {1, 2};
+    spec.quantiles = 2;
+    spec.min_assets = 2;
+    spec.max_loss = 1.0;
+    spec.label = "close_to_close";
+    spec.preprocess = "none";
+    const auto actual = fincore::evaluate_factor_research_detailed(
+        "horizon_mask_signal", factors, prices, spec);
+
+    const auto find_ic = [&actual](const std::string& period) {
+        return std::find_if(actual.ic.begin(), actual.ic.end(),
+                            [&period](const auto& row) {
+                                return row.period == period;
+                            });
+    };
+    const auto find_quantile = [&actual](const std::string& period,
+                                         const int quantile) {
+        return std::find_if(
+            actual.quantile_returns.begin(), actual.quantile_returns.end(),
+            [&period, quantile](const auto& row) {
+                return row.period == period && row.quantile == quantile;
+            });
+    };
+
+    const auto one_day_ic = find_ic("1D");
+    ASSERT_NE(one_day_ic, actual.ic.end());
+    EXPECT_EQ(one_day_ic->n_assets, 4U);
+    // The 1D sample is [1, 2, 3, 5], whose median edge is 2.5. Its
+    // horizon-local factor ranks are [1, 2, 3, 4], not [1, 2, 3, 5].
+    EXPECT_NEAR(one_day_ic->rank_ic, -0.2, 1e-12);
+    const auto one_day_low = find_quantile("1D", 1);
+    const auto one_day_high = find_quantile("1D", 2);
+    ASSERT_NE(one_day_low, actual.quantile_returns.end());
+    ASSERT_NE(one_day_high, actual.quantile_returns.end());
+    EXPECT_EQ(one_day_low->n_assets, 2U);
+    EXPECT_EQ(one_day_high->n_assets, 2U);
+    EXPECT_NEAR(one_day_low->mean_return, 0.25, 1e-12);
+    EXPECT_NEAR(one_day_high->mean_return, 0.115, 1e-12);
+
+    const auto two_day_ic = find_ic("2D");
+    ASSERT_NE(two_day_ic, actual.ic.end());
+    EXPECT_EQ(two_day_ic->n_assets, 4U);
+    // The 2D sample is [1, 3, 4, 5], with its own 3.5 edge and ranks.
+    EXPECT_NEAR(two_day_ic->rank_ic, 0.8, 1e-12);
+    const auto two_day_low = find_quantile("2D", 1);
+    const auto two_day_high = find_quantile("2D", 2);
+    ASSERT_NE(two_day_low, actual.quantile_returns.end());
+    ASSERT_NE(two_day_high, actual.quantile_returns.end());
+    EXPECT_EQ(two_day_low->n_assets, 2U);
+    EXPECT_EQ(two_day_high->n_assets, 2U);
+    EXPECT_NEAR(two_day_low->mean_return, 0.2, 1e-12);
+    EXPECT_NEAR(two_day_high->mean_return, 0.3, 1e-12);
+}
+
+TEST(FactorResearchDetailed,
+     KeepsSignedZeroTiesHorizonLocalWithIndependentDiagnostics) {
+    const auto start = fincore::utc_timestamp(2024, 2, 21);
+    constexpr fincore::timestamp day = 86'400'000'000'000LL;
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+    const std::vector<std::string> assets{"A", "B", "C", "D"};
+    const std::vector<double> factor_values{-1.0, -0.0, 0.0, 1.0};
+    const std::vector<std::vector<double>> horizon_returns{
+        {0.2, 0.1, nan, 0.3},
+        {0.2, nan, 0.1, 0.3},
+        {0.2, 0.1, 0.4, 0.3},
+        {nan, 0.1, 0.2, nan},
+    };
+    ASSERT_TRUE(std::signbit(factor_values[1]));
+    ASSERT_FALSE(std::signbit(factor_values[2]));
+
+    fincore::factor_series factors;
+    for (std::size_t asset = 0U; asset < assets.size(); ++asset) {
+        factors.dates.push_back(start);
+        factors.assets.push_back(assets[asset]);
+        factors.values.push_back(factor_values[asset]);
+    }
+    fincore::dataframe prices;
+    std::vector<fincore::timestamp> price_dates;
+    for (int offset = 0; offset <= 4; ++offset) {
+        price_dates.push_back(start + offset * day);
+    }
+    prices.load_index(std::move(price_dates));
+    for (std::size_t asset = 0U; asset < assets.size(); ++asset) {
+        std::vector<double> path(5U, nan);
+        path[0] = 100.0;
+        for (std::size_t horizon = 0U; horizon < horizon_returns.size();
+             ++horizon) {
+            if (std::isfinite(horizon_returns[horizon][asset])) {
+                path[horizon + 1U] =
+                    100.0 * (1.0 + horizon_returns[horizon][asset]);
+            }
+        }
+        prices.load_column<double>(assets[asset].c_str(), std::move(path),
+                                   hmdf::nan_policy::dont_pad_with_nans);
+    }
+
+    fincore::research_spec spec;
+    spec.targets = assets;
+    spec.start = start;
+    spec.end = start;
+    spec.periods = {1, 2, 3, 4};
+    spec.quantiles = 2;
+    spec.min_assets = 2;
+    spec.max_loss = 1.0;
+    spec.label = "close_to_close";
+    spec.preprocess = "none";
+    const auto actual = fincore::evaluate_factor_research_detailed(
+        "signed_zero_signal", factors, prices, spec);
+
+    const auto find_ic = [&actual](const std::string& period) {
+        return std::find_if(actual.ic.begin(), actual.ic.end(),
+                            [&period](const auto& row) {
+                                return row.period == period;
+                            });
+    };
+    const auto find_quantile = [&actual](const std::string& period,
+                                         const int quantile) {
+        return std::find_if(
+            actual.quantile_returns.begin(), actual.quantile_returns.end(),
+            [&period, quantile](const auto& row) {
+                return row.period == period && row.quantile == quantile;
+            });
+    };
+
+    for (const auto* period : {"1D", "2D"}) {
+        const auto row = find_ic(period);
+        ASSERT_NE(row, actual.ic.end());
+        EXPECT_EQ(row->n_assets, 3U);
+        EXPECT_NEAR(row->rank_ic, 0.5, 1e-12);
+        const auto low = find_quantile(period, 1);
+        const auto high = find_quantile(period, 2);
+        ASSERT_NE(low, actual.quantile_returns.end());
+        ASSERT_NE(high, actual.quantile_returns.end());
+        EXPECT_EQ(low->n_assets, 2U);
+        EXPECT_EQ(high->n_assets, 1U);
+        EXPECT_NEAR(low->mean_return, 0.15, 1e-12);
+        EXPECT_NEAR(high->mean_return, 0.3, 1e-12);
+    }
+
+    const auto both_zero_ic = find_ic("3D");
+    ASSERT_NE(both_zero_ic, actual.ic.end());
+    EXPECT_EQ(both_zero_ic->n_assets, 4U);
+    // Ranks [1, 2.5, 2.5, 4] and [2, 1, 4, 3] have centered dot 1.5.
+    EXPECT_NEAR(both_zero_ic->rank_ic, 1.5 / std::sqrt(22.5), 1e-12);
+    const auto both_zero_low = find_quantile("3D", 1);
+    const auto both_zero_high = find_quantile("3D", 2);
+    ASSERT_NE(both_zero_low, actual.quantile_returns.end());
+    ASSERT_NE(both_zero_high, actual.quantile_returns.end());
+    EXPECT_EQ(both_zero_low->n_assets, 3U);
+    EXPECT_EQ(both_zero_high->n_assets, 1U);
+    EXPECT_NEAR(both_zero_low->mean_return, 0.7 / 3.0, 1e-12);
+    EXPECT_NEAR(both_zero_high->mean_return, 0.3, 1e-12);
+    EXPECT_EQ(find_ic("4D"), actual.ic.end());
+    EXPECT_EQ(find_quantile("4D", 1), actual.quantile_returns.end());
+
+    std::size_t no_evaluable_diagnostics = 0U;
+    for (const auto& diagnostic : actual.diagnostics) {
+        if (diagnostic.code == "no_evaluable_cells") {
+            ++no_evaluable_diagnostics;
+            EXPECT_NE(diagnostic.message.find("4D"), std::string::npos);
+        }
+    }
+    EXPECT_EQ(no_evaluable_diagnostics, 1U);
+}
+
+TEST(FactorResearchDetailed,
      PreservesDuplicateQcutBoundaryAndMaxLossDiagnostics) {
     const auto start = fincore::utc_timestamp(2024, 2, 26);
     const std::vector<std::string> assets{"A", "B", "C", "D"};

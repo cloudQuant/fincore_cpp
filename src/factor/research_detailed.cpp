@@ -372,9 +372,34 @@ struct detailed_horizon_workspace {
     factor_loss_report loss_report;
 };
 
+struct detailed_factor_order_cache {
+    explicit detailed_factor_order_cache(const factor_series& panel) {
+        std::size_t max_date_size = 0U;
+        for (std::size_t date_begin = 0U;
+             date_begin < panel.dates.size();) {
+            std::size_t date_end = date_begin + 1U;
+            while (date_end < panel.dates.size() &&
+                   panel.dates[date_end] == panel.dates[date_begin]) {
+                ++date_end;
+            }
+            max_date_size = std::max(max_date_size, date_end - date_begin);
+            date_begin = date_end;
+        }
+        row_offset_to_paired_local.resize(max_date_size);
+    }
+
+    // Absolute panel rows, sorted by the post-preprocess factor value. A date
+    // is inserted only after the first horizon has a finite paired sample.
+    std::map<timestamp, std::vector<std::size_t>> sorted_finite_rows_by_date;
+    // The current horizon's paired-local index, indexed by row offset within
+    // its date. This is reused across dates and horizons.
+    std::vector<std::size_t> row_offset_to_paired_local;
+};
+
 detailed_horizon_workspace prepare_detailed_horizon(
     const factor_series& panel, const std::vector<double>& labels,
-    const research_spec& spec) {
+    const research_spec& spec,
+    detailed_factor_order_cache& factor_order_cache) {
     if (labels.size() != panel.dates.size()) {
         throw factor_data_error{
             "detailed forward labels must match panel row count"};
@@ -411,20 +436,45 @@ detailed_horizon_workspace prepare_detailed_horizon(
                 continue;
             }
             ++forward_returns_count;
+            factor_order_cache.row_offset_to_paired_local[row - date_begin] =
+                date_values.size();
             valid_rows.push_back(row);
             date_values.push_back(panel.values[row]);
         }
 
         if (!valid_rows.empty()) {
-            sorted_local_indices.resize(date_values.size());
-            std::iota(sorted_local_indices.begin(),
-                      sorted_local_indices.end(), 0U);
-            std::sort(sorted_local_indices.begin(),
-                      sorted_local_indices.end(),
-                      [&date_values](const std::size_t left,
-                                     const std::size_t right) {
-                          return date_values[left] < date_values[right];
-                      });
+            auto sorted_rows =
+                factor_order_cache.sorted_finite_rows_by_date.find(
+                    panel.dates[date_begin]);
+            if (sorted_rows ==
+                factor_order_cache.sorted_finite_rows_by_date.end()) {
+                std::vector<std::size_t> finite_factor_rows;
+                finite_factor_rows.reserve(date_end - date_begin);
+                for (std::size_t row = date_begin; row < date_end; ++row) {
+                    if (std::isfinite(panel.values[row])) {
+                        finite_factor_rows.push_back(row);
+                    }
+                }
+                std::sort(
+                    finite_factor_rows.begin(), finite_factor_rows.end(),
+                    [&panel](const std::size_t left,
+                             const std::size_t right) {
+                        return panel.values[left] < panel.values[right];
+                    });
+                sorted_rows =
+                    factor_order_cache.sorted_finite_rows_by_date.emplace(
+                        panel.dates[date_begin],
+                        std::move(finite_factor_rows))
+                        .first;
+            }
+            sorted_local_indices.reserve(date_values.size());
+            for (const std::size_t row : sorted_rows->second) {
+                if (std::isfinite(labels[row])) {
+                    sorted_local_indices.push_back(
+                        factor_order_cache.row_offset_to_paired_local[
+                            row - date_begin]);
+                }
+            }
 
             std::vector<double> edges;
             try {
@@ -845,6 +895,7 @@ research_detailed_result evaluate_factor_research_detailed(
 
     std::vector<std::size_t> n_dates;
     n_dates.reserve(label_input.horizons.size());
+    detailed_factor_order_cache factor_order_cache{panel};
     for (std::size_t horizon = 0; horizon < label_input.horizons.size();
          ++horizon) {
         const auto& input = label_input.horizons[horizon];
@@ -870,7 +921,7 @@ research_detailed_result evaluate_factor_research_detailed(
         detailed_horizon_workspace prepared;
         try {
             prepared = prepare_detailed_horizon(
-                panel, input.label_values, spec);
+                panel, input.label_values, spec, factor_order_cache);
         } catch (const factor_loss_exceeded& error) {
             append_diagnostic(
                 result, factor, "prepare", "error", "max_loss_exceeded",
