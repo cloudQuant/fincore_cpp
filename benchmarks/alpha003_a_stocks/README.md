@@ -143,14 +143,17 @@ exactly.
 
 ## Performance
 
-Final medians on the same Windows 11 host (MSVC 19.42 Release). Both
-implementations are single-threaded: the native parallel loader and horizon
-workers were removed, and the Python `fincore` package has no computational
-multiprocessing/thread-pool usage. Instrumentation shows C++ CPU time equal to
-pipeline wall time (6.804 s / 6.804 s in one full run); Python CPU time is
-~94% of wall (62.4 s / 66.5 s), consistent with one worker plus I/O waits.
+Historical medians on the same Windows 11 host (MSVC 19.42 Release). The native
+parallel loader and horizon workers were removed, but equal CPU budget was
+not established by the recorded CPU field: the C++ runner uses `std::clock()`,
+which measures wall time in MSVC. Its 6.804 s / 6.804 s cannot prove CPU usage.
+Python uses `time.process_time()` (62.4 s versus 66.5 s in one full run).
+The runner also fixes Python before C++ and lacks enforced affinity/library
+thread limits. Python total is a stage sum; C++ total includes unitemized work.
+Use the external process-wall rows for historical end-to-end comparisons.
+These records are not the corrected Iteration 9 performance baseline.
 
-### 500 symbols, 3 repeats, equal CPU
+### 500 symbols, 3 repeats, historical single-worker configuration
 
 | Stage | Python | C++ | Python / C++ |
 |---|---:|---:|---:|
@@ -161,7 +164,7 @@ pipeline wall time (6.804 s / 6.804 s in one full run); Python CPU time is
 | **total stage** | **7.782 s** | **0.574 s** | **13.6x** |
 | wall (process) | 8.445 s | 0.608 s | 13.9x |
 
-### Full universe, 3 repeats, equal CPU
+### Full universe, 3 repeats, historical single-worker configuration
 
 5,449 evaluated assets, 1,255,737 factor cells, 1,136,571 signal cells and
 3,404,416 exported label rows; the CSV output is roughly 32.5 MB at 500
@@ -176,14 +179,14 @@ symbols and 347 MB full.
 | **total stage** | **66.485 s** | **7.860 s** | **8.5x** |
 | wall (process) | 67.398 s | 7.973 s | 8.5x |
 
-### Before vs after (equal CPU)
+### Before vs after (historical measurements)
 
 Before this optimization program the native benchmark took 1.740 s at 500
-symbols and 24.531 s full. The equal-CPU final medians are 0.574 s and
+symbols and 24.531 s full. The later runner-total medians are 0.574 s and
 7.860 s: the native implementation is about **3.0-3.1x** faster, and the
 end-to-end speedup versus Python moved from **4.1x to 13.6x** at 500 and from
 **2.7x to 8.5x** full. The parallel run that reached 10.1x/13.5x is recorded
-in history but is not the equal-CPU headline.
+in history and is not interchangeable with the single-worker measurements.
 
 ### Data-structure and algorithm opportunities
 
@@ -192,9 +195,9 @@ The remaining single-thread costs are research (3.665 s full) and export
 
 1. **Reuse the preprocessed rank order.** `cross_section_rank` already sorts
    every cross-section; IC, quantile, stability and turnover then sort/rank
-   the same factor again per horizon. Carrying the rank/order through the
-   prepared rows can remove one factor sort per date per horizon, with an
-   expected 20-30% research reduction.
+   factor in later stages. Carrying compatible order/workspace through the
+   prepared rows may remove redundant sorting; each horizon must still rank
+   its own valid sample set. The earlier 20-30% estimate is unverified.
 2. **Compact label/signal rows.** The native tables currently materialize
    millions of per-row `std::string` asset/period fields and one-element
    `forward_returns` vectors. Interning asset IDs and using a fixed
@@ -202,26 +205,30 @@ The remaining single-thread costs are research (3.665 s full) and export
    especially in label assembly and export.
 3. **Direct row-buffer serialization.** Table writers still build a
    `std::vector<std::string>` per row and a temporary string per number.
-   A single reusable row buffer with `to_chars`/`string_view` escaping can
-   remove tens of millions of small allocations; measured export headroom is
-   roughly 30-40%.
+   The implementation already has a reusable output buffer, date cache and
+   `to_chars`; direct typed appends can remove remaining row containers and
+   temporary strings. The earlier 30-40% headroom estimate is unverified.
 4. **Loader/format micro-work.** Whole-file parsing is already used;
    memory-mapped or larger batched reads and a decimal-format fast path can
    shave the remaining load/format overhead.
 
-Even combining all four, the single-thread complete-output ceiling is roughly
-**15-20x at 500 and 11-13x full**, not 50x.
+These are optimization candidates, not a proven 15-20x/11-13x ceiling.
 
-### 50x feasibility (equal CPU, complete output)
+### Iteration 9: 30x minimum and 100x stretch
 
-50x would require **0.156 s** at 500 symbols and **1.329 s** full. The current
-load+factor stages alone are 0.092 s and 0.961 s, and the mandatory CSV output
-is 32.5 MB and 347 MB. The 500-symbol budget is effectively consumed before
-research and export; the full budget cannot accommodate 347 MB of serialization
-plus the remaining research in one thread. A 50x result requires either a
-reduced-output summary/hash benchmark or multiple CPUs, and therefore a
-different comparison contract. The equal-CPU full-output result remains
-8.5x full / 13.6x default.
+[The new plan](../../docs/iterations/iteration-9-performance-30x-100x/README.md)
+requires at least 30x and targets 100x for the complete 500-file and full-panel
+workloads under the same single-core budget. Using historical process-wall
+times only as an illustration, full-panel C++ would need <=2.247 s for 30x
+or <=0.674 s for 100x; corrected baselines must be measured first.
+
+Current load/factor times and output volume do not establish a physical
+impossibility for 50x or 100x. They also do not guarantee those targets are
+reachable. The plan measures the remaining bottlenecks, aligns complete
+workloads and permits evidence-driven implementation revisions without
+lowering the minimum target. Summary/hash or multicore results are reported
+separately and cannot replace full-output single-core acceptance. Historical
+raw results remain unchanged; no new optimization or acceptance is claimed.
 
 ## Parity bugs found and fixed
 

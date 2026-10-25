@@ -41,14 +41,15 @@ errors, spreads, turnover and stability.
   or `--max-symbols 0 --results-dir benchmarks/alpha003_a_stocks/results-full`
   for the full universe.
 
-### Performance (equal CPU, single-threaded)
+### Historical performance (single-worker intent; CPU budget needs revalidation)
 
-The native parallel paths were removed so both implementations use the same
-CPU model: one worker, no native thread pool. The C++ instrumented run reports
-CPU time equal to its pipeline wall time (6.804 s vs 6.804 s in one full run),
-and the Python process uses ~94% CPU time versus wall time (62.4 s vs 66.5 s).
-The Python `fincore` package contains no computational multiprocessing or
-thread-pool usage; only an `RLock` in the optional session API is present.
+The native parallel paths were removed. However, the C++ runner records
+`std::clock()` as CPU time; MSVC returns wall time from this function, so the
+reported 6.804 s / 6.804 s is not CPU-utilization evidence. The recorded
+Python CPU measurement uses `time.process_time()`. Runtime affinity, library
+thread limits, alternating run order and matching timer boundaries must be
+established before claiming an equal-CPU acceptance result. See
+[Iteration 9](../docs/iterations/iteration-9-performance-30x-100x/README.md).
 
 | Scale | Python total | C++ total | C++ speedup | Native improvement |
 |---|---:|---:|---:|---:|
@@ -61,22 +62,20 @@ accepted benchmark (24.531 s full -> 7.860 s). The earlier parallel numbers
 (10.1x full / 13.5x at 500) are intentionally not used as the headline because
 they did not hold CPU usage equal.
 
-### 50x feasibility (equal CPU, complete output)
+### Next target: 30x minimum, aiming for 100x
 
-A 50x result would require 0.156 s at 500 symbols and 1.329 s full. Current
-load+factor alone is 0.092 s and 0.961 s, and the mandatory result payload is
-32.5 MB and 347 MB. Even with research and serialization at zero, the 500
-budget is nearly consumed; full would need 347 MB of CSV generated inside
-~0.37 s after load+factor. Single-thread complete-output 50x is therefore not
-physically achievable. The realistic single-thread ceiling after further
-rank-order reuse and compact row export is roughly 15-20x at 500 and 11-13x
-full. A 50x headline would require a reduced-output summary/hash mode or
-parallelism and would be a different benchmark contract.
+The earlier 11-13x full-panel ceiling and claim that 50x is physically
+impossible were not established by the measurements. Current stage times and
+output sizes show substantial remaining work, not an immutable lower bound.
+[Iteration 9](../docs/iterations/iteration-9-performance-30x-100x/README.md)
+sets a complete-output, single-core 30x minimum and 100x stretch target for
+both 500-file and full-panel scenarios, with workload/timer repairs first.
+Reduced-output and multicore experiments are separate scores, not substitutes.
 
-Parity is unchanged in the equal-CPU run: every primary comparison stays at
-1e-15 and the full 1,044-test suite passes. See the
-[alpha003 README](alpha003_a_stocks/README.md) for the stage tables and the
-50x analysis.
+The historical primary comparisons were within about 1e-15 and the recorded
+native suite passed 1,044 tests; these are not fresh runs or Iteration 9
+acceptance. See the [alpha003 README](alpha003_a_stocks/README.md) for the
+historical stage tables and the measurement limitations.
 
 ## Native-only harnesses
 

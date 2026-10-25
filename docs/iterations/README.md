@@ -1,5 +1,23 @@
 # Fincore C++ — Iteration Plan Index
 
+## Current performance plan — 2026-10-25
+
+[Iteration 9: at least 30x, aiming for 100x end-to-end performance](iteration-9-performance-30x-100x/README.md)
+adds Phases 111–120. Its [requirements](iteration-9-performance-30x-100x/requirements.md),
+[design](iteration-9-performance-30x-100x/design.md) and
+[acceptance protocol](iteration-9-performance-30x-100x/acceptance.md) define the
+same-CPU, complete-output comparison and evidence-driven plan revisions.
+Implementation and performance acceptance are **NOT_RUN**; publishing the plan
+does not establish either speedup target. Start with P111/P112 measurement and
+workload-contract repairs, then accept and commit small rounds on existing `dev`.
+
+Iteration 8's current execution state is in its
+[2026-10-24 acceptance record](../acceptance/2026-10-24-iteration-8-native-parity-acceptance.md).
+The remainder of this index is the historical R2 planning snapshot; its missing
+Iteration 7/shared-contract references are not prerequisites of Iteration 9.
+
+## Historical R2 index
+
 **Revision:** 2026-10-23 R2, source-backed plan review.
 **Status:** Current selected native scope accepted on 2026-10-24, with
 explicit partial models, deferrals, historical variances and performance tradeoffs.
@@ -40,6 +58,8 @@ Start with the [review findings](review-2026-10-23.md), the
 | 5 | [requirements](iteration-5-factor-analysis/requirements.md) | [design](iteration-5-factor-analysis/design.md) | [acceptance](iteration-5-factor-analysis/acceptance.md) | 77–87 panel, kernels, models, research and reports |
 | 6 | [requirements](iteration-6-report-runtime/requirements.md) | [design](iteration-6-report-runtime/design.md) | [acceptance](iteration-6-report-runtime/acceptance.md) | 88a early contract; 88b–92 integration; 93 distribution |
 | 7 | [requirements](iteration-7-latest-fincore-alignment/requirements.md) | [design](iteration-7-latest-fincore-alignment/design.md) | [acceptance](iteration-7-latest-fincore-alignment/acceptance.md) | 94–99: freeze/re-pin, research corrections, compute reuse, export/hash/positions, measured closeout; NOT_RUN |
+| 8 | [requirements](iteration-8-full-python-parity/requirements.md) | [design](iteration-8-full-python-parity/design.md) | [acceptance](iteration-8-full-python-parity/acceptance.md) | 100–110: native parity; see dated execution record above |
+| 9 | [requirements](iteration-9-performance-30x-100x/requirements.md) | [design](iteration-9-performance-30x-100x/design.md) | [acceptance](iteration-9-performance-30x-100x/acceptance.md) | 111–120: complete-output 30x minimum / 100x stretch; NOT_RUN |
 
 ## Verified planning snapshot
 
