@@ -144,6 +144,8 @@ std::vector<double> cut_edges(std::vector<double> values,
     }
     const double adjustment = (maximum - minimum) * 0.001;
     if (adjustment > 0.0) {
+        // Push the outer edges outwards so the minimum and maximum observed
+        // values fall inside a bin instead of landing exactly on a boundary.
         edges.front() -= adjustment;
         edges.back() += adjustment;
     }
@@ -156,6 +158,9 @@ std::vector<double> cut_edges(std::vector<double> values,
 }
 
 int assign_bin(const double value, const std::vector<double>& edges) {
+    // Intervals are left-open/right-closed: a value equal to an interior edge
+    // stays in the bin below it, and anything above the last edge clamps into
+    // the final bin.
     if (value <= edges.front()) {
         return 0;
     }

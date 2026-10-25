@@ -78,6 +78,10 @@ garch11_parameters from_unconstrained(const std::vector<double>& theta,
     if (constant_mean) {
         params.mu = theta[index++];
     }
+    // The optimizer works on unconstrained theta; mapping omega through exp
+    // and alpha/beta through a sigmoid keeps every evaluated recursion with a
+    // positive intercept and persistence coefficients inside the bounds, so an
+    // intermediate step cannot produce a non-positive variance.
     params.omega = omega_floor + std::exp(theta[index++]);
     params.alpha = omega_floor + (1.0 - 2.0 * omega_floor) * sigmoid(theta[index++]);
     params.beta = omega_floor + (1.0 - 2.0 * omega_floor) * sigmoid(theta[index++]);
@@ -95,6 +99,8 @@ std::vector<double> to_unconstrained(const garch11_parameters& params,
         (params.alpha - omega_floor) / (1.0 - 2.0 * omega_floor);
     const double beta_unit =
         (params.beta - omega_floor) / (1.0 - 2.0 * omega_floor);
+    // Clamped because logit is undefined at the ends; a parameter that already
+    // sits on a bound must still map to a finite theta.
     theta.push_back(logit(std::min(std::max(alpha_unit, 1e-9), 1.0 - 1e-9)));
     theta.push_back(logit(std::min(std::max(beta_unit, 1e-9), 1.0 - 1e-9)));
     return theta;

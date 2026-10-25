@@ -5,10 +5,13 @@ namespace fincore::detail {
 numpy_mt19937::numpy_mt19937(const std::uint32_t seed) {
   state_[0] = seed;
   for (std::size_t index = 1U; index < state_.size(); ++index) {
+    // NumPy's init_genrand multiplier; the reference MT19937 value 69069U
+    // would produce a different stream from the same seed.
     state_[index] =
         1812433253U * (state_[index - 1U] ^ (state_[index - 1U] >> 30U)) +
         static_cast<std::uint32_t>(index);
   }
+  // Positioning at the buffer end forces the first draw to twist.
   index_ = state_.size();
 }
 
@@ -43,6 +46,9 @@ std::uint32_t numpy_mt19937::randint(const std::uint32_t upper_exclusive) {
   if (upper_exclusive <= 1U) {
     return 0U;
   }
+  // Smallest mask covering the range, then reject overshoots: drawing
+  // next_uint32() % upper_exclusive would bias low values whenever the bound
+  // is not a power of two, and NumPy's bounded generator is mask-based.
   const std::uint32_t maximum = upper_exclusive - 1U;
   std::uint32_t mask = maximum;
   mask |= mask >> 1U;

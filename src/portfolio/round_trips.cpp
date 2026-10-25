@@ -239,6 +239,7 @@ std::vector<round_trip> fifo_round_trips(
 
         const double signed_price = block.price * amount_sign(block.amount);
         double remaining = std::abs(block.amount);
+        // A same-direction block cannot close anything, so it queues as a lot.
         if (lots.empty() || same_lot_direction(lots.back().signed_price, block.amount)) {
             lots.push_back({signed_price, remaining, block.datetime});
             continue;
@@ -256,6 +257,8 @@ std::vector<round_trip> fifo_round_trips(
                 matched_any = true;
             }
             const double matched = std::min(remaining, previous.quantity);
+            // Prices carry trade direction, so one formula covers a long closed
+            // by a sell and a short closed by a buy.
             pnl += -(signed_price + previous.signed_price) * matched;
             invested += std::abs(previous.signed_price) * matched;
 
@@ -275,6 +278,8 @@ std::vector<round_trip> fifo_round_trips(
                               block.symbol,
                               checked_duration(first_open_datetime, block.datetime)});
         }
+        // An over-sized closing block both finishes the old lots and starts a
+        // reversed position from the quantity left over.
         if (remaining > 0.0) {
             lots.push_back({signed_price, remaining, block.datetime});
         }
