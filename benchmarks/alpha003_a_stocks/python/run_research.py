@@ -26,6 +26,15 @@ import numpy as np
 import pandas as pd
 
 BENCHMARK_ROOT = Path(__file__).resolve().parents[1]
+PYTHON_DIR = Path(__file__).resolve().parent
+REPO_ROOT = BENCHMARK_ROOT.parents[1]
+for _module_path in (str(REPO_ROOT), str(BENCHMARK_ROOT), str(PYTHON_DIR)):
+    if _module_path not in sys.path:
+        sys.path.insert(0, _module_path)
+
+from benchmarks.alpha003_a_stocks.contract import TABLES as TABLE_CONTRACTS
+from benchmarks.alpha003_a_stocks.html_report import write_report
+
 DEFAULT_DATA = BENCHMARK_ROOT / "data" / "a_stocks"
 DEFAULT_OUT = BENCHMARK_ROOT / "results" / "python"
 TIMEZONE = "Asia/Shanghai"
@@ -238,7 +247,7 @@ def workload_snapshot(*, periods: tuple[int, ...], args: argparse.Namespace,
                       grid: pd.DataFrame, research_end: pd.Timestamp,
                       assets: int, factor_cells: int) -> dict[str, Any]:
     return {
-        "contract": "alpha003-complete-v2",
+        "contract": "alpha003-html-v1",
         "factor": FACTOR,
         "periods": [f"{period}D" for period in periods],
         "quantiles": args.quantiles,
@@ -262,13 +271,59 @@ def workload_snapshot(*, periods: tuple[int, ...], args: argparse.Namespace,
             "source_timezone": TIMEZONE,
         },
         "serialization": {
+            "format": "single-file-html",
             "encoding": "utf-8",
             "line_ending": "LF",
             "timestamp": "ISO8601-UTC-Z",
             "float": "roundtrip-binary64",
-            "nan": "empty",
+            "nan": "null",
         },
     }
+
+
+def _report_cell(value: Any, column: str) -> Any:
+    """Convert a scalar to strict JSON while preserving real strings."""
+    if value is None or value is pd.NA or value is pd.NaT:
+        return None
+    if isinstance(value, (pd.Timestamp, np.datetime64)):
+        return canonical_utc_text(pd.Timestamp(value))
+    if isinstance(value, (float, np.floating)):
+        number = float(value)
+        if np.isnan(number):
+            return None
+        if not np.isfinite(number):
+            raise ValueError(f"{column} contains an infinite value")
+        return number
+    if isinstance(value, (bool, np.bool_)):
+        return bool(value)
+    if isinstance(value, (int, np.integer)):
+        return int(value)
+    if isinstance(value, str):
+        return value
+
+    missing = pd.isna(value)
+    if isinstance(missing, (bool, np.bool_)) and missing:
+        return None
+    if hasattr(value, "item"):
+        return _report_cell(value.item(), column)
+    raise TypeError(f"{column} contains an unsupported report value: {type(value).__name__}")
+
+
+def report_table(frame: pd.DataFrame, name: str) -> dict[str, Any]:
+    """Materialize one bounded research table using the shared column contract."""
+    if name not in TABLE_CONTRACTS:
+        raise KeyError(f"unknown research table: {name}")
+    columns = list(TABLE_CONTRACTS[name].columns)
+    if list(frame.columns) != columns:
+        raise RuntimeError(
+            f"fincore {name} columns differ from the registered contract: "
+            f"expected {columns}, got {list(frame.columns)}")
+    rows = [
+        [_report_cell(value, column)
+         for column, value in zip(columns, row)]
+        for row in frame.itertuples(index=False, name=None)
+    ]
+    return {"columns": columns, "rows": rows}
 
 
 def peak_memory_observation() -> dict[str, Any]:
@@ -378,6 +433,15 @@ def main() -> int:
     internal_started = time.perf_counter()
     cpu_started = time.process_time()
     args = parse_args()
+    out = args.out.resolve()
+    if out.exists():
+        if not out.is_dir():
+            raise NotADirectoryError(f"--out must be a directory: {out}")
+        if any(out.iterdir()):
+            raise FileExistsError(
+                f"--out must be empty so the run contains only research.html: {out}")
+    else:
+        out.mkdir(parents=True)
     periods = tuple(int(value) for value in args.periods.split(",") if value)
     fincore, evaluate_factor_research = import_fincore(args.fincore_root)
 
@@ -446,24 +510,22 @@ def main() -> int:
     )
     research_seconds = time.perf_counter() - research_started
 
-    out = args.out.resolve()
     export_started = time.perf_counter()
-    out.mkdir(parents=True, exist_ok=True)
-    factor_out = pd.DataFrame({
-        "date": factor_long["time"],
-        "asset": factor_long["asset"],
-        FACTOR: factor_long[FACTOR],
-    })
-    write_csv_frame(factor_out, out / "factor_values.csv")
-    table_names = (
+    validation_table_names = (
         "signals", "labels", "ic", "ic_summary", "quantile_returns",
         "turnover", "spreads", "stability", "coverage", "diagnostics",
+    )
+    report_table_names = (
+        "ic", "ic_summary", "quantile_returns", "turnover", "spreads",
+        "stability", "coverage", "diagnostics",
     )
     manifest = dict(result.manifest)
     manifest_tables = manifest.get("tables")
     if not isinstance(manifest_tables, dict):
         raise RuntimeError("fincore result manifest is missing table metadata")
-    for name in table_names:
+    tables: dict[str, dict[str, Any]] = {}
+    table_row_counts: dict[str, int] = {}
+    for name in validation_table_names:
         table = result.table(name)
         descriptor = manifest_tables.get(name)
         expected = {"rows": len(table),
@@ -473,13 +535,13 @@ def main() -> int:
                 descriptor.get("columns") != expected["columns"]):
             raise RuntimeError(
                 f"fincore manifest metadata differs from exported {name} table")
-        write_csv_frame(table, out / f"{name}.csv")
+        table_row_counts[name] = len(table)
+        if name in report_table_names:
+            tables[name] = report_table(table, name)
 
     workload = workload_snapshot(
         periods=periods, args=args, grid=grid, research_end=research_end,
         assets=len(targets), factor_cells=len(factor_long))
-    write_json(out / "workload.json", workload, require_finite=True)
-    write_json(out / "manifest.json", manifest)
     export_seconds = time.perf_counter() - export_started
 
     internal_wall_seconds = time.perf_counter() - internal_started
@@ -504,6 +566,7 @@ def main() -> int:
         "cpu_seconds": cpu_seconds,
         "internal_process_cpu_seconds": cpu_seconds,
         "cpu_measurement_source": "time.process_time (user + system)",
+        "html_render_included": False,
         **peak_memory,
     }
     run_info = {
@@ -525,6 +588,7 @@ def main() -> int:
         "end_offset": args.end_offset,
         "research_end": canonical_utc_text(research_end),
         "factor_cells": len(factor_long),
+        "table_rows": table_row_counts,
         "periods": list(periods),
         "quantiles": args.quantiles,
         "label": args.label,
@@ -533,12 +597,14 @@ def main() -> int:
         "status": result.status,
         "measurement_scope": {
             "internal_wall":
-                "main entry through factor, research, workload, CSV, and result manifest writes; excludes interpreter startup and module-level NumPy/pandas imports, plus timing/run_info JSON and stdout writes",
+                "main entry through factor/research and in-memory report table/workload construction; measured before run_info/payload assembly and HTML rendering/file close; excludes interpreter startup and module-level NumPy/pandas imports",
             "process_wall":
-                "measured externally from process launch to exit by the parent runner",
-            "cpu": "process CPU delta over the internal runner interval",
+                "measured externally from process launch through complete HTML file close and process exit; this is the only benchmark comparison metric",
+            "cpu": "process CPU delta over the internal runner interval, ending before HTML rendering",
             "peak_memory":
-                "process-lifetime peak resident working set observed at internal completion",
+                "process-lifetime peak resident working set observed before HTML rendering",
+            "html_render":
+                "excluded from internal stage timings because those values are embedded in the HTML before final serialization; included in external process wall",
             "affinity_and_thread_limits":
                 "observed only; this runner does not apply affinity or thread limits",
         },
@@ -549,9 +615,19 @@ def main() -> int:
         },
         "timings": timings,
     }
-    write_json(out / "timings.json", timings, require_finite=True)
-    write_json(out / "run_info.json", run_info, require_finite=True)
-    print(json.dumps(run_info, sort_keys=True, default=str))
+    payload = {
+        "schema_version": "alpha003-html-v1",
+        "engine": "python-fincore",
+        "workload": workload,
+        "run_info": run_info,
+        "timings": timings,
+        "tables": tables,
+    }
+    output_path = out / "research.html"
+    if output_path.exists():
+        raise FileExistsError(f"refusing to replace an existing report: {output_path}")
+    write_report(output_path, payload)
+    print(json.dumps(run_info, sort_keys=True, default=str, allow_nan=False))
     return 0
 
 

@@ -60,10 +60,10 @@ P124 全量 native A/B 中峰值工作集约从 748 MB 降至 239 MB；P120 全�
   源码 C4858 编译警告；MSVC 不支持的 UBSan 不标为通过。
 
 2026-10-25 按用户要求完成[生成物清理](cleanup-20261025.md)：旧 `results-i9-*`
-和 `build-win*` 目录已删除。原始计时/比较报告、构建日志及必要参考输出保存在
-`benchmarks/alpha003_a_stocks/results-i9-retained-20261025/evidence.zip`，ZIP 内保留
-原相对路径；原始行情数据不变。关键数字与文件摘要仍保存在[收尾 JSON](closeout.json)，
-不要求重新运行已接受的检查来恢复本轮结论。
+和 `build-win*` 目录已删除。用户随后要求仅输出 HTML，并允许清除所有旧运行结果；
+首次清理留下的本地证据压缩包也已移入回收站，不再要求保存。原始行情数据不变，
+关键数字与历史文件摘要仍保存在[收尾 JSON](closeout.json)。新的 HTML 输出场景
+见 [benchmark 使用说明](../../../benchmarks/alpha003_a_stocks/README.md)，不替代本记录的旧 CSV 结果。
 
 ## 后续待办
 

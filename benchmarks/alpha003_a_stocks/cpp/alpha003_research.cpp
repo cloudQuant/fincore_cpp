@@ -2,7 +2,6 @@
 #include <fincore/dataframe.hpp>
 #include <fincore/detail/stable_double_order.hpp>
 #include <fincore/factor/research_detailed.hpp>
-#include <fincore/factor/research_detailed_export.hpp>
 
 #include <algorithm>
 #include <array>
@@ -15,6 +14,8 @@
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
+#include <initializer_list>
+#include <iterator>
 #include <limits>
 #include <numeric>
 #include <optional>
@@ -22,6 +23,7 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <system_error>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
@@ -586,75 +588,15 @@ factor_output compute_alpha003(const panel& prices) {
     return output;
 }
 
-void write_factor_values(const std::filesystem::path& path,
-                         const factor_output& factor) {
-    std::ofstream stream(path, std::ios::binary);
-    if (!stream) {
-        throw std::runtime_error("cannot write " + path.string());
-    }
-    std::string buffer;
-    buffer.reserve((1U << 20) + 65536U);
-    buffer += "date,asset,";
-    buffer += factor_name;
-    buffer.push_back('\n');
-    std::string date_text;
-    timestamp last_date = 0;
-    bool have_date = false;
-    for (std::size_t index = 0; index < factor.series.values.size(); ++index) {
-        const auto date = factor.series.dates[index];
-        if (!have_date || date != last_date) {
-            date_text = format_utc(date);
-            last_date = date;
-            have_date = true;
-        }
-        buffer += date_text;
-        buffer.push_back(',');
-        buffer += factor.series.assets[index];
-        buffer.push_back(',');
-        char number[32];
-        const auto conversion = std::to_chars(
-            number, number + sizeof(number), factor.series.values[index]);
-        if (conversion.ec != std::errc{}) {
-            throw std::runtime_error("cannot format factor value");
-        }
-        buffer.append(number,
-                      static_cast<std::size_t>(conversion.ptr - number));
-        buffer.push_back('\n');
-        if (buffer.size() >= (1U << 20)) {
-            stream.write(buffer.data(),
-                         static_cast<std::streamsize>(buffer.size()));
-            buffer.clear();
-        }
-    }
-    if (!buffer.empty()) {
-        stream.write(buffer.data(),
-                     static_cast<std::streamsize>(buffer.size()));
-    }
-    if (!stream) {
-        throw std::runtime_error("cannot write " + path.string());
-    }
-}
-
-void write_json(const std::filesystem::path& path, const std::string& text) {
-    std::ofstream stream(path, std::ios::binary);
-    if (!stream) {
-        throw std::runtime_error("cannot write " + path.string());
-    }
-    stream << text;
-    if (!stream) {
-        throw std::runtime_error("cannot write " + path.string());
-    }
-}
-
 std::string json_string(std::string_view value);
 
-void write_workload(const std::filesystem::path& path,
-                    const fincore::research_spec& spec,
-                    const std::size_t grid_dates, const std::size_t assets,
-                    const std::size_t factor_cells) {
+std::string workload_json(const fincore::research_spec& spec,
+                          const std::size_t grid_dates,
+                          const std::size_t assets,
+                          const std::size_t factor_cells) {
     std::ostringstream output;
     output << "{\n"
-           << "  \"contract\": \"alpha003-complete-v2\",\n"
+           << "  \"contract\": \"alpha003-html-v1\",\n"
            << "  \"factor\": " << json_string(factor_name) << ",\n"
            << "  \"periods\": [";
     for (std::size_t index = 0U; index < spec.periods.size(); ++index) {
@@ -698,13 +640,17 @@ void write_workload(const std::filesystem::path& path,
            << "    \"line_ending\": \"LF\",\n"
            << "    \"timestamp\": \"ISO8601-UTC-Z\",\n"
            << "    \"float\": \"roundtrip-binary64\",\n"
-           << "    \"nan\": \"empty\"\n"
+           << "    \"nan\": \"null\",\n"
+           << "    \"format\": \"single-file-html\"\n"
            << "  }\n"
-           << "}\n";
-    write_json(path, output.str());
+           << '}';
+    return output.str();
 }
 
 std::string json_number(const double value) {
+    if (std::isinf(value)) {
+        throw std::runtime_error("report contains an infinite numeric value");
+    }
     if (!std::isfinite(value)) {
         return "null";
     }
@@ -742,7 +688,7 @@ std::string json_string(const std::string_view value) {
 }
 
 std::string json_optional_number(const std::optional<double> value) {
-    if (!value.has_value() || !std::isfinite(*value)) {
+    if (!value.has_value()) {
         return "null";
     }
     return json_number(*value);
@@ -943,6 +889,414 @@ std::string thread_limit_environment_json() {
     return output.str();
 }
 
+void write_json_row(std::ostream& output,
+                    const std::initializer_list<std::string>& cells) {
+    output << '[';
+    bool first = true;
+    for (const auto& cell : cells) {
+        if (!first) {
+            output << ',';
+        }
+        output << cell;
+        first = false;
+    }
+    output << ']';
+}
+
+template <typename Rows, typename RowWriter>
+std::string table_json(const std::initializer_list<std::string_view> columns,
+                       const Rows& rows, RowWriter write_row) {
+    std::ostringstream output;
+    output << "{\"columns\":[";
+    bool first = true;
+    for (const auto column : columns) {
+        if (!first) {
+            output << ',';
+        }
+        output << json_string(column);
+        first = false;
+    }
+    output << "],\"rows\":[";
+    first = true;
+    for (const auto& row : rows) {
+        if (!first) {
+            output << ',';
+        }
+        write_row(output, row);
+        first = false;
+    }
+    output << "]}";
+    return output.str();
+}
+
+std::string report_tables_json(
+    const fincore::research_detailed_result& result) {
+    const auto ic = table_json(
+        {"time", "factor", "period", "ic", "rank_ic", "n_assets"},
+        result.ic, [](std::ostream& output,
+                      const fincore::research_detailed_ic_row& row) {
+            write_json_row(output,
+                           {json_string(format_utc(row.time)),
+                            json_string(row.factor), json_string(row.period),
+                            json_number(row.ic), json_number(row.rank_ic),
+                            std::to_string(row.n_assets)});
+        });
+    const auto ic_summary = table_json(
+        {"factor", "period", "mean_ic", "std_ic", "icir",
+         "mean_rank_ic", "std_rank_ic", "rank_icir", "n_dates"},
+        result.ic_summary,
+        [](std::ostream& output,
+           const fincore::research_detailed_ic_summary_row& row) {
+            write_json_row(output,
+                           {json_string(row.factor), json_string(row.period),
+                            json_number(row.mean_ic), json_number(row.std_ic),
+                            json_number(row.icir),
+                            json_number(row.mean_rank_ic),
+                            json_number(row.std_rank_ic),
+                            json_number(row.rank_icir),
+                            std::to_string(row.n_dates)});
+        });
+    const auto quantile_returns = table_json(
+        {"time", "factor", "period", "quantile", "mean_return",
+         "n_assets"},
+        result.quantile_returns,
+        [](std::ostream& output,
+           const fincore::research_detailed_quantile_return_row& row) {
+            write_json_row(output,
+                           {json_string(format_utc(row.time)),
+                            json_string(row.factor), json_string(row.period),
+                            std::to_string(row.quantile),
+                            json_number(row.mean_return),
+                            std::to_string(row.n_assets)});
+        });
+    const auto turnover = table_json(
+        {"time", "factor", "period", "quantile", "turnover"},
+        result.turnover,
+        [](std::ostream& output,
+           const fincore::research_detailed_turnover_row& row) {
+            write_json_row(output,
+                           {json_string(format_utc(row.time)),
+                            json_string(row.factor), json_string(row.period),
+                            std::to_string(row.quantile),
+                            json_number(row.turnover)});
+        });
+    const auto spreads = table_json(
+        {"time", "factor", "period", "spread", "top_quantile",
+         "bottom_quantile"},
+        result.spreads,
+        [](std::ostream& output,
+           const fincore::research_detailed_spread_row& row) {
+            write_json_row(output,
+                           {json_string(format_utc(row.time)),
+                            json_string(row.factor), json_string(row.period),
+                            json_number(row.spread),
+                            std::to_string(row.top_quantile),
+                            std::to_string(row.bottom_quantile)});
+        });
+    const auto stability = table_json(
+        {"factor", "lag", "mean_rank_autocorrelation",
+         "std_rank_autocorrelation", "n_dates"},
+        result.stability,
+        [](std::ostream& output,
+           const fincore::research_detailed_stability_row& row) {
+            write_json_row(output,
+                           {json_string(row.factor),
+                            std::to_string(row.lag),
+                            json_number(row.mean_rank_autocorrelation),
+                            json_number(row.std_rank_autocorrelation),
+                            std::to_string(row.n_dates)});
+        });
+    const auto coverage = table_json(
+        {"factor", "kind", "direction", "input_cells", "finite_cells",
+         "label_cells", "evaluable_cells", "status"},
+        result.coverage,
+        [](std::ostream& output,
+           const fincore::research_detailed_coverage_row& row) {
+            write_json_row(output,
+                           {json_string(row.factor), json_string(row.kind),
+                            std::to_string(row.direction),
+                            std::to_string(row.input_cells),
+                            std::to_string(row.finite_cells),
+                            std::to_string(row.label_cells),
+                            std::to_string(row.evaluable_cells),
+                            json_string(row.status)});
+        });
+    const auto diagnostics = table_json(
+        {"factor", "stage", "severity", "code", "message"},
+        result.diagnostics,
+        [](std::ostream& output,
+           const fincore::research_detailed_diagnostic& row) {
+            write_json_row(output,
+                           {row.factor.has_value()
+                                ? json_string(*row.factor)
+                                : "null",
+                            json_string(row.stage),
+                            json_string(row.severity),
+                            json_string(row.code),
+                            json_string(row.message)});
+        });
+
+    std::ostringstream output;
+    output << "{\"ic\":" << ic << ",\"ic_summary\":" << ic_summary
+           << ",\"quantile_returns\":" << quantile_returns
+           << ",\"turnover\":" << turnover << ",\"spreads\":"
+           << spreads << ",\"stability\":" << stability
+           << ",\"coverage\":" << coverage
+           << ",\"diagnostics\":" << diagnostics << '}';
+    return output.str();
+}
+
+std::string html_safe_json(const std::string_view json) {
+    std::string escaped;
+    escaped.reserve(json.size());
+    for (std::size_t index = 0U; index < json.size(); ++index) {
+        const auto character = static_cast<unsigned char>(json[index]);
+        if (character == '<') {
+            escaped += "\\u003c";
+        } else if (character == '>') {
+            escaped += "\\u003e";
+        } else if (character == '&') {
+            escaped += "\\u0026";
+        } else if (character == 0xe2U && index + 2U < json.size() &&
+                   static_cast<unsigned char>(json[index + 1U]) == 0x80U &&
+                   (static_cast<unsigned char>(json[index + 2U]) == 0xa8U ||
+                    static_cast<unsigned char>(json[index + 2U]) == 0xa9U)) {
+            escaped += static_cast<unsigned char>(json[index + 2U]) == 0xa8U
+                           ? "\\u2028"
+                           : "\\u2029";
+            index += 2U;
+        } else {
+            escaped.push_back(static_cast<char>(character));
+        }
+    }
+    return escaped;
+}
+
+std::filesystem::path default_report_template_path() {
+    return (std::filesystem::path(__FILE__).parent_path() / ".." /
+            "report_template.html")
+        .lexically_normal();
+}
+
+std::string read_report_template(const std::filesystem::path& path) {
+    std::ifstream stream(path, std::ios::binary);
+    if (!stream) {
+        throw std::runtime_error("cannot open report template: " +
+                                 path.string());
+    }
+    std::string content((std::istreambuf_iterator<char>(stream)),
+                        std::istreambuf_iterator<char>());
+    if (!stream.eof() && stream.fail()) {
+        throw std::runtime_error("cannot read report template: " +
+                                 path.string());
+    }
+    constexpr std::string_view marker = "__FINCORE_REPORT_DATA__";
+    const auto position = content.find(marker);
+    if (position == std::string::npos ||
+        content.find(marker, position + marker.size()) != std::string::npos) {
+        throw std::runtime_error(
+            "report template must contain exactly one __FINCORE_REPORT_DATA__ marker");
+    }
+    return content;
+}
+
+void replace_report_data(std::string& html, const std::string_view payload) {
+    constexpr std::string_view marker = "__FINCORE_REPORT_DATA__";
+    const auto position = html.find(marker);
+    if (position == std::string::npos ||
+        html.find(marker, position + marker.size()) != std::string::npos) {
+        throw std::runtime_error(
+            "report template must contain exactly one __FINCORE_REPORT_DATA__ marker");
+    }
+    html.replace(position, marker.size(), html_safe_json(payload));
+}
+
+void ensure_empty_output_directory(const std::filesystem::path& path) {
+    if (std::filesystem::exists(path)) {
+        if (!std::filesystem::is_directory(path)) {
+            throw std::runtime_error("output path is not a directory: " +
+                                     path.string());
+        }
+        if (std::filesystem::directory_iterator(path) !=
+            std::filesystem::directory_iterator{}) {
+            throw std::runtime_error(
+                "output directory must be empty: " + path.string());
+        }
+        return;
+    }
+    std::filesystem::create_directories(path);
+}
+
+void write_single_report(const std::filesystem::path& out_dir,
+                         const std::string_view html) {
+    const auto destination = out_dir / "research.html";
+    const auto temporary = out_dir / ".research.html.tmp";
+    if (std::filesystem::exists(destination) ||
+        std::filesystem::exists(temporary)) {
+        throw std::runtime_error(
+            "output directory changed after its empty check: " +
+            out_dir.string());
+    }
+    try {
+        std::ofstream stream(temporary, std::ios::binary | std::ios::trunc);
+        if (!stream) {
+            throw std::runtime_error("cannot create report temporary file");
+        }
+        stream.write(html.data(), static_cast<std::streamsize>(html.size()));
+        stream.flush();
+        if (!stream) {
+            throw std::runtime_error("cannot write report temporary file");
+        }
+        stream.close();
+        if (!stream) {
+            throw std::runtime_error("cannot close report temporary file");
+        }
+        if (std::filesystem::exists(destination)) {
+            throw std::runtime_error(
+                "research.html already exists; refusing to overwrite it");
+        }
+        std::filesystem::rename(temporary, destination);
+    } catch (...) {
+        std::error_code ignored;
+        std::filesystem::remove(temporary, ignored);
+        throw;
+    }
+}
+
+std::string timings_json(
+    const double preparation_seconds, const double load_seconds,
+    const double factor_seconds, const double materialization_seconds,
+    const double research_seconds, const double table_serialization_seconds,
+    const std::optional<double> report_render_seconds,
+    const std::optional<double> html_write_seconds,
+    const std::optional<double> total_seconds,
+    const std::optional<double> cpu_seconds,
+    const std::optional<std::uint64_t> peak_memory_bytes,
+    const std::string_view cpu_source,
+    const std::string_view peak_memory_source,
+    const std::string_view peak_memory_status,
+    const std::optional<double> elapsed_before_report_render_seconds) {
+    auto accounted_stages = preparation_seconds + load_seconds +
+                            factor_seconds + materialization_seconds +
+                            research_seconds + table_serialization_seconds;
+    if (report_render_seconds.has_value()) {
+        accounted_stages += *report_render_seconds;
+    }
+    if (html_write_seconds.has_value()) {
+        accounted_stages += *html_write_seconds;
+    }
+    const auto wall_reference = total_seconds.has_value()
+                                    ? total_seconds
+                                    : elapsed_before_report_render_seconds;
+    const auto other_seconds = wall_reference.has_value()
+                                   ? std::optional<double>{
+                                         *wall_reference - accounted_stages}
+                                   : std::nullopt;
+    std::ostringstream output;
+    output << "{\"preparation_seconds\":"
+           << json_number(preparation_seconds)
+           << ",\"load_seconds\":" << json_number(load_seconds)
+           << ",\"factor_seconds\":" << json_number(factor_seconds)
+           << ",\"materialization_seconds\":"
+           << json_number(materialization_seconds)
+           << ",\"research_seconds\":" << json_number(research_seconds)
+           << ",\"table_serialization_seconds\":"
+           << json_number(table_serialization_seconds)
+           << ",\"report_render_seconds\":";
+    if (report_render_seconds.has_value()) {
+        output << json_number(*report_render_seconds);
+    } else {
+        output << "null";
+    }
+    output << ",\"html_write_seconds\":";
+    if (html_write_seconds.has_value()) {
+        output << json_number(*html_write_seconds);
+    } else {
+        output << "null";
+    }
+    output << ",\"elapsed_before_report_render_seconds\":";
+    if (elapsed_before_report_render_seconds.has_value()) {
+        output << json_number(*elapsed_before_report_render_seconds);
+    } else {
+        output << "null";
+    }
+    output << ",\"total_seconds\":";
+    if (total_seconds.has_value()) {
+        output << json_number(*total_seconds);
+    } else {
+        output << "null";
+    }
+    output << ",\"other_seconds\":"
+           << json_optional_number(other_seconds)
+           << ",\"accounted_stage_seconds\":";
+    if (wall_reference.has_value()) {
+        output << json_number(*wall_reference);
+    } else {
+        output << "null";
+    }
+    output << ",\"internal_wall_seconds\":";
+    if (total_seconds.has_value()) {
+        output << json_number(*total_seconds);
+    } else {
+        output << "null";
+    }
+    output << ",\"cpu_seconds\":" << json_optional_number(cpu_seconds)
+           << ",\"internal_process_cpu_seconds\":"
+           << json_optional_number(cpu_seconds)
+           << ",\"peak_memory_bytes\":"
+           << json_optional_integer(peak_memory_bytes)
+           << ",\"cpu_measurement_source\":" << json_string(cpu_source)
+           << ",\"peak_memory_source\":"
+           << json_string(peak_memory_source)
+           << ",\"peak_memory_status\":"
+           << json_string(peak_memory_status)
+           << ",\"scope\":"
+           << json_string(
+                  total_seconds.has_value()
+                      ? "complete through research.html close; excludes process startup and stdout"
+                      : "through detailed table serialization; excludes report rendering, research.html write, process startup and stdout")
+           << '}';
+    return output.str();
+}
+
+std::string run_info_json(
+    const std::string_view run_id, const std::size_t assets,
+    const std::size_t grid_dates, const int end_offset,
+    const timestamp research_end, const std::size_t factor_cells,
+    const fincore::research_detailed_result& result,
+    const std::string_view affinity_json,
+    const std::string_view thread_limits_json,
+    const std::string_view timings) {
+    std::ostringstream output;
+    output << "{\"run_id\":" << json_string(run_id)
+           << ",\"engine\":\"fincore_cpp\","
+              "\"engine_fingerprint\":{\"detailed_api_version\":"
+           << json_string(fincore::research_detailed_api_version)
+           << ",\"result_schema_version\":"
+           << fincore::research_detailed_result_schema_version
+           << ",\"report_schema_version\":\"alpha003-html-v1\"}"
+           << ",\"assets\":" << assets << ",\"grid_dates\":"
+           << grid_dates << ",\"end_offset\":" << end_offset
+           << ",\"research_end\":" << json_string(format_utc(research_end))
+           << ",\"factor_cells\":" << factor_cells
+           << ",\"status\":" << json_string(result.status)
+           << ",\"report_file\":\"research.html\",\"timings\":"
+           << timings
+           << ",\"measurement_scope\":{"
+              "\"research\":\"evaluate_factor_research_detailed computes the full result in memory; no signal, label, or factor-value rows are written to the report\","
+              "\"table_serialization\":\"the eight summary tables are serialized into the HTML payload\","
+              "\"report_render\":\"workload, run_info, and template placeholder substitution\","
+              "\"internal_wall\":\"stdout timing completes through research.html close; embedded timing excludes report rendering and the final write; process startup and stdout output are excluded\","
+              "\"process_wall\":\"measured externally from process launch to exit by the parent runner and is the comparable wall metric\","
+              "\"cpu\":\"stdout timing completes the process CPU delta through HTML close; embedded snapshot ends before rendering and writing; process startup is excluded\","
+              "\"peak_memory\":\"process-lifetime peak resident working set at the timing snapshot; embedded snapshot precedes rendering and writing\","
+              "\"affinity_and_thread_limits\":\"observed only; this runner does not apply limits\"},"
+           << "\"environment\":{\"affinity\":" << affinity_json
+           << ",\"thread_limit_environment\":" << thread_limits_json
+           << ",\"effective_thread_pools_verified\":false}}";
+    return output.str();
+}
+
 }  // namespace
 
 int main(int argc, char** argv) {
@@ -957,6 +1311,7 @@ int main(int argc, char** argv) {
         std::filesystem::path out_dir =
             std::filesystem::path("benchmarks") / "alpha003_a_stocks" /
             "results" / "cpp";
+        auto report_template = default_report_template_path();
         int max_symbols = 500;
         int end_offset = 22;
         std::string preprocess = "cross_section_rank";
@@ -967,6 +1322,9 @@ int main(int argc, char** argv) {
                 data_dir = argv[++index];
             } else if (argument == "--out" && index + 1 < argc) {
                 out_dir = argv[++index];
+            } else if (argument == "--report-template" &&
+                       index + 1 < argc) {
+                report_template = argv[++index];
             } else if (argument == "--max-symbols" && index + 1 < argc) {
                 max_symbols = std::stoi(argv[++index]);
             } else if (argument == "--end-offset" && index + 1 < argc) {
@@ -982,9 +1340,13 @@ int main(int argc, char** argv) {
             }
         }
 
-        auto load_start = clock_type::now();
-        const auto preparation_seconds =
-            std::chrono::duration<double>(load_start - internal_started).count();
+        ensure_empty_output_directory(out_dir);
+        const auto report_template_text =
+            read_report_template(report_template);
+
+        const auto load_start = clock_type::now();
+        const auto preparation_seconds = std::chrono::duration<double>(
+            load_start - internal_started).count();
         auto prices = load_panel(data_dir, max_symbols);
         if (std::any_of(prices.grid.begin(), prices.grid.end(),
                         [](const timestamp value) {
@@ -995,14 +1357,15 @@ int main(int argc, char** argv) {
         }
         const auto load_seconds = seconds_since(load_start);
 
-        auto factor_start = clock_type::now();
+        const auto factor_start = clock_type::now();
         auto factor = compute_alpha003(prices);
         const auto factor_seconds = seconds_since(factor_start);
         const auto materialization_start = clock_type::now();
 
         if (end_offset < 0 ||
             static_cast<std::size_t>(end_offset) + 2U > prices.grid.size()) {
-            throw std::runtime_error("--end-offset must leave at least two grid dates");
+            throw std::runtime_error(
+                "--end-offset must leave at least two grid dates");
         }
         const auto research_end = prices.grid[
             prices.grid.size() - 1U - static_cast<std::size_t>(end_offset)];
@@ -1022,7 +1385,8 @@ int main(int argc, char** argv) {
         }
         factor.target_columns = std::move(window_columns);
         if (factor.target_columns.empty()) {
-            throw std::runtime_error("no asset produced a finite alpha003 value in the research window");
+            throw std::runtime_error(
+                "no asset produced a finite alpha003 value in the research window");
         }
 
         fincore::dataframe price_frame;
@@ -1056,98 +1420,75 @@ int main(int argc, char** argv) {
         spec.calendar_id = "observed_calendar";
         spec.frequency = "1D";
 
-        auto research_start = clock_type::now();
-        const auto materialization_seconds = std::chrono::duration<double>(
-            research_start - materialization_start).count();
-        std::filesystem::create_directories(out_dir);
-        const auto tables_dir = out_dir / "tables";
-        const auto result = fincore::evaluate_and_export_factor_research_detailed(
-            factor_name, factor.series, price_frame, spec, tables_dir.string());
-        const auto research_and_table_export_seconds = seconds_since(research_start);
+        const auto research_start = clock_type::now();
+        const auto materialization_seconds =
+            std::chrono::duration<double>(
+                research_start - materialization_start)
+                .count();
+        const auto result = fincore::evaluate_factor_research_detailed(
+            factor_name, factor.series, price_frame, spec);
+        const auto research_seconds = seconds_since(research_start);
 
-        auto export_start = clock_type::now();
-        write_factor_values(out_dir / "factor_values.csv", factor);
-        write_workload(out_dir / "workload.json", spec, prices.rows(),
-                       factor.target_columns.size(),
-                       factor.series.values.size());
-        const auto runner_export_seconds = seconds_since(export_start);
+        const auto table_serialization_start = clock_type::now();
+        const auto tables = report_tables_json(result);
+        const auto table_serialization_seconds =
+            seconds_since(table_serialization_start);
+        const auto elapsed_before_report_render_seconds =
+            seconds_since(internal_started);
+        const auto before_render_snapshot = current_process_snapshot();
+        const auto before_render_cpu_seconds =
+            process_cpu_delta(process_started, before_render_snapshot);
+        const auto before_render_timings = timings_json(
+            preparation_seconds, load_seconds, factor_seconds,
+            materialization_seconds, research_seconds,
+            table_serialization_seconds, std::nullopt, std::nullopt,
+            std::nullopt, before_render_cpu_seconds,
+            before_render_snapshot.peak_memory_bytes,
+            process_started.cpu_source,
+            before_render_snapshot.peak_memory_source,
+            before_render_snapshot.peak_memory_status,
+            elapsed_before_report_render_seconds);
+
+        const auto report_render_start = clock_type::now();
+        const auto workload = workload_json(
+            spec, prices.rows(), factor.target_columns.size(),
+            factor.series.values.size());
+        const auto embedded_run_info = run_info_json(
+            run_id, factor.target_columns.size(), prices.rows(), end_offset,
+            research_end, factor.series.values.size(), result, affinity_json,
+            thread_limits_json, before_render_timings);
+        std::ostringstream payload;
+        payload << "{\"schema_version\":\"alpha003-html-v1\","
+                   "\"engine\":\"fincore_cpp\",\"workload\":"
+                << workload << ",\"run_info\":" << embedded_run_info
+                << ",\"timings\":" << before_render_timings
+                << ",\"tables\":" << tables << '}';
+        auto html = report_template_text;
+        replace_report_data(html, payload.str());
+        const auto report_render_seconds = seconds_since(report_render_start);
+
+        const auto html_write_start = clock_type::now();
+        write_single_report(out_dir, html);
+        const auto html_write_seconds = seconds_since(html_write_start);
 
         const auto process_finished = current_process_snapshot();
         const auto total_seconds = seconds_since(internal_started);
-        const auto cpu_seconds = process_cpu_delta(process_started,
-                                                   process_finished);
-        const auto accounted_stages = preparation_seconds + materialization_seconds + load_seconds +
-            factor_seconds + research_and_table_export_seconds + runner_export_seconds;
-        const auto other_seconds = total_seconds - accounted_stages;
-        const auto fully_accounted_seconds = accounted_stages + other_seconds;
-        std::ostringstream timings;
-        timings << "{\n"
-                << "  \"preparation_seconds\": "
-                << json_number(preparation_seconds)
-                << ",\n  \"materialization_seconds\": "
-                << json_number(materialization_seconds)
-                << ",\n  \"load_seconds\": " << json_number(load_seconds)
-                << ",\n  \"factor_seconds\": " << json_number(factor_seconds)
-                << ",\n  \"research_and_table_export_seconds\": "
-                << json_number(research_and_table_export_seconds)
-                << ",\n  \"runner_export_seconds\": " << json_number(runner_export_seconds)
-                << ",\n  \"other_seconds\": " << json_number(other_seconds)
-                << ",\n  \"accounted_stage_seconds\": "
-                << json_number(fully_accounted_seconds)
-                << ",\n  \"total_seconds\": " << json_number(total_seconds)
-                << ",\n  \"internal_wall_seconds\": "
-                << json_number(total_seconds)
-                << ",\n  \"cpu_seconds\": "
-                << json_optional_number(cpu_seconds)
-                << ",\n  \"internal_process_cpu_seconds\": "
-                << json_optional_number(cpu_seconds)
-                << ",\n  \"cpu_measurement_source\": "
-                << json_string(process_started.cpu_source)
-                << ",\n  \"peak_memory_bytes\": "
-                << json_optional_integer(process_finished.peak_memory_bytes)
-                << ",\n  \"peak_memory_source\": "
-                << json_string(process_finished.peak_memory_source)
-                << ",\n  \"peak_memory_status\": "
-                << json_string(process_finished.peak_memory_status)
-                << "\n}\n";
-        write_json(out_dir / "timings.json", timings.str());
-
-        std::ostringstream info;
-        info << "{\n  \"run_id\": " << json_string(run_id)
-             << ",\n  \"engine\": \"cpp-fincore\","
-                "\n  \"engine_fingerprint\": {\"detailed_api_version\": "
-             << json_string(fincore::research_detailed_api_version)
-             << ", \"result_schema_version\": "
-             << fincore::research_detailed_result_schema_version
-             << ", \"export_schema_id\": "
-             << json_string(fincore::research_detailed_export_schema_id)
-             << ", \"export_schema_version\": "
-             << fincore::research_detailed_export_schema_version << "},"
-             << "\n  \"assets\": "
-             << factor.target_columns.size() << ",\n  \"grid_dates\": "
-             << prices.rows() << ",\n  \"end_offset\": " << end_offset
-             << ",\n  \"research_end\": \""
-             << format_utc(prices.grid[prices.grid.size() - 1U -
-                                       static_cast<std::size_t>(end_offset)])
-             << "\",\n  \"factor_cells\": "
-             << factor.series.values.size() << ",\n  \"status\": \""
-             << result.status << "\",\n  \"exported_files\": "
-             << result.exported.files.size() << ",\n  \"timings\": "
-             << timings.str()
-             << ",\n  \"measurement_scope\": {"
-                "\"research_and_table_export\": \"runner output directory setup plus combined library evaluation and all ten detailed CSV tables plus manifest, including closes\","
-                "\"runner_export\": \"factor_values.csv and workload.json writes, including closes\","
-                "\"internal_wall\": \"main entry through factor, research, workload, CSV, and result manifest writes; excludes process startup and timing/run_info JSON/stdout writes\","
-                "\"process_wall\": \"measured externally from process launch to exit by the parent runner\","
-                "\"cpu\": \"process CPU delta over the internal interval; process startup is excluded\","
-                "\"peak_memory\": \"process-lifetime peak resident working set at internal completion\","
-                "\"affinity_and_thread_limits\": \"observed only; this runner does not apply limits\"},"
-             << "\n  \"environment\": {\"affinity\": " << affinity_json
-             << ", \"thread_limit_environment\": "
-             << thread_limits_json
-             << ", \"effective_thread_pools_verified\": false}\n}\n";
-        write_json(out_dir / "run_info.json", info.str());
-        std::printf("%s", info.str().c_str());
+        const auto cpu_seconds =
+            process_cpu_delta(process_started, process_finished);
+        const auto final_timings = timings_json(
+            preparation_seconds, load_seconds, factor_seconds,
+            materialization_seconds, research_seconds,
+            table_serialization_seconds, report_render_seconds,
+            html_write_seconds, total_seconds, cpu_seconds,
+            process_finished.peak_memory_bytes, process_started.cpu_source,
+            process_finished.peak_memory_source,
+            process_finished.peak_memory_status,
+            elapsed_before_report_render_seconds);
+        const auto final_run_info = run_info_json(
+            run_id, factor.target_columns.size(), prices.rows(), end_offset,
+            research_end, factor.series.values.size(), result, affinity_json,
+            thread_limits_json, final_timings);
+        std::printf("%s\n", final_run_info.c_str());
         return 0;
     } catch (const std::exception& error) {
         std::fprintf(stderr, "alpha003_research: %s\n", error.what());

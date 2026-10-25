@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Alpha003 研究报告</title>
+  <style>
+    :root{color-scheme:light;--ink:#15243a;--muted:#64748b;--line:#dce5ee;--paper:#f3f6fa;--card:#fff;--blue:#147d92;--blue2:#5065d8;--green:#20866b;--gold:#d28b2e;--red:#d25965;--shadow:0 12px 32px rgba(31,55,80,.065)}
+    *{box-sizing:border-box}html{background:var(--paper)}body{margin:0;color:var(--ink);font:14px/1.55 Inter,"Segoe UI","Microsoft YaHei",sans-serif}
+    .shell{max-width:1240px;margin:0 auto;padding:30px 26px 48px}.hero{position:relative;overflow:hidden;padding:28px 32px;border-radius:18px;background:linear-gradient(118deg,#14243a 0%,#203d58 54%,#216b78 100%);color:#fff;box-shadow:var(--shadow)}
+    .hero:after{content:"";position:absolute;right:-88px;top:-156px;width:390px;height:390px;border:1px solid rgba(255,255,255,.14);border-radius:50%;box-shadow:0 0 0 42px rgba(255,255,255,.035),0 0 0 88px rgba(255,255,255,.025)}
+    .eyebrow{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:#a8d9dd;font-weight:700}.hero h1{font-size:30px;line-height:1.2;margin:8px 0 8px;letter-spacing:-.025em}.hero p{max-width:760px;margin:0;color:#d1e0e8}.hero-line{position:relative;z-index:1;display:flex;justify-content:space-between;gap:24px;align-items:flex-start}.badge{white-space:nowrap;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);padding:7px 11px;border-radius:999px;font-size:11px;color:#e1f3f3}
+    .facts{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin:16px 0 20px}.fact,.card,.metric{background:var(--card);border:1px solid rgba(220,229,238,.8);border-radius:13px;box-shadow:var(--shadow)}.fact{padding:11px 13px;min-width:0}.fact-label,.metric-label{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}.fact-value{margin-top:3px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px}
+    .section-title{display:flex;align-items:baseline;justify-content:space-between;gap:18px;margin:25px 2px 11px}.section-title h2{font-size:17px;margin:0;letter-spacing:-.01em}.section-title p{margin:0;color:var(--muted);font-size:12px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.card{padding:17px 18px;min-width:0}.card h3{margin:0;font-size:14px}.sub{color:var(--muted);font-size:11px;margin:4px 0 8px}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 14px}.metric{padding:12px 14px}.metric-value{font-size:20px;font-variant-numeric:tabular-nums;font-weight:700;margin-top:4px}.metric-foot{font-size:10px;color:var(--muted);margin-top:2px}
+    .toolbar{display:flex;align-items:center;gap:8px}.toolbar label{color:var(--muted);font-size:11px}.toolbar select{border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink);padding:5px 25px 5px 8px;font:inherit;font-size:11px}
+    .chart{width:100%;height:270px;display:block;overflow:visible}.chart .gridline{stroke:#e8edf2;stroke-width:1}.chart .axis{stroke:#cbd5df;stroke-width:1}.chart text{fill:#728196;font:10px Inter,"Segoe UI",sans-serif}.chart .zero{stroke:#a8bac7;stroke-dasharray:4 4}.legend{display:flex;flex-wrap:wrap;gap:7px 15px;margin:5px 0 0;color:#526174;font-size:11px}.legend-item{display:flex;align-items:center;gap:6px}.legend-swatch{width:15px;height:3px;border-radius:2px;display:inline-block}.empty{padding:24px 10px;color:var(--muted);text-align:center;font-size:12px}
+    .table-wrap{overflow:auto;max-height:360px}table{width:100%;border-collapse:collapse;font-size:11px;font-variant-numeric:tabular-nums}th,td{text-align:left;padding:7px 9px;border-bottom:1px solid #edf1f5;white-space:nowrap}th{position:sticky;top:0;background:#f7f9fb;color:#64748b;font-size:10px;text-transform:uppercase;letter-spacing:.045em;z-index:1}tbody tr:hover{background:#f7fafc}td.num{text-align:right}.status{font-size:10px;font-weight:700;border-radius:99px;padding:3px 8px;background:#e7f5ef;color:#247658}.status.warn{background:#fff4df;color:#966018}.status.bad{background:#fcebed;color:#a63c4b}
+    .notice{margin-top:17px;padding:13px 15px;border-left:3px solid #d28b2e;background:#fffaf0;color:#6d5838;border-radius:0 9px 9px 0;font-size:11px}.footer{display:flex;justify-content:space-between;gap:15px;margin-top:22px;color:#8491a1;font-size:10px}
+    @media(max-width:900px){.facts{grid-template-columns:repeat(3,minmax(0,1fr))}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:650px){.shell{padding:14px 12px 30px}.hero{padding:22px 20px}.hero-line{display:block}.badge{display:inline-block;margin-top:15px}.hero h1{font-size:25px}.facts{grid-template-columns:repeat(2,minmax(0,1fr))}.grid{grid-template-columns:1fr}.section-title{display:block}.section-title p{margin-top:4px}.footer{display:block}.footer span{display:block;margin-top:4px}}
+    @media print{html{background:#fff}.shell{max-width:none;padding:0}.hero,.card,.metric,.fact{box-shadow:none}.hero{print-color-adjust:exact;-webkit-print-color-adjust:exact}.table-wrap{max-height:none;overflow:visible}.card{break-inside:avoid}.chart{height:230px}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div class="hero-line">
+        <div><div class="eyebrow">Fincore · factor research</div><h1>Alpha003 研究报告</h1><p>跨语言结果核对与因子诊断。此文件自包含，可离线查看；图表由本地数据在浏览器中绘制。</p></div>
+        <div class="badge">OFFLINE · RESEARCH ONLY</div>
+      </div>
+    </header>
+    <div class="facts" id="facts" aria-label="研究任务概要"></div>
+    <section>
+      <div class="section-title"><h2>IC 摘要</h2><p>按预测周期汇总的 Pearson 与 Rank IC</p></div>
+      <div class="metrics" id="ic-metrics"></div>
+      <div class="card"><div id="ic-summary"></div></div>
+    </section>
+    <section>
+      <div class="section-title"><h2>每日 IC</h2><div class="toolbar"><label for="period-select">预测周期</label><select id="period-select" aria-label="选择预测周期"></select></div></div>
+      <div class="card"><h3>Pearson IC 与 Rank IC</h3><p class="sub">按研究输出顺序绘制；缺失观测保留为空档。</p><svg class="chart" id="ic-chart" role="img" aria-label="每日 Pearson IC 和 Rank IC 时序图"></svg><div class="legend" id="ic-legend"></div></div>
+    </section>
+    <section>
+      <div class="section-title"><h2>分位组合与多空价差</h2><p>标签收益的横截面分位均值；未计交易费用</p></div>
+      <div class="grid">
+        <div class="card"><h3>各分位 mean_return</h3><p class="sub">时间序列与全样本均值，按所选预测周期显示。</p><svg class="chart" id="quantile-chart" role="img" aria-label="各分位平均收益时间序列"></svg><div class="legend" id="quantile-legend"></div><div id="quantile-means"></div></div>
+        <div class="card"><h3>Top − Bottom spread</h3><p class="sub">输出的分位价差时间序列。</p><svg class="chart" id="spread-chart" role="img" aria-label="多空价差时间序列"></svg><div class="legend" id="spread-legend"></div></div>
+      </div>
+    </section>
+    <section>
+      <div class="section-title"><h2>换手与稳定性</h2><p>换手按分位展示；稳定性为滞后 Rank IC 汇总。</p></div>
+      <div class="grid">
+        <div class="card"><h3>分位换手</h3><p class="sub">按所选预测周期显示的时间序列。</p><svg class="chart" id="turnover-chart" role="img" aria-label="各分位换手时间序列"></svg><div class="legend" id="turnover-legend"></div></div>
+        <div class="card"><h3>Rank IC 稳定性</h3><p class="sub">不同滞后期的自相关统计。</p><div id="stability-table"></div></div>
+      </div>
+    </section>
+    <section>
+      <div class="section-title"><h2>覆盖率与诊断</h2><p>保留覆盖状态、输入计数与运行诊断。</p></div>
+      <div class="grid">
+        <div class="card"><h3>数据覆盖</h3><div id="coverage-table"></div></div>
+        <div class="card"><h3>运行诊断</h3><div id="diagnostics-table"></div></div>
+      </div>
+    </section>
+    <aside class="notice"><strong>研究口径：</strong>使用未复权价格与标签；结果未扣交易费用，也未建模容量、冲击成本或可投资性。分位收益和 spread 是研究统计量，不代表可实现组合收益。</aside>
+    <footer class="footer"><span>Fincore Alpha003 · 单文件离线报告</span><span>展示范围仅含摘要与研究表，不含 signals、labels 或 factor_values 面板明细。</span></footer>
+  </main>
+  <script id="fincore-report-data" type="application/json">__FINCORE_REPORT_DATA__</script>
+  <script>
+    "use strict";
+    const report = JSON.parse(document.getElementById("fincore-report-data").textContent);
+    const table = name => report.tables[name];
+    const byName = (name, column) => table(name).columns.indexOf(column);
+    const colors = ["#147d92", "#d28b2e", "#5065d8", "#20866b", "#d25965", "#8a58a8", "#68839c", "#b65d35"];
+    const periodSelect = document.getElementById("period-select");
+
+    function add(parent, tag, text, className) {
+      const element = document.createElement(tag);
+      if (className) element.className = className;
+      if (text !== undefined && text !== null) element.textContent = String(text);
+      parent.appendChild(element);
+      return element;
+    }
+    function cellText(value) {
+      if (value === null || value === undefined) return "—";
+      if (typeof value === "number") {
+        if (!Number.isFinite(value)) return "—";
+        if (value !== 0 && Math.abs(value) < 0.0001) return value.toExponential(2);
+        return new Intl.NumberFormat("en-US", {maximumFractionDigits: 6}).format(value);
+      }
+      return String(value);
+    }
+    function compact(value) {
+      if (Array.isArray(value)) return value.map(String).join(", ");
+      if (value && typeof value === "object") return JSON.stringify(value);
+      return cellText(value);
+    }
+    function renderFacts() {
+      const facts = document.getElementById("facts");
+      const values = [
+        ["引擎", report.engine], ["因子", report.workload.factor || "alpha003"],
+        ["资产数", report.workload.assets], ["交易日", report.workload.grid_dates],
+        ["分位数", report.workload.quantiles], ["周期", report.workload.periods]
+      ];
+      values.forEach(([label, value]) => {
+        const item = add(facts, "div", undefined, "fact");
+        add(item, "div", label, "fact-label");
+        add(item, "div", value === undefined ? "—" : compact(value), "fact-value");
+      });
+    }
+    function renderTable(targetId, value, options = {}) {
+      const target = document.getElementById(targetId);
+      target.replaceChildren();
+      const columns = value.columns;
+      if (!value.rows.length) {
+        add(target, "div", options.empty || "没有可显示的记录。", "empty");
+        return;
+      }
+      const wrap = add(target, "div", undefined, "table-wrap");
+      const tableElement = add(wrap, "table");
+      const head = add(tableElement, "thead");
+      const headerRow = add(head, "tr");
+      columns.forEach(column => add(headerRow, "th", column));
+      const body = add(tableElement, "tbody");
+      value.rows.forEach(row => {
+        const tr = add(body, "tr");
+        row.forEach((item, index) => {
+          const td = add(tr, "td", cellText(item));
+          if (typeof item === "number" || item === null) td.className = "num";
+          if (columns[index] === "status") {
+            const status = String(item).toLowerCase();
+            td.replaceChildren();
+            add(td, "span", item, "status" + (status.includes("fail") || status.includes("error") ? " bad" : status.includes("partial") || status.includes("warn") ? " warn" : ""));
+          }
+        });
+      });
+    }
+    function metric(target, label, value, note) {
+      const item = add(target, "div", undefined, "metric");
+      add(item, "div", label, "metric-label");
+      add(item, "div", cellText(value), "metric-value");
+      add(item, "div", note, "metric-foot");
+    }
+    function renderMetrics() {
+      const target = document.getElementById("ic-metrics");
+      target.replaceChildren();
+      const row = table("ic_summary").rows[0];
+      const columns = table("ic_summary").columns;
+      if (!row) {
+        add(target, "div", "IC 摘要为空。", "empty");
+        return;
+      }
+      const get = name => row[columns.indexOf(name)];
+      metric(target, "Mean Pearson IC", get("mean_ic"), get("period") + " · " + get("n_dates") + " dates");
+      metric(target, "Pearson ICIR", get("icir"), "mean / standard deviation");
+      metric(target, "Mean Rank IC", get("mean_rank_ic"), get("period") + " · rank based");
+      metric(target, "Rank ICIR", get("rank_icir"), "mean / standard deviation");
+    }
+    function svgElement(name, attrs = {}) {
+      const element = document.createElementNS("http://www.w3.org/2000/svg", name);
+      Object.entries(attrs).forEach(([key, value]) => element.setAttribute(key, String(value)));
+      return element;
+    }
+    function drawChart(svgId, legendId, series, zeroLine = false) {
+      const svg = document.getElementById(svgId);
+      svg.replaceChildren();
+      const legend = document.getElementById(legendId);
+      legend.replaceChildren();
+      const container = svg.parentElement;
+      [...container.children].filter(child => child.dataset.chartEmpty === svgId).forEach(child => child.remove());
+      const populated = series.filter(item => item.values.some(point => point.y !== null));
+      if (!populated.length) {
+        const message = add(container, "div", "所选周期没有可绘制的观测。", "empty");
+        message.dataset.chartEmpty = svgId;
+        return;
+      }
+      const width = 960, height = 280, left = 58, right = 18, top = 14, bottom = 35;
+      svg.setAttribute("viewBox", "0 0 " + width + " " + height);
+      svg.setAttribute("preserveAspectRatio", "none");
+      const plotWidth = width - left - right, plotHeight = height - top - bottom;
+      const allValues = populated.flatMap(item => item.values.map(point => point.y).filter(value => value !== null));
+      let low = Math.min(...allValues), high = Math.max(...allValues);
+      if (zeroLine) { low = Math.min(0, low); high = Math.max(0, high); }
+      if (low === high) { const pad = Math.abs(low || 1) * 0.12; low -= pad; high += pad; }
+      else { const pad = (high - low) * 0.08; low -= pad; high += pad; }
+      const maxLength = Math.max(1, ...populated.map(item => item.values.length));
+      const x = index => left + (maxLength <= 1 ? plotWidth / 2 : index * plotWidth / (maxLength - 1));
+      const y = value => top + (high - value) * plotHeight / (high - low);
+      for (let tick = 0; tick < 5; tick++) {
+        const value = high - tick * (high - low) / 4;
+        const yPos = y(value);
+        svg.appendChild(svgElement("line", {x1: left, x2: width - right, y1: yPos, y2: yPos, class: "gridline"}));
+        const label = svgElement("text", {x: left - 8, y: yPos + 3, "text-anchor": "end"});
+        label.textContent = cellText(value);
+        svg.appendChild(label);
+      }
+      svg.appendChild(svgElement("line", {x1: left, x2: left, y1: top, y2: height - bottom, class: "axis"}));
+      svg.appendChild(svgElement("line", {x1: left, x2: width - right, y1: height - bottom, y2: height - bottom, class: "axis"}));
+      if (zeroLine && low < 0 && high > 0) {
+        svg.appendChild(svgElement("line", {x1: left, x2: width - right, y1: y(0), y2: y(0), class: "zero"}));
+      }
+      populated.forEach((item, itemIndex) => {
+        let path = "", drawing = false;
+        item.values.forEach((point, pointIndex) => {
+          if (point.y === null) { drawing = false; return; }
+          path += (drawing ? " L " : " M ") + x(pointIndex).toFixed(2) + " " + y(point.y).toFixed(2);
+          drawing = true;
+        });
+        svg.appendChild(svgElement("path", {d: path, fill: "none", stroke: item.color || colors[itemIndex % colors.length], "stroke-width": 2, "stroke-linecap": "round", "stroke-linejoin": "round"}));
+      });
+      const first = populated[0].values, last = populated[0].values;
+      [0, Math.floor((maxLength - 1) / 2), maxLength - 1].forEach((index, labelIndex) => {
+        const point = first[index] || last[index];
+        if (!point) return;
+        const label = svgElement("text", {x: x(index), y: height - 10, "text-anchor": labelIndex === 0 ? "start" : labelIndex === 2 ? "end" : "middle"});
+        label.textContent = String(point.x).slice(0, 10);
+        svg.appendChild(label);
+      });
+      populated.forEach((item, index) => {
+        const entry = add(legend, "span", undefined, "legend-item");
+        const swatch = add(entry, "i", undefined, "legend-swatch");
+        swatch.style.background = item.color || colors[index % colors.length];
+        add(entry, "span", item.label);
+      });
+    }
+    function selectedPeriod() { return periodSelect.value; }
+    function distinctPeriods(tableName) {
+      const value = table(tableName), index = byName(tableName, "period");
+      return [...new Set(value.rows.map(row => row[index]))];
+    }
+    function renderIC() {
+      const value = table("ic"), factorIndex = byName("ic", "factor"), periodIndex = byName("ic", "period");
+      const timeIndex = byName("ic", "time"), pearsonIndex = byName("ic", "ic"), rankIndex = byName("ic", "rank_ic");
+      const rows = value.rows.filter(row => row[factorIndex] === (report.workload.factor || "alpha003") && row[periodIndex] === selectedPeriod());
+      drawChart("ic-chart", "ic-legend", [
+        {label: "Pearson IC", color: colors[0], values: rows.map(row => ({x: row[timeIndex], y: row[pearsonIndex]}))},
+        {label: "Rank IC", color: colors[1], values: rows.map(row => ({x: row[timeIndex], y: row[rankIndex]}))}
+      ], true);
+    }
+    function renderQuantiles() {
+      const value = table("quantile_returns"), factorIndex = byName("quantile_returns", "factor"), periodIndex = byName("quantile_returns", "period");
+      const timeIndex = byName("quantile_returns", "time"), qIndex = byName("quantile_returns", "quantile"), returnIndex = byName("quantile_returns", "mean_return");
+      const rows = value.rows.filter(row => row[factorIndex] === (report.workload.factor || "alpha003") && row[periodIndex] === selectedPeriod());
+      const quantiles = [...new Set(rows.map(row => row[qIndex]))].sort((a, b) => a - b);
+      const series = quantiles.map((quantile, index) => {
+        const points = rows.filter(row => row[qIndex] === quantile);
+        const finite = points.map(row => row[returnIndex]).filter(item => item !== null);
+        const mean = finite.length ? finite.reduce((sum, item) => sum + item, 0) / finite.length : null;
+        return {label: "Q" + quantile + " · 均值 " + cellText(mean), color: colors[index % colors.length], values: points.map(row => ({x: row[timeIndex], y: row[returnIndex]}))};
+      });
+      drawChart("quantile-chart", "quantile-legend", series, true);
+    }
+    function renderSpreads() {
+      const value = table("spreads"), factorIndex = byName("spreads", "factor"), periodIndex = byName("spreads", "period");
+      const timeIndex = byName("spreads", "time"), spreadIndex = byName("spreads", "spread");
+      const rows = value.rows.filter(row => row[factorIndex] === (report.workload.factor || "alpha003") && row[periodIndex] === selectedPeriod());
+      drawChart("spread-chart", "spread-legend", [{label: "Top − Bottom", color: colors[2], values: rows.map(row => ({x: row[timeIndex], y: row[spreadIndex]}))}], true);
+    }
+    function renderTurnover() {
+      const value = table("turnover"), factorIndex = byName("turnover", "factor"), periodIndex = byName("turnover", "period");
+      const timeIndex = byName("turnover", "time"), qIndex = byName("turnover", "quantile"), turnoverIndex = byName("turnover", "turnover");
+      const rows = value.rows.filter(row => row[factorIndex] === (report.workload.factor || "alpha003") && row[periodIndex] === selectedPeriod());
+      const quantiles = [...new Set(rows.map(row => row[qIndex]))].sort((a, b) => a - b);
+      drawChart("turnover-chart", "turnover-legend", quantiles.map((quantile, index) => ({
+        label: "Q" + quantile, color: colors[index % colors.length],
+        values: rows.filter(row => row[qIndex] === quantile).map(row => ({x: row[timeIndex], y: row[turnoverIndex]}))
+      })));
+    }
+    function renderPeriodControl() {
+      const periods = [...new Set([...distinctPeriods("ic"), ...distinctPeriods("quantile_returns")])];
+      periods.forEach(period => { const option = add(periodSelect, "option", period); option.value = period; });
+      if (!periods.length) periodSelect.disabled = true;
+      periodSelect.addEventListener("change", renderCharts);
+    }
+    function renderCharts() { renderIC(); renderQuantiles(); renderSpreads(); renderTurnover(); }
+    function renderAll() {
+      renderFacts(); renderMetrics();
+      renderTable("ic-summary", table("ic_summary"));
+      renderTable("stability-table", table("stability"));
+      renderTable("coverage-table", table("coverage"));
+      renderTable("diagnostics-table", table("diagnostics"), {empty: "本次运行没有诊断消息。"});
+      renderPeriodControl(); renderCharts();
+    }
+    renderAll();
+  </script>
+</body>
+</html>

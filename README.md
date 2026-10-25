@@ -2,6 +2,11 @@
 
 The C++23, DataFrame-native foundation for fincore analytics.
 
+The [Alpha003 benchmark](benchmarks/alpha003_a_stocks/README.md) now emits one
+offline research HTML per engine. Paired comparisons retain only the two
+research reports and one HTML comparison summary; generated results are ignored
+by Git. This is a separate workload from the historical complete CSV export below.
+
 ## Iteration 9 performance delivery — 2026-10-25
 
 The user requested closeout at the current performance level; further tuning
