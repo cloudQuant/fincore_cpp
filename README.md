@@ -2,6 +2,9 @@
 
 The C++23, DataFrame-native foundation for fincore analytics.
 
+中文项目介绍、安装示例与 Python 性能对比：
+[fincore_cpp 用 C++ 做量化分析与因子研究](docs/articles/fincore-cpp-introduction-wechat.md)。
+
 The [Alpha003 benchmark](benchmarks/alpha003_a_stocks/README.md) now emits one
 offline research HTML per engine. Paired comparisons retain only the two
 research reports and one HTML comparison summary; generated results are ignored
