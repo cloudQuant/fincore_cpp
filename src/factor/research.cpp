@@ -695,37 +695,42 @@ void append_detailed_next_open_horizons(
         }
     }
 
-    // The input panel need not be sorted. Map grid dates once, then use the
-    // same row/date lookups for each horizon without copying the full grid.
+    // The input panel need not be sorted. Map grid dates once, then resolve
+    // each panel row's date and selected price column before its horizon loop.
     std::unordered_map<timestamp, std::size_t> date_positions;
     date_positions.reserve(price_dates.size());
     for (std::size_t row = 0; row < price_dates.size(); ++row) {
         date_positions.emplace(price_dates[row], row);
     }
 
+    const std::size_t first_output_horizon = result.horizons.size();
     for (std::size_t horizon = 0; horizon < periods.size(); ++horizon) {
-        std::vector<double> values(panel.dates.size(), nan);
-        const auto period = static_cast<std::size_t>(spec.periods[horizon]);
-        for (std::size_t row = 0; row < panel.dates.size(); ++row) {
-            const auto date = date_positions.find(panel.dates[row]);
-            const auto asset = selected_price_columns.find(
-                std::string_view{panel.assets[row]});
-            if (date == date_positions.end() ||
-                asset == selected_price_columns.end() ||
-                asset->second == nullptr) {
-                continue;
-            }
-            const std::size_t numerator_row = date->second + period + 1U;
+        result.horizons.push_back(
+            {periods[horizon], std::vector<double>(panel.dates.size(), nan)});
+    }
+
+    for (std::size_t row = 0; row < panel.dates.size(); ++row) {
+        const auto date = date_positions.find(panel.dates[row]);
+        const auto asset = selected_price_columns.find(
+            std::string_view{panel.assets[row]});
+        if (date == date_positions.end() ||
+            asset == selected_price_columns.end() || asset->second == nullptr) {
+            continue;
+        }
+        const std::size_t price_row = date->second;
+        const auto& column = *asset->second;
+        for (std::size_t horizon = 0; horizon < periods.size(); ++horizon) {
+            const auto period =
+                static_cast<std::size_t>(spec.periods[horizon]);
+            const std::size_t numerator_row = price_row + period + 1U;
             if (numerator_row >= price_dates.size()) {
                 continue;
             }
-            const auto& column = *asset->second;
             const double value =
-                column[numerator_row] / column[date->second + 1U] - 1.0;
-            values[row] = std::isfinite(value) ? value : nan;
+                column[numerator_row] / column[price_row + 1U] - 1.0;
+            result.horizons[first_output_horizon + horizon].label_values[row] =
+                std::isfinite(value) ? value : nan;
         }
-        result.horizons.push_back(
-            {periods[horizon], std::move(values)});
     }
 }
 

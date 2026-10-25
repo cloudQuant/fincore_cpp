@@ -1988,7 +1988,7 @@ TEST(FactorResearchDetailed,
     fincore::research_spec spec;
     spec.start = start;
     spec.end = start + 4 * day;
-    spec.periods = {1, 2};
+    spec.periods = {2, 1};
     spec.label = "next_open_to_open";
 
     const auto labels =
@@ -1996,8 +1996,8 @@ TEST(FactorResearchDetailed,
             panel, prices, spec);
 
     ASSERT_EQ(labels.horizons.size(), 2U);
-    EXPECT_EQ(labels.horizons[0].period, "1D");
-    EXPECT_EQ(labels.horizons[1].period, "2D");
+    EXPECT_EQ(labels.horizons[0].period, "2D");
+    EXPECT_EQ(labels.horizons[1].period, "1D");
     ASSERT_EQ(labels.horizons[0].label_values.size(), panel.dates.size());
     ASSERT_EQ(labels.horizons[1].label_values.size(), panel.dates.size());
 
@@ -2005,17 +2005,17 @@ TEST(FactorResearchDetailed,
     EXPECT_TRUE(std::isnan(labels.horizons[0].label_values[1]));
     EXPECT_TRUE(std::isnan(labels.horizons[0].label_values[2]));
     EXPECT_TRUE(std::isnan(labels.horizons[0].label_values[3]));
-    EXPECT_TRUE(std::isnan(labels.horizons[0].label_values[4]));
-    EXPECT_DOUBLE_EQ(labels.horizons[0].label_values[5],
+    EXPECT_DOUBLE_EQ(labels.horizons[0].label_values[4],
                      130.0 / 120.0 - 1.0);
+    EXPECT_TRUE(std::isnan(labels.horizons[0].label_values[5]));
 
     EXPECT_DOUBLE_EQ(labels.horizons[1].label_values[0], -1.0);
     EXPECT_TRUE(std::isnan(labels.horizons[1].label_values[1]));
     EXPECT_TRUE(std::isnan(labels.horizons[1].label_values[2]));
     EXPECT_TRUE(std::isnan(labels.horizons[1].label_values[3]));
-    EXPECT_DOUBLE_EQ(labels.horizons[1].label_values[4],
+    EXPECT_TRUE(std::isnan(labels.horizons[1].label_values[4]));
+    EXPECT_DOUBLE_EQ(labels.horizons[1].label_values[5],
                      130.0 / 120.0 - 1.0);
-    EXPECT_TRUE(std::isnan(labels.horizons[1].label_values[5]));
 }
 
 }  // namespace
