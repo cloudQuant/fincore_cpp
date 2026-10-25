@@ -5,6 +5,7 @@
 
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <charconv>
 #include <chrono>
 #include <cmath>
@@ -12,6 +13,7 @@
 #include <fstream>
 #include <iterator>
 #include <limits>
+#include <map>
 #include <optional>
 #include <stdexcept>
 #include <string>
@@ -111,6 +113,92 @@ struct temporary_export_directory {
         }
     }
 };
+
+const std::vector<std::string>& detailed_export_filenames() {
+    static const std::vector<std::string> filenames{
+        "signals.csv", "labels.csv", "ic.csv", "ic_summary.csv",
+        "quantile_returns.csv", "turnover.csv", "spreads.csv",
+        "stability.csv", "coverage.csv", "diagnostics.csv",
+        "manifest.json"};
+    return filenames;
+}
+
+void expect_same_diagnostics(
+    const std::vector<fincore::research_detailed_diagnostic>& actual,
+    const std::vector<fincore::research_detailed_diagnostic>& expected) {
+    ASSERT_EQ(actual.size(), expected.size());
+    for (std::size_t index = 0; index < expected.size(); ++index) {
+        SCOPED_TRACE(index);
+        EXPECT_EQ(actual[index].factor, expected[index].factor);
+        EXPECT_EQ(actual[index].stage, expected[index].stage);
+        EXPECT_EQ(actual[index].severity, expected[index].severity);
+        EXPECT_EQ(actual[index].code, expected[index].code);
+        EXPECT_EQ(actual[index].message, expected[index].message);
+    }
+}
+
+void expect_export_bytes_equal(const std::filesystem::path& left,
+                               const std::filesystem::path& right) {
+    for (const auto& filename : detailed_export_filenames()) {
+        SCOPED_TRACE(filename);
+        EXPECT_EQ(read_file(left / filename), read_file(right / filename));
+    }
+}
+
+struct combined_export_inputs {
+    std::string factor_name;
+    fincore::factor_series factors;
+    fincore::dataframe prices;
+    fincore::research_spec spec;
+};
+
+combined_export_inputs make_combined_export_inputs() {
+    using fincore::utc_timestamp;
+    constexpr fincore::timestamp day = 86'400'000'000'000LL;
+    const auto start = utc_timestamp(2024, 6, 3);
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+    const std::string chinese{"\xE4\xB8\xAD", 3U};
+
+    combined_export_inputs inputs;
+    inputs.factor_name = std::string{"factor,\""} + chinese + "\"";
+    inputs.factors.dates = {start, start, start, start + day, start + day,
+                            start + 2 * day, start + 2 * day,
+                            start + 2 * day};
+    inputs.factors.assets = {"A", "B", "C", "A", "C", "A", "B", "C"};
+    inputs.factors.values = {1.0, 1.0, nan, 2.0, 4.0, 3.0, 5.0, 6.0};
+
+    inputs.prices.load_index(std::vector<fincore::timestamp>{
+        start, start + day, start + 2 * day, start + 3 * day,
+        start + 4 * day, start + 5 * day});
+    inputs.prices.load_column<double>(
+        "A", {10.0, 11.0, 12.0, 13.0, 14.0, 15.0},
+        hmdf::nan_policy::dont_pad_with_nans);
+    inputs.prices.load_column<double>(
+        "B", {20.0, 21.0, 22.0, 23.0, 24.0, 25.0},
+        hmdf::nan_policy::dont_pad_with_nans);
+    inputs.prices.load_column<double>(
+        "C", {30.0, 31.0, 32.0, nan, 34.0, 35.0},
+        hmdf::nan_policy::dont_pad_with_nans);
+
+    inputs.spec.targets = {"A", "B", "C"};
+    inputs.spec.start = start;
+    inputs.spec.end = start + 2 * day;
+    inputs.spec.periods = {2, 1};
+    inputs.spec.quantiles = 2;
+    inputs.spec.min_assets = 2;
+    inputs.spec.min_quantile_assets = 1;
+    inputs.spec.max_loss = 1.0;
+    inputs.spec.stability_lags = {5};
+    inputs.spec.label = "next_open_to_open";
+    inputs.spec.preprocess = "cross_section_rank";
+    inputs.spec.price_basis = "open";
+    inputs.spec.snapshot_id = "p124-combined-parity";
+    inputs.spec.groups = {{"A", "north,blue"},
+                          {"B", "west\"quoted"},
+                          {"C", std::string{"south-"} + chinese}};
+    inputs.spec.direction_overrides.emplace(inputs.factor_name, -1);
+    return inputs;
+}
 
 fincore::research_detailed_result populated_result() {
     using fincore::utc_timestamp;
@@ -528,6 +616,226 @@ TEST(FactorResearchDetailedExport,
     EXPECT_THROW(fincore::export_factor_research_detailed(
                      result, directory.path.string()),
                  std::exception);
+    EXPECT_FALSE(std::filesystem::exists(directory.path));
+}
+
+TEST(FactorResearchDetailedExport,
+     CombinedApiMatchesOwningApiAndKeepsReturnedMetadataOwned) {
+    temporary_export_directory owning_directory;
+    owning_directory.owns_directory = true;
+    temporary_export_directory combined_directory;
+    combined_directory.owns_directory = true;
+
+    std::optional<fincore::research_detailed_export_outcome> combined;
+    std::string expected_status;
+    std::map<std::string, std::string> expected_manifest;
+    std::vector<fincore::research_detailed_diagnostic> expected_diagnostics;
+    std::size_t expected_signal_rows = 0U;
+    std::size_t expected_label_rows = 0U;
+    std::vector<std::string> expected_files;
+    const auto combined_directory_name = combined_directory.path.string();
+
+    {
+        auto inputs = make_combined_export_inputs();
+        const auto owning_result = fincore::evaluate_factor_research_detailed(
+            inputs.factor_name, inputs.factors, inputs.prices, inputs.spec);
+        const auto owning_export = fincore::export_factor_research_detailed(
+            owning_result, owning_directory.path.string());
+        combined.emplace(
+            fincore::evaluate_and_export_factor_research_detailed(
+                inputs.factor_name, inputs.factors, inputs.prices, inputs.spec,
+                combined_directory_name));
+        const auto& combined_result = *combined;
+
+        expected_status = owning_result.status;
+        expected_manifest = owning_result.manifest;
+        expected_diagnostics = owning_result.diagnostics;
+        expected_signal_rows = owning_result.signals.size();
+        expected_label_rows = owning_result.labels.size();
+        expected_files = owning_export.files;
+
+        EXPECT_EQ(combined_result.status, owning_result.status);
+        EXPECT_EQ(combined_result.manifest, owning_result.manifest);
+        expect_same_diagnostics(combined_result.diagnostics,
+                                owning_result.diagnostics);
+        EXPECT_EQ(combined_result.signal_rows, owning_result.signals.size());
+        EXPECT_EQ(combined_result.label_rows, owning_result.labels.size());
+        EXPECT_EQ(combined_result.exported.directory, combined_directory_name);
+        EXPECT_EQ(combined_result.exported.files, owning_export.files);
+        EXPECT_EQ(owning_export.files, detailed_export_filenames());
+        expect_export_bytes_equal(owning_directory.path,
+                                  combined_directory.path);
+
+        EXPECT_EQ(combined_result.status, "OK");
+        EXPECT_EQ(combined_result.manifest.at("periods"), "2D,1D");
+        EXPECT_GT(combined_result.diagnostics.size(), 0U);
+        EXPECT_EQ(combined_result.signal_rows, 8U);
+        EXPECT_EQ(combined_result.label_rows, 16U);
+        EXPECT_TRUE(std::any_of(
+            owning_result.labels.begin(), owning_result.labels.end(),
+            [](const auto& label) { return std::isnan(label.value); }));
+
+        // The returned fields and files must not borrow from the input objects.
+        inputs.factor_name = "mutated factor name";
+        inputs.factors.values.front() = 99.0;
+        inputs.spec.snapshot_id = "mutated snapshot";
+        inputs.spec.groups.clear();
+    }
+
+    ASSERT_TRUE(combined.has_value());
+    EXPECT_EQ(combined->status, expected_status);
+    EXPECT_EQ(combined->manifest, expected_manifest);
+    expect_same_diagnostics(combined->diagnostics, expected_diagnostics);
+    EXPECT_EQ(combined->signal_rows, expected_signal_rows);
+    EXPECT_EQ(combined->label_rows, expected_label_rows);
+    EXPECT_EQ(combined->exported.directory, combined_directory_name);
+    EXPECT_EQ(combined->exported.files, expected_files);
+    expect_export_bytes_equal(owning_directory.path, combined_directory.path);
+}
+
+TEST(FactorResearchDetailedExport,
+     CombinedApiMatchesOwningApiForDefaultGroupsAndSpecialValues) {
+    temporary_export_directory owning_directory;
+    owning_directory.owns_directory = true;
+    temporary_export_directory combined_directory;
+    combined_directory.owns_directory = true;
+
+    auto inputs = make_combined_export_inputs();
+    const double infinity = std::numeric_limits<double>::infinity();
+    inputs.factors.values = {-0.0, infinity, -infinity, -0.0,
+                             infinity, -infinity, -0.0, infinity};
+    inputs.spec.preprocess = "none";
+    inputs.spec.groups.clear();
+    inputs.spec.direction_overrides.clear();
+
+    const auto owning_result = fincore::evaluate_factor_research_detailed(
+        inputs.factor_name, inputs.factors, inputs.prices, inputs.spec);
+    const auto owning_export = fincore::export_factor_research_detailed(
+        owning_result, owning_directory.path.string());
+    const auto combined_result =
+        fincore::evaluate_and_export_factor_research_detailed(
+            inputs.factor_name, inputs.factors, inputs.prices, inputs.spec,
+            combined_directory.path.string());
+
+    EXPECT_EQ(combined_result.status, owning_result.status);
+    EXPECT_EQ(combined_result.manifest, owning_result.manifest);
+    expect_same_diagnostics(combined_result.diagnostics,
+                            owning_result.diagnostics);
+    EXPECT_EQ(combined_result.signal_rows, owning_result.signals.size());
+    EXPECT_EQ(combined_result.label_rows, owning_result.labels.size());
+    EXPECT_EQ(combined_result.exported.files, owning_export.files);
+    expect_export_bytes_equal(owning_directory.path, combined_directory.path);
+
+    const auto signals = read_file(combined_directory.path / "signals.csv");
+    EXPECT_NE(signals.find(",1,-0.0,-0.0,none,default\n"),
+              std::string::npos);
+    EXPECT_NE(signals.find(",1,inf,inf,none,default\n"),
+              std::string::npos);
+    EXPECT_NE(signals.find(",1,-inf,-inf,none,default\n"),
+              std::string::npos);
+}
+
+TEST(FactorResearchDetailedExport,
+     CombinedApiKeepsUnevaluableEmptyTablesInOwningApiParity) {
+    temporary_export_directory owning_directory;
+    owning_directory.owns_directory = true;
+    temporary_export_directory combined_directory;
+    combined_directory.owns_directory = true;
+
+    auto inputs = make_combined_export_inputs();
+    for (double& value : inputs.factors.values) {
+        value = std::numeric_limits<double>::quiet_NaN();
+    }
+    const auto owning_result = fincore::evaluate_factor_research_detailed(
+        inputs.factor_name, inputs.factors, inputs.prices, inputs.spec);
+    const auto owning_export = fincore::export_factor_research_detailed(
+        owning_result, owning_directory.path.string());
+    const auto combined_result =
+        fincore::evaluate_and_export_factor_research_detailed(
+            inputs.factor_name, inputs.factors, inputs.prices, inputs.spec,
+            combined_directory.path.string());
+
+    EXPECT_EQ(owning_result.status, "UNEVALUABLE");
+    EXPECT_EQ(combined_result.status, owning_result.status);
+    EXPECT_EQ(combined_result.manifest, owning_result.manifest);
+    expect_same_diagnostics(combined_result.diagnostics,
+                            owning_result.diagnostics);
+    EXPECT_EQ(combined_result.signal_rows, owning_result.signals.size());
+    EXPECT_EQ(combined_result.label_rows, owning_result.labels.size());
+    EXPECT_EQ(combined_result.exported.files, owning_export.files);
+    expect_export_bytes_equal(owning_directory.path, combined_directory.path);
+    EXPECT_EQ(read_file(combined_directory.path / "ic.csv"),
+              "time,factor,period,ic,rank_ic,n_assets\n");
+    EXPECT_EQ(read_file(combined_directory.path / "quantile_returns.csv"),
+              "time,factor,period,quantile,mean_return,n_assets\n");
+}
+
+TEST(FactorResearchDetailedExport,
+     CombinedApiLateManifestFailureCleansOnlyItsNewDestination) {
+    auto inputs = make_combined_export_inputs();
+    inputs.spec.snapshot_id = std::string{1U, static_cast<char>(0xFF)};
+
+    temporary_export_directory new_destination;
+    new_destination.owns_directory = true;
+    EXPECT_THROW(static_cast<void>(
+                     fincore::evaluate_and_export_factor_research_detailed(
+                         inputs.factor_name, inputs.factors, inputs.prices,
+                         inputs.spec, new_destination.path.string())),
+                 std::exception);
+    EXPECT_FALSE(std::filesystem::exists(new_destination.path));
+
+    temporary_export_directory existing_empty_destination;
+    existing_empty_destination.create();
+    ASSERT_TRUE(existing_empty_destination.owns_directory);
+    EXPECT_THROW(static_cast<void>(
+                     fincore::evaluate_and_export_factor_research_detailed(
+                         inputs.factor_name, inputs.factors, inputs.prices,
+                         inputs.spec, existing_empty_destination.path.string())),
+                 std::exception);
+    EXPECT_TRUE(std::filesystem::exists(existing_empty_destination.path));
+    EXPECT_EQ(std::distance(
+                  std::filesystem::directory_iterator(
+                      existing_empty_destination.path),
+                  std::filesystem::directory_iterator{}),
+              0);
+}
+
+TEST(FactorResearchDetailedExport,
+     CombinedApiPreservesExistingNonEmptyDestination) {
+    temporary_export_directory directory;
+    directory.create();
+    ASSERT_TRUE(directory.owns_directory);
+    {
+        std::ofstream sentinel(directory.path / "sentinel.txt",
+                              std::ios::binary);
+        sentinel << "preserve combined target\n";
+    }
+
+    auto inputs = make_combined_export_inputs();
+    EXPECT_THROW(static_cast<void>(
+                     fincore::evaluate_and_export_factor_research_detailed(
+                         inputs.factor_name, inputs.factors, inputs.prices,
+                         inputs.spec, directory.path.string())),
+                 fincore::factor_data_error);
+    EXPECT_EQ(read_file(directory.path / "sentinel.txt"),
+              "preserve combined target\n");
+    EXPECT_EQ(std::distance(std::filesystem::directory_iterator(directory.path),
+                            std::filesystem::directory_iterator{}),
+              1);
+}
+
+TEST(FactorResearchDetailedExport,
+     CombinedApiEvaluationFailureLeavesDestinationAbsent) {
+    temporary_export_directory directory;
+    directory.owns_directory = true;
+    auto inputs = make_combined_export_inputs();
+    inputs.spec.periods = {0};
+
+    EXPECT_THROW(static_cast<void>(
+                     fincore::evaluate_and_export_factor_research_detailed(
+                         inputs.factor_name, inputs.factors, inputs.prices,
+                         inputs.spec, directory.path.string())),
+                 fincore::factor_data_error);
     EXPECT_FALSE(std::filesystem::exists(directory.path));
 }
 

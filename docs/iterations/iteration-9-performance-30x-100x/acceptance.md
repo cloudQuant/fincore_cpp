@@ -117,7 +117,7 @@ AB/BA、完整比较等缺失项，并在轮次记录保存实际命令/环境�
 
 | Phase | 状态 | 证据/提交 |
 |---|---|---|
-| P111 测量与profile | PARTIAL | [R1测量组件](p111-round1.md)、[Windows native](p111-generic-pairs.md)、[配对入口](p111-paired-entry.md)已验证；profile及正式回归待测 |
+| P111 测量与profile | PARTIAL | [R1测量组件](p111-round1.md)、[Windows native](p111-generic-pairs.md)、[配对入口](p111-paired-entry.md)已验证；[P121粗阶段](p121-round2.md)与[P123分配诊断](p123-round1.md)已完成，WPR CPU采样权限不可用，正式回归待测 |
 | P112 完整契约与基线 | PARTIAL | [完整结果正确性](p112-round1.md)、[十对基线](p112-baseline-r1.md)；full有效，500因11.33%噪声须补稳定证据 |
 | P113 分配与索引 | PARTIAL | [R1原始行映射](p113-round1.md)、[R2索引排序及默认组](p113-round2.md)、[R3有序校验](p113-round3.md)、[R4共享源行选择](p113-round4.md)、[R5直接标签](p113-round5.md)、[R6连续预处理](p113-round6.md)功能/完整字节通过；R6开发500为31.12×但噪声超限，full A/B候选CPU/研究耗时降低、wall噪声17.70%；正式性能待验 |
 | P114 导出 | PARTIAL | [R1直接追加与日期缓存](p114-round1.md)、[R2重复文本缓存](p114-round2.md)功能/完整字节通过；R2开发500为37.09×且5/5达30，native500对照wall减少5.46%、导出减少6.59%；全量单次3.24秒，正式性能待验 |
@@ -129,7 +129,7 @@ AB/BA、完整比较等缺失项，并在轮次记录保存实际命令/环境�
 | P121 稳定基数排序 | PARTIAL | [R2单遍直方图](p121-round2.md)：72项测试、3个oracle及28次完整字节通过；有效全量native五对wall减少5.33%，500增加2.01%；500跨语言开发28.95×但双方噪声超限，正式性能待验 |
 | P122 标签索引复用 | PARTIAL | [R1跨horizon查找复用](p122-round1.md)：57项测试、3个oracle及14次完整字节通过；全量CPU减少2.34%，wall旧版噪声10.0714%超限；500开发32.84×、4/5达30但Python噪声超限，正式性能待验 |
 | P123 结果行直接构造实验 | NOT_ADOPTED | [R1实验与分配诊断](p123-round1.md)：57项测试、3个oracle及14次完整字节通过，但全量wall无明显收益，已恢复代码；500开发35.31×不作为候选交付。分配诊断支持下一轮减少owning大表物化 |
-| P124 组合计算导出 | NOT_RUN | 保留原owning API，新增同步列视图导出路径；功能/字节/清理与完整配对待验 |
+| P124 组合计算导出 | PARTIAL | [R1组合API](p124-round1.md)：74项测试、3个oracle、迁移安装消费者及14次完整字节通过；全量native wall减少13.24%、峰值748→239MB；500开发41.20×、5/5达30且噪声有效，正式性能待验 |
 | P120 最终门槛及差距 | NOT_RUN | 无 |
 | 500完整流程≥30× / ≥100× | NOT_RUN / NOT_RUN | 无 |
 | 全量完整流程≥30× / ≥100× | NOT_RUN / NOT_RUN | 无 |

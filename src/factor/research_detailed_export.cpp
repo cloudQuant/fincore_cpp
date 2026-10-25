@@ -3,12 +3,15 @@
 #include <fincore/detail/json.hpp>
 #include <fincore/factor/exceptions.hpp>
 
+#include "research_detailed_internal.hpp"
+
 #include <charconv>
 #include <cmath>
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
 #include <limits>
+#include <memory>
 #include <string>
 #include <string_view>
 #include <system_error>
@@ -506,8 +509,9 @@ void write_manifest(const std::filesystem::path& path,
 
 }  // namespace
 
-research_export_result export_factor_research_detailed(
-    const research_detailed_result& result, const std::string& directory) {
+namespace {
+
+void validate_export_directory(const std::string& directory) {
     if (directory.empty()) {
         throw factor_data_error{
             "detailed research export directory must not be empty"};
@@ -516,6 +520,9 @@ research_export_result export_factor_research_detailed(
         throw factor_data_error{
             "detailed research export directory must not contain a null byte"};
     }
+}
+
+void validate_export_result(const research_detailed_result& result) {
     if (result.schema_version != research_detailed_result_schema_version) {
         throw factor_data_error{
             "unsupported detailed research result schema version"};
@@ -525,17 +532,37 @@ research_export_result export_factor_research_detailed(
             "single-factor detailed export requires empty correlation and "
             "comparison tables"};
     }
+}
 
-    const std::filesystem::path target{directory};
-    output_cleanup cleanup{target};
-    prepare_output_directory(target, cleanup);
+void write_signal_fields(csv_writer& csv, const timestamp date,
+                         const std::string_view asset,
+                         const std::string_view factor, const int direction,
+                         const double value, const double processed_value,
+                         const std::string_view preprocess,
+                         const std::string_view group) {
+    csv.append_timestamp(date);
+    csv.append_text(asset);
+    csv.append_cached_text(factor);
+    csv.append_integer(direction);
+    csv.append_number(value);
+    csv.append_number(processed_value);
+    csv.append_cached_text(preprocess);
+    csv.append_cached_text(group);
+}
 
-    research_export_result exported;
-    exported.directory = directory;
-    exported.files.reserve(detailed_export_file_count);
-    std::vector<exported_table> tables;
-    tables.reserve(detailed_csv_count);
+void write_label_fields(csv_writer& csv, const timestamp date,
+                        const std::string_view asset,
+                        const std::string_view period, const double value) {
+    csv.append_timestamp(date);
+    csv.append_text(asset);
+    csv.append_cached_text(period);
+    csv.append_number(value);
+}
 
+void write_remaining_tables(
+    const std::filesystem::path& target, output_cleanup& cleanup,
+    research_export_result& exported, std::vector<exported_table>& tables,
+    const research_detailed_result& result) {
     auto add_table = [&](std::string name,
                          std::vector<std::string> columns,
                          auto&& generate_rows) {
@@ -546,36 +573,6 @@ research_export_result export_factor_research_detailed(
         exported.files.push_back(table.file);
         tables.push_back(std::move(table));
     };
-
-    add_table("signals",
-              {"time", "asset", "factor", "direction", "value",
-               "processed_value", "preprocess", "group"},
-              [&](csv_writer& writer) {
-        for (const auto& row : result.signals) {
-            writer.write_row([&](csv_writer& csv) {
-                csv.append_timestamp(row.date);
-                csv.append_text(row.asset);
-                csv.append_cached_text(row.factor);
-                csv.append_integer(row.direction);
-                csv.append_number(row.value);
-                csv.append_number(row.processed_value);
-                csv.append_cached_text(row.preprocess);
-                csv.append_cached_text(row.group);
-            });
-        }
-    });
-
-    add_table("labels", {"time", "asset", "period", "value"},
-              [&](csv_writer& writer) {
-        for (const auto& row : result.labels) {
-            writer.write_row([&](csv_writer& csv) {
-                csv.append_timestamp(row.date);
-                csv.append_text(row.asset);
-                csv.append_cached_text(row.period);
-                csv.append_number(row.value);
-            });
-        }
-    });
 
     add_table("ic", {"time", "factor", "period", "ic", "rank_ic",
                       "n_assets"},
@@ -714,9 +711,236 @@ research_export_result export_factor_research_detailed(
     write_manifest(target / manifest_file, manifest_file, manifest_text,
                    cleanup);
     exported.files.push_back(manifest_file);
+}
 
-    cleanup.release();
-    return exported;
+class detailed_export_session final
+    : public research_detailed_detail::detailed_export_sink {
+public:
+    explicit detailed_export_session(const std::string& directory)
+        : directory_(directory), target_(directory), cleanup_(target_) {
+        exported_.directory = directory_;
+        exported_.files.reserve(detailed_export_file_count);
+        tables_.reserve(detailed_csv_count);
+    }
+
+    void write_signals(
+        const research_detailed_detail::detailed_signal_columns& columns)
+        override {
+        if (signals_written_) {
+            throw factor_data_error{
+                "detailed research signals table was already written"};
+        }
+        start_output();
+        const std::size_t rows = columns.dates.size();
+        if (columns.assets.size() != rows ||
+            columns.source_rows.size() != rows ||
+            columns.processed_values.size() != rows) {
+            throw factor_data_error{
+                "detailed research signal columns do not match"};
+        }
+
+        auto table = write_table(
+            target_, cleanup_, "signals",
+            {"time", "asset", "factor", "direction", "value",
+             "processed_value", "preprocess", "group"},
+            [&](csv_writer& writer) {
+                for (std::size_t row = 0U; row < rows; ++row) {
+                    if (columns.source_rows[row] >=
+                        columns.source_values.size()) {
+                        throw factor_data_error{
+                            "detailed research signal source row is invalid"};
+                    }
+                    const auto& asset = columns.assets[row];
+                    const std::string_view group =
+                        columns.groups != nullptr &&
+                                !columns.groups->empty()
+                            ? std::string_view{columns.groups->at(asset)}
+                            : std::string_view{"default"};
+                    const double value =
+                        columns.source_values[columns.source_rows[row]] *
+                        static_cast<double>(columns.direction);
+                    writer.write_row([&](csv_writer& csv) {
+                        write_signal_fields(
+                            csv, columns.dates[row], asset, columns.factor,
+                            columns.direction, value,
+                            columns.processed_values[row],
+                            columns.preprocess, group);
+                    });
+                }
+            });
+        record_table(std::move(table));
+        signals_written_ = true;
+    }
+
+    void write_signals_owned(
+        const std::vector<research_signal_row>& rows) {
+        if (signals_written_) {
+            throw factor_data_error{
+                "detailed research signals table was already written"};
+        }
+        start_output();
+        auto table = write_table(
+            target_, cleanup_, "signals",
+            {"time", "asset", "factor", "direction", "value",
+             "processed_value", "preprocess", "group"},
+            [&](csv_writer& writer) {
+                for (const auto& row : rows) {
+                    writer.write_row([&](csv_writer& csv) {
+                        write_signal_fields(
+                            csv, row.date, row.asset, row.factor,
+                            row.direction, row.value, row.processed_value,
+                            row.preprocess, row.group);
+                    });
+                }
+            });
+        record_table(std::move(table));
+        signals_written_ = true;
+    }
+
+    void begin_labels() override {
+        if (!signals_written_ || labels_started_) {
+            throw factor_data_error{
+                "detailed research labels table is out of sequence"};
+        }
+        labels_started_ = true;
+        start_output();
+        label_writer_ = std::make_unique<csv_writer>(
+            target_ / "labels.csv", "labels.csv",
+            std::vector<std::string>{"time", "asset", "period", "value"},
+            cleanup_);
+    }
+
+    void write_label_horizon(
+        const std::span<const timestamp> dates,
+        const std::span<const std::string> assets,
+        const research_detailed_detail::horizon_input& horizon,
+        const std::span<unsigned char> has_any_label) override {
+        if (label_writer_ == nullptr || dates.size() != assets.size() ||
+            dates.size() != horizon.label_values.size() ||
+            dates.size() != has_any_label.size()) {
+            throw factor_data_error{
+                "each detailed label horizon must match the panel row count"};
+        }
+        for (std::size_t row = 0U; row < dates.size(); ++row) {
+            const double value = horizon.label_values[row];
+            if (std::isfinite(value)) {
+                has_any_label[row] = 1U;
+            }
+            label_writer_->write_row([&](csv_writer& csv) {
+                write_label_fields(csv, dates[row], assets[row],
+                                   horizon.period, value);
+            });
+        }
+    }
+
+    void write_labels_owned(const std::vector<research_label_row>& rows) {
+        begin_labels();
+        for (const auto& row : rows) {
+            label_writer_->write_row([&](csv_writer& csv) {
+                write_label_fields(csv, row.date, row.asset, row.period,
+                                   row.value);
+            });
+        }
+        finish_labels();
+    }
+
+    void finish_labels() override {
+        if (label_writer_ == nullptr || labels_finished_) {
+            throw factor_data_error{
+                "detailed research labels table is out of sequence"};
+        }
+        label_writer_->finish();
+        exported_table table{
+            "labels", "labels.csv",
+            {"time", "asset", "period", "value"},
+            label_writer_->row_count()};
+        label_writer_.reset();
+        record_table(std::move(table));
+        labels_finished_ = true;
+    }
+
+    research_export_result finish(
+        const research_detailed_result& result) override {
+        if (!signals_written_ || !labels_finished_ || finished_) {
+            throw factor_data_error{
+                "detailed research export is incomplete"};
+        }
+        validate_export_result(result);
+        write_remaining_tables(target_, cleanup_, exported_, tables_, result);
+        cleanup_.release();
+        finished_ = true;
+        return std::move(exported_);
+    }
+
+    research_export_result finish_owned(
+        const research_detailed_result& result) {
+        return finish(result);
+    }
+
+private:
+    void start_output() {
+        if (started_) {
+            return;
+        }
+        prepare_output_directory(target_, cleanup_);
+        started_ = true;
+    }
+
+    void record_table(exported_table table) {
+        exported_.files.push_back(table.file);
+        tables_.push_back(std::move(table));
+    }
+
+    std::string directory_;
+    std::filesystem::path target_;
+    output_cleanup cleanup_;
+    research_export_result exported_;
+    std::vector<exported_table> tables_;
+    std::unique_ptr<csv_writer> label_writer_;
+    bool started_{false};
+    bool signals_written_{false};
+    bool labels_started_{false};
+    bool labels_finished_{false};
+    bool finished_{false};
+};
+
+}  // namespace
+
+namespace research_detailed_detail {
+
+std::unique_ptr<detailed_export_sink> make_detailed_export_sink(
+    const std::string& directory) {
+    validate_export_directory(directory);
+    return std::make_unique<detailed_export_session>(directory);
+}
+
+}  // namespace research_detailed_detail
+
+research_export_result export_factor_research_detailed(
+    const research_detailed_result& result, const std::string& directory) {
+    validate_export_directory(directory);
+    validate_export_result(result);
+    detailed_export_session session{directory};
+    session.write_signals_owned(result.signals);
+    session.write_labels_owned(result.labels);
+    return session.finish_owned(result);
+}
+
+research_detailed_export_outcome
+evaluate_and_export_factor_research_detailed(
+    const std::string_view factor_name, const factor_series& factors,
+    const dataframe& prices, const research_spec& spec,
+    const std::string& directory) {
+    auto sink = research_detailed_detail::make_detailed_export_sink(directory);
+    auto evaluation =
+        research_detailed_detail::evaluate_factor_research_detailed_for_export(
+            factor_name, factors, prices, spec, *sink);
+    return {std::move(evaluation.result.status),
+            std::move(evaluation.result.manifest),
+            std::move(evaluation.result.diagnostics),
+            evaluation.signal_rows,
+            evaluation.label_rows,
+            std::move(evaluation.exported)};
 }
 
 }  // namespace fincore

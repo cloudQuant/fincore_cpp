@@ -2,6 +2,7 @@
 #include <fincore/calendar.hpp>
 #include <fincore/dataframe.hpp>
 #include <fincore/factor/calendar.hpp>
+#include <fincore/factor/research_detailed_export.hpp>
 #include <fincore/metrics.hpp>
 #include <fincore/portfolio.hpp>
 #include <fincore/portfolio/models.hpp>
@@ -279,6 +280,112 @@ int main() {
             << "installed artifact bundle did not produce a valid v2 manifest\n";
         return 9;
     }
+
+    constexpr fincore::timestamp day = 86'400'000'000'000LL;
+    const auto research_start = fincore::utc_timestamp(2024, 6, 3);
+    fincore::factor_series research_factors;
+    research_factors.dates = {
+        research_start, research_start, research_start + day,
+        research_start + day, research_start + 2 * day,
+        research_start + 2 * day};
+    research_factors.assets = {"A", "B", "A", "B", "A", "B"};
+    research_factors.values = {1.0, 2.0, 1.1, 2.1, 1.2, 2.2};
+
+    fincore::dataframe research_prices;
+    research_prices.load_index(std::vector<fincore::timestamp>{
+        research_start, research_start + day, research_start + 2 * day,
+        research_start + 3 * day, research_start + 4 * day});
+    research_prices.load_column<double>(
+        "A", {10.0, 11.0, 13.0, 14.0, 16.0},
+        hmdf::nan_policy::dont_pad_with_nans);
+    research_prices.load_column<double>(
+        "B", {20.0, 21.0, 22.0, 25.0, 29.0},
+        hmdf::nan_policy::dont_pad_with_nans);
+
+    fincore::research_spec research_spec;
+    research_spec.targets = {"A", "B"};
+    research_spec.start = research_start;
+    research_spec.end = research_start + 2 * day;
+    research_spec.periods = {1};
+    research_spec.quantiles = 2;
+    research_spec.min_assets = 2;
+    research_spec.max_loss = 1.0;
+    research_spec.label = "next_open_to_open";
+    research_spec.preprocess = "none";
+    research_spec.price_basis = "open";
+    research_spec.stability_lags = {1};
+    research_spec.snapshot_id = "headless-package-consumer";
+
+    const auto research_output_directory =
+        temporary.path / "research-detailed";
+    fincore::research_detailed_export_outcome research_outcome;
+    try {
+        research_outcome =
+            fincore::evaluate_and_export_factor_research_detailed(
+                "consumer-factor", research_factors, research_prices,
+                research_spec, research_output_directory.string());
+    } catch (const std::exception& error) {
+        std::cerr << "installed detailed research API failed: " << error.what()
+                  << '\n';
+        return 10;
+    }
+
+    if (research_outcome.status != "OK") {
+        std::cerr << "installed detailed research API returned status: "
+                  << research_outcome.status << '\n';
+        return 10;
+    }
+    if (!research_outcome.diagnostics.empty()) {
+        std::cerr << "installed detailed research API returned diagnostics:\n";
+        for (const auto& diagnostic : research_outcome.diagnostics) {
+            std::cerr << "  " << diagnostic.stage << '/' << diagnostic.code
+                      << ": " << diagnostic.message << '\n';
+        }
+        return 10;
+    }
+    if (research_outcome.signal_rows != 6U ||
+        research_outcome.label_rows != 6U) {
+        std::cerr << "installed detailed research row counts mismatch: signals="
+                  << research_outcome.signal_rows
+                  << ", labels=" << research_outcome.label_rows << '\n';
+        return 10;
+    }
+    const auto manifest_signal_rows =
+        research_outcome.manifest.find("rows_signals");
+    const auto manifest_label_rows =
+        research_outcome.manifest.find("rows_labels");
+    if (research_outcome.manifest.find("factor") ==
+            research_outcome.manifest.end() ||
+        research_outcome.manifest.at("factor") != "consumer-factor" ||
+        manifest_signal_rows == research_outcome.manifest.end() ||
+        manifest_signal_rows->second != "6" ||
+        manifest_label_rows == research_outcome.manifest.end() ||
+        manifest_label_rows->second != "6") {
+        std::cerr << "installed detailed research manifest metadata mismatch\n";
+        return 10;
+    }
+    if (research_outcome.exported.directory !=
+            research_output_directory.string() ||
+        research_outcome.exported.files.size() != 11U ||
+        std::find(research_outcome.exported.files.begin(),
+                  research_outcome.exported.files.end(), "manifest.json") ==
+            research_outcome.exported.files.end()) {
+        std::cerr << "installed detailed research export metadata mismatch: "
+                  << "directory=" << research_outcome.exported.directory
+                  << ", files=" << research_outcome.exported.files.size()
+                  << '\n';
+        return 10;
+    }
+    std::error_code research_manifest_error;
+    const auto research_manifest_path =
+        research_output_directory / "manifest.json";
+    if (!std::filesystem::is_regular_file(research_manifest_path,
+                                          research_manifest_error) ||
+        research_manifest_error) {
+        std::cerr << "installed detailed research manifest was not written\n";
+        return 10;
+    }
+
     std::cout << "fincore_headless_consumer: ok\n";
     return 0;
 }

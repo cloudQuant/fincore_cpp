@@ -680,10 +680,11 @@ void add_manifest(research_detailed_result& result,
     };
 }
 
-void add_table_counts(research_detailed_result& result) {
-    result.manifest["rows_signals"] =
-        std::to_string(result.signals.size());
-    result.manifest["rows_labels"] = std::to_string(result.labels.size());
+void add_table_counts(research_detailed_result& result,
+                      const std::size_t signal_rows,
+                      const std::size_t label_rows) {
+    result.manifest["rows_signals"] = std::to_string(signal_rows);
+    result.manifest["rows_labels"] = std::to_string(label_rows);
     result.manifest["rows_ic"] = std::to_string(result.ic.size());
     result.manifest["rows_ic_summary"] =
         std::to_string(result.ic_summary.size());
@@ -706,9 +707,13 @@ void add_table_counts(research_detailed_result& result) {
 
 }  // namespace
 
-research_detailed_result evaluate_factor_research_detailed(
+namespace {
+
+research_detailed_detail::detailed_export_evaluation
+evaluate_factor_research_detailed_impl(
     const std::string_view factor_name, const factor_series& factors,
-    const dataframe& prices, const research_spec& spec) {
+    const dataframe& prices, const research_spec& spec,
+    research_detailed_detail::detailed_export_sink* const export_sink) {
     if (factor_name.empty()) {
         throw factor_data_error{"factor name must not be empty"};
     }
@@ -811,7 +816,7 @@ research_detailed_result evaluate_factor_research_detailed(
             throw factor_data_error{
                 "groups do not cover every evaluated asset"};
         }
-        if (has_custom_groups) {
+        if (has_custom_groups && export_sink == nullptr) {
             groups.emplace(asset, spec.groups.at(asset));
         }
     }
@@ -893,31 +898,65 @@ research_detailed_result evaluate_factor_research_detailed(
 
     auto label_input = research_detailed_detail::build_detailed_label_input(
         panel, prices, spec);
-    result.signals.reserve(panel.dates.size());
-    for (std::size_t row = 0; row < panel.dates.size(); ++row) {
-        const double adjusted =
-            factors.values[ordered_source_rows[row]] *
-            static_cast<double>(direction);
-        result.signals.push_back(
-            {panel.dates[row], panel.assets[row], std::string{factor_name},
-             direction, adjusted, panel.values[row], spec.preprocess,
-             has_custom_groups ? groups.at(panel.assets[row]) : "default"});
+    const std::size_t signal_rows = panel.dates.size();
+    if (export_sink != nullptr) {
+        export_sink->write_signals({
+            std::span<const timestamp>{panel.dates},
+            std::span<const std::string>{panel.assets},
+            std::span<const std::size_t>{ordered_source_rows},
+            std::span<const double>{factors.values},
+            std::span<const double>{panel.values}, factor_name,
+            spec.preprocess, direction, &spec.groups});
+    } else {
+        result.signals.reserve(signal_rows);
+        for (std::size_t row = 0; row < signal_rows; ++row) {
+            const double adjusted =
+                factors.values[ordered_source_rows[row]] *
+                static_cast<double>(direction);
+            result.signals.push_back(
+                {panel.dates[row], panel.assets[row], std::string{factor_name},
+                 direction, adjusted, panel.values[row], spec.preprocess,
+                 has_custom_groups ? groups.at(panel.assets[row]) : "default"});
+        }
     }
     std::vector<unsigned char> has_any_label(panel.dates.size(), 0U);
-    result.labels.reserve(panel.dates.size() * label_input.horizons.size());
+    std::size_t label_rows = 0U;
+    if (export_sink != nullptr) {
+        export_sink->begin_labels();
+    } else {
+        result.labels.reserve(panel.dates.size() * label_input.horizons.size());
+    }
     for (const auto& horizon : label_input.horizons) {
         if (horizon.label_values.size() != panel.dates.size()) {
             throw factor_data_error{
                 "each detailed label horizon must match the panel row count"};
         }
-        for (std::size_t row = 0; row < panel.dates.size(); ++row) {
-            const double value = horizon.label_values[row];
-            if (std::isfinite(value)) {
-                has_any_label[row] = 1U;
+        if (export_sink != nullptr) {
+            if (panel.dates.size() >
+                std::numeric_limits<std::size_t>::max() - label_rows) {
+                throw factor_data_error{
+                    "detailed research label row count overflow"};
             }
-            result.labels.push_back({panel.dates[row], panel.assets[row],
-                                     horizon.period, value});
+            label_rows += panel.dates.size();
+            export_sink->write_label_horizon(
+                std::span<const timestamp>{panel.dates},
+                std::span<const std::string>{panel.assets}, horizon,
+                std::span<unsigned char>{has_any_label});
+        } else {
+            for (std::size_t row = 0; row < panel.dates.size(); ++row) {
+                const double value = horizon.label_values[row];
+                if (std::isfinite(value)) {
+                    has_any_label[row] = 1U;
+                }
+                result.labels.push_back({panel.dates[row], panel.assets[row],
+                                         horizon.period, value});
+            }
         }
+    }
+    if (export_sink != nullptr) {
+        export_sink->finish_labels();
+    } else {
+        label_rows = result.labels.size();
     }
     const std::size_t label_cells = static_cast<std::size_t>(std::count(
         has_any_label.begin(), has_any_label.end(), 1U));
@@ -1308,8 +1347,34 @@ research_detailed_result evaluate_factor_research_detailed(
          coverage_status});
     add_manifest(result, std::string{factor_name}, spec, direction,
                  label_input.periods);
-    add_table_counts(result);
-    return result;
+    add_table_counts(result, signal_rows, label_rows);
+    research_export_result exported;
+    if (export_sink != nullptr) {
+        exported = export_sink->finish(result);
+    }
+    return {std::move(result), signal_rows, label_rows, std::move(exported)};
 }
+
+}  // namespace
+
+research_detailed_result evaluate_factor_research_detailed(
+    const std::string_view factor_name, const factor_series& factors,
+    const dataframe& prices, const research_spec& spec) {
+    auto evaluation = evaluate_factor_research_detailed_impl(
+        factor_name, factors, prices, spec, nullptr);
+    return std::move(evaluation.result);
+}
+
+namespace research_detailed_detail {
+
+detailed_export_evaluation evaluate_factor_research_detailed_for_export(
+    const std::string_view factor_name, const factor_series& factors,
+    const dataframe& prices, const research_spec& spec,
+    detailed_export_sink& sink) {
+    return evaluate_factor_research_detailed_impl(
+        factor_name, factors, prices, spec, &sink);
+}
+
+}  // namespace research_detailed_detail
 
 }  // namespace fincore

@@ -1059,27 +1059,25 @@ int main(int argc, char** argv) {
         auto research_start = clock_type::now();
         const auto materialization_seconds = std::chrono::duration<double>(
             research_start - materialization_start).count();
-        const auto result = fincore::evaluate_factor_research_detailed(
-            factor_name, factor.series, price_frame, spec);
-        const auto research_seconds = seconds_since(research_start);
-
-        auto export_start = clock_type::now();
         std::filesystem::create_directories(out_dir);
         const auto tables_dir = out_dir / "tables";
-        const auto exported = fincore::export_factor_research_detailed(
-            result, tables_dir.string());
+        const auto result = fincore::evaluate_and_export_factor_research_detailed(
+            factor_name, factor.series, price_frame, spec, tables_dir.string());
+        const auto research_and_table_export_seconds = seconds_since(research_start);
+
+        auto export_start = clock_type::now();
         write_factor_values(out_dir / "factor_values.csv", factor);
         write_workload(out_dir / "workload.json", spec, prices.rows(),
                        factor.target_columns.size(),
                        factor.series.values.size());
-        const auto export_seconds = seconds_since(export_start);
+        const auto runner_export_seconds = seconds_since(export_start);
 
         const auto process_finished = current_process_snapshot();
         const auto total_seconds = seconds_since(internal_started);
         const auto cpu_seconds = process_cpu_delta(process_started,
                                                    process_finished);
         const auto accounted_stages = preparation_seconds + materialization_seconds + load_seconds +
-            factor_seconds + research_seconds + export_seconds;
+            factor_seconds + research_and_table_export_seconds + runner_export_seconds;
         const auto other_seconds = total_seconds - accounted_stages;
         const auto fully_accounted_seconds = accounted_stages + other_seconds;
         std::ostringstream timings;
@@ -1090,9 +1088,9 @@ int main(int argc, char** argv) {
                 << json_number(materialization_seconds)
                 << ",\n  \"load_seconds\": " << json_number(load_seconds)
                 << ",\n  \"factor_seconds\": " << json_number(factor_seconds)
-                << ",\n  \"research_seconds\": "
-                << json_number(research_seconds)
-                << ",\n  \"export_seconds\": " << json_number(export_seconds)
+                << ",\n  \"research_and_table_export_seconds\": "
+                << json_number(research_and_table_export_seconds)
+                << ",\n  \"runner_export_seconds\": " << json_number(runner_export_seconds)
                 << ",\n  \"other_seconds\": " << json_number(other_seconds)
                 << ",\n  \"accounted_stage_seconds\": "
                 << json_number(fully_accounted_seconds)
@@ -1134,9 +1132,11 @@ int main(int argc, char** argv) {
              << "\",\n  \"factor_cells\": "
              << factor.series.values.size() << ",\n  \"status\": \""
              << result.status << "\",\n  \"exported_files\": "
-             << exported.files.size() << ",\n  \"timings\": "
+             << result.exported.files.size() << ",\n  \"timings\": "
              << timings.str()
              << ",\n  \"measurement_scope\": {"
+                "\"research_and_table_export\": \"runner output directory setup plus combined library evaluation and all ten detailed CSV tables plus manifest, including closes\","
+                "\"runner_export\": \"factor_values.csv and workload.json writes, including closes\","
                 "\"internal_wall\": \"main entry through factor, research, workload, CSV, and result manifest writes; excludes process startup and timing/run_info JSON/stdout writes\","
                 "\"process_wall\": \"measured externally from process launch to exit by the parent runner\","
                 "\"cpu\": \"process CPU delta over the internal interval; process startup is excluded\","
