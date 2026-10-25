@@ -1,4 +1,5 @@
 #include <fincore/factor/research_detailed.hpp>
+#include <fincore/detail/stable_double_order.hpp>
 
 #include "research_detailed_internal.hpp"
 
@@ -167,7 +168,8 @@ void append_diagnostic(research_detailed_result& result,
 void preprocess_cross_section(const std::size_t begin,
                               const std::size_t end, factor_series& panel,
                               const std::string& method,
-                              std::vector<std::size_t>& order) {
+                              std::vector<std::size_t>& order,
+                              std::vector<std::size_t>& sort_scratch) {
     if (method == "none") {
         return;
     }
@@ -178,11 +180,9 @@ void preprocess_cross_section(const std::size_t begin,
                 order.push_back(row);
             }
         }
-        std::stable_sort(order.begin(), order.end(),
-                         [&panel](const std::size_t left,
-                                  const std::size_t right) {
-                             return panel.values[left] < panel.values[right];
-                         });
+        detail::stable_sort_indices_by_double_value(
+            order, sort_scratch,
+            [&panel](const std::size_t row) { return panel.values[row]; });
         // Finish sorting before writes; each later tie run remains untouched.
         for (std::size_t first = 0; first < order.size();) {
             std::size_t last = first + 1U;
@@ -400,7 +400,8 @@ struct detailed_factor_order_cache {
 detailed_horizon_workspace prepare_detailed_horizon(
     const factor_series& panel, const std::vector<double>& labels,
     const research_spec& spec,
-    detailed_factor_order_cache& factor_order_cache) {
+    detailed_factor_order_cache& factor_order_cache,
+    std::vector<std::size_t>& sort_scratch) {
     if (labels.size() != panel.dates.size()) {
         throw factor_data_error{
             "detailed forward labels must match panel row count"};
@@ -456,11 +457,10 @@ detailed_horizon_workspace prepare_detailed_horizon(
                         finite_factor_rows.push_back(row);
                     }
                 }
-                std::sort(
-                    finite_factor_rows.begin(), finite_factor_rows.end(),
-                    [&panel](const std::size_t left,
-                             const std::size_t right) {
-                        return panel.values[left] < panel.values[right];
+                detail::stable_sort_indices_by_double_value(
+                    finite_factor_rows, sort_scratch,
+                    [&panel](const std::size_t row) {
+                        return panel.values[row];
                     });
                 sorted_rows =
                     factor_order_cache.sorted_finite_rows_by_date.emplace(
@@ -545,7 +545,8 @@ detailed_horizon_workspace prepare_detailed_horizon(
 }
 
 std::vector<double> average_ranks_including_infinities(
-    const std::vector<double>& values) {
+    const std::vector<double>& values,
+    std::vector<std::size_t>& sort_scratch) {
     std::vector<std::size_t> order;
     order.reserve(values.size());
     for (std::size_t index = 0; index < values.size(); ++index) {
@@ -553,10 +554,9 @@ std::vector<double> average_ranks_including_infinities(
             order.push_back(index);
         }
     }
-    std::stable_sort(order.begin(), order.end(), [&values](const auto left,
-                                                          const auto right) {
-        return values[left] < values[right];
-    });
+    detail::stable_sort_indices_by_double_value(
+        order, sort_scratch,
+        [&values](const std::size_t index) { return values[index]; });
     std::vector<double> result(values.size(), nan);
     for (std::size_t first = 0U; first < order.size();) {
         std::size_t last = first + 1U;
@@ -576,7 +576,8 @@ std::vector<double> average_ranks_including_infinities(
 }
 
 void average_ranks_including_infinities_into(
-    const std::span<const double> values, const std::span<double> result) {
+    const std::span<const double> values, const std::span<double> result,
+    std::vector<std::size_t>& sort_scratch) {
     if (values.size() != result.size()) {
         throw factor_data_error{
             "detailed rank input and output must have equal lengths"};
@@ -589,10 +590,9 @@ void average_ranks_including_infinities_into(
             order.push_back(index);
         }
     }
-    std::stable_sort(order.begin(), order.end(), [&values](const auto left,
-                                                          const auto right) {
-        return values[left] < values[right];
-    });
+    detail::stable_sort_indices_by_double_value(
+        order, sort_scratch,
+        [&values](const std::size_t index) { return values[index]; });
     for (std::size_t first = 0U; first < order.size();) {
         std::size_t last = first + 1U;
         while (last < order.size() &&
@@ -850,6 +850,7 @@ research_detailed_result evaluate_factor_research_detailed(
     // contiguous row range. Reuse rank scratch across dates and retain its
     // owned sorted orders only for rank preprocessing.
     std::vector<std::size_t> rank_order;
+    std::vector<std::size_t> rank_sort_scratch;
     for (std::size_t date_begin = 0U; date_begin < panel.dates.size();) {
         std::size_t date_end = date_begin + 1U;
         while (date_end < panel.dates.size() &&
@@ -862,7 +863,7 @@ research_detailed_result evaluate_factor_research_detailed(
             date_values.begin(), date_values.end(),
             [](const double value) { return std::isfinite(value); });
         preprocess_cross_section(date_begin, date_end, panel, spec.preprocess,
-                                 rank_order);
+                                 rank_order, rank_sort_scratch);
         if (spec.preprocess == "cross_section_rank") {
             // Ranking preprocess already owns a sorted non-NaN row order.
             // Its outputs are all finite, so preserve that order for the
@@ -954,7 +955,8 @@ research_detailed_result evaluate_factor_research_detailed(
         detailed_horizon_workspace prepared;
         try {
             prepared = prepare_detailed_horizon(
-                panel, input.label_values, spec, factor_order_cache);
+                panel, input.label_values, spec, factor_order_cache,
+                rank_sort_scratch);
         } catch (const factor_loss_exceeded& error) {
             append_diagnostic(
                 result, factor, "prepare", "error", "max_loss_exceeded",
@@ -1001,7 +1003,8 @@ research_detailed_result evaluate_factor_research_detailed(
                 continue;
             }
             const auto return_ranks =
-                average_ranks_including_infinities(returns_on_date);
+                average_ranks_including_infinities(returns_on_date,
+                                                   rank_sort_scratch);
             const std::span<const double> factor_rank_span{
                 prepared.factor_ranks.data() + run.begin,
                 run.end - run.begin};
@@ -1263,7 +1266,8 @@ research_detailed_result evaluate_factor_research_detailed(
                 std::span<const double>{panel.values.data() + date_begin,
                                         count},
                 std::span<double>{stability_ranks.data() + date_begin,
-                                  count});
+                                  count},
+                rank_sort_scratch);
         }
         stability_date_offsets.push_back(date_end);
         date_begin = date_end;

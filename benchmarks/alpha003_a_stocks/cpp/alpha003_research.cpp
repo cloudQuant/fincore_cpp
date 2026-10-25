@@ -1,5 +1,6 @@
 #include <fincore/calendar.hpp>
 #include <fincore/dataframe.hpp>
+#include <fincore/detail/stable_double_order.hpp>
 #include <fincore/factor/research_detailed.hpp>
 #include <fincore/factor/research_detailed_export.hpp>
 
@@ -405,28 +406,25 @@ panel load_panel(const std::filesystem::path& data_dir, const int limit) {
 
 void average_ranks(
     const double* values, const std::vector<std::uint32_t>& members,
-    std::vector<std::pair<double, std::uint32_t>>& order, double* ranks) {
-    order.clear();
-    for (const auto member : members) {
-        order.emplace_back(values[member], member);
-    }
-    std::sort(order.begin(), order.end(),
-              [](const auto& left, const auto& right) {
-                  return left.first < right.first;
-              });
+    std::vector<std::uint32_t>& order,
+    std::vector<std::uint32_t>& sort_scratch, double* ranks) {
+    order.assign(members.begin(), members.end());
+    fincore::detail::stable_sort_indices_by_double_value(
+        order, sort_scratch,
+        [values](const std::uint32_t member) { return values[member]; });
     const auto count = static_cast<double>(order.size());
     std::size_t start = 0U;
     while (start < order.size()) {
         std::size_t end = start + 1U;
         while (end < order.size() &&
-               order[end].first == order[start].first) {
+               values[order[end]] == values[order[start]]) {
             ++end;
         }
         const auto rank =
             (static_cast<double>(start + 1U) + static_cast<double>(end)) /
             2.0 / count;
         for (std::size_t position = start; position < end; ++position) {
-            ranks[order[position].second] = rank;
+            ranks[order[position]] = rank;
         }
         start = end;
     }
@@ -516,7 +514,8 @@ factor_output compute_alpha003(const panel& prices) {
     std::vector<double> rank_volume(rows * columns, nan);
     std::vector<std::uint32_t> members;
     members.reserve(columns);
-    std::vector<std::pair<double, std::uint32_t>> order;
+    std::vector<std::uint32_t> order;
+    std::vector<std::uint32_t> sort_scratch;
     order.reserve(columns);
 
     for (std::size_t row = 0; row < rows; ++row) {
@@ -532,9 +531,9 @@ factor_output compute_alpha003(const panel& prices) {
         if (members.empty()) {
             continue;
         }
-        average_ranks(open_row, members, order,
+        average_ranks(open_row, members, order, sort_scratch,
                       rank_open.data() + row * columns);
-        average_ranks(volume_row, members, order,
+        average_ranks(volume_row, members, order, sort_scratch,
                       rank_volume.data() + row * columns);
     }
 
