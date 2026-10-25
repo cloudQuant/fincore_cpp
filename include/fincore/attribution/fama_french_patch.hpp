@@ -11,7 +11,7 @@ namespace fincore {
 /// canonical Fama-French model (``model_type``, ``risk_free_rate``, selected
 /// ``factors`` and fitted ``betas``). It adds no independent computation in
 /// the pinned source, so the native alias deliberately maps to the owning
-/// :class:`FamaFrenchModel` rather than duplicating estimation state.
+/// ``FamaFrenchModel`` rather than duplicating estimation state.
 using FamaFrenchModelPatch = FamaFrenchModel;
 
 }  // namespace fincore

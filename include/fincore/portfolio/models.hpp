@@ -9,12 +9,22 @@
 
 namespace fincore {
 
-// Detached optional input tables for portfolio-domain workflows. Each value
-// is owned by this object; materialize() returns another independent copy.
-// Only supplied fields are returned, under returns, positions, transactions,
-// and benchmark_returns respectively. A supplied empty DataFrame is retained.
+/// Detached optional input tables for portfolio-domain workflows.
+///
+/// Each supplied frame is owned by this object; materialize() returns another
+/// independent copy. Only supplied fields are returned, under ``returns``,
+/// ``positions``, ``transactions`` and ``benchmark_returns`` respectively. A
+/// supplied empty frame is retained.
 class portfolio_inputs {
   public:
+    /// Constructs a container from optional input frames.
+    ///
+    /// @param returns Optional return frame stored under ``returns``.
+    /// @param positions Optional position frame stored under ``positions``.
+    /// @param transactions Optional transaction frame stored under
+    ///     ``transactions``.
+    /// @param benchmark_returns Optional benchmark frame stored under
+    ///     ``benchmark_returns``.
     portfolio_inputs(std::optional<dataframe> returns = std::nullopt,
                      std::optional<dataframe> positions = std::nullopt,
                      std::optional<dataframe> transactions = std::nullopt,
@@ -24,6 +34,12 @@ class portfolio_inputs {
           transactions_(std::move(transactions)),
           benchmark_returns_(std::move(benchmark_returns)) {}
 
+    /// Returns an independent copy of each supplied input table.
+    ///
+    /// Keys are added only for fields that were supplied; a supplied empty
+    /// frame is retained. Repeated calls produce independent frames.
+    ///
+    /// @return Map from input name to an owned copy of the frame.
     [[nodiscard]] std::map<std::string, dataframe> materialize() const {
         std::map<std::string, dataframe> result;
         if (returns_) {
