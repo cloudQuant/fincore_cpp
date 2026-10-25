@@ -85,6 +85,26 @@ def synthetic_result(median: float = 100.0, rss: list[float] | None = None) -> d
 
 
 class CompareResultsTests(unittest.TestCase):
+    def test_profiled_and_unprofiled_runs_cannot_be_compared(self) -> None:
+        current, baseline = synthetic_result(), synthetic_result()
+        current["cases"]["scalar-sharpe"]["native"]["allocation_instrumentation"] = {"enabled": False}
+        comparison = compare_results(current, baseline)
+        self.assertEqual(comparison["status"], "FAIL")
+        self.assertTrue(any("incompatible allocation profiling modes" in reason
+                            for reason in comparison["reasons"]))
+
+    def test_disabled_allocation_fields_are_not_interpreted_as_measurements(self) -> None:
+        current, baseline = synthetic_result(), synthetic_result()
+        for result in (current, baseline):
+            result["cases"]["scalar-sharpe"]["native"]["allocation_instrumentation"] = {"enabled": False}
+            stage = result["cases"]["scalar-sharpe"]["native"]["measurements_ms"]["compute"]
+            stage["global_new_calls"] = None
+            stage["requested_bytes"] = None
+        stage = current["cases"]["scalar-sharpe"]["native"]["measurements_ms"]["compute"]
+        stage["global_new_calls"] = count_summary([9999] * 7)
+        stage["requested_bytes"] = count_summary([99999] * 7)
+        self.assertEqual(compare_results(current, baseline)["status"], "PASS")
+
     def test_native_stage_instrumentation_requires_explicit_copy_and_kernel_counts(self) -> None:
         native = {
             "allocation_instrumentation": {

@@ -17,7 +17,10 @@ import json
 import math
 import os
 import platform
-import resource
+try:
+    import resource
+except ImportError:  # The paired native runner also imports this module on Windows.
+    resource = None
 import statistics
 import struct
 import subprocess
@@ -275,6 +278,10 @@ def platform_identity() -> dict[str, str]:
 
 def validate_measurements(native: dict[str, Any], repeats: int) -> list[str]:
     reasons: list[str] = []
+    metadata = native.get("allocation_instrumentation", {})
+    allocation_enabled = metadata.get("enabled", True) if isinstance(metadata, dict) else None
+    if type(allocation_enabled) is not bool:
+        reasons.append("invalid allocation profiling mode")
     measurements = native.get("measurements_ms")
     if not isinstance(measurements, dict) or not measurements:
         return ["native measurement map is missing"]
@@ -305,6 +312,8 @@ def validate_measurements(native: dict[str, Any], repeats: int) -> list[str]:
         invocations = summary.get("stage_invocations_per_sample")
         if not isinstance(invocations, int) or isinstance(invocations, bool) or invocations != 1:
             reasons.append(f"measurement {name} stage invocation count must be exactly 1 per sample")
+        if allocation_enabled is False:
+            continue
         for metric in ("global_new_calls", "requested_bytes"):
             allocation_summary = summary.get(metric)
             if not isinstance(allocation_summary, dict):
@@ -455,6 +464,15 @@ def compare_results(current: dict[str, Any], baseline: dict[str, Any]) -> dict[s
         if not isinstance(current_native, dict) or not isinstance(baseline_native, dict):
             case_reasons.append("native result missing")
         else:
+            allocation_modes = []
+            for native in (current_native, baseline_native):
+                metadata = native.get("allocation_instrumentation", {})
+                mode = metadata.get("enabled", True) if isinstance(metadata, dict) else None
+                allocation_modes.append(mode)
+            if any(type(mode) is not bool for mode in allocation_modes):
+                case_reasons.append("invalid allocation profiling mode")
+            elif allocation_modes[0] != allocation_modes[1]:
+                case_reasons.append("incompatible allocation profiling modes")
             identity_fields = ("case", "source_schema", "input_digest")
             for label, value in (("current", current_native), ("baseline", baseline_native)):
                 for field in identity_fields:
@@ -507,7 +525,8 @@ def compare_results(current: dict[str, Any], baseline: dict[str, Any]) -> dict[s
                             f"{stage} median regression {delta:.6g} ms exceeds "
                             f"10%/noise threshold {threshold:.6g} ms"
                         )
-                    for counter_name in ("global_new_calls", "requested_bytes"):
+                    counters = ("global_new_calls", "requested_bytes") if all(allocation_modes) else ()
+                    for counter_name in counters:
                         now_counter = now.get(counter_name)
                         before_counter = before.get(counter_name)
                         if not isinstance(now_counter, dict) or not isinstance(before_counter, dict):
@@ -693,6 +712,8 @@ def _validate_native_instrumentation(
     allocation = native.get("allocation_instrumentation")
     if not isinstance(allocation, dict):
         raise RuntimeError(f"native {case_name} allocation instrumentation description is missing")
+    if type(allocation.get("enabled", True)) is not bool:
+        raise RuntimeError(f"native {case_name} allocation profiling mode must be boolean")
     if allocation.get("counted_calls") != "successful global operator new/new[] and aligned forms":
         raise RuntimeError(f"native {case_name} allocation call scope is unknown")
     if allocation.get("bytes") != "cumulative requested bytes, not live bytes or RSS":
@@ -1243,6 +1264,8 @@ def _python_worker_main(args: argparse.Namespace) -> int:
 
 
 def _rss_megabytes() -> float:
+    if resource is None:
+        raise NotImplementedError("the legacy Python RSS worker requires Unix resource support")
     value = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     if sys.platform == "darwin":
         return float(value) / (1024.0 * 1024.0)

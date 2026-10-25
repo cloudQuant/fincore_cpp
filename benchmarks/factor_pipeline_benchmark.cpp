@@ -4,11 +4,13 @@
 #include <fincore/factor/performance.hpp>
 #include <fincore/metrics/ratios.hpp>
 #include <fincore/metrics/rolling.hpp>
+#include <fincore/rolling_engine.hpp>
 #include <fincore/report/html.hpp>
 #include <fincore/report/xlsx.hpp>
 #include <fincore/factor/report.hpp>
 
 #include <algorithm>
+#include <array>
 #include <atomic>
 #include <bit>
 #include <chrono>
@@ -24,13 +26,24 @@
 #include <map>
 #include <numeric>
 #include <new>
+#include <optional>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
-#include <sys/resource.h>
 #include <utility>
 #include <vector>
+
+#if defined(_WIN32)
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#include <malloc.h>
+#include <psapi.h>
+#else
+#include <sys/resource.h>
+#endif
 
 #if __has_include(<fincore/detail/factor_compute.hpp>)
 #include <fincore/detail/factor_compute.hpp>
@@ -58,11 +71,19 @@ void record(const std::size_t size) noexcept {
 }
 
 [[nodiscard]] void* allocate(const std::size_t size,
-                              const std::size_t alignment) {
+                              const std::size_t alignment,
+                              const bool aligned_allocation) {
     const std::size_t actual_size = size == 0U ? 1U : size;
     for (;;) {
         void* result = nullptr;
-        if (alignment <= alignof(std::max_align_t)) {
+#if defined(_WIN32)
+        if (aligned_allocation) {
+            result = _aligned_malloc(actual_size, alignment);
+        } else {
+            result = std::malloc(actual_size);
+        }
+#else
+        if (!aligned_allocation) {
             result = std::malloc(actual_size);
         } else {
             const auto remainder = actual_size % alignment;
@@ -71,6 +92,7 @@ void record(const std::size_t size) noexcept {
                 result = std::aligned_alloc(alignment, actual_size + padding);
             }
         }
+#endif
         if (result != nullptr) {
             record(size);
             return result;
@@ -105,38 +127,58 @@ public:
 }  // namespace benchmark_allocation_counter
 
 void* operator new(const std::size_t size) {
-    return benchmark_allocation_counter::allocate(size, alignof(std::max_align_t));
+    return benchmark_allocation_counter::allocate(
+        size, alignof(std::max_align_t), false);
 }
 
 void* operator new[](const std::size_t size) {
-    return benchmark_allocation_counter::allocate(size, alignof(std::max_align_t));
+    return benchmark_allocation_counter::allocate(
+        size, alignof(std::max_align_t), false);
 }
 
 void* operator new(const std::size_t size, const std::align_val_t alignment) {
     return benchmark_allocation_counter::allocate(
-        size, static_cast<std::size_t>(alignment));
+        size, static_cast<std::size_t>(alignment), true);
 }
 
 void* operator new[](const std::size_t size, const std::align_val_t alignment) {
     return benchmark_allocation_counter::allocate(
-        size, static_cast<std::size_t>(alignment));
+        size, static_cast<std::size_t>(alignment), true);
 }
 
 void operator delete(void* pointer) noexcept { std::free(pointer); }
 void operator delete[](void* pointer) noexcept { std::free(pointer); }
 void operator delete(void* pointer, const std::size_t) noexcept { std::free(pointer); }
 void operator delete[](void* pointer, const std::size_t) noexcept { std::free(pointer); }
+#if defined(_WIN32)
+void operator delete(void* pointer, const std::align_val_t) noexcept { _aligned_free(pointer); }
+void operator delete[](void* pointer, const std::align_val_t) noexcept { _aligned_free(pointer); }
+#else
 void operator delete(void* pointer, const std::align_val_t) noexcept { std::free(pointer); }
 void operator delete[](void* pointer, const std::align_val_t) noexcept { std::free(pointer); }
+#endif
 void operator delete(void* pointer, const std::size_t,
-                     const std::align_val_t) noexcept { std::free(pointer); }
+                     const std::align_val_t) noexcept {
+#if defined(_WIN32)
+    _aligned_free(pointer);
+#else
+    std::free(pointer);
+#endif
+}
 void operator delete[](void* pointer, const std::size_t,
-                       const std::align_val_t) noexcept { std::free(pointer); }
+                       const std::align_val_t) noexcept {
+#if defined(_WIN32)
+    _aligned_free(pointer);
+#else
+    std::free(pointer);
+#endif
+}
 
 namespace {
 
 constexpr std::int64_t day_ns = 86'400'000'000'000LL;
 constexpr std::string_view source_schema = "factor-benchmark-v5";
+bool allocation_profile_enabled = false;
 
 class fnv64 {
 public:
@@ -287,18 +329,24 @@ timing_summary measure(Function&& function, const int warmups,
     }
     timing_summary result;
     result.samples.reserve(static_cast<std::size_t>(repeats));
-    result.operator_new_calls.samples.reserve(static_cast<std::size_t>(repeats));
-    result.requested_bytes.samples.reserve(static_cast<std::size_t>(repeats));
+    if (allocation_profile_enabled) {
+        result.operator_new_calls.samples.reserve(static_cast<std::size_t>(repeats));
+        result.requested_bytes.samples.reserve(static_cast<std::size_t>(repeats));
+    }
     for (int index = 0; index < repeats; ++index) {
-        benchmark_allocation_counter::scope allocations;
+        std::optional<benchmark_allocation_counter::scope> allocations;
+        if (allocation_profile_enabled) allocations.emplace();
         const auto started = std::chrono::steady_clock::now();
         function();
         const auto stopped = std::chrono::steady_clock::now();
-        const auto allocation_counts = allocations.finish();
         result.samples.push_back(
             std::chrono::duration<double, std::milli>(stopped - started).count());
-        result.operator_new_calls.samples.push_back(allocation_counts.calls);
-        result.requested_bytes.samples.push_back(allocation_counts.requested_bytes);
+        if (allocations) {
+            const auto allocation_counts = allocations->finish();
+            result.operator_new_calls.samples.push_back(allocation_counts.calls);
+            result.requested_bytes.samples.push_back(
+                allocation_counts.requested_bytes);
+        }
         observer(index);
     }
     auto ordered = result.samples;
@@ -312,8 +360,10 @@ timing_summary measure(Function&& function, const int warmups,
                         2.0;
     }
     result.spread = result.maximum - result.minimum;
-    summarize_counts(result.operator_new_calls);
-    summarize_counts(result.requested_bytes);
+    if (allocation_profile_enabled) {
+        summarize_counts(result.operator_new_calls);
+        summarize_counts(result.requested_bytes);
+    }
     return result;
 }
 
@@ -350,9 +400,16 @@ std::string timing_json(const timing_summary& summary) {
            << ",\"max_ms\":" << json_number(summary.maximum)
            << ",\"spread_ms\":" << json_number(summary.spread)
            << ",\"stage_invocations_per_sample\":"
-           << summary.stage_invocations_per_sample
-           << ",\"global_new_calls\":" << count_json(summary.operator_new_calls)
-           << ",\"requested_bytes\":" << count_json(summary.requested_bytes) << '}';
+           << summary.stage_invocations_per_sample;
+    if (allocation_profile_enabled) {
+        output << ",\"global_new_calls\":"
+               << count_json(summary.operator_new_calls)
+               << ",\"requested_bytes\":"
+               << count_json(summary.requested_bytes);
+    } else {
+        output << ",\"global_new_calls\":null,\"requested_bytes\":null";
+    }
+    output << '}';
     return output.str();
 }
 
@@ -478,12 +535,30 @@ std::string bytes_digest(const std::string_view bytes) {
 }
 
 double rss_megabytes() {
+#if defined(_WIN32)
+    using get_process_memory_info_fn = BOOL(WINAPI*)(
+        HANDLE, PPROCESS_MEMORY_COUNTERS, DWORD);
+    const auto kernel32 = GetModuleHandleW(L"kernel32.dll");
+    const auto query = kernel32 == nullptr
+        ? nullptr
+        : reinterpret_cast<get_process_memory_info_fn>(GetProcAddress(
+              kernel32, "K32GetProcessMemoryInfo"));
+    if (query == nullptr) return 0.0;
+    PROCESS_MEMORY_COUNTERS counters{};
+    counters.cb = static_cast<DWORD>(sizeof(counters));
+    if (query(GetCurrentProcess(), &counters, counters.cb) == FALSE) {
+        return 0.0;
+    }
+    return static_cast<double>(counters.PeakWorkingSetSize) /
+           (1024.0 * 1024.0);
+#else
     rusage usage{};
     if (getrusage(RUSAGE_SELF, &usage) != 0) return 0.0;
 #if defined(__APPLE__)
     return static_cast<double>(usage.ru_maxrss) / (1024.0 * 1024.0);
 #else
     return static_cast<double>(usage.ru_maxrss) / 1024.0;
+#endif
 #endif
 }
 
@@ -508,12 +583,17 @@ struct options {
     std::filesystem::path scratch_dir;
     int repeats = 9;
     int warmups = 2;
+    bool allocation_profile = false;
 };
 
 options parse_options(const int argc, char** argv) {
     options result;
     for (int index = 1; index < argc; ++index) {
         const std::string_view arg{argv[index]};
+        if (arg == "--allocation-profile") {
+            result.allocation_profile = true;
+            continue;
+        }
         if (index + 1 >= argc) {
             throw std::invalid_argument("missing value after " + std::string{arg});
         }
@@ -543,6 +623,16 @@ std::string platform_name() {
     return "linux";
 #elif defined(_WIN32)
     return "windows";
+#else
+    return "unknown";
+#endif
+}
+
+std::string compiler_name() {
+#if defined(_MSC_VER)
+    return "MSVC " + std::to_string(_MSC_VER);
+#elif defined(__VERSION__)
+    return __VERSION__;
 #else
     return "unknown";
 #endif
@@ -578,10 +668,12 @@ std::string case_result_json(
     }
     output << "},\"details\":" << details_json
            << ",\"rss_peak_mb\":" << json_number(rss_megabytes())
-           << ",\"allocation_instrumentation\":{\"counted_calls\":\"successful global operator new/new[] and aligned forms\",\"bytes\":\"cumulative requested bytes, not live bytes or RSS\"}"
+           << ",\"allocation_instrumentation\":{\"enabled\":"
+           << (allocation_profile_enabled ? "true" : "false")
+           << ",\"counted_calls\":\"successful global operator new/new[] and aligned forms\",\"bytes\":\"cumulative requested bytes, not live bytes or RSS\"}"
            << ",\"environment\":{\"platform\":"
            << json_quote(platform_name()) << ",\"compiler\":"
-           << json_quote(__VERSION__) << ",\"cplusplus\":" << __cplusplus
+           << json_quote(compiler_name()) << ",\"cplusplus\":" << __cplusplus
            << "}}";
     return output.str();
 }
@@ -632,6 +724,369 @@ std::string workload_json_for_returns(const std::string_view kind,
     if (window != 0U) output << ",\"window\":" << window;
     output << '}';
     return output.str();
+}
+
+constexpr std::size_t rolling_engine_rows = 50'000U;
+constexpr std::size_t rolling_engine_window = 252U;
+constexpr std::size_t rolling_engine_benchmark_stride = 97U;
+constexpr std::size_t rolling_engine_return_nan_stride = 997U;
+constexpr std::size_t rolling_engine_benchmark_nan_stride = 1'237U;
+
+struct rolling_engine_input {
+    std::vector<fincore::timestamp> return_index;
+    std::vector<double> returns;
+    std::vector<fincore::timestamp> benchmark_index;
+    std::vector<double> benchmark;
+};
+
+rolling_engine_input generate_rolling_engine_input() {
+    rolling_engine_input input;
+    input.return_index.reserve(rolling_engine_rows);
+    input.returns.reserve(rolling_engine_rows);
+    input.benchmark_index.reserve(rolling_engine_rows);
+    input.benchmark.reserve(rolling_engine_rows);
+    const auto start = fincore::utc_timestamp(2000, 1, 1);
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+    for (std::size_t row = 0U; row < rolling_engine_rows; ++row) {
+        const auto timestamp =
+            start + static_cast<std::int64_t>(row) * day_ns;
+        const int return_cycle = static_cast<int>((row * 37U + 11U) % 199U) - 99;
+        const int return_noise = static_cast<int>((row * 13U + 7U) % 23U) - 11;
+        double return_value = static_cast<double>(return_cycle) * 0.00008 +
+                              static_cast<double>(return_noise) * 0.000003;
+        if (row != 0U && row % rolling_engine_return_nan_stride == 0U) {
+            return_value = nan;
+        }
+        input.return_index.push_back(timestamp);
+        input.returns.push_back(return_value);
+
+        if (row != 0U && row % rolling_engine_benchmark_stride == 0U) {
+            continue;
+        }
+        const int benchmark_cycle =
+            static_cast<int>((row * 71U + 3U) % 211U) - 105;
+        const int benchmark_noise =
+            static_cast<int>((row * 11U + 2U) % 17U) - 8;
+        double benchmark_value =
+            static_cast<double>(benchmark_cycle) * 0.00005 +
+            static_cast<double>(benchmark_noise) * 0.000002;
+        if (row != 0U && row % rolling_engine_benchmark_nan_stride == 0U) {
+            benchmark_value = nan;
+        }
+        input.benchmark_index.push_back(timestamp);
+        input.benchmark.push_back(benchmark_value);
+    }
+    return input;
+}
+
+std::string rolling_engine_input_digest(const rolling_engine_input& input) {
+    fnv64 digest;
+    digest.add_bytes("rolling-engine-input-v1");
+    digest.add_u64(input.return_index.size());
+    for (std::size_t row = 0U; row < input.return_index.size(); ++row) {
+        digest.add_i64(input.return_index[row]);
+        add_canonical_value(digest, input.returns[row]);
+    }
+    digest.add_u64(input.benchmark_index.size());
+    for (std::size_t row = 0U; row < input.benchmark_index.size(); ++row) {
+        digest.add_i64(input.benchmark_index[row]);
+        add_canonical_value(digest, input.benchmark[row]);
+    }
+    return digest.hex();
+}
+
+std::string rolling_engine_output_digest(
+    const std::map<std::string, fincore::dataframe>& outputs) {
+    fnv64 digest;
+    digest.add_bytes("rolling-engine-output-v1");
+    digest.add_u64(outputs.size());
+    for (const auto& [name, frame] : outputs) {
+        digest.add_u64(name.size());
+        digest.add_bytes(name);
+        const auto& index = frame.get_index();
+        const auto values = fincore::require_double_column(
+            frame, fincore::returns_column);
+        digest.add_u64(index.size());
+        for (std::size_t row = 0U; row < index.size(); ++row) {
+            digest.add_i64(index[row]);
+            add_canonical_value(digest, values[row]);
+        }
+    }
+    return digest.hex();
+}
+
+struct series_comparison {
+    bool index_valid = false;
+    bool nan_mask_valid = false;
+    bool values_valid = false;
+};
+
+series_comparison compare_rolling_series(const fincore::dataframe& actual,
+                                        const fincore::dataframe& expected) {
+    series_comparison comparison;
+    comparison.index_valid = actual.get_index() == expected.get_index();
+    const auto actual_values =
+        fincore::require_double_column(actual, fincore::returns_column);
+    const auto expected_values =
+        fincore::require_double_column(expected, fincore::returns_column);
+    if (actual_values.size() != expected_values.size()) {
+        return comparison;
+    }
+
+    comparison.nan_mask_valid = true;
+    comparison.values_valid = true;
+    for (std::size_t row = 0U; row < actual_values.size(); ++row) {
+        const double actual_value = actual_values[row];
+        const double expected_value = expected_values[row];
+        if (std::isnan(actual_value) != std::isnan(expected_value)) {
+            comparison.nan_mask_valid = false;
+            comparison.values_valid = false;
+            continue;
+        }
+        if (std::isnan(expected_value)) {
+            continue;
+        }
+        if (std::isinf(actual_value) || std::isinf(expected_value)) {
+            comparison.values_valid = comparison.values_valid &&
+                                      actual_value == expected_value;
+            continue;
+        }
+        const double tolerance =
+            1e-12 * std::max(1.0, std::abs(expected_value));
+        comparison.values_valid = comparison.values_valid &&
+                                  std::abs(actual_value - expected_value) <= tolerance;
+    }
+    return comparison;
+}
+
+fincore::dataframe rolling_drawdown_nan_as_zero_oracle(
+    const std::vector<fincore::timestamp>& index,
+    const std::vector<double>& values, const std::size_t window) {
+    const std::size_t output_count = values.size() < window
+                                         ? 0U
+                                         : values.size() - window + 1U;
+    std::vector<fincore::timestamp> output_index;
+    std::vector<double> output_values;
+    output_index.reserve(output_count);
+    output_values.reserve(output_count);
+    for (std::size_t begin = 0U; begin < output_count; ++begin) {
+        double wealth = 100.0;
+        double peak = wealth;
+        double worst_drawdown = std::numeric_limits<double>::quiet_NaN();
+        for (std::size_t offset = 0U; offset < window; ++offset) {
+            const double entry = values[begin + offset];
+            wealth *= 1.0 + (std::isnan(entry) ? 0.0 : entry);
+            peak = std::fmax(peak, wealth);
+            const double drawdown = (wealth - peak) / peak;
+            if (!std::isnan(drawdown) &&
+                (std::isnan(worst_drawdown) || drawdown < worst_drawdown)) {
+                worst_drawdown = drawdown;
+            }
+        }
+        output_index.push_back(index[begin + window - 1U]);
+        output_values.push_back(worst_drawdown);
+    }
+    return fincore::make_series(std::move(output_index), fincore::returns_column,
+                                std::move(output_values));
+}
+
+void run_rolling_engine_case(const options& args) {
+    constexpr std::array metrics{
+        fincore::rolling_metric::mean_return,
+        fincore::rolling_metric::volatility,
+        fincore::rolling_metric::sharpe,
+        fincore::rolling_metric::max_drawdown,
+        fincore::rolling_metric::beta};
+    const auto metric_names = std::array<std::string, metrics.size()>{
+        "mean_return", "volatility", "sharpe", "max_drawdown", "beta"};
+
+    rolling_engine_input input;
+    const auto generation = measure(
+        [&] { input = generate_rolling_engine_input(); }, args.warmups,
+        args.repeats);
+
+    std::optional<fincore::rolling_engine> engine;
+    const auto conversion = measure([&] {
+        auto returns = fincore::make_series(
+            input.return_index, fincore::returns_column, input.returns);
+        auto benchmark = fincore::make_series(
+            input.benchmark_index, fincore::benchmark_column, input.benchmark);
+        engine.emplace(std::move(returns), std::move(benchmark),
+                       rolling_engine_window);
+    }, args.warmups, args.repeats);
+
+    std::map<std::string, fincore::dataframe> outputs;
+    std::vector<std::string> output_digests;
+    output_digests.reserve(static_cast<std::size_t>(args.repeats));
+    const auto compute = measure(
+        [&] { outputs = engine->compute(metrics); }, args.warmups,
+        args.repeats,
+        [&output_digests, &outputs](const int) {
+            output_digests.push_back(rolling_engine_output_digest(outputs));
+        });
+
+    const auto returns_frame = fincore::make_series(
+        input.return_index, fincore::returns_column, input.returns);
+    const auto benchmark_frame = fincore::make_series(
+        input.benchmark_index, fincore::benchmark_column, input.benchmark);
+    const auto volatility_oracle = fincore::roll_annual_volatility(
+        returns_frame, rolling_engine_window);
+    const auto sharpe_oracle = fincore::roll_sharpe_ratio(
+        returns_frame, rolling_engine_window);
+    const auto drawdown_oracle = rolling_drawdown_nan_as_zero_oracle(
+        input.return_index, input.returns, rolling_engine_window);
+    const auto beta_oracle = fincore::roll_beta(
+        returns_frame, benchmark_frame, rolling_engine_window);
+    std::vector<fincore::timestamp> mean_index;
+    std::vector<double> mean_values;
+    const std::size_t mean_count = input.returns.size() < rolling_engine_window
+                                       ? 0U
+                                       : input.returns.size() -
+                                             rolling_engine_window + 1U;
+    mean_index.reserve(mean_count);
+    mean_values.reserve(mean_count);
+    for (std::size_t begin = 0U; begin < mean_count; ++begin) {
+        double total = 0.0;
+        for (std::size_t offset = 0U; offset < rolling_engine_window; ++offset) {
+            total += input.returns[begin + offset];
+        }
+        mean_index.push_back(input.return_index[
+            begin + rolling_engine_window - 1U]);
+        mean_values.push_back(
+            total / static_cast<double>(rolling_engine_window) * 252.0);
+    }
+    const auto mean_oracle = fincore::make_series(
+        std::move(mean_index), fincore::returns_column, std::move(mean_values));
+
+    const std::map<std::string, fincore::dataframe> oracle{
+        {"mean_return", mean_oracle}, {"volatility", volatility_oracle},
+        {"sharpe", sharpe_oracle}, {"max_drawdown", drawdown_oracle},
+        {"beta", beta_oracle}};
+    bool metric_names_valid = outputs.size() == metric_names.size();
+    bool output_count_valid = metric_names_valid;
+    bool oracle_indexes_valid = metric_names_valid;
+    bool oracle_nan_masks_valid = metric_names_valid;
+    bool oracle_values_valid = metric_names_valid;
+    std::ostringstream details;
+    details << "{\"output_count\":{";
+    bool first_metric = true;
+    for (const auto& metric_name : metric_names) {
+        const auto actual = outputs.find(metric_name);
+        const auto expected = oracle.find(metric_name);
+        if (actual == outputs.end() || expected == oracle.end()) {
+            metric_names_valid = false;
+            output_count_valid = false;
+            oracle_indexes_valid = false;
+            oracle_nan_masks_valid = false;
+            oracle_values_valid = false;
+            continue;
+        }
+        const auto comparison = compare_rolling_series(actual->second,
+                                                       expected->second);
+        const auto actual_values = fincore::require_double_column(
+            actual->second, fincore::returns_column);
+        output_count_valid = output_count_valid &&
+                             actual_values.size() ==
+                                 fincore::require_double_column(
+                                     expected->second,
+                                     fincore::returns_column).size();
+        oracle_indexes_valid = oracle_indexes_valid && comparison.index_valid;
+        oracle_nan_masks_valid = oracle_nan_masks_valid &&
+                                 comparison.nan_mask_valid;
+        oracle_values_valid = oracle_values_valid && comparison.values_valid;
+        if (!first_metric) details << ',';
+        first_metric = false;
+        details << json_quote(metric_name) << ':' << actual_values.size();
+    }
+    details << "},\"metric_output_digests\":{";
+    first_metric = true;
+    for (const auto& metric_name : metric_names) {
+        const auto actual = outputs.find(metric_name);
+        if (actual == outputs.end()) continue;
+        if (!first_metric) details << ',';
+        first_metric = false;
+        const std::map<std::string, fincore::dataframe> one_metric{
+            {metric_name, actual->second}};
+        details << json_quote(metric_name) << ':'
+                << json_quote(rolling_engine_output_digest(one_metric));
+    }
+    details << "},\"metrics\":{";
+    first_metric = true;
+    for (const auto& metric_name : metric_names) {
+        const auto actual = outputs.find(metric_name);
+        if (actual == outputs.end()) continue;
+        if (!first_metric) details << ',';
+        first_metric = false;
+        const auto& frame = actual->second;
+        const auto& index = frame.get_index();
+        const auto values = fincore::require_double_column(
+            frame, fincore::returns_column);
+        details << json_quote(metric_name) << ":{\"index\":[";
+        for (std::size_t row = 0U; row < index.size(); ++row) {
+            if (row != 0U) details << ',';
+            details << index[row];
+        }
+        details << "],\"values\":[";
+        for (std::size_t row = 0U; row < values.size(); ++row) {
+            if (row != 0U) details << ',';
+            if (std::isnan(values[row])) {
+                details << "null";
+            } else if (std::isinf(values[row])) {
+                details << json_quote(values[row] < 0.0 ? "-inf" : "inf");
+            } else {
+                details << json_number(values[row]);
+            }
+        }
+        details << "]}";
+    }
+    details << "},\"oracle\":\"rolling_scalar_apis_plus_explicit_mean_and_nan_neutral_drawdown\","
+               "\"oracle_in_measurement\":false}";
+
+    const bool output_stable = !output_digests.empty() &&
+        std::all_of(output_digests.begin(), output_digests.end(),
+                    [&output_digests](const std::string& digest) {
+                        return digest == output_digests.front();
+                    });
+    std::map<std::string, timing_summary> timings{
+        {"generation", generation}, {"conversion", conversion},
+        {"compute", compute}};
+    std::map<std::string, std::string> checks{
+        {"metric_names_valid", metric_names_valid ? "true" : "false"},
+        {"output_count_valid", output_count_valid ? "true" : "false"},
+        {"oracle_indexes_valid", oracle_indexes_valid ? "true" : "false"},
+        {"oracle_nan_masks_valid", oracle_nan_masks_valid ? "true" : "false"},
+        {"oracle_values_valid", oracle_values_valid ? "true" : "false"},
+        {"output_stable_across_repeats", output_stable ? "true" : "false"}};
+    const std::string input_digest = rolling_engine_input_digest(input);
+    const std::string output_digest = rolling_engine_output_digest(outputs);
+    const auto benchmark_nan_count = static_cast<std::size_t>(std::count_if(
+        input.benchmark.begin(), input.benchmark.end(),
+        [](const double value) { return std::isnan(value); }));
+    const auto return_nan_count = static_cast<std::size_t>(std::count_if(
+        input.returns.begin(), input.returns.end(),
+        [](const double value) { return std::isnan(value); }));
+    std::ostringstream workload;
+    workload << "{\"id\":\"rolling-engine-v1\",\"rows\":"
+             << input.return_index.size()
+             << ",\"benchmark_rows\":" << input.benchmark_index.size()
+             << ",\"window\":" << rolling_engine_window
+             << ",\"annualization\":252,\"metrics\":[";
+    for (std::size_t index = 0U; index < metric_names.size(); ++index) {
+        if (index != 0U) workload << ',';
+        workload << json_quote(metric_names[index]);
+    }
+    workload << "],\"benchmark_omission_stride\":"
+             << rolling_engine_benchmark_stride
+             << ",\"return_nan_stride\":"
+             << rolling_engine_return_nan_stride
+             << ",\"benchmark_nan_stride\":"
+             << rolling_engine_benchmark_nan_stride
+             << ",\"return_nan_count\":" << return_nan_count
+             << ",\"benchmark_nan_count\":" << benchmark_nan_count << '}';
+    std::cout << case_result_json(args.case_name, workload.str(), input_digest,
+                                  output_digest, timings, checks,
+                                  args.warmups, args.repeats, details.str())
+              << '\n';
 }
 
 void run_returns_case(const options& args) {
@@ -874,7 +1329,10 @@ void run_panel_case(const options& args) {
 int main(int argc, char** argv) {
     try {
         const auto args = parse_options(argc, argv);
-        if (args.case_name == "scalar-sharpe" ||
+        allocation_profile_enabled = args.allocation_profile;
+        if (args.case_name == "rolling-engine") {
+            run_rolling_engine_case(args);
+        } else if (args.case_name == "scalar-sharpe" ||
             args.case_name == "batched-sharpe" ||
             args.case_name == "rolling-sharpe") {
             run_returns_case(args);
