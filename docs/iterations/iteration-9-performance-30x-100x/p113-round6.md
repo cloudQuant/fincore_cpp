@@ -38,3 +38,6 @@ CPU中位数下降4.44%，research中位数下降7.67%，峰值约少9.24MB；�
 `results-i9-p113-r6-500` 和 `results-i9-p113-r6-native-full-ab`，都在alpha003
 benchmark目录下。没有更改30×门槛或删除异常样本。下一轮复用每日期因子排序，
 仍对各horizon自己的有效样本重算分箱边界及平均秩。
+
+代码与本轮记录已提交为 `2cfdeec41af37827dc2f89dbb47e1b7cae332fb7`。生成记录时
+更新验收索引的读取因Windows默认GBK编码失败；使用显式UTF-8补齐索引，未重复验收。
