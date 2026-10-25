@@ -1272,9 +1272,11 @@ std::string capture_factor_error(const std::function<void()>& action) {
 TEST(FactorResearch, RejectsDuplicateCellsBeforeTargetMembership) {
     auto fixture = make_fixture();
     auto duplicated = fixture.factor;
-    duplicated.dates.push_back(duplicated.dates.front());
-    duplicated.assets.push_back(duplicated.assets.front());
-    duplicated.values.push_back(1.0);
+    duplicated.dates.insert(duplicated.dates.begin() + 1,
+                            duplicated.dates.front());
+    duplicated.assets.insert(duplicated.assets.begin() + 1,
+                             duplicated.assets.front());
+    duplicated.values.insert(duplicated.values.begin() + 1, 1.0);
     auto config = spec();
     config.targets = {"MISSING"};
     const auto message = capture_factor_error([&] {
@@ -1284,6 +1286,58 @@ TEST(FactorResearch, RejectsDuplicateCellsBeforeTargetMembership) {
     EXPECT_NE(message.find("duplicate (date, asset) keys"),
               std::string::npos);
     EXPECT_EQ(message.find("missing requested target"), std::string::npos);
+}
+
+TEST(FactorResearch, UnsortedUniquePanelPreservesSourceOrderSubsequence) {
+    const auto start = fincore::utc_timestamp(2024, 6, 3);
+    constexpr fincore::timestamp day = 86'400'000'000'000LL;
+    fincore::factor_series factors;
+    factors.dates = {start + 2 * day, start + day, start,
+                     start + 2 * day, start + day, start};
+    factors.assets = {"B", "A", "A", "A", "B", "B"};
+    factors.values = {20.0, 10.0, 0.0, 30.0, 40.0, 1.0};
+
+    fincore::research_spec config;
+    config.targets = {"A", "B"};
+    config.start = start + day;
+    config.end = start + 2 * day;
+    config.preprocess = "none";
+    const auto panel =
+        fincore::detail::research_panel_for_benchmark(factors, config);
+
+    ASSERT_EQ(panel.dates.size(), 4U);
+    EXPECT_EQ(panel.dates[0], start + 2 * day);
+    EXPECT_EQ(panel.assets[0], "B");
+    EXPECT_EQ(panel.values[0], 20.0);
+    EXPECT_EQ(panel.dates[1], start + day);
+    EXPECT_EQ(panel.assets[1], "A");
+    EXPECT_EQ(panel.values[1], 10.0);
+    EXPECT_EQ(panel.dates[2], start + 2 * day);
+    EXPECT_EQ(panel.assets[2], "A");
+    EXPECT_EQ(panel.values[2], 30.0);
+    EXPECT_EQ(panel.dates[3], start + day);
+    EXPECT_EQ(panel.assets[3], "B");
+    EXPECT_EQ(panel.values[3], 40.0);
+}
+
+TEST(FactorResearch, RejectsNonAdjacentDuplicateOutsideWindowFirst) {
+    const auto start = fincore::utc_timestamp(2024, 6, 10);
+    constexpr fincore::timestamp day = 86'400'000'000'000LL;
+    fincore::factor_series factors;
+    factors.dates = {start - 2 * day, start - day, start - 2 * day};
+    factors.assets = {"A", "B", "A"};
+    factors.values = {1.0, 2.0, 3.0};
+
+    fincore::research_spec config;
+    config.targets = {"MISSING"};
+    config.start = start;
+    config.end = start + day;
+    const auto message = capture_factor_error([&] {
+        static_cast<void>(fincore::detail::research_panel_for_benchmark(
+            factors, config));
+    });
+    EXPECT_EQ(message,
+              "factor panel contains duplicate (date, asset) keys");
 }
 
 TEST(FactorResearch, ReportsFullPanelMissingTargetsInRequestOrder) {

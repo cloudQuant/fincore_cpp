@@ -201,10 +201,22 @@ factor_series research_panel(const factor_series& factors,
                 "segments must have non-empty names and bounds"};
         }
     }
+    bool input_keys_sorted = true;
+    for (std::size_t row = 1U; row < factors.dates.size(); ++row) {
+        const std::size_t previous = row - 1U;
+        if (factors.dates[row] < factors.dates[previous] ||
+            (factors.dates[row] == factors.dates[previous] &&
+             factors.assets[row] < factors.assets[previous])) {
+            input_keys_sorted = false;
+            break;
+        }
+    }
     std::unordered_map<std::string, std::size_t> asset_ids;
     asset_ids.reserve(factors.assets.size());
     std::unordered_set<std::pair<timestamp, std::size_t>, id_cell_hash> seen;
-    seen.reserve(factors.dates.size());
+    if (!input_keys_sorted) {
+        seen.reserve(factors.dates.size());
+    }
     std::vector<unsigned char> full_seen;
     std::vector<unsigned char> window_seen;
     std::vector<std::size_t> window_indices;
@@ -219,7 +231,13 @@ factor_series research_panel(const factor_series& factors,
             window_seen.push_back(0U);
         }
         full_seen[id] = 1U;
-        if (!seen.emplace(factors.dates[row], id).second) {
+        if (input_keys_sorted) {
+            if (row != 0U &&
+                factors.dates[row] == factors.dates[row - 1U] &&
+                factors.assets[row] == factors.assets[row - 1U]) {
+                duplicate = true;
+            }
+        } else if (!seen.emplace(factors.dates[row], id).second) {
             duplicate = true;
         }
         if (factors.dates[row] >= spec.start &&
