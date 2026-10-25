@@ -5,6 +5,7 @@
 
 #include <gtest/gtest.h>
 
+#include <charconv>
 #include <chrono>
 #include <cmath>
 #include <filesystem>
@@ -40,6 +41,16 @@ std::string read_file(const std::filesystem::path& path) {
     EXPECT_TRUE(stream) << path.string();
     return {std::istreambuf_iterator<char>(stream),
             std::istreambuf_iterator<char>()};
+}
+
+std::string shortest_double(const double value) {
+    char text[64];
+    const auto converted = std::to_chars(
+        text, text + sizeof(text), value, std::chars_format::general);
+    if (converted.ec != std::errc{}) {
+        throw std::runtime_error{"could not format expected test number"};
+    }
+    return {text, converted.ptr};
 }
 
 void expect_header(const std::filesystem::path& directory,
@@ -113,19 +124,20 @@ fincore::research_detailed_result populated_result() {
                        {"snapshot_id", "p112-export-test"}};
     result.signals = {
         {second, "A,1", "F\"x", -1, -0.0,
-         std::numeric_limits<double>::infinity(), "none", "west\nzone"},
-        {nanosecond, "B", "F\"x", 1, 1e-20,
+         std::numeric_limits<double>::infinity(), "none", "west\r\nzone"},
+        {nanosecond, std::string{"\xE4\xB8\xAD", 3U}, "F\"x", 1, 1e-20,
          -std::numeric_limits<double>::infinity(), "none", ""}};
     result.labels = {{second, "A,1", "1D",
                       std::numeric_limits<double>::quiet_NaN()},
-                     {nanosecond, "B", "2D", -0.0}};
+                     {nanosecond, std::string{"\xE4\xB8\xAD", 3U}, "2D",
+                      -0.0}};
     result.ic = {{nanosecond, "F\"x", "2D",
                   std::numeric_limits<double>::infinity(),
                   -std::numeric_limits<double>::infinity(), 2U},
                  {second, "F\"x", "1D", -0.0, 0.125, 3U}};
     result.ic_summary = {{"F\"x", "1D", 0.25, 0.5, 0.5,
                           std::numeric_limits<double>::quiet_NaN(),
-                          0.125, 0.25, 4U}};
+                          0.125, 0.0, 4U}};
     result.quantile_returns = {
         {second, "F\"x", "1D", 3, 1e-20, 6U}};
     result.turnover = {{nanosecond, "F\"x", "2D", 1, -0.0}};
@@ -182,12 +194,12 @@ TEST(FactorResearchDetailedExport,
         read_file(directory.path / "signals.csv"),
         "time,asset,factor,direction,value,processed_value,preprocess,group\n"
         "2026-10-25T01:02:03Z,\"A,1\",\"F\"\"x\",-1,-0.0,inf,none,"
-        "\"west\nzone\"\n"
-        "2026-10-25T01:02:03.000000001Z,B,\"F\"\"x\",1,1e-20,-inf,none,\n");
+        "\"west\r\nzone\"\n"
+        "2026-10-25T01:02:03.000000001Z,\xE4\xB8\xAD,\"F\"\"x\",1,1e-20,-inf,none,\n");
     EXPECT_EQ(read_file(directory.path / "labels.csv"),
               "time,asset,period,value\n"
               "2026-10-25T01:02:03Z,\"A,1\",1D,\n"
-              "2026-10-25T01:02:03.000000001Z,B,2D,-0.0\n");
+              "2026-10-25T01:02:03.000000001Z,\xE4\xB8\xAD,2D,-0.0\n");
     EXPECT_EQ(read_file(directory.path / "ic.csv"),
               "time,factor,period,ic,rank_ic,n_assets\n"
               "2026-10-25T01:02:03.000000001Z,\"F\"\"x\",2D,inf,-inf,2\n"
@@ -200,7 +212,7 @@ TEST(FactorResearchDetailedExport,
               "2026-10-25T01:02:03.000000001Z,\"F\"\"x\",2D,1,-0.0\n");
     EXPECT_EQ(read_file(directory.path / "ic_summary.csv"),
               "factor,period,mean_ic,std_ic,icir,mean_rank_ic,std_rank_ic,rank_icir,n_dates\n"
-              "\"F\"\"x\",1D,0.25,0.5,0.5,,0.125,0.25,4\n");
+              "\"F\"\"x\",1D,0.25,0.5,0.5,,0.125,0.0,4\n");
     EXPECT_EQ(read_file(directory.path / "spreads.csv"),
               "time,factor,period,spread,top_quantile,bottom_quantile\n"
               "2026-10-25T01:02:03Z,\"F\"\"x\",1D,0.125,3,1\n");
@@ -280,6 +292,68 @@ TEST(FactorResearchDetailedExport,
         {"factor", "stage", "severity", "code", "message"});
 }
 
+TEST(FactorResearchDetailedExport,
+     PreservesNegativeEpochNanosecondsAndInputRowOrder) {
+    temporary_export_directory directory;
+    directory.owns_directory = true;
+    fincore::research_detailed_result result;
+    result.signals = {
+        {-1, "negative-ns", "F", 1, 1.0, 1.0, "none", ""},
+        {-1, "repeated-negative-ns", "F", 1, 1.0, 1.0, "none", ""},
+        {1000, "positive-micro", "F", 1, 1.0, 1.0, "none", ""},
+        {-1000, "negative-micro", "F", 1, 1.0, 1.0, "none", ""},
+        {1, "positive-ns", "F", 1, 1.0, 1.0, "none", ""},
+        {0, "epoch", "F", 1, 1.0, 1.0, "none", ""}};
+
+    static_cast<void>(fincore::export_factor_research_detailed(
+        result, directory.path.string()));
+    directory.owns_directory = true;
+
+    EXPECT_EQ(
+        read_file(directory.path / "signals.csv"),
+        "time,asset,factor,direction,value,processed_value,preprocess,group\n"
+        "1969-12-31T23:59:59.999999999Z,negative-ns,F,1,1,1,none,\n"
+        "1969-12-31T23:59:59.999999999Z,repeated-negative-ns,F,1,1,1,none,\n"
+        "1970-01-01T00:00:00.000001Z,positive-micro,F,1,1,1,none,\n"
+        "1969-12-31T23:59:59.999999Z,negative-micro,F,1,1,1,none,\n"
+        "1970-01-01T00:00:00.000000001Z,positive-ns,F,1,1,1,none,\n"
+        "1970-01-01T00:00:00Z,epoch,F,1,1,1,none,\n");
+}
+
+TEST(FactorResearchDetailedExport,
+     FormatsIntegerAndFiniteFloatBoundariesWithoutRounding) {
+    temporary_export_directory directory;
+    directory.owns_directory = true;
+    fincore::research_detailed_result result;
+    result.quantile_returns = {
+        {0, "F", "1D", std::numeric_limits<int>::min(),
+         std::numeric_limits<double>::max(),
+         std::numeric_limits<std::size_t>::max()},
+        {1, "F", "1D", std::numeric_limits<int>::max(),
+         std::numeric_limits<double>::denorm_min(), 0U},
+        {0, "F", "1D", 0, 0.0, 0U}};
+
+    static_cast<void>(fincore::export_factor_research_detailed(
+        result, directory.path.string()));
+    directory.owns_directory = true;
+
+    const auto expected_header =
+        "time,factor,period,quantile,mean_return,n_assets\n";
+    const auto expected_minimum_row =
+        "1970-01-01T00:00:00Z,F,1D," +
+        std::to_string(std::numeric_limits<int>::min()) + "," +
+        shortest_double(std::numeric_limits<double>::max()) + "," +
+        std::to_string(std::numeric_limits<std::size_t>::max()) + "\n";
+    const auto expected_denormal_row =
+        "1970-01-01T00:00:00.000000001Z,F,1D," +
+        std::to_string(std::numeric_limits<int>::max()) + "," +
+        shortest_double(std::numeric_limits<double>::denorm_min()) +
+        ",0\n";
+    EXPECT_EQ(read_file(directory.path / "quantile_returns.csv"),
+              expected_header + expected_minimum_row + expected_denormal_row +
+                  "1970-01-01T00:00:00Z,F,1D,0,0.0,0\n");
+}
+
 TEST(FactorResearchDetailedExport, EmptyTablesHaveHeadersAndZeroManifestRows) {
     temporary_export_directory directory;
     directory.create();
@@ -351,16 +425,26 @@ TEST(FactorResearchDetailedExport,
 
 TEST(FactorResearchDetailedExport,
      RejectsInvalidUtf8AndRemovesOnlyThisAttemptOutput) {
-    temporary_export_directory directory;
-    directory.owns_directory = true;
-    fincore::research_detailed_result result;
-    result.signals.push_back(
-        {0, std::string{"bad\xFF", 4U}, "F", 1, 0.5, 0.5, "none", ""});
+    const std::vector<std::string> invalid_utf8 = {
+        std::string{"\xFF", 1U},
+        std::string{"\x80", 1U},
+        std::string{"\xC0\xAF", 2U},
+        std::string{"\xE0\x80\x80", 3U},
+        std::string{"\xED\xA0\x80", 3U},
+        std::string{"\xF4\x90\x80\x80", 4U},
+        std::string{"\xF0\x9F", 2U}};
+    for (const auto& invalid_text : invalid_utf8) {
+        temporary_export_directory directory;
+        directory.owns_directory = true;
+        fincore::research_detailed_result result;
+        result.signals.push_back(
+            {0, invalid_text, "F", 1, 0.5, 0.5, "none", ""});
 
-    EXPECT_THROW(fincore::export_factor_research_detailed(
-                     result, directory.path.string()),
-                 fincore::factor_data_error);
-    EXPECT_FALSE(std::filesystem::exists(directory.path));
+        EXPECT_THROW(fincore::export_factor_research_detailed(
+                         result, directory.path.string()),
+                     fincore::factor_data_error);
+        EXPECT_FALSE(std::filesystem::exists(directory.path));
+    }
 }
 
 TEST(FactorResearchDetailedExport,

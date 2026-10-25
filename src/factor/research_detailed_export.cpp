@@ -8,7 +8,6 @@
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
-#include <initializer_list>
 #include <limits>
 #include <string>
 #include <string_view>
@@ -22,33 +21,6 @@ namespace {
 constexpr std::size_t csv_buffer_limit = 1U << 20U;
 constexpr std::size_t detailed_csv_count = 10U;
 constexpr std::size_t detailed_export_file_count = detailed_csv_count + 1U;
-
-std::string csv_number(const double value) {
-    if (std::isnan(value)) {
-        return {};
-    }
-    if (std::isinf(value)) {
-        return std::signbit(value) ? "-inf" : "inf";
-    }
-    if (value == 0.0) {
-        return std::signbit(value) ? "-0.0" : "0.0";
-    }
-
-    char buffer[64];
-    const auto converted = std::to_chars(
-        buffer, buffer + sizeof(buffer), value, std::chars_format::general);
-    if (converted.ec != std::errc{}) {
-        throw factor_data_error{
-            "could not format detailed research CSV number"};
-    }
-    return std::string(buffer, converted.ptr);
-}
-
-std::string csv_timestamp(const timestamp value) {
-    std::string text = detail::format_timestamp(value);
-    text.push_back('Z');
-    return text;
-}
 
 void validate_utf8(const std::string_view text) {
     for (std::size_t position = 0U; position < text.size();) {
@@ -99,6 +71,9 @@ void validate_utf8(const std::string_view text) {
 
 void append_csv_field(std::string& output, const std::string_view field) {
     validate_utf8(field);
+    if (field.empty()) {
+        return;
+    }
     if (field.find_first_of(",\"\r\n") == std::string_view::npos) {
         output.append(field.data(), field.size());
         return;
@@ -225,7 +200,7 @@ public:
     csv_writer(const std::filesystem::path& path, std::string filename,
                const std::vector<std::string>& columns,
                output_cleanup& cleanup)
-        : path_(path), columns_(columns.size()) {
+        : path_(path), column_count_(columns.size()) {
         require_new_file_path(path_);
         stream_.open(path_, std::ios::binary | std::ios::out |
                                 std::ios::trunc);
@@ -241,17 +216,73 @@ public:
     csv_writer(const csv_writer&) = delete;
     csv_writer& operator=(const csv_writer&) = delete;
 
-    void write_row(const std::initializer_list<std::string_view> fields) {
-        if (fields.size() != columns_) {
-            throw factor_data_error{
-                "detailed research CSV row does not match its schema"};
-        }
+    template <typename EmitFields>
+    void write_row(EmitFields&& emit_fields) {
         if (rows_ == std::numeric_limits<std::size_t>::max()) {
             throw factor_data_error{
                 "detailed research CSV row count overflow"};
         }
-        append_fields(fields.begin(), fields.end());
+        if (row_open_) {
+            throw factor_data_error{
+                "detailed research CSV row is already open"};
+        }
+        row_open_ = true;
+        columns_written_ = 0U;
+        std::forward<EmitFields>(emit_fields)(*this);
+        if (columns_written_ != column_count_) {
+            throw factor_data_error{
+                "detailed research CSV row does not match its schema"};
+        }
+        buffer_.push_back('\n');
+        row_open_ = false;
         ++rows_;
+        flush_if_needed();
+    }
+
+    void append_text(const std::string_view value) {
+        begin_field();
+        append_csv_field(buffer_, value);
+    }
+
+    void append_integer(const int value) { append_integral(value); }
+
+    void append_size(const std::size_t value) { append_integral(value); }
+
+    void append_number(const double value) {
+        if (std::isnan(value)) {
+            begin_field();
+            return;
+        }
+        if (std::isinf(value)) {
+            append_ascii(std::signbit(value) ? "-inf" : "inf");
+            return;
+        }
+        if (value == 0.0) {
+            append_ascii(std::signbit(value) ? "-0.0" : "0.0");
+            return;
+        }
+
+        char text[64];
+        const auto converted = std::to_chars(
+            text, text + sizeof(text), value, std::chars_format::general);
+        if (converted.ec != std::errc{}) {
+            throw factor_data_error{
+                "could not format detailed research CSV number"};
+        }
+        append_ascii(std::string_view{
+            text, static_cast<std::size_t>(converted.ptr - text)});
+    }
+
+    void append_timestamp(const timestamp value) {
+        if (!has_cached_timestamp_ || value != cached_timestamp_) {
+            std::string formatted = detail::format_timestamp(value);
+            formatted.push_back('Z');
+            cached_timestamp_text_.swap(formatted);
+            cached_timestamp_ = value;
+            has_cached_timestamp_ = true;
+        }
+        // Append synchronously: no view into the mutable timestamp cache escapes.
+        append_ascii(cached_timestamp_text_);
     }
 
     std::size_t row_count() const noexcept { return rows_; }
@@ -271,26 +302,40 @@ public:
     }
 
 private:
+    void begin_field() {
+        if (!row_open_ || columns_written_ >= column_count_) {
+            throw factor_data_error{
+                "detailed research CSV row does not match its schema"};
+        }
+        if (columns_written_ != 0U) {
+            buffer_.push_back(',');
+        }
+        ++columns_written_;
+    }
+
+    void append_ascii(const std::string_view value) {
+        begin_field();
+        buffer_.append(value.data(), value.size());
+    }
+
+    template <typename Integer>
+    void append_integral(const Integer value) {
+        char text[64];
+        const auto converted = std::to_chars(text, text + sizeof(text), value);
+        if (converted.ec != std::errc{}) {
+            throw factor_data_error{
+                "could not format detailed research CSV integer"};
+        }
+        append_ascii(std::string_view{
+            text, static_cast<std::size_t>(converted.ptr - text)});
+    }
+
     void write_header(const std::vector<std::string>& columns) {
         for (std::size_t index = 0; index < columns.size(); ++index) {
             if (index != 0U) {
                 buffer_.push_back(',');
             }
             append_csv_field(buffer_, columns[index]);
-        }
-        buffer_.push_back('\n');
-        flush_if_needed();
-    }
-
-    template <typename Iterator>
-    void append_fields(Iterator first, Iterator last) {
-        bool first_field = true;
-        for (; first != last; ++first) {
-            if (!first_field) {
-                buffer_.push_back(',');
-            }
-            first_field = false;
-            append_csv_field(buffer_, *first);
         }
         buffer_.push_back('\n');
         flush_if_needed();
@@ -318,8 +363,13 @@ private:
     std::filesystem::path path_;
     std::ofstream stream_;
     std::string buffer_;
-    std::size_t columns_;
+    std::size_t column_count_;
+    std::size_t columns_written_{0U};
     std::size_t rows_{0U};
+    timestamp cached_timestamp_{0};
+    std::string cached_timestamp_text_;
+    bool has_cached_timestamp_{false};
+    bool row_open_{false};
 };
 
 struct exported_table {
@@ -471,18 +521,28 @@ research_export_result export_factor_research_detailed(
                "processed_value", "preprocess", "group"},
               [&](csv_writer& writer) {
         for (const auto& row : result.signals) {
-            writer.write_row(
-                {csv_timestamp(row.date), row.asset, row.factor,
-                 std::to_string(row.direction), csv_number(row.value),
-                 csv_number(row.processed_value), row.preprocess, row.group});
+            writer.write_row([&](csv_writer& csv) {
+                csv.append_timestamp(row.date);
+                csv.append_text(row.asset);
+                csv.append_text(row.factor);
+                csv.append_integer(row.direction);
+                csv.append_number(row.value);
+                csv.append_number(row.processed_value);
+                csv.append_text(row.preprocess);
+                csv.append_text(row.group);
+            });
         }
     });
 
     add_table("labels", {"time", "asset", "period", "value"},
               [&](csv_writer& writer) {
         for (const auto& row : result.labels) {
-            writer.write_row({csv_timestamp(row.date), row.asset, row.period,
-                              csv_number(row.value)});
+            writer.write_row([&](csv_writer& csv) {
+                csv.append_timestamp(row.date);
+                csv.append_text(row.asset);
+                csv.append_text(row.period);
+                csv.append_number(row.value);
+            });
         }
     });
 
@@ -490,9 +550,14 @@ research_export_result export_factor_research_detailed(
                       "n_assets"},
               [&](csv_writer& writer) {
         for (const auto& row : result.ic) {
-            writer.write_row({csv_timestamp(row.time), row.factor, row.period,
-                              csv_number(row.ic), csv_number(row.rank_ic),
-                              std::to_string(row.n_assets)});
+            writer.write_row([&](csv_writer& csv) {
+                csv.append_timestamp(row.time);
+                csv.append_text(row.factor);
+                csv.append_text(row.period);
+                csv.append_number(row.ic);
+                csv.append_number(row.rank_ic);
+                csv.append_size(row.n_assets);
+            });
         }
     });
 
@@ -501,11 +566,17 @@ research_export_result export_factor_research_detailed(
                "mean_rank_ic", "std_rank_ic", "rank_icir", "n_dates"},
               [&](csv_writer& writer) {
         for (const auto& row : result.ic_summary) {
-            writer.write_row(
-                {row.factor, row.period, csv_number(row.mean_ic),
-                 csv_number(row.std_ic), csv_number(row.icir),
-                 csv_number(row.mean_rank_ic), csv_number(row.std_rank_ic),
-                 csv_number(row.rank_icir), std::to_string(row.n_dates)});
+            writer.write_row([&](csv_writer& csv) {
+                csv.append_text(row.factor);
+                csv.append_text(row.period);
+                csv.append_number(row.mean_ic);
+                csv.append_number(row.std_ic);
+                csv.append_number(row.icir);
+                csv.append_number(row.mean_rank_ic);
+                csv.append_number(row.std_rank_ic);
+                csv.append_number(row.rank_icir);
+                csv.append_size(row.n_dates);
+            });
         }
     });
 
@@ -514,10 +585,14 @@ research_export_result export_factor_research_detailed(
                "n_assets"},
               [&](csv_writer& writer) {
         for (const auto& row : result.quantile_returns) {
-            writer.write_row(
-                {csv_timestamp(row.time), row.factor, row.period,
-                 std::to_string(row.quantile), csv_number(row.mean_return),
-                 std::to_string(row.n_assets)});
+            writer.write_row([&](csv_writer& csv) {
+                csv.append_timestamp(row.time);
+                csv.append_text(row.factor);
+                csv.append_text(row.period);
+                csv.append_integer(row.quantile);
+                csv.append_number(row.mean_return);
+                csv.append_size(row.n_assets);
+            });
         }
     });
 
@@ -525,9 +600,13 @@ research_export_result export_factor_research_detailed(
               {"time", "factor", "period", "quantile", "turnover"},
               [&](csv_writer& writer) {
         for (const auto& row : result.turnover) {
-            writer.write_row({csv_timestamp(row.time), row.factor, row.period,
-                              std::to_string(row.quantile),
-                              csv_number(row.turnover)});
+            writer.write_row([&](csv_writer& csv) {
+                csv.append_timestamp(row.time);
+                csv.append_text(row.factor);
+                csv.append_text(row.period);
+                csv.append_integer(row.quantile);
+                csv.append_number(row.turnover);
+            });
         }
     });
 
@@ -536,10 +615,14 @@ research_export_result export_factor_research_detailed(
                "bottom_quantile"},
               [&](csv_writer& writer) {
         for (const auto& row : result.spreads) {
-            writer.write_row(
-                {csv_timestamp(row.time), row.factor, row.period,
-                 csv_number(row.spread), std::to_string(row.top_quantile),
-                 std::to_string(row.bottom_quantile)});
+            writer.write_row([&](csv_writer& csv) {
+                csv.append_timestamp(row.time);
+                csv.append_text(row.factor);
+                csv.append_text(row.period);
+                csv.append_number(row.spread);
+                csv.append_integer(row.top_quantile);
+                csv.append_integer(row.bottom_quantile);
+            });
         }
     });
 
@@ -548,11 +631,13 @@ research_export_result export_factor_research_detailed(
                "std_rank_autocorrelation", "n_dates"},
               [&](csv_writer& writer) {
         for (const auto& row : result.stability) {
-            writer.write_row(
-                {row.factor, std::to_string(row.lag),
-                 csv_number(row.mean_rank_autocorrelation),
-                 csv_number(row.std_rank_autocorrelation),
-                 std::to_string(row.n_dates)});
+            writer.write_row([&](csv_writer& csv) {
+                csv.append_text(row.factor);
+                csv.append_integer(row.lag);
+                csv.append_number(row.mean_rank_autocorrelation);
+                csv.append_number(row.std_rank_autocorrelation);
+                csv.append_size(row.n_dates);
+            });
         }
     });
 
@@ -561,12 +646,16 @@ research_export_result export_factor_research_detailed(
                "label_cells", "evaluable_cells", "status"},
               [&](csv_writer& writer) {
         for (const auto& row : result.coverage) {
-            writer.write_row(
-                {row.factor, row.kind, std::to_string(row.direction),
-                 std::to_string(row.input_cells),
-                 std::to_string(row.finite_cells),
-                 std::to_string(row.label_cells),
-                 std::to_string(row.evaluable_cells), row.status});
+            writer.write_row([&](csv_writer& csv) {
+                csv.append_text(row.factor);
+                csv.append_text(row.kind);
+                csv.append_integer(row.direction);
+                csv.append_size(row.input_cells);
+                csv.append_size(row.finite_cells);
+                csv.append_size(row.label_cells);
+                csv.append_size(row.evaluable_cells);
+                csv.append_text(row.status);
+            });
         }
     });
 
@@ -574,11 +663,17 @@ research_export_result export_factor_research_detailed(
               {"factor", "stage", "severity", "code", "message"},
               [&](csv_writer& writer) {
         for (const auto& row : result.diagnostics) {
-            const std::string_view factor =
-                row.factor ? std::string_view{*row.factor}
-                           : std::string_view{};
-            writer.write_row({factor, row.stage, row.severity, row.code,
-                              row.message});
+            writer.write_row([&](csv_writer& csv) {
+                if (row.factor) {
+                    csv.append_text(*row.factor);
+                } else {
+                    csv.append_text({});
+                }
+                csv.append_text(row.stage);
+                csv.append_text(row.severity);
+                csv.append_text(row.code);
+                csv.append_text(row.message);
+            });
         }
     });
 
