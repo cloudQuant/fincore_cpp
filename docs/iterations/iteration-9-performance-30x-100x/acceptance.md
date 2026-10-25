@@ -125,7 +125,7 @@ AB/BA、完整比较等缺失项，并在轮次记录保存实际命令/环境�
 | P116 计算与秩复用 | PARTIAL | [R1同horizon排序复用](p116-round1.md)、[R2跨horizon排序](p116-round2.md)、[R3预处理顺序](p116-round3.md)功能/完整字节通过；R3开发500为32.72×、5/5配对达30且噪声有效，全量单次3.01秒；正式性能待验 |
 | P117 加载与因子/准备 | PARTIAL | [R1移除未消费close数据](p117-round1.md)、[R2时间戳缓存](p117-round2.md)功能/完整字节通过；R2全量五对native wall减少2.42%、加载减少12.65%，500开发32.68×但C++噪声13.20%超限；正式性能待验 |
 | P118 代表性库优化 | PARTIAL | [R1滚动窗口span](p118-round1.md)：6项测试、14次完整输出通过；五对开发compute约10.53×/进程wall约3.31×，正式回归待验 |
-| P119 编译/profile优化 | PARTIAL | [R1 IPO对照](p119-round1.md)：28次完整字节通过，未建立可复现墙钟收益，撤回构建提案；PGO尚未运行 |
+| P119 编译/profile优化 | PARTIAL | [R1 IPO对照](p119-round1.md)、[R2独立合成训练PGO](p119-round2.md)：各28次完整字节通过，均未建立稳定整体墙钟收益，未采用编译变更；CPU采样profile仍待完成 |
 | P120 最终门槛及差距 | NOT_RUN | 无 |
 | 500完整流程≥30× / ≥100× | NOT_RUN / NOT_RUN | 无 |
 | 全量完整流程≥30× / ≥100× | NOT_RUN / NOT_RUN | 无 |
