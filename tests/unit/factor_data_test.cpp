@@ -324,6 +324,19 @@ TEST(FactorData,
   EXPECT_DOUBLE_EQ(prepared.loss_report.factor_input_loss, 0.5);
 }
 
+TEST(FactorData, PreparationRejectsGroupBinningWithoutGroups) {
+    const auto factor = factor_fixture();
+    const auto prices = price_fixture();
+    auto config = prepare_config();
+    config.grouping = {};
+    config.binning_by_group = true;
+    const auto forward = fincore::compute_forward_returns(factor, prices, {1, 2});
+    EXPECT_THROW(static_cast<void>(fincore::prepare_factor_data_from_forward_returns(
+                     factor, forward, config)), fincore::factor_data_error);
+    EXPECT_THROW(static_cast<void>(fincore::prepare_factor_data_by_horizon(
+                     factor, prices, config)), fincore::factor_data_error);
+}
+
 TEST(FactorData, RejectsInvalidFactorAndPriceInputs) {
     auto factor = factor_fixture();
     factor.assets[1] = factor.assets[0];

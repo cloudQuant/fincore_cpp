@@ -265,6 +265,10 @@ std::vector<std::optional<int>> quantize_series(
     const std::vector<std::optional<std::string>>& groups,
     const quantization_config& config,
     const std::vector<bool>* include) {
+    if (config.by_group && groups.size() != factor.dates.size()) {
+        throw factor_data_error{
+            "factor_data must contain a 'group' column when by_group=True"};
+    }
     std::vector<std::optional<int>> labels(factor.dates.size(),
                                           std::nullopt);
     if (!config.by_group) {
@@ -482,8 +486,8 @@ prepared_factor_data prepare_impl(
         record.asset = factor.assets[row];
         record.factor = factor.values[row];
         record.quantile = *quantiles[row];
-        record.has_group = groups[row].has_value();
-        record.group = groups[row].value_or("");
+        record.has_group = has_groups && groups[row].has_value();
+        record.group = has_groups ? groups[row].value_or("") : "";
         record.forward_returns.reserve(forward.labels.size());
         for (std::size_t label = 0; label < forward.labels.size(); ++label) {
             const auto found =
@@ -729,8 +733,8 @@ multi_horizon_prepared_factor_data prepare_factor_data_by_horizon(
             record.asset = factor.assets[row];
             record.factor = factor.values[row];
             record.quantile = *quantiles[row];
-            record.has_group = groups[row].has_value();
-            record.group = groups[row].value_or("");
+            record.has_group = has_groups && groups[row].has_value();
+            record.group = has_groups ? groups[row].value_or("") : "";
             record.forward_returns = {forward.values[label][row]};
             prepared.rows.push_back(std::move(record));
         }
