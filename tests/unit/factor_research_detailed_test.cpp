@@ -2,6 +2,7 @@
 #include <fincore/factor/exceptions.hpp>
 #include <fincore/factor/research_detailed.hpp>
 #include <fincore/factor/serialization.hpp>
+#include "../../src/factor/research_detailed_internal.hpp"
 
 #include <gtest/gtest.h>
 
@@ -1312,6 +1313,65 @@ TEST(FactorResearchDetailed, RejectsDuplicatePriceGridTimestamps) {
     EXPECT_THROW(static_cast<void>(fincore::evaluate_factor_research_detailed(
                      "duplicate_grid_signal", factors, prices, spec)),
                  fincore::factor_data_error);
+}
+
+TEST(FactorResearchDetailed,
+     BuildsNextOpenLabelsDirectlyForSparseUnsortedPanelRows) {
+    const auto start = fincore::utc_timestamp(2024, 5, 20);
+    constexpr fincore::timestamp day = 86'400'000'000'000LL;
+    const double infinity = std::numeric_limits<double>::infinity();
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+
+    fincore::dataframe prices;
+    prices.load_index(std::vector<fincore::timestamp>{
+        start, start + 2 * day, start + 3 * day, start + 4 * day,
+        start + 5 * day});
+    prices.load_column<double>("A", {100.0, 120.0, infinity, 130.0, 140.0},
+                               hmdf::nan_policy::dont_pad_with_nans);
+    prices.load_column<double>("B", {100.0, 0.0, 120.0, 130.0, nan},
+                               hmdf::nan_policy::dont_pad_with_nans);
+    prices.load_column<double>("NOT_IN_PANEL", {1.0, 2.0, 3.0, 4.0, 5.0},
+                               hmdf::nan_policy::dont_pad_with_nans);
+
+    // Deliberately unsorted, sparse rows exercise date/asset lookup without
+    // relying on the production evaluator's sorted panel precondition.
+    fincore::factor_series panel;
+    panel.dates = {start + 2 * day, start + day, start, start + 4 * day,
+                   start, start + 2 * day};
+    panel.assets = {"A", "B", "B", "A", "A", "B"};
+    panel.values = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
+
+    fincore::research_spec spec;
+    spec.start = start;
+    spec.end = start + 4 * day;
+    spec.periods = {1, 2};
+    spec.label = "next_open_to_open";
+
+    const auto labels =
+        fincore::research_detailed_detail::build_detailed_label_input(
+            panel, prices, spec);
+
+    ASSERT_EQ(labels.horizons.size(), 2U);
+    EXPECT_EQ(labels.horizons[0].period, "1D");
+    EXPECT_EQ(labels.horizons[1].period, "2D");
+    ASSERT_EQ(labels.horizons[0].label_values.size(), panel.dates.size());
+    ASSERT_EQ(labels.horizons[1].label_values.size(), panel.dates.size());
+
+    EXPECT_DOUBLE_EQ(labels.horizons[0].label_values[0], -1.0);
+    EXPECT_TRUE(std::isnan(labels.horizons[0].label_values[1]));
+    EXPECT_TRUE(std::isnan(labels.horizons[0].label_values[2]));
+    EXPECT_TRUE(std::isnan(labels.horizons[0].label_values[3]));
+    EXPECT_TRUE(std::isnan(labels.horizons[0].label_values[4]));
+    EXPECT_DOUBLE_EQ(labels.horizons[0].label_values[5],
+                     130.0 / 120.0 - 1.0);
+
+    EXPECT_DOUBLE_EQ(labels.horizons[1].label_values[0], -1.0);
+    EXPECT_TRUE(std::isnan(labels.horizons[1].label_values[1]));
+    EXPECT_TRUE(std::isnan(labels.horizons[1].label_values[2]));
+    EXPECT_TRUE(std::isnan(labels.horizons[1].label_values[3]));
+    EXPECT_DOUBLE_EQ(labels.horizons[1].label_values[4],
+                     130.0 / 120.0 - 1.0);
+    EXPECT_TRUE(std::isnan(labels.horizons[1].label_values[5]));
 }
 
 }  // namespace

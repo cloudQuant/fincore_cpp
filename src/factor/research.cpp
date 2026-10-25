@@ -651,6 +651,84 @@ forward_return_table next_open_table(const dataframe& prices,
     return table;
 }
 
+void append_detailed_next_open_horizons(
+    const factor_series& panel, const dataframe& prices,
+    const research_spec& spec, const std::vector<std::string>& periods,
+    research_detailed_detail::label_input& result) {
+    const auto& price_dates = prices.get_index();
+    const auto price_columns = prices.get_columns_info<double>();
+    std::size_t double_column_count = 0U;
+    for (const auto& info : price_columns) {
+        if (std::get<2>(info) == typeid(double)) {
+            ++double_column_count;
+        }
+    }
+    if (double_column_count == 0U || price_dates.size() < 2U) {
+        throw factor_data_error{
+            "next-open labels require prices with assets and at least two rows"};
+    }
+    if (!std::is_sorted(price_dates.begin(), price_dates.end()) ||
+        std::adjacent_find(price_dates.begin(), price_dates.end()) !=
+            price_dates.end()) {
+        throw factor_data_error{
+            "next-open price index must be sorted and duplicate-free"};
+    }
+
+    // Keep one non-owning price-column lookup per selected asset. Keys refer
+    // to strings owned by panel, which remains unchanged for this call.
+    std::unordered_map<std::string_view, const std::vector<double>*>
+        selected_price_columns;
+    selected_price_columns.reserve(
+        std::min(panel.assets.size(), price_columns.size()));
+    for (const auto& asset : panel.assets) {
+        selected_price_columns.try_emplace(std::string_view{asset}, nullptr);
+    }
+    for (const auto& info : price_columns) {
+        if (std::get<2>(info) != typeid(double)) {
+            continue;
+        }
+        const auto& name = std::get<0>(info);
+        const auto found = selected_price_columns.find(
+            std::string_view{name.c_str()});
+        if (found != selected_price_columns.end()) {
+            found->second = &prices.get_column<double>(name.c_str());
+        }
+    }
+
+    // The input panel need not be sorted. Map grid dates once, then use the
+    // same row/date lookups for each horizon without copying the full grid.
+    std::unordered_map<timestamp, std::size_t> date_positions;
+    date_positions.reserve(price_dates.size());
+    for (std::size_t row = 0; row < price_dates.size(); ++row) {
+        date_positions.emplace(price_dates[row], row);
+    }
+
+    for (std::size_t horizon = 0; horizon < periods.size(); ++horizon) {
+        std::vector<double> values(panel.dates.size(), nan);
+        const auto period = static_cast<std::size_t>(spec.periods[horizon]);
+        for (std::size_t row = 0; row < panel.dates.size(); ++row) {
+            const auto date = date_positions.find(panel.dates[row]);
+            const auto asset = selected_price_columns.find(
+                std::string_view{panel.assets[row]});
+            if (date == date_positions.end() ||
+                asset == selected_price_columns.end() ||
+                asset->second == nullptr) {
+                continue;
+            }
+            const std::size_t numerator_row = date->second + period + 1U;
+            if (numerator_row >= price_dates.size()) {
+                continue;
+            }
+            const auto& column = *asset->second;
+            const double value =
+                column[numerator_row] / column[date->second + 1U] - 1.0;
+            values[row] = std::isfinite(value) ? value : nan;
+        }
+        result.horizons.push_back(
+            {periods[horizon], std::move(values)});
+    }
+}
+
 }  // namespace
 
 std::vector<std::size_t>
@@ -693,39 +771,7 @@ research_detailed_detail::build_detailed_label_input(
         return result;
     }
 
-    auto forward = next_open_table(prices, spec, periods);
-    if (forward.values.size() != periods.size() ||
-        forward.assets.empty()) {
-        throw factor_data_error{
-            "next-open labels must match the requested periods"};
-    }
-    std::unordered_map<std::string, std::size_t> asset_positions;
-    asset_positions.reserve(forward.assets.size());
-    for (std::size_t asset = 0; asset < forward.assets.size(); ++asset) {
-        asset_positions.emplace(forward.assets[asset], asset);
-    }
-    std::unordered_map<timestamp, std::size_t> date_positions;
-    date_positions.reserve(forward.dates.size());
-    for (std::size_t row = 0; row < forward.dates.size(); ++row) {
-        date_positions.emplace(forward.dates[row], row);
-    }
-    for (std::size_t horizon = 0; horizon < periods.size(); ++horizon) {
-        std::vector<double> values(panel.dates.size(), nan);
-        for (std::size_t row = 0; row < panel.dates.size(); ++row) {
-            const auto date = date_positions.find(panel.dates[row]);
-            const auto asset = asset_positions.find(panel.assets[row]);
-            if (date == date_positions.end() ||
-                asset == asset_positions.end()) {
-                continue;
-            }
-            const auto cell = date->second * forward.assets.size() +
-                              asset->second;
-            const double value = forward.values[horizon][cell];
-            values[row] = std::isfinite(value) ? value : nan;
-        }
-        result.horizons.push_back(
-            {periods[horizon], std::move(values)});
-    }
+    append_detailed_next_open_horizons(panel, prices, spec, periods, result);
     return result;
 }
 
