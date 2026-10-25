@@ -667,13 +667,8 @@ research_detailed_result evaluate_factor_research_detailed(
     validation_spec.preprocess = "none";
     factor_series selected = research_detailed_detail::select_panel(factors, validation_spec);
 
-    struct selected_row {
-        timestamp time;
-        std::string asset;
-        double adjusted;
-    };
-    std::vector<selected_row> ordered;
-    ordered.reserve(selected.dates.size());
+    std::vector<std::size_t> ordered_source_rows;
+    ordered_source_rows.reserve(selected.dates.size());
     // select_panel returns a stable source-order subsequence and has already
     // validated duplicate keys. Walk the source to recover original values,
     // since its validation copy canonicalizes non-finite values to NaN.
@@ -688,32 +683,38 @@ research_detailed_result evaluate_factor_research_detailed(
             throw factor_data_error{
                 "selected research panel could not be mapped to input rows"};
         }
-        ordered.push_back({selected.dates[row], selected.assets[row],
-                           factors.values[source_row] *
-                               static_cast<double>(direction)});
+        ordered_source_rows.push_back(source_row);
         ++source_row;
     }
-    std::sort(ordered.begin(), ordered.end(),
-              [](const selected_row& left, const selected_row& right) {
-                  return std::tie(left.time, left.asset) <
-                         std::tie(right.time, right.asset);
-              });
+    const auto source_row_less = [&factors](const std::size_t left,
+                                            const std::size_t right) {
+        return std::tie(factors.dates[left], factors.assets[left]) <
+               std::tie(factors.dates[right], factors.assets[right]);
+    };
+    if (!std::is_sorted(ordered_source_rows.begin(),
+                        ordered_source_rows.end(), source_row_less)) {
+        std::sort(ordered_source_rows.begin(), ordered_source_rows.end(),
+                  source_row_less);
+    }
     factor_series panel;
-    panel.dates.reserve(ordered.size());
-    panel.assets.reserve(ordered.size());
-    panel.values.reserve(ordered.size());
+    panel.dates.reserve(ordered_source_rows.size());
+    panel.assets.reserve(ordered_source_rows.size());
+    panel.values.reserve(ordered_source_rows.size());
+    const bool has_custom_groups = !spec.groups.empty();
     std::map<std::string, std::string> groups;
-    for (const auto& row : ordered) {
-        panel.dates.push_back(row.time);
-        panel.assets.push_back(row.asset);
-        panel.values.push_back(row.adjusted);
-        if (!spec.groups.empty() && !spec.groups.contains(row.asset)) {
+    for (const std::size_t source_index : ordered_source_rows) {
+        const auto& asset = factors.assets[source_index];
+        panel.dates.push_back(factors.dates[source_index]);
+        panel.assets.push_back(asset);
+        panel.values.push_back(
+            factors.values[source_index] * static_cast<double>(direction));
+        if (has_custom_groups && !spec.groups.contains(asset)) {
             throw factor_data_error{
                 "groups do not cover every evaluated asset"};
         }
-        groups.emplace(row.asset,
-                       spec.groups.empty() ? "default"
-                                           : spec.groups.at(row.asset));
+        if (has_custom_groups) {
+            groups.emplace(asset, spec.groups.at(asset));
+        }
     }
 
     std::set<std::string> available_price_columns;
@@ -774,11 +775,13 @@ research_detailed_result evaluate_factor_research_detailed(
         panel, prices, spec);
     result.signals.reserve(panel.dates.size());
     for (std::size_t row = 0; row < panel.dates.size(); ++row) {
-        const double adjusted = ordered[row].adjusted;
+        const double adjusted =
+            factors.values[ordered_source_rows[row]] *
+            static_cast<double>(direction);
         result.signals.push_back(
             {panel.dates[row], panel.assets[row], std::string{factor_name},
              direction, adjusted, panel.values[row], spec.preprocess,
-             groups.at(panel.assets[row])});
+             has_custom_groups ? groups.at(panel.assets[row]) : "default"});
     }
     std::vector<unsigned char> has_any_label(panel.dates.size(), 0U);
     result.labels.reserve(panel.dates.size() * label_input.horizons.size());

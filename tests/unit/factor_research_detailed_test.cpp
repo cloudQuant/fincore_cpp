@@ -742,6 +742,85 @@ TEST(FactorResearchDetailed, MapsFilteredUnsortedRowsToOriginalValues) {
     EXPECT_TRUE(std::isnan(result.signals[2].processed_value));
     EXPECT_EQ(result.signals[3].value, -infinity);
     EXPECT_EQ(result.signals[3].processed_value, -infinity);
+    for (const auto& signal : result.signals) {
+        EXPECT_EQ(signal.group, "default");
+    }
+
+    // The index fast path for sorted input and the sort fallback for shuffled
+    // input must produce the same canonical rows. Include unselected assets,
+    // out-of-window rows, NaN and infinities in both source layouts.
+    fincore::factor_series ordered_factors;
+    ordered_factors.dates = {start, start, start + day, start + day,
+                             start + day, start + 2 * day,
+                             start + 2 * day};
+    ordered_factors.assets = {"A", "B", "A", "B", "C", "A", "B"};
+    ordered_factors.values = {42.0, 24.0, infinity, -infinity,
+                              99.0, nan, infinity};
+    const auto ordered_result = fincore::evaluate_factor_research_detailed(
+        "signal", ordered_factors, prices, spec);
+
+    auto reversed_targets_spec = spec;
+    reversed_targets_spec.targets = {"B", "A"};
+    const auto reversed_targets_result =
+        fincore::evaluate_factor_research_detailed(
+            "signal", factors, prices, reversed_targets_spec);
+
+    const auto expect_same_rows = [&result](const auto& actual) {
+        ASSERT_EQ(actual.signals.size(), result.signals.size());
+        for (std::size_t row = 0U; row < result.signals.size(); ++row) {
+            const auto& expected_signal = result.signals[row];
+            const auto& actual_signal = actual.signals[row];
+            EXPECT_EQ(actual_signal.date, expected_signal.date);
+            EXPECT_EQ(actual_signal.asset, expected_signal.asset);
+            EXPECT_EQ(actual_signal.factor, expected_signal.factor);
+            EXPECT_EQ(actual_signal.direction, expected_signal.direction);
+            EXPECT_EQ(actual_signal.preprocess, expected_signal.preprocess);
+            EXPECT_EQ(actual_signal.group, expected_signal.group);
+            if (std::isnan(expected_signal.value)) {
+                EXPECT_TRUE(std::isnan(actual_signal.value));
+            } else {
+                EXPECT_EQ(actual_signal.value, expected_signal.value);
+            }
+            if (std::isnan(expected_signal.processed_value)) {
+                EXPECT_TRUE(std::isnan(actual_signal.processed_value));
+            } else {
+                EXPECT_EQ(actual_signal.processed_value,
+                          expected_signal.processed_value);
+            }
+        }
+        ASSERT_EQ(actual.labels.size(), result.labels.size());
+        for (std::size_t row = 0U; row < result.labels.size(); ++row) {
+            const auto& expected_label = result.labels[row];
+            const auto& actual_label = actual.labels[row];
+            EXPECT_EQ(actual_label.date, expected_label.date);
+            EXPECT_EQ(actual_label.asset, expected_label.asset);
+            EXPECT_EQ(actual_label.period, expected_label.period);
+            if (std::isnan(expected_label.value)) {
+                EXPECT_TRUE(std::isnan(actual_label.value));
+            } else {
+                EXPECT_EQ(actual_label.value, expected_label.value);
+            }
+        }
+    };
+    expect_same_rows(ordered_result);
+    expect_same_rows(reversed_targets_result);
+
+    auto custom_groups_spec = spec;
+    custom_groups_spec.groups = {{"A", "group_a"}, {"B", "group_b"}};
+    const auto custom_groups_result =
+        fincore::evaluate_factor_research_detailed(
+            "signal", factors, prices, custom_groups_spec);
+    ASSERT_EQ(custom_groups_result.signals.size(), 4U);
+    for (const auto& signal : custom_groups_result.signals) {
+        EXPECT_EQ(signal.group,
+                  signal.asset == "A" ? "group_a" : "group_b");
+    }
+
+    auto missing_group_spec = spec;
+    missing_group_spec.groups = {{"B", "group_b"}};
+    EXPECT_THROW(static_cast<void>(fincore::evaluate_factor_research_detailed(
+                     "signal", factors, prices, missing_group_spec)),
+                 fincore::factor_data_error);
 }
 
 TEST(FactorResearchDetailed, RejectsDuplicateKeysOutsideSelectionWindow) {
