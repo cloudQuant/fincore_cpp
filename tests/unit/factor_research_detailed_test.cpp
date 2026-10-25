@@ -511,6 +511,132 @@ TEST(FactorResearchDetailed, SupportsCloseToCloseWithPeriodMajorNaNTail) {
     EXPECT_EQ(result.coverage[0].label_cells, 6U);
 }
 
+TEST(FactorResearchDetailed,
+     KeepsCompactHorizonReducersAcrossSparseQuantileDates) {
+    const auto start = fincore::utc_timestamp(2024, 2, 12);
+    constexpr fincore::timestamp day = 86'400'000'000'000LL;
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+    const std::vector<std::string> assets{"A", "B", "C", "D"};
+
+    fincore::factor_series factors;
+    for (int date = 0; date < 4; ++date) {
+        for (std::size_t asset = 0; asset < assets.size(); ++asset) {
+            factors.dates.push_back(start + date * day);
+            factors.assets.push_back(assets[asset]);
+            factors.values.push_back(static_cast<double>(asset + 1U));
+        }
+    }
+
+    fincore::dataframe prices;
+    prices.load_index(std::vector<fincore::timestamp>{
+        start, start + day, start + 2 * day, start + 3 * day,
+        start + 4 * day});
+    const std::vector<std::vector<double>> price_paths{
+        {10.0, 11.0, 12.0, 13.0, 14.0},
+        {20.0, 21.0, 22.0, 23.0, 24.0},
+        {30.0, 31.0, nan, 33.0, 34.0},
+        {40.0, 41.0, nan, 44.0, 45.0},
+    };
+    for (std::size_t asset = 0; asset < assets.size(); ++asset) {
+        prices.load_column<double>(
+            assets[asset].c_str(), price_paths[asset],
+            hmdf::nan_policy::dont_pad_with_nans);
+    }
+
+    fincore::research_spec spec;
+    spec.targets = assets;
+    spec.start = start;
+    spec.end = start + 3 * day;
+    spec.periods = {1, 2};
+    spec.quantiles = 3;
+    spec.min_assets = 3;
+    spec.min_quantile_assets = 2;
+    spec.max_loss = 1.0;
+    spec.stability_lags = {1};
+    spec.label = "close_to_close";
+    spec.preprocess = "none";
+
+    const auto result = fincore::evaluate_factor_research_detailed(
+        "sparse_horizon_signal", factors, prices, spec);
+
+    ASSERT_EQ(result.labels.size(), 32U);
+    bool one_day_c_is_missing = false;
+    bool two_day_c_is_finite = false;
+    for (const auto& label : result.labels) {
+        if (label.date == start + day && label.asset == "C" &&
+            label.period == "1D") {
+            one_day_c_is_missing = !std::isfinite(label.value);
+        }
+        if (label.date == start + day && label.asset == "C" &&
+            label.period == "2D") {
+            two_day_c_is_finite = std::isfinite(label.value);
+        }
+    }
+    EXPECT_TRUE(one_day_c_is_missing);
+    EXPECT_TRUE(two_day_c_is_finite);
+
+    bool one_day_emits_small_cross_section_ic = false;
+    bool two_day_keeps_larger_cross_section = false;
+    for (const auto& row : result.ic) {
+        one_day_emits_small_cross_section_ic =
+            one_day_emits_small_cross_section_ic ||
+            (row.period == "1D" && row.time == start + day);
+        two_day_keeps_larger_cross_section =
+            two_day_keeps_larger_cross_section ||
+            (row.period == "2D" && row.time == start + day);
+    }
+    EXPECT_FALSE(one_day_emits_small_cross_section_ic);
+    EXPECT_TRUE(two_day_keeps_larger_cross_section);
+
+    bool one_day_sparse_middle_quantile = false;
+    bool one_day_emits_filtered_singleton_quantiles = false;
+    bool one_day_spread_ignores_quantile_count_filter = false;
+    for (const auto& row : result.quantile_returns) {
+        if (row.period == "1D" && row.time == start + day) {
+            one_day_sparse_middle_quantile =
+                one_day_sparse_middle_quantile || row.quantile == 2;
+            one_day_emits_filtered_singleton_quantiles = true;
+        }
+    }
+    for (const auto& row : result.spreads) {
+        if (row.period == "1D" && row.time == start + day) {
+            one_day_spread_ignores_quantile_count_filter = true;
+            EXPECT_TRUE(std::isfinite(row.spread));
+        }
+    }
+    EXPECT_FALSE(one_day_sparse_middle_quantile);
+    EXPECT_FALSE(one_day_emits_filtered_singleton_quantiles);
+    EXPECT_TRUE(one_day_spread_ignores_quantile_count_filter);
+
+    spec.min_quantile_assets = 1;
+    const auto unfiltered_quantiles =
+        fincore::evaluate_factor_research_detailed(
+            "sparse_horizon_signal", factors, prices, spec);
+    bool middle_quantile_exists_elsewhere = false;
+    bool middle_quantile_emitted_on_sparse_date = false;
+    std::size_t middle_quantile_turnover_rows = 0U;
+    for (const auto& row : unfiltered_quantiles.quantile_returns) {
+        if (row.period == "1D" && row.quantile == 2 &&
+            row.time == start) {
+            middle_quantile_exists_elsewhere = true;
+        }
+        if (row.period == "1D" && row.quantile == 2 &&
+            row.time == start + day) {
+            middle_quantile_emitted_on_sparse_date = true;
+        }
+    }
+    for (const auto& row : unfiltered_quantiles.turnover) {
+        if (row.period == "1D" && row.quantile == 2) {
+            ++middle_quantile_turnover_rows;
+            EXPECT_EQ(row.time, start + 3 * day);
+            EXPECT_DOUBLE_EQ(row.turnover, 0.0);
+        }
+    }
+    EXPECT_TRUE(middle_quantile_exists_elsewhere);
+    EXPECT_FALSE(middle_quantile_emitted_on_sparse_date);
+    EXPECT_EQ(middle_quantile_turnover_rows, 1U);
+}
+
 TEST(FactorResearchDetailed, RejectsDuplicateStabilityLags) {
     const auto start = fincore::utc_timestamp(2024, 3, 4);
     fincore::factor_series factors;

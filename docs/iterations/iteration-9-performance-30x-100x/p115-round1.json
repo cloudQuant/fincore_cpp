@@ -1,0 +1,337 @@
+{
+  "round": "P115-R1",
+  "base_commit": "4845d7dcaa3bee3963d4d9f12f882791956732d1",
+  "branch": "dev",
+  "date": "2026-10-25",
+  "acceptance": "FUNCTIONAL_AND_FULL_BYTE_PARITY_ACCEPTED_PERFORMANCE_DIAGNOSTIC_ONLY",
+  "unit_result": "First build found six test field typos date vs time. After test-only repair:10 passed / 1 new expected-turnover failure; frozen reference matched candidate; corrected exact date/value/count expectation; failed test rerun passed",
+  "python_oracle_cases_passed": 3,
+  "sparse_reference_probe_equal_files": 11,
+  "development_500": {
+    "all_pairs_pass": true,
+    "performance": {
+      "repeats": 5,
+      "sampling": {
+        "cpp": {
+          "count": 5,
+          "iqr": 0.06649429997196421,
+          "iqr_over_median": 0.12383967174423965,
+          "max": 0.6248386999941431,
+          "median": 0.5369386000093073,
+          "min": 0.4870455000200309,
+          "noise_limit": 0.1,
+          "protocol": "iteration9-r1",
+          "q1": 0.49909549998119473,
+          "q3": 0.565589799953159,
+          "samples": [
+            0.5369386000093073,
+            0.49909549998119473,
+            0.6248386999941431,
+            0.565589799953159,
+            0.4870455000200309
+          ],
+          "status": "INCONCLUSIVE"
+        },
+        "paired_speedups": [
+          17.72288991678235,
+          18.224249868626305,
+          18.395653950591196,
+          20.321557250349667,
+          19.781142418086798
+        ],
+        "pairs_at_least_100x": 0,
+        "pairs_at_least_30x": 0,
+        "python": {
+          "count": 5,
+          "iqr": 1.977561799925752,
+          "iqr_over_median": 0.20526228512994735,
+          "max": 11.494316500029527,
+          "median": 9.634316399984527,
+          "min": 9.095641099964269,
+          "noise_limit": 0.1,
+          "protocol": "iteration9-r1",
+          "q1": 9.516103700036183,
+          "q3": 11.493665499961935,
+          "samples": [
+            9.516103700036183,
+            9.095641099964269,
+            11.494316500029527,
+            11.493665499961935,
+            9.634316399984527
+          ],
+          "status": "INCONCLUSIVE"
+        }
+      },
+      "stages": {
+        "accounted_stage_seconds": {
+          "cpp_seconds": 0.5199499,
+          "python_seconds": 8.72293190000346,
+          "speedup": 16.776485388310412
+        },
+        "cpu_seconds": {
+          "cpp_seconds": 0.421875,
+          "python_seconds": 7.390625,
+          "speedup": 17.51851851851852
+        },
+        "export_seconds": {
+          "cpp_seconds": 0.0861142,
+          "python_seconds": 2.861599199997727,
+          "speedup": 33.23028257822434
+        },
+        "factor_seconds": {
+          "cpp_seconds": 0.026652,
+          "python_seconds": 0.0901497999439016,
+          "speedup": 3.382477860719706
+        },
+        "internal_process_cpu_seconds": {
+          "cpp_seconds": 0.421875,
+          "python_seconds": 7.390625,
+          "speedup": 17.51851851851852
+        },
+        "internal_wall_seconds": {
+          "cpp_seconds": 0.5199499,
+          "python_seconds": 8.72293190000346,
+          "speedup": 16.776485388310412
+        },
+        "load_seconds": {
+          "cpp_seconds": 0.0798397,
+          "python_seconds": 1.4268704999703914,
+          "speedup": 17.87169165177714
+        },
+        "materialization_seconds": {
+          "cpp_seconds": 0.0044098,
+          "python_seconds": 0.01905670005362481,
+          "speedup": 4.321443161509548
+        },
+        "other_seconds": {
+          "cpp_seconds": 1.6400000000027504e-05,
+          "python_seconds": 0.0003163000219501555,
+          "speedup": 19.28658670424543
+        },
+        "preparation_seconds": {
+          "cpp_seconds": 0.0001072,
+          "python_seconds": 0.05154950002906844,
+          "speedup": 480.8722017636981
+        },
+        "research_seconds": {
+          "cpp_seconds": 0.2823694,
+          "python_seconds": 4.588967200019397,
+          "speedup": 16.251644831272074
+        },
+        "total_seconds": {
+          "cpp_seconds": 0.5199499,
+          "python_seconds": 8.72293190000346,
+          "speedup": 16.776485388310412
+        }
+      },
+      "wall": {
+        "cpp_seconds": 0.5369386000093073,
+        "python_seconds": 9.634316399984527,
+        "speedup": 17.943050471352826
+      }
+    }
+  },
+  "full_check": {
+    "source_base": {
+      "head": "4845d7dcaa3bee3963d4d9f12f882791956732d1",
+      "branch": "dev",
+      "tracked_status": "M src/factor/research_detailed.cpp\n M tests/unit/factor_research_detailed_test.cpp"
+    },
+    "source_sha256": {
+      "src/factor/research_detailed.cpp": "277a58322dc71836839d0aa00381ae387e995a1aa5f7a2573caf6f3fc8cc3b0d",
+      "tests/unit/factor_research_detailed_test.cpp": "42df5af5d17456c86b9f20bcd1328df0983519bf07fc0ce4d24811b2dfc70936"
+    },
+    "native_binary": {
+      "path": "D:\\source_code\\fincore_cpp\\build-win\\fincore_alpha003_research.exe",
+      "size_bytes": 632832,
+      "sha256": "f3e042f4389361a33a5ddde3345d17e3418e81ce6824d6900da06074d374892b"
+    },
+    "inputs_unchanged": true,
+    "data_matches_baseline": true,
+    "measurement": {
+      "command": [
+        "D:\\source_code\\fincore_cpp\\build-win\\fincore_alpha003_research.exe",
+        "--data-dir",
+        "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\data\\a_stocks",
+        "--out",
+        "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p115-r1-full-check-r1",
+        "--max-symbols",
+        "0",
+        "--end-offset",
+        "22",
+        "--preprocess",
+        "cross_section_rank",
+        "--run-id",
+        "p115-r1-full-check-r1"
+      ],
+      "returncode": 0,
+      "wall_seconds": 6.068561599997338,
+      "cpu_seconds": 5.46875,
+      "peak_working_set_bytes": 1031823360,
+      "affinity_mask": 1,
+      "cpu_index": 0,
+      "affinity_method": "inherited_parent_affinity_before_create_process",
+      "affinity_verified": true,
+      "thread_environment": {
+        "OMP_NUM_THREADS": "1",
+        "OMP_THREAD_LIMIT": "1",
+        "OMP_DYNAMIC": "FALSE",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "MKL_DYNAMIC": "FALSE",
+        "BLIS_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "NUMEXPR_MAX_THREADS": "1",
+        "TBB_NUM_THREADS": "1"
+      }
+    },
+    "timings": {
+      "preparation_seconds": 9.56e-05,
+      "materialization_seconds": 0.0527825,
+      "load_seconds": 0.6413562,
+      "factor_seconds": 0.2996369,
+      "research_seconds": 4.1875218,
+      "export_seconds": 0.7919136,
+      "other_seconds": 1.699999999971169e-05,
+      "accounted_stage_seconds": 5.9733236,
+      "total_seconds": 5.9733236,
+      "internal_wall_seconds": 5.9733236,
+      "cpu_seconds": 5.390625,
+      "internal_process_cpu_seconds": 5.390625,
+      "cpu_measurement_source": "GetProcessTimes (kernel + user)",
+      "peak_memory_bytes": 1031823360,
+      "peak_memory_source": "GetProcessMemoryInfo.PeakWorkingSetSize",
+      "peak_memory_status": "available"
+    },
+    "files": [
+      {
+        "path": "factor_values.csv",
+        "size_bytes": 62915890,
+        "sha256": "f790074ef9b2e7b883edd5789af7c5ecc50123185960715914e863095c31d0a7",
+        "equal": true
+      },
+      {
+        "path": "workload.json",
+        "size_bytes": 829,
+        "sha256": "effc8cf88056b4542a4009586afe77d5b10e3bbe892e255d84b18e531f22df78",
+        "equal": true
+      },
+      {
+        "path": "tables/coverage.csv",
+        "size_bytes": 135,
+        "sha256": "c9c6f8eb16fb0132d00d14f2e9bc6cae26dbdf1087233ba14700f9a3a2b75b45",
+        "equal": true
+      },
+      {
+        "path": "tables/diagnostics.csv",
+        "size_bytes": 35,
+        "sha256": "e62736d7fab038d715b74393c7897f25885319f982dbb539c0e1a848d3657b37",
+        "equal": true
+      },
+      {
+        "path": "tables/ic.csv",
+        "size_bytes": 50658,
+        "sha256": "16b00dcbade2294def8a7bd92ab302bf5a8845c52feb18e4be268b1437c1e2db",
+        "equal": true
+      },
+      {
+        "path": "tables/ic_summary.csv",
+        "size_bytes": 486,
+        "sha256": "74c6e2a0e64e588b8e6e116b6b70713743a1df86ddeda698b22b30f6dafe6442",
+        "equal": true
+      },
+      {
+        "path": "tables/labels.csv",
+        "size_bytes": 184024425,
+        "sha256": "e9c48832bc9e373758e9b3cbd34a2acbcf77a561696886719d2dac6efdfdfb37",
+        "equal": true
+      },
+      {
+        "path": "tables/manifest.json",
+        "size_bytes": 52524,
+        "sha256": "9fcc629546a7048fb54428bc4e094c920f1e83e135fd5e810572787e6702972b",
+        "equal": true
+      },
+      {
+        "path": "tables/quantile_returns.csv",
+        "size_bytes": 195280,
+        "sha256": "fa847b2b9dd57163c7bd24c11376cf35fff88e12323f786becb4e64e87b276e6",
+        "equal": true
+      },
+      {
+        "path": "tables/signals.csv",
+        "size_bytes": 122015997,
+        "sha256": "3153894202ddbff233952f8ad950d7923f3fb3ee7646c0bc4a0766d76ef2375c",
+        "equal": true
+      },
+      {
+        "path": "tables/spreads.csv",
+        "size_bytes": 37502,
+        "sha256": "af0ebe58aedbc26880f3167ad63e0fab12aea5a4f35c17da8eeee406a5817fa2",
+        "equal": true
+      },
+      {
+        "path": "tables/stability.csv",
+        "size_bytes": 237,
+        "sha256": "52dc34684f1b0c9632a9834b853bec00fb5877e443ba2556c920646e9fdb759d",
+        "equal": true
+      },
+      {
+        "path": "tables/turnover.csv",
+        "size_bytes": 165646,
+        "sha256": "76590fe87919af910474a92a322ff9f9cceb976a98fcb3560f66c9cc3b6583d4",
+        "equal": true
+      }
+    ],
+    "all_output_bytes_equal": true,
+    "evidence_level": "ONE_FULL_NATIVE_CORRECTNESS_RUN_TIMING_DIAGNOSTIC_ONLY"
+  },
+  "evidence": [
+    {
+      "path": "build-win/p115-r1-build.log",
+      "size_bytes": 2868,
+      "sha256": "cd5fc6941061b1396014fa5e68587356c92caeb64fd400b5cc7a6c8c26a08508"
+    },
+    {
+      "path": "build-win/p115-r1-unit.json",
+      "size_bytes": 4993,
+      "sha256": "35563e6e48818e0c8349845b0dfecf7ac6f6715c0c18051bbdebaa38e10af72c"
+    },
+    {
+      "path": "build-win/p115-r1-unit2.json",
+      "size_bytes": 815,
+      "sha256": "2f782164007cff0cea3f60ce61773684a3c847f091571e01d0eb75810008b4b5"
+    },
+    {
+      "path": "build-win/p115-r1-oracle.log",
+      "size_bytes": 1466,
+      "sha256": "fd3db39f6af6ac016a4e623e5a01a18c6405db3520cc78a7fb3f8d9eb79e4f07"
+    },
+    {
+      "path": "build-win/p115-r1-sparse-probe/input.json",
+      "size_bytes": 3452,
+      "sha256": "e95a3b9203aed38ea5308e2fa618728f2b3a739729366426ca99abadb52c85a6"
+    },
+    {
+      "path": "build-win/p115-r1-sparse-probe/comparison.json",
+      "size_bytes": 1117,
+      "sha256": "111fd720b7235a4ff6e3577837d855bacaa6054a448005d0c05788986d01b496"
+    },
+    {
+      "path": "build-win/p115-r1-full-check-r1.json",
+      "size_bytes": 5236,
+      "sha256": "a9e1dbddac4951dd51924dba1dbe6f32439c3f0292b5408bd283ec2c89d5dbda"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p115-r1-500/comparison.json",
+      "size_bytes": 129622,
+      "sha256": "e186497ae2e8e06a977549b1f44559ced0afc9f94d8ac033ab62b12240e3e865"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p115-r1-500/measurements.json",
+      "size_bytes": 71086,
+      "sha256": "ef32c83fa74d52a23490950c193c543e3e0d647ce2bf22d310875ee44ddabfb6"
+    }
+  ]
+}

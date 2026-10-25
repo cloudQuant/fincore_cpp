@@ -354,63 +354,89 @@ factor_loss_report make_detailed_loss_report(
     return report;
 }
 
-prepared_factor_data prepare_detailed_horizon(
-    const factor_series& panel, const std::map<std::string, std::string>& groups,
-    const std::vector<double>& labels, const std::string& period,
+struct horizon_date_run {
+    std::size_t begin = 0U;
+    std::size_t end = 0U;
+};
+
+struct detailed_horizon_workspace {
+    // Each entry points into the already-owned panel and horizon label arrays.
+    // The rows and their quantiles stay in (date, asset) order.
+    std::vector<std::size_t> panel_rows;
+    std::vector<int> quantiles;
+    std::vector<horizon_date_run> date_runs;
+    std::vector<int> available_quantiles;
+    factor_loss_report loss_report;
+};
+
+detailed_horizon_workspace prepare_detailed_horizon(
+    const factor_series& panel, const std::vector<double>& labels,
     const research_spec& spec) {
     if (labels.size() != panel.dates.size()) {
         throw factor_data_error{
             "detailed forward labels must match panel row count"};
     }
-    std::map<timestamp, std::vector<std::size_t>> valid_by_date;
+
+    detailed_horizon_workspace prepared;
+    prepared.panel_rows.reserve(panel.dates.size());
+    prepared.quantiles.reserve(panel.dates.size());
+    std::set<int> available_quantiles;
+    std::vector<std::size_t> valid_rows;
+    std::vector<double> date_values;
     std::size_t finite_factor_count = 0U;
     std::size_t forward_returns_count = 0U;
-    for (std::size_t row = 0; row < panel.dates.size(); ++row) {
-        if (!std::isfinite(panel.values[row])) {
-            continue;
-        }
-        ++finite_factor_count;
-        if (!std::isfinite(labels[row])) {
-            continue;
-        }
-        ++forward_returns_count;
-        valid_by_date[panel.dates[row]].push_back(row);
-    }
-
-    prepared_factor_data prepared;
-    prepared.forward_labels = {period};
     std::size_t binning_count = 0U;
-    for (const auto& [date, rows] : valid_by_date) {
-        std::vector<double> date_values;
-        date_values.reserve(rows.size());
-        for (const std::size_t row : rows) {
+
+    for (std::size_t date_begin = 0U; date_begin < panel.dates.size();) {
+        std::size_t date_end = date_begin + 1U;
+        while (date_end < panel.dates.size() &&
+               panel.dates[date_end] == panel.dates[date_begin]) {
+            ++date_end;
+        }
+
+        valid_rows.clear();
+        date_values.clear();
+        for (std::size_t row = date_begin; row < date_end; ++row) {
+            if (!std::isfinite(panel.values[row])) {
+                continue;
+            }
+            ++finite_factor_count;
+            if (!std::isfinite(labels[row])) {
+                continue;
+            }
+            ++forward_returns_count;
+            valid_rows.push_back(row);
             date_values.push_back(panel.values[row]);
         }
 
-        std::vector<double> edges;
-        try {
-            edges = pandas_qcut_edges(date_values, spec.quantiles);
-        } catch (const factor_data_error&) {
-            if (spec.max_loss == 0.0) {
-                throw;
+        if (!valid_rows.empty()) {
+            std::vector<double> edges;
+            try {
+                edges = pandas_qcut_edges(date_values, spec.quantiles);
+            } catch (const factor_data_error&) {
+                if (spec.max_loss == 0.0) {
+                    throw;
+                }
+                // Python's qcut wrapper catches a per-date binning exception
+                // when no_raise=True and leaves that cross-section unassigned.
+                date_begin = date_end;
+                continue;
             }
-            // Python's qcut wrapper catches a per-date binning exception when
-            // no_raise=True and leaves that entire cross-section unassigned.
-            continue;
+
+            const std::size_t run_begin = prepared.panel_rows.size();
+            for (const std::size_t row : valid_rows) {
+                const int quantile =
+                    pandas_qcut_label(panel.values[row], edges);
+                prepared.panel_rows.push_back(row);
+                prepared.quantiles.push_back(quantile);
+                available_quantiles.insert(quantile);
+                ++binning_count;
+            }
+            prepared.date_runs.push_back(
+                {run_begin, prepared.panel_rows.size()});
         }
 
-        for (const std::size_t row : rows) {
-            factor_row item;
-            item.date = date;
-            item.asset = panel.assets[row];
-            item.factor = panel.values[row];
-            item.quantile = pandas_qcut_label(panel.values[row], edges);
-            item.has_group = true;
-            item.group = groups.at(panel.assets[row]);
-            item.forward_returns = {labels[row]};
-            prepared.rows.push_back(std::move(item));
-            ++binning_count;
-        }
+        date_begin = date_end;
     }
 
     prepared.loss_report = make_detailed_loss_report(
@@ -424,6 +450,8 @@ prepared_factor_data prepare_detailed_horizon(
                 << "%, consider increasing it.";
         throw factor_loss_exceeded{message.str(), prepared.loss_report};
     }
+    prepared.available_quantiles.assign(available_quantiles.begin(),
+                                          available_quantiles.end());
     return prepared;
 }
 
@@ -767,10 +795,10 @@ research_detailed_result evaluate_factor_research_detailed(
             continue;
         }
 
-        prepared_factor_data prepared;
+        detailed_horizon_workspace prepared;
         try {
             prepared = prepare_detailed_horizon(
-                panel, groups, input.label_values, input.period, spec);
+                panel, input.label_values, spec);
         } catch (const factor_loss_exceeded& error) {
             append_diagnostic(
                 result, factor, "prepare", "error", "max_loss_exceeded",
@@ -784,7 +812,7 @@ research_detailed_result evaluate_factor_research_detailed(
                     python_repr(factor_name) + ": " + error.what());
             continue;
         }
-        if (prepared.rows.empty()) {
+        if (prepared.panel_rows.empty()) {
             append_diagnostic(
                 result, factor, "prepare", "warning", "no_evaluable_cells",
                 "period " + input.period + ", factor " +
@@ -793,48 +821,40 @@ research_detailed_result evaluate_factor_research_detailed(
             continue;
         }
 
-        std::map<timestamp, double> rank_by_date;
-        std::map<timestamp, std::vector<const factor_row*>> prepared_by_date;
-        std::set<int> available_quantiles;
-        for (const auto& row : prepared.rows) {
-            prepared_by_date[row.date].push_back(&row);
-            available_quantiles.insert(row.quantile);
+        std::size_t skipped_dates = 0U;
+        std::vector<double> factors_on_date;
+        std::vector<double> returns_on_date;
+        std::size_t largest_date_run = 0U;
+        for (const auto& run : prepared.date_runs) {
+            largest_date_run =
+                std::max(largest_date_run, run.end - run.begin);
         }
-        for (const auto& [date, rows] : prepared_by_date) {
-            std::vector<double> factors_on_date;
-            std::vector<double> returns_on_date;
-            factors_on_date.reserve(rows.size());
-            returns_on_date.reserve(rows.size());
-            for (const factor_row* row : rows) {
-                factors_on_date.push_back(row->factor);
-                returns_on_date.push_back(row->forward_returns.front());
+        factors_on_date.reserve(largest_date_run);
+        returns_on_date.reserve(largest_date_run);
+        for (const auto& run : prepared.date_runs) {
+            factors_on_date.clear();
+            returns_on_date.clear();
+            for (std::size_t index = run.begin; index < run.end; ++index) {
+                const std::size_t row = prepared.panel_rows[index];
+                factors_on_date.push_back(panel.values[row]);
+                returns_on_date.push_back(input.label_values[row]);
+            }
+            if (factors_on_date.size() <
+                static_cast<std::size_t>(spec.min_assets)) {
+                ++skipped_dates;
+                continue;
             }
             const auto factor_ranks =
                 average_ranks_including_infinities(factors_on_date);
             const auto return_ranks =
                 average_ranks_including_infinities(returns_on_date);
-            rank_by_date[date] = pearson(factor_ranks, return_ranks);
-        }
-        std::size_t skipped_dates = 0U;
-        for (const auto& [date, rows] : prepared_by_date) {
-            if (rows.size() < static_cast<std::size_t>(spec.min_assets)) {
-                ++skipped_dates;
-                continue;
-            }
-            std::vector<double> factors_on_date;
-            std::vector<double> returns_on_date;
-            factors_on_date.reserve(rows.size());
-            returns_on_date.reserve(rows.size());
-            for (const factor_row* row : rows) {
-                factors_on_date.push_back(row->factor);
-                returns_on_date.push_back(row->forward_returns.front());
-            }
             const double ic = pearson(factors_on_date, returns_on_date);
-            const auto rank = rank_by_date.find(date);
-            const double rank_ic = rank == rank_by_date.end() ? nan
-                                                               : rank->second;
-            result.ic.push_back({date, factor, input.period, ic, rank_ic,
-                                 rows.size()});
+            const double rank_ic = pearson(factor_ranks, return_ranks);
+            const std::size_t first_panel_row =
+                prepared.panel_rows[run.begin];
+            result.ic.push_back(
+                {panel.dates[first_panel_row], factor, input.period, ic,
+                 rank_ic, factors_on_date.size()});
         }
         if (skipped_dates != 0U) {
             append_diagnostic(
@@ -845,46 +865,71 @@ research_detailed_result evaluate_factor_research_detailed(
                     " dates had fewer than min_assets=" +
                     std::to_string(spec.min_assets) + " evaluable assets");
         }
-        const auto daily =
-            mean_return_by_quantile_by_date(prepared, false, false, false);
-        std::map<std::pair<timestamp, int>, std::pair<double, std::size_t>>
-            daily_lookup;
-        for (std::size_t date = 0; date < daily.dates.size(); ++date) {
-            for (std::size_t quantile = 0;
-                 quantile < daily.quantiles.size(); ++quantile) {
-                const auto cell =
-                    (date * daily.quantiles.size() + quantile);
-                daily_lookup[{daily.dates[date], daily.quantiles[quantile]}] =
-                    {daily.means[cell], 0U};
-            }
+        const std::size_t quantile_count =
+            prepared.available_quantiles.size();
+        const std::size_t date_count = prepared.date_runs.size();
+        std::vector<std::size_t> quantile_slots(
+            static_cast<std::size_t>(spec.quantiles) + 1U,
+            std::numeric_limits<std::size_t>::max());
+        for (std::size_t quantile = 0; quantile < quantile_count;
+             ++quantile) {
+            const int value = prepared.available_quantiles[quantile];
+            quantile_slots[static_cast<std::size_t>(value)] = quantile;
         }
-        std::map<std::pair<timestamp, int>, std::size_t> daily_counts;
-        for (const auto& row : prepared.rows) {
-            if (std::isfinite(row.forward_returns.front())) {
-                ++daily_counts[{row.date, row.quantile}];
-            }
-        }
-        std::size_t filtered_quantiles = 0U;
-        for (const int quantile : available_quantiles) {
-            for (const auto& [date, rows] : prepared_by_date) {
-                static_cast<void>(rows);
-                const auto key = std::make_pair(date, quantile);
-                const auto mean = daily_lookup.find(key);
-                const auto count = daily_counts.find(key);
-                if (mean == daily_lookup.end() ||
-                    !std::isfinite(mean->second.first)) {
+        std::vector<double> daily_sums(date_count * quantile_count, 0.0);
+        std::vector<std::size_t> daily_counts(date_count * quantile_count, 0U);
+        for (std::size_t date = 0; date < date_count; ++date) {
+            const auto& run = prepared.date_runs[date];
+            for (std::size_t index = run.begin; index < run.end; ++index) {
+                const std::size_t row = prepared.panel_rows[index];
+                const double value = input.label_values[row];
+                if (!std::isfinite(value)) {
                     continue;
                 }
-                const std::size_t observations =
-                    count == daily_counts.end() ? 0U : count->second;
+                const std::size_t slot = quantile_slots[
+                    static_cast<std::size_t>(prepared.quantiles[index])];
+                const std::size_t cell = date * quantile_count + slot;
+                // Match the generic mean helper's per-bucket insertion and
+                // std::accumulate order: panel rows are date/asset ordered.
+                daily_sums[cell] += value;
+                ++daily_counts[cell];
+            }
+        }
+        const auto daily_mean = [&daily_sums, &daily_counts,
+                                 quantile_count](const std::size_t date,
+                                                 const std::size_t quantile) {
+            const std::size_t cell = date * quantile_count + quantile;
+            if (daily_counts[cell] == 0U) {
+                return nan;
+            }
+            return daily_sums[cell] /
+                   static_cast<double>(daily_counts[cell]);
+        };
+        std::size_t filtered_quantiles = 0U;
+        for (std::size_t quantile = 0; quantile < quantile_count;
+             ++quantile) {
+            const int quantile_value =
+                prepared.available_quantiles[quantile];
+            for (std::size_t date = 0; date < date_count; ++date) {
+                const std::size_t cell = date * quantile_count + quantile;
+                const std::size_t observations = daily_counts[cell];
+                if (observations == 0U) {
+                    continue;
+                }
+                const double mean = daily_mean(date, quantile);
+                if (!std::isfinite(mean)) {
+                    continue;
+                }
                 if (observations <
                     static_cast<std::size_t>(spec.min_quantile_assets)) {
                     ++filtered_quantiles;
                     continue;
                 }
+                const std::size_t first_panel_row =
+                    prepared.panel_rows[prepared.date_runs[date].begin];
                 result.quantile_returns.push_back(
-                    {date, factor, input.period, quantile,
-                     mean->second.first, observations});
+                    {panel.dates[first_panel_row], factor, input.period,
+                     quantile_value, mean, observations});
             }
         }
         if (filtered_quantiles != 0U) {
@@ -897,28 +942,26 @@ research_detailed_result evaluate_factor_research_detailed(
                     std::to_string(spec.min_quantile_assets));
         }
 
-        if (available_quantiles.size() >= 2U) {
-            const int bottom = *available_quantiles.begin();
-            const int top = *available_quantiles.rbegin();
-            std::set<timestamp> dates;
-            for (const auto& [date_quantile, value] : daily_lookup) {
-                static_cast<void>(value);
-                if (date_quantile.second == top ||
-                    date_quantile.second == bottom) {
-                    dates.insert(date_quantile.first);
-                }
-            }
-            for (const timestamp date : dates) {
-                const auto high = daily_lookup.find({date, top});
-                const auto low = daily_lookup.find({date, bottom});
-                if (high == daily_lookup.end() || low == daily_lookup.end() ||
-                    !std::isfinite(high->second.first) ||
-                    !std::isfinite(low->second.first)) {
+        if (quantile_count >= 2U) {
+            const int bottom = prepared.available_quantiles.front();
+            const int top = prepared.available_quantiles.back();
+            const std::size_t bottom_slot = 0U;
+            const std::size_t top_slot = quantile_count - 1U;
+            for (std::size_t date = 0; date < date_count; ++date) {
+                if (daily_counts[date * quantile_count + bottom_slot] == 0U ||
+                    daily_counts[date * quantile_count + top_slot] == 0U) {
                     continue;
                 }
+                const double high = daily_mean(date, top_slot);
+                const double low = daily_mean(date, bottom_slot);
+                if (!std::isfinite(high) || !std::isfinite(low)) {
+                    continue;
+                }
+                const std::size_t first_panel_row =
+                    prepared.panel_rows[prepared.date_runs[date].begin];
                 result.spreads.push_back(
-                    {date, factor, input.period,
-                     high->second.first - low->second.first, top, bottom});
+                    {panel.dates[first_panel_row], factor, input.period,
+                     high - low, top, bottom});
             }
         } else {
             append_diagnostic(
@@ -930,11 +973,13 @@ research_detailed_result evaluate_factor_research_detailed(
 
         const std::size_t lag =
             static_cast<std::size_t>(turnover_lag(input.period));
-        for (const int quantile : available_quantiles) {
+        for (const int quantile : prepared.available_quantiles) {
             std::map<timestamp, std::set<std::string>> names_by_date;
-            for (const auto& row : prepared.rows) {
-                if (row.quantile == quantile) {
-                    names_by_date[row.date].insert(row.asset);
+            for (std::size_t index = 0; index < prepared.panel_rows.size();
+                 ++index) {
+                if (prepared.quantiles[index] == quantile) {
+                    const std::size_t row = prepared.panel_rows[index];
+                    names_by_date[panel.dates[row]].insert(panel.assets[row]);
                 }
             }
             std::vector<timestamp> dates;
