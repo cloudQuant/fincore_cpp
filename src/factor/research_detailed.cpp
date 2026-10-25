@@ -1100,6 +1100,32 @@ research_detailed_result evaluate_factor_research_detailed(
 
         const std::size_t lag =
             static_cast<std::size_t>(turnover_lag(input.period));
+        const std::size_t bucket_count = date_count * quantile_count;
+        std::vector<std::size_t> bucket_offsets(bucket_count + 1U, 0U);
+        for (std::size_t cell = 0U; cell < bucket_count; ++cell) {
+            bucket_offsets[cell + 1U] =
+                bucket_offsets[cell] + daily_counts[cell];
+        }
+        // Stable counting-sort layout: bucket members retain the prepared
+        // (date, asset) order, so each span is already asset-string ordered.
+        std::vector<std::size_t> bucket_members(bucket_offsets.back());
+        std::vector<std::size_t> bucket_cursors(bucket_count, 0U);
+        for (std::size_t cell = 0U; cell < bucket_count; ++cell) {
+            bucket_cursors[cell] = bucket_offsets[cell];
+        }
+        for (std::size_t date = 0U; date < date_count; ++date) {
+            const auto& run = prepared.date_runs[date];
+            for (std::size_t index = run.begin; index < run.end; ++index) {
+                const std::size_t row = prepared.panel_rows[index];
+                if (!std::isfinite(input.label_values[row])) {
+                    continue;
+                }
+                const std::size_t slot = quantile_slots[
+                    static_cast<std::size_t>(prepared.quantiles[index])];
+                const std::size_t cell = date * quantile_count + slot;
+                bucket_members[bucket_cursors[cell]++] = row;
+            }
+        }
         for (std::size_t quantile_slot = 0U;
              quantile_slot < quantile_count; ++quantile_slot) {
             const int quantile =
@@ -1118,25 +1144,25 @@ research_detailed_result evaluate_factor_research_detailed(
                 const std::size_t previous_date =
                     quantile_dates[position - lag];
                 const auto& current_run = prepared.date_runs[current_date];
-                const auto& previous_run =
-                    prepared.date_runs[previous_date];
-                std::size_t current_index = current_run.begin;
-                std::size_t previous_index = previous_run.begin;
+                const std::size_t current_cell =
+                    current_date * quantile_count + quantile_slot;
+                const std::size_t previous_cell =
+                    previous_date * quantile_count + quantile_slot;
+                std::size_t current_index = bucket_offsets[current_cell];
+                const std::size_t current_end =
+                    bucket_offsets[current_cell + 1U];
+                std::size_t previous_index = bucket_offsets[previous_cell];
+                const std::size_t previous_end =
+                    bucket_offsets[previous_cell + 1U];
                 std::size_t common = 0U;
-                while (current_index < current_run.end &&
-                       previous_index < previous_run.end) {
-                    if (prepared.quantiles[current_index] != quantile) {
-                        ++current_index;
-                        continue;
-                    }
-                    if (prepared.quantiles[previous_index] != quantile) {
-                        ++previous_index;
-                        continue;
-                    }
-                    const auto& current_asset = panel.assets[
-                        prepared.panel_rows[current_index]];
-                    const auto& previous_asset = panel.assets[
-                        prepared.panel_rows[previous_index]];
+                while (current_index < current_end &&
+                       previous_index < previous_end) {
+                    const std::size_t current_member =
+                        bucket_members[current_index];
+                    const std::size_t previous_member =
+                        bucket_members[previous_index];
+                    const auto& current_asset = panel.assets[current_member];
+                    const auto& previous_asset = panel.assets[previous_member];
                     if (current_asset < previous_asset) {
                         ++current_index;
                     } else if (previous_asset < current_asset) {

@@ -641,6 +641,117 @@ TEST(FactorResearchDetailed,
 }
 
 TEST(FactorResearchDetailed,
+     TurnoverUsesSparseLagTwoBucketsAndLexicographicAssetIntersection) {
+    const auto start = fincore::utc_timestamp(2024, 2, 16);
+    constexpr fincore::timestamp day = 86'400'000'000'000LL;
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+    // Canonical panel order is lexical: A10 precedes A2.
+    const std::vector<std::string> assets{"A10", "A2", "B", "C", "D",
+                                          "E"};
+    const std::vector<std::vector<double>> factor_values{
+        {1.0, 3.0, 2.0, 4.0, 5.0, 6.0},
+        {1.0, 3.0, 2.0, 4.0, 5.0, 6.0},
+        {1.0, 3.0, 2.0, 4.0, 5.0, 6.0},
+        {1.0, 3.0, 2.0, 4.0, 5.0, 6.0},
+        {4.0, 3.0, 1.0, 2.0, 5.0, 6.0},
+    };
+
+    fincore::factor_series factors;
+    for (std::size_t date = 0U; date < factor_values.size(); ++date) {
+        for (std::size_t asset = 0U; asset < assets.size(); ++asset) {
+            factors.dates.push_back(
+                start + static_cast<fincore::timestamp>(date) * day);
+            factors.assets.push_back(assets[asset]);
+            factors.values.push_back(factor_values[date][asset]);
+        }
+    }
+
+    fincore::dataframe prices;
+    prices.load_index(std::vector<fincore::timestamp>{
+        start, start + day, start + 2 * day, start + 3 * day,
+        start + 4 * day, start + 5 * day, start + 6 * day});
+    const std::vector<std::vector<double>> price_paths{
+        {100.0, nan, 101.0, nan, 100.0, nan, 110.0},
+        {100.0, nan, 102.0, nan, 100.0, nan, 120.0},
+        {100.0, nan, 103.0, nan, 100.0, nan, 130.0},
+        {100.0, nan, 104.0, nan, 100.0, nan, 140.0},
+        {100.0, nan, 105.0, nan, 100.0, nan, 150.0},
+        {100.0, nan, nan, nan, 100.0, nan, 160.0},
+    };
+    for (std::size_t asset = 0U; asset < assets.size(); ++asset) {
+        prices.load_column<double>(
+            assets[asset].c_str(), price_paths[asset],
+            hmdf::nan_policy::dont_pad_with_nans);
+    }
+
+    fincore::research_spec spec;
+    spec.targets = assets;
+    spec.start = start;
+    spec.end = start + 4 * day;
+    spec.periods = {2};
+    spec.quantiles = 3;
+    spec.min_assets = 1;
+    spec.min_quantile_assets = 2;
+    spec.max_loss = 1.0;
+    spec.label = "close_to_close";
+    spec.preprocess = "none";
+
+    const auto result = fincore::evaluate_factor_research_detailed(
+        "sparse_turnover_signal", factors, prices, spec);
+
+    // On the first populated date, q2 is just A2. The middle populated date
+    // also has a singleton q2, filtered from returns but retained in the
+    // nonempty-date axis. At the last date q2 is {A10, A2}, so the lexical
+    // string merge must advance past A10 and intersect A2.
+    std::size_t emitted_middle_quantiles = 0U;
+    const fincore::research_detailed_quantile_return_row*
+        last_middle_quantile = nullptr;
+    for (const auto& row : result.quantile_returns) {
+        if (row.period == "2D" && row.quantile == 2) {
+            ++emitted_middle_quantiles;
+            last_middle_quantile = &row;
+        }
+    }
+    ASSERT_EQ(emitted_middle_quantiles, 1U);
+    ASSERT_NE(last_middle_quantile, nullptr);
+    EXPECT_EQ(last_middle_quantile->time, start + 4 * day);
+    EXPECT_EQ(last_middle_quantile->n_assets, 2U);
+    EXPECT_NEAR(last_middle_quantile->mean_return, 0.15, 1e-12);
+
+    spec.min_quantile_assets = 1;
+    const auto unfiltered = fincore::evaluate_factor_research_detailed(
+        "sparse_turnover_signal", factors, prices, spec);
+    std::vector<const fincore::research_detailed_quantile_return_row*>
+        unfiltered_middle_quantiles;
+    for (const auto& row : unfiltered.quantile_returns) {
+        if (row.period == "2D" && row.quantile == 2) {
+            unfiltered_middle_quantiles.push_back(&row);
+        }
+    }
+    ASSERT_EQ(unfiltered_middle_quantiles.size(), 3U);
+    EXPECT_EQ(unfiltered_middle_quantiles[0]->time, start);
+    EXPECT_EQ(unfiltered_middle_quantiles[0]->n_assets, 1U);
+    EXPECT_NEAR(unfiltered_middle_quantiles[0]->mean_return, 0.02, 1e-12);
+    EXPECT_EQ(unfiltered_middle_quantiles[1]->time, start + 2 * day);
+    EXPECT_EQ(unfiltered_middle_quantiles[1]->n_assets, 1U);
+    EXPECT_EQ(unfiltered_middle_quantiles[2]->time, start + 4 * day);
+    EXPECT_EQ(unfiltered_middle_quantiles[2]->n_assets, 2U);
+    EXPECT_NEAR(unfiltered_middle_quantiles[2]->mean_return, 0.15, 1e-12);
+
+    std::size_t middle_quantile_turnover_rows = 0U;
+    for (const auto& row : result.turnover) {
+        if (row.period == "2D" && row.quantile == 2) {
+            ++middle_quantile_turnover_rows;
+            EXPECT_EQ(row.time, start + 4 * day);
+            EXPECT_DOUBLE_EQ(row.turnover, 0.5);
+        }
+    }
+    // Lag 2 reaches from the first to the third nonempty q2 date, including
+    // the intervening singleton even though min_quantile_assets filters it.
+    EXPECT_EQ(middle_quantile_turnover_rows, 1U);
+}
+
+TEST(FactorResearchDetailed,
      ReusesHorizonDateOrderingForTiedFactorRankIc) {
     const auto start = fincore::utc_timestamp(2024, 2, 19);
     constexpr fincore::timestamp day = 86'400'000'000'000LL;
