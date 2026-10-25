@@ -5,6 +5,7 @@
 
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cmath>
 #include <filesystem>
 #include <fstream>
@@ -13,6 +14,7 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 namespace {
@@ -635,6 +637,225 @@ TEST(FactorResearchDetailed,
     EXPECT_TRUE(middle_quantile_exists_elsewhere);
     EXPECT_FALSE(middle_quantile_emitted_on_sparse_date);
     EXPECT_EQ(middle_quantile_turnover_rows, 1U);
+}
+
+TEST(FactorResearchDetailed,
+     ReusesHorizonDateOrderingForTiedFactorRankIc) {
+    const auto start = fincore::utc_timestamp(2024, 2, 19);
+    constexpr fincore::timestamp day = 86'400'000'000'000LL;
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+    const double infinity = std::numeric_limits<double>::infinity();
+    const std::vector<std::string> assets{
+        "A", "B", "C", "D", "E", "F", "G", "H", "I", "J"};
+    const std::vector<double> factor_values{
+        3.0, 1.0, 1.0, 4.0, 2.0, 5.0, nan, infinity, 6.0, -infinity};
+
+    // Shuffle source rows so the rank/label samples must map back to the
+    // canonical date/asset panel while retaining equal-factor average ranks.
+    const std::vector<std::size_t> source_order{4U, 1U, 7U, 0U, 6U,
+                                                8U, 3U, 9U, 2U, 5U};
+    fincore::factor_series factors;
+    for (const std::size_t asset : source_order) {
+        factors.dates.push_back(start);
+        factors.assets.push_back(assets[asset]);
+        factors.values.push_back(factor_values[asset]);
+    }
+
+    const std::vector<double> one_day_returns{
+        0.05, 0.04, 0.01, -0.02, 0.03, -0.01, 0.02, 0.06, 0.00, -0.03};
+    const std::vector<double> two_day_returns{
+        0.00, 0.10, -0.02, 0.03, 0.05, -0.01, 0.02, 0.06, 0.04, -0.03};
+    fincore::dataframe prices;
+    prices.load_index(std::vector<fincore::timestamp>{start, start + day,
+                                                       start + 2 * day});
+    for (std::size_t asset = 0U; asset < assets.size(); ++asset) {
+        const double base = 100.0 + 10.0 * static_cast<double>(asset);
+        const double first_price =
+            asset == 0U || asset == 3U
+                ? nan
+                : base * (1.0 + one_day_returns[asset]);
+        const double second_price =
+            asset == 1U || asset == 4U
+                ? nan
+                : (asset == 3U
+                       ? infinity
+                       : base * (1.0 + two_day_returns[asset]));
+        prices.load_column<double>(
+            assets[asset].c_str(), {base, first_price, second_price},
+            hmdf::nan_policy::dont_pad_with_nans);
+    }
+
+    fincore::research_spec spec;
+    spec.targets = assets;
+    spec.start = start;
+    spec.end = start;
+    spec.periods = {1, 2};
+    spec.quantiles = 3;
+    spec.min_assets = 2;
+    spec.max_loss = 1.0;
+    spec.label = "close_to_close";
+    spec.preprocess = "none";
+    const auto actual = fincore::evaluate_factor_research_detailed(
+        "rank_reuse_signal", factors, prices, spec);
+
+    const auto average_ranks = [nan](const std::vector<double>& values) {
+        std::vector<std::pair<double, std::size_t>> order;
+        order.reserve(values.size());
+        for (std::size_t index = 0U; index < values.size(); ++index) {
+            order.emplace_back(values[index], index);
+        }
+        std::stable_sort(order.begin(), order.end(),
+                         [](const auto& left, const auto& right) {
+                             return left.first < right.first;
+                         });
+        std::vector<double> ranks(values.size(), nan);
+        for (std::size_t first = 0U; first < order.size();) {
+            std::size_t last = first + 1U;
+            while (last < order.size() &&
+                   order[last].first == order[first].first) {
+                ++last;
+            }
+            const double rank =
+                (static_cast<double>(first + 1U) +
+                 static_cast<double>(last)) /
+                2.0;
+            for (std::size_t position = first; position < last; ++position) {
+                ranks[order[position].second] = rank;
+            }
+            first = last;
+        }
+        return ranks;
+    };
+    const auto scalar_pearson = [](const std::vector<double>& left,
+                                   const std::vector<double>& right) {
+        double left_mean = 0.0;
+        double right_mean = 0.0;
+        for (std::size_t index = 0U; index < left.size(); ++index) {
+            left_mean += left[index];
+            right_mean += right[index];
+        }
+        left_mean /= static_cast<double>(left.size());
+        right_mean /= static_cast<double>(right.size());
+        double covariance = 0.0;
+        double left_variance = 0.0;
+        double right_variance = 0.0;
+        for (std::size_t index = 0U; index < left.size(); ++index) {
+            const double x = left[index] - left_mean;
+            const double y = right[index] - right_mean;
+            covariance += x * y;
+            left_variance += x * x;
+            right_variance += y * y;
+        }
+        return covariance /
+               std::sqrt(left_variance * right_variance);
+    };
+
+    ASSERT_EQ(actual.ic.size(), 2U);
+    for (std::size_t horizon = 0U; horizon < spec.periods.size(); ++horizon) {
+        const std::string period = std::to_string(spec.periods[horizon]) + "D";
+        std::vector<double> expected_factors;
+        std::vector<double> expected_returns;
+        for (std::size_t asset = 0U; asset < assets.size(); ++asset) {
+            const double factor = factor_values[asset];
+            const double base = 100.0 + 10.0 * static_cast<double>(asset);
+            const bool missing_price =
+                horizon == 0U ? (asset == 0U || asset == 3U)
+                              : (asset == 1U || asset == 4U);
+            const double expected_return =
+                horizon == 0U ? one_day_returns[asset]
+                              : two_day_returns[asset];
+            const double future_price =
+                missing_price ? nan
+                              : (horizon == 1U && asset == 3U
+                                     ? infinity
+                                     : base * (1.0 + expected_return));
+            const double forward_return = future_price / base - 1.0;
+            if (std::isfinite(factor) && std::isfinite(forward_return)) {
+                expected_factors.push_back(factor);
+                expected_returns.push_back(forward_return);
+            }
+        }
+        ASSERT_EQ(expected_factors.size(), horizon == 0U ? 5U : 4U);
+        ASSERT_EQ(expected_returns.size(), expected_factors.size());
+        const auto factor_ranks = average_ranks(expected_factors);
+        const auto return_ranks = average_ranks(expected_returns);
+        const auto row = std::find_if(
+            actual.ic.begin(), actual.ic.end(),
+            [&period](const auto& value) { return value.period == period; });
+        ASSERT_NE(row, actual.ic.end());
+        EXPECT_EQ(row->time, start);
+        EXPECT_EQ(row->n_assets, expected_factors.size());
+        EXPECT_NEAR(row->ic,
+                    scalar_pearson(expected_factors, expected_returns), 1e-12);
+        EXPECT_NEAR(row->rank_ic,
+                    scalar_pearson(factor_ranks, return_ranks), 1e-12);
+    }
+
+    const auto has_nan_label = [&actual](const std::string& asset,
+                                         const std::string& period) {
+        const auto found = std::find_if(
+            actual.labels.begin(), actual.labels.end(),
+            [&asset, &period](const auto& row) {
+                return row.asset == asset && row.period == period;
+            });
+        return found != actual.labels.end() && !std::isfinite(found->value);
+    };
+    EXPECT_TRUE(has_nan_label("A", "1D"));
+    EXPECT_TRUE(has_nan_label("D", "1D"));
+    EXPECT_TRUE(has_nan_label("B", "2D"));
+    EXPECT_TRUE(has_nan_label("E", "2D"));
+    EXPECT_TRUE(has_nan_label("D", "2D"));
+}
+
+TEST(FactorResearchDetailed,
+     PreservesDuplicateQcutBoundaryAndMaxLossDiagnostics) {
+    const auto start = fincore::utc_timestamp(2024, 2, 26);
+    const std::vector<std::string> assets{"A", "B", "C", "D"};
+    fincore::factor_series factors;
+    for (const auto& asset : assets) {
+        factors.dates.push_back(start);
+        factors.assets.push_back(asset);
+        factors.values.push_back(1.0);
+    }
+    fincore::dataframe prices;
+    prices.load_index(std::vector<fincore::timestamp>{start, start + 1});
+    for (const auto& asset : assets) {
+        prices.load_column<double>(
+            asset.c_str(), {100.0, 101.0},
+            hmdf::nan_policy::dont_pad_with_nans);
+    }
+
+    fincore::research_spec spec;
+    spec.targets = assets;
+    spec.start = start;
+    spec.end = start;
+    spec.periods = {1};
+    spec.quantiles = 2;
+    spec.min_assets = 2;
+    spec.label = "close_to_close";
+    spec.preprocess = "none";
+
+    const auto find_diagnostic = [](const auto& result,
+                                    const std::string& code) {
+        return std::find_if(result.diagnostics.begin(),
+                            result.diagnostics.end(),
+                            [&code](const auto& row) {
+                                return row.code == code;
+                            });
+    };
+    spec.max_loss = 0.0;
+    const auto strict = fincore::evaluate_factor_research_detailed(
+        "duplicate_boundary_signal", factors, prices, spec);
+    const auto boundary = find_diagnostic(strict, "preparation_failed");
+    ASSERT_NE(boundary, strict.diagnostics.end());
+    EXPECT_NE(boundary->message.find("Bin edges must be unique"),
+              std::string::npos);
+
+    spec.max_loss = 0.99;
+    const auto bounded = fincore::evaluate_factor_research_detailed(
+        "duplicate_boundary_signal", factors, prices, spec);
+    EXPECT_NE(find_diagnostic(bounded, "max_loss_exceeded"),
+              bounded.diagnostics.end());
 }
 
 TEST(FactorResearchDetailed, RejectsDuplicateStabilityLags) {

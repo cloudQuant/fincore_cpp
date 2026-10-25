@@ -13,6 +13,7 @@
 #include <numeric>
 #include <sstream>
 #include <set>
+#include <span>
 #include <string>
 #include <tuple>
 #include <typeinfo>
@@ -67,8 +68,8 @@ std::string python_repr(const std::string_view value) {
     return result;
 }
 
-double pearson(const std::vector<double>& left,
-               const std::vector<double>& right) {
+double pearson(const std::span<const double> left,
+               const std::span<const double> right) {
     if (left.size() != right.size() || left.size() < 2U) {
         return nan;
     }
@@ -258,9 +259,11 @@ std::size_t count_finite(const std::vector<double>& values) {
         [](const double value) { return std::isfinite(value); }));
 }
 
-double numpy_percentile(const std::vector<double>& sorted,
-                        const double percentile) {
-    if (sorted.empty()) {
+double numpy_percentile_sorted_indices(
+    const std::vector<double>& values,
+    const std::vector<std::size_t>& sorted_indices,
+    const double percentile) {
+    if (sorted_indices.empty()) {
         throw factor_data_error{"cannot quantize an empty group"};
     }
     // pandas qcut builds probabilities with np.linspace, multiplies them by
@@ -269,32 +272,26 @@ double numpy_percentile(const std::vector<double>& sorted,
     // latter intentionally interpolates from the upper endpoint for gamma
     // >= 0.5 to reduce cancellation.
     const double virtual_index =
-        static_cast<double>(sorted.size() - 1U) * percentile;
+        static_cast<double>(sorted_indices.size() - 1U) * percentile;
     const auto lower = static_cast<std::size_t>(std::floor(virtual_index));
     const auto upper = static_cast<std::size_t>(std::ceil(virtual_index));
     if (lower == upper) {
-        return sorted[lower];
+        return values[sorted_indices[lower]];
     }
     const double gamma = virtual_index - static_cast<double>(lower);
-    const double left = sorted[lower];
-    const double right = sorted[upper];
+    const double left = values[sorted_indices[lower]];
+    const double right = values[sorted_indices[upper]];
     if (gamma >= 0.5) {
         return right - (right - left) * (1.0 - gamma);
     }
     return left + (right - left) * gamma;
 }
 
-std::vector<double> pandas_qcut_edges(const std::vector<double>& values,
-                                      const int quantiles) {
-    std::vector<double> sorted;
-    sorted.reserve(values.size());
-    for (const double value : values) {
-        if (std::isfinite(value)) {
-            sorted.push_back(value);
-        }
-    }
-    std::sort(sorted.begin(), sorted.end());
-    if (sorted.empty()) {
+std::vector<double> pandas_qcut_edges_sorted_indices(
+    const std::vector<double>& values,
+    const std::vector<std::size_t>& sorted_indices,
+    const int quantiles) {
+    if (sorted_indices.empty()) {
         throw factor_data_error{"cannot quantize an empty group"};
     }
 
@@ -308,7 +305,8 @@ std::vector<double> pandas_qcut_edges(const std::vector<double>& values,
                 : static_cast<double>(index) * step;
         const double pandas_percentile = probability * 100.0;
         const double numpy_probability = pandas_percentile / 100.0;
-        edges.push_back(numpy_percentile(sorted, numpy_probability));
+        edges.push_back(numpy_percentile_sorted_indices(
+            values, sorted_indices, numpy_probability));
     }
     for (std::size_t index = 1U; index < edges.size(); ++index) {
         if (!(edges[index] > edges[index - 1U])) {
@@ -364,6 +362,9 @@ struct detailed_horizon_workspace {
     // The rows and their quantiles stay in (date, asset) order.
     std::vector<std::size_t> panel_rows;
     std::vector<int> quantiles;
+    // Average ranks parallel to panel_rows, computed from each finite paired
+    // horizon/date sample while its qcut ordering is already available.
+    std::vector<double> factor_ranks;
     std::vector<horizon_date_run> date_runs;
     std::vector<int> available_quantiles;
     factor_loss_report loss_report;
@@ -380,9 +381,11 @@ detailed_horizon_workspace prepare_detailed_horizon(
     detailed_horizon_workspace prepared;
     prepared.panel_rows.reserve(panel.dates.size());
     prepared.quantiles.reserve(panel.dates.size());
+    prepared.factor_ranks.reserve(panel.dates.size());
     std::set<int> available_quantiles;
     std::vector<std::size_t> valid_rows;
     std::vector<double> date_values;
+    std::vector<std::size_t> sorted_local_indices;
     std::size_t finite_factor_count = 0U;
     std::size_t forward_returns_count = 0U;
     std::size_t binning_count = 0U;
@@ -396,6 +399,7 @@ detailed_horizon_workspace prepare_detailed_horizon(
 
         valid_rows.clear();
         date_values.clear();
+        sorted_local_indices.clear();
         for (std::size_t row = date_begin; row < date_end; ++row) {
             if (!std::isfinite(panel.values[row])) {
                 continue;
@@ -410,9 +414,20 @@ detailed_horizon_workspace prepare_detailed_horizon(
         }
 
         if (!valid_rows.empty()) {
+            sorted_local_indices.resize(date_values.size());
+            std::iota(sorted_local_indices.begin(),
+                      sorted_local_indices.end(), 0U);
+            std::sort(sorted_local_indices.begin(),
+                      sorted_local_indices.end(),
+                      [&date_values](const std::size_t left,
+                                     const std::size_t right) {
+                          return date_values[left] < date_values[right];
+                      });
+
             std::vector<double> edges;
             try {
-                edges = pandas_qcut_edges(date_values, spec.quantiles);
+                edges = pandas_qcut_edges_sorted_indices(
+                    date_values, sorted_local_indices, spec.quantiles);
             } catch (const factor_data_error&) {
                 if (spec.max_loss == 0.0) {
                     throw;
@@ -429,8 +444,29 @@ detailed_horizon_workspace prepare_detailed_horizon(
                     pandas_qcut_label(panel.values[row], edges);
                 prepared.panel_rows.push_back(row);
                 prepared.quantiles.push_back(quantile);
+                prepared.factor_ranks.push_back(nan);
                 available_quantiles.insert(quantile);
                 ++binning_count;
+            }
+            for (std::size_t first = 0U;
+                 first < sorted_local_indices.size();) {
+                std::size_t last = first + 1U;
+                const double tied_value =
+                    date_values[sorted_local_indices[first]];
+                while (last < sorted_local_indices.size() &&
+                       date_values[sorted_local_indices[last]] == tied_value) {
+                    ++last;
+                }
+                const double rank =
+                    (static_cast<double>(first + 1U) +
+                     static_cast<double>(last)) /
+                    2.0;
+                for (std::size_t position = first; position < last;
+                     ++position) {
+                    prepared.factor_ranks[
+                        run_begin + sorted_local_indices[position]] = rank;
+                }
+                first = last;
             }
             prepared.date_runs.push_back(
                 {run_begin, prepared.panel_rows.size()});
@@ -881,12 +917,16 @@ research_detailed_result evaluate_factor_research_detailed(
                 ++skipped_dates;
                 continue;
             }
-            const auto factor_ranks =
-                average_ranks_including_infinities(factors_on_date);
             const auto return_ranks =
                 average_ranks_including_infinities(returns_on_date);
-            const double ic = pearson(factors_on_date, returns_on_date);
-            const double rank_ic = pearson(factor_ranks, return_ranks);
+            const std::span<const double> factor_rank_span{
+                prepared.factor_ranks.data() + run.begin,
+                run.end - run.begin};
+            const double ic = pearson(
+                std::span<const double>{factors_on_date},
+                std::span<const double>{returns_on_date});
+            const double rank_ic = pearson(
+                factor_rank_span, std::span<const double>{return_ranks});
             const std::size_t first_panel_row =
                 prepared.panel_rows[run.begin];
             result.ic.push_back(
