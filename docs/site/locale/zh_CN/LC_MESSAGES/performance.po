@@ -1,0 +1,56 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-25 22:15+0800\n"
+"PO-Revision-Date: 2026-10-25 22:20+0800\n"
+"Last-Translator: fincore_cpp documentation maintainers\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/performance.md:1
+msgid "Performance method and limits"
+msgstr "性能方法与局限"
+
+#: ../../site/performance.md:3
+msgid ""
+"Performance claims must state the workload, data scale, CPU/thread settings, "
+"environment, statistic and noise handling. The native library and the Python "
+"reference are different implementations; a throughput comparison is not a "
+"claim of Python API equivalence."
+msgstr ""
+"性能声明必须说明工作负载、数据规模、CPU/线程设置、运行环境、统计量和噪声处理"
+"方式。原生库与 Python 参考实现是两种不同的实现；吞吐量比较并不等同于声明 "
+"Python API 等价。"
+
+#: ../../site/performance.md:8
+msgid ""
+"The repository's acceptance records contain the raw benchmark method and "
+"dated results. The Iteration 9 and alpha003 records explicitly preserve "
+"INCONCLUSIVE outcomes; do not summarize a noisy run as a stable speedup. "
+"Historical CSV and HTML benchmarks use different workloads and are not "
+"interchangeable."
+msgstr ""
+"仓库的验收记录包含原始基准测试方法和带日期的结果。Iteration 9 和 alpha003 记"
+"录明确保留了 INCONCLUSIVE（无定论）结果；不要将有噪声的运行总结为稳定的加速"
+"比。历史 CSV 和 HTML 基准使用不同的工作负载，不能互换。"
+
+#: ../../site/performance.md:14
+msgid ""
+"For a reproducible run, use the committed benchmark source and the "
+"documented data preparation steps. Large generated results are not part of "
+"the docs site."
+msgstr ""
+"如需可复现的运行，请使用已提交的基准测试源码和文档中说明的数据准备步骤。大型"
+"生成结果不属于文档站点的一部分。"

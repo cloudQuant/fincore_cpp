@@ -1,0 +1,1309 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 07:25+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/api/risk.md:1
+msgid "Risk"
+msgstr "风险"
+
+#: ../../site/api/risk.md:3
+msgid ""
+"VaR/ES diagnostics, GARCH/EGARCH estimates, extreme-value models, "
+"backtesting, walk-forward validation and risk reports."
+msgstr "VaR/ES 诊断、GARCH/EGARCH 估计、极值模型、回测、滚动前向验证与风险报告。"
+
+#: ../../site/api/risk.md:5
+msgid ""
+"See the [usage guide](../guides/portfolio-risk.md) for task-oriented "
+"examples. Signatures below are generated from the public headers at the same"
+" commit as the rest of this site."
+msgstr "面向任务的示例参见[使用指南](../guides/portfolio-risk.md)。以下签名由与本站点其余内容同一提交的公共头文件生成。"
+
+#: ../../site/api/risk.md:7
+msgid "Parameters of an EGARCH(1,1) model."
+msgstr "EGARCH(1,1) 模型的参数。"
+
+#: ../../site/api/risk.md:7 ../../site/api/risk.md:10 ../../site/api/risk.md:13
+#: ../../site/api/risk.md:16 ../../site/api/risk.md:19 ../../site/api/risk.md:22
+#: ../../site/api/risk.md:25 ../../site/api/risk.md:28 ../../site/api/risk.md:31
+#: ../../site/api/risk.md:34 ../../site/api/risk.md:37 ../../site/api/risk.md:40
+#: ../../site/api/risk.md:43 ../../site/api/risk.md:46 ../../site/api/risk.md:49
+#: ../../site/api/risk.md:52 ../../site/api/risk.md:55 ../../site/api/risk.md:58
+#: ../../site/api/risk.md:61 ../../site/api/risk.md:64 ../../site/api/risk.md:67
+#: ../../site/api/risk.md:70 ../../site/api/risk.md:73
+msgid "Public Members"
+msgstr "公共成员"
+
+#: ../../site/api/risk.md:7
+msgid "Log-variance intercept."
+msgstr "对数方差截距。"
+
+#: ../../site/api/risk.md:7
+msgid "Magnitude coefficient on the absolute standardized shock."
+msgstr "绝对标准化冲击项的幅度系数。"
+
+#: ../../site/api/risk.md:7
+msgid "Asymmetry (leverage) coefficient on the standardized shock."
+msgstr "标准化冲击项的非对称（杠杆）系数。"
+
+#: ../../site/api/risk.md:7
+msgid "Persistence coefficient on the previous log-variance."
+msgstr "上一期对数方差的持续项系数。"
+
+#: ../../site/api/risk.md:10
+msgid "Result of an EGARCH(1,1) fit."
+msgstr "EGARCH(1,1) 拟合的结果。"
+
+#: ../../site/api/risk.md:10 ../../site/api/risk.md:19 ../../site/api/risk.md:34
+msgid "Fitted parameters."
+msgstr "拟合得到的参数。"
+
+#: ../../site/api/risk.md:10 ../../site/api/risk.md:19 ../../site/api/risk.md:34
+msgid "Variance path in return units squared, one value per cleaned observation."
+msgstr "以收益率平方单位的方差路径，每个清洗后的观测一个值。"
+
+#: ../../site/api/risk.md:10 ../../site/api/risk.md:19 ../../site/api/risk.md:34
+msgid "Standardized residuals aligned with conditional_variances."
+msgstr "与 conditional_variances 对齐的标准化残差。"
+
+#: ../../site/api/risk.md:10 ../../site/api/risk.md:19 ../../site/api/risk.md:34
+msgid "Gaussian log-likelihood, excluding the first observation."
+msgstr "高斯对数似然，不含第一个观测。"
+
+#: ../../site/api/risk.md:10 ../../site/api/risk.md:19 ../../site/api/risk.md:34
+msgid "Whether the optimizer and parameter, variance and stationarity checks passed."
+msgstr "优化器以及参数、方差与平稳性检查是否通过。"
+
+#: ../../site/api/risk.md:13
+msgid "Combined value-at-risk and expected-shortfall estimate from an EVT model."
+msgstr "由 EVT 模型同时给出的 VaR 与期望损失估计。"
+
+#: ../../site/api/risk.md:13
+msgid "Value-at-risk estimate, signed by the tail."
+msgstr "按尾部符号表示的 VaR 估计。"
+
+#: ../../site/api/risk.md:13
+msgid "Conditional tail expectation, signed by the tail."
+msgstr "按尾部符号表示的条件尾部期望。"
+
+#: ../../site/api/risk.md:13
+msgid "Fitted GPD or GEV shape parameter."
+msgstr "拟合的 GPD 或 GEV 形状参数。"
+
+#: ../../site/api/risk.md:13
+msgid "GPD magnitude threshold; NaN for GEV fits."
+msgstr "GPD 的幅值阈值；GEV 拟合时为 NaN。"
+
+#: ../../site/api/risk.md:13
+msgid "GPD exceedance count; zero for GEV fits."
+msgstr "GPD 超出次数；GEV 拟合时为零。"
+
+#: ../../site/api/risk.md:13
+msgid "Tail probability used for the estimates."
+msgstr "估计所使用的尾部概率。"
+
+#: ../../site/api/risk.md:13
+msgid "GEV location; empty for GPD fits."
+msgstr "GEV 位置参数；GPD 拟合时为空。"
+
+#: ../../site/api/risk.md:13
+msgid "GEV scale; empty for GPD fits."
+msgstr "GEV 尺度参数；GPD 拟合时为空。"
+
+#: ../../site/api/risk.md:13
+msgid "GEV block count; empty for GPD."
+msgstr "GEV 分块数量；GPD 时为空。"
+
+#: ../../site/api/risk.md:16
+msgid "Parameters of a GARCH(1,1) model."
+msgstr "GARCH(1,1) 模型的参数。"
+
+#: ../../site/api/risk.md:16
+msgid "Constant mean; zero when the fit uses a zero mean."
+msgstr "常数均值；拟合使用零均值时为零。"
+
+#: ../../site/api/risk.md:16 ../../site/api/risk.md:31
+msgid "Variance intercept in return-variance units; positive."
+msgstr "以收益率方差为单位的方差截距；必须为正。"
+
+#: ../../site/api/risk.md:16 ../../site/api/risk.md:31
+msgid "ARCH coefficient on the previous squared shock."
+msgstr "上期平方冲击项的 ARCH 系数。"
+
+#: ../../site/api/risk.md:16 ../../site/api/risk.md:31
+msgid "GARCH coefficient on the previous variance."
+msgstr "上期方差项的 GARCH 系数。"
+
+#: ../../site/api/risk.md:19
+msgid "Result of a GARCH(1,1) fit."
+msgstr "GARCH(1,1) 拟合的结果。"
+
+#: ../../site/api/risk.md:22
+msgid "GARCH-family VaR or ES estimate and the variance path used."
+msgstr "GARCH 家族的 VaR 或 ES 估计及其使用的方差路径。"
+
+#: ../../site/api/risk.md:22
+msgid "Signed risk estimate; negative for losses at lower-tail probabilities."
+msgstr "带符号的风险估计；在下尾概率下亏损为负。"
+
+#: ../../site/api/risk.md:22
+msgid ""
+"Variance forecast path in return units squared from forecast_volatility, one"
+" value per horizon step."
+msgstr "来自 forecast_volatility 的方差预测路径，单位为收益率平方，每个预测步一个值。"
+
+#: ../../site/api/risk.md:22
+msgid "Convergence flag of the fit that produced the path."
+msgstr "产生该路径的拟合收敛标志。"
+
+#: ../../site/api/risk.md:25
+msgid "Forecast and fit diagnostics returned by forecast_volatility."
+msgstr "forecast_volatility 返回的预测与拟合诊断。"
+
+#: ../../site/api/risk.md:25
+msgid "Variance forecasts in return units squared."
+msgstr "以收益率平方为单位的方差预测。"
+
+#: ../../site/api/risk.md:25
+msgid "Log-likelihood of the fitted model."
+msgstr "拟合模型的对数似然。"
+
+#: ../../site/api/risk.md:25
+msgid "Convergence flag of the fitted model."
+msgstr "拟合模型的收敛标志。"
+
+#: ../../site/api/risk.md:28
+msgid "Fitted generalized extreme-value distribution of block extremes."
+msgstr "对分块极值拟合的推广极值分布。"
+
+#: ../../site/api/risk.md:28 ../../site/api/risk.md:37
+msgid "Shape parameter."
+msgstr "形状参数。"
+
+#: ../../site/api/risk.md:28
+msgid "Location parameter in tail-magnitude units."
+msgstr "以尾部幅值为单位的位置参数。"
+
+#: ../../site/api/risk.md:28
+msgid "Scale parameter in tail-magnitude units."
+msgstr "以尾部幅值为单位的尺度参数。"
+
+#: ../../site/api/risk.md:28
+msgid "Number of complete blocks used."
+msgstr "使用的完整分块数量。"
+
+#: ../../site/api/risk.md:31
+msgid "Parameters of a GJR-GARCH(1,1) model."
+msgstr "GJR-GARCH(1,1) 模型的参数。"
+
+#: ../../site/api/risk.md:31
+msgid "Additional coefficient on squared negative shocks."
+msgstr "负向平方冲击项的额外系数。"
+
+#: ../../site/api/risk.md:34
+msgid "Result of a GJR-GARCH(1,1) fit."
+msgstr "GJR-GARCH(1,1) 拟合的结果。"
+
+#: ../../site/api/risk.md:37
+msgid "Fitted generalized Pareto distribution for threshold exceedances."
+msgstr "对阈值超出值拟合的推广 Pareto 分布。"
+
+#: ../../site/api/risk.md:37
+msgid "Scale parameter in magnitude units."
+msgstr "以幅值为单位的尺度参数。"
+
+#: ../../site/api/risk.md:37
+msgid "Positive magnitude threshold used for the fit."
+msgstr "拟合使用的正幅值阈值。"
+
+#: ../../site/api/risk.md:37
+msgid "Number of strict exceedances used."
+msgstr "使用的严格超出值数量。"
+
+#: ../../site/api/risk.md:40
+msgid "Hill tail-index estimate and the exceedances used."
+msgstr "Hill 尾部指数估计及其使用的超出值。"
+
+#: ../../site/api/risk.md:40
+msgid "Hill tail-index estimate: mean log exceedance ratio."
+msgstr "Hill 尾部指数估计：超出值对数比的均值。"
+
+#: ../../site/api/risk.md:40
+msgid "Strict exceedances in magnitude units, in input order."
+msgstr "以幅值为单位的严格超出值，按输入顺序排列。"
+
+#: ../../site/api/risk.md:43
+msgid "Parameters recorded for one walk-forward refit."
+msgstr "一次滚动前向重新拟合记录的参数。"
+
+#: ../../site/api/risk.md:43
+msgid "Timestamp of the first forecast step from this refit."
+msgstr "该次重新拟合的第一个预测步的时间戳。"
+
+#: ../../site/api/risk.md:43
+msgid "VaR forecast for the refit segment."
+msgstr "该重新拟合区段的 VaR 预测。"
+
+#: ../../site/api/risk.md:43
+msgid "Mean of the estimation window."
+msgstr "估计窗口均值。"
+
+#: ../../site/api/risk.md:43
+msgid "Sample standard deviation (n - 1) of the estimation window."
+msgstr "估计窗口的样本标准差（n - 1）。"
+
+#: ../../site/api/risk.md:43 ../../site/api/risk.md:64
+msgid "Estimation window length."
+msgstr "估计窗口长度。"
+
+#: ../../site/api/risk.md:46
+msgid ""
+"Result of a VaR or ES backtest, including coverage statistics and a "
+"deterministic input digest."
+msgstr "VaR 或 ES 回测结果，包含覆盖率统计量与确定性的输入摘要。"
+
+#: ../../site/api/risk.md:46
+msgid "Risk measure backtested."
+msgstr "被回测的风险度量。"
+
+#: ../../site/api/risk.md:46
+msgid "Confidence level used for the forecast."
+msgstr "预测使用的置信水平。"
+
+#: ../../site/api/risk.md:46
+msgid "Number of paired non-NaN observations."
+msgstr "配对的非 NaN 观测数量。"
+
+#: ../../site/api/risk.md:46
+msgid "VaR: realized below forecast; ES: realized below the tail threshold."
+msgstr "VaR：实现值低于预测；ES：实现值低于尾部阈值。"
+
+#: ../../site/api/risk.md:46
+msgid "observations * (1 - confidence_level)."
+msgstr "observations * (1 - confidence_level)。"
+
+#: ../../site/api/risk.md:46
+msgid "exceptions / observations; 0 when empty."
+msgstr "exceptions / observations；为空时为 0。"
+
+#: ../../site/api/risk.md:46
+msgid "Kupiec unconditional-coverage statistic; 0 for ES."
+msgstr "Kupiec 无条件覆盖率统计量；ES 时为 0。"
+
+#: ../../site/api/risk.md:46
+msgid "Chi-square (df 1) p-value; 1 for ES."
+msgstr "卡方（自由度 1）p 值；ES 时为 1。"
+
+#: ../../site/api/risk.md:46
+msgid "Independence statistic; 0 for ES."
+msgstr "独立性统计量；ES 时为 0。"
+
+#: ../../site/api/risk.md:46
+msgid ""
+"Lowercase SHA-256 over aligned timestamps and values; native form, not the "
+"Python CSV digest."
+msgstr "在对齐的时间戳与取值上计算的小写 SHA-256；为原生形式，不是 Python 的 CSV 摘要。"
+
+#: ../../site/api/risk.md:46
+msgid ""
+"VaR adds significance and small_sample; ES adds realized_es, forecast_es, "
+"z_score, n_bootstrap and seed."
+msgstr ""
+"VaR 额外包含 significance 与 small_sample；ES 额外包含 "
+"realized_es、forecast_es、z_score、n_bootstrap 与 seed。"
+
+#: ../../site/api/risk.md:46
+msgid "Backtest classification."
+msgstr "回测分类。"
+
+#: ../../site/api/risk.md:49
+msgid "Point risk estimate plus provenance and diagnostics."
+msgstr "点风险估计以及来源信息与诊断。"
+
+#: ../../site/api/risk.md:49 ../../site/api/risk.md:52
+msgid "Estimation method."
+msgstr "估计方法。"
+
+#: ../../site/api/risk.md:49
+msgid "Confidence level used for the estimate."
+msgstr "估计使用的置信水平。"
+
+#: ../../site/api/risk.md:49
+msgid "Configured forecast horizon."
+msgstr "配置的预测期。"
+
+#: ../../site/api/risk.md:49
+msgid "Sign convention label; losses_negative."
+msgstr "符号约定标签；losses_negative。"
+
+#: ../../site/api/risk.md:49
+msgid "Point estimate; negative for losses under losses_negative."
+msgstr "点估计；在 losses_negative 约定下亏损为负。"
+
+#: ../../site/api/risk.md:49
+msgid "Timestamp of the last cleaned observation used by the estimate."
+msgstr "估计所使用的最后一个清洗后观测的时间戳。"
+
+#: ../../site/api/risk.md:49
+msgid "Whether forecast_timestamp was populated."
+msgstr "forecast_timestamp 是否被填充。"
+
+#: ../../site/api/risk.md:49
+msgid "Lowercase SHA-256 hex digest of the cleaned timestamps and values."
+msgstr "清洗后的时间戳与取值的小写 SHA-256 十六进制摘要。"
+
+#: ../../site/api/risk.md:49
+msgid ""
+"Whether a forward forecast path is populated; current point estimates leave "
+"it false."
+msgstr "是否填充了向前预测路径；当前的点估计保持为 false。"
+
+#: ../../site/api/risk.md:49
+msgid "Optional forecast timestamps; empty for point estimates."
+msgstr "可选的预测时间戳；点估计为空。"
+
+#: ../../site/api/risk.md:49
+msgid "Optional forecast values; empty for point estimates."
+msgstr "可选的预测值；点估计为空。"
+
+#: ../../site/api/risk.md:49
+msgid "Method-specific numeric diagnostics; keys depend on method."
+msgstr "与方法相关的数值诊断；键取决于方法。"
+
+#: ../../site/api/risk.md:49
+msgid ""
+"Backend kernel: empty for historical, evt_var/evt_cvar for EVT, and "
+"conditional_var/conditional_es for GARCH."
+msgstr ""
+"后端内核：historical 为空，EVT 为 evt_var/evt_cvar，GARCH 为 "
+"conditional_var/conditional_es。"
+
+#: ../../site/api/risk.md:49
+msgid "Note populated when a GARCH fit does not converge; empty otherwise."
+msgstr "GARCH 拟合未收敛时填充的说明；其他情况为空。"
+
+#: ../../site/api/risk.md:49
+msgid "Estimate status."
+msgstr "估计状态。"
+
+#: ../../site/api/risk.md:52
+msgid "Settings for a point VaR or expected-shortfall estimate."
+msgstr "点 VaR 或期望损失估计的设置。"
+
+#: ../../site/api/risk.md:52
+msgid "Confidence level in (0, 1); the tail probability is 1 - confidence_level."
+msgstr "置信水平位于 (0, 1)；尾部概率为 1 - confidence_level。"
+
+#: ../../site/api/risk.md:52
+msgid ""
+"Forecast horizon in observations; used by the GARCH method and must be at "
+"least 1."
+msgstr "以观测数计的预测期；由 GARCH 方法使用，必须不小于 1。"
+
+#: ../../site/api/risk.md:52
+msgid "GARCH family used when method is garch."
+msgstr "method 为 garch 时使用的 GARCH 家族。"
+
+#: ../../site/api/risk.md:52
+msgid "EVT model used when method is evt."
+msgstr "method 为 evt 时使用的 EVT 模型。"
+
+#: ../../site/api/risk.md:52
+msgid "EVT tail used when method is evt."
+msgstr "method 为 evt 时使用的 EVT 尾部。"
+
+#: ../../site/api/risk.md:52
+msgid ""
+"GPD threshold in absolute magnitude units; empty selects the automatic "
+"threshold and GEV ignores it."
+msgstr "以绝对幅值为单位的 GPD 阈值；为空表示自动选择阈值，GEV 会忽略它。"
+
+#: ../../site/api/risk.md:52
+msgid ""
+"GEV block size in observations; empty selects the automatic block size and "
+"GPD ignores it."
+msgstr "以观测数计的 GEV 分块大小；为空表示自动选择分块大小，GPD 会忽略它。"
+
+#: ../../site/api/risk.md:55
+msgid "One out-of-sample forecast event in a validation report."
+msgstr "验证报告中的一次样本外预测事件。"
+
+#: ../../site/api/risk.md:55
+msgid "Forecast timestamp."
+msgstr "预测时间戳。"
+
+#: ../../site/api/risk.md:55
+msgid "VaR forecast at date."
+msgstr "该日期的 VaR 预测。"
+
+#: ../../site/api/risk.md:55
+msgid "Realized return at date."
+msgstr "该日期的实现收益率。"
+
+#: ../../site/api/risk.md:55
+msgid "Whether realized is strictly below forecast."
+msgstr "实现值是否严格低于预测值。"
+
+#: ../../site/api/risk.md:55
+msgid "Whether date starts a refit segment."
+msgstr "该日期是否为重新拟合区段的起点。"
+
+#: ../../site/api/risk.md:58
+msgid ""
+"Versioned model specification shared by walk-forward VaR and validation "
+"reports."
+msgstr "由滚动前向 VaR 与验证报告共享的带版本模型设定。"
+
+#: ../../site/api/risk.md:58
+msgid "Forecast target; walk-forward VaR supports var only."
+msgstr "预测目标；滚动前向 VaR 仅支持 var。"
+
+#: ../../site/api/risk.md:58
+msgid "Confidence level; must be finite in (0, 1)."
+msgstr "置信水平；必须是 (0, 1) 内的有限值。"
+
+#: ../../site/api/risk.md:58
+msgid "Forecast horizon in observations; must be at least 1."
+msgstr "以观测数计的预测期；必须不小于 1。"
+
+#: ../../site/api/risk.md:58
+msgid "Distribution label; historical or normal."
+msgstr "分布标签；historical 或 normal。"
+
+#: ../../site/api/risk.md:58
+msgid "Tail used by the model; walk-forward VaR supports lower only."
+msgstr "模型使用的尾部；滚动前向 VaR 仅支持 lower。"
+
+#: ../../site/api/risk.md:58
+msgid "Sign convention label; only losses_negative is accepted."
+msgstr "符号约定标签；仅接受 losses_negative。"
+
+#: ../../site/api/risk.md:58
+msgid "Estimation window length in observations; at least 2."
+msgstr "以观测数计的估计窗口长度；至少 2。"
+
+#: ../../site/api/risk.md:58
+msgid "Number of forecast steps between refits; at least 1."
+msgstr "两次重新拟合之间的预测步数；至少 1。"
+
+#: ../../site/api/risk.md:58
+msgid "Model version label; only 1.0 is accepted."
+msgstr "模型版本标签；仅接受 1.0。"
+
+#: ../../site/api/risk.md:61
+msgid "Parameters recorded for one refit in a validation report."
+msgstr "验证报告中一次重新拟合记录的参数。"
+
+#: ../../site/api/risk.md:61
+msgid "Refit timestamp."
+msgstr "重新拟合时间戳。"
+
+#: ../../site/api/risk.md:61
+msgid "VaR forecast produced by the refit."
+msgstr "该次重新拟合产生的 VaR 预测。"
+
+#: ../../site/api/risk.md:61
+msgid "Estimation-window mean."
+msgstr "估计窗口均值。"
+
+#: ../../site/api/risk.md:61
+msgid "Estimation-window sample standard deviation."
+msgstr "估计窗口的样本标准差。"
+
+#: ../../site/api/risk.md:61
+msgid "Estimation-window length."
+msgstr "估计窗口长度。"
+
+#: ../../site/api/risk.md:64
+msgid "Diagnostic fields describing how a validation report was produced."
+msgstr "描述验证报告生成方式的诊断字段。"
+
+#: ../../site/api/risk.md:64
+msgid "Distribution label from the specification."
+msgstr "来自设定的分布标签。"
+
+#: ../../site/api/risk.md:64
+msgid "weibull for historical and normal_ppf for normal."
+msgstr "historical 对应 weibull，normal 对应 normal_ppf。"
+
+#: ../../site/api/risk.md:64
+msgid "Forecast steps per refit."
+msgstr "每次重新拟合的预测步数。"
+
+#: ../../site/api/risk.md:64
+msgid "Number of forecast events."
+msgstr "预测事件数量。"
+
+#: ../../site/api/risk.md:64
+msgid "Backtest status name (pass, fail, inconclusive, or experimental)."
+msgstr "回测状态名称（pass、fail、inconclusive 或 experimental）。"
+
+#: ../../site/api/risk.md:64
+msgid "Reason for a non-ok status; empty for ok reports."
+msgstr "非 ok 状态的原因；ok 报告为空。"
+
+#: ../../site/api/risk.md:64
+msgid "Input observation count; populated for insufficient-data reports."
+msgstr "输入观测数量；数据不足的报告会填充该字段。"
+
+#: ../../site/api/risk.md:67
+msgid "Versioned validation report projected from a walk-forward VaR result."
+msgstr "由滚动前向 VaR 结果投影出的带版本验证报告。"
+
+#: ../../site/api/risk.md:67
+msgid "Public Functions"
+msgstr "公共函数"
+
+#: ../../site/api/risk.md:67
+msgid "Returns a detached native dict representation of the report fields."
+msgstr "返回报告字段的独立原生字典表示。"
+
+#: ../../site/api/risk.md
+msgid "Throws"
+msgstr "抛出"
+
+#: ../../site/api/risk.md
+msgid "Returns"
+msgstr "返回"
+
+#: ../../site/api/risk.md:67
+msgid "Serializes the report to deterministic JSON text."
+msgstr "将报告序列化为确定性 JSON 文本。"
+
+#: ../../site/api/risk.md:67
+msgid ""
+"Keys are emitted in sorted order with two-space indentation, Python-"
+"compatible float text, and a trailing newline. Non-finite numbers and "
+"invalid UTF-8 are rejected."
+msgstr "键按排序顺序输出，使用两空格缩进、与 Python 兼容的浮点文本，并以换行符结尾。拒绝非有限数值与非法 UTF-8。"
+
+#: ../../site/api/risk.md:67
+msgid "Writes the deterministic JSON artifact to path and returns it."
+msgstr "将确定性 JSON 产物写入 path 并返回它。"
+
+#: ../../site/api/risk.md:67
+msgid "Parent directories are not created, matching the source contract."
+msgstr "不创建父目录，与源实现契约一致。"
+
+#: ../../site/api/risk.md
+msgid "Parameters"
+msgstr "参数"
+
+#: ../../site/api/risk.md:67 ../../site/api/risk.md:73
+msgid "Run status."
+msgstr "运行状态。"
+
+#: ../../site/api/risk.md:67
+msgid "Lowercase SHA-256 hex digest from the result."
+msgstr "来自结果的小写 SHA-256 十六进制摘要。"
+
+#: ../../site/api/risk.md:67 ../../site/api/risk.md:70
+msgid "Specification echoed from the result."
+msgstr "从结果回显的模型设定。"
+
+#: ../../site/api/risk.md:67 ../../site/api/risk.md:70
+msgid "Forecast events; empty for non-ok reports."
+msgstr "预测事件；非 ok 报告为空。"
+
+#: ../../site/api/risk.md:67 ../../site/api/risk.md:70
+msgid "Refit parameters; empty for non-ok reports."
+msgstr "重新拟合参数；非 ok 报告为空。"
+
+#: ../../site/api/risk.md:67 ../../site/api/risk.md:70
+msgid "Report diagnostics."
+msgstr "报告诊断信息。"
+
+#: ../../site/api/risk.md:67
+msgid "Whether backtest holds a backtest."
+msgstr "backtest 字段是否包含回测结果。"
+
+#: ../../site/api/risk.md:67
+msgid "Backtest payload; meaningful only when has_backtest is true."
+msgstr "回测载荷；仅当 has_backtest 为 true 时有意义。"
+
+#: ../../site/api/risk.md:67 ../../site/api/risk.md:70
+msgid "Basel zone; empty without a backtest."
+msgstr "巴塞尔分区；没有回测时为空。"
+
+#: ../../site/api/risk.md:67
+msgid "Optional index label supplied to the builder."
+msgstr "传给构建器的可选索引标签。"
+
+#: ../../site/api/risk.md:67
+msgid "Optional index timezone label; the native builder leaves it empty."
+msgstr "可选的索引时区标签；原生构建器保持其为空。"
+
+#: ../../site/api/risk.md:67 ../../site/api/risk.md:70
+msgid "Basel reference disclosure text."
+msgstr "巴塞尔参考披露文本。"
+
+#: ../../site/api/risk.md:67 ../../site/api/risk.md:70
+msgid "Report schema version."
+msgstr "报告模式版本。"
+
+#: ../../site/api/risk.md:70
+msgid "Native detached dictionary projection of risk_validation_report."
+msgstr "risk_validation_report 的原生独立字典投影。"
+
+#: ../../site/api/risk.md:70
+msgid ""
+"This is the C++ equivalent of the source's JSON-compatible to_dict mapping: "
+"every native report field is represented exactly once. Python object "
+"identity and mapping subclassing are not claimed."
+msgstr ""
+"这是源实现中与 JSON 兼容的 to_dict 映射在 C++ 中的等价物：每个原生报告字段都恰好出现一次。不声称具备 Python 的对象身份或 "
+"mapping 子类化。"
+
+#: ../../site/api/risk.md:70
+msgid "Status name: ok, insufficient_data, or unsupported."
+msgstr "状态名称：ok、insufficient_data 或 unsupported。"
+
+#: ../../site/api/risk.md:70
+msgid "Lowercase SHA-256 hex digest from the walk-forward result."
+msgstr "来自滚动前向结果的小写 SHA-256 十六进制摘要。"
+
+#: ../../site/api/risk.md:70
+msgid "Optional index label."
+msgstr "可选的索引标签。"
+
+#: ../../site/api/risk.md:70
+msgid "Optional index timezone label; not populated by the native builder."
+msgstr "可选的索引时区标签；原生构建器不会填充。"
+
+#: ../../site/api/risk.md:70
+msgid "Backtest payload; empty when the report has no backtest."
+msgstr "回测载荷；报告没有回测时为空。"
+
+#: ../../site/api/risk.md:73
+msgid "Result of a walk-forward VaR run."
+msgstr "一次滚动前向 VaR 运行的结果。"
+
+#: ../../site/api/risk.md:73
+msgid "Specification used to produce the result."
+msgstr "产生该结果所使用的模型设定。"
+
+#: ../../site/api/risk.md:73
+msgid "Out-of-sample timestamps; empty unless status is ok."
+msgstr "样本外时间戳；除非状态为 ok 否则为空。"
+
+#: ../../site/api/risk.md:73
+msgid "VaR forecast path aligned with index; empty unless status is ok."
+msgstr "与 index 对齐的 VaR 预测路径；除非状态为 ok 否则为空。"
+
+#: ../../site/api/risk.md:73
+msgid "Realized returns aligned with index; empty unless status is ok."
+msgstr "与 index 对齐的实现收益率；除非状态为 ok 否则为空。"
+
+#: ../../site/api/risk.md:73
+msgid "Timestamps of all refits; the first equals index.front() when ok."
+msgstr "所有重新拟合的时间戳；状态为 ok 时第一个等于 index.front()。"
+
+#: ../../site/api/risk.md:73
+msgid "Parameters recorded for each refit, one per refit_timestamps entry."
+msgstr "为每次重新拟合记录的参数，与 refit_timestamps 的条目一一对应。"
+
+#: ../../site/api/risk.md:73
+msgid ""
+"Lowercase SHA-256 hex digest of the input values and the confidence level, "
+"window, refit cadence, distribution and model version."
+msgstr "输入取值以及置信水平、窗口、重新拟合节奏、分布与模型版本的小写 SHA-256 十六进制摘要。"
+
+#: ../../site/api/risk.md:73
+msgid "Reason for an unsupported or insufficient_data result; empty for ok."
+msgstr "unsupported 或 insufficient_data 结果的原因；ok 时为空。"
+
+#: ../../site/api/risk.md:73
+msgid "Number of input observations."
+msgstr "输入观测数量。"
+
+#: ../../site/api/risk.md:73
+msgid "Out-of-sample VaR backtest; meaningful only when has_backtest is true."
+msgstr "样本外 VaR 回测；仅当 has_backtest 为 true 时有意义。"
+
+#: ../../site/api/risk.md:73
+msgid "Whether backtest was populated."
+msgstr "backtest 是否被填充。"
+
+#: ../../site/api/risk.md:76
+msgid "Extreme-value model used for a tail estimate."
+msgstr "用于尾部估计的极值模型。"
+
+#: ../../site/api/risk.md:76 ../../site/api/risk.md:79 ../../site/api/risk.md:82
+#: ../../site/api/risk.md:85 ../../site/api/risk.md:88 ../../site/api/risk.md:91
+#: ../../site/api/risk.md:94 ../../site/api/risk.md:97 ../../site/api/risk.md:100
+#: ../../site/api/risk.md:103 ../../site/api/risk.md:106
+#: ../../site/api/risk.md:109
+msgid "Values:"
+msgstr "取值："
+
+#: ../../site/api/risk.md:76
+msgid "Peaks-over-threshold generalized Pareto model."
+msgstr "超阈值 Peaks-over-threshold 推广 Pareto 模型。"
+
+#: ../../site/api/risk.md:76
+msgid "Block-maxima generalized extreme-value model."
+msgstr "分块极大值推广极值模型。"
+
+#: ../../site/api/risk.md:79
+msgid "Tail of the return distribution used by an EVT model."
+msgstr "EVT 模型使用的收益率分布尾部。"
+
+#: ../../site/api/risk.md:79
+msgid "Lower tail (losses)."
+msgstr "下尾（亏损）。"
+
+#: ../../site/api/risk.md:79
+msgid "Upper tail (gains)."
+msgstr "上尾（盈利）。"
+
+#: ../../site/api/risk.md:82
+msgid "GARCH-family model selected by the convenience functions."
+msgstr "便捷函数所选用的 GARCH 家族模型。"
+
+#: ../../site/api/risk.md:82
+msgid "GARCH(1,1) with a zero mean."
+msgstr "零均值的 GARCH(1,1)。"
+
+#: ../../site/api/risk.md:82
+msgid "EGARCH(1,1)."
+msgstr "EGARCH(1,1)。"
+
+#: ../../site/api/risk.md:82
+msgid "GJR-GARCH(1,1) with an asymmetric shock term."
+msgstr "带非对称冲击项的 GJR-GARCH(1,1)。"
+
+#: ../../site/api/risk.md:85
+msgid "Estimation method for a generalized Pareto fit."
+msgstr "推广 Pareto 拟合的估计方法。"
+
+#: ../../site/api/risk.md:85
+msgid "Maximum-likelihood fit of the GPD."
+msgstr "GPD 的极大似然拟合。"
+
+#: ../../site/api/risk.md:85
+msgid "Probability-weighted-moment fit using L-moments."
+msgstr "使用 L 矩的概率加权矩拟合。"
+
+#: ../../site/api/risk.md:88
+msgid "Risk measure exercised by a backtest."
+msgstr "回测所检验的风险度量。"
+
+#: ../../site/api/risk.md:88
+msgid "Value-at-risk exception backtest."
+msgstr "VaR 突破回测。"
+
+#: ../../site/api/risk.md:88
+msgid "Expected-shortfall backtest."
+msgstr "期望损失回测。"
+
+#: ../../site/api/risk.md:91
+msgid "Classification of a VaR or ES backtest."
+msgstr "VaR 或 ES 回测的分类结果。"
+
+#: ../../site/api/risk.md:91
+msgid "Coverage tests do not reject the model and the sample is adequate."
+msgstr "覆盖率检验不拒绝模型，且样本量充足。"
+
+#: ../../site/api/risk.md:91
+msgid "A coverage test rejects the model and the sample is adequate."
+msgstr "某项覆盖率检验拒绝模型，且样本量充足。"
+
+#: ../../site/api/risk.md:91
+msgid ""
+"Fewer than three paired observations or fewer than five expected exceptions;"
+" the sample is too small to test."
+msgstr "配对观测少于三个，或预期突破数少于五；样本过小无法检验。"
+
+#: ../../site/api/risk.md:91
+msgid "Experimental backtest; used by the ES bootstrap path."
+msgstr "实验性回测；ES 自助法路径使用。"
+
+#: ../../site/api/risk.md:94
+msgid "Distribution labels for walk-forward VaR."
+msgstr "滚动前向 VaR 的分布标签。"
+
+#: ../../site/api/risk.md:94
+msgid "Empirical distribution using the Weibull quantile."
+msgstr "使用 Weibull 分位数的经验分布。"
+
+#: ../../site/api/risk.md:94
+msgid "Normal distribution using the mean and sample deviation."
+msgstr "使用均值与样本标准差的正态分布。"
+
+#: ../../site/api/risk.md:97
+msgid "Completion status of a risk estimate."
+msgstr "风险估计的完成状态。"
+
+#: ../../site/api/risk.md:97
+msgid "At least two non-NaN observations were available and any GARCH fit converged."
+msgstr "至少有两个非 NaN 观测可用，且任何 GARCH 拟合都已收敛。"
+
+#: ../../site/api/risk.md:97
+msgid "Fewer than two non-NaN observations were available."
+msgstr "可用的非 NaN 观测少于两个。"
+
+#: ../../site/api/risk.md:97
+msgid "The GARCH fit did not converge or failed its stationarity checks."
+msgstr "GARCH 拟合未收敛或未通过平稳性检查。"
+
+#: ../../site/api/risk.md:100
+msgid "Risk-estimation method used by forecast_var and forecast_es."
+msgstr "forecast_var 与 forecast_es 使用的风险估计方法。"
+
+#: ../../site/api/risk.md:100
+msgid "Historical quantile and tail-mean estimate."
+msgstr "历史分位数与尾部均值估计。"
+
+#: ../../site/api/risk.md:100
+msgid "Extreme-value estimate using the configured EVT kernel."
+msgstr "使用所配置 EVT 内核的极值估计。"
+
+#: ../../site/api/risk.md:100
+msgid "GARCH-family conditional estimate."
+msgstr "GARCH 家族的条件估计。"
+
+#: ../../site/api/risk.md:103
+msgid "Target risk measure produced by a forecast."
+msgstr "预测所生成的目标风险度量。"
+
+#: ../../site/api/risk.md:103
+msgid "Value at risk."
+msgstr "在险价值。"
+
+#: ../../site/api/risk.md:103
+msgid "Expected shortfall."
+msgstr "期望损失。"
+
+#: ../../site/api/risk.md:103
+msgid "Pair target label for cross-component metadata."
+msgstr "跨组件元数据使用的配对目标标签。"
+
+#: ../../site/api/risk.md:106
+msgid "Tail of the return distribution used by a risk model."
+msgstr "风险模型使用的收益率分布尾部。"
+
+#: ../../site/api/risk.md:106
+msgid "Lower (loss) tail."
+msgstr "下尾（亏损）。"
+
+#: ../../site/api/risk.md:106
+msgid "Upper (gain) tail."
+msgstr "上尾（盈利）。"
+
+#: ../../site/api/risk.md:109
+msgid "Completion status of a walk-forward VaR run."
+msgstr "滚动前向 VaR 运行的完成状态。"
+
+#: ../../site/api/risk.md:109
+msgid "Forecast path and backtest were produced."
+msgstr "已生成预测路径与回测。"
+
+#: ../../site/api/risk.md:109
+msgid "Fewer observations than one full window plus one."
+msgstr "观测数不足一个完整窗口加一。"
+
+#: ../../site/api/risk.md:109
+msgid "The specification combination is not supported."
+msgstr "该设定组合不受支持。"
+
+#: ../../site/api/risk.md:112
+msgid "Runs an experimental bootstrap expected-shortfall backtest."
+msgstr "运行实验性的自助法期望损失回测。"
+
+#: ../../site/api/risk.md:112
+msgid ""
+"The realized tail contains realized values strictly below the linear 1 - "
+"confidence_level quantile; realized ES is the tail mean and forecast ES the "
+"aligned forecast mean. A seeded bootstrap of the tail supplies the standard "
+"deviation of resampled tail means used in the reported z-score. The status "
+"is always experimental, and the Kupiec and Christoffersen fields are neutral"
+" (0 and 1)."
+msgstr ""
+"实现尾部包含严格低于线性 1 - confidence_level 分位数的实现值；realized ES 为尾部均值，forecast ES "
+"为对齐的预测均值。带种子的尾部自助法给出重抽样尾部均值的样本标准差，用于所报告的 z 值。状态始终为 experimental，Kupiec 与 "
+"Christoffersen 字段取中性值（0 与 1）。"
+
+#: ../../site/api/risk.md:115
+msgid "Runs a VaR exception backtest on aligned forecast and realized series."
+msgstr "在对齐的预测与实现序列上运行 VaR 突破回测。"
+
+#: ../../site/api/risk.md:115
+msgid ""
+"Both frames are aligned on their common timestamps, and pairs with a NaN "
+"forecast or realized value are dropped. An exception is a realized value "
+"strictly below the forecast. The result is inconclusive when there are fewer"
+" than three paired observations or fewer than five expected exceptions; "
+"otherwise it is fail when either coverage p-value is below significance and "
+"pass otherwise."
+msgstr ""
+"两个帧按共同时间戳对齐，预测或实现值为 NaN 的配对被丢弃。突破指实现值严格低于预测值。当配对观测少于三个或预期突破数少于五时结果为 "
+"inconclusive；否则任一覆盖率 p 值低于 significance 时为 fail，其余为 pass。"
+
+#: ../../site/api/risk.md:118
+msgid "Classifies an exception count into a Basel traffic-light zone."
+msgstr "将突破次数划分到巴塞尔红绿灯分区。"
+
+#: ../../site/api/risk.md:118
+msgid ""
+"Zones are determined from binomial quantiles at 95% (green/yellow boundary) "
+"and 99.99% (yellow/red boundary) for the expected exception probability. "
+"Returns green when observations is zero."
+msgstr "分区依据预期突破概率下二项分布的 95% 分位（绿/黄边界）与 99.99% 分位（黄/红边界）确定。observations 为零时返回 green。"
+
+#: ../../site/api/risk.md:121
+msgid "Builds a validation report from a walk-forward VaR result."
+msgstr "由滚动前向 VaR 结果构建验证报告。"
+
+#: ../../site/api/risk.md:121
+msgid ""
+"The result is revalidated before projection: the forecast, realized and "
+"index lengths must agree, refit timestamps must follow the specification "
+"cadence, fit parameters must reproduce their forecast segments, the digest "
+"must be lowercase SHA-256 hex, and the backtest must match a recomputation "
+"over the path. The report owns copies of all projected fields."
+msgstr ""
+"投影之前会重新校验结果：预测、实现与索引的长度必须一致，重新拟合时间戳必须符合设定的节奏，拟合参数必须能复现其预测区段，摘要必须为小写 SHA-256 "
+"十六进制，且回测必须与在路径上的重新计算结果一致。报告持有所投影字段的全部副本。"
+
+#: ../../site/api/risk.md:124
+msgid "Returns the Christoffersen independence likelihood-ratio statistic."
+msgstr "返回 Christoffersen 独立性似然比统计量。"
+
+#: ../../site/api/risk.md:124
+msgid ""
+"Flags are treated as binary; non-zero entries count as exceptions. Returns "
+"zero when fewer than two flags are supplied."
+msgstr "标志按二值处理；非零项计为突破。提供的标志少于两个时返回零。"
+
+#: ../../site/api/risk.md:127
+msgid ""
+"Computes a conditional normal expected shortfall from a GARCH-family "
+"variance forecast."
+msgstr "由 GARCH 家族方差预测计算条件正态期望损失。"
+
+#: ../../site/api/risk.md:127
+msgid ""
+"The fit is performed by forecast_volatility; the value is -sqrt(sum(forecast"
+" variances)) * pdf(z(alpha)) / alpha over the requested horizon."
+msgstr ""
+"拟合由 forecast_volatility 完成；数值为在请求的预测期上 -sqrt(sum(forecast variances)) * "
+"pdf(z(alpha)) / alpha。"
+
+#: ../../site/api/risk.md:130
+msgid "Computes a conditional normal VaR from a GARCH-family variance forecast."
+msgstr "由 GARCH 家族方差预测计算条件正态 VaR。"
+
+#: ../../site/api/risk.md:130
+msgid ""
+"The fit is performed by forecast_volatility; the value is z(alpha) * "
+"sqrt(sum(forecast variances)) over the requested horizon."
+msgstr ""
+"拟合由 forecast_volatility 完成；数值为在请求的预测期上 z(alpha) * sqrt(sum(forecast "
+"variances))。"
+
+#: ../../site/api/risk.md:133
+msgid "Returns the relative realized-versus-forecast expected-shortfall score."
+msgstr "返回实现与预测期望损失的相对差值度量。"
+
+#: ../../site/api/risk.md:133
+msgid ""
+"Realized ES is the mean of realized values at or below the linear 1 - "
+"confidence_level quantile, and is zero when that tail is empty. The score is"
+" (realized_es - forecast_es) / abs(forecast_es)."
+msgstr ""
+"realized ES 为不高于线性 1 - confidence_level 分位数的实现值均值，该尾部为空时取零。度量为 (realized_es "
+"- forecast_es) / abs(forecast_es)。"
+
+#: ../../site/api/risk.md:136
+msgid "Estimates the conditional tail expectation with an extreme-value model."
+msgstr "用极值模型估计条件尾部期望。"
+
+#: ../../site/api/risk.md:136
+msgid ""
+"Uses the same fitting and threshold policy as evt_var, then reports the mean"
+" of the tail beyond VaR (CVaR/ES). The estimate is signed by tail and lies "
+"further into the selected tail than the corresponding VaR."
+msgstr ""
+"使用与 evt_var 相同的拟合与阈值策略，随后报告超出 VaR 的尾部均值（CVaR/ES）。估计值按尾部符号表示，且比对应的 VaR "
+"更靠近所选尾部。"
+
+#: ../../site/api/risk.md:139
+msgid "Estimates the value at risk with an extreme-value model."
+msgstr "用极值模型估计在险价值。"
+
+#: ../../site/api/risk.md:139
+msgid ""
+"alpha is the tail probability, not the confidence level: for example 0.05 "
+"targets the 95% tail. The GPD path fits a peaks-over-threshold model; when "
+"threshold is empty, a threshold is chosen to leave enough strict exceedances"
+" to cover alpha, starting from the 90th percentile of the selected tail. The"
+" GEV path uses block maxima and ignores threshold. The result is signed by "
+"tail, so lower-tail estimates are negative."
+msgstr ""
+"alpha 是尾部概率而非置信水平：例如 0.05 对应 95% 的尾部。GPD 路径拟合 Peaks-over-threshold "
+"模型；threshold 为空时，从所选尾部的第 90 百分位开始选择一个能提供足够严格超出值以覆盖 alpha 的阈值。GEV "
+"路径使用分块极大值并忽略 threshold。结果按尾部符号表示，因此下尾估计为负。"
+
+#: ../../site/api/risk.md:142
+msgid "Returns the expected number of VaR exceptions."
+msgstr "返回预期的 VaR 突破次数。"
+
+#: ../../site/api/risk.md:142
+msgid "The expected count is observations * (1 - confidence_level)."
+msgstr "预期次数为 observations * (1 - confidence_level)。"
+
+#: ../../site/api/risk.md:145
+msgid "Estimates VaR, CVaR and fitted tail parameters with an extreme-value model."
+msgstr "用极值模型估计 VaR、CVaR 及拟合的尾部参数。"
+
+#: ../../site/api/risk.md:145
+msgid ""
+"Runs the same fit and threshold policy as evt_var and evt_cvar and returns "
+"both estimates. For GPD, threshold and n_exceedances describe the fit and "
+"the location, scale and block fields are empty. For GEV, the location, scale"
+" and block fields are set, while threshold is NaN and n_exceedances is zero."
+msgstr ""
+"运行与 evt_var 和 evt_cvar 相同的拟合与阈值策略并返回两个估计。对 GPD，threshold 与 n_exceedances "
+"描述拟合，而 location、scale 与 block 字段为空。对 GEV，location、scale 与 block 字段被设置，而 "
+"threshold 为 NaN、n_exceedances 为零。"
+
+#: ../../site/api/risk.md:148
+msgid "Fits an EGARCH(1,1) model by Gaussian maximum likelihood."
+msgstr "用高斯极大似然拟合 EGARCH(1,1) 模型。"
+
+#: ../../site/api/risk.md:148 ../../site/api/risk.md:154
+msgid ""
+"NaN observations are dropped; at least ten non-NaN observations with finite "
+"values and positive variance are required. The fit uses multi-start Nelder-"
+"Mead optimization."
+msgstr "丢弃 NaN 观测；至少需要十个取值有限且方差为正的 non-NaN 观测。拟合使用多起点 Nelder-Mead 优化。"
+
+#: ../../site/api/risk.md:151
+msgid "Fits a GARCH(1,1) model by Gaussian maximum likelihood."
+msgstr "用高斯极大似然拟合 GARCH(1,1) 模型。"
+
+#: ../../site/api/risk.md:151
+msgid ""
+"NaN observations are dropped; at least eleven non-NaN observations with "
+"finite values and positive variance are required. A zero mean is imposed "
+"unless constant_mean is true."
+msgstr "丢弃 NaN 观测；至少需要十一个取值有限且方差为正的 non-NaN 观测。除非 constant_mean 为 true，否则强制零均值。"
+
+#: ../../site/api/risk.md:154
+msgid "Fits a GJR-GARCH(1,1) model by Gaussian maximum likelihood."
+msgstr "用高斯极大似然拟合 GJR-GARCH(1,1) 模型。"
+
+#: ../../site/api/risk.md:157
+msgid "Forecasts the conditional variance path of an EGARCH(1,1) fit."
+msgstr "预测 EGARCH(1,1) 拟合的条件方差路径。"
+
+#: ../../site/api/risk.md:157
+msgid ""
+"The first step uses the last log-variance and standardized residual; later "
+"steps use a constant drift and the fitted beta persistence. A result without"
+" conditional variances yields a path of NaNs."
+msgstr "第一步使用最后一个对数方差与标准化残差；后续步骤使用常数漂移与拟合的 beta 持续性。没有条件方差的结果会产生全 NaN 的路径。"
+
+#: ../../site/api/risk.md:160
+msgid "Estimates the expected shortfall of a return series."
+msgstr "估计收益率序列的期望损失。"
+
+#: ../../site/api/risk.md:160 ../../site/api/risk.md:169
+msgid ""
+"NaN observations are dropped before estimation, and the index must be "
+"strictly ascending and duplicate-free. Historical and EVT methods return a "
+"single point estimate and do not use config.horizon; the GARCH method "
+"composes the conditional variance forecast over the configured horizon."
+msgstr ""
+"估计之前丢弃 NaN 观测，且索引必须严格升序且无重复。historical 与 EVT 方法返回单个点估计并且不使用 "
+"config.horizon；GARCH 方法在配置的预测期上复合条件方差预测。"
+
+#: ../../site/api/risk.md:163
+msgid "Forecasts the conditional variance path of a GARCH(1,1) fit."
+msgstr "预测 GARCH(1,1) 拟合的条件方差路径。"
+
+#: ../../site/api/risk.md:163
+msgid ""
+"The first step uses the last conditional variance and residual; later steps "
+"use the fitted persistence alpha + beta. A result without conditional "
+"variances yields a path of NaNs."
+msgstr "第一步使用最后一个条件方差与残差；后续步骤使用拟合的持续性 alpha + beta。没有条件方差的结果会产生全 NaN 的路径。"
+
+#: ../../site/api/risk.md:166
+msgid "Forecasts the conditional variance path of a GJR-GARCH(1,1) fit."
+msgstr "预测 GJR-GARCH(1,1) 拟合的条件方差路径。"
+
+#: ../../site/api/risk.md:166
+msgid ""
+"The first step uses the last conditional variance and signed residual; later"
+" steps use the fitted persistence alpha + 0.5 * gamma + beta. A result "
+"without conditional variances yields a path of NaNs."
+msgstr ""
+"第一步使用最后一个条件方差与带符号残差；后续步骤使用拟合的持续性 alpha + 0.5 * gamma + beta。没有条件方差的结果会产生全 "
+"NaN 的路径。"
+
+#: ../../site/api/risk.md:169
+msgid "Estimates the value at risk of a return series."
+msgstr "估计收益率序列的在险价值。"
+
+#: ../../site/api/risk.md:172
+msgid "Fits a GARCH-family model and forecasts its variance path."
+msgstr "拟合 GARCH 家族模型并预测其方差路径。"
+
+#: ../../site/api/risk.md:175
+msgid "Returns the Gaussian GARCH(1,1) log-likelihood for fixed parameters."
+msgstr "返回给定参数下的高斯 GARCH(1,1) 对数似然。"
+
+#: ../../site/api/risk.md:175
+msgid ""
+"The first conditional variance is the population variance of eps and the "
+"likelihood sums over the remaining observations, so the first observation is"
+" a one-step burn-in."
+msgstr "首个条件方差取 eps 的总体方差，似然在其余观测上累加，因此第一个观测作为一步预热被舍弃。"
+
+#: ../../site/api/risk.md:178
+msgid "Fits a generalized extreme-value distribution to block extremes."
+msgstr "对分块极值拟合推广极值分布。"
+
+#: ../../site/api/risk.md:178
+msgid ""
+"NaN values are dropped; each complete block contributes its maximum for "
+"upper or the negated minimum for lower, so the fitted location and scale are"
+" in tail-magnitude units. The default block size is the integer square root "
+"of the remaining observation count."
+msgstr ""
+"丢弃 NaN 值；每个完整分块对 upper 贡献其最大值、对 lower "
+"贡献其最小值取负，因此拟合的位置与尺度以尾部幅值为单位。默认分块大小为剩余观测数的整数平方根。"
+
+#: ../../site/api/risk.md:181
+msgid "Fits a generalized Pareto distribution to tail exceedances."
+msgstr "对尾部超出值拟合推广 Pareto 分布。"
+
+#: ../../site/api/risk.md:181
+msgid ""
+"Magnitudes are reflected losses for lower and gains for upper; the default "
+"threshold is the 90th linear percentile of those magnitudes. At least ten "
+"strict exceedances are required. The maximum-likelihood path reproduces the "
+"pinned source objective and bounds, which can drive xi to its upper bound. "
+"The PWM path uses L-moment formulas."
+msgstr ""
+"lower 幅值为亏损取反，upper 幅值为收益；默认阈值为这些幅值的第 90 "
+"线性百分位。至少需要十个严格超出值。极大似然路径复现固定版本源实现的目标函数与边界，可能把 xi 推到其上界。PWM 路径使用 L 矩公式。"
+
+#: ../../site/api/risk.md:184
+msgid "Estimates the Hill tail index from the selected tail magnitudes."
+msgstr "由所选尾部幅值估计 Hill 尾部指数。"
+
+#: ../../site/api/risk.md:184
+msgid ""
+"Magnitudes are reflected losses for lower and gains for upper; the default "
+"threshold is the 90th linear percentile of those magnitudes. Only strict "
+"exceedances are used, and at least ten are required."
+msgstr "lower 幅值为亏损取反，upper 幅值为收益；默认阈值为这些幅值的第 90 线性百分位。只使用严格超出值，且至少需要十个。"
+
+#: ../../site/api/risk.md:187
+msgid "Returns the Kupiec proportion-of-failures likelihood-ratio statistic."
+msgstr "返回 Kupiec 失败比例似然比统计量。"
+
+#: ../../site/api/risk.md:187
+msgid ""
+"The expected exception probability is 1 - confidence_level. The statistic is"
+" clamped at zero and is zero when observations is zero."
+msgstr "预期突破概率为 1 - confidence_level。统计量下限截断为零，observations 为零时结果为零。"
+
+#: ../../site/api/risk.md:190
+msgid "Returns the lowercase name of a backtest status."
+msgstr "返回回测状态的小写名称。"
+
+#: ../../site/api/risk.md:193
+msgid "Returns the lowercase name of a forecast target."
+msgstr "返回预测目标的小写名称。"
+
+#: ../../site/api/risk.md:196
+msgid "Returns the lowercase name of a distribution tail."
+msgstr "返回分布尾部的小写名称。"
+
+#: ../../site/api/risk.md:199
+msgid "Validates a model specification against the supported contract."
+msgstr "依据受支持的契约校验模型设定。"
+
+#: ../../site/api/risk.md:202
+msgid "Returns the lowercase name of a walk-forward status."
+msgstr "返回滚动前向状态的小写名称。"
+
+#: ../../site/api/risk.md:205
+msgid "Runs a rolling-window walk-forward VaR backtest."
+msgstr "运行滚动窗口的滚动前向 VaR 回测。"
+
+#: ../../site/api/risk.md:205
+msgid ""
+"The first forecast is produced for the observation after the initial "
+"spec.window; refits occur at that point and every spec.refit_cadence steps, "
+"each using exactly the preceding window. Normal forecasts use the mean plus "
+"the sample deviation times the normal quantile, falling back to the mean on "
+"zero deviation; historical forecasts use the type-6 (Weibull) quantile. The "
+"resulting path is backtested at a 0.05 significance level. A path requires "
+"forecast_target='var', tail='lower', sign_convention='losses_negative' and "
+"horizon=1; a horizon above 1, another target, tail or sign convention, or a "
+"historical rank (window + 1) * (1 - confidence_level) outside [1, window] up"
+" to floating-point tolerance returns unsupported with a reason."
+msgstr ""
+"第一个预测针对初始 spec.window 之后的观测产生；此后每 spec.refit_cadence 步重新拟合并恰好使用前一个窗口。normal "
+"预测使用均值加样本标准差乘以正态分位数，偏差为零时回退为均值；historical 预测使用第 6 类（Weibull）分位数。得到的路径按 0.05 "
+"显著性水平回测。路径要求 "
+"forecast_target='var'、tail='lower'、sign_convention='losses_negative' 且 "
+"horizon=1；若 horizon 大于 1、目标/尾部/符号约定不符，或在浮点容差内历史秩 (window + 1) * (1 - "
+"confidence_level) 落在 [1, window] 之外，则返回带原因的 unsupported。"
+
+#: ../../site/api/risk.md:208
+msgid "Sign-convention label stating that losses are negative returns."
+msgstr "表示亏损为负收益率的符号约定标签。"
+
+#: ../../site/api/risk.md:211
+msgid "Schema version emitted by risk validation reports."
+msgstr "风险验证报告输出的模式版本。"
+
+#~ msgid "Native detached dictionary projection of :struct:risk_validation_report."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The first forecast is produced for "
+#~ "the observation after the initial "
+#~ "spec.window; refits occur at that point "
+#~ "and every spec.refit_cadence steps, each "
+#~ "using exactly the preceding window. Normal"
+#~ " forecasts use the mean plus the "
+#~ "sample deviation times the normal quantile,"
+#~ " falling back to the mean on zero"
+#~ " deviation; historical forecasts use the "
+#~ "type-6 (Weibull) quantile. The resulting "
+#~ "path is backtested at a 0.05 "
+#~ "significance level. A path requires "
+#~ "‘forecast_target='var’,tail='lower', "
+#~ "sign_convention='losses_negative'andhorizon=1; a horizon "
+#~ "above 1, another target, tail or sign"
+#~ " convention, or a historical rank "
+#~ "(window + 1) * (1 - "
+#~ "confidence_level)outside[1, window]up to floating-"
+#~ "point tolerance returnsunsupported` with a "
+#~ "reason."
+#~ msgstr ""
+

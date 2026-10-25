@@ -1,0 +1,658 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 07:15+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/api/simulation.md:1
+msgid "Simulation"
+msgstr "模拟"
+
+#: ../../site/api/simulation.md:3
+msgid "Bootstrap, Monte Carlo and stress scenarios with seeded reproducibility."
+msgstr "带随机种子可复现性的自助法、蒙特卡洛与压力情景。"
+
+#: ../../site/api/simulation.md:5
+msgid ""
+"See the [usage guide](../guides/portfolio-risk.md) for task-oriented "
+"examples. Signatures below are generated from the public headers at the same"
+" commit as the rest of this site."
+msgstr "面向任务的示例参见[使用指南](../guides/portfolio-risk.md)。以下签名由与本站点其余内容同一提交的公共头文件生成。"
+
+#: ../../site/api/simulation.md:7
+msgid "Owning simulation result with paths, terminal statistics and risk measures."
+msgstr "持有路径、终值统计与风险度量的模拟结果对象。"
+
+#: ../../site/api/simulation.md:7
+msgid ""
+"Instances are created by analyze_simulation_paths; the constructor that "
+"accepts ready-made state is private. Copy and move operations copy or "
+"transfer the owned path frame, statistics and terminal distribution."
+msgstr "实例由 analyze_simulation_paths 创建；接受现成状态的构造函数为私有。拷贝与移动操作会复制或转移所持有的路径帧、统计量与终值分布。"
+
+#: ../../site/api/simulation.md:7
+msgid "Public Functions"
+msgstr "公共函数"
+
+#: ../../site/api/simulation.md:7
+msgid "Copies the path frame, statistics and terminal distribution."
+msgstr "复制路径帧、统计量与终值分布。"
+
+#: ../../site/api/simulation.md
+msgid "Parameters"
+msgstr "参数"
+
+#: ../../site/api/simulation.md:7
+msgid "Moves the path frame, statistics and terminal distribution."
+msgstr "移动路径帧、统计量与终值分布。"
+
+#: ../../site/api/simulation.md:7
+msgid "Assigns by copying the path frame, statistics and terminal distribution."
+msgstr "通过复制路径帧、统计量与终值分布进行赋值。"
+
+#: ../../site/api/simulation.md
+msgid "Returns"
+msgstr "返回"
+
+#: ../../site/api/simulation.md:7
+msgid "Assigns by moving the path frame, statistics and terminal distribution."
+msgstr "通过移动路径帧、统计量与终值分布进行赋值。"
+
+#: ../../site/api/simulation.md:7
+msgid "Destroys the owned path frame, statistics and terminal distribution."
+msgstr "销毁所持有的路径帧、统计量与终值分布。"
+
+#: ../../site/api/simulation.md:7
+msgid "Returns the owned path frame."
+msgstr "返回所持有的路径帧。"
+
+#: ../../site/api/simulation.md:7
+msgid "Returns the cached terminal statistics."
+msgstr "返回缓存的终值统计。"
+
+#: ../../site/api/simulation.md:7
+msgid "Returns the number of simulated paths."
+msgstr "返回模拟路径数量。"
+
+#: ../../site/api/simulation.md:7
+msgid "Returns the number of observations per path."
+msgstr "返回每条路径的观测数量。"
+
+#: ../../site/api/simulation.md:7
+msgid "Computes the terminal value at risk at alpha."
+msgstr "计算置信水平 alpha 下的终值 VaR。"
+
+#: ../../site/api/simulation.md:7
+msgid ""
+"The result is the linearly interpolated alpha percentile of the terminal "
+"values."
+msgstr "结果为终值序列线性插值后的 alpha 分位数。"
+
+#: ../../site/api/simulation.md:7
+msgid "Computes the terminal conditional value at risk at alpha."
+msgstr "计算置信水平 alpha 下的终值条件 VaR。"
+
+#: ../../site/api/simulation.md:7
+msgid ""
+"The result is the arithmetic mean of the terminal values at or below the "
+"corresponding value at risk."
+msgstr "结果为不高于对应 VaR 的终值的算术平均。"
+
+#: ../../site/api/simulation.md
+msgid "Throws"
+msgstr "抛出"
+
+#: ../../site/api/simulation.md:10
+msgid "Lower and upper bounds of a percentile bootstrap interval."
+msgstr "分位数自助法区间的上下界。"
+
+#: ../../site/api/simulation.md:10 ../../site/api/simulation.md:13
+#: ../../site/api/simulation.md:16 ../../site/api/simulation.md:19
+#: ../../site/api/simulation.md:22 ../../site/api/simulation.md:25
+#: ../../site/api/simulation.md:28 ../../site/api/simulation.md:31
+msgid "Public Members"
+msgstr "公共成员"
+
+#: ../../site/api/simulation.md:10
+msgid "Lower percentile bound."
+msgstr "下界分位数值。"
+
+#: ../../site/api/simulation.md:10
+msgid "Upper percentile bound."
+msgstr "上界分位数值。"
+
+#: ../../site/api/simulation.md:13
+msgid "Bootstrap summaries for the mean, deviation and ratio statistics."
+msgstr "均值、标准差与比率统计量的自助法摘要。"
+
+#: ../../site/api/simulation.md:13
+msgid "Summary of the mean statistic."
+msgstr "均值统计量的摘要。"
+
+#: ../../site/api/simulation.md:13
+msgid "Summary of the sample deviation statistic."
+msgstr "样本标准差统计量的摘要。"
+
+#: ../../site/api/simulation.md:13
+msgid "Summary of the Sharpe-like ratio."
+msgstr "类夏普比率的摘要。"
+
+#: ../../site/api/simulation.md:13
+msgid "Summary of the Sortino-like ratio."
+msgstr "类索提诺比率的摘要。"
+
+#: ../../site/api/simulation.md:16
+msgid "Summary of one bootstrapped statistic."
+msgstr "单个自助法统计量的摘要。"
+
+#: ../../site/api/simulation.md:16
+msgid "Statistic observed on the NaN-cleaned input sample."
+msgstr "在剔除 NaN 的输入样本上观测到的统计量。"
+
+#: ../../site/api/simulation.md:16
+msgid "Sample deviation of the bootstrap draws."
+msgstr "自助法抽样的样本标准差。"
+
+#: ../../site/api/simulation.md:16
+msgid "Percentile interval of the bootstrap draws."
+msgstr "自助法抽样的分位数区间。"
+
+#: ../../site/api/simulation.md:19
+msgid "User-defined stress transformation."
+msgstr "用户自定义的压力变换。"
+
+#: ../../site/api/simulation.md:19
+msgid ""
+"Each stressed return is (return + return_shift) * return_multiplier. Names "
+"must be non-empty, distinct and must not reuse a predefined name."
+msgstr ""
+"每个受压收益率按 (return + return_shift) * return_multiplier "
+"计算。名称必须非空、互不相同，且不得复用预定义名称。"
+
+#: ../../site/api/simulation.md:19
+msgid "Scenario name shown in results."
+msgstr "结果中显示的情景名称。"
+
+#: ../../site/api/simulation.md:19
+msgid "Additive shift applied first."
+msgstr "先应用的加性平移。"
+
+#: ../../site/api/simulation.md:19
+msgid "Multiplier applied after the shift."
+msgstr "平移之后应用的乘数。"
+
+#: ../../site/api/simulation.md:22
+msgid "Annualized drift and volatility estimated from periodic returns."
+msgstr "由周期性收益率估计的年化漂移与波动率。"
+
+#: ../../site/api/simulation.md:22
+msgid "Annualized arithmetic mean return."
+msgstr "年化算术平均收益。"
+
+#: ../../site/api/simulation.md:22
+msgid "Annualized sample standard deviation."
+msgstr "年化样本标准差。"
+
+#: ../../site/api/simulation.md:25
+msgid "Terminal-value percentiles using linear interpolation."
+msgstr "采用线性插值的终值分位数。"
+
+#: ../../site/api/simulation.md:25
+msgid "1st percentile."
+msgstr "第 1 百分位。"
+
+#: ../../site/api/simulation.md:25
+msgid "5th percentile."
+msgstr "第 5 百分位。"
+
+#: ../../site/api/simulation.md:25
+msgid "25th percentile."
+msgstr "第 25 百分位。"
+
+#: ../../site/api/simulation.md:25
+msgid "50th percentile (the median)."
+msgstr "第 50 百分位（中位数）。"
+
+#: ../../site/api/simulation.md:25
+msgid "75th percentile."
+msgstr "第 75 百分位。"
+
+#: ../../site/api/simulation.md:25
+msgid "95th percentile."
+msgstr "第 95 百分位。"
+
+#: ../../site/api/simulation.md:25
+msgid "99th percentile."
+msgstr "第 99 百分位。"
+
+#: ../../site/api/simulation.md:28
+msgid "Summary statistics of the terminal path values."
+msgstr "终值路径的汇总统计。"
+
+#: ../../site/api/simulation.md:28
+msgid "Arithmetic mean of terminal values."
+msgstr "终值的算术平均。"
+
+#: ../../site/api/simulation.md:28
+msgid "Sample deviation (n - 1); NaN for one path."
+msgstr "样本标准差（n - 1）；仅一条路径时为 NaN。"
+
+#: ../../site/api/simulation.md:28
+msgid "Median terminal value."
+msgstr "终值中位数。"
+
+#: ../../site/api/simulation.md:28
+msgid "Terminal-value percentiles."
+msgstr "终值分位数。"
+
+#: ../../site/api/simulation.md:31
+msgid "Outcome of one stress scenario."
+msgstr "单个压力情景的结果。"
+
+#: ../../site/api/simulation.md:31
+msgid "Scenario name."
+msgstr "情景名称。"
+
+#: ../../site/api/simulation.md:31
+msgid "Stressed returns on the input index and column."
+msgstr "在输入索引与列上的受压收益率。"
+
+#: ../../site/api/simulation.md:31
+msgid "Compounded stressed return."
+msgstr "复利累积的受压收益。"
+
+#: ../../site/api/simulation.md:31
+msgid "Deepest drawdown as a negative fraction."
+msgstr "最大回撤，以负小数表示。"
+
+#: ../../site/api/simulation.md:31
+msgid "Annualized volatility of the stressed returns."
+msgstr "受压收益率的年化波动率。"
+
+#: ../../site/api/simulation.md:31
+msgid "1 + cumulative_return."
+msgstr "1 + cumulative_return。"
+
+#: ../../site/api/simulation.md:34
+msgid "Statistic computed for each bootstrap resample."
+msgstr "对每次自助法重抽样计算的统计量。"
+
+#: ../../site/api/simulation.md:34 ../../site/api/simulation.md:37
+msgid "Values:"
+msgstr "取值："
+
+#: ../../site/api/simulation.md:34
+msgid "Arithmetic mean of the drawn sample."
+msgstr "抽样样本的算术平均。"
+
+#: ../../site/api/simulation.md:34
+msgid "Sample deviation (n - 1); NaN for one value."
+msgstr "样本标准差（n - 1）；仅一个值时为 NaN。"
+
+#: ../../site/api/simulation.md:34
+msgid "Median, averaging the two middle values."
+msgstr "中位数，取中间两个值的平均。"
+
+#: ../../site/api/simulation.md:34
+msgid "Mean / sample deviation, scaled by sqrt(252)."
+msgstr "均值 / 样本标准差，并按 sqrt(252) 缩放。"
+
+#: ../../site/api/simulation.md:34
+msgid "Mean / downside deviation, scaled by sqrt(252)."
+msgstr "均值 / 下行偏差，并按 sqrt(252) 缩放。"
+
+#: ../../site/api/simulation.md:34
+msgid "Smallest drawn value."
+msgstr "最小的抽样值。"
+
+#: ../../site/api/simulation.md:34
+msgid "Largest drawn value."
+msgstr "最大的抽样值。"
+
+#: ../../site/api/simulation.md:37
+msgid "Predefined stress transformations."
+msgstr "预定义的压力变换。"
+
+#: ../../site/api/simulation.md:37
+msgid "Sets the middle return to -0.20 (crash)."
+msgstr "将中间的收益率设为 -0.20（崩盘）。"
+
+#: ../../site/api/simulation.md:37
+msgid "Sets the middle return to 0.10 (spike)."
+msgstr "将中间的收益率设为 0.10（飙升）。"
+
+#: ../../site/api/simulation.md:37
+msgid "Halves every return (vol_crush)."
+msgstr "将每个收益率减半（vol_crush）。"
+
+#: ../../site/api/simulation.md:37
+msgid "Doubles every return (vol_spike)."
+msgstr "将每个收益率加倍（vol_spike）。"
+
+#: ../../site/api/simulation.md:40
+msgid "Analyzes a path frame into a simulation result."
+msgstr "将路径帧分析为模拟结果。"
+
+#: ../../site/api/simulation.md:40
+msgid ""
+"The frame must have a non-empty index and only double columns, with each "
+"column matching the index length. Each column's last value is its terminal "
+"value and must be finite. The result owns a copy of the paths plus the "
+"terminal statistics and distribution."
+msgstr "该帧必须具有非空索引且只包含 double 列，每列长度必须与索引一致。每列的最后一个值即其终值，且必须为有限值。结果持有路径的副本以及终值统计与分布。"
+
+#: ../../site/api/simulation.md:43
+msgid "Annualizes a volatility-like value with the source's period factors."
+msgstr "使用源实现的周期因子对类波动率值做年化。"
+
+#: ../../site/api/simulation.md:43
+msgid ""
+"Recognized periods are case-insensitive daily (252), weekly (52), monthly "
+"(12) and yearly (1); any other value uses the daily factor. The result is "
+"value * sqrt(factor)."
+msgstr ""
+"可识别的周期不区分大小写，包括 daily (252)、weekly (52)、monthly (12) 与 yearly "
+"(1)；其他取值使用日度因子。结果为 value * sqrt(factor)。"
+
+#: ../../site/api/simulation.md:46
+msgid "Appends antithetic mirror paths to a path frame."
+msgstr "向路径帧追加对偶镜像路径。"
+
+#: ../../site/api/simulation.md:46
+msgid ""
+"Every double column is retained, and a companion column named "
+"antithetic_<name> is added with values 2 * c - x, where c is the first value"
+" of the first double column. The input index and column order are preserved,"
+" and mirror columns follow the source columns."
+msgstr ""
+"保留所有 double 列，并新增名为 antithetic_<name> 的伴随列，其值为 2 * c - x，其中 c 为第一个 double "
+"列的首个值。输入的索引与列顺序保持不变，镜像列紧随源列之后。"
+
+#: ../../site/api/simulation.md:49
+msgid "Computes a percentile bootstrap confidence interval."
+msgstr "计算分位数自助法置信区间。"
+
+#: ../../site/api/simulation.md:49
+msgid ""
+"The interval spans the alpha / 2 and 1 - alpha / 2 linearly interpolated "
+"percentiles of the generated statistic distribution. Validation of alpha "
+"happens before any resampling."
+msgstr "区间取生成的统计量分布中 alpha / 2 与 1 - alpha / 2 的线性插值分位数。对 alpha 的校验在任何重抽样之前完成。"
+
+#: ../../site/api/simulation.md:52
+msgid "Generates a bootstrap distribution of one statistic."
+msgstr "生成单个统计量的自助法分布。"
+
+#: ../../site/api/simulation.md:52
+msgid ""
+"NaN returns are removed before resampling and infinities are rejected. Each "
+"of the resample_count draws samples the retained population with replacement"
+" at its original size. A supplied seed makes the native 64-bit Mersenne "
+"Twister stream repeatable; omitting it seeds from std::random_device. Native"
+" draws are not guaranteed to match any other RNG implementation."
+msgstr ""
+"重抽样前会剔除 NaN 收益率并拒绝无穷值。resample_count 次抽样中的每一次都以原有规模对保留的总体进行有放回抽样。提供随机种子可使原生 "
+"64 位梅森旋转序列可复现；省略时由 std::random_device 播种。不保证原生抽样与其他随机数实现一致。"
+
+#: ../../site/api/simulation.md:55
+msgid "Generates a bootstrap distribution from explicit draw indices."
+msgstr "由显式抽样索引生成自助法分布。"
+
+#: ../../site/api/simulation.md:55
+msgid ""
+"Draws address the NaN-cleaned positional input population. Every draw must "
+"contain exactly that population's size and only in-range indices. No random "
+"engine is used. Empty draw_indices yields an empty distribution after the "
+"input and statistic are validated."
+msgstr ""
+"抽样索引指向剔除 NaN 后按位置排列的输入总体。每次抽样必须恰好包含该总体的规模，且只能使用范围内索引。不使用随机引擎。在输入与统计量校验通过后，空的"
+" draw_indices 产生空分布。"
+
+#: ../../site/api/simulation.md:58
+msgid "Computes bootstrap summaries for four statistics."
+msgstr "计算四个统计量的自助法摘要。"
+
+#: ../../site/api/simulation.md:58
+msgid ""
+"Each statistic is summarized in a separate native run with the supplied seed"
+" and reports its observed value, the sample deviation of its draws, and the "
+"percentile interval at alpha / 2 and 1 - alpha / 2. Validation of alpha and "
+"the resample count happens before input access."
+msgstr ""
+"每个统计量都在一次独立的原生运行中按给定种子汇总，报告其观测值、抽样的样本标准差，以及 alpha / 2 与 1 - alpha / 2 "
+"处的分位数区间。对 alpha 与重抽样次数的校验发生在访问输入之前。"
+
+#: ../../site/api/simulation.md:61
+msgid "Estimates annualized drift and volatility from a return column."
+msgstr "由收益率列估计年化漂移与波动率。"
+
+#: ../../site/api/simulation.md:61
+msgid ""
+"NaN values are dropped and infinities are rejected; at least two retained "
+"returns are required. Drift is the retained mean multiplied by "
+"periods_per_year; volatility is the sample standard deviation (n - 1) "
+"multiplied by sqrt(periods_per_year). Timestamp order is not used."
+msgstr ""
+"剔除 NaN 并拒绝无穷值；至少需要保留两个收益率。漂移为保留样本的均值乘以 periods_per_year；波动率为样本标准差（n - 1）乘以 "
+"sqrt(periods_per_year)。不利用时间戳顺序。"
+
+#: ../../site/api/simulation.md:64
+msgid "Simulates cumulative-return paths calibrated from historical returns."
+msgstr "基于历史收益率标定的参数模拟累积收益率路径。"
+
+#: ../../site/api/simulation.md:64
+msgid ""
+"Annualized drift and volatility are estimated from the selected return "
+"column (NaN values dropped), prices are simulated from 1.0 over horizon "
+"periods at periods_per_year, the initial price row is removed, and each path"
+" stores price_t - 1. Columns are named path_<n>."
+msgstr ""
+"由所选收益率列（剔除 NaN）估计年化漂移与波动率，从 1.0 起按 periods_per_year 模拟 horizon "
+"个周期的价格，删除初始价格行，每条路径存储 price_t - 1。列名为 path_<n>。"
+
+#: ../../site/api/simulation.md:67
+msgid "Builds a square correlation breakdown matrix."
+msgstr "构建方阵式相关性瓦解矩阵。"
+
+#: ../../site/api/simulation.md:67
+msgid ""
+"The matrix has one row and one double column per asset, in the supplied "
+"order, with an ordinal index. Diagonal entries are 1.0 and every off-"
+"diagonal entry is target_correlation, which is retained even when it lies "
+"outside [-1, 1]. Empty asset_names yields an empty frame."
+msgstr ""
+"矩阵按给定顺序为每个资产生成一行一列 double 列，索引为序号。对角元素为 1.0，所有非对角元素为 "
+"target_correlation，即使其落在 [-1, 1] 之外也照原样保留。asset_names 为空时产生空帧。"
+
+#: ../../site/api/simulation.md:70
+msgid "Simulates geometric Brownian motion price paths."
+msgstr "模拟几何布朗运动价格路径。"
+
+#: ../../site/api/simulation.md:70
+msgid ""
+"Each path starts at initial_value and evolves for trunc(total_years / "
+"time_step) steps using S[k + 1] = S[k] * exp((drift - volatility^2 / 2) * "
+"time_step + volatility * sqrt(time_step) * Z) with standard normal draws Z. "
+"The output index is ordinal and paths are named path_<n>; the first row is "
+"the initial value."
+msgstr ""
+"每条路径从 initial_value 开始，演化 trunc(total_years / time_step) 步，递推式为 S[k + 1] = "
+"S[k] * exp((drift - volatility^2 / 2) * time_step + volatility * "
+"sqrt(time_step) * Z)，其中 Z 为标准正态抽样。输出索引为序号，路径命名为 path_<n>；第一行为初始值。"
+
+#: ../../site/api/simulation.md:73
+msgid "Samples a Latin hypercube design."
+msgstr "采样拉丁超立方设计。"
+
+#: ../../site/api/simulation.md:73
+msgid ""
+"Every output column is a permutation of sample_count equal-probability "
+"strata in [0, 1), with one uniformly distributed point per stratum. The "
+"index is ordinal and columns are named lhs_dimension_<n>. Zero counts "
+"produce the corresponding empty shape. A supplied seed makes the native "
+"64-bit Mersenne Twister stream repeatable; omitted seeds are not "
+"reproducible and native draws make no cross-implementation RNG claim."
+msgstr ""
+"每个输出列都是 [0, 1) 内 sample_count 个等概率分层的某种排列，每个分层取一个均匀分布的点。索引为序号，列名为 "
+"lhs_dimension_<n>。计数为 0 时产生相应的空形状。提供随机种子可使原生 64 "
+"位梅森旋转序列可复现；省略种子时不可复现，且原生抽样不做跨实现随机数一致性的声明。"
+
+#: ../../site/api/simulation.md:76
+msgid "Builds a tabular summary of stress scenario results."
+msgstr "构建压力情景结果的表格摘要。"
+
+#: ../../site/api/simulation.md:76
+msgid ""
+"The table has an ordinal index and one row per result, with the columns "
+"scenario, cumulative_return, max_drawdown, volatility and final_value. Empty"
+" input yields a typed empty table."
+msgstr ""
+"表格索引为序号，每个结果一行，列为 scenario、cumulative_return、max_drawdown、volatility 和 "
+"final_value。输入为空时产生带类型的空表。"
+
+#: ../../site/api/simulation.md:79
+msgid "Simulates a calibrated Monte Carlo path set from historical returns."
+msgstr "基于历史收益率模拟标定参数的蒙特卡洛路径集。"
+
+#: ../../site/api/simulation.md:79
+msgid ""
+"Annualized drift and volatility are estimated from the selected return "
+"column (NaN values dropped), geometric Brownian motion is simulated from 1.0"
+" for horizon steps at 252 periods per year, and the resulting price paths "
+"are converted to cumulative returns. When antithetic is true, "
+"antithetic_variates is applied to those paths, so the stored path count is "
+"doubled."
+msgstr ""
+"由所选收益率列（剔除 NaN）估计年化漂移与波动率，从 1.0 起按每年 252 个周期模拟 horizon "
+"步几何布朗运动，并将得到的价格路径转换为累积收益率。当 antithetic 为 true 时对这些路径应用 "
+"antithetic_variates，因此存储的路径数会翻倍。"
+
+#: ../../site/api/simulation.md:82
+msgid "Simulates price paths directly from annualized parameters."
+msgstr "直接由年化参数模拟价格路径。"
+
+#: ../../site/api/simulation.md:82
+msgid ""
+"Annualized drift and volatility are converted to per-step values (drift / "
+"252 and volatility / sqrt(252)), and horizon periods are simulated with a 1 "
+"/ 252 year step. The returned paths start at initial_value and include the "
+"initial row."
+msgstr ""
+"将年化漂移与波动率转换为单步值（drift / 252 与 volatility / sqrt(252)），以 1 / 252 年步长模拟 "
+"horizon 个周期。返回的路径从 initial_value 开始并包含初始行。"
+
+#: ../../site/api/simulation.md:85
+msgid "Runs the four predefined stress scenarios in source order."
+msgstr "按源实现顺序运行四个预定义压力情景。"
+
+#: ../../site/api/simulation.md:85
+msgid "Applies crash, spike, vol_crush and vol_spike in that order."
+msgstr "依次应用 crash、spike、vol_crush 与 vol_spike。"
+
+#: ../../site/api/simulation.md:88
+msgid "Runs selected predefined and custom stress scenarios."
+msgstr "运行选定的预定义与自定义压力情景。"
+
+#: ../../site/api/simulation.md:88
+msgid ""
+"Predefined results appear first in caller order, followed by custom results "
+"in caller order. NaN returns are rejected, while infinite returns are "
+"retained."
+msgstr "预定义结果先按调用方顺序出现，随后是调用方顺序的自定义结果。拒绝 NaN 收益率，但保留无穷收益率。"
+
+#: ../../site/api/simulation.md:91
+msgid "Validates and copies a return series."
+msgstr "校验并复制收益率序列。"
+
+#: ../../site/api/simulation.md:91
+msgid ""
+"The source rejects empty input and NaN values; the native contract also "
+"rejects infinities so every returned value is finite. Contract failures "
+"raise fincore_error with a structured validation category/code."
+msgstr "源实现拒绝空输入与 NaN；原生契约还拒绝无穷值，因此返回的每个值都是有限的。契约校验失败会抛出带有结构化校验类别/代码的 fincore_error。"
+
+#: ../../site/api/simulation.md:94
+msgid "Validates and copies the named return column of a frame."
+msgstr "校验并复制帧中指定名称的收益率列。"
+
+#: ../../site/api/simulation.md:97
+msgid "Prefix of generated antithetic mirror columns."
+msgstr "生成的对偶镜像列的前缀。"
+
+#: ../../site/api/simulation.md:100
+msgid "Name of the generated bootstrap statistic column."
+msgstr "生成的自助法统计量列的名称。"
+
+#: ../../site/api/simulation.md:103
+msgid "Prefix of generated geometric-Brownian-motion path columns."
+msgstr "生成的几何布朗运动路径列的前缀。"
+
+#: ../../site/api/simulation.md:106
+msgid "Prefix of Latin-hypercube dimension columns."
+msgstr "拉丁超立方维度列的前缀。"
+
+#: ../../site/api/simulation.md:109
+msgid "Name of the cumulative-return column in a scenario table."
+msgstr "情景表中累积收益率列的名称。"
+
+#: ../../site/api/simulation.md:112
+msgid "Name of the final-value column in a scenario table."
+msgstr "情景表中终值列的名称。"
+
+#: ../../site/api/simulation.md:115
+msgid "Name of the maximum-drawdown column in a scenario table."
+msgstr "情景表中最大回撤列的名称。"
+
+#: ../../site/api/simulation.md:118
+msgid "Name of the scenario-name column in a scenario table."
+msgstr "情景表中情景名称列的名称。"
+
+#: ../../site/api/simulation.md:121
+msgid "Name of the volatility column in a scenario table."
+msgstr "情景表中波动率列的名称。"
+
+#~ msgid "Destroys the owned path, statistic and terminal state."
+#~ msgstr ""
+
+#~ msgid "Summary of the sample deviation."
+#~ msgstr ""
+
+#~ msgid "Percentile interval of the draws."
+#~ msgstr ""
+
+#~ msgid "Sample standard deviation (n - 1); NaN for a singleton."
+#~ msgstr ""
+
+#~ msgid "Mean divided by sample deviation, scaled by sqrt(252)."
+#~ msgstr ""
+
+#~ msgid "Mean divided by downside deviation, scaled by sqrt(252)."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Each statistic is bootstrapped independently "
+#~ "with the supplied seed and reports "
+#~ "its observed value, the sample deviation"
+#~ " of its draws, and the percentile "
+#~ "interval at alpha / 2 and 1 -"
+#~ " alpha / 2. Validation of alpha "
+#~ "and the resample count happens before "
+#~ "input access."
+#~ msgstr ""
+

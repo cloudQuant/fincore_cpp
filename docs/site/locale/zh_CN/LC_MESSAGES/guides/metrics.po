@@ -1,0 +1,61 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-25 22:15+0800\n"
+"PO-Revision-Date: 2026-10-25 22:20+0800\n"
+"Last-Translator: fincore_cpp documentation maintainers\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/guides/metrics.md:1
+msgid "Metrics and rolling windows"
+msgstr "指标与滚动窗口"
+
+#: ../../site/guides/metrics.md:3
+msgid ""
+"Metric functions consume a `fincore::dataframe` and return typed scalars or "
+"series. Units are decimal returns unless the API says otherwise. `NaN` "
+"inputs are missing; a window is evaluable only when its documented "
+"completeness rule is satisfied."
+msgstr ""
+"指标函数接收 `fincore::dataframe`，并返回类型化的标量或序列。除非 API 另有说"
+"明，单位均为小数收益率。`NaN` 输入表示缺失；只有当窗口满足其文档说明的完整性"
+"规则时，该窗口才可计算。"
+
+#: ../../site/guides/metrics.md:8
+msgid "Scalar risk/return metrics are in `include/fincore/metrics/`."
+msgstr "标量风险/收益指标位于 `include/fincore/metrics/` 中。"
+
+#: ../../site/guides/metrics.md:9
+msgid ""
+"Rolling and multi-column statistics are in `metrics/rolling.hpp` and "
+"`rolling_engine.hpp`."
+msgstr ""
+"滚动统计与多列统计位于 `metrics/rolling.hpp` 和 `rolling_engine.hpp` 中。"
+
+#: ../../site/guides/metrics.md:11
+msgid ""
+"Date-wise and period summaries preserve the input ordering rules stated in "
+"their API entries."
+msgstr "按日期和按周期的汇总遵循其 API 条目中声明的输入排序规则。"
+
+#: ../../site/guides/metrics.md:14
+msgid ""
+"Use the numerator/denominator conventions described by the function rather "
+"than assuming that two similarly named metrics annualize or handle ties the "
+"same way. The API reference is generated from the public headers."
+msgstr ""
+"请使用函数所描述的分子/分母约定，而不要假设两个名称相似的指标会以相同方式年化"
+"或处理并列值。API 参考由公共头文件生成。"

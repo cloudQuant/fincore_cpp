@@ -1,0 +1,363 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 01:10+0800\n"
+"PO-Revision-Date: 2026-10-26 00:15+0800\n"
+"Last-Translator: fincore_cpp documentation maintainers\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/api/index.md:1
+msgid "API reference"
+msgstr "API 参考"
+
+#: ../../site/api/index.md:3
+msgid ""
+"The API reference is generated from the public headers under "
+"`include/fincore/` with Doxygen and Breathe. Internal `fincore::detail` "
+"helpers are excluded from the stable API reference. Signatures and "
+"descriptions come from the same source commit as the rest of this site."
+msgstr ""
+"API 参考由 `include/fincore/` 下的公共头文件通过 Doxygen 和 Breathe 生成。内部 "
+"`fincore::detail` 辅助实现不包含在稳定的 API 参考中。生成的签名与说明和本站点其余内容来自同一源提交。"
+
+#: ../../site/api/index.md:9
+msgid ""
+"A symbol appearing here means it is part of the maintained public surface. "
+"It does not imply Python object compatibility, a supported platform beyond "
+"the recorded acceptance evidence, or a performance guarantee."
+msgstr "此处出现的符号表示它属于受维护的公共接口。它并不表示兼容 Python 对象，也不表示在已记录的验收证据之外支持某个平台，或提供任何性能保证。"
+
+#: ../../site/api/index.md:14
+msgid "Modules"
+msgstr "模块"
+
+#: ../../site/api/index.md:35
+msgid "Conventions used by every module"
+msgstr "各模块通用的约定"
+
+#: ../../site/api/index.md:37
+msgid "Timestamps are UTC nanoseconds; calendar helpers return UTC midnights."
+msgstr "时间戳为 UTC 纳秒；日历辅助函数返回 UTC 零点。"
+
+#: ../../site/api/index.md:38
+msgid ""
+"Prices and returns are decimal fractions unless a field name says otherwise."
+" Annualization is explicit in each signature."
+msgstr "除非字段名称另有说明，价格与收益率均为小数。年化方式在每个签名中显式给出。"
+
+#: ../../site/api/index.md:40
+msgid ""
+"`dataframe` inputs and outputs follow the DataFrame submodule's column "
+"rules; column names are part of each contract."
+msgstr "`dataframe` 的输入与输出遵循 DataFrame 子模块的列规则；列名是各契约的一部分。"
+
+#: ../../site/api/index.md:42
+#, python-brace-format
+msgid ""
+"Errors carry a stable category, code and message through "
+"{cpp:class}`fincore::fincore_error`; research routes add typed subclasses."
+msgstr ""
+"错误通过 {cpp:class}`fincore::fincore_error` 携带稳定的 category、code 与 "
+"message；研究路径另有带类型的子类。"
+
+#: ../../site/api/index.md:44
+msgid ""
+"Optional dependencies are named at the call site; no API downloads data or "
+"renders a chart implicitly."
+msgstr "可选依赖在调用处显式命名；任何接口都不会隐式下载数据或渲染图表。"
+
+#: ../../site/api/index.md:47
+msgid "Coverage"
+msgstr "覆盖情况"
+
+#: ../../site/api/index.md:49
+msgid ""
+"The public symbol ledger records every extracted symbol, its module, source "
+"line and documentation status. The maintainers regenerate it with "
+"`tools/build_api_ledger.py` and require either documentation or a reviewed "
+"exemption for each symbol before a documentation release. The ledger itself "
+"is a source artifact in the repository, so its counts can be compared "
+"against the same commit."
+msgstr ""
+"公共符号清单记录每个被提取的符号、其模块、源码行号与文档状态。维护者使用 `tools/build_api_ledger.py` "
+"重新生成它，并要求在文档发布前为每个符号提供说明或经审阅的豁免。清单本身是仓库中的源产物，因此其计数可与同一提交进行比对。"
+
+#: ../../site/api/index.md:56
+msgid ""
+"The rendered signatures are the normative C++ surface. Python-compatible "
+"behaviour, including exception inheritance and DataFrame object identity, is"
+" described in the [migration guide](../migration.md), not inferred from the "
+"generated declarations."
+msgstr ""
+"渲染出的签名是规范的 C++ 接口面。与 Python 兼容的行为（包括异常继承和 DataFrame "
+"对象身份）在[迁移指南](../migration.md)中说明，而不是从生成的声明推断。"
+
+#~ msgid "Core errors"
+#~ msgstr "核心错误"
+
+#~ msgid "Public Functions"
+#~ msgstr "公共函数"
+
+#~ msgid "Public Members"
+#~ msgstr "公共成员"
+
+#~ msgid "Public Static Functions"
+#~ msgstr "公共静态函数"
+
+#~ msgid "Subclassed by fincore::batch_fetch_error, fincore::research_error"
+#~ msgstr ""
+
+#~ msgid "Native structured research errors."
+#~ msgstr "原生结构化研究错误。"
+
+#~ msgid ""
+#~ "Python exception inheritance is not "
+#~ "reproduced; category preserves the source "
+#~ "class name and code carries the "
+#~ "stable machine-readable identifier."
+#~ msgstr "不复制 Python 的异常继承关系；category 保留源类名，code 携带稳定的机器可读标识符。"
+
+#~ msgid ""
+#~ "Subclassed by fincore::research_config_error, "
+#~ "fincore::research_data_quality_error, "
+#~ "fincore::research_dataset_error, "
+#~ "fincore::research_dependency_error, "
+#~ "fincore::research_factor_computation_error"
+#~ msgstr ""
+
+#~ msgid "Public Static Attributes"
+#~ msgstr "公共静态属性"
+
+#~ msgid "P127 pilot symbols"
+#~ msgstr "P127 试点符号"
+
+#~ msgid ""
+#~ "These eight representative symbols validate "
+#~ "ordinary functions, a class with members,"
+#~ " value structs, a configuration struct, "
+#~ "an enum and a free calendar function"
+#~ " through the Doxygen/Breathe/MyST chain."
+#~ msgstr "这八个代表性符号通过 Doxygen/Breathe/MyST 链路验证了普通函数、带成员的类、值结构体、配置结构体、枚举以及一个自由日历函数。"
+
+#~ msgid "Return and risk metrics"
+#~ msgstr "收益与风险指标"
+
+#~ msgid "Returns the annualized Sharpe ratio of column."
+#~ msgstr "返回指定列的年化夏普比率。"
+
+#~ msgid ""
+#~ "NaN observations are dropped; the mean "
+#~ "of value - risk_free is divided by"
+#~ " the sample standard deviation (one "
+#~ "degree of freedom) and scaled by "
+#~ "sqrt(annualization). Fewer than two usable "
+#~ "observations yield NaN, and a zero "
+#~ "deviation is not special-cased, so "
+#~ "the quotient follows IEEE rules."
+#~ msgstr ""
+#~ "丢弃 NaN 观测；value - risk_free 的均值除以样本标准差（自由度为"
+#~ " 1），再乘以 sqrt(annualization)。可用观测少于两个时返回 "
+#~ "NaN，零标准差不做特殊处理，因此商遵循 IEEE 规则。"
+
+#~ msgid "Returns the annualized Sortino ratio of column."
+#~ msgstr "返回指定列的年化索提诺比率。"
+
+#~ msgid ""
+#~ "NaN observations are dropped; the "
+#~ "annualized mean excess over required_return "
+#~ "is divided by the annualized downside "
+#~ "deviation, where only negative excess "
+#~ "values contribute and the squared "
+#~ "deviations divide by the number of "
+#~ "usable observations. Fewer than two raw "
+#~ "values, or no usable observation, yield "
+#~ "NaN, and a zero downside deviation is"
+#~ " not special-cased."
+#~ msgstr ""
+#~ "丢弃 NaN 观测；超出 required_return "
+#~ "的年化平均超额收益除以下行偏差的年化值，其中仅负超额值参与，平方偏差除以可用观测数。原始值少于两个，或没有可用观测时返回 "
+#~ "NaN，零下行偏差不做特殊处理。"
+
+#~ msgid "Attribution class"
+#~ msgstr "归因类"
+
+#~ msgid ""
+#~ "Native owning facade corresponding to the"
+#~ " source's stateful BrinsonAttribution calculator."
+#~ msgstr "与源实现中有状态的 BrinsonAttribution 计算器相对应的原生所有权门面。"
+
+#~ msgid ""
+#~ "The facade stores an optional sector "
+#~ "mapping and applies it to returns "
+#~ "(mean), benchmark returns (mean) and "
+#~ "weights (sum) before delegating to the "
+#~ "canonical :func:brinson_results kernel. Missing "
+#~ "benchmark returns default to the portfolio"
+#~ " returns; missing weights default to "
+#~ "equal weights. The native result keeps "
+#~ "the kernel's timestamp index and full "
+#~ "effect columns (the source's integer period"
+#~ " column and RangeIndex are Python "
+#~ "identity, not a native claim)."
+#~ msgstr ""
+#~ "该门面存储一个可选的行业映射，并在委托给规范的 :func:brinson_results "
+#~ "内核之前，将其应用于收益率（均值）、基准收益率（均值）和权重（求和）。缺失的基准收益率默认取投资组合收益率；缺失的权重默认取等权重。原生结果保留内核的时间戳索引和完整效应列（源实现中的整数周期列和"
+#~ " RangeIndex 属于 Python 侧的身份标识，而非原生声明）。"
+
+#~ msgid ""
+#~ "method accepts brinson and the historical"
+#~ " brinson_hood alias, both selecting the "
+#~ "BHB arithmetic decomposition."
+#~ msgstr "方法接受 brinson 和历史别名 brinson_hood，二者都会选择 BHB 算术分解。"
+
+#~ msgid "Factor value and configuration types"
+#~ msgstr "因子值与配置类型"
+
+#~ msgid "Calendar function"
+#~ msgstr "日历函数"
+
+#~ msgid "Report model and enum"
+#~ msgstr "报告模型与枚举"
+
+#~ msgid "One titled group of metrics, tables, series and notes."
+#~ msgstr "一组带标题的指标、表格、序列和说明。"
+
+#~ msgid "Serializes this section as deterministic JSON."
+#~ msgstr "将本节序列化为确定性 JSON。"
+
+#~ msgid ""
+#~ "Every units and legends key must "
+#~ "match a metric, table or series key"
+#~ " in the section, and their values "
+#~ "must be non-empty."
+#~ msgstr "每个 units 和 legends 键都必须匹配本节中的指标、表格或序列键，且其值不能为空。"
+
+#~ msgid "Throws"
+#~ msgstr "抛出"
+
+#~ msgid "Returns"
+#~ msgstr "返回"
+
+#~ msgid "Document-unique section key."
+#~ msgstr "文档内唯一的节键。"
+
+#~ msgid "Display title."
+#~ msgstr "显示标题。"
+
+#~ msgid "Scalar metrics."
+#~ msgstr "标量指标。"
+
+#~ msgid "Tables."
+#~ msgstr "表格。"
+
+#~ msgid "Chart series."
+#~ msgstr "图表序列。"
+
+#~ msgid "Free-form notes."
+#~ msgstr "自由格式说明。"
+
+#~ msgid "Unit overrides keyed by a metric, table or series key in this section."
+#~ msgstr "按本节指标、表格或序列键索引的单位覆盖。"
+
+#~ msgid "Chart legends keyed by a series key in this section."
+#~ msgstr "按本节序列键索引的图例。"
+
+#~ msgid "Versioned report document shared by report builders and renderers."
+#~ msgstr "由报告构建器和渲染器共享的带版本报告文档。"
+
+#~ msgid "Finds a section by key."
+#~ msgstr "按键查找节。"
+
+#~ msgid "Parameters"
+#~ msgstr "参数"
+
+#~ msgid "Finds a section by key for in-place modification."
+#~ msgstr "按键查找节以便就地修改。"
+
+#~ msgid "Serializes the validated document as deterministic JSON."
+#~ msgstr "将校验后的文档序列化为确定性 JSON。"
+
+#~ msgid ""
+#~ "Offline asset content is embedded as "
+#~ "JSON string values and map keys are"
+#~ " emitted in sorted order."
+#~ msgstr "离线资源内容以 JSON 字符串值嵌入，映射键按排序顺序输出。"
+
+#~ msgid "Serializes the validated document with offline asset content hashed."
+#~ msgstr "序列化校验后的文档，并对离线资源内容取哈希。"
+
+#~ msgid ""
+#~ "Each asset value is replaced by its"
+#~ " SHA-256 hexadecimal digest, so the "
+#~ "payload reflects asset identity without "
+#~ "embedding the bytes."
+#~ msgstr "每个资源值替换为其 SHA-256 十六进制摘要，因此载荷反映资源身份而不嵌入字节。"
+
+#~ msgid "Computes the provenance digest of the semantic payload."
+#~ msgstr "计算语义载荷的来源摘要。"
+
+#~ msgid ""
+#~ "The digest is SHA-256 over a "
+#~ "versioned frame and semantic_payload(); report"
+#~ " renderers expose it as the "
+#~ "report_digest bundle metadata."
+#~ msgstr ""
+#~ "该摘要是对带版本的帧和 semantic_payload() 计算的 SHA-256；报告渲染器将其作为"
+#~ " report_digest 打包元数据公开。"
+
+#~ msgid "Report domain, such as \"portfolio\", \"risk\" or \"factor\"."
+#~ msgstr "报告领域，例如 \"portfolio\"、\"risk\" 或 \"factor\"。"
+
+#~ msgid "Document title."
+#~ msgstr "文档标题。"
+
+#~ msgid "Ordered sections; keys must be unique."
+#~ msgstr "有序节列表；键必须唯一。"
+
+#~ msgid "Free-form metadata."
+#~ msgstr "自由格式元数据。"
+
+#~ msgid "Schema version; must equal report_document_schema_version to serialize."
+#~ msgstr "模式版本；序列化时必须等于 report_document_schema_version。"
+
+#~ msgid ""
+#~ "Embedded asset name to content mapping; "
+#~ "to_json writes the content as string "
+#~ "values while semantic_payload writes its "
+#~ "SHA-256 digest."
+#~ msgstr "嵌入的资源名称到内容映射；to_json 将内容写为字符串值，而 semantic_payload 写入其 SHA-256 摘要。"
+
+#~ msgid "Chart renderer used by render_html."
+#~ msgstr "render_html 使用的图表渲染器。"
+
+#~ msgid "Values:"
+#~ msgstr "取值："
+
+#~ msgid "Draw each series as an inline SVG polyline."
+#~ msgstr "将每个序列绘制为内联 SVG 折线。"
+
+#~ msgid "Embed the pinned offline ECharts 5.5.0 script and chart payloads."
+#~ msgstr "嵌入固定版本的离线 ECharts 5.5.0 脚本和图表载荷。"
+
+#~ msgid ""
+#~ "The module pages are expanded as the"
+#~ " P128-P131 comment rounds are reviewed. "
+#~ "Use the search box for a symbol "
+#~ "name; the source link points to the"
+#~ " same commit used to build this "
+#~ "documentation."
+#~ msgstr "随着 P128-P131 各轮注释评审的推进，模块页面将逐步扩充。可使用搜索框按符号名称查找；源码链接指向构建本文档所用的同一提交。"
+

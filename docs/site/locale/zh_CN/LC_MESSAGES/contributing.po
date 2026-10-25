@@ -1,0 +1,101 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-25 22:15+0800\n"
+"PO-Revision-Date: 2026-10-25 22:20+0800\n"
+"Last-Translator: fincore_cpp documentation maintainers\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/contributing.md:1
+msgid "Contributing to code and documentation"
+msgstr "参与代码与文档贡献"
+
+#: ../../site/contributing.md:3
+msgid "Code changes"
+msgstr "代码变更"
+
+#: ../../site/contributing.md:5
+msgid ""
+"Build and run the full C++ suite, then add targeted tests for new behavior. "
+"Keep public signatures and contracts explicit; update the English API "
+"comment, the Chinese translation and the public symbol ledger in the same "
+"change."
+msgstr ""
+"构建并运行完整的 C++ 测试套件，然后为新行为补充有针对性的测试。保持公共签名和"
+"契约明确；在同一次变更中更新英文 API 注释、中文译文和公共符号清单。"
+
+#: ../../site/contributing.md:9
+msgid "Comment standard"
+msgstr "注释规范"
+
+#: ../../site/contributing.md:11
+msgid ""
+"Public declarations use `///` Google-style contracts: a verb phrase such as "
+"“Returns …”, units, alignment/missing-value rules, ownership, and verified "
+"failure modes. Implementation comments explain non-obvious algorithms and "
+"invariants, not line-by-line mechanics. Do not invent complexity, thread "
+"safety or exception guarantees."
+msgstr ""
+"公共声明使用 `///` 风格的 Google 契约注释：以“Returns …”这类动词短语开头，并"
+"说明单位、对齐/缺失值规则、所有权以及经验证的失败模式。实现注释用于解释不显而"
+"易见的算法和不变量，而不是逐行说明实现机制。不要臆造复杂度、线程安全或异常保"
+"证。"
+
+#: ../../site/contributing.md:17
+msgid "Documentation changes"
+msgstr "文档变更"
+
+#: ../../site/contributing.md:19
+msgid ""
+"The English source is authoritative. Generate gettext catalogs, update "
+"Chinese translations, and build both languages with strict warnings. The "
+"docs source is under `docs/site`; generated HTML/XML and `.mo` files stay "
+"out of Git."
+msgstr ""
+"英文源文件是权威版本。生成 gettext 消息目录、更新中文译文，并在严格警告模式下"
+"构建两种语言。文档源位于 `docs/site` 下；生成的 HTML/XML 和 `.mo` 文件不纳入 "
+"Git。"
+
+#: ../../site/contributing.md:23
+msgid ""
+"cd docs/site\n"
+"doxygen Doxyfile\n"
+"sphinx-build -b gettext -W --keep-going . ../_build/gettext\n"
+"sphinx-intl update -p ../_build/gettext -l zh_CN\n"
+"sphinx-build -b html -W -n --keep-going . ../_build/html/en\n"
+"FINCORE_DOCS_LANGUAGE=zh_CN sphinx-build -b html -W -n --keep-going . ../"
+"_build/html/zh_CN\n"
+msgstr ""
+"cd docs/site\n"
+"doxygen Doxyfile\n"
+"sphinx-build -b gettext -W --keep-going . ../_build/gettext\n"
+"sphinx-intl update -p ../_build/gettext -l zh_CN\n"
+"sphinx-build -b html -W -n --keep-going . ../_build/html/en\n"
+"FINCORE_DOCS_LANGUAGE=zh_CN sphinx-build -b html -W -n --keep-going . ../"
+"_build/html/zh_CN\n"
+
+#: ../../site/contributing.md:32
+msgid "Review and evidence"
+msgstr "评审与证据"
+
+#: ../../site/contributing.md:34
+msgid ""
+"Keep behavior changes, documentation-only changes and generated-artifact "
+"updates in separate commits. Record the actual commit, checks and "
+"exceptions; do not cite a local build as an online deployment."
+msgstr ""
+"将行为变更、仅文档变更和生成产物更新放在不同的提交中。记录实际提交、检查项和"
+"例外情况；不要把本地构建说成在线部署。"

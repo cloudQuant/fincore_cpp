@@ -1,0 +1,834 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 01:10+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/api/runtime.md:1
+msgid "Runtime"
+msgstr "运行时"
+
+#: ../../site/api/runtime.md:3
+msgid ""
+"Operation catalogs, sessions, snapshots, artifact bundles and serialization "
+"helpers."
+msgstr "操作目录、会话、快照、产物包和序列化辅助工具。"
+
+#: ../../site/api/runtime.md:5
+msgid ""
+"See the [usage guide](../guides/reports-runtime.md) for task-oriented "
+"examples. Signatures below are generated from the public headers at the same"
+" commit as the rest of this site."
+msgstr "面向任务的使用示例请参阅[使用指南](../guides/reports-runtime.md)。以下签名与本站其余内容在同一提交中由公共头文件生成。"
+
+#: ../../site/api/runtime.md:7
+msgid "Caches deterministic results for one catalog across a session lifecycle."
+msgstr "在一个会话生命周期内为一个目录缓存确定性结果。"
+
+#: ../../site/api/runtime.md:7 ../../site/api/runtime.md:10
+#: ../../site/api/runtime.md:13 ../../site/api/runtime.md:16
+#: ../../site/api/runtime.md:19 ../../site/api/runtime.md:22
+#: ../../site/api/runtime.md:34 ../../site/api/runtime.md:37
+#: ../../site/api/runtime.md:46
+msgid "Public Functions"
+msgstr "公共函数"
+
+#: ../../site/api/runtime.md:7
+msgid "Creates an open session that owns a copy of catalog."
+msgstr "创建一个打开状态的会话，该会话持有 catalog 的副本。"
+
+#: ../../site/api/runtime.md:7
+msgid "Returns whether close() has sealed the session."
+msgstr "返回 close() 是否已封闭会话。"
+
+#: ../../site/api/runtime.md:7
+msgid "Returns the number of cached results."
+msgstr "返回已缓存结果的数量。"
+
+#: ../../site/api/runtime.md:7
+msgid "Returns the digest of the owned catalog snapshot."
+msgstr "返回所持有目录快照的摘要。"
+
+#: ../../site/api/runtime.md:7
+msgid "Runs an operation, reusing cached results for deterministic operations."
+msgstr "运行操作，对确定性操作复用缓存结果。"
+
+#: ../../site/api/runtime.md:7
+msgid ""
+"Deterministic cache hits and misses set metadata[\"cache\"] to hit and miss;"
+" nondeterministic results are returned without caching. Throws "
+"std::runtime_error when the session is closed and operation_resolution_error"
+" for an unknown operation."
+msgstr ""
+"确定性缓存命中与未命中会将 metadata[\"cache\"] 设为 hit 和 miss；非确定性结果直接返回而不缓存。会话已关闭时抛出 "
+"std::runtime_error，操作未知时抛出 operation_resolution_error。"
+
+#: ../../site/api/runtime.md:7
+msgid "Clears entries without changing whether the session is open or closed."
+msgstr "清空条目，但不改变会话处于打开还是关闭状态。"
+
+#: ../../site/api/runtime.md:7
+msgid "Clears the cache and seals the session against further runs."
+msgstr "清空缓存并封闭会话，禁止后续运行。"
+
+#: ../../site/api/runtime.md:10
+msgid "Owning snapshot of runtime inputs with a stable input digest."
+msgstr "持有运行时输入的快照，带有稳定的输入摘要。"
+
+#: ../../site/api/runtime.md:10
+msgid "Constructs an empty snapshot with the digest of an empty input map."
+msgstr "构造空快照，其摘要为空输入映射的摘要。"
+
+#: ../../site/api/runtime.md:10
+msgid "Creates a snapshot that owns inputs and computes its digest."
+msgstr "创建持有 inputs 并计算其摘要的快照。"
+
+#: ../../site/api/runtime.md:10
+msgid "Returns the owned inputs."
+msgstr "返回所持有的输入。"
+
+#: ../../site/api/runtime.md:10
+msgid "Returns the digest of the owned inputs."
+msgstr "返回所持有输入的摘要。"
+
+#: ../../site/api/runtime.md:13
+msgid ""
+"Native generic dense-array operations corresponding to the pinned NumPy "
+"backend."
+msgstr "与锁定 NumPy 后端对应的原生通用稠密数组操作。"
+
+#: ../../site/api/runtime.md:13
+msgid "Inputs are copied and validated at each public boundary."
+msgstr "输入在每个公共边界处被复制并校验。"
+
+#: ../../site/api/runtime.md:13
+msgid "Returns a validated owning copy of value as a dense double array."
+msgstr "返回 value 作为稠密 double 数组的、经校验的持有副本。"
+
+#: ../../site/api/runtime.md:13
+msgid ""
+"Throws input_error when the shape is empty or inconsistent with the value "
+"count, the dimension does not match ndim, the size is below one, or any "
+"value is non-finite."
+msgstr "当形状为空或与值数量不一致、维度与 ndim 不匹配、大小小于一，或任一值非有限时，抛出 input_error。"
+
+#: ../../site/api/runtime.md:13
+msgid "Converts an arithmetic vector and delegates to the dense-array overload."
+msgstr "转换算术向量并委托给稠密数组重载。"
+
+#: ../../site/api/runtime.md:13
+msgid "Returns the running cumulative product of a one-dimensional array."
+msgstr "返回一维数组的运行累积乘积。"
+
+#: ../../site/api/runtime.md:13
+msgid ""
+"The result has the same shape as the validated input. Throws input_error "
+"when the input fails as_float_array validation."
+msgstr "结果与经校验的输入形状相同。输入未通过 as_float_array 校验时抛出 input_error。"
+
+#: ../../site/api/runtime.md:13
+msgid "Returns the sample standard deviation using Bessel's correction."
+msgstr "使用贝塞尔校正返回样本标准差。"
+
+#: ../../site/api/runtime.md:13
+msgid "Throws input_error when the input is invalid or holds fewer than two values."
+msgstr "输入无效或包含少于两个值时抛出 input_error。"
+
+#: ../../site/api/runtime.md:13
+msgid "Converts an arithmetic vector and returns its cumulative product."
+msgstr "转换算术向量并返回其累积乘积。"
+
+#: ../../site/api/runtime.md:13
+msgid "Converts an arithmetic vector and returns its sample standard deviation."
+msgstr "转换算术向量并返回其样本标准差。"
+
+#: ../../site/api/runtime.md:13
+msgid "Public Static Attributes"
+msgstr "公共静态属性"
+
+#: ../../site/api/runtime.md:13
+msgid "Backend name reported to callers."
+msgstr "向调用方报告的后端名称。"
+
+#: ../../site/api/runtime.md:16
+msgid "Ordered, digest-addressed set of validated operation declarations."
+msgstr "有序、按摘要寻址的已校验操作声明集合。"
+
+#: ../../site/api/runtime.md:16
+msgid "Creates a catalog from operations, optionally binding an extension digest."
+msgstr "根据 operations 创建目录，可选绑定扩展摘要。"
+
+#: ../../site/api/runtime.md:16
+msgid ""
+"Declarations are sorted by operation_id. Throws input_error for empty "
+"identifiers or RNG policies, a missing callable, duplicate operation "
+"identifiers, unpaired semantic modes, or repeated modes on one capability."
+msgstr ""
+"声明按 operation_id 排序。当标识符或 RNG 策略为空、缺少可调用对象、操作标识符重复、语义模式未成对，或同一能力上重复出现模式时，抛出 "
+"input_error。"
+
+#: ../../site/api/runtime.md:16
+msgid "Returns all declarations sorted by operation identifier."
+msgstr "返回按操作标识符排序的所有声明。"
+
+#: ../../site/api/runtime.md:16
+msgid "Returns the SHA-256 digest of the canonical catalog payload."
+msgstr "返回规范目录负载的 SHA-256 摘要。"
+
+#: ../../site/api/runtime.md:16
+msgid "Returns the declaration for operation_id."
+msgstr "返回 operation_id 对应的声明。"
+
+#: ../../site/api/runtime.md:16
+msgid "Throws operation_resolution_error when the identifier is unknown."
+msgstr "标识符未知时抛出 operation_resolution_error。"
+
+#: ../../site/api/runtime.md:16
+msgid "Returns operation identifiers in catalog order."
+msgstr "按目录顺序返回操作标识符。"
+
+#: ../../site/api/runtime.md:16
+msgid "Returns the pinned extension snapshot, or nullopt when unbound."
+msgstr "返回锁定的扩展快照；未绑定时返回 nullopt。"
+
+#: ../../site/api/runtime.md:16
+msgid ""
+"This mirrors the source property that returns None for a catalog without "
+"extension bindings."
+msgstr "这对应源实现中无扩展绑定的目录返回 None 的属性。"
+
+#: ../../site/api/runtime.md:16
+msgid "Returns a new catalog with one immutable extension snapshot bound."
+msgstr "返回绑定了单个不可变扩展快照的新目录。"
+
+#: ../../site/api/runtime.md:16
+msgid ""
+"The caller supplies native callables because the extension ABI carries "
+"metadata, not callables; a missing callable is a contract error, never a "
+"placeholder. Throws input_error when a callable is missing, this catalog is "
+"already bound, or merged declarations are invalid."
+msgstr ""
+"由于扩展 ABI "
+"只携带元数据而不携带可调用对象，调用方需提供原生可调用对象；缺少可调用对象属于约定错误，绝不会使用占位实现。当可调用对象缺失、此目录已绑定，或合并后的声明无效时，抛出"
+" input_error。"
+
+#: ../../site/api/runtime.md:19
+msgid "Reports that a catalog lookup found no matching operation identifier."
+msgstr "表示目录查找未找到匹配的操作标识符。"
+
+#: ../../site/api/runtime.md:19
+msgid "Constructs the error with a message naming operation_id."
+msgstr "使用指明 operation_id 的消息构造该错误。"
+
+#: ../../site/api/runtime.md:22
+msgid "Owning collection of named artifact bytes and their descriptors."
+msgstr "命名产物字节及其描述符的持有型集合。"
+
+#: ../../site/api/runtime.md:22
+msgid "Registers one artifact and its descriptor."
+msgstr "注册一个产物及其描述符。"
+
+#: ../../site/api/runtime.md:22
+msgid ""
+"Throws fincore_error when the bundle is closed and a validation "
+"fincore_error for an empty or duplicate artifact name."
+msgstr "包已关闭时抛出 fincore_error；产物名称为空或重复时抛出校验类 fincore_error。"
+
+#: ../../site/api/runtime.md:22
+msgid "Seals the bundle against further registration; repeat calls are safe."
+msgstr "封闭包，禁止后续注册；重复调用是安全的。"
+
+#: ../../site/api/runtime.md:22
+msgid "Returns whether the bundle has been sealed."
+msgstr "返回包是否已被封闭。"
+
+#: ../../site/api/runtime.md:22 ../../site/api/runtime.md:25
+#: ../../site/api/runtime.md:28 ../../site/api/runtime.md:31
+#: ../../site/api/runtime.md:34 ../../site/api/runtime.md:37
+#: ../../site/api/runtime.md:40 ../../site/api/runtime.md:43
+#: ../../site/api/runtime.md:46
+msgid "Public Members"
+msgstr "公共成员"
+
+#: ../../site/api/runtime.md:22
+msgid "Artifact bytes keyed by exact artifact path."
+msgstr "以确切的产物路径为键的产物字节。"
+
+#: ../../site/api/runtime.md:22
+msgid "Bundle-level metadata preserved in the manifest."
+msgstr "保留在清单中的包级元数据。"
+
+#: ../../site/api/runtime.md:22
+msgid "Optional per-artifact metadata keyed by the exact artifact path."
+msgstr "以确切的产物路径为键的可选逐产物元数据。"
+
+#: ../../site/api/runtime.md:22
+msgid ""
+"Every descriptor key must name an entry in artifacts. The manifest records "
+"the media type, byte length, SHA-256 of the actual artifact bytes, and "
+"provenance for each artifact; omitted descriptors use the legacy octet-"
+"stream/empty-provenance defaults."
+msgstr ""
+"每个描述符键都必须指向 artifacts 中的一个条目。清单记录每个产物的媒体类型、字节长度、实际产物字节的 SHA-256 "
+"和来源；省略的描述符使用旧版 octet-stream/空来源默认值。"
+
+#: ../../site/api/runtime.md:22
+msgid "Native lifecycle seal set by close()."
+msgstr "由 close() 设置的原生生命周期封闭标记。"
+
+#: ../../site/api/runtime.md:22
+msgid ""
+"Artifacts are owning byte strings, so closing has no external resources to "
+"release; it prevents further registration."
+msgstr "产物是持有型字节串，因此关闭时没有需要释放的外部资源；关闭会阻止后续注册。"
+
+#: ../../site/api/runtime.md:25
+msgid "Describes the media type and provenance of one artifact."
+msgstr "描述一个产物的媒体类型和来源。"
+
+#: ../../site/api/runtime.md:25
+msgid "MIME type used by consumers of this artifact."
+msgstr "此产物的使用方所使用的 MIME 类型。"
+
+#: ../../site/api/runtime.md:25
+msgid ""
+"Legacy artifacts without an explicit descriptor are recorded as application"
+"/octet-stream."
+msgstr "没有显式描述符的旧版产物记为 application/octet-stream。"
+
+#: ../../site/api/runtime.md:25
+msgid "Artifact-specific provenance metadata."
+msgstr "产物特定的来源元数据。"
+
+#: ../../site/api/runtime.md:28
+msgid "Dense row-major numeric storage with explicit dimensions."
+msgstr "具有显式维度的稠密行主序数值存储。"
+
+#: ../../site/api/runtime.md:28
+msgid "Flat row-major values."
+msgstr "扁平的行主序值。"
+
+#: ../../site/api/runtime.md:28
+msgid "Dimension sizes."
+msgstr "各维度大小。"
+
+#: ../../site/api/runtime.md:31
+msgid "Resolved batch of requests tied to the digest of one catalog snapshot."
+msgstr "与某个目录快照摘要绑定的已解析请求批次。"
+
+#: ../../site/api/runtime.md:31
+msgid "Digest of the catalog the plan was resolved against."
+msgstr "计划解析所依据目录的摘要。"
+
+#: ../../site/api/runtime.md:31
+msgid "Requests in caller-supplied order."
+msgstr "按调用方提供顺序排列的请求。"
+
+#: ../../site/api/runtime.md:34
+msgid "Snapshot of one operation request with digests of its inputs and config."
+msgstr "单个操作请求的快照，包含其输入和配置的摘要。"
+
+#: ../../site/api/runtime.md:34
+msgid "Creates a request and computes both request digests."
+msgstr "创建请求并计算两个请求摘要。"
+
+#: ../../site/api/runtime.md:34
+msgid ""
+"Throws input_error when operation_id is empty or when an input or config key"
+" is empty."
+msgstr "operation_id 为空，或输入或配置键为空时，抛出 input_error。"
+
+#: ../../site/api/runtime.md:34
+msgid "Requested operation identifier."
+msgstr "请求的操作标识符。"
+
+#: ../../site/api/runtime.md:34
+msgid "Inputs forwarded to the operation callable."
+msgstr "转发给操作可调用对象的输入。"
+
+#: ../../site/api/runtime.md:34
+msgid "Recorded configuration; never forwarded to the callable."
+msgstr "记录的配置；绝不转发给可调用对象。"
+
+#: ../../site/api/runtime.md:34
+msgid "Digest over inputs, computed by the constructor."
+msgstr "对输入的摘要，由构造函数计算。"
+
+#: ../../site/api/runtime.md:34
+msgid "Digest over config, computed by the constructor."
+msgstr "对配置的摘要，由构造函数计算。"
+
+#: ../../site/api/runtime.md:37
+msgid "Declaration of one catalog operation and its native callable."
+msgstr "一个目录操作及其原生可调用对象的声明。"
+
+#: ../../site/api/runtime.md:37
+msgid "Returns the stable native implementation identity."
+msgstr "返回稳定的原生实现标识。"
+
+#: ../../site/api/runtime.md:37
+msgid ""
+"The declared kernel_symbol provenance value wins when present (the native "
+"analogue of Python module:qualname); otherwise the identity is "
+"domain:capability_id."
+msgstr ""
+"存在声明的 kernel_symbol 来源值时优先使用（相当于 Python 的 module:qualname）；否则标识为 "
+"domain:capability_id。"
+
+#: ../../site/api/runtime.md:37
+msgid "Unique catalog identifier."
+msgstr "唯一的目录标识符。"
+
+#: ../../site/api/runtime.md:37
+msgid "Leaf capability identifier shared by mode variants."
+msgstr "由各模式变体共享的叶能力标识符。"
+
+#: ../../site/api/runtime.md:37
+msgid "Source domain, such as metrics or report."
+msgstr "源领域，例如 metrics 或 report。"
+
+#: ../../site/api/runtime.md:37
+msgid "Native function invoked with validated runtime inputs."
+msgstr "使用经校验的运行时输入调用的原生函数。"
+
+#: ../../site/api/runtime.md:37
+msgid "Whether the operation result may be cached by an analysis session."
+msgstr "操作结果是否可由分析会话缓存。"
+
+#: ../../site/api/runtime.md:37
+msgid "Random-state policy; none for deterministic kernels."
+msgstr "随机状态策略；确定性内核为 none。"
+
+#: ../../site/api/runtime.md:37
+msgid "Optional semantic mode distinguishing variants of one capability."
+msgstr "用于区分同一能力各变体的可选语义模式。"
+
+#: ../../site/api/runtime.md:37
+msgid "Optional approval token that must accompany semantic_mode."
+msgstr "必须与 semantic_mode 一同提供的可选批准令牌。"
+
+#: ../../site/api/runtime.md:37
+msgid "Free-form provenance metadata such as owner and kernel symbol."
+msgstr "自由形式的来源元数据，例如所有者和内核符号。"
+
+#: ../../site/api/runtime.md:40
+msgid "Operation value plus string metadata describing the run."
+msgstr "操作值加上描述本次运行的字符串元数据。"
+
+#: ../../site/api/runtime.md:40
+msgid "Value returned by the operation callable."
+msgstr "操作可调用对象返回的值。"
+
+#: ../../site/api/runtime.md:40
+msgid "Run metadata such as operation, input and catalog digests."
+msgstr "运行元数据，例如操作、输入和目录摘要。"
+
+#: ../../site/api/runtime.md:43
+msgid "Owning, versioned representation of a runtime result."
+msgstr "运行时结果的持有型、带版本表示。"
+
+#: ../../site/api/runtime.md:43
+msgid "Copies own their DataFrame buffers and all nested report/risk values."
+msgstr "副本持有各自的 DataFrame 缓冲区以及所有嵌套的报告/风险值。"
+
+#: ../../site/api/runtime.md:43
+msgid "Payload schema version."
+msgstr "负载 schema 版本。"
+
+#: ../../site/api/runtime.md:43
+msgid "Result value."
+msgstr "结果值。"
+
+#: ../../site/api/runtime.md:43
+msgid "Result metadata."
+msgstr "结果元数据。"
+
+#: ../../site/api/runtime.md:46
+msgid "Owning dynamically typed value passed through the runtime layer."
+msgstr "流经运行时层的持有型动态类型值。"
+
+#: ../../site/api/runtime.md:46
+msgid "Public Types"
+msgstr "公共类型"
+
+#: ../../site/api/runtime.md:46
+msgid "Supported alternatives; std::monostate represents a null value."
+msgstr "支持的备选类型；std::monostate 表示空值。"
+
+#: ../../site/api/runtime.md:46
+msgid "Constructs a null value."
+msgstr "构造空值。"
+
+#: ../../site/api/runtime.md:46
+msgid "Constructs a boolean value."
+msgstr "构造布尔值。"
+
+#: ../../site/api/runtime.md:46
+msgid "Constructs a 64-bit integer value from value."
+msgstr "从 value 构造 64 位整数值。"
+
+#: ../../site/api/runtime.md:46
+msgid "Constructs a 64-bit integer value."
+msgstr "构造 64 位整数值。"
+
+#: ../../site/api/runtime.md:46
+msgid "Constructs a double value."
+msgstr "构造 double 值。"
+
+#: ../../site/api/runtime.md:46
+msgid "Constructs a string value."
+msgstr "构造字符串值。"
+
+#: ../../site/api/runtime.md:46
+msgid "Constructs a dataframe value."
+msgstr "构造 dataframe 值。"
+
+#: ../../site/api/runtime.md:46
+msgid "Constructs a report document value."
+msgstr "构造报告文档值。"
+
+#: ../../site/api/runtime.md:46
+msgid "Constructs a risk model specification value."
+msgstr "构造风险模型规格值。"
+
+#: ../../site/api/runtime.md:46
+msgid "Constructs a walk-forward VaR result value."
+msgstr "构造 walk-forward VaR 结果值。"
+
+#: ../../site/api/runtime.md:46
+msgid "Constructs a risk validation report value."
+msgstr "构造风险校验报告值。"
+
+#: ../../site/api/runtime.md:46
+msgid "Constructs a portfolio transaction list value."
+msgstr "构造投资组合交易列表值。"
+
+#: ../../site/api/runtime.md:46
+msgid "Active stored alternative."
+msgstr "当前激活的已存备选类型。"
+
+#: ../../site/api/runtime.md:49
+msgid "Time-series index alignment strategy."
+msgstr "时间序列索引对齐策略。"
+
+#: ../../site/api/runtime.md:49
+msgid "Values:"
+msgstr "取值："
+
+#: ../../site/api/runtime.md:49
+msgid "Requires identical indices in every frame."
+msgstr "要求每个帧的索引完全相同。"
+
+#: ../../site/api/runtime.md:49
+msgid "Keeps labels present in every frame."
+msgstr "保留每个帧中都存在的标签。"
+
+#: ../../site/api/runtime.md:49
+msgid "Keeps labels complete across all frames, dropping gaps."
+msgstr "保留在所有帧中都完整的标签，丢弃缺口。"
+
+#: ../../site/api/runtime.md:52
+msgid "Aligns two labelled frames under the same policy as align_time_series."
+msgstr "按与 align_time_series 相同的策略对齐两个带标签的帧。"
+
+#: ../../site/api/runtime.md:52
+msgid "Throws input_error for the same invalid inputs as align_time_series."
+msgstr "对与 align_time_series 相同的无效输入抛出 input_error。"
+
+#: ../../site/api/runtime.md:55
+msgid "Aligns positional arrays by first-axis length."
+msgstr "按第一轴长度对齐位置数组。"
+
+#: ../../site/api/runtime.md:55
+msgid ""
+"This overload deliberately cannot accept a labelled frame on either side. "
+"The arrays are returned unchanged after validation; throws input_error for "
+"an unknown policy, an inconsistent shape, or unequal first-axis lengths."
+msgstr "此重载有意不接受任一侧的带标签帧。数组经校验后原样返回；策略未知、形状不一致或第一轴长度不相等时抛出 input_error。"
+
+#: ../../site/api/runtime.md:58
+msgid "Aligns double-column frames by their UTC-nanosecond index."
+msgstr "按 UTC 纳秒索引对齐 double 列帧。"
+
+#: ../../site/api/runtime.md:58
+msgid ""
+"All column names and order are retained. Unsupported column types and "
+"duplicate indices are rejected. Non-double columns are not coerced. Throws "
+"input_error when the policy is unknown or strict alignment finds different "
+"indices."
+msgstr "保留所有列名和列顺序。不支持的列类型和重复索引会被拒绝。非 double 列不会被强制转换。策略未知或严格对齐发现索引不同时抛出 input_error。"
+
+#: ../../site/api/runtime.md:61
+msgid ""
+"Native-compatible runtime operations for the Iteration 8 P105 domains: "
+"attribution, factor_analysis, optimization, report.factor and the native "
+"data-snapshot model."
+msgstr ""
+"面向 Iteration 8 P105 "
+"各领域的原生兼容运行时操作：attribution、factor_analysis、optimization、report.factor "
+"以及原生数据快照模型。"
+
+#: ../../site/api/runtime.md:61
+msgid ""
+"Every declaration maps an exact source operation id to an existing native "
+"kernel. Composite native results are projected onto an owning "
+"report_document; tabular kernels return an owning dataframe. rng_policy is "
+"none and every operation is deterministic."
+msgstr ""
+"每个声明都将确切的源操作 id 映射到现有原生内核。复合原生结果投影为持有型 report_document；表格型内核返回持有型 "
+"dataframe。rng_policy 为 none，每个操作都是确定性的。"
+
+#: ../../site/api/runtime.md:64
+msgid "Runs every request in plan against the catalog that produced it."
+msgstr "针对生成该计划的目录运行 plan 中的每个请求。"
+
+#: ../../site/api/runtime.md:64
+msgid ""
+"Results are returned in request order. Throws input_error when the plan "
+"digest does not match catalog, and propagates per-request validation errors."
+msgstr "结果按请求顺序返回。计划摘要与 catalog 不匹配时抛出 input_error，并传播各请求的校验错误。"
+
+#: ../../site/api/runtime.md:67
+msgid "Returns the builtin catalog of native metrics, risk and report operations."
+msgstr "返回原生指标、风险和报告操作的内置目录。"
+
+#: ../../site/api/runtime.md:67
+msgid ""
+"Builtin report operation inputs follow the pinned source IDs. The walk-"
+"forward operation requires returns (dataframe) and spec (risk_model_spec). "
+"Risk validation requires result (walk_forward_var_result) and accepts "
+"optional index_name (string). Risk document construction requires report "
+"(risk_validation_report) and accepts optional title (string). Portfolio "
+"report construction requires returns (dataframe) and accepts optional "
+"benchmark, positions (dataframe), transactions "
+"(vector<portfolio_transaction>), rolling_window (integer), and title "
+"(string). These operations ignore config values and do not forward them to "
+"domain functions."
+msgstr ""
+"内置报告操作的输入遵循锁定的源 ID。walk-forward 操作要求 returns (dataframe) 和 spec "
+"(risk_model_spec)。风险校验要求 result (walk_forward_var_result)，并接受可选的 index_name "
+"(string)。风险文档构建要求 report (risk_validation_report)，并接受可选的 title "
+"(string)。投资组合报告构建要求 returns (dataframe)，并接受可选的 benchmark、positions "
+"(dataframe)、transactions (vector<portfolio_transaction>)、rolling_window "
+"(integer) 和 title (string)。这些操作忽略 config 值，不会将其转发给领域函数。"
+
+#: ../../site/api/runtime.md:70
+msgid "Returns an owning value-semantic copy of a runtime result."
+msgstr "返回运行时结果的持有型、值语义副本。"
+
+#: ../../site/api/runtime.md:73
+msgid "Parses a JSON envelope into a runtime result."
+msgstr "将 JSON 信封解析为运行时结果。"
+
+#: ../../site/api/runtime.md:73
+msgid ""
+"Throws input_error for malformed JSON, duplicate object keys, invalid UTF-8,"
+" unsupported schema versions, or out-of-range numbers."
+msgstr "JSON 格式错误、对象键重复、UTF-8 无效、schema 版本不受支持或数字超出范围时，抛出 input_error。"
+
+#: ../../site/api/runtime.md:76
+msgid "Validates a payload and returns an owning runtime result."
+msgstr "校验负载并返回持有型运行时结果。"
+
+#: ../../site/api/runtime.md:76
+msgid ""
+"Supported values and nested shapes are checked. Throws input_error for an "
+"unsupported schema version or an invalid value representation."
+msgstr "会检查支持的取值和嵌套形状。schema 版本不受支持或值表示无效时抛出 input_error。"
+
+#: ../../site/api/runtime.md:79
+msgid "Checks a native capability dependency and throws when it is unavailable."
+msgstr "检查原生能力依赖项，不可用时抛出。"
+
+#: ../../site/api/runtime.md:79
+msgid ""
+"Native callers declare availability explicitly instead of importing an "
+"optional Python module; an unavailable capability raises a structured "
+"DependencyError. An empty dependency defaults to module_name, and an empty "
+"message is replaced by an optional_dependency_missing message."
+msgstr ""
+"原生调用方显式声明可用性，而无需导入可选的 Python 模块；不可用的能力会引发结构化 DependencyError。dependency "
+"为空时默认为 module_name，message 为空时替换为 optional_dependency_missing 消息。"
+
+#: ../../site/api/runtime.md:82
+msgid "Creates a provider that captures and returns the supplied declarations."
+msgstr "创建捕获并返回所提供声明的提供方。"
+
+#: ../../site/api/runtime.md:85
+msgid "Native runtime declarations for the metrics."
+msgstr "metrics 的原生运行时声明。"
+
+#: ../../site/api/runtime.md:85
+msgid ""
+"* and performance.* operation domains that are not already part of "
+"builtin_catalog()."
+msgstr "* 与 performance.* 操作领域，这些领域尚未包含在 builtin_catalog() 中。"
+
+#: ../../site/api/runtime.md:85
+msgid ""
+"Every declaration maps to an existing native kernel. The declarations are "
+"deterministic and consume no random state (rng_policy == \"none\")."
+msgstr "每个声明都映射到现有原生内核。这些声明具有确定性，不消耗随机状态（rng_policy == \"none\"）。"
+
+#: ../../site/api/runtime.md:88
+msgid "Returns a UTC-normalized copy of a time-series frame."
+msgstr "返回时间序列帧的 UTC 归一化副本。"
+
+#: ../../site/api/runtime.md:88
+msgid ""
+"Native timestamps are UTC nanoseconds. \"UTC\" normalization therefore "
+"returns an owning copy; named-zone conversion is outside this API. Throws "
+"input_error when normalize_tz is not UTC, compared case-insensitively."
+msgstr ""
+"原生时间戳为 UTC 纳秒。因此 \"UTC\" 归一化返回持有型副本；命名时区转换不在此 API 范围内。normalize_tz 不是 "
+"UTC（按大小写不敏感方式比较）时抛出 input_error。"
+
+#: ../../site/api/runtime.md:91
+msgid "Validates every request against catalog and records its digest."
+msgstr "针对 catalog 校验每个请求并记录其摘要。"
+
+#: ../../site/api/runtime.md:91
+msgid "Throws operation_resolution_error for an unknown operation identifier."
+msgstr "操作标识符未知时抛出 operation_resolution_error。"
+
+#: ../../site/api/runtime.md:94
+msgid ""
+"Native-compatible runtime operations for the portfolio, risk and simulation "
+"source domains (Iteration 8 / P105)."
+msgstr "面向 portfolio、risk 和 simulation 源领域的原生兼容运行时操作（Iteration 8 / P105）。"
+
+#: ../../site/api/runtime.md:94
+msgid ""
+"The returned declarations preserve the authoritative operation IDs from the "
+"reconciliation catalog. Every callable invokes an existing native kernel; "
+"structured results that have no dedicated runtime_value alternative are "
+"serialized into a dataframe with the schema documented in the operation's "
+"provenance[\"input_schema\"] entry."
+msgstr ""
+"返回的声明保留对账目录中的权威操作 ID。每个可调用对象都调用现有原生内核；没有专用 runtime_value 备选类型的结构化结果会序列化为 "
+"dataframe，其 schema 在操作的 provenance[\"input_schema\"] 条目中说明。"
+
+#: ../../site/api/runtime.md:97
+msgid "Runs one operation and returns its value with run metadata."
+msgstr "运行一个操作并返回其值及运行元数据。"
+
+#: ../../site/api/runtime.md:97
+msgid ""
+"Config is recorded in result metadata only; operation callables receive "
+"runtime inputs and never receive config."
+msgstr "config 仅记录在结果元数据中；操作可调用对象接收运行时输入，绝不接收 config。"
+
+#: ../../site/api/runtime.md:97
+msgid ""
+"Throws operation_resolution_error when the operation is unknown and "
+"propagates validation errors raised by the callable."
+msgstr "操作未知时抛出 operation_resolution_error，并传播可调用对象引发的校验错误。"
+
+#: ../../site/api/runtime.md:100
+msgid "Returns a deterministic SHA-256 digest of value."
+msgstr "返回 value 的确定性 SHA-256 摘要。"
+
+#: ../../site/api/runtime.md:100
+msgid ""
+"DataFrame digests include index values, column names, types and contents for"
+" bool, character, integral, float, double and std::string columns. Other "
+"column types are rejected so session cache keys never omit input data. "
+"Throws input_error for an unsupported dataframe column type."
+msgstr ""
+"DataFrame 摘要包含索引值、列名、类型，以及 bool、character、integral、float、double 和 "
+"std::string 列的内容。其他列类型会被拒绝，以确保会话缓存键绝不遗漏输入数据。dataframe 列类型不受支持时抛出 "
+"input_error。"
+
+#: ../../site/api/runtime.md:103
+msgid "Returns a versioned semantic digest of a runtime result."
+msgstr "返回运行时结果的带版本语义摘要。"
+
+#: ../../site/api/runtime.md:103
+msgid ""
+"The digest is SHA-256 over the canonical native payload, domain-separated "
+"and versioned. Volatile metadata such as run durations, run identifiers and "
+"path-valued keys is excluded so equivalent results compare equal."
+msgstr "该摘要是对规范原生负载的 SHA-256，进行了域分隔和版本化。运行时长、运行标识符和路径值键等易变元数据被排除，以便等价结果比较相等。"
+
+#: ../../site/api/runtime.md:106
+msgid "Serializes a runtime result to deterministic JSON."
+msgstr "将运行时结果序列化为确定性 JSON。"
+
+#: ../../site/api/runtime.md:106
+msgid ""
+"The JSON envelope is deterministic for a given native runtime_result. "
+"Numeric values use explicit tags so non-finite values and signed zero "
+"survive. Throws input_error for values that cannot be represented."
+msgstr ""
+"对于给定的原生 runtime_result，JSON 信封是确定性的。数值使用显式标签，以便非有限值和带符号零得以保留。无法表示的值会抛出 "
+"input_error。"
+
+#: ../../site/api/runtime.md:109
+msgid "Converts a runtime result into an owning versioned payload."
+msgstr "将运行时结果转换为持有型、带版本的负载。"
+
+#: ../../site/api/runtime.md:112
+msgid "Return an owning copy after checking shape, size and finite-value rules."
+msgstr "在检查形状、大小和有限值规则后返回持有型副本。"
+
+#: ../../site/api/runtime.md:115
+msgid "Return a copy of a typed string-keyed mapping after rejecting empty keys."
+msgstr "在拒绝空键后返回类型化字符串键映射的副本。"
+
+#: ../../site/api/runtime.md:118
+msgid "Returns a copy with the supplied metadata keys overwritten."
+msgstr "返回覆盖了所提供元数据键的副本。"
+
+#: ../../site/api/runtime.md:118
+msgid ""
+"Keys present in metadata replace existing values; all other metadata from "
+"result is retained."
+msgstr "metadata 中存在的键替换现有值；result 中的其他元数据全部保留。"
+
+#: ../../site/api/runtime.md:121
+msgid "Writes a bundle into a new output directory."
+msgstr "将包写入新的输出目录。"
+
+#: ../../site/api/runtime.md:121
+msgid ""
+"Existing output directories, unsafe artifact paths and symlink parents are "
+"rejected. The bundle metadata and artifact names are preserved in .fincore-"
+"manifest.json; per-file descriptors are validated before any output is "
+"created. Throws fincore_error for a closed bundle and input_error for "
+"rejected paths or descriptors."
+msgstr ""
+"已存在的输出目录、不安全的产物路径和符号链接父级会被拒绝。包元数据和产物名保留在 .fincore-manifest.json "
+"中；逐文件描述符在创建任何输出之前校验。包已关闭时抛出 fincore_error，路径或描述符被拒绝时抛出 input_error。"
+
+#: ../../site/api/runtime.md:124
+msgid "Factory that returns a copy of a fixed set of operation declarations."
+msgstr "返回固定操作声明集合副本的工厂。"
+
+#: ../../site/api/runtime.md:127
+msgid "Named runtime configuration keyed by non-empty config name."
+msgstr "以非空配置名称为键的命名运行时配置。"
+
+#: ../../site/api/runtime.md:130
+msgid "Named runtime inputs keyed by non-empty input name."
+msgstr "以非空输入名称为键的命名运行时输入。"
+
+#: ../../site/api/runtime.md:133
+msgid "Current runtime result payload schema version."
+msgstr "当前运行时结果负载的 schema 版本。"
+

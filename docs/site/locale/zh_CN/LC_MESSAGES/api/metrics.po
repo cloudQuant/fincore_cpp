@@ -1,0 +1,2550 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 01:10+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/api/metrics.md:1
+msgid "Metrics"
+msgstr "指标"
+
+#: ../../site/api/metrics.md:3
+msgid ""
+"Return, risk, drawdown, distribution, rolling, yearly and performance-"
+"attribution statistics."
+msgstr "收益率、风险、回撤、分布、滚动、年度及绩效归因统计。"
+
+#: ../../site/api/metrics.md:5
+msgid ""
+"See the [usage guide](../guides/metrics.md) for task-oriented examples. "
+"Signatures below are generated from the public headers at the same commit as"
+" the rest of this site."
+msgstr "面向任务的使用示例请参阅[使用指南](../guides/metrics.md)。以下签名与本站其余内容在同一提交中由公共头文件生成。"
+
+#: ../../site/api/metrics.md:7
+msgid ""
+"Row-major dense matrix used where the pinned Python source consumes a NumPy "
+"2-D array."
+msgstr "行主序稠密矩阵，用于锁定版本的 Python 源码需要 NumPy 二维数组的场合。"
+
+#: ../../site/api/metrics.md:7
+msgid "values().size() is always rows() * columns()."
+msgstr "values().size() 始终等于 rows() * columns()。"
+
+#: ../../site/api/metrics.md:7
+msgid "Public Functions"
+msgstr "公共函数"
+
+#: ../../site/api/metrics.md:7
+msgid "Constructs an empty 0 x 0 matrix."
+msgstr "构造一个空的 0 x 0 矩阵。"
+
+#: ../../site/api/metrics.md:7
+msgid "Constructs a row_count x column_count matrix from a row-major buffer."
+msgstr "从行主序缓冲区构造一个 row_count x column_count 矩阵。"
+
+#: ../../site/api/metrics.md:7
+msgid ""
+"Throws input_error when the shape is not representable or values.size() "
+"differs from row_count * column_count."
+msgstr "当形状无法表示，或 values.size() 与 row_count * column_count 不一致时，抛出 input_error。"
+
+#: ../../site/api/metrics.md:7
+msgid "Returns the number of rows."
+msgstr "返回行数。"
+
+#: ../../site/api/metrics.md:7
+msgid "Returns the number of columns."
+msgstr "返回列数。"
+
+#: ../../site/api/metrics.md:7
+msgid "Returns the row-major element buffer, sized rows() * columns()."
+msgstr "返回行主序元素缓冲区，其长度为 rows() * columns()。"
+
+#: ../../site/api/metrics.md:7
+msgid "Returns a view of row_index; throws input_error when out of range."
+msgstr "返回 row_index 行的视图；越界时抛出 input_error。"
+
+#: ../../site/api/metrics.md:7
+msgid ""
+"Returns the element at (row_index, column_index); throws input_error when "
+"either index is out of range."
+msgstr "返回 (row_index, column_index) 处的元素；任一索引越界时抛出 input_error。"
+
+#: ../../site/api/metrics.md:7
+msgid ""
+"Returns a mutable reference to the element at (row_index, column_index); "
+"throws input_error when either index is out of range."
+msgstr "返回 (row_index, column_index) 处元素的可变引用；任一索引越界时抛出 input_error。"
+
+#: ../../site/api/metrics.md:10
+msgid "Bootstrap distribution of one performance metric."
+msgstr "单个绩效指标的 bootstrap 分布。"
+
+#: ../../site/api/metrics.md:10 ../../site/api/metrics.md:13
+#: ../../site/api/metrics.md:16 ../../site/api/metrics.md:19
+#: ../../site/api/metrics.md:22 ../../site/api/metrics.md:25
+#: ../../site/api/metrics.md:28 ../../site/api/metrics.md:31
+#: ../../site/api/metrics.md:34 ../../site/api/metrics.md:37
+msgid "Public Members"
+msgstr "公共成员"
+
+#: ../../site/api/metrics.md:10
+msgid "Display name of the metric."
+msgstr "指标的显示名称。"
+
+#: ../../site/api/metrics.md:10
+msgid "Statistic of each draw, in draw order."
+msgstr "每次抽样的统计量，按抽样顺序排列。"
+
+#: ../../site/api/metrics.md:10
+msgid "Summary of samples."
+msgstr "样本汇总。"
+
+#: ../../site/api/metrics.md:13
+msgid "Daily run statistics from a return series."
+msgstr "由收益率序列得到的日度连续段统计。"
+
+#: ../../site/api/metrics.md:13
+msgid "Longest run of positive observations."
+msgstr "最长的正观测连续段。"
+
+#: ../../site/api/metrics.md:13
+msgid "Longest run of negative observations."
+msgstr "最长的负观测连续段。"
+
+#: ../../site/api/metrics.md:13
+msgid "Largest sum over a positive run."
+msgstr "正连续段上的最大求和。"
+
+#: ../../site/api/metrics.md:13
+msgid "Most negative sum over a negative run."
+msgstr "负连续段上最负的求和。"
+
+#: ../../site/api/metrics.md:16
+msgid "Descriptive summary of a set of metric samples."
+msgstr "一组指标样本的描述性汇总。"
+
+#: ../../site/api/metrics.md:16
+msgid ""
+"Every field is NaN for an empty sample. Quantiles use linear interpolation "
+"and std is the population deviation."
+msgstr "样本为空时每个字段均为 NaN。分位数使用线性插值，std 为总体偏差。"
+
+#: ../../site/api/metrics.md:16
+msgid "Arithmetic mean."
+msgstr "算术平均值。"
+
+#: ../../site/api/metrics.md:16
+msgid "50th percentile."
+msgstr "第 50 百分位。"
+
+#: ../../site/api/metrics.md:16
+msgid "Population standard deviation (divides by the count)."
+msgstr "总体标准差（除以样本数）。"
+
+#: ../../site/api/metrics.md:16
+msgid "5th percentile."
+msgstr "第 5 百分位。"
+
+#: ../../site/api/metrics.md:16
+msgid "25th percentile."
+msgstr "第 25 百分位。"
+
+#: ../../site/api/metrics.md:16
+msgid "75th percentile."
+msgstr "第 75 百分位。"
+
+#: ../../site/api/metrics.md:16
+msgid "95th percentile."
+msgstr "第 95 百分位。"
+
+#: ../../site/api/metrics.md:16
+msgid "Interquartile range, p75 - p25."
+msgstr "四分位距，p75 - p25。"
+
+#: ../../site/api/metrics.md:19
+msgid ""
+"One underwater episode, from the first observation below the running peak "
+"through its valley and optional recovery."
+msgstr "一次水下期，从低于滚动峰值的首个观测起，经谷底和可选的恢复为止。"
+
+#: ../../site/api/metrics.md:19
+msgid "First timestamp below the prior peak."
+msgstr "低于前一峰值的首个时间戳。"
+
+#: ../../site/api/metrics.md:19 ../../site/api/metrics.md:22
+#: ../../site/api/metrics.md:25
+msgid "Timestamp of the deepest point."
+msgstr "最深点的时间戳。"
+
+#: ../../site/api/metrics.md:19
+msgid "Return to the prior peak; nullopt when the episode never recovers."
+msgstr "回到前一峰值的收益率；该事件始终未恢复时为 nullopt。"
+
+#: ../../site/api/metrics.md:19
+msgid "Depth at the valley, a negative fraction of peak."
+msgstr "谷底处的深度，为相对峰值的负比例。"
+
+#: ../../site/api/metrics.md:19
+msgid "Observations from start to valley."
+msgstr "从起点到谷底的观测数。"
+
+#: ../../site/api/metrics.md:19
+msgid "Observations from valley to recovery."
+msgstr "从谷底到恢复的观测数。"
+
+#: ../../site/api/metrics.md:22
+msgid "One row of gen_drawdown_table."
+msgstr "gen_drawdown_table 的一行。"
+
+#: ../../site/api/metrics.md:22
+msgid "Depth as a positive percentage of peak wealth; NaN for an unused row."
+msgstr "深度，为峰值财富的正百分比；未使用的行为 NaN。"
+
+#: ../../site/api/metrics.md:22
+msgid "Timestamp of the prior peak."
+msgstr "前一峰值的时间戳。"
+
+#: ../../site/api/metrics.md:22
+msgid "Return to the peak, if any."
+msgstr "回到峰值的收益率（若有）。"
+
+#: ../../site/api/metrics.md:22
+msgid ""
+"Monday-Friday days from peak through recovery, inclusive; nullopt without a "
+"recovery."
+msgstr "从峰值到恢复（含两端）的周一至周五天数；没有恢复时为 nullopt。"
+
+#: ../../site/api/metrics.md:25
+msgid "Peak, valley and optional recovery timestamps of a drawdown."
+msgstr "一次回撤的峰值、谷底及可选的恢复时间戳。"
+
+#: ../../site/api/metrics.md:25
+msgid "Timestamp of the running peak before the decline."
+msgstr "下跌前滚动峰值的时间戳。"
+
+#: ../../site/api/metrics.md:25
+msgid "Return to the peak; nullopt when the episode never recovers."
+msgstr "回到峰值的收益率；该事件始终未恢复时为 nullopt。"
+
+#: ../../site/api/metrics.md:28
+msgid "Generalized Pareto tail estimates of a return distribution."
+msgstr "收益率分布的广义帕累托尾部估计。"
+
+#: ../../site/api/metrics.md:28
+msgid "Loss threshold selected for the tail fit."
+msgstr "为尾部拟合选择的损失阈值。"
+
+#: ../../site/api/metrics.md:28
+msgid "GPD scale parameter."
+msgstr "GPD 尺度参数。"
+
+#: ../../site/api/metrics.md:28
+msgid "GPD shape parameter (positive for a fitted tail)."
+msgstr "GPD 形状参数（对拟合出的尾部为正）。"
+
+#: ../../site/api/metrics.md:28
+msgid "Value-at-risk estimate at the requested probability."
+msgstr "在所请求概率下的风险价值估计。"
+
+#: ../../site/api/metrics.md:28
+msgid "Expected shortfall estimate."
+msgstr "预期短缺估计。"
+
+#: ../../site/api/metrics.md:31
+msgid "One named historical window extracted from a return series."
+msgstr "从收益率序列中提取的一个具名历史窗口。"
+
+#: ../../site/api/metrics.md:31
+msgid "Window label, for example \"Lehman\"."
+msgstr "窗口标签，例如 \"Lehman\"。"
+
+#: ../../site/api/metrics.md:31
+msgid "Returns of the selected column inside the window."
+msgstr "窗口内所选列的收益率。"
+
+#: ../../site/api/metrics.md:34
+msgid "Per-date risk exposures and return attribution."
+msgstr "逐日风险暴露与收益归因。"
+
+#: ../../site/api/metrics.md:34
+msgid "Factor exposures on the attribution index."
+msgstr "归因索引上的因子暴露。"
+
+#: ../../site/api/metrics.md:34
+msgid ""
+"Factor contributions plus the total, common, specific, tilt and timing "
+"return columns."
+msgstr "因子贡献，加上总收益、共同收益、特定收益、倾斜收益和择时收益列。"
+
+#: ../../site/api/metrics.md:37
+msgid "Summary statistics of a perf_attribution_result."
+msgstr "perf_attribution_result 的汇总统计。"
+
+#: ../../site/api/metrics.md:37
+msgid "Seven named return statistics."
+msgstr "七项具名收益统计。"
+
+#: ../../site/api/metrics.md:37
+msgid ""
+"One row per factor: its name, average exposure, and annualized and "
+"cumulative contribution."
+msgstr "每个因子一行：名称、平均暴露以及年化和累计贡献。"
+
+#: ../../site/api/metrics.md:40
+msgid "Compounding period of a return series."
+msgstr "收益率序列的复利周期。"
+
+#: ../../site/api/metrics.md:40 ../../site/api/metrics.md:43
+msgid "Values:"
+msgstr "取值："
+
+#: ../../site/api/metrics.md:40
+msgid "Daily observations, annualized with 252 periods."
+msgstr "日度观测，按 252 个周期年化。"
+
+#: ../../site/api/metrics.md:40
+msgid "Weekly observations, annualized with 52 periods."
+msgstr "周度观测，按 52 个周期年化。"
+
+#: ../../site/api/metrics.md:40
+msgid "Monthly observations, annualized with 12 periods."
+msgstr "月度观测，按 12 个周期年化。"
+
+#: ../../site/api/metrics.md:40
+msgid "Quarterly observations, annualized with 4 periods."
+msgstr "季度观测，按 4 个周期年化。"
+
+#: ../../site/api/metrics.md:40
+msgid "Yearly observations, annualized with 1 period."
+msgstr "年度观测，按 1 个周期年化。"
+
+#: ../../site/api/metrics.md:43
+msgid "Calendar bucket used by aggregate_returns."
+msgstr "aggregate_returns 使用的日历分桶。"
+
+#: ../../site/api/metrics.md:43
+msgid "ISO-8601 weeks, keyed by week number within the year."
+msgstr "ISO-8601 周，以年内周序号为键。"
+
+#: ../../site/api/metrics.md:43
+msgid "Calendar months."
+msgstr "日历月。"
+
+#: ../../site/api/metrics.md:43
+msgid "Calendar quarters."
+msgstr "日历季度。"
+
+#: ../../site/api/metrics.md:43
+msgid "Calendar years."
+msgstr "日历年。"
+
+#: ../../site/api/metrics.md:46
+msgid ""
+"Returns a copy of returns with adjustment_factor subtracted from each value "
+"in column."
+msgstr "返回 returns 的副本，其中 column 列的每个值都减去 adjustment_factor。"
+
+#: ../../site/api/metrics.md:46
+msgid ""
+"Timestamps are preserved and the result is stored under column; NaN values "
+"remain NaN. Throws input_error when column is absent, is not a double "
+"column, or does not match the frame index length."
+msgstr ""
+"时间戳保持不变，结果存储在 column 下；NaN 值仍为 NaN。当 column 不存在、不是 double 列或与帧索引长度不一致时，抛出 "
+"input_error。"
+
+#: ../../site/api/metrics.md:49
+msgid ""
+"Returns the Sharpe ratio adjusted for the skewness and kurtosis of the "
+"return distribution."
+msgstr "返回经收益率分布偏度和峰度调整的夏普比率。"
+
+#: ../../site/api/metrics.md:49
+msgid ""
+"The Sharpe ratio is annualized with daily_annualization and multiplied by a "
+"dampened adjustment built from the biased skewness and excess kurtosis of "
+"the non-NaN values. The adjustment is clamped to [0.9, 1.1] for fewer than "
+"20 raw observations and to [0.8, 1.3] otherwise. Fewer than four raw values "
+"or a NaN Sharpe ratio yield NaN; an embedded NUL in column raises "
+"input_error."
+msgstr ""
+"夏普比率按 daily_annualization 年化，再乘以由非 NaN 值的有偏偏度和超额峰度构建的阻尼调整系数。原始观测少于 20 "
+"个时，调整系数被限制在 [0.9, 1.1]，否则限制在 [0.8, 1.3]。原始值少于四个或夏普比率为 NaN 时返回 NaN；column 中嵌入"
+" NUL 会抛出 input_error。"
+
+#: ../../site/api/metrics.md:52
+msgid "Returns returns compounded into calendar buckets of period."
+msgstr "返回按 period 的日历分桶复合后的 returns。"
+
+#: ../../site/api/metrics.md:52
+msgid ""
+"The output index holds each bucket's start timestamp (Monday for weeks, "
+"clamped to January 1; the first day of the month or quarter; January 1 for "
+"years), with integer year and period columns and the compounded return under"
+" column. NaN returns are treated as zero. column must not be "
+"return_aggregation_year_column or return_aggregation_period_column; "
+"otherwise input_error is thrown."
+msgstr ""
+"输出索引保存每个分桶的起始时间戳（周为周一，并钳制到 1 月 1 日；月或季度为当月或当季第一天；年为 1 月 1 日），并包含整数 year 和 "
+"period 列，复合收益率存储在 column 下。NaN 收益率视为零。column 不得为 "
+"return_aggregation_year_column 或 return_aggregation_period_column；否则抛出 "
+"input_error。"
+
+#: ../../site/api/metrics.md:55
+msgid "Returns two single-column series aligned on their common timestamps."
+msgstr "返回按公共时间戳对齐的两个单列序列。"
+
+#: ../../site/api/metrics.md:55
+msgid ""
+"Native contract: the common index is emitted in left-frame order (the "
+"align_on_common_index semantics), timestamps absent from either frame are "
+"dropped, and present NaN values are retained. Both indexes must contain "
+"unique timestamps and must not contain the NaT sentinel "
+"(numeric_limits<timestamp>::min()); duplicates are ambiguous for keyed "
+"alignment and raise input_error."
+msgstr ""
+"原生约定：公共索引按左帧顺序输出（align_on_common_index 语义），任一帧缺失的时间戳会被丢弃，而存在的 NaN "
+"值会保留。两个索引都必须包含唯一时间戳，且不得包含 NaT "
+"哨兵（numeric_limits<timestamp>::min()）；重复项对按键对齐而言存在歧义，会抛出 input_error。"
+
+#: ../../site/api/metrics.md:55
+msgid ""
+"Declared source variances: the pinned Python two-Series path uses "
+"pd.concat(..., sort=False) (an outer union that keeps right-only rows as "
+"NaN), while its DataFrame and mixed DataFrame/Series paths intersect. This "
+"native helper follows the P101 common-index intersection for every input, "
+"and emits left order where the source DataFrame.align path sorts ascending."
+msgstr ""
+"已声明的源码差异：锁定版本的 Python 双 Series 路径使用 pd.concat(..., sort=False)（外并集，仅右侧存在的行以 "
+"NaN 保留），而其 DataFrame 及混合 DataFrame/Series 路径取交集。此原生辅助函数对所有输入都遵循 P101 "
+"的公共索引交集，并在源 DataFrame.align 路径按升序排序时输出左侧顺序。"
+
+#: ../../site/api/metrics.md:58
+msgid ""
+"Returns two frames aligned on their common timestamps, keeping every double "
+"column of each frame in source column order."
+msgstr "返回按公共时间戳对齐的两个帧，按源列顺序保留每个帧的所有 double 列。"
+
+#: ../../site/api/metrics.md:58
+msgid ""
+"Same uniqueness, NaT, missingness and ordering rules as the single-column "
+"overload."
+msgstr "唯一性、NaT、缺失值和排序规则与单列重载相同。"
+
+#: ../../site/api/metrics.md:61
+msgid "Returns the annualized Jensen alpha on the common timestamps."
+msgstr "返回公共时间戳上的年化 Jensen alpha。"
+
+#: ../../site/api/metrics.md:61
+msgid ""
+"NaN pairs are dropped. The mean per-period excess return less beta times the"
+" excess benchmark return is compounded at annualization. Returns NaN when "
+"beta is not finite. risk_free is subtracted from both series."
+msgstr ""
+"丢弃 NaN 对。每期超额收益均值减去 beta 乘以基准超额收益，再按 annualization 复合。beta 非有限时返回 "
+"NaN。两个序列都减去 risk_free。"
+
+#: ../../site/api/metrics.md:64
+#, python-brace-format
+msgid "Returns {alpha, beta} computed on the common timestamps."
+msgstr "返回在公共时间戳上计算的 {alpha, beta}。"
+
+#: ../../site/api/metrics.md:64
+#, python-brace-format
+msgid ""
+"Only finite pairs are used. Returns {NaN, NaN} when fewer than two pairs "
+"remain, risk_free or annualization is not finite, annualization is not "
+"positive, or either result is not finite."
+msgstr ""
+"仅使用有限对。剩余对少于两个、risk_free 或 annualization 非有限、annualization 非正，或任一结果非有限时，返回 "
+"{NaN, NaN}。"
+
+#: ../../site/api/metrics.md:67
+msgid ""
+"Returns the fraction of peer strategy alphas strictly below the strategy's "
+"alpha."
+msgstr "返回严格低于该策略 alpha 的同业策略 alpha 占比。"
+
+#: ../../site/api/metrics.md:67
+msgid ""
+"Peer series with fewer than three observations or a NaN alpha are ignored. "
+"Returns NaN when the strategy alpha is unavailable or no peer alpha is "
+"usable. Embedded NUL characters in the column names raise input_error."
+msgstr ""
+"观测少于三个或 alpha 为 NaN 的同业序列会被忽略。策略 alpha 不可用或没有可用的同业 alpha 时返回 NaN。列名中嵌入 NUL "
+"字符会抛出 input_error。"
+
+#: ../../site/api/metrics.md:70
+msgid ""
+"Returns the difference between the annual returns of returns and benchmark "
+"on their common timestamps."
+msgstr "返回 returns 与 benchmark 在公共时间戳上的年化收益率之差。"
+
+#: ../../site/api/metrics.md:70
+msgid ""
+"Both annual returns use annualization_factor(period, annualization). Returns"
+" NaN when the aligned pair is empty. An unknown frequency without an "
+"explicit annualization raises input_error."
+msgstr ""
+"两个年化收益率都使用 annualization_factor(period, annualization)。对齐后为空时返回 "
+"NaN。未知频率且未显式指定 annualization 时抛出 input_error。"
+
+#: ../../site/api/metrics.md:73
+msgid ""
+"Returns the active return per UTC calendar year in column "
+"\"annual_active_return\"."
+msgstr "返回每个 UTC 日历年的主动收益，存储在列 \"annual_active_return\" 中。"
+
+#: ../../site/api/metrics.md:73
+msgid ""
+"The two frames are aligned on their common timestamps before bucketing, and "
+"each year holds the difference of the two annual returns using "
+"annualization_factor(period, annualization). Years are indexed by January 1 "
+"and sorted ascending; an empty aligned pair yields an empty typed frame. An "
+"unknown frequency without an explicit annualization raises input_error."
+msgstr ""
+"在分桶之前，两个帧先按公共时间戳对齐；每年使用 annualization_factor(period, annualization) "
+"计算两个年化收益率之差。年份以 1 月 1 日为索引并按升序排序；对齐结果为空时返回空的有类型帧。未知频率且未显式指定 annualization "
+"时抛出 input_error。"
+
+#: ../../site/api/metrics.md:76
+msgid ""
+"Returns annual alpha per UTC calendar year, indexed by January 1 and stored "
+"in column \"alpha\"."
+msgstr "返回每个 UTC 日历年的年度 alpha，以 1 月 1 日为索引，存储在列 \"alpha\" 中。"
+
+#: ../../site/api/metrics.md:76
+msgid ""
+"Each year uses annualization_factor(period, annualization) and the same NaN-"
+"pair rules as alpha."
+msgstr "每年使用 annualization_factor(period, annualization) 以及与 alpha 相同的 NaN 对规则。"
+
+#: ../../site/api/metrics.md:79
+msgid ""
+"Returns annual beta per UTC calendar year, indexed by January 1 and stored "
+"in column \"beta\"."
+msgstr "返回每个 UTC 日历年的年度 beta，以 1 月 1 日为索引，存储在列 \"beta\" 中。"
+
+#: ../../site/api/metrics.md:79
+msgid "period and annualization are ignored because beta is not annualized."
+msgstr "period 和 annualization 被忽略，因为 beta 不进行年化。"
+
+#: ../../site/api/metrics.md:82
+msgid "Returns the geometric annualized return of column."
+msgstr "返回 column 的几何年化收益率。"
+
+#: ../../site/api/metrics.md:82
+msgid ""
+"Total wealth is raised to annualization / observation_count, with NaN "
+"returns treated as zero. An empty frame yields NaN and non-positive ending "
+"wealth yields -1."
+msgstr "总财富取 annualization / observation_count 次幂，NaN 收益率视为零。空帧返回 NaN，期末财富非正时返回 -1。"
+
+#: ../../site/api/metrics.md:85
+msgid "Returns the annual return per UTC calendar year in column \"annual_return\"."
+msgstr "返回每个 UTC 日历年的年度收益，存储在列 \"annual_return\" 中。"
+
+#: ../../site/api/metrics.md:85
+msgid ""
+"Each year is indexed by its January 1 timestamp and uses annual_return with "
+"annualization_factor(period, annualization). Years are sorted ascending, "
+"while observations keep their input order inside a year. An empty frame "
+"yields an empty typed frame, and an unknown frequency without an explicit "
+"annualization raises input_error."
+msgstr ""
+"每年以其 1 月 1 日时间戳为索引，并使用 annual_return 与 annualization_factor(period, "
+"annualization)。年份按升序排序，而观测在年内保持输入顺序。空帧返回空的有类型帧；未知频率且未显式指定 annualization 时抛出 "
+"input_error。"
+
+#: ../../site/api/metrics.md:88
+msgid "Returns the annualized sample standard deviation of column."
+msgstr "返回 column 的年化样本标准差。"
+
+#: ../../site/api/metrics.md:88
+msgid ""
+"Non-NaN values are used with one degree of freedom and the result is scaled "
+"by sqrt(annualization); fewer than two valid values yield NaN."
+msgstr "使用非 NaN 值并以一个自由度为分母，结果乘以 sqrt(annualization)；有效值少于两个时返回 NaN。"
+
+#: ../../site/api/metrics.md:91
+msgid ""
+"Returns the annualized volatility per UTC calendar year in column "
+"\"annual_volatility\"."
+msgstr "返回每个 UTC 日历年的年化波动率，存储在列 \"annual_volatility\" 中。"
+
+#: ../../site/api/metrics.md:91
+msgid ""
+"Each year uses annual_volatility, so NaN observations are ignored, with "
+"annualization_factor(period, annualization). Years are indexed by January 1 "
+"and sorted ascending. An empty frame yields an empty typed frame, and an "
+"unknown frequency without an explicit annualization raises input_error."
+msgstr ""
+"每年使用 annual_volatility（因此忽略 NaN 观测）以及 annualization_factor(period, "
+"annualization)。年份以 1 月 1 日为索引并按升序排序。空帧返回空的有类型帧；未知频率且未显式指定 annualization 时抛出 "
+"input_error。"
+
+#: ../../site/api/metrics.md:94
+msgid "Returns the number of periods per year used to annualize period."
+msgstr "返回用于对 period 年化的每年周期数。"
+
+#: ../../site/api/metrics.md:94
+msgid ""
+"An explicit annualization value is returned unchanged; otherwise the "
+"defaults are 252, 52, 12, 4 and 1 for daily through yearly observations."
+msgstr "显式给出的 annualization 值原样返回；否则默认值依次为 252、52、12、4 和 1，分别对应日度到年度观测。"
+
+#: ../../site/api/metrics.md:97
+msgid "Returns the OLS beta of returns against benchmark on their common timestamps."
+msgstr "返回 returns 对 benchmark 在公共时间戳上的 OLS beta。"
+
+#: ../../site/api/metrics.md:97
+msgid ""
+"NaN pairs are dropped and risk_free is subtracted from both series before "
+"the regression. Returns NaN with fewer than two valid pairs, near-zero "
+"benchmark variance, or a non-finite covariance/beta result."
+msgstr "丢弃 NaN 对，并在回归前从两个序列中减去 risk_free。有效对少于两个、基准方差接近零，或协方差/beta 结果非有限时返回 NaN。"
+
+#: ../../site/api/metrics.md:100
+msgid ""
+"Returns a heuristic beta-fragility score comparing returns at the low and "
+"high ends of the factor-sorted sample with the middle observation."
+msgstr "返回启发式的 beta 脆弱性得分，将按因子排序后样本低端和高端的收益率与中间观测进行比较。"
+
+#: ../../site/api/metrics.md:100
+msgid ""
+"Requires at least three aligned non-NaN pairs; otherwise returns NaN. "
+"Embedded NUL characters in the column names raise input_error."
+msgstr "至少需要三个对齐的非 NaN 对，否则返回 NaN。列名中嵌入 NUL 字符会抛出 input_error。"
+
+#: ../../site/api/metrics.md:103
+msgid ""
+"Returns the annual return in excess of risk_free divided by the Burke "
+"drawdown risk measure."
+msgstr "返回超过 risk_free 的年化收益除以 Burke 回撤风险度量。"
+
+#: ../../site/api/metrics.md:103
+msgid ""
+"The risk measure is the square root of the sum of squared drawdown depths; "
+"when there are no drawdowns or all are zero, it falls back to the population"
+" standard deviation of the negative returns (or of all usable values when "
+"none are negative). The annual return is compounded at annualization. "
+"Returns positive infinity when the risk measure is below 1e-10 and the "
+"excess annual return is positive, NaN in the corresponding non-positive "
+"case, and NaN for fewer than two raw values or no usable value. An embedded "
+"NUL in column raises input_error."
+msgstr ""
+"该风险度量为各回撤深度平方和的开方；没有回撤或回撤全为零时，回退到负收益的总体标准差（若没有负收益，则使用所有可用值的总体标准差）。年化收益按 "
+"annualization 复合。当风险度量低于 1e-10 且超额年化收益为正时返回正无穷，对应的非正情形返回 "
+"NaN；原始值少于两个或没有可用值时也返回 NaN。column 中嵌入 NUL 会抛出 input_error。"
+
+#: ../../site/api/metrics.md:106
+msgid "Returns the annualized Treynor ratio of returns against benchmark."
+msgstr "返回 returns 相对 benchmark 的年化特雷诺比率。"
+
+#: ../../site/api/metrics.md:106
+msgid ""
+"Both series are aligned on their common timestamps; the annual return in "
+"excess of risk_free is divided by the beta of the aligned pair. Returns NaN "
+"when fewer than two aligned returns remain or beta is NaN, zero or negative."
+" An embedded NUL in either column name raises input_error."
+msgstr ""
+"两个序列按公共时间戳对齐；超过 risk_free 的年化收益除以对齐后的 beta。对齐后剩余收益少于两个，或 beta 为 NaN、零或负数时返回 "
+"NaN。任一列名中嵌入 NUL 会抛出 input_error。"
+
+#: ../../site/api/metrics.md:109
+msgid "Returns the mean, deviation and percentiles of values."
+msgstr "返回 values 的均值、偏差和百分位数。"
+
+#: ../../site/api/metrics.md:109
+msgid ""
+"Values are used as given (no NaN filtering); percentiles use linear "
+"interpolation at (n - 1) * p / 100 and std divides by the sample count. An "
+"empty span yields NaN in every field."
+msgstr ""
+"values 按原样使用（不过滤 NaN）；百分位数在 (n - 1) * p / 100 处使用线性插值，std 除以样本数。空范围时每个字段均为 "
+"NaN。"
+
+#: ../../site/api/metrics.md:112
+msgid ""
+"Returns the annual return in excess of risk_free divided by the absolute "
+"maximum drawdown."
+msgstr "返回超过 risk_free 的年化收益除以绝对最大回撤。"
+
+#: ../../site/api/metrics.md:112
+msgid ""
+"The annual return is compounded at annualization. Returns NaN when the "
+"series never declines (the maximum drawdown is zero or NaN) or the quotient "
+"is not finite."
+msgstr "年化收益按 annualization 复合。序列从未下跌（最大回撤为零或 NaN），或商非有限时返回 NaN。"
+
+#: ../../site/api/metrics.md:115
+msgid "Returns the squared CAPM correlation, clamped to [0, 1]."
+msgstr "返回 CAPM 相关系数的平方，并限制在 [0, 1]。"
+
+#: ../../site/api/metrics.md:115
+msgid "Returns NaN when the correlation is unavailable."
+msgstr "相关系数不可用时返回 NaN。"
+
+#: ../../site/api/metrics.md:118
+msgid ""
+"Returns the ratio of the annualized geometric return of returns to that of "
+"benchmark."
+msgstr "返回 returns 的年化几何收益与 benchmark 的年化几何收益之比。"
+
+#: ../../site/api/metrics.md:118
+msgid ""
+"Both series are aligned on their common timestamps and only finite pairs are"
+" kept; each side is compounded over its paired observations and annualized "
+"with annualization. Returns NaN when no pair remains, either annual return "
+"is non-finite, the benchmark annual return is zero, or the quotient is not "
+"finite."
+msgstr ""
+"两个序列按公共时间戳对齐且只保留有限对；各侧在其配对观测上复合并按 annualization "
+"年化。没有剩余对、任一年化收益非有限、基准年化收益为零，或商非有限时返回 NaN。"
+
+#: ../../site/api/metrics.md:121
+msgid ""
+"Returns the common-sense ratio: the tail ratio times the win rate divided by"
+" the loss rate."
+msgstr "返回常识比率：尾部比率乘以胜率再除以败率。"
+
+#: ../../site/api/metrics.md:121
+msgid ""
+"Both components are taken from column with their own NaN rules. Returns NaN "
+"for fewer than two raw values, a NaN component, or a zero win rate, and "
+"positive infinity when every usable observation is a gain. An embedded NUL "
+"in column raises input_error."
+msgstr ""
+"两个分量都取自 column，并各自遵循其 NaN 规则。原始值少于两个、分量为 NaN 或胜率为零时返回 "
+"NaN；每个可用观测都是盈利时返回正无穷。column 中嵌入 NUL 会抛出 input_error。"
+
+#: ../../site/api/metrics.md:124
+msgid "Returns the cross-path percentile cone of cumulative predicted wealth."
+msgstr "返回累计预测财富的跨路径百分位锥。"
+
+#: ../../site/api/metrics.md:124
+msgid ""
+"Each double column of predicted_returns is one path and each row is a "
+"forecast step, in input order. Wealth starts at starting_value, is "
+"multiplied by 1 + return per row, and at every row the seven linear "
+"percentiles across paths are stored in the fixed percentile_* columns. The "
+"input index, including duplicates, is preserved, and the returned frame owns"
+" its values."
+msgstr ""
+"predicted_returns 的每个 double 列是一条路径，每一行是一个预测步，均按输入顺序排列。财富从 starting_value "
+"开始，每行乘以 1 + 收益率，并在每行将跨路径的七个线性百分位存储到固定的 percentile_* "
+"列中。输入索引（包括重复项）保持不变，返回的帧拥有其数值。"
+
+#: ../../site/api/metrics.md:124
+msgid ""
+"At least one column is required, every column must be a double column "
+"matching the frame index, and starting_value, every return, cumulative "
+"wealth and interpolated percentile must be finite; otherwise input_error is "
+"thrown, including for unusable shapes and allocation failures. An index-"
+"empty frame with typed empty columns yields a typed empty seven-column "
+"frame."
+msgstr ""
+"至少需要一列，每列都必须是匹配帧索引的 double 列，并且 starting_value、每个收益率、累计财富和插值百分位都必须有限；否则抛出 "
+"input_error，包括形状不可用和分配失败的情形。索引为空但列是有类型空列的帧会返回有类型的空七列帧。"
+
+#: ../../site/api/metrics.md:127
+msgid ""
+"Returns the per-date fraction of cumulative predicted paths strictly below "
+"the realized cumulative return."
+msgstr "返回每个日期上累计预测路径严格低于实际累计收益的占比。"
+
+#: ../../site/api/metrics.md:127
+#, python-brace-format
+msgid ""
+"predicted_returns is row-major with one row per sampled path and one column "
+"per out-of-sample date. returns_test must have one value per column. Source "
+"formula: realized wealth = cumprod(1 + returns) with NaN returns treated as "
+"0 (the source cum_returns policy), predicted wealth = cumprod(1 + preds) per"
+" row, score[t] = |{path : cum_pred[path, t] < realized[t]}| / path_count. "
+"Predicted values must be finite with a finite 1 + value; realized values may"
+" be NaN (treated as 0) but not infinite. Zero paths yields NaN scores for "
+"every date, matching the source mean of an empty axis."
+msgstr ""
+"predicted_returns 为行主序，每条抽样路径一行，每个样本外日期一列。returns_test 必须每列对应一个值。源公式：实际财富 = "
+"cumprod(1 + returns)，其中 NaN 收益率视为 0（源 cum_returns 策略）；预测财富 = 每行的 cumprod(1 +"
+" preds)；score[t] = |{path : cum_pred[path, t] < realized[t]}| / "
+"path_count。预测值必须有限且 1 + 值有限；实际值可为 NaN（视为 0）但不能为无穷。路径数为零时每个日期的得分均为 "
+"NaN，与源对空轴求均值的结果一致。"
+
+#: ../../site/api/metrics.md:130
+msgid "Returns per-date factor exposures of positions."
+msgstr "返回 positions 的逐日因子暴露。"
+
+#: ../../site/api/metrics.md:130
+msgid ""
+"For each requested factor, the exposure sums position value times factor "
+"loading over the assets, matched by (timestamp, symbol) against "
+"factor_loadings; NaN products are skipped. The result keeps the positions "
+"index and one column per name in factor_column_names, in that order. "
+"Duplicate position timestamps, empty, duplicated or symbol-colliding factor "
+"names, a missing or non-string symbol column, a non-double factor-loading "
+"column, a duplicate (timestamp, symbol) key, or a missing key for a "
+"positioned asset raise input_error."
+msgstr ""
+"对每个请求的因子，暴露为各资产头寸价值乘以因子载荷之和，按 (timestamp, symbol) 与 factor_loadings 匹配；NaN "
+"乘积会被跳过。结果保留 positions 索引，并按 factor_column_names "
+"的顺序为每个名称保留一列。头寸时间戳重复、因子名称为空/重复或与 symbol 冲突、symbol 列缺失或非字符串、因子载荷列非 "
+"double、(timestamp, symbol) 键重复，或某个有头寸的资产缺少对应键时，抛出 input_error。"
+
+#: ../../site/api/metrics.md:133
+msgid "Returns the Sharpe ratio of the left tail defined by cutoff."
+msgstr "返回由 cutoff 定义的左尾夏普比率。"
+
+#: ../../site/api/metrics.md:133
+msgid ""
+"The cutoff quantile is linearly interpolated at (n - 1) * cutoff; every "
+"value at or below it forms the tail. The tail mean excess over risk_free is "
+"divided by the tail sample deviation (one degree of freedom) and scaled by "
+"sqrt(annualization). Returns NaN when cutoff is not in (0, 1), any raw value"
+" is NaN, the tail has fewer than two values, or the deviation is zero or "
+"non-finite. An embedded NUL in column raises input_error."
+msgstr ""
+"cutoff 分位数在 (n - 1) * cutoff 处线性插值；所有小于等于该值的观测构成尾部。尾部超过 risk_free "
+"的平均超额除以尾部样本偏差（一个自由度），再乘以 sqrt(annualization)。cutoff 不在 (0, 1) 内、任一原始值为 "
+"NaN、尾部少于两个值，或偏差为零或非有限时返回 NaN。column 中嵌入 NUL 会抛出 input_error。"
+
+#: ../../site/api/metrics.md:136
+msgid ""
+"Returns the mean of all observations at or below the empirical cutoff "
+"quantile of column."
+msgstr "返回 column 中所有小于等于经验 cutoff 分位数的观测的均值。"
+
+#: ../../site/api/metrics.md:136
+msgid "Returns NaN unless every value is finite and cutoff lies in [0, 1]."
+msgstr "除非每个值都有限且 cutoff 位于 [0, 1]，否则返回 NaN。"
+
+#: ../../site/api/metrics.md:139
+msgid ""
+"Returns the native column label for one cone bound width, for example cone_1"
+" or cone_-1."
+msgstr "返回某个锥边界宽度的原生列标签，例如 cone_1 或 cone_-1。"
+
+#: ../../site/api/metrics.md:139
+msgid ""
+"The width is rendered in its shortest round-trip form; a non-finite width "
+"raises input_error."
+msgstr "宽度以其最短往返形式呈现；宽度非有限时抛出 input_error。"
+
+#: ../../site/api/metrics.md:142
+msgid ""
+"Returns a map of the six daily, weekly and monthly up/down run lengths, "
+"keyed by their snake_case names."
+msgstr "返回日度、周度和月度上行/下行连续段长度共六项的映射，以各自的 snake_case 名称为键。"
+
+#: ../../site/api/metrics.md:145
+msgid ""
+"Returns the Cornell timing measure: the up-market slope minus the down-"
+"market slope."
+msgstr "返回 Cornell 择时度量：上行市场斜率减去下行市场斜率。"
+
+#: ../../site/api/metrics.md:145
+msgid ""
+"Fits excess_return = a + b * up + c * down, where up is max(0, "
+"excess_market) and down is min(0, excess_market), by ordinary least squares "
+"and returns b - c. Only finite pairs are used and risk_free is subtracted "
+"from both series. Returns NaN with fewer than ten usable pairs, a non-finite"
+" risk_free, a singular design, or a non-finite result."
+msgstr ""
+"用普通最小二乘拟合 excess_return = a + b * up + c * down（其中 up 为 max(0, "
+"excess_market)，down 为 min(0, excess_market)），并返回 b - c。只使用有限对，两个序列都减去 "
+"risk_free。可用对少于十个、risk_free 非有限、设计矩阵奇异或结果非有限时返回 NaN。"
+
+#: ../../site/api/metrics.md:148
+msgid "Returns the return summary and per-factor statistics of an attribution."
+msgstr "返回归因的收益汇总和逐因子统计。"
+
+#: ../../site/api/metrics.md:148
+msgid ""
+"summaryholds \"Annualized Specific Return\", \"Annualized Common Return\", "
+"\"Annualized Total Return\", \"Specific Sharpe Ratio\", \"Cumulative "
+"SpecificReturn\", \"Cumulative Common Return\" and \"Total Returns\"; "
+"annualized values compound withannualization, and the specific Sharpe ratio "
+"also uses it. factor_summary has a positional 0..n-1 index with columns "
+"\"factor\", \"Average Risk Factor Exposure\" (mean non-NaN exposure), "
+"\"Annualized Return\" and \"Cumulative Return\" of each factor's "
+"contribution. Mismatched indexes or a missing standard attribution column "
+"raise input_error."
+msgstr ""
+"summary 保存 \"Annualized Specific Return\"、\"Annualized Common "
+"Return\"、\"Annualized Total Return\"、\"Specific Sharpe Ratio\"、\"Cumulative "
+"SpecificReturn\"、\"Cumulative Common Return\" 和 \"Total Returns\"；年化值按 "
+"annualization 复合，特定夏普比率也使用它。factor_summary 具有 0..n-1 的位置索引，列包括 "
+"\"factor\"、\"Average Risk Factor Exposure\"（非 NaN 暴露的均值）、\"Annualized "
+"Return\" 以及各因子贡献的 \"Cumulative Return\"。索引不匹配或缺少标准归因列时抛出 input_error。"
+
+#: ../../site/api/metrics.md:151
+msgid ""
+"Returns the total compounded return of column, treating NaN returns as zero;"
+" an empty frame yields NaN."
+msgstr "返回 column 的总复合收益，NaN 收益率视为零；空帧返回 NaN。"
+
+#: ../../site/api/metrics.md:154
+msgid "Returns cumulative_return for the legacy single-name column form."
+msgstr "返回旧式单一名称列形式的 cumulative_return。"
+
+#: ../../site/api/metrics.md:154 ../../site/api/metrics.md:163
+msgid ""
+"The initializer list may hold at most one name; more than one throws "
+"input_error."
+msgstr "初始化列表最多只能包含一个名称；多于一个会抛出 input_error。"
+
+#: ../../site/api/metrics.md:157
+msgid "Returns the final cumulative value of column scaled by starting_value."
+msgstr "返回按 starting_value 缩放的 column 最终累计值。"
+
+#: ../../site/api/metrics.md:157
+msgid ""
+"The result is starting_value * wealth when starting_value is nonzero and "
+"wealth - 1 when it is zero. NaN returns are treated as zero."
+msgstr "当 starting_value 非零时结果为 starting_value * wealth，为零时结果为 wealth - 1。NaN 收益率视为零。"
+
+#: ../../site/api/metrics.md:160
+msgid ""
+"Returns the cumulative growth of column as wealth - 1 at each timestamp, "
+"with NaN returns treated as zero."
+msgstr "返回 column 在每个时间戳上的累计增长 wealth - 1，NaN 收益率视为零。"
+
+#: ../../site/api/metrics.md:163
+msgid "Returns cumulative_returns for the legacy single-name column form."
+msgstr "返回旧式单一名称列形式的 cumulative_returns。"
+
+#: ../../site/api/metrics.md:166
+msgid "Returns the cumulative growth of column scaled by starting_value."
+msgstr "返回按 starting_value 缩放的 column 累计增长。"
+
+#: ../../site/api/metrics.md:166
+msgid ""
+"Each output value is starting_value * wealth when starting_value is nonzero "
+"and wealth - 1 when it is zero. NaN returns are treated as zero."
+msgstr ""
+"当 starting_value 非零时每个输出值为 starting_value * wealth，为零时为 wealth - 1。NaN "
+"收益率视为零。"
+
+#: ../../site/api/metrics.md:169
+msgid "Returns cumulative_returns of returns_column_name."
+msgstr "返回 returns_column_name 的 cumulative_returns。"
+
+#: ../../site/api/metrics.md:169
+msgid "This overload applies no cost deduction."
+msgstr "此重载不进行成本扣减。"
+
+#: ../../site/api/metrics.md:172
+msgid "Returns cumulative growth after subtracting per-date costs."
+msgstr "返回扣除逐日成本后的累计增长。"
+
+#: ../../site/api/metrics.md:172
+msgid ""
+"returns and costs must have identical indexes; each return is reduced by the"
+" cost in the same row before the result is compounded with "
+"cumulative_returns. Mismatched indexes, malformed columns or invalid "
+"selectors raise input_error."
+msgstr ""
+"returns 和 costs 必须具有相同的索引；每个收益率先减去同一行的成本，再用 cumulative_returns "
+"复合。索引不匹配、列格式错误或选择器无效时抛出 input_error。"
+
+#: ../../site/api/metrics.md:175
+msgid "Returns the daily run statistics of column."
+msgstr "返回 column 的日度连续段统计。"
+
+#: ../../site/api/metrics.md:175
+msgid ""
+"NaN values break a run. An empty input yields all-NaN fields; the gain/loss "
+"fields are also NaN when no run of that sign exists, while the run lengths "
+"are 0."
+msgstr "NaN 值会中断连续段。输入为空时所有字段均为 NaN；不存在该符号的连续段时，盈/亏字段同样为 NaN，而连续段长度为 0。"
+
+#: ../../site/api/metrics.md:178
+msgid "Returns the deflated Sharpe ratio probability for num_trials trials."
+msgstr "返回 num_trials 次试验下的紧缩夏普比率概率。"
+
+#: ../../site/api/metrics.md:178
+msgid ""
+"NaN observations are dropped and the per-period Sharpe ratio uses a one-"
+"degree-of-freedom deviation. The trial-adjusted benchmark uses the sample "
+"skewness and kurtosis and the expected maximum of num_trials independent "
+"trials (values below one are treated as one). The result is the standard "
+"normal CDF of the observed excess over that benchmark, or exactly 0 or 1 "
+"when the estimated Sharpe variance is non-positive. Fewer than three usable "
+"values yield NaN. An embedded NUL in column raises input_error."
+msgstr ""
+"丢弃 NaN 观测，每期夏普比率使用一个自由度的偏差。按试验数调整的基准使用样本偏度和峰度，以及 num_trials "
+"次独立试验的期望最大值（小于一的值按一处理）。结果为观测值超出该基准部分的标准正态 CDF；当估计的夏普方差非正时，结果为精确的 0 或 "
+"1。可用值少于三个时返回 NaN。column 中嵌入 NUL 会抛出 input_error。"
+
+#: ../../site/api/metrics.md:181
+#, python-brace-format
+msgid ""
+"Returns {alpha, beta} using only dates with non-positive benchmark returns "
+"(zero is included)."
+msgstr "仅使用基准收益率非正（包括零）的日期返回 {alpha, beta}。"
+
+#: ../../site/api/metrics.md:181 ../../site/api/metrics.md:526
+msgid "Otherwise follows alpha_beta."
+msgstr "其余情况遵循 alpha_beta。"
+
+#: ../../site/api/metrics.md:184
+msgid ""
+"Returns the capture ratio on dates where the benchmark return is strictly "
+"negative."
+msgstr "返回基准收益率严格为负的日期上的捕获比率。"
+
+#: ../../site/api/metrics.md:184 ../../site/api/metrics.md:529
+msgid ""
+"Follows capture on the selected common finite pairs. Returns NaN when no "
+"date qualifies or the ratio is not finite."
+msgstr "在选定的公共有限对上遵循 capture。没有符合条件的日期或比率非有限时返回 NaN。"
+
+#: ../../site/api/metrics.md:187
+msgid ""
+"Returns the annualized geometric return of returns on dates where the "
+"benchmark return is strictly negative."
+msgstr "返回基准收益率严格为负的日期上 returns 的年化几何收益。"
+
+#: ../../site/api/metrics.md:187
+msgid ""
+"Matches up_capture_return apart from selecting dates where the benchmark "
+"return is negative, including its NaN and -1 outcomes and its embedded-NUL "
+"input_error."
+msgstr ""
+"除选择基准收益率为负的日期外，其余与 up_capture_return 一致，包括其 NaN 和 -1 结果以及嵌入 NUL 时抛出的 "
+"input_error。"
+
+#: ../../site/api/metrics.md:190
+msgid "Returns the annualized downside deviation relative to required_return."
+msgstr "返回相对 required_return 的年化下行偏差。"
+
+#: ../../site/api/metrics.md:190
+msgid ""
+"The result is the square root of the mean squared shortfall over all finite "
+"observations, scaled by sqrt(annualization). Returns NaN when there are no "
+"finite values or annualization is negative or non-finite."
+msgstr ""
+"结果为所有有限观测的平方短缺均值再开方，并乘以 sqrt(annualization)。没有有限值，或 annualization 为负或非有限时返回 "
+"NaN。"
+
+#: ../../site/api/metrics.md:193
+msgid ""
+"Returns the underwater series of column: wealth relative to its running "
+"peak, as a non-positive fraction."
+msgstr "返回 column 的水下序列：相对其滚动峰值的财富，表示为非正比例。"
+
+#: ../../site/api/metrics.md:193
+msgid ""
+"NaN returns are treated as zero and the result is stored under "
+"returns_column. An empty frame yields an empty frame."
+msgstr "NaN 收益率视为零，结果存储在 returns_column 下。空帧返回空帧。"
+
+#: ../../site/api/metrics.md:196
+msgid "Validates and normalizes a frame's UTC-nanosecond index."
+msgstr "校验并规范化帧的 UTC 纳秒索引。"
+
+#: ../../site/api/metrics.md:196
+msgid ""
+"A present index must be strictly increasing, duplicate-free and free of the "
+"NaT sentinel; the returned frame is an owning copy. A frame without an index"
+" but with exactly one double column receives the synthetic UTC index the "
+"source builds from pd.date_range(\"1970-01-01\", periods=n, freq=...): daily"
+" -> 1970-01-01, 1970-01-02, ... weekly -> Sundays from 1970-01-04 monthly ->"
+" month ends from 1970-01-31 quarterly -> quarter ends from 1970-03-31 yearly"
+" -> 1970-12-31, 1971-12-31, ... An empty frame is returned unchanged. Frames"
+" with several columns and no index, or with a length mismatch between "
+"columns and index, raise input_error; the source silently regenerates an "
+"index for an unindexed Series only."
+msgstr ""
+"存在的索引必须严格递增、无重复且不含 NaT 哨兵；返回的帧为拥有数据的副本。没有索引但恰好有一个 double 列的帧会获得源由 "
+"pd.date_range(\"1970-01-01\", periods=n, freq=...) 构建的合成 UTC 索引：daily -> "
+"1970-01-01、1970-01-02、...；weekly -> 从 1970-01-04 起的周日；monthly -> 从 "
+"1970-01-31 起的月末；quarterly -> 从 1970-03-31 起的季末；yearly -> "
+"1970-12-31、1971-12-31、...。空帧原样返回。具有多列但没有索引，或列与索引长度不一致的帧会抛出 "
+"input_error；源仅对无索引的 Series 静默重建索引。"
+
+#: ../../site/api/metrics.md:199
+msgid "Returns a single-column frame with a synthetic index built from values."
+msgstr "返回带由 values 构建的合成索引的单列帧。"
+
+#: ../../site/api/metrics.md:199
+msgid ""
+"An empty span returns an empty frame. Values are copied verbatim (NaN "
+"retained)."
+msgstr "空范围返回空帧。值被原样复制（保留 NaN）。"
+
+#: ../../site/api/metrics.md:202
+msgid "Returns the mean active return divided by its sample deviation."
+msgstr "返回平均主动收益除以其样本偏差。"
+
+#: ../../site/api/metrics.md:202
+msgid ""
+"Both series are aligned on their common timestamps and only finite pairs are"
+" kept. The result is not annualized. Returns NaN when fewer than two pairs "
+"remain or the tracking error is below 1e-15."
+msgstr "两个序列按公共时间戳对齐且只保留有限对。结果不进行年化。剩余对少于两个或跟踪误差低于 1e-15 时返回 NaN。"
+
+#: ../../site/api/metrics.md:205
+msgid "Returns the pinned historical crisis windows that overlap returns."
+msgstr "返回与 returns 重叠的锁定的历史危机窗口。"
+
+#: ../../site/api/metrics.md:205
+msgid ""
+"Each window is inclusive of both UTC endpoints and contributes an entry only"
+" when it holds at least one observation. Entries follow the pinned window "
+"order, while observations keep their input order and the input column name; "
+"each returned frame owns its data. An embedded NUL, empty or invalid column "
+"raises input_error."
+msgstr ""
+"每个窗口包含两个 UTC "
+"端点，仅当其中至少有一个观测时才产生一个条目。条目遵循锁定窗口顺序，而观测保持输入顺序和输入列名；每个返回的帧拥有其数据。列中嵌入 "
+"NUL、为空或无效时抛出 input_error。"
+
+#: ../../site/api/metrics.md:208
+msgid "Returns a frame flattened to a row-major vector."
+msgstr "返回展平为行主序向量的帧。"
+
+#: ../../site/api/metrics.md:208
+msgid ""
+"Columns are visited in source insertion order and rows in index order, so "
+"the result is row0[col0..colN], row1[col0..colN], .... Only double columns "
+"are supported; every column must have the frame index length. Present NaN "
+"cells are preserved (the native frame has no absent-cell state); a frame "
+"whose columns are longer than its index (unindexed data) raises input_error."
+" For raw matrices use the matrix overload, which returns the stored row-"
+"major buffer."
+msgstr ""
+"列按源插入顺序访问，行按索引顺序访问，因此结果为 row0[col0..colN]、row1[col0..colN]、...。仅支持 double "
+"列；每列长度必须等于帧索引长度。存在的 NaN 单元格会保留（原生帧没有缺失单元格状态）；列长度大于索引长度（无索引数据）的帧会抛出 "
+"input_error。原始矩阵请使用 matrix 重载，它返回存储的行主序缓冲区。"
+
+#: ../../site/api/metrics.md:211
+msgid "Returns a copy of the matrix's stored row-major buffer."
+msgstr "返回矩阵所存储行主序缓冲区的副本。"
+
+#: ../../site/api/metrics.md:214
+msgid "Returns the forecast cone by composing simulate_paths and summarize_paths."
+msgstr "通过组合 simulate_paths 和 summarize_paths 返回预测锥。"
+
+#: ../../site/api/metrics.md:214
+msgid ""
+"Simulated paths use starting_value, num_samples, random_seed and column; the"
+" cone uses cone_std and starting_value. Errors are those of the two composed"
+" functions."
+msgstr ""
+"模拟路径使用 starting_value、num_samples、random_seed 和 column；锥使用 cone_std 和 "
+"starting_value。错误为两个组合函数各自的错误。"
+
+#: ../../site/api/metrics.md:217
+msgid "Returns forecast_cone_bootstrap for a single cone width."
+msgstr "返回针对单个锥宽度的 forecast_cone_bootstrap。"
+
+#: ../../site/api/metrics.md:220
+msgid "Returns the canonical source name for a native frequency."
+msgstr "返回原生频率的规范源名称。"
+
+#: ../../site/api/metrics.md:223
+msgid "Returns top table rows for the deepest drawdown windows."
+msgstr "返回最深回撤窗口的顶部表格行。"
+
+#: ../../site/api/metrics.md:223
+msgid ""
+"Ranking matches get_top_drawdowns. Unused rows keep a NaN "
+"net_drawdown_percent and nullopt timestamps."
+msgstr "排名与 get_top_drawdowns 一致。未使用的行保持 NaN 的 net_drawdown_percent 和 nullopt 时间戳。"
+
+#: ../../site/api/metrics.md:226
+msgid ""
+"Returns the depth of every distinct underwater episode in chronological "
+"order."
+msgstr "按时间顺序返回每个不同水下期的深度。"
+
+#: ../../site/api/metrics.md:226
+msgid ""
+"Values are negative fractions; an episode that has not recovered is included"
+" with its current depth."
+msgstr "值为负比例；尚未恢复的水下期按其当前深度计入。"
+
+#: ../../site/api/metrics.md:229
+msgid ""
+"Returns every distinct underwater episode with its start, valley, recovery "
+"and durations, in chronological order."
+msgstr "按时间顺序返回每个不同水下期及其起点、谷底、恢复和持续时间。"
+
+#: ../../site/api/metrics.md:232
+msgid "Returns up to top deepest non-overlapping drawdown windows, ordered by depth."
+msgstr "返回最多 top 个最深且互不重叠的回撤窗口，按深度排序。"
+
+#: ../../site/api/metrics.md:232
+msgid ""
+"Ties keep the earlier window. Returns an empty vector for empty input or top"
+" == 0."
+msgstr "并列时保留较早的窗口。输入为空或 top == 0 时返回空向量。"
+
+#: ../../site/api/metrics.md:235
+msgid ""
+"Returns GPD tail estimates of losses (negated negative returns), fitted by "
+"maximum likelihood with a threshold search starting at 0.2 and halving."
+msgstr "返回损失的 GPD 尾部估计（负收益取相反数），以最大似然拟合，阈值搜索从 0.2 开始并逐次减半。"
+
+#: ../../site/api/metrics.md:235
+msgid ""
+"var_p is the tail probability. All fields are zero when there are fewer than"
+" three returns, no positive-shape fit is found, or the search does not "
+"converge."
+msgstr "var_p 为尾部概率。收益率少于三个、未找到正形状的拟合，或搜索不收敛时，所有字段为零。"
+
+#: ../../site/api/metrics.md:238
+msgid "Returns the Henriksson-Merton market-timing coefficient."
+msgstr "返回 Henriksson-Merton 择时系数。"
+
+#: ../../site/api/metrics.md:238
+msgid ""
+"Fits excess_return = a + b * excess_market + c * down, where down is one "
+"when the excess market return is negative and zero otherwise, and returns c."
+" Only finite pairs are used and risk_free is subtracted from both series. "
+"Returns NaN with fewer than ten usable pairs, a non-finite risk_free, a "
+"singular design, or a non-finite coefficient."
+msgstr ""
+"拟合 excess_return = a + b * excess_market + c * down（其中当超额市场收益为负时 down "
+"为一，否则为零），并返回 c。只使用有限对，两个序列都减去 risk_free。可用对少于十个、risk_free "
+"非有限、设计矩阵奇异或系数非有限时返回 NaN。"
+
+#: ../../site/api/metrics.md:241
+msgid "Returns the empirical cutoff quantile of column using linear interpolation."
+msgstr "使用线性插值返回 column 的经验 cutoff 分位数。"
+
+#: ../../site/api/metrics.md:241
+msgid ""
+"No annualization is applied. Returns NaN unless every value is finite and "
+"cutoff lies in [0, 1]."
+msgstr "不进行年化。除非每个值都有限且 cutoff 位于 [0, 1]，否则返回 NaN。"
+
+#: ../../site/api/metrics.md:244
+msgid "Returns the rescaled-range Hurst exponent of column, ignoring NaN values."
+msgstr "返回 column 的重标极差 Hurst 指数，忽略 NaN 值。"
+
+#: ../../site/api/metrics.md:244
+msgid ""
+"The estimate is clamped to [0, 1]. Returns NaN with fewer than eight usable "
+"values or a degenerate range/deviation."
+msgstr "估计值限制在 [0, 1]。可用值少于八个，或极差/偏差退化时返回 NaN。"
+
+#: ../../site/api/metrics.md:247
+msgid "Returns the annualized information ratio of returns against benchmark."
+msgstr "返回 returns 相对 benchmark 的年化信息比率。"
+
+#: ../../site/api/metrics.md:247
+msgid ""
+"Only finite common pairs are used. The annualized mean active return is "
+"divided by the active sample deviation scaled by sqrt(annualization). "
+"Returns NaN when fewer than two pairs remain, annualization is not finite or"
+" not positive, or the annualized tracking error is zero or non-finite."
+msgstr ""
+"只使用有限的公共对。年化平均主动收益除以按 sqrt(annualization) 缩放的主动样本偏差。剩余对少于两个、annualization "
+"非有限或非正，或年化跟踪误差为零或非有限时返回 NaN。"
+
+#: ../../site/api/metrics.md:250
+msgid ""
+"Returns the information ratio per UTC calendar year in column "
+"\"information_ratio\"."
+msgstr "返回每个 UTC 日历年的信息比率，存储在列 \"information_ratio\" 中。"
+
+#: ../../site/api/metrics.md:250
+msgid ""
+"The two frames are aligned on their common timestamps before bucketing, and "
+"each year uses information_ratio with annualization_factor(period, "
+"annualization); non-finite pairs are dropped within their own year. Years "
+"are indexed by January 1 and sorted ascending; an empty aligned pair yields "
+"an empty typed frame. An unknown frequency without an explicit annualization"
+" raises input_error."
+msgstr ""
+"在分桶之前，两个帧先按公共时间戳对齐；每年使用 information_ratio 与 annualization_factor(period, "
+"annualization)；非有限对在其所属年份内被丢弃。年份以 1 月 1 "
+"日为索引并按升序排序；对齐结果为空时返回空的有类型帧。未知频率且未显式指定 annualization 时抛出 input_error。"
+
+#: ../../site/api/metrics.md:253
+msgid ""
+"Returns the Kappa 3 ratio: the mean excess over mar divided by the cube root"
+" of the third lower partial moment."
+msgstr "返回 Kappa 3 比率：超过 mar 的平均超额除以三阶下偏矩的立方根。"
+
+#: ../../site/api/metrics.md:253
+msgid ""
+"The lower partial moment averages max(0, mar - value)^3 over the non-NaN "
+"values. Returns NaN for fewer than two usable values, a NaN mar, or a moment"
+" below 1e-30 when the mean does not exceed mar; the same degenerate case "
+"returns positive infinity when it does. An embedded NUL in column raises "
+"input_error."
+msgstr ""
+"下偏矩对非 NaN 值求 max(0, mar - value)^3 的平均。可用值少于两个、mar 为 NaN，或均值未超过 mar 而矩低于 "
+"1e-30 时返回 NaN；同样的退化情形下若均值超过 mar 则返回正无穷。column 中嵌入 NUL 会抛出 input_error。"
+
+#: ../../site/api/metrics.md:256
+msgid ""
+"Returns the biased excess kurtosis (fourth moment over squared variance, "
+"minus 3) of column, ignoring NaN values."
+msgstr "返回 column 的有偏超额峰度（四阶矩除以方差平方再减 3），忽略 NaN 值。"
+
+#: ../../site/api/metrics.md:256
+msgid "Returns NaN with fewer than four usable values or zero variance."
+msgstr "可用值少于四个或方差为零时返回 NaN。"
+
+#: ../../site/api/metrics.md:259
+msgid ""
+"Returns the fraction of usable observations in column that are strictly "
+"negative."
+msgstr "返回 column 中严格为负的可用观测占比。"
+
+#: ../../site/api/metrics.md:259 ../../site/api/metrics.md:544
+msgid "NaN values are ignored; an empty input yields NaN."
+msgstr "忽略 NaN 值；输入为空时返回 NaN。"
+
+#: ../../site/api/metrics.md:262
+msgid "Returns the M-squared measure of returns against benchmark."
+msgstr "返回 returns 相对 benchmark 的 M 平方度量。"
+
+#: ../../site/api/metrics.md:262
+msgid ""
+"Both series are aligned on their common timestamps. The excess annual return"
+" is rescaled by benchmark volatility over portfolio volatility and risk_free"
+" is added back. Returns NaN when fewer than two aligned returns remain, "
+"portfolio volatility is zero, negative or NaN, or benchmark volatility is "
+"NaN. An embedded NUL in either column name raises input_error."
+msgstr ""
+"两个序列按公共时间戳对齐。超额年化收益按基准波动率与组合波动率之比重新缩放，并加回 risk_free。对齐后剩余收益少于两个、组合波动率为零、负或 "
+"NaN，或基准波动率为 NaN 时返回 NaN。任一列名中嵌入 NUL 会抛出 input_error。"
+
+#: ../../site/api/metrics.md:265
+msgid ""
+"Returns the annualized arithmetic mean return divided by the absolute "
+"maximum drawdown."
+msgstr "返回年化算术平均收益除以绝对最大回撤。"
+
+#: ../../site/api/metrics.md:265
+msgid ""
+"The mean uses the non-NaN values and is scaled by annualization rather than "
+"compounded. Returns NaN for fewer than two raw values, a maximum drawdown "
+"that is non-negative or NaN, or a non-finite quotient. An embedded NUL in "
+"column raises input_error."
+msgstr ""
+"均值使用非 NaN 值，并按 annualization 缩放而非复合。原始值少于两个、最大回撤非负或为 NaN，或商非有限时返回 NaN。column"
+" 中嵌入 NUL 会抛出 input_error。"
+
+#: ../../site/api/metrics.md:268
+msgid ""
+"Returns the Treynor-Mazuy coefficient times the mean squared excess market "
+"return."
+msgstr "返回 Treynor-Mazuy 系数乘以超额市场收益平方的均值。"
+
+#: ../../site/api/metrics.md:268
+msgid ""
+"Uses the same quadratic fit, finite-pair filtering and minimum of ten "
+"observations as treynor_mazuy_timing. Returns NaN under the same conditions "
+"or when the resulting product is not finite."
+msgstr "使用与 treynor_mazuy_timing 相同的二次拟合、有限对过滤和最少十个观测的要求。在相同条件下，或所得乘积非有限时返回 NaN。"
+
+#: ../../site/api/metrics.md:271
+msgid "Returns the longest run of strictly negative observations in column."
+msgstr "返回 column 中最长的严格为负观测连续段。"
+
+#: ../../site/api/metrics.md:271 ../../site/api/metrics.md:292
+msgid "Returns 0 when there is none and NaN for empty input."
+msgstr "不存在时返回 0，输入为空时返回 NaN。"
+
+#: ../../site/api/metrics.md:274
+msgid "Returns the last timestamp of the longest negative run."
+msgstr "返回最长负连续段的最后一个时间戳。"
+
+#: ../../site/api/metrics.md:274 ../../site/api/metrics.md:280
+msgid "Ties keep the earliest run; returns nullopt when no negative run exists."
+msgstr "并列时保留最早的连续段；不存在负连续段时返回 nullopt。"
+
+#: ../../site/api/metrics.md:277
+msgid ""
+"Returns the longest run of consecutive calendar months whose compounded "
+"return is negative."
+msgstr "返回复合收益为负的最长连续日历月数。"
+
+#: ../../site/api/metrics.md:277 ../../site/api/metrics.md:298
+msgid ""
+"Months without observations are skipped. Returns 0 when there is none and "
+"NaN for empty input."
+msgstr "跳过没有观测的月份。不存在时返回 0，输入为空时返回 NaN。"
+
+#: ../../site/api/metrics.md:280
+msgid "Returns the first timestamp of the longest negative run."
+msgstr "返回最长负连续段的第一个时间戳。"
+
+#: ../../site/api/metrics.md:283
+msgid ""
+"Returns the longest run of consecutive calendar weeks (ending Sunday) whose "
+"compounded return is negative."
+msgstr "返回复合收益为负的最长连续日历周数（以周日结束）。"
+
+#: ../../site/api/metrics.md:283 ../../site/api/metrics.md:304
+msgid ""
+"Weeks without observations are skipped. Returns 0 when there is none and NaN"
+" for empty input."
+msgstr "跳过没有观测的周。不存在时返回 0，输入为空时返回 NaN。"
+
+#: ../../site/api/metrics.md:286
+msgid "Returns the largest sum of returns over a consecutive positive run."
+msgstr "返回连续正收益段上的最大收益率之和。"
+
+#: ../../site/api/metrics.md:286
+msgid "Returns NaN when no positive run exists."
+msgstr "不存在正连续段时返回 NaN。"
+
+#: ../../site/api/metrics.md:289
+msgid "Returns the most negative sum of returns over a consecutive negative run."
+msgstr "返回连续负收益段上最负的收益率之和。"
+
+#: ../../site/api/metrics.md:289
+msgid "Returns NaN when no negative run exists."
+msgstr "不存在负连续段时返回 NaN。"
+
+#: ../../site/api/metrics.md:292
+msgid "Returns the longest run of strictly positive observations in column."
+msgstr "返回 column 中最长的严格为正观测连续段。"
+
+#: ../../site/api/metrics.md:295
+msgid "Returns the last timestamp of the longest positive run."
+msgstr "返回最长正连续段的最后一个时间戳。"
+
+#: ../../site/api/metrics.md:295 ../../site/api/metrics.md:301
+msgid "Ties keep the earliest run; returns nullopt when no positive run exists."
+msgstr "并列时保留最早的连续段；不存在正连续段时返回 nullopt。"
+
+#: ../../site/api/metrics.md:298
+msgid ""
+"Returns the longest run of consecutive calendar months whose compounded "
+"return is positive."
+msgstr "返回复合收益为正的最长连续日历月数。"
+
+#: ../../site/api/metrics.md:301
+msgid "Returns the first timestamp of the longest positive run."
+msgstr "返回最长正连续段的第一个时间戳。"
+
+#: ../../site/api/metrics.md:304
+msgid ""
+"Returns the longest run of consecutive calendar weeks (ending Sunday) whose "
+"compounded return is positive."
+msgstr "返回复合收益为正的最长连续日历周数（以周日结束）。"
+
+#: ../../site/api/metrics.md:307
+msgid "Returns the deepest drawdown of column as a negative fraction."
+msgstr "返回 column 的最深回撤，以负比例表示。"
+
+#: ../../site/api/metrics.md:307
+msgid "Returns 0 when the series never declines and NaN for an empty frame."
+msgstr "序列从未下跌时返回 0，空帧返回 NaN。"
+
+#: ../../site/api/metrics.md:310
+msgid ""
+"Returns the maximum drawdown per UTC calendar year in column "
+"\"max_drawdown\"."
+msgstr "返回每个 UTC 日历年的最大回撤，存储在列 \"max_drawdown\" 中。"
+
+#: ../../site/api/metrics.md:310
+msgid ""
+"Each year uses max_drawdown, so a year that never declines reports 0. Years "
+"are indexed by January 1 and sorted ascending. An empty frame yields an "
+"empty typed frame."
+msgstr "每年使用 max_drawdown，因此从未下跌的年份报告 0。年份以 1 月 1 日为索引并按升序排序。空帧返回空的有类型帧。"
+
+#: ../../site/api/metrics.md:313
+msgid ""
+"Returns the elapsed UTC days from the peak to the valley of the deepest "
+"drawdown."
+msgstr "返回最深回撤从峰值到谷底的 UTC 经过天数。"
+
+#: ../../site/api/metrics.md:313
+msgid ""
+"Returns 0 when the series never declines and NaN for an empty frame. The "
+"value is fractional when timestamps are not midnight-aligned."
+msgstr "序列从未下跌时返回 0，空帧返回 NaN。时间戳未对齐到午夜时，该值为小数。"
+
+#: ../../site/api/metrics.md:316
+msgid "Returns max_drawdown_days divided by 30 (approximate months)."
+msgstr "返回 max_drawdown_days 除以 30（近似月数）。"
+
+#: ../../site/api/metrics.md:319
+#, python-brace-format
+msgid "Returns the {peak, valley} timestamps of the maximum drawdown."
+msgstr "返回最大回撤的 {peak, valley} 时间戳。"
+
+#: ../../site/api/metrics.md:319
+#, python-brace-format
+msgid ""
+"Returns {first timestamp, first timestamp} when the series never declines "
+"and {nullopt, nullopt} for an empty frame."
+msgstr "序列从未下跌时返回 {first timestamp, first timestamp}，空帧返回 {nullopt, nullopt}。"
+
+#: ../../site/api/metrics.md:322
+msgid ""
+"Returns the elapsed UTC days from the valley to the recovery of the deepest "
+"drawdown."
+msgstr "返回最深回撤从谷底到恢复的 UTC 经过天数。"
+
+#: ../../site/api/metrics.md:322
+msgid ""
+"Returns NaN when the episode has not recovered or the frame is empty, and 0 "
+"when the series never declines."
+msgstr "该事件尚未恢复或帧为空时返回 NaN，序列从未下跌时返回 0。"
+
+#: ../../site/api/metrics.md:325
+msgid "Returns max_drawdown_recovery_days divided by 30 (approximate months)."
+msgstr "返回 max_drawdown_recovery_days 除以 30（近似月数）。"
+
+#: ../../site/api/metrics.md:328
+msgid "Returns max_drawdown_recovery_days divided by 7 (fractional weeks)."
+msgstr "返回 max_drawdown_recovery_days 除以 7（小数周数）。"
+
+#: ../../site/api/metrics.md:331
+msgid "Returns the peak/valley/recovery window from a precomputed underwater series."
+msgstr "从预先计算的水下序列返回峰值/谷底/恢复窗口。"
+
+#: ../../site/api/metrics.md:331
+msgid ""
+"The source helper returns (NaT, NaT, NaT) when the series never goes below "
+"zero; the native form returns nullopt for that case and for empty/non-finite"
+" data."
+msgstr "序列从未低于零时，源辅助函数返回 (NaT, NaT, NaT)；原生形式在该情形以及空数据/非有限数据时返回 nullopt。"
+
+#: ../../site/api/metrics.md:334
+msgid "Returns max_drawdown_days divided by 7 (fractional weeks)."
+msgstr "返回 max_drawdown_days 除以 7（小数周数）。"
+
+#: ../../site/api/metrics.md:337
+msgid "Returns the peak, valley and optional recovery of the deepest episode."
+msgstr "返回最深事件的峰值、谷底及可选的恢复。"
+
+#: ../../site/api/metrics.md:337
+msgid "Returns nullopt when the series never declines or the input is empty."
+msgstr "序列从未下跌或输入为空时返回 nullopt。"
+
+#: ../../site/api/metrics.md:340
+msgid "Returns the largest non-NaN observation in column; NaN for empty input."
+msgstr "返回 column 中最大的非 NaN 观测；输入为空时返回 NaN。"
+
+#: ../../site/api/metrics.md:343
+msgid "Returns the timestamp of the largest non-NaN observation in column."
+msgstr "返回 column 中最大非 NaN 观测的时间戳。"
+
+#: ../../site/api/metrics.md:343 ../../site/api/metrics.md:349
+msgid "Ties keep the earliest occurrence; returns nullopt when no value exists."
+msgstr "并列时保留最早出现者；不存在值时返回 nullopt。"
+
+#: ../../site/api/metrics.md:346
+msgid "Returns the smallest non-NaN observation in column; NaN for empty input."
+msgstr "返回 column 中最小的非 NaN 观测；输入为空时返回 NaN。"
+
+#: ../../site/api/metrics.md:349
+msgid "Returns the timestamp of the smallest non-NaN observation in column."
+msgstr "返回 column 中最小非 NaN 观测的时间戳。"
+
+#: ../../site/api/metrics.md:352
+msgid "Returns values rescaled so the first value of column equals starting_value."
+msgstr "返回重新缩放后的 values，使 column 的第一个值等于 starting_value。"
+
+#: ../../site/api/metrics.md:352
+msgid ""
+"A zero first value makes every output NaN; other NaN values propagate. The "
+"result keeps the input timestamps and column name."
+msgstr "第一个值为零会使所有输出为 NaN；其他 NaN 值会传播。结果保持输入时间戳和列名。"
+
+#: ../../site/api/metrics.md:355
+msgid "Returns positions converted to per-timestamp weights when requested."
+msgstr "在请求时返回转换为逐时间戳权重的 positions。"
+
+#: ../../site/api/metrics.md:355
+msgid ""
+"Every double column except cash_column_name is kept; non-double columns are "
+"ignored. With positions_in_dollars, each value is divided by that row's "
+"gross (the sum of absolute non-NaN positions), so NaN positions stay NaN and"
+" an all-zero row yields NaN weights. Otherwise values are copied. The input "
+"index and order are preserved. Duplicate timestamps, a non-double cash "
+"column, an empty asset name, or no asset columns raise input_error."
+msgstr ""
+"除 cash_column_name 外的每个 double 列都会保留；非 double 列被忽略。在 positions_in_dollars "
+"下，每个值除以该行的总敞口（非 NaN 头寸绝对值之和），因此 NaN 头寸仍为 NaN，全零行得到 NaN "
+"权重。否则值被复制。输入索引和顺序保持不变。时间戳重复、cash 列非 double、资产名称为空，或没有资产列时抛出 input_error。"
+
+#: ../../site/api/metrics.md:358
+msgid "Returns the Omega ratio of column above the required threshold."
+msgstr "返回 column 在所需阈值之上的 Omega 比率。"
+
+#: ../../site/api/metrics.md:358
+msgid ""
+"Non-finite values are dropped. The per-period threshold is risk_free plus "
+"required_return converted to a per-period rate when annualization is not "
+"one. Gains above and losses below the threshold are summed and the ratio is "
+"gains over losses. Returns NaN for fewer than two usable values, a non-"
+"finite parameter, a non-positive annualization, a required return at or "
+"below -1 with an annualization other than one, or a non-positive or non-"
+"finite gain/loss sum."
+msgstr ""
+"丢弃非有限值。每期阈值为 risk_free 加上转换为每期利率的 required_return（当 annualization "
+"不为一时）。阈值之上的收益与阈值之下的损失分别求和，比率为收益之和除以损失之和。可用值少于两个、参数非有限、annualization "
+"非正、required return 小于等于 -1 且 annualization 不为 1，或收益/损失之和非正或非有限时返回 NaN。"
+
+#: ../../site/api/metrics.md:361
+msgid "Maps one canonical source frequency string to the native frequency enum."
+msgstr "将一个规范源频率字符串映射到原生频率枚举。"
+
+#: ../../site/api/metrics.md:361
+msgid ""
+"Source contract (fincore.metrics.frequencies.pandas_frequency): only the "
+"five canonical names are accepted; any other value raises ValueError with "
+"the \"Period cannot be ...: unknown frequency\" message. The native function"
+" raises input_error with the same predicate and message text."
+msgstr ""
+"源约定（fincore.metrics.frequencies.pandas_frequency）：只接受五个规范名称；其他任何值都会抛出 "
+"ValueError，消息为 \"Period cannot be ...: unknown "
+"frequency\"。原生函数以相同的判定条件和消息文本抛出 input_error。"
+
+#: ../../site/api/metrics.md:364
+msgid "Returns the pandas resampling alias for period (D, W, ME, QE, YE)."
+msgstr "返回 period 对应的 pandas 重采样别名（D, W, ME, QE, YE）。"
+
+#: ../../site/api/metrics.md:364
+msgid ""
+"Alias for the pinned pandas (>= 2.2) environment, exposed as provenance for "
+"the source mapping; the native code consumes the enum, not the alias string."
+msgstr "这是锁定版本 pandas（>= 2.2）环境中的别名，作为源映射的溯源信息暴露；原生代码使用枚举而非别名字符串。"
+
+#: ../../site/api/metrics.md:367
+msgid "Returns risk exposures and attribution from raw positions."
+msgstr "从原始头寸返回风险暴露与归因。"
+
+#: ../../site/api/metrics.md:367
+msgid ""
+"With positions_in_dollars, positions are first passed through "
+"normalize_attribution_positions; otherwise they are treated as weights and "
+"forwarded unchanged. The computation and errors are those of "
+"normalize_attribution_positions when used, followed by perf_attrib_core."
+msgstr ""
+"在 positions_in_dollars 下，positions 先经 normalize_attribution_positions "
+"处理；否则被视为权重并原样传递。计算和错误分别来自所用的 normalize_attribution_positions，随后是 "
+"perf_attrib_core。"
+
+#: ../../site/api/metrics.md:370
+msgid "Returns risk exposures and return attribution for normalized positions."
+msgstr "返回规范化头寸的风险暴露与收益归因。"
+
+#: ../../site/api/metrics.md:370
+msgid ""
+"returns, normalized_positions and factor_returns must have identical, "
+"duplicate-free indexes. Factors are all double columns of factor_returns, "
+"and at least one is required; their names must differ from the symbol column"
+" and the reserved attribution names. The attribution frame holds one "
+"contribution column per factor in factor-return column order, followed by "
+"\"total_returns\" (the input returns), \"common_returns\" (sum of finite "
+"contributions), \"specific_returns\" (total - common), \"tilt_returns\" "
+"(mean exposure per factor times that date's factor return) and "
+"\"timing_returns\" (common - tilt). Both returned frames own their data."
+msgstr ""
+"returns、normalized_positions 和 factor_returns 必须具有相同且无重复的索引。因子为 "
+"factor_returns 的所有 double 列，且至少需要一个；其名称不得与 symbol "
+"列及保留的归因名称相同。归因帧按因子收益的列顺序为每个因子保留一个贡献列，随后依次为 "
+"\"total_returns\"（输入收益）、\"common_returns\"（有限贡献之和）、\"specific_returns\"（total"
+" - common）、\"tilt_returns\"（每个因子的平均暴露乘以该日的因子收益）和 \"timing_returns\"（common -"
+" tilt）。两个返回的帧都拥有其数据。"
+
+#: ../../site/api/metrics.md:370
+msgid ""
+"Mismatched or duplicate indexes, missing or non-string symbol columns, "
+"missing or non-double factor columns, reserved factor names, duplicate "
+"factor-loading keys, or factor-loading keys that do not cover the positions "
+"raise input_error."
+msgstr ""
+"索引不匹配或重复、symbol 列缺失或非字符串、因子列缺失或非 double、因子名称为保留名称、因子载荷键重复，或因子载荷键未覆盖所有头寸时，抛出 "
+"input_error。"
+
+#: ../../site/api/metrics.md:373
+msgid "Returns the standard performance statistics of returns keyed by display name."
+msgstr "返回以显示名称为键的 returns 标准绩效统计。"
+
+#: ../../site/api/metrics.md:373
+msgid ""
+"The map always holds the thirteen keys \"Annual return\", "
+"\"Cumulativereturns\", \"Annual volatility\", \"Sharpe ratio\", \"Calmar "
+"ratio\", \"Stability\", \"Max drawdown\", \"Omega ratio\", \"Sortino "
+"ratio\", \"Skew\", \"Kurtosis\", \"Tailratio\" and \"Daily value at risk\". "
+"Period-sensitive metrics useannualization_factor(period), while the Omega "
+"ratio is always daily annualized. The column must be a double column "
+"matching the frame index, or input_error is thrown."
+msgstr ""
+"该映射始终包含十三个键：\"Annual return\"、\"Cumulativereturns\"、\"Annual "
+"volatility\"、\"Sharpe ratio\"、\"Calmar ratio\"、\"Stability\"、\"Max "
+"drawdown\"、\"Omega ratio\"、\"Sortino "
+"ratio\"、\"Skew\"、\"Kurtosis\"、\"Tailratio\" 和 \"Daily value at "
+"risk\"。对期间敏感的指标使用 annualization_factor(period)，而 Omega 比率始终按日年化。column "
+"必须是匹配帧索引的 double 列，否则抛出 input_error。"
+
+#: ../../site/api/metrics.md:376
+msgid "Returns the unary statistics plus \"Alpha\" and \"Beta\"."
+msgstr "返回一元统计以及 \"Alpha\" 和 \"Beta\"。"
+
+#: ../../site/api/metrics.md:376
+msgid ""
+"The thirteen unary keys are computed as in the unary overload. Alpha and "
+"beta come from alpha_beta on the common timestamps with a zero risk-free "
+"rate and daily_annualization regardless of period. Both selectors must be "
+"double columns matching their frame indexes, or input_error is thrown."
+msgstr ""
+"十三个一元键按一元重载的方式计算。alpha 和 beta 来自公共时间戳上的 alpha_beta，无论 period 为何都使用零无风险利率和 "
+"daily_annualization。两个选择器都必须是匹配各自帧索引的 double 列，否则抛出 input_error。"
+
+#: ../../site/api/metrics.md:379
+msgid "Returns bootstrap distributions for the thirteen perf_stats metrics."
+msgstr "返回十三个 perf_stats 指标的 bootstrap 分布。"
+
+#: ../../site/api/metrics.md:379
+msgid ""
+"Each of the n_samples draws resamples returns.size() observations with "
+"replacement from column using std::mt19937_64 seeded with seed; NaN values "
+"are drawn verbatim. Period-sensitive metrics use daily_annualization. The "
+"result always has thirteen entries in the fixed bootstrap metric order; an "
+"empty input yields empty samples and NaN summaries. An embedded NUL, empty "
+"or invalid column raises input_error."
+msgstr ""
+"n_samples 次抽样中的每一次都使用以 seed 播种的 std::mt19937_64，从 column 中有放回地重抽样 "
+"returns.size() 个观测；NaN 值按原样抽取。对期间敏感的指标使用 daily_annualization。结果始终按固定的 "
+"bootstrap 指标顺序包含十三个条目；输入为空时样本为空、汇总为 NaN。column 中嵌入 NUL、为空或无效时抛出 input_error。"
+
+#: ../../site/api/metrics.md:382
+msgid "Returns bootstrap distributions from caller-supplied draw indices."
+msgstr "返回由调用方提供的抽取索引得到的 bootstrap 分布。"
+
+#: ../../site/api/metrics.md:382
+msgid ""
+"Each draw contains positional row indices into the original input column. "
+"Rows must have the same length as the input population. Empty input accepts "
+"only an empty draw matrix and preserves the seeded overload's empty result. "
+"An out-of-range index or an embedded NUL in column raises input_error."
+msgstr ""
+"每次抽样包含指向原始输入列的位置行索引。各行长度必须与输入总体相同。空输入只接受空的抽取矩阵，并保持带种子重载的空结果。索引越界或 column 中嵌入"
+" NUL 时抛出 input_error。"
+
+#: ../../site/api/metrics.md:385
+msgid "Returns the cube of safe_correlation."
+msgstr "返回 safe_correlation 的立方。"
+
+#: ../../site/api/metrics.md:385
+msgid ""
+"Returns NaN when the correlation itself is NaN. Embedded NUL characters in "
+"the column names raise input_error."
+msgstr "相关系数本身为 NaN 时返回 NaN。列名中嵌入 NUL 字符会抛出 input_error。"
+
+#: ../../site/api/metrics.md:388
+msgid ""
+"Returns the RAR/Turtle ratio: the annualized slope of NAV against time "
+"divided by the mean annual maximum drawdown magnitude."
+msgstr "返回 RAR/Turtle 比率：NAV 对时间的年化斜率除以年度最大回撤幅度的均值。"
+
+#: ../../site/api/metrics.md:388
+msgid ""
+"Returns infinity when that mean drawdown is effectively zero and the "
+"annualized slope is positive; NaN when it cannot be computed."
+msgstr "当该平均回撤实际为零且年化斜率为正时返回无穷；无法计算时返回 NaN。"
+
+#: ../../site/api/metrics.md:391
+msgid ""
+"Returns the fraction of common finite dates where the strategy return is "
+"strictly greater than the benchmark return."
+msgstr "返回策略收益严格大于基准收益的公共有限日期占比。"
+
+#: ../../site/api/metrics.md:394
+msgid ""
+"Returns the annualized sample standard deviation of the residuals from a "
+"CAPM regression of excess strategy returns on excess benchmark returns."
+msgstr "返回超额策略收益对超额基准收益做 CAPM 回归后残差的年化样本标准差。"
+
+#: ../../site/api/metrics.md:394
+msgid "Returns NaN when risk_free or beta is not finite."
+msgstr "risk_free 或 beta 非有限时返回 NaN。"
+
+#: ../../site/api/metrics.md:397
+msgid "Returns the rolling annualized Jensen alpha at each window end."
+msgstr "返回每个窗口末端的滚动年化 Jensen alpha。"
+
+#: ../../site/api/metrics.md:397
+msgid ""
+"Windows are built from the common timestamps of both frames and delegated to"
+" alpha with risk_free and annualization_factor(period, annualization). Every"
+" complete window produces one row indexed by the aligned window end; fewer "
+"than window aligned observations, including no common timestamps, produce an"
+" empty typed frame. A zero window, an unknown frequency without an explicit "
+"annualization, or an invalid column raises input_error."
+msgstr ""
+"窗口由两个帧的公共时间戳构建，并连同 risk_free 和 annualization_factor(period, annualization) "
+"交给 alpha。每个完整窗口产生一行，以对齐后的窗口末端为索引；对齐观测少于 window 个（包括没有公共时间戳）时返回空的有类型帧。window "
+"为零、未知频率且未显式指定 annualization，或列无效时抛出 input_error。"
+
+#: ../../site/api/metrics.md:400
+msgid "Returns the rolling alpha and beta in the columns \"alpha\" and \"beta\"."
+msgstr "返回滚动 alpha 和 beta，存储在列 \"alpha\" 和 \"beta\" 中。"
+
+#: ../../site/api/metrics.md:400
+msgid ""
+"Windows are built from the common timestamps and delegated to alpha_beta "
+"with risk_free and annualization_factor(period, annualization); windows that"
+" alpha_beta cannot fit keep NaN values in both columns. Every complete "
+"window produces one row indexed by the aligned window end; fewer than window"
+" aligned observations produce an empty two-column frame. A zero window, or "
+"an unknown frequency without an explicit annualization, raises input_error."
+msgstr ""
+"窗口由公共时间戳构建，并连同 risk_free 和 annualization_factor(period, annualization) 交给 "
+"alpha_beta；alpha_beta 无法拟合的窗口在两列中都保留 NaN。每个完整窗口产生一行，以对齐后的窗口末端为索引；对齐观测少于 "
+"window 个时返回空的二列帧。window 为零，或未知频率且未显式指定 annualization 时抛出 input_error。"
+
+#: ../../site/api/metrics.md:403
+msgid "Returns the annualized rolling volatility at each window end."
+msgstr "返回每个窗口末端的年化滚动波动率。"
+
+#: ../../site/api/metrics.md:403
+msgid ""
+"Unlike rolling_volatility, rows exist only for complete windows and NaN "
+"observations are dropped by annual_volatility inside each window, so a "
+"poisoned window is still evaluated when at least two finite observations "
+"remain. Fewer than window observations produce an empty typed frame. A zero "
+"window, or an unknown frequency without an explicit annualization, raises "
+"input_error."
+msgstr ""
+"与 rolling_volatility 不同，只有完整窗口才有行，且每个窗口内的 NaN 观测由 annual_volatility "
+"丢弃，因此只要仍有至少两个有限观测，被污染的窗口仍会被计算。观测少于 window 个时返回空的有类型帧。window 为零，或未知频率且未显式指定 "
+"annualization 时抛出 input_error。"
+
+#: ../../site/api/metrics.md:406
+msgid "Returns the rolling OLS beta at each window end."
+msgstr "返回每个窗口末端的滚动 OLS beta。"
+
+#: ../../site/api/metrics.md:406
+msgid ""
+"Beta is not annualized, so period and annualization are ignored. Windows are"
+" built from the common timestamps and delegated to beta with risk_free. "
+"Every complete window produces one row indexed by the aligned window end; "
+"fewer than window aligned observations produce an empty typed frame. A zero "
+"window or an invalid column raises input_error."
+msgstr ""
+"beta 不进行年化，因此忽略 period 和 annualization。窗口由公共时间戳构建，并连同 risk_free 交给 "
+"beta。每个完整窗口产生一行，以对齐后的窗口末端为索引；对齐观测少于 window 个时返回空的有类型帧。window 为零或列无效时抛出 "
+"input_error。"
+
+#: ../../site/api/metrics.md:409
+msgid "Returns the rolling down-capture ratio at each window end."
+msgstr "返回每个窗口末端的滚动下行捕获比率。"
+
+#: ../../site/api/metrics.md:409
+msgid ""
+"Every complete window of the common timestamps is delegated to down_capture "
+"with the annualization_factor(period) factor, so period is the only "
+"annualization control. Fewer than window aligned observations produce an "
+"empty typed frame. A zero window or an unknown frequency raises input_error."
+msgstr ""
+"公共时间戳的每个完整窗口都连同 annualization_factor(period) 因子交给 down_capture，因此 period "
+"是唯一的年化控制项。对齐观测少于 window 个时返回空的有类型帧。window 为零或频率未知时抛出 input_error。"
+
+#: ../../site/api/metrics.md:412
+msgid "Returns the maximum drawdown at each window end."
+msgstr "返回每个窗口末端的最大回撤。"
+
+#: ../../site/api/metrics.md:412
+msgid ""
+"Wealth restarts at 1 for every window and NaN observations never update the "
+"running peak or the result, so a poisoned window reports 0.0 when no finite "
+"drawdown is seen. Every complete window produces one row indexed by its last"
+" timestamp; fewer than window observations produce an empty typed frame. A "
+"zero window raises input_error."
+msgstr ""
+"每个窗口的财富都从 1 重新开始，NaN 观测从不更新滚动峰值或结果，因此未见任何有限回撤的被污染窗口报告 "
+"0.0。每个完整窗口产生一行，以其最后一个时间戳为索引；观测少于 window 个时返回空的有类型帧。window 为零时抛出 input_error。"
+
+#: ../../site/api/metrics.md:415
+msgid "Returns the rolling Sharpe ratio at each window end."
+msgstr "返回每个窗口末端的滚动夏普比率。"
+
+#: ../../site/api/metrics.md:415
+msgid ""
+"Every complete window of window observations produces one row, indexed by "
+"its last timestamp; fewer than window observations produce an empty typed "
+"frame. The factor is annualization_factor(period, annualization) and NaN "
+"values are dropped by sharpe_ratio. A zero window, or an unknown frequency "
+"without an explicit annualization, raises input_error."
+msgstr ""
+"由 window 个观测组成的每个完整窗口产生一行，以其最后一个时间戳为索引；观测少于 window 个时返回空的有类型帧。因子为 "
+"annualization_factor(period, annualization)，NaN 值由 sharpe_ratio 丢弃。window "
+"为零，或未知频率且未显式指定 annualization 时抛出 input_error。"
+
+#: ../../site/api/metrics.md:418
+msgid "Returns the rolling annualized Sortino ratio at each window end."
+msgstr "返回每个窗口末端的滚动年化索提诺比率。"
+
+#: ../../site/api/metrics.md:418
+msgid ""
+"Every complete window is delegated to sortino_ratio with required_return and"
+" annualization_factor(period, annualization); NaN values are dropped by the "
+"scalar metric. Fewer than window observations produce an empty typed frame. "
+"A zero window, or an unknown frequency without an explicit annualization, "
+"raises input_error."
+msgstr ""
+"每个完整窗口都连同 required_return 和 annualization_factor(period, annualization) 交给 "
+"sortino_ratio；NaN 值由该标量指标丢弃。观测少于 window 个时返回空的有类型帧。window 为零，或未知频率且未显式指定 "
+"annualization 时抛出 input_error。"
+
+#: ../../site/api/metrics.md:421
+msgid "Returns the rolling up-capture ratio at each window end."
+msgstr "返回每个窗口末端的滚动上行捕获比率。"
+
+#: ../../site/api/metrics.md:421
+msgid ""
+"Every complete window of the common timestamps is delegated to up_capture "
+"with the annualization_factor(period) factor, so period is the only "
+"annualization control. Fewer than window aligned observations produce an "
+"empty typed frame. A zero window or an unknown frequency raises input_error."
+msgstr ""
+"公共时间戳的每个完整窗口都连同 annualization_factor(period) 因子交给 up_capture，因此 period "
+"是唯一的年化控制项。对齐观测少于 window 个时返回空的有类型帧。window 为零或频率未知时抛出 input_error。"
+
+#: ../../site/api/metrics.md:424
+msgid "Returns the rolling up-down capture ratio at each window end."
+msgstr "返回每个窗口末端的滚动上下行捕获比率。"
+
+#: ../../site/api/metrics.md:424
+msgid ""
+"Every complete window of the common timestamps is delegated to "
+"up_down_capture with the annualization_factor(period) factor, so period is "
+"the only annualization control. Fewer than window aligned observations "
+"produce an empty typed frame. A zero window or an unknown frequency raises "
+"input_error."
+msgstr ""
+"公共时间戳的每个完整窗口都连同 annualization_factor(period) 因子交给 up_down_capture，因此 period "
+"是唯一的年化控制项。对齐观测少于 window 个时返回空的有类型帧。window 为零或频率未知时抛出 input_error。"
+
+#: ../../site/api/metrics.md:427
+msgid "Returns the rolling beta of returns against one factor column."
+msgstr "返回 returns 相对单个因子列的滚动 beta。"
+
+#: ../../site/api/metrics.md:427
+msgid ""
+"The result keeps the aligned common index; rows before the first complete "
+"window are NaN, as is any window with a non-finite value or zero factor "
+"variance. Beta is the covariance over factor variance, with no risk-free "
+"adjustment. A zero rolling_window or an invalid column raises input_error."
+msgstr ""
+"结果保留对齐后的公共索引；首个完整窗口之前的行均为 NaN，任何含非有限值或因子方差为零的窗口也为 NaN。beta "
+"为协方差除以因子方差，不做无风险调整。rolling_window 为零或列无效时抛出 input_error。"
+
+#: ../../site/api/metrics.md:430
+msgid "Returns one rolling beta column per factor, named after the factor columns."
+msgstr "为每个因子返回一个滚动 beta 列，列名取自因子列。"
+
+#: ../../site/api/metrics.md:430
+msgid ""
+"Each factor is aligned against returns separately using the same warm-up and"
+" invalid-window rules as the single-factor overload. Factor names must be "
+"non-empty, unique and present as double columns; otherwise input_error is "
+"raised, as it is for a zero rolling_window."
+msgstr ""
+"每个因子都单独与 returns 对齐，并遵循与单因子重载相同的预热和无效窗口规则。因子名称必须非空、唯一且作为 double 列存在；否则抛出 "
+"input_error，rolling_window 为零时亦然。"
+
+#: ../../site/api/metrics.md:433
+msgid "Returns the rolling OLS alpha and beta in the columns \"alpha\" and \"beta\"."
+msgstr "返回滚动 OLS alpha 和 beta，存储在列 \"alpha\" 和 \"beta\" 中。"
+
+#: ../../site/api/metrics.md:433
+msgid ""
+"Windows are built from the common timestamps; beta is the covariance over "
+"factor variance and alpha is the mean return minus beta times the mean "
+"benchmark return, with no risk-free adjustment. Rows are indexed by the "
+"aligned window end, and windows with a non-finite value, zero factor "
+"variance or non-finite coefficients are omitted, so the index can be sparse."
+" A zero rolling_window or an invalid column raises input_error."
+msgstr ""
+"窗口由公共时间戳构建；beta 为协方差除以因子方差，alpha 为平均收益减去 beta "
+"乘以平均基准收益，不做无风险调整。行以对齐后的窗口末端为索引，含非有限值、因子方差为零或系数非有限的窗口会被省略，因此索引可能稀疏。rolling_window"
+" 为零或列无效时抛出 input_error。"
+
+#: ../../site/api/metrics.md:436
+msgid "Returns the rolling Sharpe ratio aligned to the input index."
+msgstr "返回与输入索引对齐的滚动夏普比率。"
+
+#: ../../site/api/metrics.md:436
+msgid ""
+"The index and warm-up shape match rolling_volatility, the risk-free rate is "
+"zero, and a window containing NaN yields NaN. The factor is "
+"annualization_factor(period, annualization). A zero window, or an unknown "
+"frequency without an explicit annualization, raises input_error."
+msgstr ""
+"索引和预热形状与 rolling_volatility 一致，无风险利率为零，含 NaN 的窗口返回 NaN。因子为 "
+"annualization_factor(period, annualization)。window 为零，或未知频率且未显式指定 "
+"annualization 时抛出 input_error。"
+
+#: ../../site/api/metrics.md:439
+msgid "Returns the annualized rolling volatility aligned to the input index."
+msgstr "返回与输入索引对齐的年化滚动波动率。"
+
+#: ../../site/api/metrics.md:439
+msgid ""
+"Rows before the first complete window are NaN, and a window containing NaN "
+"yields NaN. Each window uses annual_volatility with "
+"annualization_factor(period, annualization). Fewer than window observations "
+"produce all-NaN values. A zero window, or an unknown frequency without an "
+"explicit annualization, raises input_error."
+msgstr ""
+"首个完整窗口之前的行均为 NaN，含 NaN 的窗口返回 NaN。每个窗口使用 annual_volatility 与 "
+"annualization_factor(period, annualization)。观测少于 window 个时所有值均为 NaN。window "
+"为零，或未知频率且未显式指定 annualization 时抛出 input_error。"
+
+#: ../../site/api/metrics.md:442
+msgid ""
+"Returns the Pearson correlation of the two series on their common finite "
+"timestamps."
+msgstr "返回两个序列在公共有限时间戳上的 Pearson 相关系数。"
+
+#: ../../site/api/metrics.md:442
+msgid ""
+"Returns NaN with fewer than two pairs or a near-zero standard deviation in "
+"either series."
+msgstr "对少于两个，或任一序列标准差接近零时返回 NaN。"
+
+#: ../../site/api/metrics.md:445
+msgid "Returns the second-deepest drawdown as a negative fraction."
+msgstr "返回第二深回撤，以负比例表示。"
+
+#: ../../site/api/metrics.md:445 ../../site/api/metrics.md:448
+msgid "Returns NaN when fewer than two episodes exist."
+msgstr "事件少于两个时返回 NaN。"
+
+#: ../../site/api/metrics.md:448
+msgid ""
+"Returns the elapsed UTC days from the first underwater observation to the "
+"valley of the second-deepest drawdown."
+msgstr "返回从首个水下观测到第二深回撤谷底的 UTC 经过天数。"
+
+#: ../../site/api/metrics.md:451
+msgid ""
+"Returns the elapsed UTC days from the valley to the recovery of the second-"
+"deepest drawdown."
+msgstr "返回从第二深回撤的谷底到恢复的 UTC 经过天数。"
+
+#: ../../site/api/metrics.md:451
+msgid ""
+"Returns NaN when that episode has not recovered or fewer than two episodes "
+"exist."
+msgstr "该事件尚未恢复或事件少于两个时返回 NaN。"
+
+#: ../../site/api/metrics.md:454
+msgid "Returns the Pearson autocorrelation of column at lag observations."
+msgstr "返回 column 在滞后 lag 个观测处的 Pearson 自相关系数。"
+
+#: ../../site/api/metrics.md:454
+msgid ""
+"NaN values are removed before lagging. Returns NaN when lag is less than one"
+" or fewer than lag + 2 values remain."
+msgstr "滞后之前先移除 NaN 值。lag 小于一或剩余值少于 lag + 2 时返回 NaN。"
+
+#: ../../site/api/metrics.md:457
+msgid "Returns the annualized Sharpe ratio of column."
+msgstr "返回 column 的年化夏普比率。"
+
+#: ../../site/api/metrics.md:457
+msgid ""
+"NaN observations are dropped; the mean of value - risk_free is divided by "
+"the sample standard deviation (one degree of freedom) and scaled by "
+"sqrt(annualization). Fewer than two usable observations yield NaN, and a "
+"zero deviation is not special-cased, so the quotient follows IEEE rules."
+msgstr ""
+"丢弃 NaN 观测；value - risk_free 的均值除以样本标准差（一个自由度）并乘以 "
+"sqrt(annualization)。可用观测少于两个时返回 NaN；零偏差不特殊处理，因此商遵循 IEEE 规则。"
+
+#: ../../site/api/metrics.md:460
+msgid "Returns the Sharpe ratio per UTC calendar year in column \"sharpe_ratio\"."
+msgstr "返回每个 UTC 日历年的夏普比率，存储在列 \"sharpe_ratio\" 中。"
+
+#: ../../site/api/metrics.md:460
+msgid ""
+"Each year uses sharpe_ratio with risk_free and annualization_factor(period, "
+"annualization). Years are indexed by January 1 and sorted ascending. An "
+"empty frame yields an empty typed frame, and an unknown frequency without an"
+" explicit annualization raises input_error."
+msgstr ""
+"每年使用 sharpe_ratio 与 risk_free 以及 annualization_factor(period, "
+"annualization)。年份以 1 月 1 日为索引并按升序排序。空帧返回空的有类型帧；未知频率且未显式指定 annualization 时抛出 "
+"input_error。"
+
+#: ../../site/api/metrics.md:463
+msgid ""
+"Returns the period-over-period simple returns of price_column, dropping the "
+"first observation."
+msgstr "返回 price_column 的逐期简单收益率，丢弃第一个观测。"
+
+#: ../../site/api/metrics.md:463
+msgid ""
+"The result is stored under returns_column and keeps the timestamp of the "
+"later price of each pair. Fewer than two prices yield an empty frame."
+msgstr "结果存储在 returns_column 下，并保留每对中较晚价格的时间戳。价格少于两个时返回空帧。"
+
+#: ../../site/api/metrics.md:466
+msgid "Draws num_samples x num_days bootstrap returns from in-sample returns."
+msgstr "从样本内收益率中抽取 num_samples x num_days 个 bootstrap 收益率。"
+
+#: ../../site/api/metrics.md:466
+msgid ""
+"RNG: NumPy legacy RandomState-compatible MT19937 with the explicit 32-bit "
+"random_seed (default 0; the source default None is not reproduced). Integer "
+"draws use NumPy's masked rejection (rk_interval), so seeded sequences match "
+"np.random.RandomState(seed).randint(0, n, size=...) exactly for 32-bit "
+"seeds. This is not a claim about array seeding or the source's non-"
+"deterministic None default."
+msgstr ""
+"RNG：与 NumPy 旧式 RandomState 兼容的 MT19937，使用显式的 32 位 random_seed（默认 0；源的默认值 "
+"None 未被复现）。整数抽取使用 NumPy 的掩码拒绝法（rk_interval），因此在 32 位种子下，播种序列与 "
+"np.random.RandomState(seed).randint(0, n, size=...) 完全一致。这并不构成对数组播种或源的非确定性 "
+"None 默认值的声明。"
+
+#: ../../site/api/metrics.md:466
+msgid ""
+"starting_value is accepted for source-signature parity and ignored, as in "
+"the source (_starting_value). NaN in-sample values are drawn verbatim; "
+"infinite values raise input_error. An empty population with a non-empty draw"
+" shape raises input_error (source rng.randint(0, 0, ...) raises ValueError),"
+" as do an unrepresentable shape and a population larger than a 32-bit draw "
+"index."
+msgstr ""
+"starting_value 为与源签名保持一致而接受但被忽略，与源中相同（_starting_value）。样本内 NaN 值按原样抽取；无穷值会抛出"
+" input_error。总体为空但抽取形状非空时抛出 input_error（源 rng.randint(0, 0, ...) 会抛出 "
+"ValueError），形状无法表示以及总体大于 32 位抽取索引时亦然。"
+
+#: ../../site/api/metrics.md:469
+msgid "Returns the same paths as the span overload, selecting one double column."
+msgstr "返回与范围重载相同的路径，选择一个 double 列。"
+
+#: ../../site/api/metrics.md:469
+msgid ""
+"A source DataFrame with several columns would make NumPy indexing return a "
+"3-D array; that shape is not representable, so callers select the column to "
+"bootstrap."
+msgstr "具有多列的源 DataFrame 会使 NumPy 索引返回三维数组；该形状无法表示，因此调用方需选择要 bootstrap 的列。"
+
+#: ../../site/api/metrics.md:472
+msgid "Returns the biased (population) skewness of column, ignoring NaN values."
+msgstr "返回 column 的有偏（总体）偏度，忽略 NaN 值。"
+
+#: ../../site/api/metrics.md:472
+msgid "Returns NaN with fewer than three usable values or zero variance."
+msgstr "可用值少于三个或方差为零时返回 NaN。"
+
+#: ../../site/api/metrics.md:475
+msgid "Returns the annualized Sortino ratio of column."
+msgstr "返回 column 的年化索提诺比率。"
+
+#: ../../site/api/metrics.md:475
+msgid ""
+"NaN observations are dropped; the annualized mean excess over "
+"required_return is divided by the annualized downside deviation, where only "
+"negative excess values contribute and the squared deviations divide by the "
+"number of usable observations. Fewer than two raw values, or no usable "
+"observation, yield NaN, and a zero downside deviation is not special-cased."
+msgstr ""
+"丢弃 NaN 观测；超过 required_return "
+"的年化平均超额除以年化下行偏差，其中只有负超额值参与，平方偏差除以可用观测数。原始值少于两个或没有可用观测时返回 NaN；零下行偏差不特殊处理。"
+
+#: ../../site/api/metrics.md:478
+msgid ""
+"Returns the R-squared of cumulative log returns regressed on a linear time "
+"index."
+msgstr "返回累计对数收益对线性时间索引回归的 R 平方。"
+
+#: ../../site/api/metrics.md:478
+msgid ""
+"Non-finite values are dropped and log1p is applied to each; the cumulative "
+"sum is regressed on the observation position. Returns NaN for fewer than two"
+" usable values, a non-finite log return (for example a return at or below "
+"-1), an overflowing cumulative sum, or zero explained variance."
+msgstr ""
+"丢弃非有限值并对每个值应用 log1p；累计和对观测位置回归。可用值少于两个、对数收益非有限（例如小于等于 -1 "
+"的收益率）、累计和溢出，或解释方差为零时返回 NaN。"
+
+#: ../../site/api/metrics.md:481
+msgid ""
+"Returns the annual return in excess of risk_free divided by the average "
+"drawdown magnitude."
+msgstr "返回超过 risk_free 的年化收益除以平均回撤幅度。"
+
+#: ../../site/api/metrics.md:481
+msgid ""
+"The average drawdown is the absolute mean of all drawdown depths; with no "
+"drawdowns or only zeros it falls back to the absolute mean of the negative "
+"returns (or the absolute population deviation of all usable values when none"
+" are negative). The annual return is compounded at annualization. Returns "
+"positive infinity when the denominator is below 1e-10 and the excess annual "
+"return is positive, NaN otherwise, and NaN for fewer than two raw values or "
+"no usable value. An embedded NUL in column raises input_error."
+msgstr ""
+"平均回撤为所有回撤深度的绝对均值；没有回撤或全为零时，回退到负收益的绝对均值（若没有负收益，则使用所有可用值的绝对总体偏差）。年化收益按 "
+"annualization 复合。当分母低于 1e-10 且超额年化收益为正时返回正无穷，否则返回 NaN；原始值少于两个或没有可用值时也返回 "
+"NaN。column 中嵌入 NUL 会抛出 input_error。"
+
+#: ../../site/api/metrics.md:484
+msgid "Returns the Stutzer index of column relative to target_return."
+msgstr "返回 column 相对 target_return 的 Stutzer 指数。"
+
+#: ../../site/api/metrics.md:484
+msgid ""
+"NaN values are ignored; fewer than two usable values yield NaN. Returns 0 "
+"when the mean excess return is effectively zero."
+msgstr "忽略 NaN 值；可用值少于两个时返回 NaN。平均超额收益实际为零时返回 0。"
+
+#: ../../site/api/metrics.md:487
+msgid "Returns the mean/standard-deviation cone from sampled paths."
+msgstr "返回由抽样路径得到的均值/标准差锥。"
+
+#: ../../site/api/metrics.md:487
+msgid ""
+"samples is row-major with one row per path and one column per day. Source "
+"formula: cumulative wealth per path from cumprod(1 + returns) with NaN "
+"returns as 0; bounds mean + std * num_std and mean - std * num_std for each "
+"requested width, with sample standard deviation (ddof = 1). starting_value "
+"== 0 yields cumprod - 1; otherwise the wealth is scaled by starting_value, "
+"matching cum_returns. Columns are ordered upper then lower for each width, "
+"named cone_<shortest-round-trip-width> (for example cone_1, cone_-1, "
+"cone_1.5); Python float labels are represented as native strings, not "
+"claimed identical. Duplicate widths raise input_error."
+msgstr ""
+"samples 为行主序，每条路径一行，每天一列。源公式：每条路径的累计财富由 cumprod(1 + returns) 得到，NaN 收益率视为 "
+"0；对每个请求的宽度，边界为 mean + std * num_std 和 mean - std * num_std，使用样本标准差（ddof = "
+"1）。starting_value == 0 时结果为 cumprod - 1；否则财富按 starting_value 缩放，与 "
+"cum_returns 一致。各列按每个宽度先上界后下界的顺序排列，命名为 cone_<shortest-round-trip-width>（例如 "
+"cone_1、cone_-1、cone_1.5）；Python 浮点标签以原生字符串表示，不声明二者完全相同。宽度重复时抛出 input_error。"
+
+#: ../../site/api/metrics.md:487
+msgid ""
+"An empty cone_std span returns an empty frame; a non-finite width, a non-"
+"finite starting_value or an infinite sampled return raises input_error."
+msgstr "空 cone_std 范围返回空帧；宽度非有限、starting_value 非有限，或抽样收益为无穷时抛出 input_error。"
+
+#: ../../site/api/metrics.md:490
+msgid "Returns the cone for a single standard-deviation width."
+msgstr "返回单个标准差宽度的锥。"
+
+#: ../../site/api/metrics.md:490
+msgid "Equivalent to the span overload with a one-element width list."
+msgstr "等价于使用单元素宽度列表的范围重载。"
+
+#: ../../site/api/metrics.md:493
+msgid ""
+"Returns the ratio of the absolute 95th percentile to the absolute 5th "
+"percentile of the finite values in column."
+msgstr "返回 column 中有限值绝对第 95 百分位与绝对第 5 百分位之比。"
+
+#: ../../site/api/metrics.md:493
+msgid "Returns NaN for empty input or a zero lower tail."
+msgstr "输入为空或下尾为零时返回 NaN。"
+
+#: ../../site/api/metrics.md:496
+msgid "Returns the third-deepest drawdown as a negative fraction."
+msgstr "返回第三深回撤，以负比例表示。"
+
+#: ../../site/api/metrics.md:496 ../../site/api/metrics.md:499
+msgid "Returns NaN when fewer than three episodes exist."
+msgstr "事件少于三个时返回 NaN。"
+
+#: ../../site/api/metrics.md:499
+msgid ""
+"Returns the elapsed UTC days from the first underwater observation to the "
+"valley of the third-deepest drawdown."
+msgstr "返回从首个水下观测到第三深回撤谷底的 UTC 经过天数。"
+
+#: ../../site/api/metrics.md:502
+msgid ""
+"Returns the elapsed UTC days from the valley to the recovery of the third-"
+"deepest drawdown."
+msgstr "返回从第三深回撤的谷底到恢复的 UTC 经过天数。"
+
+#: ../../site/api/metrics.md:502
+msgid ""
+"Returns NaN when that episode has not recovered or fewer than three episodes"
+" exist."
+msgstr "该事件尚未恢复或事件少于三个时返回 NaN。"
+
+#: ../../site/api/metrics.md:505
+msgid ""
+"Returns a frame representation of the input, replacing the source to_pandas "
+"route."
+msgstr "返回输入的帧表示，替代源的 to_pandas 路由。"
+
+#: ../../site/api/metrics.md:505
+msgid ""
+"Native replacement for the source to_pandas route (route kept under the name"
+" fincore.metrics.basic.to_pandas in the ledger, implementation named "
+"to_dataframe). pandas/NumPy identity is not claimed."
+msgstr ""
+"源 to_pandas 路由的原生替代（该路由在台账中保留名称为 fincore.metrics.basic.to_pandas，实现名为 "
+"to_dataframe）。不声明与 pandas/NumPy 完全相同。"
+
+#: ../../site/api/metrics.md:505
+msgid ""
+"1-D input becomes a single-column frame with a positional 0..n-1 index (the "
+"native analogue of a RangeIndex); 2-D input becomes one double column per "
+"matrix column named \"<prefix>_0\", \"<prefix>_1\", ... with the same "
+"positional index. An existing frame is returned as an owning copy. Inputs "
+"with more than two dimensions cannot be represented by matrix, so the source"
+" ValueError branch has no native equivalent."
+msgstr ""
+"一维输入变为带位置索引 0..n-1 的单列帧（RangeIndex 的原生对应物）；二维输入变为每个矩阵列一个 double 列，命名为 "
+"\"<prefix>_0\"、\"<prefix>_1\"、...，并使用相同的位置索引。已有的帧以拥有数据的副本返回。维度超过二维的输入无法由 "
+"matrix 表示，因此源的 ValueError 分支没有原生对应。"
+
+#: ../../site/api/metrics.md:508
+msgid ""
+"Returns a frame with one double column per matrix column, named "
+"\"<column_prefix>_0\", \"<column_prefix>_1\", ... and a positional index."
+msgstr ""
+"返回一个帧，每个矩阵列对应一个 double 列，命名为 "
+"\"<column_prefix>_0\"、\"<column_prefix>_1\"、...，并使用位置索引。"
+
+#: ../../site/api/metrics.md:511
+msgid "Returns an owning copy of frame."
+msgstr "返回 frame 的拥有数据的副本。"
+
+#: ../../site/api/metrics.md:514
+msgid ""
+"Returns the cumulative strategy return minus the cumulative benchmark return"
+" over their common finite timestamps."
+msgstr "返回在公共有限时间戳上累计策略收益减去累计基准收益。"
+
+#: ../../site/api/metrics.md:514
+msgid "Returns NaN when no common finite pair exists."
+msgstr "不存在公共有限对时返回 NaN。"
+
+#: ../../site/api/metrics.md:517
+msgid ""
+"Returns the annualized sample standard deviation of active returns (strategy"
+" minus benchmark) on common finite timestamps."
+msgstr "返回公共有限时间戳上主动收益（策略减基准）的年化样本标准差。"
+
+#: ../../site/api/metrics.md:517
+msgid ""
+"Returns NaN with fewer than two pairs, non-finite/negative annualization, or"
+" a non-finite variance."
+msgstr "对少于两个、annualization 非有限/为负，或方差非有限时返回 NaN。"
+
+#: ../../site/api/metrics.md:520
+msgid "Returns mean - sigma * sample_standard_deviation of column."
+msgstr "返回 column 的 mean - sigma * sample_standard_deviation。"
+
+#: ../../site/api/metrics.md:520
+msgid "Requires at least two values; NaN observations propagate to the result."
+msgstr "至少需要两个值；NaN 观测会传播到结果。"
+
+#: ../../site/api/metrics.md:523
+msgid "Returns the Treynor-Mazuy market-timing coefficient."
+msgstr "返回 Treynor-Mazuy 择时系数。"
+
+#: ../../site/api/metrics.md:523
+msgid ""
+"Fits excess_return = a + b * excess_market + c * excess_market^2 by ordinary"
+" least squares on the common timestamps and returns c. Only finite pairs are"
+" used and risk_free is subtracted from both series. Returns NaN with fewer "
+"than ten usable pairs, a non-finite risk_free, a singular design, or a non-"
+"finite coefficient."
+msgstr ""
+"在公共时间戳上用普通最小二乘拟合 excess_return = a + b * excess_market + c * excess_market^2"
+" 并返回 c。只使用有限对，两个序列都减去 risk_free。可用对少于十个、risk_free 非有限、设计矩阵奇异或系数非有限时返回 NaN。"
+
+#: ../../site/api/metrics.md:526
+#, python-brace-format
+msgid ""
+"Returns {alpha, beta} using only dates with strictly positive benchmark "
+"returns."
+msgstr "仅使用基准收益率严格为正的日期返回 {alpha, beta}。"
+
+#: ../../site/api/metrics.md:529
+msgid ""
+"Returns the capture ratio on dates where the benchmark return is strictly "
+"positive."
+msgstr "返回基准收益率严格为正的日期上的捕获比率。"
+
+#: ../../site/api/metrics.md:532
+msgid ""
+"Returns the annualized geometric return of returns on dates where the "
+"benchmark return is strictly positive."
+msgstr "返回基准收益率严格为正的日期上 returns 的年化几何收益。"
+
+#: ../../site/api/metrics.md:532
+msgid ""
+"Only common timestamps are considered. Selected NaN returns are treated as "
+"zero when compounding. Returns NaN when no date qualifies and -1 when the "
+"compounded wealth is non-positive. An embedded NUL in either column name "
+"raises input_error."
+msgstr ""
+"仅考虑公共时间戳。复合时选中的 NaN 收益率视为零。没有符合条件的日期时返回 NaN，复合财富非正时返回 -1。任一列名中嵌入 NUL 会抛出 "
+"input_error。"
+
+#: ../../site/api/metrics.md:535
+msgid "Returns up_capture divided by down_capture."
+msgstr "返回 up_capture 除以 down_capture。"
+
+#: ../../site/api/metrics.md:535
+msgid ""
+"Both components use the common finite pairs. Returns NaN when either "
+"component is non-finite or the down capture is zero."
+msgstr "两个分量都使用公共有限对。任一分量非有限或下行捕获为零时返回 NaN。"
+
+#: ../../site/api/metrics.md:538
+msgid ""
+"Returns the variance-covariance value at risk under a normal assumption: "
+"portfolio_value * (z(confidence) * standard_deviation - mean)."
+msgstr ""
+"返回正态假设下的方差-协方差风险价值：portfolio_value * (z(confidence) * standard_deviation - "
+"mean)。"
+
+#: ../../site/api/metrics.md:538
+msgid ""
+"No annualization is applied. Returns NaN when confidence is outside [0, 1] "
+"or standard_deviation is not positive."
+msgstr "不进行年化。confidence 超出 [0, 1] 或 standard_deviation 非正时返回 NaN。"
+
+#: ../../site/api/metrics.md:541
+msgid ""
+"Returns the annualized return in excess of risk_free, divided by the "
+"absolute historical value at risk at cutoff."
+msgstr "返回超过 risk_free 的年化收益除以 cutoff 处的绝对历史风险价值。"
+
+#: ../../site/api/metrics.md:541
+msgid ""
+"The return is annualized with annualization_factor(period,annualization). "
+"Returns NaN with fewer than two values, a zero or NaN value at risk, or a "
+"NaN annual return."
+msgstr ""
+"收益按 annualization_factor(period,annualization) 年化。值少于两个、风险价值为零或 NaN，或年化收益为 "
+"NaN 时返回 NaN。"
+
+#: ../../site/api/metrics.md:544
+msgid ""
+"Returns the fraction of usable observations in column that are strictly "
+"positive."
+msgstr "返回 column 中严格为正的可用观测占比。"
+
+#: ../../site/api/metrics.md:547
+msgid "Attribution column holding the sum of finite factor contributions."
+msgstr "归因列，保存有限因子贡献之和。"
+
+#: ../../site/api/metrics.md:550
+msgid "Column holding factor names in the factor summary frame."
+msgstr "因子汇总帧中保存因子名称的列。"
+
+#: ../../site/api/metrics.md:553
+msgid "Attribution column holding the residual return (total - common)."
+msgstr "归因列，保存残差收益（total - common）。"
+
+#: ../../site/api/metrics.md:556
+msgid "Default factor-loading column holding asset symbols."
+msgstr "保存资产符号的默认因子载荷列。"
+
+#: ../../site/api/metrics.md:559
+msgid "Attribution column holding the sum of mean-exposure tilt contributions."
+msgstr "归因列，保存平均暴露倾斜贡献之和。"
+
+#: ../../site/api/metrics.md:562
+msgid "Attribution column holding the timing return (common - tilt)."
+msgstr "归因列，保存择时收益（common - tilt）。"
+
+#: ../../site/api/metrics.md:565
+msgid "Attribution column holding the total (input) returns."
+msgstr "归因列，保存总（输入）收益。"
+
+#: ../../site/api/metrics.md:568
+msgid "Result column holding the 1st percentile of cumulative path wealth."
+msgstr "结果列，保存累计路径财富的第 1 百分位。"
+
+#: ../../site/api/metrics.md:571
+msgid "Result column holding the 25th percentile of cumulative path wealth."
+msgstr "结果列，保存累计路径财富的第 25 百分位。"
+
+#: ../../site/api/metrics.md:574
+msgid "Result column holding the 50th percentile of cumulative path wealth."
+msgstr "结果列，保存累计路径财富的第 50 百分位。"
+
+#: ../../site/api/metrics.md:577
+msgid "Result column holding the 5th percentile of cumulative path wealth."
+msgstr "结果列，保存累计路径财富的第 5 百分位。"
+
+#: ../../site/api/metrics.md:580
+msgid "Result column holding the 75th percentile of cumulative path wealth."
+msgstr "结果列，保存累计路径财富的第 75 百分位。"
+
+#: ../../site/api/metrics.md:583
+msgid "Result column holding the 95th percentile of cumulative path wealth."
+msgstr "结果列，保存累计路径财富的第 95 百分位。"
+
+#: ../../site/api/metrics.md:586
+msgid "Result column holding the 99th percentile of cumulative path wealth."
+msgstr "结果列，保存累计路径财富的第 99 百分位。"
+
+#: ../../site/api/metrics.md:589
+msgid "Default name of the column holding benchmark returns."
+msgstr "保存基准收益的列的默认名称。"
+
+#: ../../site/api/metrics.md:592
+msgid "Default annualization factor for daily observations (252 periods per year)."
+msgstr "日度观测的默认年化因子（每年 252 个周期）。"
+
+#: ../../site/api/metrics.md:595
+msgid "Canonical source name of the daily frequency (\"daily\")."
+msgstr "日度频率的规范源名称（\"daily\"）。"
+
+#: ../../site/api/metrics.md:598
+msgid "Default cone widths (1.0, 1.5 and 2.0 standard deviations)."
+msgstr "默认锥宽度（1.0、1.5 和 2.0 个标准差）。"
+
+#: ../../site/api/metrics.md:601
+msgid "Canonical source name of the monthly frequency (\"monthly\")."
+msgstr "月度频率的规范源名称（\"monthly\"）。"
+
+#: ../../site/api/metrics.md:604
+msgid "Canonical source name of the quarterly frequency (\"quarterly\")."
+msgstr "季度频率的规范源名称（\"quarterly\"）。"
+
+#: ../../site/api/metrics.md:607
+msgid "Name of the integer period-within-year column added by aggregate_returns."
+msgstr "aggregate_returns 添加的年内整数 period 列的名称。"
+
+#: ../../site/api/metrics.md:610
+msgid "Name of the integer calendar-year column added by aggregate_returns."
+msgstr "aggregate_returns 添加的整数日历年列的名称。"
+
+#: ../../site/api/metrics.md:613
+msgid "Default name of the column holding periodic simple returns."
+msgstr "保存周期性简单收益率的列的默认名称。"
+
+#: ../../site/api/metrics.md:616
+msgid "Canonical source name of the weekly frequency (\"weekly\")."
+msgstr "周度频率的规范源名称（\"weekly\"）。"
+
+#: ../../site/api/metrics.md:619
+msgid "Canonical source name of the yearly frequency (\"yearly\")."
+msgstr "年度频率的规范源名称（\"yearly\"）。"
+

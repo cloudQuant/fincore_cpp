@@ -1,0 +1,1524 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 07:15+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/api/viz.md:1
+msgid "Visualization"
+msgstr "可视化"
+
+#: ../../site/api/viz.md:3
+msgid ""
+"Chart data models, native HTML/SVG builders, Plotly/Bokeh documents and the "
+"optional ImPlot backend."
+msgstr "图表数据模型、原生 HTML/SVG 构建器、Plotly/Bokeh 文档以及可选的 ImPlot 后端。"
+
+#: ../../site/api/viz.md:5
+msgid ""
+"See the [usage guide](../guides/reports-runtime.md) for task-oriented "
+"examples. Signatures below are generated from the public headers at the same"
+" commit as the rest of this site."
+msgstr "面向任务的使用示例请参阅[使用指南](../guides/reports-runtime.md)。以下签名与本站其余内容在同一提交中由公共头文件生成。"
+
+#: ../../site/api/viz.md:7
+msgid "Native Bokeh-compatible backend."
+msgstr "原生 Bokeh 兼容后端。"
+
+#: ../../site/api/viz.md:7
+msgid ""
+"Mirrors fincore.viz.interactive.bokeh_backend.BokehBackend artifact "
+"behaviour over native chart data. show is headless and returns false."
+msgstr ""
+"在原生图表数据上镜像 fincore.viz.interactive.bokeh_backend.BokehBackend 的产物行为。show "
+"为无头模式并返回 false。"
+
+#: ../../site/api/viz.md:7 ../../site/api/viz.md:10 ../../site/api/viz.md:13
+#: ../../site/api/viz.md:16 ../../site/api/viz.md:19 ../../site/api/viz.md:25
+#: ../../site/api/viz.md:64 ../../site/api/viz.md:73
+msgid "Public Functions"
+msgstr "公共函数"
+
+#: ../../site/api/viz.md:7
+msgid "Creates a backend with a theme, size and sizing mode."
+msgstr "使用主题、尺寸和尺寸模式创建后端。"
+
+#: ../../site/api/viz.md:7
+msgid ""
+"The dark theme selects dark fill, grid and text colors; other names use "
+"light colors. Throws input_error when height or width is not positive."
+msgstr "dark 主题选择深色填充、网格和文本颜色；其他名称使用浅色。高度或宽度不为正时抛出 input_error。"
+
+#: ../../site/api/viz.md:7 ../../site/api/viz.md:13
+msgid "Returns the configured theme name."
+msgstr "返回配置的主题名称。"
+
+#: ../../site/api/viz.md:7
+msgid "Returns the configured plot height."
+msgstr "返回配置的绘图高度。"
+
+#: ../../site/api/viz.md:7
+msgid "Returns the configured plot width."
+msgstr "返回配置的绘图宽度。"
+
+#: ../../site/api/viz.md:7
+msgid "Returns the configured sizing mode."
+msgstr "返回配置的尺寸模式。"
+
+#: ../../site/api/viz.md:7
+msgid "Returns the resolved plot background color."
+msgstr "返回解析后的绘图背景色。"
+
+#: ../../site/api/viz.md:7
+msgid "Returns the resolved grid line color."
+msgstr "返回解析后的网格线颜色。"
+
+#: ../../site/api/viz.md:7
+msgid "Returns the resolved text color."
+msgstr "返回解析后的文本颜色。"
+
+#: ../../site/api/viz.md:7
+msgid "Creates a base document with the configured size, colors and axes."
+msgstr "使用配置的尺寸、颜色和坐标轴创建基础文档。"
+
+#: ../../site/api/viz.md:7
+msgid "Builds a cumulative-returns document."
+msgstr "构建累积收益文档。"
+
+#: ../../site/api/viz.md:7 ../../site/api/viz.md:13
+msgid ""
+"Throws input_error when the chart has no series or a series label and value "
+"count differ."
+msgstr "图表没有序列，或序列标签与值数量不一致时，抛出 input_error。"
+
+#: ../../site/api/viz.md:7
+msgid "Builds a drawdown document with area and line glyphs."
+msgstr "使用面积图元和线图元构建回撤文档。"
+
+#: ../../site/api/viz.md:7
+msgid "Builds a rolling-Sharpe document."
+msgstr "构建滚动夏普比率文档。"
+
+#: ../../site/api/viz.md:7 ../../site/api/viz.md:13
+msgid ""
+"The recorded chart.window wins when non-zero; window is the fallback for "
+"charts built without a recorded window. Throws input_error when the chart "
+"has no series or lengths differ."
+msgstr "记录的 chart.window 非零时优先；对于未记录窗口的图表，window 为回退值。图表没有序列或长度不一致时抛出 input_error。"
+
+#: ../../site/api/viz.md:7
+msgid "Builds a monthly returns heatmap document."
+msgstr "构建月度收益热力图文档。"
+
+#: ../../site/api/viz.md:7 ../../site/api/viz.md:13
+msgid "Throws input_error when there is no year or values are not years x 12."
+msgstr "没有年份，或值不是年数 x 12 时，抛出 input_error。"
+
+#: ../../site/api/viz.md:7 ../../site/api/viz.md:13
+msgid "Headless: returns false, records NOT_RUN_INTERACTIVE."
+msgstr "无头模式：返回 false，记录 NOT_RUN_INTERACTIVE。"
+
+#: ../../site/api/viz.md:7
+msgid "Writes document as self-contained HTML to path."
+msgstr "将文档以自包含 HTML 形式写入 path。"
+
+#: ../../site/api/viz.md:7 ../../site/api/viz.md:10 ../../site/api/viz.md:25
+#: ../../site/api/viz.md:64
+msgid ""
+"Throws input_error for an empty path or a file that cannot be opened or "
+"written."
+msgstr "路径为空，或文件无法打开或写入时，抛出 input_error。"
+
+#: ../../site/api/viz.md:7 ../../site/api/viz.md:13
+msgid "Returns the status recorded by the most recent show call."
+msgstr "返回最近一次 show 调用记录的状态。"
+
+#: ../../site/api/viz.md:10
+msgid "Owning native self-contained HTML performance report builder."
+msgstr "持有型原生自包含 HTML 绩效报告构建器。"
+
+#: ../../site/api/viz.md:10
+msgid ""
+"Mirrors fincore.viz.html_backend.HtmlReportBuilder: title/heading/raw HTML "
+"sections, stats tables, metric cards, cumulative-returns/drawdown/ rolling-"
+"Sharpe tables and the monthly-returns pivot table. All chart values come "
+"from precomputed native chart data; the builder never recomputes a financial"
+" kernel. build() is deterministic and contains no external stylesheet, "
+"script or image reference."
+msgstr ""
+"镜像 fincore.viz.html_backend.HtmlReportBuilder：标题/小标题/原始 HTML "
+"小节、统计表、指标卡片、累积收益/回撤/滚动夏普比率表以及月度收益透视表。所有图表数值都来自预先计算的原生图表数据；构建器从不重新计算金融内核。build()"
+" 是确定性的，且不包含任何外部样式表、脚本或图片引用。"
+
+#: ../../site/api/viz.md:10
+msgid "Appends an escaped level-1 title section."
+msgstr "追加转义的 1 级标题小节。"
+
+#: ../../site/api/viz.md:10
+msgid "Appends an escaped heading clamped to levels 1 through 6."
+msgstr "追加转义的小标题，级别限制在 1 到 6 之间。"
+
+#: ../../site/api/viz.md:10
+msgid "Appends a two-column stats table with four-decimal numeric values."
+msgstr "追加两列统计表，数值保留四位小数。"
+
+#: ../../site/api/viz.md:10
+msgid "Missing values print nan, matching the Python oracle."
+msgstr "缺失值打印为 nan，与 Python oracle 一致。"
+
+#: ../../site/api/viz.md:10
+msgid "Appends metric cards using each metric's key in input order."
+msgstr "按输入顺序使用每个指标的键追加指标卡片。"
+
+#: ../../site/api/viz.md:10
+msgid "Appends metric cards for keys in the requested order."
+msgstr "按请求顺序为各键追加指标卡片。"
+
+#: ../../site/api/viz.md:10
+msgid "Missing or non-finite values render as N/A."
+msgstr "缺失或非有限值呈现为 N/A。"
+
+#: ../../site/api/viz.md:10
+msgid "Appends raw HTML without escaping."
+msgstr "追加未经转义的原始 HTML。"
+
+#: ../../site/api/viz.md:10
+msgid "Appends a cumulative-returns table section."
+msgstr "追加累积收益表小节。"
+
+#: ../../site/api/viz.md:10
+msgid "Appends a drawdown table section."
+msgstr "追加回撤表小节。"
+
+#: ../../site/api/viz.md:10
+msgid "Appends rolling-Sharpe tables and an optional benchmark table."
+msgstr "追加滚动夏普比率表和可选的基准表。"
+
+#: ../../site/api/viz.md:10
+msgid "Appends the monthly heatmap table in percent."
+msgstr "追加以百分比表示的月度热力图表格。"
+
+#: ../../site/api/viz.md:10
+msgid ""
+"Throws input_error when grid.values is not years x 12; missing cells print "
+"NaN."
+msgstr "grid.values 不是年数 x 12 时抛出 input_error；缺失单元格打印 NaN。"
+
+#: ../../site/api/viz.md:10
+msgid "Builds a self-contained deterministic HTML document."
+msgstr "构建自包含的确定性 HTML 文档。"
+
+#: ../../site/api/viz.md:10
+msgid "Writes the built document to path."
+msgstr "将构建的文档写入 path。"
+
+#: ../../site/api/viz.md:10
+msgid "Returns the appended section fragments in order."
+msgstr "按顺序返回已追加的小节片段。"
+
+#: ../../site/api/viz.md:10 ../../site/api/viz.md:52
+msgid "Public Static Functions"
+msgstr "公共静态函数"
+
+#: ../../site/api/viz.md:10
+msgid "Stable report CSS (the Python HtmlReportBuilder._CSS block)."
+msgstr "稳定的报告 CSS（Python HtmlReportBuilder._CSS 代码块）。"
+
+#: ../../site/api/viz.md:13
+msgid "Native Plotly-compatible backend."
+msgstr "原生 Plotly 兼容后端。"
+
+#: ../../site/api/viz.md:13
+msgid ""
+"Mirrors fincore.viz.interactive.plotly_backend.PlotlyBackend artifact "
+"behaviour. Chart inputs are native chart data, not pandas objects. show is "
+"headless and always reports NOT_RUN_INTERACTIVE."
+msgstr ""
+"镜像 fincore.viz.interactive.plotly_backend.PlotlyBackend 的产物行为。图表输入为原生图表数据，而非"
+" pandas 对象。show 为无头模式，始终报告 NOT_RUN_INTERACTIVE。"
+
+#: ../../site/api/viz.md:13
+msgid "Creates a backend with a theme, size, template and legend option."
+msgstr "使用主题、尺寸、模板和图例选项创建后端。"
+
+#: ../../site/api/viz.md:13
+msgid ""
+"Themes dark and plotly_dark resolve to dark colors and the plotly_dark "
+"default template; other names use light colors and plotly_white. Throws "
+"input_error when height or width is not positive."
+msgstr ""
+"dark 和 plotly_dark 主题解析为深色以及 plotly_dark 默认模板；其他名称使用浅色和 "
+"plotly_white。高度或宽度不为正时抛出 input_error。"
+
+#: ../../site/api/viz.md:13
+msgid "Returns the resolved theme colors."
+msgstr "返回解析后的主题颜色。"
+
+#: ../../site/api/viz.md:13
+msgid "Returns the theme-derived default template name."
+msgstr "返回由主题派生的默认模板名称。"
+
+#: ../../site/api/viz.md:13
+msgid "Returns the explicit template, or the theme default when unset."
+msgstr "返回显式模板；未设置时返回主题默认模板。"
+
+#: ../../site/api/viz.md:13
+msgid "Returns the configured figure height."
+msgstr "返回配置的图形高度。"
+
+#: ../../site/api/viz.md:13
+msgid "Returns the configured figure width, if any."
+msgstr "返回配置的图形宽度（若有）。"
+
+#: ../../site/api/viz.md:13
+msgid "Returns whether the document legend is enabled."
+msgstr "返回文档图例是否启用。"
+
+#: ../../site/api/viz.md:13
+msgid "Base document with the configured template, size and theme colors."
+msgstr "具有配置模板、尺寸和主题颜色的基础文档。"
+
+#: ../../site/api/viz.md:13
+msgid "Builds and records a cumulative-returns figure."
+msgstr "构建并记录累积收益图形。"
+
+#: ../../site/api/viz.md:13
+msgid "Builds and records a drawdown figure with filled series."
+msgstr "构建并记录带填充序列的回撤图形。"
+
+#: ../../site/api/viz.md:13
+msgid "Builds and records a rolling-Sharpe figure."
+msgstr "构建并记录滚动夏普比率图形。"
+
+#: ../../site/api/viz.md:13
+msgid "Builds and records a monthly returns heatmap."
+msgstr "构建并记录月度收益热力图。"
+
+#: ../../site/api/viz.md:13
+msgid "Builds and records a correlation heatmap."
+msgstr "构建并记录相关性热力图。"
+
+#: ../../site/api/viz.md:13
+msgid "Throws input_error when labels are empty or values are not labels x labels."
+msgstr "标签为空，或值不是标签数 x 标签数时，抛出 input_error。"
+
+#: ../../site/api/viz.md:13
+msgid "Builds and records an efficient frontier figure."
+msgstr "构建并记录有效前沿图形。"
+
+#: ../../site/api/viz.md:13
+msgid "Throws input_error when volatilities and returns differ in length."
+msgstr "volatilities 与 returns 长度不同时抛出 input_error。"
+
+#: ../../site/api/viz.md:13
+msgid "Record an externally assembled document as the current figure."
+msgstr "将外部组装的文档记录为当前图形。"
+
+#: ../../site/api/viz.md:13
+msgid "Returns whether a figure has been recorded."
+msgstr "返回是否已记录图形。"
+
+#: ../../site/api/viz.md:13
+msgid "Throws input_error when no plot method ran yet."
+msgstr "尚未运行任何绘图方法时抛出 input_error。"
+
+#: ../../site/api/viz.md:13
+msgid "Writes the recorded figure as self-contained HTML."
+msgstr "将记录的图形写为自包含 HTML。"
+
+#: ../../site/api/viz.md:13
+msgid "Throws input_error when no figure exists or the path cannot be written."
+msgstr "不存在图形或路径无法写入时抛出 input_error。"
+
+#: ../../site/api/viz.md:13
+msgid "Writes the recorded figure as SVG."
+msgstr "将记录的图形写为 SVG。"
+
+#: ../../site/api/viz.md:16
+msgid "Native equivalent of PrintfTickFormatter."
+msgstr "PrintfTickFormatter 的原生等价实现。"
+
+#: ../../site/api/viz.md:16
+#, python-format
+msgid ""
+"Supports one printf conversion — %[flags][width][.precision] followed by one"
+" of f, e, g, d or i — plus %%. Invalid formats raise input_error instead of "
+"Python's ValueError/TypeError."
+msgstr ""
+"支持一个 printf 转换——%[flags][width][.precision] 后接 f、e、g、d 或 i 之一——以及 %%。无效格式会抛出"
+" input_error，而不是 Python 的 ValueError/TypeError。"
+
+#: ../../site/api/viz.md:16
+msgid "Creates a formatter and validates format."
+msgstr "创建格式化器并校验 format。"
+
+#: ../../site/api/viz.md:16
+msgid ""
+"Throws input_error for an embedded NUL, unsupported conversions, incomplete "
+"formats, or more than one conversion."
+msgstr "存在内嵌 NUL、不支持的转换、不完整的格式或多于一个转换时，抛出 input_error。"
+
+#: ../../site/api/viz.md:16
+msgid "Formats value with the configured conversion."
+msgstr "使用配置的转换格式化 value。"
+
+#: ../../site/api/viz.md:16
+msgid "Returns the configured format string."
+msgstr "返回配置的格式字符串。"
+
+#: ../../site/api/viz.md:19
+msgid "An owning snapshot of explicitly registered native renderer callbacks."
+msgstr "显式注册的原生渲染器回调的持有型快照。"
+
+#: ../../site/api/viz.md:19
+msgid ""
+"Names are trimmed using ASCII whitespace and lowercased using ASCII rules. "
+"An empty/duplicate normalized name or empty callback is rejected. The "
+"snapshot does not scan plugins, import optional dependencies, or mutate a "
+"process-wide registry. render passes a copied model to the callback for the "
+"duration of the call; callbacks that queue work must copy that model before "
+"returning. Mutable state captured by callbacks remains the caller's "
+"responsibility. Built-in HTML rendering remains render_html over a "
+"report_document."
+msgstr ""
+"名称按 ASCII 空白裁剪，并按 ASCII "
+"规则转为小写。归一化后为空或重复的名称，或空回调会被拒绝。该快照不扫描插件、不导入可选依赖，也不修改进程级注册表。render "
+"在调用期间将模型副本传给回调；需要排队处理工作的回调必须在返回前复制该模型。回调捕获的可变状态仍由调用方负责。内置 HTML 渲染仍是对 "
+"report_document 调用 render_html。"
+
+#: ../../site/api/viz.md:19
+msgid "Creates an immutable snapshot of the supplied renderer callbacks."
+msgstr "创建所提供渲染器回调的不可变快照。"
+
+#: ../../site/api/viz.md:19
+msgid ""
+"Throws input_error for an empty normalized name, an empty callback, or names"
+" that collide after trimming and ASCII lowercasing."
+msgstr "归一化名称为空、回调为空，或名称在裁剪和 ASCII 小写化后冲突时，抛出 input_error。"
+
+#: ../../site/api/viz.md:19
+msgid "Returns the callback registered under name after name normalization."
+msgstr "返回名称归一化后以 name 注册的回调。"
+
+#: ../../site/api/viz.md:19
+msgid "Throws input_error for an empty or unknown normalized name."
+msgstr "归一化名称为空或未知时抛出 input_error。"
+
+#: ../../site/api/viz.md:19
+msgid "Renders name with a copied model and returns its report document."
+msgstr "使用模型副本渲染 name，并返回其报告文档。"
+
+#: ../../site/api/viz.md:19
+msgid ""
+"Throws input_error for an unknown renderer; exceptions raised by the "
+"callback propagate unchanged."
+msgstr "渲染器未知时抛出 input_error；回调引发的异常原样传播。"
+
+#: ../../site/api/viz.md:22
+msgid "Grouped bar chart data in row-major order."
+msgstr "行主序的分组柱状图数据。"
+
+#: ../../site/api/viz.md:22 ../../site/api/viz.md:25 ../../site/api/viz.md:28
+#: ../../site/api/viz.md:31 ../../site/api/viz.md:34 ../../site/api/viz.md:37
+#: ../../site/api/viz.md:40 ../../site/api/viz.md:43 ../../site/api/viz.md:46
+#: ../../site/api/viz.md:49 ../../site/api/viz.md:52 ../../site/api/viz.md:55
+#: ../../site/api/viz.md:58 ../../site/api/viz.md:61 ../../site/api/viz.md:64
+#: ../../site/api/viz.md:67 ../../site/api/viz.md:70 ../../site/api/viz.md:73
+#: ../../site/api/viz.md:76 ../../site/api/viz.md:79
+msgid "Public Members"
+msgstr "公共成员"
+
+#: ../../site/api/viz.md:22
+msgid "Group labels on the x axis."
+msgstr "x 轴上的分组标签。"
+
+#: ../../site/api/viz.md:22
+msgid "Series names in draw order."
+msgstr "按绘制顺序排列的序列名称。"
+
+#: ../../site/api/viz.md:22
+msgid "Groups x series values in row-major order."
+msgstr "行主序的组数 x 序列数值。"
+
+#: ../../site/api/viz.md:25
+msgid "Owning Bokeh-compatible chart document."
+msgstr "持有型 Bokeh 兼容图表文档。"
+
+#: ../../site/api/viz.md:25
+msgid ""
+"Emits a self-contained HTML/JSON document with equivalent data, axes, "
+"legends and series. BokehJS model identity is not cloned."
+msgstr "生成具有等价数据、坐标轴、图例和序列的自包含 HTML/JSON 文档。不复制 BokehJS 的模型身份。"
+
+#: ../../site/api/viz.md:25
+msgid "Serializes the document to deterministic Bokeh-compatible JSON."
+msgstr "将文档序列化为确定性的 Bokeh 兼容 JSON。"
+
+#: ../../site/api/viz.md:25
+msgid ""
+"Throws input_error when a rect glyph's x, y and value lengths differ, or a "
+"glyph's x and y lengths differ."
+msgstr "矩形图元的 x、y 和值长度不一致，或图元的 x 与 y 长度不一致时，抛出 input_error。"
+
+#: ../../site/api/viz.md:25 ../../site/api/viz.md:64
+msgid "Deterministic SVG rendering of the document (no third-party asset)."
+msgstr "文档的确定性 SVG 渲染（不使用第三方资源）。"
+
+#: ../../site/api/viz.md:25
+msgid "Returns self-contained HTML with inline SVG and the JSON payload."
+msgstr "返回包含内联 SVG 和 JSON 负载的自包含 HTML。"
+
+#: ../../site/api/viz.md:25 ../../site/api/viz.md:64
+msgid "Writes to_html() output to path."
+msgstr "将 to_html() 的输出写入 path。"
+
+#: ../../site/api/viz.md:25 ../../site/api/viz.md:64
+msgid "Document title."
+msgstr "文档标题。"
+
+#: ../../site/api/viz.md:25
+msgid "X-axis type."
+msgstr "X 轴类型。"
+
+#: ../../site/api/viz.md:25 ../../site/api/viz.md:43
+msgid "X-axis label."
+msgstr "X 轴标签。"
+
+#: ../../site/api/viz.md:25 ../../site/api/viz.md:43 ../../site/api/viz.md:76
+msgid "Y-axis label."
+msgstr "Y 轴标签。"
+
+#: ../../site/api/viz.md:25
+msgid "Plot height."
+msgstr "绘图高度。"
+
+#: ../../site/api/viz.md:25
+msgid "Plot width."
+msgstr "绘图宽度。"
+
+#: ../../site/api/viz.md:25
+msgid "Bokeh sizing mode."
+msgstr "Bokeh 尺寸模式。"
+
+#: ../../site/api/viz.md:25
+msgid "Plot background."
+msgstr "绘图背景。"
+
+#: ../../site/api/viz.md:25
+msgid "Outer background."
+msgstr "外层背景。"
+
+#: ../../site/api/viz.md:25
+msgid "Grid line color."
+msgstr "网格线颜色。"
+
+#: ../../site/api/viz.md:25
+msgid "Text color."
+msgstr "文本颜色。"
+
+#: ../../site/api/viz.md:25
+msgid "Axis location; empty omits it."
+msgstr "坐标轴位置；为空则省略。"
+
+#: ../../site/api/viz.md:25
+msgid "Toolbar location; empty omits it."
+msgstr "工具栏位置；为空则省略。"
+
+#: ../../site/api/viz.md:25
+msgid "Whether grid lines are visible."
+msgstr "网格线是否可见。"
+
+#: ../../site/api/viz.md:25
+msgid "Whether axes are visible."
+msgstr "坐标轴是否可见。"
+
+#: ../../site/api/viz.md:25
+msgid "Major tick font size."
+msgstr "主刻度字体大小。"
+
+#: ../../site/api/viz.md:25
+msgid "Major tick standoff."
+msgstr "主刻度偏移距离。"
+
+#: ../../site/api/viz.md:25
+msgid "Requested colorbar tick count."
+msgstr "请求的色条刻度数量。"
+
+#: ../../site/api/viz.md:25
+msgid "Glyphs in draw order."
+msgstr "按绘制顺序排列的图元。"
+
+#: ../../site/api/viz.md:25
+msgid "Hover tools."
+msgstr "悬停工具。"
+
+#: ../../site/api/viz.md:25
+msgid "Span annotations."
+msgstr "跨度标注。"
+
+#: ../../site/api/viz.md:25
+msgid "Legend location."
+msgstr "图例位置。"
+
+#: ../../site/api/viz.md:25
+msgid "Legend click policy."
+msgstr "图例点击策略。"
+
+#: ../../site/api/viz.md:25
+msgid "Categorical x factors."
+msgstr "分类 x 因子。"
+
+#: ../../site/api/viz.md:25
+msgid "Categorical y factors."
+msgstr "分类 y 因子。"
+
+#: ../../site/api/viz.md:25
+msgid "Color mapper palette."
+msgstr "颜色映射器调色板。"
+
+#: ../../site/api/viz.md:25 ../../site/api/viz.md:28
+msgid "Whether the mapper range applies."
+msgstr "映射器范围是否生效。"
+
+#: ../../site/api/viz.md:25 ../../site/api/viz.md:28
+msgid "Lower mapper bound when set."
+msgstr "设置时的映射器下界。"
+
+#: ../../site/api/viz.md:25 ../../site/api/viz.md:28
+msgid "Upper mapper bound when set."
+msgstr "设置时的映射器上界。"
+
+#: ../../site/api/viz.md:25
+msgid "Whether a colorbar is emitted."
+msgstr "是否输出色条。"
+
+#: ../../site/api/viz.md:25
+msgid "Colorbar ticker type."
+msgstr "色条刻度器类型。"
+
+#: ../../site/api/viz.md:28
+msgid "One owning Bokeh-compatible glyph renderer."
+msgstr "一个持有型 Bokeh 兼容图元渲染器。"
+
+#: ../../site/api/viz.md:28
+msgid ""
+"Values are copied from native chart data; no kernel is recomputed here. NaN "
+"chart values are serialized as JSON null (an explicit gap) while the "
+"parallel label arrays keep their length."
+msgstr "值从原生图表数据复制；此处不重新计算任何内核。NaN 图表值序列化为 JSON null（显式缺口），而并行的标签数组保持其长度。"
+
+#: ../../site/api/viz.md:28 ../../site/api/viz.md:70
+msgid "Public Types"
+msgstr "公共类型"
+
+#: ../../site/api/viz.md:28
+msgid "Supported glyph kinds."
+msgstr "支持的图元种类。"
+
+#: ../../site/api/viz.md:28 ../../site/api/viz.md:70
+msgid "Values:"
+msgstr "取值："
+
+#: ../../site/api/viz.md:28
+msgid "Line glyph."
+msgstr "线图元。"
+
+#: ../../site/api/viz.md:28
+msgid "Vertical-area glyph."
+msgstr "垂直面积图元。"
+
+#: ../../site/api/viz.md:28
+msgid "Rectangle heatmap glyph."
+msgstr "矩形热力图图元。"
+
+#: ../../site/api/viz.md:28
+msgid "Glyph kind."
+msgstr "图元种类。"
+
+#: ../../site/api/viz.md:28
+msgid "Data field used for x values."
+msgstr "用于 x 值的数据字段。"
+
+#: ../../site/api/viz.md:28
+msgid "Data field used for y values."
+msgstr "用于 y 值的数据字段。"
+
+#: ../../site/api/viz.md:28
+msgid "ISO date labels for datetime x axes; takes precedence over x_values."
+msgstr "用于日期时间 x 轴的 ISO 日期标签；优先于 x_values。"
+
+#: ../../site/api/viz.md:28 ../../site/api/viz.md:70
+msgid "Numeric x values used when x_labels is empty."
+msgstr "x_labels 为空时使用的数值 x 值。"
+
+#: ../../site/api/viz.md:28 ../../site/api/viz.md:70
+msgid "Y values; NaN entries serialize as JSON null."
+msgstr "y 值；NaN 条目序列化为 JSON null。"
+
+#: ../../site/api/viz.md:28
+msgid "Line color."
+msgstr "线颜色。"
+
+#: ../../site/api/viz.md:28
+msgid "Line width."
+msgstr "线宽。"
+
+#: ../../site/api/viz.md:28
+msgid "Line dash style, such as \"solid\" or \"dashed\"."
+msgstr "线虚线样式，例如 \"solid\" 或 \"dashed\"。"
+
+#: ../../site/api/viz.md:28
+msgid "Area fill color."
+msgstr "面积填充颜色。"
+
+#: ../../site/api/viz.md:28
+msgid "Area fill opacity."
+msgstr "面积填充不透明度。"
+
+#: ../../site/api/viz.md:28
+msgid "Legend entry label."
+msgstr "图例条目标签。"
+
+#: ../../site/api/viz.md:28
+msgid "Rectangle x category labels."
+msgstr "矩形 x 类别标签。"
+
+#: ../../site/api/viz.md:28
+msgid "Rectangle y category labels."
+msgstr "矩形 y 类别标签。"
+
+#: ../../site/api/viz.md:28
+msgid "Flattened heatmap cell values; NaN entries serialize as JSON null."
+msgstr "展平的热力图单元格值；NaN 条目序列化为 JSON null。"
+
+#: ../../site/api/viz.md:28
+msgid "Named color palette."
+msgstr "命名调色板。"
+
+#: ../../site/api/viz.md:31
+msgid "Hover tool configuration for a Bokeh-compatible document."
+msgstr "Bokeh 兼容文档的悬停工具配置。"
+
+#: ../../site/api/viz.md:31
+msgid "Tooltip pairs."
+msgstr "工具提示对。"
+
+#: ../../site/api/viz.md:31
+msgid "Hover mode."
+msgstr "悬停模式。"
+
+#: ../../site/api/viz.md:31
+msgid "Field formatter names."
+msgstr "字段格式化器名称。"
+
+#: ../../site/api/viz.md:34
+msgid "Span annotation drawn across a plot."
+msgstr "横跨绘图绘制的跨度标注。"
+
+#: ../../site/api/viz.md:34
+msgid "Span position on its axis."
+msgstr "跨度在其坐标轴上的位置。"
+
+#: ../../site/api/viz.md:34
+msgid "Span dimension, width or height."
+msgstr "跨度维度，即宽度或高度。"
+
+#: ../../site/api/viz.md:34
+msgid "Span line color."
+msgstr "跨度线颜色。"
+
+#: ../../site/api/viz.md:34
+msgid "Span line opacity."
+msgstr "跨度线不透明度。"
+
+#: ../../site/api/viz.md:37
+msgid "One labelled line series in a chart."
+msgstr "图表中的一个带标签线序列。"
+
+#: ../../site/api/viz.md:37 ../../site/api/viz.md:79
+msgid "Legend label."
+msgstr "图例标签。"
+
+#: ../../site/api/viz.md:37
+msgid "Observation timestamps."
+msgstr "观测时间戳。"
+
+#: ../../site/api/viz.md:37
+msgid "Values aligned with index."
+msgstr "与索引对齐的值。"
+
+#: ../../site/api/viz.md:37
+msgid "Whether this is a benchmark series."
+msgstr "此序列是否为基准序列。"
+
+#: ../../site/api/viz.md:37
+msgid "Whether the line is dashed."
+msgstr "线条是否为虚线。"
+
+#: ../../site/api/viz.md:40
+msgid "Pairwise Pearson correlation matrix."
+msgstr "两两 Pearson 相关矩阵。"
+
+#: ../../site/api/viz.md:40
+msgid "Asset labels in matrix order."
+msgstr "按矩阵顺序排列的资产标签。"
+
+#: ../../site/api/viz.md:40
+msgid "Labels x labels row-major; NaN when undefined."
+msgstr "行主序的标签数 x 标签数；未定义时为 NaN。"
+
+#: ../../site/api/viz.md:40
+msgid "Whether each matrix cell is defined."
+msgstr "每个矩阵单元格是否有定义。"
+
+#: ../../site/api/viz.md:40 ../../site/api/viz.md:46
+msgid "Value unit."
+msgstr "值单位。"
+
+#: ../../site/api/viz.md:43
+msgid "Chart-ready efficient frontier points and marker coordinates."
+msgstr "可直接用于图表的有效前沿点和标记坐标。"
+
+#: ../../site/api/viz.md:43
+msgid "Frontier volatility points."
+msgstr "前沿波动率点。"
+
+#: ../../site/api/viz.md:43
+msgid "Frontier return points."
+msgstr "前沿收益点。"
+
+#: ../../site/api/viz.md:43
+msgid "Frontier Sharpe points."
+msgstr "前沿夏普比率点。"
+
+#: ../../site/api/viz.md:43
+msgid "Minimum-variance volatility."
+msgstr "最小方差波动率。"
+
+#: ../../site/api/viz.md:43
+msgid "Minimum-variance return."
+msgstr "最小方差收益。"
+
+#: ../../site/api/viz.md:43
+msgid "Maximum-Sharpe volatility."
+msgstr "最大夏普比率波动率。"
+
+#: ../../site/api/viz.md:43
+msgid "Maximum-Sharpe return."
+msgstr "最大夏普比率收益。"
+
+#: ../../site/api/viz.md:46
+msgid "Monthly return heatmap data in percent."
+msgstr "以百分比表示的月度收益热力图数据。"
+
+#: ../../site/api/viz.md:46 ../../site/api/viz.md:76
+msgid "Chart title."
+msgstr "图表标题。"
+
+#: ../../site/api/viz.md:46
+msgid "Row year labels."
+msgstr "行年份标签。"
+
+#: ../../site/api/viz.md:46
+msgid "Month label per column."
+msgstr "每列的月份标签。"
+
+#: ../../site/api/viz.md:46
+msgid "Years x 12 row-major; NaN when missing."
+msgstr "行主序的年数 x 12；缺失时为 NaN。"
+
+#: ../../site/api/viz.md:46
+msgid "Same shape as values; missing is not zero."
+msgstr "与 values 形状相同；缺失不等于零。"
+
+#: ../../site/api/viz.md:46
+msgid "Lower color-scale bound."
+msgstr "颜色刻度下界。"
+
+#: ../../site/api/viz.md:46
+msgid "Upper color-scale bound."
+msgstr "颜色刻度上界。"
+
+#: ../../site/api/viz.md:46
+msgid "Whether the color scale is centered."
+msgstr "颜色刻度是否居中。"
+
+#: ../../site/api/viz.md:49
+msgid "Histogram edges, counts and densities."
+msgstr "直方图边界、计数和密度。"
+
+#: ../../site/api/viz.md:49
+msgid "Ascending bin edges; one more than bins."
+msgstr "递增的分箱边界；比 bins 多一个。"
+
+#: ../../site/api/viz.md:49
+msgid "Finite observation count per bin."
+msgstr "每个分箱的有限观测计数。"
+
+#: ../../site/api/viz.md:49
+msgid "Counts / (n_observations * bin width)."
+msgstr "计数 / (n_observations * 分箱宽度)。"
+
+#: ../../site/api/viz.md:49
+msgid "Number of finite observations."
+msgstr "有限观测的数量。"
+
+#: ../../site/api/viz.md:52
+msgid "One owning key/value entry for the native HTML report builder."
+msgstr "原生 HTML 报告构建器的一个持有型键/值条目。"
+
+#: ../../site/api/viz.md:52
+msgid ""
+"Python's builder accepts a pd.Series of floats; the native builder uses this"
+" explicit entry so a value is either a finite-checked number, text or "
+"absent. Missing rendering follows the Python oracle: stats tables print nan,"
+" metric cards print N/A."
+msgstr ""
+"Python 构建器接受浮点数的 "
+"pd.Series；原生构建器使用此显式条目，因此值要么是经过有限性检查的数字，要么是文本，要么不存在。缺失值的呈现遵循 Python "
+"oracle：统计表打印 nan，指标卡片打印 N/A。"
+
+#: ../../site/api/viz.md:52
+msgid "Metric display key."
+msgstr "指标显示键。"
+
+#: ../../site/api/viz.md:52
+msgid "Numeric value when present."
+msgstr "存在时的数值。"
+
+#: ../../site/api/viz.md:52
+msgid "Text value when no number is present."
+msgstr "没有数字时的文本值。"
+
+#: ../../site/api/viz.md:52
+msgid "Creates a metric with a numeric value."
+msgstr "创建带数值的指标。"
+
+#: ../../site/api/viz.md:52
+msgid "Creates a metric with a text value."
+msgstr "创建带文本值的指标。"
+
+#: ../../site/api/viz.md:52
+msgid "Creates a metric with no value."
+msgstr "创建不带值的指标。"
+
+#: ../../site/api/viz.md:55
+msgid "Text annotation in layout coordinates."
+msgstr "布局坐标中的文本注释。"
+
+#: ../../site/api/viz.md:55
+msgid "Annotation text."
+msgstr "注释文本。"
+
+#: ../../site/api/viz.md:55
+msgid "X position."
+msgstr "X 位置。"
+
+#: ../../site/api/viz.md:55
+msgid "Y position."
+msgstr "Y 位置。"
+
+#: ../../site/api/viz.md:55 ../../site/api/viz.md:67
+msgid "X reference coordinate system."
+msgstr "X 参考坐标系。"
+
+#: ../../site/api/viz.md:55
+msgid "Y reference coordinate system."
+msgstr "Y 参考坐标系。"
+
+#: ../../site/api/viz.md:55
+msgid "Whether to draw an arrow."
+msgstr "是否绘制箭头。"
+
+#: ../../site/api/viz.md:58
+msgid "Axis configuration for a Plotly-compatible document."
+msgstr "Plotly 兼容文档的坐标轴配置。"
+
+#: ../../site/api/viz.md:58
+msgid "Axis title."
+msgstr "坐标轴标题。"
+
+#: ../../site/api/viz.md:58
+msgid "Axis side, such as bottom."
+msgstr "坐标轴侧，例如 bottom。"
+
+#: ../../site/api/viz.md:58
+msgid "Whether the axis range is reversed."
+msgstr "坐标轴范围是否反向。"
+
+#: ../../site/api/viz.md:58
+msgid "Tick mode, such as array."
+msgstr "刻度模式，例如 array。"
+
+#: ../../site/api/viz.md:58
+msgid "Explicit tick positions."
+msgstr "显式刻度位置。"
+
+#: ../../site/api/viz.md:58
+msgid "Explicit tick labels."
+msgstr "显式刻度标签。"
+
+#: ../../site/api/viz.md:61
+msgid "Theme colors used by the native Plotly-compatible document."
+msgstr "原生 Plotly 兼容文档使用的主题颜色。"
+
+#: ../../site/api/viz.md:61
+msgid "Plot and paper background color."
+msgstr "绘图区和纸张背景色。"
+
+#: ../../site/api/viz.md:61 ../../site/api/viz.md:64
+msgid "Grid and zero-line color."
+msgstr "网格线和零线颜色。"
+
+#: ../../site/api/viz.md:61
+msgid "Title, axis and tick text color."
+msgstr "标题、坐标轴和刻度文本颜色。"
+
+#: ../../site/api/viz.md:61
+msgid "Color for positive markers."
+msgstr "正标记的颜色。"
+
+#: ../../site/api/viz.md:61
+msgid "Color for negative series."
+msgstr "负序列的颜色。"
+
+#: ../../site/api/viz.md:61
+msgid "Color for benchmark or neutral series."
+msgstr "基准或中性序列的颜色。"
+
+#: ../../site/api/viz.md:61
+msgid "Primary series highlight color."
+msgstr "主序列高亮颜色。"
+
+#: ../../site/api/viz.md:61
+msgid "Secondary marker color."
+msgstr "次标记颜色。"
+
+#: ../../site/api/viz.md:61
+msgid "Whether the theme uses dark backgrounds."
+msgstr "主题是否使用深色背景。"
+
+#: ../../site/api/viz.md:64
+msgid "Owning native Plotly-compatible chart document."
+msgstr "持有型原生 Plotly 兼容图表文档。"
+
+#: ../../site/api/viz.md:64
+msgid ""
+"to_json() is deterministic (fixed key order, Python-style float text) and "
+"covers the emitted subset of the Plotly schema: data traces with "
+"scatter/heatmap fields and a layout with title, axes, legend, shapes and "
+"annotations. Plotly.js object identity is not claimed."
+msgstr ""
+"to_json() 是确定性的（固定键顺序、Python 风格浮点文本），并覆盖 Plotly schema 中实际输出的子集：带 "
+"scatter/heatmap 字段的数据轨迹，以及包含标题、坐标轴、图例、形状和注释的布局。不声称与 Plotly.js 对象身份一致。"
+
+#: ../../site/api/viz.md:64
+msgid "Serializes the document to deterministic Plotly-compatible JSON."
+msgstr "将文档序列化为确定性的 Plotly 兼容 JSON。"
+
+#: ../../site/api/viz.md:64
+msgid ""
+"Throws input_error when a heatmap trace has an invalid "
+"heatmap_z/heatmap_columns size or its labels do not match the matrix."
+msgstr "热力图轨迹的 heatmap_z/heatmap_columns 尺寸无效，或其标签与矩阵不匹配时，抛出 input_error。"
+
+#: ../../site/api/viz.md:64
+msgid "Self-contained HTML: inline SVG plus the deterministic JSON payload."
+msgstr "自包含 HTML：内联 SVG 加上确定性 JSON 负载。"
+
+#: ../../site/api/viz.md:64
+msgid "Writes SVG; declared format variance from Plotly's PNG export."
+msgstr "写入 SVG；已声明与 Plotly 的 PNG 导出存在格式差异。"
+
+#: ../../site/api/viz.md:64
+msgid "Plotly template name; empty omits it."
+msgstr "Plotly 模板名称；为空则省略。"
+
+#: ../../site/api/viz.md:64
+msgid "Layout height; nullopt omits it."
+msgstr "布局高度；为 nullopt 则省略。"
+
+#: ../../site/api/viz.md:64
+msgid "Layout width; nullopt omits it."
+msgstr "布局宽度；为 nullopt 则省略。"
+
+#: ../../site/api/viz.md:64
+msgid "Whether the legend is shown."
+msgstr "是否显示图例。"
+
+#: ../../site/api/viz.md:64
+msgid "Hover mode; empty omits it."
+msgstr "悬停模式；为空则省略。"
+
+#: ../../site/api/viz.md:64
+msgid "Font color; empty omits the font block."
+msgstr "字体颜色；为空则省略字体块。"
+
+#: ../../site/api/viz.md:64
+msgid "Plot background color."
+msgstr "绘图背景色。"
+
+#: ../../site/api/viz.md:64
+msgid "Paper background color."
+msgstr "纸张背景色。"
+
+#: ../../site/api/viz.md:64
+msgid "X-axis configuration."
+msgstr "X 轴配置。"
+
+#: ../../site/api/viz.md:64
+msgid "Y-axis configuration."
+msgstr "Y 轴配置。"
+
+#: ../../site/api/viz.md:64
+msgid "Traces in draw order."
+msgstr "按绘制顺序排列的轨迹。"
+
+#: ../../site/api/viz.md:64
+msgid "Layout shapes."
+msgstr "布局形状。"
+
+#: ../../site/api/viz.md:64
+msgid "Layout annotations."
+msgstr "布局注释。"
+
+#: ../../site/api/viz.md:67
+msgid "Horizontal or line shape added to the layout."
+msgstr "添加到布局的水平或线形形状。"
+
+#: ../../site/api/viz.md:67
+msgid "Shape type."
+msgstr "形状类型。"
+
+#: ../../site/api/viz.md:67
+msgid "First y coordinate."
+msgstr "第一个 y 坐标。"
+
+#: ../../site/api/viz.md:67
+msgid "Second y coordinate."
+msgstr "第二个 y 坐标。"
+
+#: ../../site/api/viz.md:67
+msgid "Y reference axis."
+msgstr "Y 参考轴。"
+
+#: ../../site/api/viz.md:67
+msgid "First x coordinate."
+msgstr "第一个 x 坐标。"
+
+#: ../../site/api/viz.md:67
+msgid "Second x coordinate."
+msgstr "第二个 x 坐标。"
+
+#: ../../site/api/viz.md:67
+msgid "Shape line color."
+msgstr "形状线颜色。"
+
+#: ../../site/api/viz.md:67
+msgid "Shape line width."
+msgstr "形状线宽。"
+
+#: ../../site/api/viz.md:67
+msgid "Shape line dash style."
+msgstr "形状线虚线样式。"
+
+#: ../../site/api/viz.md:70
+msgid "One owning Plotly-compatible trace."
+msgstr "一个持有型 Plotly 兼容轨迹。"
+
+#: ../../site/api/viz.md:70
+msgid ""
+"Values are copied from native chart data (series_chart, heat_grid, "
+"correlation_matrix, frontier_chart_data); rendering never recomputes a "
+"financial kernel. NaN entries are serialized as JSON null so missingness is "
+"explicit."
+msgstr ""
+"值从原生图表数据（series_chart、heat_grid、correlation_matrix、frontier_chart_data）复制；渲染从不重新计算金融内核。NaN"
+" 条目序列化为 JSON null，使缺失性显式可见。"
+
+#: ../../site/api/viz.md:70
+msgid "Supported trace kinds."
+msgstr "支持的轨迹种类。"
+
+#: ../../site/api/viz.md:70
+msgid "Scatter or line trace."
+msgstr "散点或线轨迹。"
+
+#: ../../site/api/viz.md:70
+msgid "Heatmap trace."
+msgstr "热力图轨迹。"
+
+#: ../../site/api/viz.md:70
+msgid "Trace kind."
+msgstr "轨迹种类。"
+
+#: ../../site/api/viz.md:70
+msgid "Trace name used by the legend."
+msgstr "图例使用的轨迹名称。"
+
+#: ../../site/api/viz.md:70
+msgid "Plotly mode, such as lines or markers."
+msgstr "Plotly 模式，例如 lines 或 markers。"
+
+#: ../../site/api/viz.md:70
+msgid "Line color; empty omits the color."
+msgstr "线颜色；为空则省略颜色。"
+
+#: ../../site/api/viz.md:70
+msgid "Line width; zero omits the line block."
+msgstr "线宽；为零则省略线块。"
+
+#: ../../site/api/viz.md:70
+msgid "Line dash style."
+msgstr "线虚线样式。"
+
+#: ../../site/api/viz.md:70
+msgid "Fill mode, such as tozeroy."
+msgstr "填充模式，例如 tozeroy。"
+
+#: ../../site/api/viz.md:70
+msgid "Fill color."
+msgstr "填充颜色。"
+
+#: ../../site/api/viz.md:70
+msgid "Marker size; zero disables markers."
+msgstr "标记大小；为零则禁用标记。"
+
+#: ../../site/api/viz.md:70
+msgid "Marker color."
+msgstr "标记颜色。"
+
+#: ../../site/api/viz.md:70
+msgid "Marker symbol, such as star."
+msgstr "标记符号，例如 star。"
+
+#: ../../site/api/viz.md:70
+msgid "Hover template string."
+msgstr "悬停模板字符串。"
+
+#: ../../site/api/viz.md:70
+msgid "Date or category labels; takes precedence over x_values."
+msgstr "日期或类别标签；优先于 x_values。"
+
+#: ../../site/api/viz.md:70
+msgid "Per-point custom data; NaN entries serialize as JSON null."
+msgstr "逐点自定义数据；NaN 条目序列化为 JSON null。"
+
+#: ../../site/api/viz.md:70
+msgid "Heatmap column labels."
+msgstr "热力图列标签。"
+
+#: ../../site/api/viz.md:70
+msgid "Heatmap row labels."
+msgstr "热力图行标签。"
+
+#: ../../site/api/viz.md:70
+msgid "Heatmap values in row-major order; NaN entries serialize as JSON null."
+msgstr "行主序的热力图值；NaN 条目序列化为 JSON null。"
+
+#: ../../site/api/viz.md:70
+msgid "Number of columns in heatmap_z."
+msgstr "heatmap_z 中的列数。"
+
+#: ../../site/api/viz.md:70
+msgid "Named color scale."
+msgstr "命名颜色刻度。"
+
+#: ../../site/api/viz.md:70
+msgid "Custom color scale stops as value/color pairs."
+msgstr "以值/颜色对表示的自定义颜色刻度停靠点。"
+
+#: ../../site/api/viz.md:70
+msgid "Whether the explicit color range applies."
+msgstr "显式颜色范围是否生效。"
+
+#: ../../site/api/viz.md:70
+msgid "Lower color bound when set."
+msgstr "设置时的颜色下界。"
+
+#: ../../site/api/viz.md:70
+msgid "Upper color bound when set."
+msgstr "设置时的颜色上界。"
+
+#: ../../site/api/viz.md:70
+msgid "Whether the color scale is centered at zero."
+msgstr "颜色刻度是否以零居中。"
+
+#: ../../site/api/viz.md:70
+msgid "Colorbar title; empty omits it."
+msgstr "色条标题；为空则省略。"
+
+#: ../../site/api/viz.md:70
+msgid "Colorbar tick format."
+msgstr "色条刻度格式。"
+
+#: ../../site/api/viz.md:73
+msgid "Structured, owning inputs passed to a native visualization renderer."
+msgstr "传给原生可视化渲染器的结构化、持有型输入。"
+
+#: ../../site/api/viz.md:73
+msgid ""
+"This maps the pinned Python RenderModel fields in fincore/viz/base.py "
+"(4b8f31b1b59707480d5db9603704d83bbf7e6946): returns, optional "
+"factor_returns, and period. C++ uses the native frequency enum instead of "
+"the Python string convention."
+msgstr ""
+"这映射 fincore/viz/base.py（4b8f31b1b59707480d5db9603704d83bbf7e6946）中锁定的 Python"
+" RenderModel 字段：returns、可选的 factor_returns 和 period。C++ 使用原生频率枚举，而不是 Python "
+"的字符串约定。"
+
+#: ../../site/api/viz.md:73
+msgid "Creates an owning render model from the supplied frames and period."
+msgstr "根据提供的帧和周期创建持有型渲染模型。"
+
+#: ../../site/api/viz.md:73
+msgid "Portfolio return frame."
+msgstr "投资组合收益帧。"
+
+#: ../../site/api/viz.md:73
+msgid "Optional factor return frame."
+msgstr "可选的因子收益帧。"
+
+#: ../../site/api/viz.md:73
+msgid "Return frequency."
+msgstr "收益频率。"
+
+#: ../../site/api/viz.md:76
+msgid "Owning multi-series line chart data."
+msgstr "持有型多序列折线图数据。"
+
+#: ../../site/api/viz.md:76
+msgid "Series in draw order."
+msgstr "按绘制顺序排列的序列。"
+
+#: ../../site/api/viz.md:76
+msgid "Whether to draw a zero line."
+msgstr "是否绘制零线。"
+
+#: ../../site/api/viz.md:76
+msgid "Whether to fill down to zero."
+msgstr "是否向下填充至零。"
+
+#: ../../site/api/viz.md:76
+msgid "Recorded rolling window, or 0."
+msgstr "记录的滚动窗口，或 0。"
+
+#: ../../site/api/viz.md:79
+msgid "Description of one series to copy from a frame."
+msgstr "要从帧复制的一个序列的描述。"
+
+#: ../../site/api/viz.md:79
+msgid "Source double column name."
+msgstr "源 double 列名称。"
+
+#: ../../site/api/viz.md:79
+msgid "Whether the series is a benchmark."
+msgstr "该序列是否为基准。"
+
+#: ../../site/api/viz.md:82
+msgid "Builds grouped bar data from labels and row-major values."
+msgstr "根据标签和行主序值构建分组柱状数据。"
+
+#: ../../site/api/viz.md:82
+msgid ""
+"Throws input_error when either label list is empty, a label is empty, values"
+" does not contain groups x series entries, or a value is non-finite."
+msgstr "任一标签列表为空、某个标签为空、values 不含组数 x 序列数个条目，或某个值非有限时，抛出 input_error。"
+
+#: ../../site/api/viz.md:85
+msgid "Builds a pairwise correlation matrix from double columns."
+msgstr "从 double 列构建两两相关矩阵。"
+
+#: ../../site/api/viz.md:85
+msgid ""
+"Pairs with fewer than two finite observations or zero variance remain NaN "
+"with present == false. Throws input_error when no double column exists or a "
+"column name is empty."
+msgstr "有限观测少于两个或方差为零的配对保持 NaN，且 present == false。不存在 double 列或列名称为空时抛出 input_error。"
+
+#: ../../site/api/viz.md:88
+msgid "Builds a drawdown chart with fill-to-zero enabled."
+msgstr "构建启用填充至零的回撤图表。"
+
+#: ../../site/api/viz.md:88
+msgid "Throws input_error when the column is missing or invalid."
+msgstr "列缺失或无效时抛出 input_error。"
+
+#: ../../site/api/viz.md:91
+msgid "Builds chart data from an efficient frontier result."
+msgstr "根据有效前沿结果构建图表数据。"
+
+#: ../../site/api/viz.md:91
+msgid ""
+"Throws input_error when point vectors differ in length or any value or "
+"marker coordinate is non-finite."
+msgstr "点向量长度不同，或任一值或标记坐标非有限时，抛出 input_error。"
+
+#: ../../site/api/viz.md:94
+msgid "Builds histogram bins from finite observations."
+msgstr "根据有限观测构建直方图分箱。"
+
+#: ../../site/api/viz.md:94
+msgid ""
+"Non-finite values are ignored. When all finite values are equal, the range "
+"is widened by 0.5 on each side. Throws input_error when bins is zero or no "
+"finite observation exists."
+msgstr "非有限值被忽略。当所有有限值都相等时，范围在每侧扩大 0.5。bins 为零或不存在有限观测时抛出 input_error。"
+
+#: ../../site/api/viz.md:97
+msgid "Builds a monthly percent heatmap from a return column."
+msgstr "根据收益列构建月度百分比热力图。"
+
+#: ../../site/api/viz.md:97
+msgid ""
+"The frame index must be sorted ascending and column must name a double "
+"column. Months without a finite compounded value remain NaN with present == "
+"false; the color range covers observed values or defaults to -10..10 when no"
+" value exists. Throws input_error for invalid input."
+msgstr ""
+"帧索引必须按升序排序，且 column 必须指定一个 double 列。没有有限复合值的月份保持 NaN，且 present == "
+"false；颜色范围覆盖观测值，若不存在值则默认为 -10..10。输入无效时抛出 input_error。"
+
+#: ../../site/api/viz.md:100
+msgid "Builds the cumulative-return chart from a frame column."
+msgstr "根据帧列构建累积收益图表。"
+
+#: ../../site/api/viz.md:100
+msgid ""
+"The chart includes a zero line and uses \"Cumulative Returns\" and "
+"\"Cumulative Return\" as title and axis label. Throws input_error when the "
+"column is missing or invalid."
+msgstr ""
+"该图表包含零线，并使用 \"Cumulative Returns\" 和 \"Cumulative Return\" "
+"作为标题和坐标轴标签。列缺失或无效时抛出 input_error。"
+
+#: ../../site/api/viz.md:103
+msgid "Builds a rolling-Sharpe chart and records the window."
+msgstr "构建滚动夏普比率图表并记录窗口。"
+
+#: ../../site/api/viz.md:103
+msgid ""
+"When benchmark is non-null, a dashed benchmark series is read from "
+"benchmark_column. Throws input_error for a missing or invalid column, an "
+"empty portfolio label, or an empty benchmark label when a benchmark is "
+"supplied."
+msgstr ""
+"benchmark 非空时，从 benchmark_column 读取虚线基准序列。列缺失或无效、投资组合标签为空，或在提供基准时基准标签为空，都会抛出"
+" input_error。"
+
+#: ../../site/api/viz.md:106
+msgid "Builds a line chart from named frame columns."
+msgstr "根据命名帧列构建折线图。"
+
+#: ../../site/api/viz.md:106
+msgid ""
+"Each series copies the frame index and the requested double column. A "
+"benchmark series is marked benchmark and dashed. Throws input_error when "
+"specs is empty, a label is empty, or a column is missing or invalid."
+msgstr ""
+"每个序列复制帧索引和请求的 double 列。基准序列标记为 benchmark 并使用虚线。specs 为空、标签为空，或列缺失或无效时，抛出 "
+"input_error。"
+
+#: ../../site/api/viz.md:109
+msgid "Plots grouped bars from bar chart data."
+msgstr "根据柱状图数据绘制分组柱。"
+
+#: ../../site/api/viz.md:112
+msgid "Plots a correlation heatmap with labelled axes."
+msgstr "绘制带标签坐标轴的相关性热力图。"
+
+#: ../../site/api/viz.md:115
+msgid "Plots a cumulative-returns column with a date axis."
+msgstr "绘制带日期轴的累积收益列。"
+
+#: ../../site/api/viz.md:118
+msgid "Plots a drawdown column with a date axis."
+msgstr "绘制带日期轴的回撤列。"
+
+#: ../../site/api/viz.md:121
+msgid "Plots drawdown series as shaded areas with overlaid lines."
+msgstr "将回撤序列绘制为带叠加线条的阴影区域。"
+
+#: ../../site/api/viz.md:124
+msgid "Plots event counts as bars over time buckets."
+msgstr "将事件计数绘制为按时间分桶的柱。"
+
+#: ../../site/api/viz.md:127
+msgid "Plots the efficient frontier curve and its marker points."
+msgstr "绘制有效前沿曲线及其标记点。"
+
+#: ../../site/api/viz.md:130
+msgid "Plots histogram counts over bin centers."
+msgstr "绘制按分箱中心排列的直方图计数。"
+
+#: ../../site/api/viz.md:133
+msgid "Plots a monthly heatmap grid; empty grids are ignored."
+msgstr "绘制月度热力图网格；空网格会被忽略。"
+
+#: ../../site/api/viz.md:136
+msgid "Plots a monthly IC heatmap with a fixed -0.2 to 0.2 color range."
+msgstr "绘制固定颜色范围 -0.2 到 0.2 的月度 IC 热力图。"
+
+#: ../../site/api/viz.md:139
+msgid "Plots observed versus theoretical quantiles with a reference line."
+msgstr "绘制观测分位数与理论分位数的对比，并带参考线。"
+
+#: ../../site/api/viz.md:142
+msgid "Plots cumulative quantile series by date."
+msgstr "按日期绘制累积分位数序列。"
+
+#: ../../site/api/viz.md:145
+msgid "Plots a rolling metric column using label as title and legend."
+msgstr "使用 label 作为标题和图例绘制滚动指标列。"
+
+#: ../../site/api/viz.md:148
+msgid "Plots every series of a line chart, including an optional zero line."
+msgstr "绘制折线图的每个序列，包括可选的零线。"
+
+#: ../../site/api/viz.md:151
+msgid "Plots spread, rolling mean, band and zero line."
+msgstr "绘制价差、滚动均值、带和零线。"
+
+#: ../../site/api/viz.md:154
+msgid "Plots quantile density shapes and medians per group."
+msgstr "按组绘制分位数密度形状和中位数。"
+
+#: ../../site/api/viz.md:157
+msgid "Callback that converts a render model into a report document."
+msgstr "将渲染模型转换为报告文档的回调。"
+
+#: ../../site/api/viz.md:160
+msgid "Renderer callbacks keyed by caller-provided name."
+msgstr "以调用方提供的名称为键的渲染器回调。"
+
+#: ../../site/api/viz.md:163
+msgid "Headless interactive status recorded by native show entry points."
+msgstr "由原生 show 入口记录的无头交互状态。"
+
+#: ../../site/api/viz.md:163
+msgid ""
+"Native builds never open a browser or a GUI window. show returns false and "
+"this constant is the documented status a caller may record instead of "
+"claiming an interactive display."
+msgstr "原生构建从不打开浏览器或 GUI 窗口。show 返回 false，此常量是文档中说明的状态，调用方可记录它而不声称进行了交互显示。"
+
+#: ../../site/api/viz.md:166
+msgid "English month labels used by monthly heatmap columns."
+msgstr "月度热力图列使用的英文月份标签。"
+

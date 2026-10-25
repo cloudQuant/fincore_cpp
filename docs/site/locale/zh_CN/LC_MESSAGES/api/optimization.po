@@ -1,0 +1,371 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 01:10+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/api/optimization.md:1
+msgid "Optimization"
+msgstr "优化"
+
+#: ../../site/api/optimization.md:3
+msgid ""
+"Mean-variance objectives, risk parity and efficient-frontier construction "
+"with diagnostics."
+msgstr "均值-方差目标、风险平价以及带诊断信息的有效前沿构建。"
+
+#: ../../site/api/optimization.md:5
+msgid ""
+"See the [usage guide](../guides/portfolio-risk.md) for task-oriented "
+"examples. Signatures below are generated from the public headers at the same"
+" commit as the rest of this site."
+msgstr "面向任务的示例参见[使用指南](../guides/portfolio-risk.md)。以下签名由与本站点其余内容同一提交的公共头文件生成。"
+
+#: ../../site/api/optimization.md:7
+msgid "Efficient-frontier points and endpoint portfolios."
+msgstr "有效前沿点与端点组合。"
+
+#: ../../site/api/optimization.md:7 ../../site/api/optimization.md:10
+#: ../../site/api/optimization.md:13 ../../site/api/optimization.md:16
+#: ../../site/api/optimization.md:19 ../../site/api/optimization.md:22
+#: ../../site/api/optimization.md:25 ../../site/api/optimization.md:28
+msgid "Public Members"
+msgstr "公共成员"
+
+#: ../../site/api/optimization.md:7
+msgid ""
+"Annualized expected return of each point, from the minimum-variance return "
+"to the maximum-return endpoint."
+msgstr "各点的年化预期收益，从最小方差收益到最大收益端点。"
+
+#: ../../site/api/optimization.md:7
+msgid "Annualized volatility of each point."
+msgstr "各点的年化波动率。"
+
+#: ../../site/api/optimization.md:7
+msgid "Sharpe ratio of each point; 0 where volatility is negligible."
+msgstr "各点的夏普比率；波动率可忽略时取 0。"
+
+#: ../../site/api/optimization.md:7
+msgid "Asset weights of each point, in asset_names order."
+msgstr "各点的资产权重，按 asset_names 顺序排列。"
+
+#: ../../site/api/optimization.md:7
+msgid "Minimum-variance endpoint portfolio."
+msgstr "最小方差端点组合。"
+
+#: ../../site/api/optimization.md:7
+msgid "Maximum-Sharpe portfolio."
+msgstr "最大夏普组合。"
+
+#: ../../site/api/optimization.md:7
+msgid "Sharpe ratio of max_sharpe; 0 where volatility is negligible."
+msgstr "max_sharpe 的夏普比率；波动率可忽略时取 0。"
+
+#: ../../site/api/optimization.md:7 ../../site/api/optimization.md:19
+#: ../../site/api/optimization.md:25
+msgid "Asset names, in returns column order."
+msgstr "资产名称，按收益率列顺序排列。"
+
+#: ../../site/api/optimization.md:7
+msgid "Annualization factor copied from the configuration."
+msgstr "从配置复制的年化因子。"
+
+#: ../../site/api/optimization.md:7
+msgid "Residuals of the minimum-variance endpoint."
+msgstr "最小方差端点的残差。"
+
+#: ../../site/api/optimization.md:7
+msgid "Residuals of the max-Sharpe portfolio."
+msgstr "最大夏普组合的残差。"
+
+#: ../../site/api/optimization.md:7
+msgid "Per-point residuals, parallel to frontier_returns."
+msgstr "逐点残差，与 frontier_returns 一一对应。"
+
+#: ../../site/api/optimization.md:10
+msgid "Efficient-frontier computation settings."
+msgstr "有效前沿计算设置。"
+
+#: ../../site/api/optimization.md:10
+msgid "Number of frontier points; must be at least 2."
+msgstr "前沿点数量；必须不小于 2。"
+
+#: ../../site/api/optimization.md:10
+msgid "Annualized risk-free rate used for Sharpe ratios; must be finite."
+msgstr "用于夏普比率的年化无风险利率；必须为有限值。"
+
+#: ../../site/api/optimization.md:10
+msgid "Allow weights down to -max_weight instead of 0."
+msgstr "允许权重下探至 -max_weight，而非 0。"
+
+#: ../../site/api/optimization.md:10 ../../site/api/optimization.md:16
+msgid "Per-asset upper bound; must be finite and greater than 0."
+msgstr "单资产上界；必须有限且大于 0。"
+
+#: ../../site/api/optimization.md:10
+msgid "Annualization factor; must be positive and finite."
+msgstr "年化因子；必须为正且有限。"
+
+#: ../../site/api/optimization.md:13
+msgid "Constraint residuals measured for one frontier point."
+msgstr "针对单个前沿点测得的约束残差。"
+
+#: ../../site/api/optimization.md:13
+msgid "Solver used for the point."
+msgstr "该点使用的求解器。"
+
+#: ../../site/api/optimization.md:13
+msgid "Absolute deviation of the weight sum from 1."
+msgstr "权重之和相对 1 的绝对偏差。"
+
+#: ../../site/api/optimization.md:13
+msgid "Largest lower-bound violation; 0 when feasible."
+msgstr "最大的下界违反量；可行时为 0。"
+
+#: ../../site/api/optimization.md:13
+msgid "Largest upper-bound violation; 0 when feasible."
+msgstr "最大的上界违反量；可行时为 0。"
+
+#: ../../site/api/optimization.md:13
+msgid "Absolute target-return deviation; 0 when no target was imposed."
+msgstr "目标收益的绝对偏差；未设定目标时为 0。"
+
+#: ../../site/api/optimization.md:16
+msgid "Inputs for optimize_portfolio."
+msgstr "optimize_portfolio 的输入。"
+
+#: ../../site/api/optimization.md:16
+msgid "Objective to optimize."
+msgstr "要优化的目标。"
+
+#: ../../site/api/optimization.md:16
+msgid ""
+"Annualized risk-free rate used by max_sharpe and the reported Sharpe ratio; "
+"must be finite."
+msgstr "max_sharpe 与所报告夏普比率使用的年化无风险利率；必须为有限值。"
+
+#: ../../site/api/optimization.md:16
+msgid ""
+"Annualized expected return required by target_return; must be finite when "
+"used."
+msgstr "target_return 所需的年化预期收益；使用时必须为有限值。"
+
+#: ../../site/api/optimization.md:16
+msgid "Annualized volatility required by target_risk; must be finite and attainable."
+msgstr "target_risk 所需的年化波动率；必须有限且可达。"
+
+#: ../../site/api/optimization.md:16
+msgid "Allow weights down to -max_weight when min_weight is unset."
+msgstr "当 min_weight 未设置时，允许权重下探至 -max_weight。"
+
+#: ../../site/api/optimization.md:16
+msgid ""
+"Optional per-asset lower bound; must not exceed max_weight and overrides the"
+" short_allowed default."
+msgstr "可选的单资产下界；不得超过 max_weight，并覆盖 short_allowed 默认值。"
+
+#: ../../site/api/optimization.md:16
+msgid ""
+"Sector weight bounds; requires sector_map, and sectors without a mapped "
+"asset are ignored."
+msgstr "行业权重上下界；需要 sector_map，未映射任何资产的行业将被忽略。"
+
+#: ../../site/api/optimization.md:16
+msgid "Asset name to sector name mapping used by sector_constraints."
+msgstr "sector_constraints 使用的资产名到行业名映射。"
+
+#: ../../site/api/optimization.md:19
+msgid "Optimized weights and their annualized summary statistics."
+msgstr "优化后的权重及其年化汇总统计。"
+
+#: ../../site/api/optimization.md:19 ../../site/api/optimization.md:22
+msgid "Asset weights in asset_names order; they sum to 1."
+msgstr "按 asset_names 顺序排列的资产权重；其和为 1。"
+
+#: ../../site/api/optimization.md:19
+msgid "Annualized expected return, using 252 periods per year."
+msgstr "年化预期收益，按每年 252 个周期计算。"
+
+#: ../../site/api/optimization.md:19
+msgid "Annualized volatility, using 252 periods per year."
+msgstr "年化波动率，按每年 252 个周期计算。"
+
+#: ../../site/api/optimization.md:19
+msgid ""
+"(expected_return - risk_free_rate) / volatility; 0 where volatility is "
+"negligible."
+msgstr "(expected_return - risk_free_rate) / volatility；波动率可忽略时取 0。"
+
+#: ../../site/api/optimization.md:19
+msgid "Objective that produced the result."
+msgstr "产生该结果的优化目标。"
+
+#: ../../site/api/optimization.md:22
+msgid "One portfolio on the efficient frontier."
+msgstr "有效前沿上的一个组合。"
+
+#: ../../site/api/optimization.md:22
+msgid "Annualized expected return."
+msgstr "年化预期收益。"
+
+#: ../../site/api/optimization.md:22
+msgid "Annualized volatility."
+msgstr "年化波动率。"
+
+#: ../../site/api/optimization.md:25
+msgid "Risk-parity weights and their risk contributions."
+msgstr "风险平价权重及其风险贡献。"
+
+#: ../../site/api/optimization.md:25
+msgid "Asset weights in asset_names order, normalized to sum to 1."
+msgstr "按 asset_names 顺序排列的资产权重，归一化使其和为 1。"
+
+#: ../../site/api/optimization.md:25
+msgid ""
+"w_i * (Sigma w)_i / volatility per asset; the values sum to the portfolio "
+"volatility."
+msgstr "各资产的 w_i * (Sigma w)_i / volatility；这些值之和等于组合波动率。"
+
+#: ../../site/api/optimization.md:25
+msgid "Annualized portfolio volatility, using 252 periods per year."
+msgstr "年化组合波动率，按每年 252 个周期计算。"
+
+#: ../../site/api/optimization.md:28
+msgid "Bounds on the summed weights of the assets mapped to one sector."
+msgstr "映射到同一行业的资产权重之和的上下界。"
+
+#: ../../site/api/optimization.md:28
+msgid "Sector name matched against portfolio_optimization_config::sector_map values."
+msgstr "与 portfolio_optimization_config::sector_map 取值匹配的行业名。"
+
+#: ../../site/api/optimization.md:28
+msgid "Lower bound on the summed sector weight."
+msgstr "行业权重之和的下界。"
+
+#: ../../site/api/optimization.md:28
+msgid "Upper bound on the summed sector weight."
+msgstr "行业权重之和的上界。"
+
+#: ../../site/api/optimization.md:31
+msgid "Solver that produced one frontier point."
+msgstr "生成某个前沿点的求解器。"
+
+#: ../../site/api/optimization.md:31 ../../site/api/optimization.md:34
+msgid "Values:"
+msgstr "取值："
+
+#: ../../site/api/optimization.md:31
+msgid ""
+"Minimum-variance weights reused for every point because the attainable "
+"return range is degenerate."
+msgstr "由于可达收益区间退化，每个点都复用最小方差权重。"
+
+#: ../../site/api/optimization.md:31
+msgid "First point, solved as a variance minimization."
+msgstr "第一个点，按方差最小化求解。"
+
+#: ../../site/api/optimization.md:31
+msgid ""
+"Interior target-return point or the max-Sharpe portfolio, solved by "
+"projected gradient descent."
+msgstr "内部目标收益点或最大夏普组合，由投影梯度下降求解。"
+
+#: ../../site/api/optimization.md:31
+msgid ""
+"Last point, filled greedily by descending expected return up to the weight "
+"bounds."
+msgstr "最后一个点，按预期收益降序贪心填充至权重上界。"
+
+#: ../../site/api/optimization.md:34
+msgid "Portfolio optimization objective."
+msgstr "组合优化目标。"
+
+#: ../../site/api/optimization.md:34
+msgid "Maximize the Sharpe ratio using risk_free_rate."
+msgstr "使用 risk_free_rate 最大化夏普比率。"
+
+#: ../../site/api/optimization.md:34
+msgid "Minimize portfolio variance."
+msgstr "最小化组合方差。"
+
+#: ../../site/api/optimization.md:34
+msgid "Minimize variance subject to the expected return equaling target_return."
+msgstr "在预期收益等于 target_return 的约束下最小化方差。"
+
+#: ../../site/api/optimization.md:34
+msgid ""
+"Maximize expected return subject to the volatility equaling "
+"target_volatility."
+msgstr "在波动率等于 target_volatility 的约束下最大化预期收益。"
+
+#: ../../site/api/optimization.md:37
+msgid "Computes an efficient frontier from daily simple returns."
+msgstr "基于日简单收益率计算有效前沿。"
+
+#: ../../site/api/optimization.md:37
+msgid ""
+"Points are evenly spaced in expected return between the minimum-variance "
+"portfolio and a maximum-return endpoint built by filling assets in "
+"descending mean-return order up to the weight bounds. Returns and "
+"volatilities are annualized with config.periods_per_year, and Sharpe ratios "
+"use config.risk_free_rate. Solvers report constraint residuals in "
+"frontier_diagnostics rather than a convergence status."
+msgstr ""
+"各点在最小方差组合与最大收益端点之间按预期收益均匀分布；最大收益端点按平均收益降序将资产填充至权重上界构造。收益与波动率使用 "
+"config.periods_per_year 年化，夏普比率使用 config.risk_free_rate。求解器在 "
+"frontier_diagnostics 中报告约束残差，而不报告收敛状态。"
+
+#: ../../site/api/optimization.md
+msgid "Parameters"
+msgstr "参数"
+
+#: ../../site/api/optimization.md
+msgid "Throws"
+msgstr "抛出"
+
+#: ../../site/api/optimization.md
+msgid "Returns"
+msgstr "返回"
+
+#: ../../site/api/optimization.md:40
+msgid "Optimizes portfolio weights for one supported objective."
+msgstr "针对某一个受支持的目标优化组合权重。"
+
+#: ../../site/api/optimization.md:40
+msgid ""
+"Returns are annualized with a fixed 252-period year. Sector constraints "
+"apply only to assets listed in sector_map, and infeasible targets are "
+"reported by throwing rather than through a status field."
+msgstr "收益率按固定 252 周期年化。行业约束仅适用于 sector_map 中列出的资产，且不可行的目标通过抛出异常报告，而不是通过状态字段。"
+
+#: ../../site/api/optimization.md:43
+msgid "Computes risk-parity weights with equal or user-supplied risk budgets."
+msgstr "使用等权重或用户给定的风险预算计算风险平价权重。"
+
+#: ../../site/api/optimization.md:43
+msgid ""
+"The solver minimizes squared deviations between realized risk-contribution "
+"shares and the normalized risk budget, then renormalizes the weights to sum "
+"to 1. Returns and volatility use a fixed 252-period year. Weights are "
+"bounded to [1e-6, 1.0] during the solve."
+msgstr ""
+"求解器最小化实际风险贡献份额与归一化风险预算之间的平方偏差，然后重新归一化权重使其和为 1。收益率与波动率使用固定 252 "
+"周期年化。求解期间权重被限制在 [1e-6, 1.0]。"
+

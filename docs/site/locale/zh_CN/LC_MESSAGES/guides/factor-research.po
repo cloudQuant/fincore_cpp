@@ -1,0 +1,69 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-25 22:15+0800\n"
+"PO-Revision-Date: 2026-10-25 22:20+0800\n"
+"Last-Translator: fincore_cpp documentation maintainers\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/guides/factor-research.md:1
+msgid "Factor research"
+msgstr "因子研究"
+
+#: ../../site/guides/factor-research.md:3
+msgid ""
+"The native factor workflow separates preparation, evaluation and reporting:"
+msgstr "原生因子工作流将准备、评估和报告三个阶段分离："
+
+#: ../../site/guides/factor-research.md:5
+msgid ""
+"`prepare_factor_data` aligns a factor panel with forward returns and assigns "
+"quantiles on the documented cross-section."
+msgstr ""
+"`prepare_factor_data` 将因子面板与前瞻收益率对齐，并在文档说明的横截面上分配"
+"分位数。"
+
+#: ../../site/guides/factor-research.md:7
+msgid ""
+"`analyze_factor` builds an owning model for tears, IC, turnover and group "
+"views."
+msgstr ""
+"`analyze_factor` 构建一个拥有所有权的模型，用于业绩速览（tears）、IC、换手率"
+"和分组视图。"
+
+#: ../../site/guides/factor-research.md:9
+msgid ""
+"`evaluate_factor_research` evaluates a factor panel against a price grid "
+"with explicit targets, periods, labels and preprocessing."
+msgstr ""
+"`evaluate_factor_research` 依据价格网格评估因子面板，并显式指定目标、周期、标"
+"签和预处理。"
+
+#: ../../site/guides/factor-research.md:11
+msgid ""
+"Report/chart builders consume the frozen result rather than recomputing "
+"backward dependencies in renderers."
+msgstr "报告/图表构建器使用已冻结的结果，而不是在渲染器中重新计算反向依赖。"
+
+#: ../../site/guides/factor-research.md:14
+msgid ""
+"Factor alignment, missing labels, quantile ties and label horizons are "
+"contractual inputs. A high IC or a benchmark speedup is not evidence that a "
+"factor is profitable. See the repository's dated benchmark records before "
+"quoting performance numbers."
+msgstr ""
+"因子对齐、缺失标签、分位数并列和标签预测期都是契约输入。高 IC 或基准加速比并"
+"不能证明因子能够盈利。在引用性能数据之前，请查阅仓库中带日期的基准记录。"
