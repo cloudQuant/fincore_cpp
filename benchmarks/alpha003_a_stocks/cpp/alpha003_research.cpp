@@ -49,8 +49,22 @@ using clock_type = std::chrono::steady_clock;
 constexpr std::int64_t nanoseconds_per_second = 1'000'000'000LL;
 constexpr std::int64_t shanghai_offset_ns = 8LL * 3'600LL * nanoseconds_per_second;
 constexpr std::size_t window = 10U;
+constexpr std::size_t local_timestamp_prefix_length = 19U;
 constexpr const char* factor_name = "alpha003";
 constexpr double nan = std::numeric_limits<double>::quiet_NaN();
+
+using timestamp_prefix = std::array<char, local_timestamp_prefix_length>;
+
+struct timestamp_prefix_hash {
+    std::size_t operator()(const timestamp_prefix& prefix) const noexcept {
+        std::size_t hash = 2166136261U;
+        for (const unsigned char character : prefix) {
+            hash ^= character;
+            hash *= 16777619U;
+        }
+        return hash;
+    }
+};
 
 double seconds_since(const clock_type::time_point start) {
     return std::chrono::duration<double>(clock_type::now() - start).count();
@@ -284,6 +298,10 @@ panel load_panel(const std::filesystem::path& data_dir, const int limit) {
                                 const std::size_t begin,
                                 const std::size_t end) {
         std::vector<unsigned char> seen(result.rows(), 0U);
+        std::unordered_map<timestamp_prefix, std::size_t,
+                           timestamp_prefix_hash>
+            timestamp_rows;
+        timestamp_rows.reserve(result.rows());
         std::string text;
         for (std::size_t asset = begin; asset < end; ++asset) {
             std::ifstream stream(files[asset], std::ios::binary);
@@ -336,16 +354,39 @@ panel load_panel(const std::filesystem::path& data_dir, const int limit) {
                     throw std::runtime_error("malformed CSV row: " +
                                              files[asset].string());
                 }
-                const auto date =
-                    parse_local_timestamp(fields.values[time_column]);
-                const auto grid_position = std::lower_bound(
-                    result.grid.begin(), result.grid.end(), date);
-                if (grid_position == result.grid.end() ||
-                    *grid_position != date) {
+                const auto timestamp_text = fields.values[time_column];
+                timestamp_prefix prefix{};
+                const bool cacheable =
+                    timestamp_text.size() >= local_timestamp_prefix_length;
+                auto cached = timestamp_rows.end();
+                if (cacheable) {
+                    std::copy_n(timestamp_text.data(), prefix.size(),
+                                prefix.data());
+                    cached = timestamp_rows.find(prefix);
+                }
+                std::size_t row = 0U;
+                bool found_grid_row = false;
+                if (cached != timestamp_rows.end()) {
+                    row = cached->second;
+                    found_grid_row = true;
+                } else {
+                    const auto date = parse_local_timestamp(timestamp_text);
+                    const auto grid_position = std::lower_bound(
+                        result.grid.begin(), result.grid.end(), date);
+                    if (grid_position != result.grid.end() &&
+                        *grid_position == date) {
+                        row = static_cast<std::size_t>(
+                            grid_position - result.grid.begin());
+                        found_grid_row = true;
+                        if (cacheable &&
+                            timestamp_rows.size() < result.rows()) {
+                            timestamp_rows.emplace(prefix, row);
+                        }
+                    }
+                }
+                if (!found_grid_row) {
                     continue;
                 }
-                const auto row = static_cast<std::size_t>(
-                    grid_position - result.grid.begin());
                 if (seen[row] != 0U) {
                     throw std::runtime_error("duplicate trade_time: " +
                                              files[asset].string());
