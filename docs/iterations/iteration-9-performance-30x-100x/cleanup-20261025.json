@@ -1,0 +1,467 @@
+{
+  "status": "CLEANUP_COMPLETE",
+  "date": "2026-10-25",
+  "timezone": "Asia/Shanghai",
+  "repository": "D:\\source_code\\fincore_cpp",
+  "branch": "dev",
+  "base_commit": "699b2ede51e358e56c96062e5ca42d52d3dae9f3",
+  "scope": "Iteration 9 generated builds, experiment fixtures and result copies only",
+  "removed": {
+    "build_directories": 4,
+    "result_directories": 64,
+    "files": 24625,
+    "logical_bytes": 106705059206,
+    "allocated_file_bytes_before": 58420026328,
+    "directories": [
+      {
+        "path": "D:\\source_code\\fincore_cpp\\build-win",
+        "files": 13612,
+        "logical_bytes": 3529136713,
+        "allocated_bytes": 3529136713
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\build-win-ipo",
+        "files": 214,
+        "logical_bytes": 1708019561,
+        "allocated_bytes": 1708019561
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\build-win-p119-r2",
+        "files": 171,
+        "logical_bytes": 1684798370,
+        "allocated_bytes": 1684798370
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\build-win-p120-asan-e4fed74",
+        "files": 336,
+        "logical_bytes": 2970641296,
+        "allocated_bytes": 2970641296
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-current-full-dev-r1",
+        "files": 229,
+        "logical_bytes": 5174358129,
+        "allocated_bytes": 2092437595
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p111-smoke-r1",
+        "files": 215,
+        "logical_bytes": 43807099,
+        "allocated_bytes": 43807099
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p111-smoke-r2",
+        "files": 95,
+        "logical_bytes": 18803932,
+        "allocated_bytes": 18803932
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p112-baseline-500-b1",
+        "files": 389,
+        "logical_bytes": 818478163,
+        "allocated_bytes": 341344111
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p112-baseline-full-b1",
+        "files": 389,
+        "logical_bytes": 8869401842,
+        "allocated_bytes": 3586109498
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p112-smoke-r1",
+        "files": 101,
+        "logical_bytes": 19210461,
+        "allocated_bytes": 19210461
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p113-500-r1",
+        "files": 229,
+        "logical_bytes": 477510028,
+        "allocated_bytes": 477510028
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p113-full-check-r1",
+        "files": 15,
+        "logical_bytes": 369462346,
+        "allocated_bytes": 369462346
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p113-r2-500",
+        "files": 229,
+        "logical_bytes": 477509995,
+        "allocated_bytes": 477509995
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p113-r2-full-check-r1",
+        "files": 15,
+        "logical_bytes": 369462391,
+        "allocated_bytes": 369462391
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p113-r2-profile-full-check-r1",
+        "files": 15,
+        "logical_bytes": 369462383,
+        "allocated_bytes": 369462383
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p113-r3-500",
+        "files": 229,
+        "logical_bytes": 477510031,
+        "allocated_bytes": 477510031
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p113-r3-full-check-r1",
+        "files": 15,
+        "logical_bytes": 369462339,
+        "allocated_bytes": 369462339
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p113-r4-500",
+        "files": 229,
+        "logical_bytes": 477509753,
+        "allocated_bytes": 477509753
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p113-r4-full-check-r1",
+        "files": 15,
+        "logical_bytes": 369462379,
+        "allocated_bytes": 369462379
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p113-r5-500",
+        "files": 229,
+        "logical_bytes": 477510032,
+        "allocated_bytes": 477510032
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p113-r5-full-check-r1",
+        "files": 15,
+        "logical_bytes": 369462401,
+        "allocated_bytes": 369462401
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p113-r6-500",
+        "files": 229,
+        "logical_bytes": 477509911,
+        "allocated_bytes": 477509911
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p113-r6-native-full-ab",
+        "files": 225,
+        "logical_bytes": 5178464118,
+        "allocated_bytes": 2096518594
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p114-500-r1",
+        "files": 229,
+        "logical_bytes": 477509982,
+        "allocated_bytes": 477509982
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p114-full-check-r1",
+        "files": 15,
+        "logical_bytes": 369462372,
+        "allocated_bytes": 369462372
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p114-r2-500",
+        "files": 229,
+        "logical_bytes": 477510031,
+        "allocated_bytes": 477510031
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p114-r2-full-check-r1",
+        "files": 15,
+        "logical_bytes": 369462401,
+        "allocated_bytes": 369462401
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p114-r2-native-500-ab",
+        "files": 225,
+        "logical_bytes": 477902935,
+        "allocated_bytes": 477902935
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p115-r1-500",
+        "files": 229,
+        "logical_bytes": 477510276,
+        "allocated_bytes": 199182079
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p115-r1-full-check-r1",
+        "files": 15,
+        "logical_bytes": 369462407,
+        "allocated_bytes": 369462407
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p115-r1-profile-full-check-r1",
+        "files": 15,
+        "logical_bytes": 369462287,
+        "allocated_bytes": 369462287
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p115-r2-500",
+        "files": 229,
+        "logical_bytes": 477510081,
+        "allocated_bytes": 199181884
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p115-r2-full-check-r1",
+        "files": 15,
+        "logical_bytes": 369462405,
+        "allocated_bytes": 369462405
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p115-r3-500",
+        "files": 229,
+        "logical_bytes": 477509993,
+        "allocated_bytes": 199181796
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p115-r3-full-check-r1",
+        "files": 15,
+        "logical_bytes": 369462405,
+        "allocated_bytes": 369462405
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p116-r1-500",
+        "files": 229,
+        "logical_bytes": 477509699,
+        "allocated_bytes": 199181502
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p116-r1-full-check-r1",
+        "files": 15,
+        "logical_bytes": 369462371,
+        "allocated_bytes": 369462371
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p116-r2-500",
+        "files": 229,
+        "logical_bytes": 477509852,
+        "allocated_bytes": 199181655
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p116-r2-full-check-r1",
+        "files": 15,
+        "logical_bytes": 369462381,
+        "allocated_bytes": 369462381
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p116-r3-500",
+        "files": 229,
+        "logical_bytes": 477510022,
+        "allocated_bytes": 199181825
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p116-r3-full-check-r1",
+        "files": 15,
+        "logical_bytes": 369462409,
+        "allocated_bytes": 369462409
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p117-r1-500",
+        "files": 229,
+        "logical_bytes": 477509938,
+        "allocated_bytes": 199181741
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p117-r1-full-check-r1",
+        "files": 15,
+        "logical_bytes": 369462409,
+        "allocated_bytes": 369462409
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p117-r2-500",
+        "files": 229,
+        "logical_bytes": 477509998,
+        "allocated_bytes": 199181801
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p117-r2-native-full-ab",
+        "files": 225,
+        "logical_bytes": 5178464195,
+        "allocated_bytes": 2096518671
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p119-ipo-500-r1",
+        "files": 225,
+        "logical_bytes": 477895310,
+        "allocated_bytes": 477895310
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p119-ipo-full-r1",
+        "files": 225,
+        "logical_bytes": 5178456979,
+        "allocated_bytes": 2096511455
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p119-r2-native-500-ab",
+        "files": 225,
+        "logical_bytes": 477968104,
+        "allocated_bytes": 477968104
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p119-r2-native-full-ab",
+        "files": 225,
+        "logical_bytes": 5178529293,
+        "allocated_bytes": 2096583769
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p120-6417974-full-b1",
+        "files": 389,
+        "logical_bytes": 8869407185,
+        "allocated_bytes": 3586114841
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p120-e4fed74-1000",
+        "files": 101,
+        "logical_bytes": 407505443,
+        "allocated_bytes": 407505443
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p120-e4fed74-2000",
+        "files": 101,
+        "logical_bytes": 813073708,
+        "allocated_bytes": 813073708
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p120-e4fed74-missing-fields",
+        "files": 101,
+        "logical_bytes": 15047749,
+        "allocated_bytes": 15047749
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p120-e4fed74-missing-rows",
+        "files": 101,
+        "logical_bytes": 19109845,
+        "allocated_bytes": 19109845
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p120-load-profile-full-b1",
+        "files": 81,
+        "logical_bytes": 1847341242,
+        "allocated_bytes": 1847341242
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p121-profile-full-r1",
+        "files": 15,
+        "logical_bytes": 369462344,
+        "allocated_bytes": 369462344
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p121-r1-native-full-ab",
+        "files": 225,
+        "logical_bytes": 5178465223,
+        "allocated_bytes": 2096519699
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p121-r2-500",
+        "files": 229,
+        "logical_bytes": 477510254,
+        "allocated_bytes": 199182057
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p121-r2-native-500-ab",
+        "files": 225,
+        "logical_bytes": 477903799,
+        "allocated_bytes": 477903799
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p121-r2-native-full-ab",
+        "files": 225,
+        "logical_bytes": 5178464914,
+        "allocated_bytes": 2096519390
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p122-allocation-full-r1",
+        "files": 15,
+        "logical_bytes": 369462379,
+        "allocated_bytes": 369462379
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p122-r1-500",
+        "files": 229,
+        "logical_bytes": 477510091,
+        "allocated_bytes": 199181894
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p122-r1-native-full-ab",
+        "files": 225,
+        "logical_bytes": 5178464530,
+        "allocated_bytes": 2096519006
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p122-r2-native-full-ab",
+        "files": 225,
+        "logical_bytes": 5178475421,
+        "allocated_bytes": 2096529897
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p123-r1-500",
+        "files": 229,
+        "logical_bytes": 477510017,
+        "allocated_bytes": 199181820
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p123-r1-native-full-ab",
+        "files": 225,
+        "logical_bytes": 5178464381,
+        "allocated_bytes": 2096518857
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p124-r1-500",
+        "files": 229,
+        "logical_bytes": 477513912,
+        "allocated_bytes": 199185715
+      },
+      {
+        "path": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p124-r1-native-full-ab",
+        "files": 225,
+        "logical_bytes": 5178472561,
+        "allocated_bytes": 2096527037
+      }
+    ]
+  },
+  "space": {
+    "disk_free_at_initial_inventory_bytes": 17598410752,
+    "disk_free_immediately_before_delete_bytes": 17330257920,
+    "disk_free_immediately_after_delete_bytes": 75809640448,
+    "observed_free_increase_during_delete_bytes": 58479382528,
+    "note": "Observed disk-free change includes concurrent system activity; initial-to-final net gain also includes the retained archive cost."
+  },
+  "preserved": {
+    "archive": {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-retained-20261025/evidence.zip",
+      "size_bytes": 240619360,
+      "sha256": "8e932d1477bbbaa6c1159034c79408ee904df5e8b6ceb7f209ed17fef241be05",
+      "members": 4334
+    },
+    "archive_manifest": {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-retained-20261025/cleanup-plan.json.gz",
+      "size_bytes": 752930,
+      "sha256": "77c9c602790cb9e9416a4b3ffc33895c2874cb13b130f760d10f3018fc533933"
+    },
+    "published_closeout_and_p125_pin_checks": 47,
+    "tracked_files_hash_unchanged_before_document_update": 918,
+    "original_data_files_hash_unchanged": 5476,
+    "original_data_bytes": 88898108,
+    "original_data_path": "benchmarks/alpha003_a_stocks/data/a_stocks",
+    "reference_output_runs": [
+      "results-i9-p120-6417974-full-b1/python/run1",
+      "results-i9-p120-6417974-full-b1/cpp/run1",
+      "results-i9-p124-r1-500/python/run1",
+      "results-i9-p124-r1-500/cpp/run1"
+    ],
+    "binaries": "P112 frozen baseline CLIs and four final Release root CLIs archived; objects, libraries, debug symbols and sanitizer/test executables removed as rebuildable."
+  },
+  "verification": {
+    "all_archive_members_sha256_verified_before_delete": true,
+    "archive_sha256_verified_after_delete": true,
+    "all_68_old_roots_absent": true,
+    "published_pins_verified_after_delete": true,
+    "tracked_and_original_data_hashes_verified_after_delete": true,
+    "tests_or_benchmarks_rerun": false
+  },
+  "boundary": "No files outside D:/source_code/fincore_cpp were deleted. Earlier non-i9 results/results-full and other projects were not in the deletion set. The clean pinned GoogleTest FetchContent clone inside build-win was removed as a dependency cache."
+}

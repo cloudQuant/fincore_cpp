@@ -59,9 +59,11 @@ P124 全量 native A/B 中峰值工作集约从 748 MB 降至 239 MB；P120 全�
   **1,092/1,092**，退出 0；ASan 无内存错误报告。ASan 构建保留一个原有测试
   源码 C4858 编译警告；MSVC 不支持的 UBSan 不标为通过。
 
-现有结果保留于 `benchmarks/alpha003_a_stocks/results-i9-*`，原始构建与诊断日志
-保留于 `build-win/`；这些大文件目录仍被 gitignore。关键数字与文件摘要保存在
-[收尾 JSON](closeout.json)，不要求重新运行已接受的检查来恢复本轮结论。
+2026-10-25 按用户要求完成[生成物清理](cleanup-20261025.md)：旧 `results-i9-*`
+和 `build-win*` 目录已删除。原始计时/比较报告、构建日志及必要参考输出保存在
+`benchmarks/alpha003_a_stocks/results-i9-retained-20261025/evidence.zip`，ZIP 内保留
+原相对路径；原始行情数据不变。关键数字与文件摘要仍保存在[收尾 JSON](closeout.json)，
+不要求重新运行已接受的检查来恢复本轮结论。
 
 ## 后续待办
 
