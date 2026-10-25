@@ -119,7 +119,7 @@ AB/BA、完整比较等缺失项，并在轮次记录保存实际命令/环境�
 |---|---|---|
 | P111 测量与profile | PARTIAL | [R1测量组件](p111-round1.md)、[Windows native](p111-generic-pairs.md)、[配对入口](p111-paired-entry.md)已验证；profile及正式回归待测 |
 | P112 完整契约与基线 | PARTIAL | [完整结果正确性](p112-round1.md)、[十对基线](p112-baseline-r1.md)；full有效，500因11.33%噪声须补稳定证据 |
-| P113 分配与索引 | NOT_RUN | 无 |
+| P113 分配与索引 | PARTIAL | [R1原始行映射](p113-round1.md)功能/完整字节通过；全量单次10.54秒，正式性能待验 |
 | P114 导出 | NOT_RUN | 无 |
 | P115 紧凑布局 | NOT_RUN | 无 |
 | P116 计算与秩复用 | NOT_RUN | 无 |

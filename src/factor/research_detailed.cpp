@@ -24,17 +24,6 @@ namespace {
 
 constexpr double nan = std::numeric_limits<double>::quiet_NaN();
 
-struct panel_key {
-    timestamp time;
-    std::string asset;
-
-    friend bool operator<(const panel_key& left,
-                          const panel_key& right) noexcept {
-        return std::tie(left.time, left.asset) <
-               std::tie(right.time, right.asset);
-    }
-};
-
 std::string csv_list(const std::vector<std::string>& values) {
     std::string result;
     for (const auto& value : values) {
@@ -616,20 +605,6 @@ research_detailed_result evaluate_factor_research_detailed(
     validation_spec.preprocess = "none";
     factor_series selected = research_detailed_detail::select_panel(factors, validation_spec);
 
-    std::map<panel_key, double> raw_values;
-    raw_values.clear();
-    for (std::size_t row = 0; row < factors.dates.size(); ++row) {
-        if (factors.dates[row] < spec.start || factors.dates[row] > spec.end) {
-            continue;
-        }
-        if (!spec.targets.empty() &&
-            std::find(spec.targets.begin(), spec.targets.end(),
-                      factors.assets[row]) == spec.targets.end()) {
-            continue;
-        }
-        raw_values.emplace(panel_key{factors.dates[row], factors.assets[row]},
-                           factors.values[row]);
-    }
     struct selected_row {
         timestamp time;
         std::string asset;
@@ -637,15 +612,24 @@ research_detailed_result evaluate_factor_research_detailed(
     };
     std::vector<selected_row> ordered;
     ordered.reserve(selected.dates.size());
+    // select_panel returns a stable source-order subsequence and has already
+    // validated duplicate keys. Walk the source to recover original values,
+    // since its validation copy canonicalizes non-finite values to NaN.
+    std::size_t source_row = 0U;
     for (std::size_t row = 0; row < selected.dates.size(); ++row) {
-        const auto found = raw_values.find(
-            panel_key{selected.dates[row], selected.assets[row]});
-        if (found == raw_values.end()) {
+        while (source_row < factors.dates.size() &&
+               (factors.dates[source_row] != selected.dates[row] ||
+                factors.assets[source_row] != selected.assets[row])) {
+            ++source_row;
+        }
+        if (source_row == factors.dates.size()) {
             throw factor_data_error{
                 "selected research panel could not be mapped to input rows"};
         }
         ordered.push_back({selected.dates[row], selected.assets[row],
-                           found->second * static_cast<double>(direction)});
+                           factors.values[source_row] *
+                               static_cast<double>(direction)});
+        ++source_row;
     }
     std::sort(ordered.begin(), ordered.end(),
               [](const selected_row& left, const selected_row& right) {

@@ -556,6 +556,95 @@ TEST(FactorResearchDetailed, RejectsMissingNextOpenTargetPriceColumn) {
                  fincore::factor_data_error);
 }
 
+TEST(FactorResearchDetailed, MapsFilteredUnsortedRowsToOriginalValues) {
+    const auto start = fincore::utc_timestamp(2024, 3, 25);
+    constexpr fincore::timestamp day = 86'400'000'000'000LL;
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+    const double infinity = std::numeric_limits<double>::infinity();
+
+    // Selected rows appear in reverse date order and mixed asset order. The
+    // rows before the window and for non-target assets must not be emitted.
+    fincore::factor_series factors;
+    factors.dates = {start + 2 * day, start + day, start,
+                     start + day, start + 2 * day, start + day, start};
+    factors.assets = {"B", "B", "A", "C", "A", "A", "B"};
+    factors.values = {infinity, -infinity, 42.0, 99.0, nan, infinity, 24.0};
+
+    fincore::dataframe prices;
+    prices.load_index(std::vector<fincore::timestamp>{
+        start, start + day, start + 2 * day, start + 3 * day});
+    prices.load_column<double>("A", {10.0, 11.0, 12.0, 13.0},
+                               hmdf::nan_policy::dont_pad_with_nans);
+    prices.load_column<double>("B", {20.0, 21.0, 22.0, 23.0},
+                               hmdf::nan_policy::dont_pad_with_nans);
+
+    fincore::research_spec spec;
+    spec.targets = {"A", "B"};
+    spec.start = start + day;
+    spec.end = start + 2 * day;
+    spec.periods = {1};
+    spec.quantiles = 2;
+    spec.min_assets = 1;
+    spec.min_quantile_assets = 1;
+    spec.max_loss = 1.0;
+    spec.stability_lags = {1};
+    spec.label = "next_open_to_open";
+    spec.preprocess = "none";
+    spec.price_basis = "open";
+    spec.direction_overrides.emplace("signal", -1);
+
+    const auto result = fincore::evaluate_factor_research_detailed(
+        "signal", factors, prices, spec);
+
+    ASSERT_EQ(result.signals.size(), 4U);
+    EXPECT_EQ(result.signals[0].date, start + day);
+    EXPECT_EQ(result.signals[0].asset, "A");
+    EXPECT_EQ(result.signals[1].date, start + day);
+    EXPECT_EQ(result.signals[1].asset, "B");
+    EXPECT_EQ(result.signals[2].date, start + 2 * day);
+    EXPECT_EQ(result.signals[2].asset, "A");
+    EXPECT_EQ(result.signals[3].date, start + 2 * day);
+    EXPECT_EQ(result.signals[3].asset, "B");
+    for (const auto& signal : result.signals) {
+        EXPECT_EQ(signal.direction, -1);
+    }
+    EXPECT_EQ(result.signals[0].value, -infinity);
+    EXPECT_EQ(result.signals[0].processed_value, -infinity);
+    EXPECT_EQ(result.signals[1].value, infinity);
+    EXPECT_EQ(result.signals[1].processed_value, infinity);
+    EXPECT_TRUE(std::isnan(result.signals[2].value));
+    EXPECT_TRUE(std::isnan(result.signals[2].processed_value));
+    EXPECT_EQ(result.signals[3].value, -infinity);
+    EXPECT_EQ(result.signals[3].processed_value, -infinity);
+}
+
+TEST(FactorResearchDetailed, RejectsDuplicateKeysOutsideSelectionWindow) {
+    const auto start = fincore::utc_timestamp(2024, 5, 6);
+    constexpr fincore::timestamp day = 86'400'000'000'000LL;
+    fincore::factor_series factors;
+    factors.dates = {start - day, start - day, start};
+    factors.assets = {"A", "A", "A"};
+    factors.values = {1.0, 2.0, 3.0};
+
+    fincore::dataframe prices;
+    prices.load_index(std::vector<fincore::timestamp>{
+        start - day, start, start + day, start + 2 * day});
+    prices.load_column<double>("A", {10.0, 11.0, 12.0, 13.0},
+                               hmdf::nan_policy::dont_pad_with_nans);
+
+    fincore::research_spec spec;
+    spec.targets = {"A"};
+    spec.start = start;
+    spec.end = start;
+    spec.periods = {1};
+    spec.label = "next_open_to_open";
+    spec.price_basis = "open";
+
+    EXPECT_THROW(static_cast<void>(fincore::evaluate_factor_research_detailed(
+                     "duplicate_signal", factors, prices, spec)),
+                 fincore::factor_data_error);
+}
+
 TEST(FactorResearchDetailed, StabilityRanksIncludeInfinities) {
     const auto start = fincore::utc_timestamp(2024, 4, 1);
     constexpr fincore::timestamp day = 86'400'000'000'000LL;
