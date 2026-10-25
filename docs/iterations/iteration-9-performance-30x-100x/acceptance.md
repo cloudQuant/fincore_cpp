@@ -120,7 +120,7 @@ AB/BA、完整比较等缺失项，并在轮次记录保存实际命令/环境�
 | P111 测量与profile | PARTIAL | [R1测量组件](p111-round1.md)、[Windows native](p111-generic-pairs.md)、[配对入口](p111-paired-entry.md)已验证；profile及正式回归待测 |
 | P112 完整契约与基线 | PARTIAL | [完整结果正确性](p112-round1.md)、[十对基线](p112-baseline-r1.md)；full有效，500因11.33%噪声须补稳定证据 |
 | P113 分配与索引 | PARTIAL | [R1原始行映射](p113-round1.md)、[R2索引排序及默认组](p113-round2.md)、[R3有序校验](p113-round3.md)、[R4共享源行选择](p113-round4.md)、[R5直接标签](p113-round5.md)、[R6连续预处理](p113-round6.md)功能/完整字节通过；R6开发500为31.12×但噪声超限，full A/B候选CPU/研究耗时降低、wall噪声17.70%；正式性能待验 |
-| P114 导出 | PARTIAL | [R1直接追加与日期缓存](p114-round1.md)功能/完整字节通过；全量单次8.44秒，500噪声18.40% |
+| P114 导出 | PARTIAL | [R1直接追加与日期缓存](p114-round1.md)、[R2重复文本缓存](p114-round2.md)功能/完整字节通过；R2开发500为37.09×且5/5达30，native500对照wall减少5.46%、导出减少6.59%；全量单次3.24秒，正式性能待验 |
 | P115 紧凑布局 | PARTIAL | [R1紧凑horizon与reducer](p115-round1.md)、[R2换手率与稳定性](p115-round2.md)、[R3稳定分桶](p115-round3.md)完整字节通过；R3开发500为33.03×、5/5达30且噪声有效，全量单次3.47秒；正式性能待验 |
 | P116 计算与秩复用 | PARTIAL | [R1同horizon排序复用](p116-round1.md)、[R2跨horizon排序](p116-round2.md)、[R3预处理顺序](p116-round3.md)功能/完整字节通过；R3开发500为32.72×、5/5配对达30且噪声有效，全量单次3.01秒；正式性能待验 |
 | P117 加载与因子/准备 | PARTIAL | [R1移除未消费close数据](p117-round1.md)、[R2时间戳缓存](p117-round2.md)功能/完整字节通过；R2全量五对native wall减少2.42%、加载减少12.65%，500开发32.68×但C++噪声13.20%超限；正式性能待验 |

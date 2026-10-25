@@ -200,7 +200,8 @@ public:
     csv_writer(const std::filesystem::path& path, std::string filename,
                const std::vector<std::string>& columns,
                output_cleanup& cleanup)
-        : path_(path), column_count_(columns.size()) {
+        : path_(path), column_count_(columns.size()),
+          cached_text_fields_(columns.size()) {
         require_new_file_path(path_);
         stream_.open(path_, std::ios::binary | std::ios::out |
                                 std::ios::trunc);
@@ -242,6 +243,29 @@ public:
     void append_text(const std::string_view value) {
         begin_field();
         append_csv_field(buffer_, value);
+    }
+
+    void append_cached_text(const std::string_view value) {
+        begin_field();
+        auto& cached = cached_text_fields_[columns_written_ - 1U];
+        if (cached.has_value && cached.value.size() == value.size() &&
+            (value.empty() ||
+             std::char_traits<char>::compare(
+                 cached.value.data(), value.data(), value.size()) == 0)) {
+            buffer_.append(cached.csv_field);
+            return;
+        }
+
+        std::string csv_field;
+        append_csv_field(csv_field, value);
+        std::string owned_value;
+        if (!value.empty()) {
+            owned_value.assign(value.data(), value.size());
+        }
+        cached.value.swap(owned_value);
+        cached.csv_field.swap(csv_field);
+        cached.has_value = true;
+        buffer_.append(cached.csv_field);
     }
 
     void append_integer(const int value) { append_integral(value); }
@@ -302,6 +326,12 @@ public:
     }
 
 private:
+    struct cached_text_field {
+        std::string value;
+        std::string csv_field;
+        bool has_value{false};
+    };
+
     void begin_field() {
         if (!row_open_ || columns_written_ >= column_count_) {
             throw factor_data_error{
@@ -368,6 +398,7 @@ private:
     std::size_t rows_{0U};
     timestamp cached_timestamp_{0};
     std::string cached_timestamp_text_;
+    std::vector<cached_text_field> cached_text_fields_;
     bool has_cached_timestamp_{false};
     bool row_open_{false};
 };
@@ -524,12 +555,12 @@ research_export_result export_factor_research_detailed(
             writer.write_row([&](csv_writer& csv) {
                 csv.append_timestamp(row.date);
                 csv.append_text(row.asset);
-                csv.append_text(row.factor);
+                csv.append_cached_text(row.factor);
                 csv.append_integer(row.direction);
                 csv.append_number(row.value);
                 csv.append_number(row.processed_value);
-                csv.append_text(row.preprocess);
-                csv.append_text(row.group);
+                csv.append_cached_text(row.preprocess);
+                csv.append_cached_text(row.group);
             });
         }
     });
@@ -540,7 +571,7 @@ research_export_result export_factor_research_detailed(
             writer.write_row([&](csv_writer& csv) {
                 csv.append_timestamp(row.date);
                 csv.append_text(row.asset);
-                csv.append_text(row.period);
+                csv.append_cached_text(row.period);
                 csv.append_number(row.value);
             });
         }
@@ -552,8 +583,8 @@ research_export_result export_factor_research_detailed(
         for (const auto& row : result.ic) {
             writer.write_row([&](csv_writer& csv) {
                 csv.append_timestamp(row.time);
-                csv.append_text(row.factor);
-                csv.append_text(row.period);
+                csv.append_cached_text(row.factor);
+                csv.append_cached_text(row.period);
                 csv.append_number(row.ic);
                 csv.append_number(row.rank_ic);
                 csv.append_size(row.n_assets);
@@ -567,8 +598,8 @@ research_export_result export_factor_research_detailed(
               [&](csv_writer& writer) {
         for (const auto& row : result.ic_summary) {
             writer.write_row([&](csv_writer& csv) {
-                csv.append_text(row.factor);
-                csv.append_text(row.period);
+                csv.append_cached_text(row.factor);
+                csv.append_cached_text(row.period);
                 csv.append_number(row.mean_ic);
                 csv.append_number(row.std_ic);
                 csv.append_number(row.icir);
@@ -587,8 +618,8 @@ research_export_result export_factor_research_detailed(
         for (const auto& row : result.quantile_returns) {
             writer.write_row([&](csv_writer& csv) {
                 csv.append_timestamp(row.time);
-                csv.append_text(row.factor);
-                csv.append_text(row.period);
+                csv.append_cached_text(row.factor);
+                csv.append_cached_text(row.period);
                 csv.append_integer(row.quantile);
                 csv.append_number(row.mean_return);
                 csv.append_size(row.n_assets);
@@ -602,8 +633,8 @@ research_export_result export_factor_research_detailed(
         for (const auto& row : result.turnover) {
             writer.write_row([&](csv_writer& csv) {
                 csv.append_timestamp(row.time);
-                csv.append_text(row.factor);
-                csv.append_text(row.period);
+                csv.append_cached_text(row.factor);
+                csv.append_cached_text(row.period);
                 csv.append_integer(row.quantile);
                 csv.append_number(row.turnover);
             });
@@ -617,8 +648,8 @@ research_export_result export_factor_research_detailed(
         for (const auto& row : result.spreads) {
             writer.write_row([&](csv_writer& csv) {
                 csv.append_timestamp(row.time);
-                csv.append_text(row.factor);
-                csv.append_text(row.period);
+                csv.append_cached_text(row.factor);
+                csv.append_cached_text(row.period);
                 csv.append_number(row.spread);
                 csv.append_integer(row.top_quantile);
                 csv.append_integer(row.bottom_quantile);
@@ -632,7 +663,7 @@ research_export_result export_factor_research_detailed(
               [&](csv_writer& writer) {
         for (const auto& row : result.stability) {
             writer.write_row([&](csv_writer& csv) {
-                csv.append_text(row.factor);
+                csv.append_cached_text(row.factor);
                 csv.append_integer(row.lag);
                 csv.append_number(row.mean_rank_autocorrelation);
                 csv.append_number(row.std_rank_autocorrelation);
@@ -647,7 +678,7 @@ research_export_result export_factor_research_detailed(
               [&](csv_writer& writer) {
         for (const auto& row : result.coverage) {
             writer.write_row([&](csv_writer& csv) {
-                csv.append_text(row.factor);
+                csv.append_cached_text(row.factor);
                 csv.append_text(row.kind);
                 csv.append_integer(row.direction);
                 csv.append_size(row.input_cells);
@@ -665,9 +696,9 @@ research_export_result export_factor_research_detailed(
         for (const auto& row : result.diagnostics) {
             writer.write_row([&](csv_writer& csv) {
                 if (row.factor) {
-                    csv.append_text(*row.factor);
+                    csv.append_cached_text(*row.factor);
                 } else {
-                    csv.append_text({});
+                    csv.append_cached_text({});
                 }
                 csv.append_text(row.stage);
                 csv.append_text(row.severity);

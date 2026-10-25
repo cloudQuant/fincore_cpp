@@ -293,6 +293,77 @@ TEST(FactorResearchDetailedExport,
 }
 
 TEST(FactorResearchDetailedExport,
+     ReusesEscapedTextByColumnContentAndKeepsWriterStateLocal) {
+    temporary_export_directory directory;
+    directory.owns_directory = true;
+    fincore::research_detailed_result result;
+    const std::string chinese{"\xE4\xB8\xAD", 3U};
+    const std::string escaped_factor =
+        std::string{"factor,\"quoted\"\r\n"} + chinese;
+    const std::string same_factor{escaped_factor};
+    ASSERT_NE(escaped_factor.data(), same_factor.data());
+
+    result.signals = {
+        {0, "asset-one", escaped_factor, 1, 1.0, 2.0, "", "group,west"},
+        {1, "asset-two", same_factor, 1, 1.0, 2.0, "", "group,west"},
+        {2, "asset-three", chinese, 1, 1.0, 2.0, "step,\"two\"\r\n", ""},
+        {3, "asset-four", "", 1, 1.0, 2.0, "step,\"two\"\r\n",
+         std::string{"zone,"} + chinese},
+        {4, "asset-five", "", 1, 1.0, 2.0, "", std::string{"zone,"} + chinese}};
+    result.labels = {
+        {0, "label-one", "period,\"daily\"\r\n", 1.0},
+        {1, "label-two", std::string{"period,\"daily\"\r\n"}, 2.0},
+        {2, "label-three", chinese, 3.0}};
+
+    static_cast<void>(fincore::export_factor_research_detailed(
+        result, directory.path.string()));
+    directory.owns_directory = true;
+
+    const std::string escaped_factor_csv =
+        std::string{"\"factor,\"\"quoted\"\"\r\n"} + chinese + "\"";
+    const std::string escaped_step_csv = "\"step,\"\"two\"\"\r\n\"";
+    const std::string escaped_zone_csv =
+        std::string{"\"zone,"} + chinese + "\"";
+    EXPECT_EQ(
+        read_file(directory.path / "signals.csv"),
+        "time,asset,factor,direction,value,processed_value,preprocess,group\n"
+        "1970-01-01T00:00:00Z,asset-one," + escaped_factor_csv +
+            ",1,1,2,,\"group,west\"\n" +
+            "1970-01-01T00:00:00.000000001Z,asset-two," +
+            escaped_factor_csv + ",1,1,2,,\"group,west\"\n" +
+            "1970-01-01T00:00:00.000000002Z,asset-three," + chinese +
+            ",1,1,2," + escaped_step_csv + ",\n" +
+            "1970-01-01T00:00:00.000000003Z,asset-four,,1,1,2," +
+            escaped_step_csv + "," + escaped_zone_csv + "\n" +
+            "1970-01-01T00:00:00.000000004Z,asset-five,,1,1,2,," +
+            escaped_zone_csv + "\n");
+    EXPECT_EQ(
+        read_file(directory.path / "labels.csv"),
+        "time,asset,period,value\n"
+        "1970-01-01T00:00:00Z,label-one,\"period,\"\"daily\"\"\r\n\",1\n"
+        "1970-01-01T00:00:00.000000001Z,label-two,\"period,\"\"daily\"\"\r\n\",2\n"
+        "1970-01-01T00:00:00.000000002Z,label-three," + chinese + ",3\n");
+}
+
+TEST(FactorResearchDetailedExport,
+     RejectsChangedInvalidUtf8AfterCachedHitAndCleansOutput) {
+    temporary_export_directory directory;
+    directory.owns_directory = true;
+    fincore::research_detailed_result result;
+    const std::string invalid_utf8(1U, static_cast<char>(0xFF));
+    result.signals = {
+        {0, "asset-one", "valid-factor-value", 1, 1.0, 1.0, "none", ""},
+        {1, "asset-two", std::string{"valid-factor-value"}, 1, 1.0, 1.0,
+         "none", ""},
+        {2, "asset-three", invalid_utf8, 1, 1.0, 1.0, "none", ""}};
+
+    EXPECT_THROW(fincore::export_factor_research_detailed(
+                     result, directory.path.string()),
+                 fincore::factor_data_error);
+    EXPECT_FALSE(std::filesystem::exists(directory.path));
+}
+
+TEST(FactorResearchDetailedExport,
      PreservesNegativeEpochNanosecondsAndInputRowOrder) {
     temporary_export_directory directory;
     directory.owns_directory = true;
