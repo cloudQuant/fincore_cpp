@@ -28,6 +28,7 @@ this; a local build is:
 
 ```bash
 cd docs/site
+mkdir -p ../_build/doxygen   # Doxygen creates one level only
 doxygen Doxyfile
 python tools/normalize_doxygen_xml.py ../_build/doxygen/xml
 python tools/build_api_ledger.py

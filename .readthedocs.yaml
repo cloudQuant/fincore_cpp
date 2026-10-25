@@ -8,6 +8,7 @@ build:
     - doxygen
   jobs:
     pre_build:
+      - mkdir -p docs/_build/doxygen
       - cd docs/site && doxygen Doxyfile
       - python docs/site/tools/normalize_doxygen_xml.py docs/_build/doxygen/xml
 
