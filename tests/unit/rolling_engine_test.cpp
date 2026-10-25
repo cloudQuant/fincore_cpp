@@ -1,9 +1,12 @@
 #include <fincore/rolling_engine.hpp>
+#include <fincore/metrics/drawdown.hpp>
+#include <fincore/metrics/ratios.hpp>
 #include <fincore/metrics/rolling.hpp>
 
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <cstddef>
 #include <limits>
 #include <string_view>
 #include <utility>
@@ -226,6 +229,114 @@ TEST(RollingEngine, LongWindowNanAndSparseBenchmarkMatchRollingOracles) {
                                 return std::isfinite(value);
                             }),
               volatility_values.size());
+}
+
+TEST(RollingEngine,
+     SpanWindowsMatchScalarMetricsWithInfiniteAndDuplicateUnsortedIndices) {
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+    const double infinity = std::numeric_limits<double>::infinity();
+    const std::vector<fincore::timestamp> returns_index{3, 1, 1, 2, 4, 2};
+    const std::vector<double> returns{
+        0.1, nan, 0.2, infinity, -0.0, -infinity};
+    const std::vector<fincore::timestamp> benchmark_index{
+        1, 2, 1, 3, 4, 2, 6};
+    const std::vector<double> benchmark{
+        0.01, 0.02, 0.03, 0.04, nan, 0.06, 0.07};
+    const auto returns_frame =
+        fincore::make_series(returns_index, fincore::returns_column, returns);
+    const auto benchmark_frame = fincore::make_series(
+        benchmark_index, fincore::benchmark_column, benchmark);
+    const fincore::rolling_engine engine{
+        returns_frame, benchmark_frame, 3U, 252.0};
+    const std::array metrics{fincore::rolling_metric::mean_return,
+                             fincore::rolling_metric::volatility,
+                             fincore::rolling_metric::sharpe,
+                             fincore::rolling_metric::max_drawdown,
+                             fincore::rolling_metric::beta};
+    const auto actual = engine.compute(metrics);
+
+    const auto [aligned_returns, aligned_benchmark] =
+        fincore::align_on_common_index(
+            returns_frame, fincore::returns_column, benchmark_frame,
+            fincore::benchmark_column);
+    EXPECT_EQ(aligned_returns.get_index(),
+              (std::vector<fincore::timestamp>{3, 1, 1, 2, 4, 2}));
+    const auto aligned_benchmark_values = fincore::require_double_column(
+        aligned_benchmark, fincore::benchmark_column);
+    ASSERT_EQ(aligned_benchmark_values.size(), 6U);
+    EXPECT_DOUBLE_EQ(aligned_benchmark_values[0], 0.04);
+    EXPECT_DOUBLE_EQ(aligned_benchmark_values[1], 0.01);
+    EXPECT_DOUBLE_EQ(aligned_benchmark_values[2], 0.01);
+    EXPECT_DOUBLE_EQ(aligned_benchmark_values[3], 0.02);
+    EXPECT_TRUE(std::isnan(aligned_benchmark_values[4]));
+    EXPECT_DOUBLE_EQ(aligned_benchmark_values[5], 0.02);
+
+    const auto frame_window = [](const fincore::dataframe& frame,
+                                 const std::string_view column,
+                                 const std::size_t begin,
+                                 const std::size_t window) {
+        const auto values = fincore::require_double_column(frame, column);
+        const auto& index = frame.get_index();
+        return fincore::make_series(
+            {index.begin() + static_cast<std::ptrdiff_t>(begin),
+             index.begin() + static_cast<std::ptrdiff_t>(begin + window)},
+            column,
+            {values.begin() + static_cast<std::ptrdiff_t>(begin),
+             values.begin() + static_cast<std::ptrdiff_t>(begin + window)});
+    };
+
+    constexpr std::size_t window = 3U;
+    constexpr double annualization = 252.0;
+    const std::size_t output_count = returns.size() - window + 1U;
+    std::vector<fincore::timestamp> expected_index;
+    std::vector<double> expected_mean;
+    std::vector<double> expected_volatility;
+    std::vector<double> expected_sharpe;
+    std::vector<double> expected_drawdown;
+    std::vector<double> expected_beta;
+    for (std::size_t begin = 0U; begin < output_count; ++begin) {
+        const auto returns_window = frame_window(
+            returns_frame, fincore::returns_column, begin, window);
+        const auto beta_returns_window = frame_window(
+            aligned_returns, fincore::returns_column, begin, window);
+        const auto beta_benchmark_window = frame_window(
+            aligned_benchmark, fincore::benchmark_column, begin, window);
+        double total = 0.0;
+        for (std::size_t offset = 0U; offset < window; ++offset) {
+            total += returns[begin + offset];
+        }
+        expected_index.push_back(returns_index[begin + window - 1U]);
+        expected_mean.push_back(
+            total / static_cast<double>(window) * annualization);
+        expected_volatility.push_back(fincore::annual_volatility(
+            returns_window, annualization, fincore::returns_column));
+        expected_sharpe.push_back(fincore::sharpe_ratio(
+            returns_window, 0.0, annualization, fincore::returns_column));
+        expected_drawdown.push_back(fincore::max_drawdown(
+            returns_window, fincore::returns_column));
+        expected_beta.push_back(fincore::beta(
+            beta_returns_window, beta_benchmark_window, 0.0,
+            fincore::returns_column, fincore::benchmark_column));
+    }
+
+    const auto expected_series = [&expected_index](std::vector<double> values) {
+        return fincore::make_series(expected_index, fincore::returns_column,
+                                    std::move(values));
+    };
+    EXPECT_EQ(actual.at("mean_return").get_index(), expected_index);
+    EXPECT_EQ(actual.at("mean_return").get_index().size(), output_count);
+    expect_rolling_series_equal("mean_return", actual.at("mean_return"),
+                                expected_series(std::move(expected_mean)));
+    expect_rolling_series_equal(
+        "volatility", actual.at("volatility"),
+        expected_series(std::move(expected_volatility)));
+    expect_rolling_series_equal("sharpe", actual.at("sharpe"),
+                                expected_series(std::move(expected_sharpe)));
+    expect_rolling_series_equal(
+        "max_drawdown", actual.at("max_drawdown"),
+        expected_series(std::move(expected_drawdown)));
+    expect_rolling_series_equal("beta", actual.at("beta"),
+                                expected_series(std::move(expected_beta)));
 }
 
 }  // namespace
