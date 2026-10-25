@@ -1,0 +1,291 @@
+{
+  "round": "P122 R2",
+  "date": "2026-10-25",
+  "repository": "D:\\source_code\\fincore_cpp",
+  "branch": "dev",
+  "base_commit": "6417974c4c4e690739d1d5e92c279363854d9197",
+  "acceptance": "SOURCE_CORRECTNESS_AND_DEVELOPMENT_CPU_IMPROVEMENT_ONLY",
+  "formal_30x_accepted": false,
+  "wall_improvement_status": "INCONCLUSIVE",
+  "source_scope": [
+    {
+      "path": "src/factor/research.cpp",
+      "size_bytes": 81376,
+      "sha256": "82603816fbb26472a57871e03b1f33da830b3ea333ee79447e827d0904b65eae"
+    },
+    {
+      "path": "tests/unit/factor_research_detailed_test.cpp",
+      "size_bytes": 92499,
+      "sha256": "6a4fa41d7da7ae7c64f497fe15dc6e247b5ca82f23eac525f4525b4b38615fd7"
+    }
+  ],
+  "validation": {
+    "release_build_exit_code": 0,
+    "related_tests": 75,
+    "failures": 0,
+    "errors": 0,
+    "actual_python_oracle_cases": 3,
+    "independent_static_review": "GO; no blocker; no reviewer execution",
+    "native_runs": 14,
+    "contract_files_per_run": 13,
+    "all_native_bytes_match_p112": true,
+    "source_and_inputs_unchanged": true
+  },
+  "native_development": {
+    "configuration": {
+      "data_dir": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\data\\a_stocks",
+      "end_offset": 22,
+      "max_symbols": 0,
+      "preprocess": "cross_section_rank"
+    },
+    "cpu_index": 0,
+    "pairs": 5,
+    "warmup_orders": [
+      [
+        "A",
+        "B"
+      ],
+      [
+        "B",
+        "A"
+      ]
+    ],
+    "binary_roles": {
+      "A": "frozen previous source build",
+      "B": "candidate source overlay build"
+    },
+    "binaries": {
+      "A": {
+        "path": "D:\\source_code\\fincore_cpp\\build-win\\p122-r2-reference\\fincore_alpha003_research.exe",
+        "sha256": "4b3d0bf340289cd216e05aabaf44956e180e92c6200802162446a24d45288eb3",
+        "size_bytes": 629248
+      },
+      "B": {
+        "path": "D:\\source_code\\fincore_cpp\\build-win\\fincore_alpha003_research.exe",
+        "sha256": "39d6afbed49eedb5bcfd893a77e4dc07ca28f1df00abb310088f13239d1f560e",
+        "size_bytes": 630272
+      }
+    },
+    "cpu": {
+      "candidate": {
+        "count": 5,
+        "iqr": 0.078125,
+        "iqr_over_median": 0.03333333333333333,
+        "max": 2.421875,
+        "median": 2.34375,
+        "min": 2.3125,
+        "noise_limit": 0.1,
+        "protocol": "iteration9-r1",
+        "q1": 2.328125,
+        "q3": 2.40625,
+        "samples": [
+          2.40625,
+          2.3125,
+          2.421875,
+          2.34375,
+          2.328125
+        ],
+        "status": "VALID"
+      },
+      "paired_reference_over_candidate": [
+        1.0714285714285714,
+        1.0472972972972974,
+        1.0193548387096774,
+        1.0,
+        1.0201342281879195
+      ],
+      "ratio_of_medians_reference_over_candidate": 1.0333333333333334,
+      "reference": {
+        "count": 5,
+        "iqr": 0.09375,
+        "iqr_over_median": 0.03870967741935484,
+        "max": 2.578125,
+        "median": 2.421875,
+        "min": 2.34375,
+        "noise_limit": 0.1,
+        "protocol": "iteration9-r1",
+        "q1": 2.375,
+        "q3": 2.46875,
+        "samples": [
+          2.578125,
+          2.421875,
+          2.46875,
+          2.34375,
+          2.375
+        ],
+        "status": "VALID"
+      }
+    },
+    "wall": {
+      "candidate": {
+        "count": 5,
+        "iqr": 0.05915800004731864,
+        "iqr_over_median": 0.020880554582901212,
+        "max": 3.8771814000210725,
+        "median": 2.833162299997639,
+        "min": 2.5908633999642916,
+        "noise_limit": 0.1,
+        "protocol": "iteration9-r1",
+        "q1": 2.8219550999929197,
+        "q3": 2.8811131000402384,
+        "samples": [
+          2.833162299997639,
+          2.8219550999929197,
+          2.8811131000402384,
+          2.5908633999642916,
+          3.8771814000210725
+        ],
+        "status": "VALID"
+      },
+      "paired_reference_over_candidate": [
+        1.0271737697529868,
+        1.2325409075452838,
+        1.1431859443302184,
+        0.9561165594611214,
+        0.7440212624615665
+      ],
+      "ratio_of_medians_reference_over_candidate": 1.0271737697529868,
+      "reference": {
+        "count": 5,
+        "iqr": 0.40894259995548055,
+        "iqr_over_median": 0.14052285963059932,
+        "max": 3.4781750999973156,
+        "median": 2.910150000010617,
+        "min": 2.477167400007602,
+        "noise_limit": 0.1,
+        "protocol": "iteration9-r1",
+        "q1": 2.8847054000361823,
+        "q3": 3.293647999991663,
+        "samples": [
+          2.910150000010617,
+          3.4781750999973156,
+          3.293647999991663,
+          2.477167400007602,
+          2.8847054000361823
+        ],
+        "status": "INCONCLUSIVE"
+      }
+    },
+    "peak_working_set_bytes": {
+      "candidate": {
+        "count": 5,
+        "iqr": 110592.0,
+        "iqr_over_median": 0.0004629391492207191,
+        "max": 239009792.0,
+        "median": 238891008.0,
+        "min": 238768128.0,
+        "noise_limit": 0.1,
+        "protocol": "iteration9-r1",
+        "q1": 238800896.0,
+        "q3": 238911488.0,
+        "samples": [
+          238891008.0,
+          238800896.0,
+          238768128.0,
+          238911488.0,
+          239009792.0
+        ],
+        "status": "VALID"
+      },
+      "paired_reference_over_candidate": [
+        1.0005143768324674,
+        0.9998970858132794,
+        1.0011665208515603,
+        0.9994513784117405,
+        1.0
+      ],
+      "ratio_of_medians_reference_over_candidate": 1.000497230938052,
+      "reference": {
+        "count": 5,
+        "iqr": 233472.0,
+        "iqr_over_median": 0.0009768302714559913,
+        "max": 239046656.0,
+        "median": 239009792.0,
+        "min": 238776320.0,
+        "noise_limit": 0.1,
+        "protocol": "iteration9-r1",
+        "q1": 238780416.0,
+        "q3": 239013888.0,
+        "samples": [
+          239013888.0,
+          238776320.0,
+          239046656.0,
+          238780416.0,
+          239009792.0
+        ],
+        "status": "VALID"
+      }
+    },
+    "cpu_reduction_fraction": 0.032258064516129004,
+    "cpu_candidate_faster_pairs": 4,
+    "cpu_equal_pairs": 1,
+    "wall_candidate_faster_pairs": 3
+  },
+  "artifacts": [
+    {
+      "path": "build-win/p122-r2-build.log",
+      "size_bytes": 410,
+      "sha256": "30d32fa28a5f8794cf492b0456bf6139f9937194dc2c9430528c696c76def6fe"
+    },
+    {
+      "path": "build-win/p122-r2-unit.json",
+      "size_bytes": 30543,
+      "sha256": "be9c3a6ef08f00e3b611565c2cd3e95ee7788814399308f8df2cdf522e594e7d"
+    },
+    {
+      "path": "build-win/p122-r2-unit.log",
+      "size_bytes": 13472,
+      "sha256": "63e165f1fef5e82a3db70aa7c1010f0f73f0ef7e33bdf07988eea1c946a7cc0e"
+    },
+    {
+      "path": "build-win/p122-r2-oracle.log",
+      "size_bytes": 1466,
+      "sha256": "fd3db39f6af6ac016a4e623e5a01a18c6405db3520cc78a7fb3f8d9eb79e4f07"
+    },
+    {
+      "path": "build-win/compare_alpha_source_builds_p124_r1.py",
+      "size_bytes": 12857,
+      "sha256": "35ed674f2d6b2171c91a4051194bce3a65a772028bf832bb5887a39bd8719aaa"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p122-r2-native-full-ab/results.json",
+      "size_bytes": 5964730,
+      "sha256": "db1fd7c54e87fd3b649828449bf303523b0157bb8e1fc945053906a585161dc6"
+    },
+    {
+      "path": "build-win/p122-r2-reference/reference.json",
+      "size_bytes": 434,
+      "sha256": "2dde40a766440a8ff50fbc7d582e8409551ded4d0e085facb5cdd9821510d86b"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p120-6417974-full-b1/comparison.json",
+      "size_bytes": 218704,
+      "sha256": "386d708a2b140b084362f3075036b5d523dca136d5c3efd00884d0df8932e648"
+    },
+    {
+      "path": "build-win/p120-full-b1-summary.json",
+      "size_bytes": 1894,
+      "sha256": "71808d91d858ebb78c37ef5cc807786e6e3d25e2df1bc3a11d51248dde5b6b5e"
+    },
+    {
+      "path": "build-win/p120-full-b1-controller-memory-observation.json",
+      "size_bytes": 977,
+      "sha256": "fe0dbd5c075615fa19c1b4a3164e839eb669f86787eeb41f52d3d8a1dacae2f2"
+    },
+    {
+      "path": "build-win/p120-full-b1-compare-memory-diagnostic.json",
+      "size_bytes": 11027,
+      "sha256": "167da45823be7ecbcdbe64515378d2b1d8d4951b76745bafb7cd277c7df3d90b"
+    },
+    {
+      "path": "build-win/p120-full-b1-repeated-compare-memory.json",
+      "size_bytes": 2205,
+      "sha256": "5211235d6d311b845324baa7e8ab0fbc4ae8ab4c2680a7afe83111d5fb3e1318"
+    }
+  ],
+  "remaining": [
+    "500/full two valid independent >=10-pair batches with 30x and >=80% pair gates",
+    "Full Release/ASan, generic regression and scale diagnostics",
+    "Input-load waiting cause remains unproven; no change to measurement protocol from the memory observations"
+  ]
+}

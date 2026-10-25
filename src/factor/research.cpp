@@ -674,24 +674,47 @@ void append_detailed_next_open_horizons(
             "next-open price index must be sorted and duplicate-free"};
     }
 
-    // Keep one non-owning price-column lookup per selected asset. Keys refer
-    // to strings owned by panel, which remains unchanged for this call.
+    // Prefer a direct non-owning lookup over all double columns when there
+    // are more panel rows than available columns. The alternative keeps only
+    // selected assets in the map, which bounds temporary storage for wide
+    // price tables with small panels.
     std::unordered_map<std::string_view, const std::vector<double>*>
-        selected_price_columns;
-    selected_price_columns.reserve(
-        std::min(panel.assets.size(), price_columns.size()));
-    for (const auto& asset : panel.assets) {
-        selected_price_columns.try_emplace(std::string_view{asset}, nullptr);
-    }
-    for (const auto& info : price_columns) {
-        if (std::get<2>(info) != typeid(double)) {
-            continue;
+        price_columns_by_asset;
+    if (panel.dates.size() > double_column_count) {
+        // The string views point into names owned by price_columns, which
+        // stays alive and unchanged until this function returns. Use c_str()
+        // for DataFrame's existing lookup semantics; assigning in info order
+        // preserves the previous last-match behavior.
+        price_columns_by_asset.reserve(double_column_count);
+        for (const auto& info : price_columns) {
+            if (std::get<2>(info) != typeid(double)) {
+                continue;
+            }
+            const auto& name = std::get<0>(info);
+            price_columns_by_asset.insert_or_assign(
+                std::string_view{name.c_str()},
+                &prices.get_column<double>(name.c_str()));
         }
-        const auto& name = std::get<0>(info);
-        const auto found = selected_price_columns.find(
-            std::string_view{name.c_str()});
-        if (found != selected_price_columns.end()) {
-            found->second = &prices.get_column<double>(name.c_str());
+    } else {
+        // These keys refer to strings owned by panel, which remains unchanged
+        // for this call. Column-name lookup keeps the same C-string semantics
+        // as DataFrame::get_column.
+        price_columns_by_asset.reserve(
+            std::min(panel.assets.size(), price_columns.size()));
+        for (const auto& asset : panel.assets) {
+            price_columns_by_asset.try_emplace(std::string_view{asset},
+                                               nullptr);
+        }
+        for (const auto& info : price_columns) {
+            if (std::get<2>(info) != typeid(double)) {
+                continue;
+            }
+            const auto& name = std::get<0>(info);
+            const auto found = price_columns_by_asset.find(
+                std::string_view{name.c_str()});
+            if (found != price_columns_by_asset.end()) {
+                found->second = &prices.get_column<double>(name.c_str());
+            }
         }
     }
 
@@ -709,15 +732,22 @@ void append_detailed_next_open_horizons(
             {periods[horizon], std::vector<double>(panel.dates.size(), nan)});
     }
 
+    bool has_cached_date = false;
+    timestamp cached_date = 0;
+    auto cached_date_position = date_positions.end();
     for (std::size_t row = 0; row < panel.dates.size(); ++row) {
-        const auto date = date_positions.find(panel.dates[row]);
-        const auto asset = selected_price_columns.find(
+        if (!has_cached_date || panel.dates[row] != cached_date) {
+            cached_date = panel.dates[row];
+            cached_date_position = date_positions.find(cached_date);
+            has_cached_date = true;
+        }
+        const auto asset = price_columns_by_asset.find(
             std::string_view{panel.assets[row]});
-        if (date == date_positions.end() ||
-            asset == selected_price_columns.end() || asset->second == nullptr) {
+        if (cached_date_position == date_positions.end() ||
+            asset == price_columns_by_asset.end() || asset->second == nullptr) {
             continue;
         }
-        const std::size_t price_row = date->second;
+        const std::size_t price_row = cached_date_position->second;
         const auto& column = *asset->second;
         for (std::size_t horizon = 0; horizon < periods.size(); ++horizon) {
             const auto period =

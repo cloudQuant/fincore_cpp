@@ -2018,4 +2018,95 @@ TEST(FactorResearchDetailed,
                      130.0 / 120.0 - 1.0);
 }
 
+TEST(FactorResearchDetailed,
+     BuildsNextOpenLabelsWithUnsortedRepeatedDateLookup) {
+    const auto start = fincore::utc_timestamp(2024, 5, 27);
+    constexpr fincore::timestamp day = 86'400'000'000'000LL;
+
+    fincore::dataframe prices;
+    prices.load_index(std::vector<fincore::timestamp>{
+        start, start + 2 * day, start + 3 * day, start + 4 * day,
+        start + 5 * day, start + 6 * day});
+    prices.load_column<double>(
+        "A", {10.0, 12.0, 13.0, 14.0, 15.0, 16.0},
+        hmdf::nan_policy::dont_pad_with_nans);
+    prices.load_column<double>(
+        "B", {20.0, 22.0, 23.0, 24.0, 25.0, 26.0},
+        hmdf::nan_policy::dont_pad_with_nans);
+    prices.load_column<double>(
+        "UNUSED", {30.0, 32.0, 33.0, 34.0, 35.0, 36.0},
+        hmdf::nan_policy::dont_pad_with_nans);
+
+    // Six panel rows over three double columns take the direct column-map
+    // branch. Adjacent hits and misses share cached date lookups; the final
+    // d2 row must find its date again after the intervening d0 row.
+    fincore::factor_series panel;
+    panel.dates = {start + 2 * day, start + 2 * day, start + day,
+                   start + day, start, start + 2 * day};
+    panel.assets = {"A", "B", "A", "B", "B", "A"};
+    panel.values = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
+
+    fincore::research_spec spec;
+    spec.start = start;
+    spec.end = start + 2 * day;
+    spec.periods = {2, 1};
+    spec.label = "next_open_to_open";
+
+    const auto labels =
+        fincore::research_detailed_detail::build_detailed_label_input(
+            panel, prices, spec);
+    ASSERT_EQ(labels.horizons.size(), 2U);
+    EXPECT_EQ(labels.horizons[0].period, "2D");
+    EXPECT_EQ(labels.horizons[1].period, "1D");
+    ASSERT_EQ(labels.horizons[0].label_values.size(), panel.dates.size());
+    ASSERT_EQ(labels.horizons[1].label_values.size(), panel.dates.size());
+
+    EXPECT_DOUBLE_EQ(labels.horizons[0].label_values[0],
+                     15.0 / 13.0 - 1.0);
+    EXPECT_DOUBLE_EQ(labels.horizons[0].label_values[1],
+                     25.0 / 23.0 - 1.0);
+    EXPECT_TRUE(std::isnan(labels.horizons[0].label_values[2]));
+    EXPECT_TRUE(std::isnan(labels.horizons[0].label_values[3]));
+    EXPECT_DOUBLE_EQ(labels.horizons[0].label_values[4],
+                     24.0 / 22.0 - 1.0);
+    EXPECT_DOUBLE_EQ(labels.horizons[0].label_values[5],
+                     15.0 / 13.0 - 1.0);
+
+    EXPECT_DOUBLE_EQ(labels.horizons[1].label_values[0],
+                     14.0 / 13.0 - 1.0);
+    EXPECT_DOUBLE_EQ(labels.horizons[1].label_values[1],
+                     24.0 / 23.0 - 1.0);
+    EXPECT_TRUE(std::isnan(labels.horizons[1].label_values[2]));
+    EXPECT_TRUE(std::isnan(labels.horizons[1].label_values[3]));
+    EXPECT_DOUBLE_EQ(labels.horizons[1].label_values[4],
+                     23.0 / 22.0 - 1.0);
+    EXPECT_DOUBLE_EQ(labels.horizons[1].label_values[5],
+                     14.0 / 13.0 - 1.0);
+
+    // Two panel rows over three double columns take the selected-column map
+    // branch, keeping the temporary map bounded by the small panel.
+    fincore::factor_series small_panel;
+    small_panel.dates = {start, start + 2 * day};
+    small_panel.assets = {"A", "A"};
+    small_panel.values = {1.0, 2.0};
+    const auto small_labels =
+        fincore::research_detailed_detail::build_detailed_label_input(
+            small_panel, prices, spec);
+    ASSERT_EQ(small_labels.horizons.size(), 2U);
+    EXPECT_EQ(small_labels.horizons[0].period, "2D");
+    EXPECT_EQ(small_labels.horizons[1].period, "1D");
+    ASSERT_EQ(small_labels.horizons[0].label_values.size(),
+              small_panel.dates.size());
+    ASSERT_EQ(small_labels.horizons[1].label_values.size(),
+              small_panel.dates.size());
+    EXPECT_DOUBLE_EQ(small_labels.horizons[0].label_values[0],
+                     14.0 / 12.0 - 1.0);
+    EXPECT_DOUBLE_EQ(small_labels.horizons[0].label_values[1],
+                     15.0 / 13.0 - 1.0);
+    EXPECT_DOUBLE_EQ(small_labels.horizons[1].label_values[0],
+                     13.0 / 12.0 - 1.0);
+    EXPECT_DOUBLE_EQ(small_labels.horizons[1].label_values[1],
+                     14.0 / 13.0 - 1.0);
+}
+
 }  // namespace
