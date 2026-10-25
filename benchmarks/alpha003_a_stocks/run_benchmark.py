@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import dataclasses
 import hashlib
+import importlib.metadata
 import json
 import locale
 import os
@@ -147,6 +148,8 @@ def host_identity(cpp_exe: Path) -> dict[str, Any]:
         "platform": platform.platform(), "windows_version": platform.win32_ver(),
         "processor": platform.processor(), "logical_cpu_count": os.cpu_count(),
         "python": sys.version, "pandas": pd.__version__, "numpy": np.__version__,
+        "scipy": importlib.metadata.version("scipy"),
+        "numpy_build": np.__config__.show(mode="dicts"),
     }
     if os.name == "nt":
         import winreg
@@ -351,6 +354,7 @@ def main() -> int:
         write_record(results / "environment.json", host)
         records: dict[str, Any] = {
             "protocol": "i9-process-paired-v1", "warmups": [], "pairs": [],
+            "requested_pairs": args.repeats,
             "cpu_index": args.cpu, "cache_policy": "symmetric-warm-raw-csv",
         }
 
@@ -370,6 +374,13 @@ def main() -> int:
             row["comparison"] = compare_results(paths["python"], paths["cpp"], args)
             records["warmups"].append(row)
             write_record(results / "measurements.json", records)
+            if not row["comparison"]["all_pass"]:
+                records["stopped_reason"] = "warmup_output_mismatch"
+                records["inputs_unchanged"] = input_identity(args, cpp_exe) == identities
+                write_record(results / "measurements.json", records)
+                print(json.dumps({"all_pairs_pass": False,
+                                  "stopped_reason": records["stopped_reason"]}))
+                return 1
 
         py_runs: list[Path] = []
         cpp_runs: list[Path] = []
@@ -396,6 +407,9 @@ def main() -> int:
             row["comparison"] = comparison
             records["pairs"].append(row)
             write_record(results / "measurements.json", records)
+            if not comparison["all_pass"]:
+                records["stopped_reason"] = "measured_output_mismatch"
+                break
         unchanged = input_identity(args, cpp_exe) == identities
         records["inputs_unchanged"] = unchanged
         write_record(results / "measurements.json", records)
@@ -463,9 +477,9 @@ def main() -> int:
             (check["max_abs_diff"] for item in all_comparisons for check in item["checks"]
              if check["kind"] == "primary" and np.isfinite(check["max_abs_diff"])),
             default=float("nan")),
-        "python_total_seconds": performance["stages"]["total_seconds"]["python_seconds"],
-        "cpp_total_seconds": performance["stages"]["total_seconds"]["cpp_seconds"],
-        "total_speedup": performance["stages"]["total_seconds"]["speedup"],
+        "python_process_wall_seconds": performance["wall"]["python_seconds"],
+        "cpp_process_wall_seconds": performance["wall"]["cpp_seconds"],
+        "process_wall_speedup": performance["wall"]["speedup"],
     }, indent=2))
     return 0 if all_pass else 1
 

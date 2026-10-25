@@ -84,6 +84,26 @@ class CampaignTests(unittest.TestCase):
             self.assertEqual(len(report["all_comparisons"]), 5)
             self.assertEqual(report["formal_acceptance"], "DEVELOPMENT_CAMPAIGN_ONLY")
 
+    def test_failed_warmup_stops_before_more_processes_and_retains_comparison(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            args = self.arguments(Path(temporary))
+            failure = {"all_pass": False, "checks": [{"name": "labels", "status": "FAIL"}]}
+            with mock.patch.object(runner, "parse_args", return_value=args), \
+                    mock.patch.object(runner, "find_cpp", return_value=args.cpp_exe), \
+                    mock.patch.object(runner, "input_identity", return_value={"fixed": True}), \
+                    mock.patch.object(runner, "host_identity", return_value={}), \
+                    mock.patch.object(runner, "run_command", return_value={"wall_seconds": 1.0}) as launch, \
+                    mock.patch.object(runner, "compare_results", return_value=failure), \
+                    mock.patch("builtins.print"):
+                self.assertEqual(runner.main(), 1)
+            self.assertEqual(launch.call_count, 2)
+            record = json.loads((args.results_dir / "measurements.json").read_text(encoding="utf-8"))
+            self.assertEqual(record["requested_pairs"], 5)
+            self.assertEqual(record["pairs"], [])
+            self.assertEqual(record["warmups"][0]["comparison"], failure)
+            self.assertEqual(record["stopped_reason"], "warmup_output_mismatch")
+            self.assertTrue(record["inputs_unchanged"])
+
 
 if __name__ == "__main__":
     unittest.main()
