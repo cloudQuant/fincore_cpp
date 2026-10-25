@@ -1,0 +1,70 @@
+name: docs
+
+on:
+  push:
+    branches: [dev, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Doxygen and Python docs dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y doxygen
+          python -m pip install --upgrade pip
+          python -m pip install -r docs/requirements-docs.txt
+      - name: Generate Doxygen XML
+        working-directory: docs/site
+        run: |
+          doxygen Doxyfile
+          python tools/normalize_doxygen_xml.py ../_build/doxygen/xml
+      - name: Build English documentation
+        working-directory: docs/site
+        env:
+          FINCORE_DOCS_LANGUAGE: en
+          FINCORE_DOCS_BASEURL: https://cloudquant.github.io/fincore_cpp/en/latest/
+        run: sphinx-build -b html -W -n --keep-going . ../_build/html/en
+      - name: Build Chinese documentation
+        working-directory: docs/site
+        env:
+          FINCORE_DOCS_LANGUAGE: zh_CN
+          FINCORE_DOCS_BASEURL: https://cloudquant.github.io/fincore_cpp/zh-cn/latest/
+        run: sphinx-build -b html -W -n --keep-going . ../_build/html/zh_CN
+      - name: Assemble GitHub Pages site
+        run: |
+          mkdir -p site/en/latest site/zh-cn/latest
+          cp -r docs/_build/html/en/. site/en/latest/
+          cp -r docs/_build/html/zh_CN/. site/zh-cn/latest/
+          cp docs/site/root.html site/index.html
+          touch site/.nojekyll
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/master')
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

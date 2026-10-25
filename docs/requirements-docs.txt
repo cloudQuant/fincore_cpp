@@ -1,0 +1,7 @@
+# Documentation environment for docs/site (Python 3.12+).
+# Verified on Windows 11 with Doxygen 1.9.7 on 2026-10-25.
+sphinx==9.2.0
+breathe==5.1.0
+myst-parser==5.1.0
+sphinx-intl==2.4.0
+sphinx-rtd-theme==3.1.0

@@ -81,3 +81,8 @@ __pycache__/
 # Alpha003 benchmark data and generated results (94 MB source panel)
 benchmarks/alpha003_a_stocks/data/a_stocks/
 benchmarks/alpha003_a_stocks/results*/
+
+# Documentation tooling
+.venv-docs/
+docs/_build/
+docs/site/locale/**/*.mo

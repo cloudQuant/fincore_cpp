@@ -1,0 +1,10 @@
+{% extends "!layout.html" %}
+
+{% block relbar1 %}
+  {{ super() }}
+  <div class="fc-language-switch" role="navigation" aria-label="Language">
+    <a href="{{ base_url }}/../en/latest/" data-fc-language="en">English</a>
+    <span aria-hidden="true">|</span>
+    <a href="{{ base_url }}/../zh-cn/latest/" data-fc-language="zh-cn">简体中文</a>
+  </div>
+{% endblock %}
