@@ -3,6 +3,8 @@
 #include <fincore/detail/factor_compute.hpp>
 #include <fincore/factor/exceptions.hpp>
 
+#include "research_detailed_internal.hpp"
+
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
@@ -2243,5 +2245,95 @@ std::vector<factor_series_result> quantile_turnover_many(
 }
 
 }  // namespace detail
+
+namespace research_detailed_detail {
+
+std::vector<factor_series_result> factor_rank_autocorrelation_ranked_panel(
+    const factor_series& panel, const std::span<const double> ranks,
+    const std::span<const std::size_t> date_offsets,
+    const std::vector<int>& lags) {
+    if (panel.dates.size() != panel.assets.size() ||
+        panel.dates.size() != ranks.size()) {
+        throw factor_data_error{
+            "ranked panel dates, assets and ranks must have equal lengths"};
+    }
+    if (date_offsets.empty() || date_offsets.front() != 0U ||
+        date_offsets.back() != panel.dates.size()) {
+        throw factor_data_error{
+            "ranked panel date offsets must span all panel rows"};
+    }
+    for (std::size_t date = 0U; date + 1U < date_offsets.size(); ++date) {
+        if (date_offsets[date] >= date_offsets[date + 1U] ||
+            date_offsets[date + 1U] > panel.dates.size()) {
+            throw factor_data_error{
+                "ranked panel date offsets must describe non-empty runs"};
+        }
+    }
+    for (const int lag : lags) {
+        if (lag <= 0) {
+            throw factor_data_error{"period must be a positive integer"};
+        }
+    }
+
+    const std::size_t date_count = date_offsets.size() - 1U;
+    std::vector<factor_series_result> results;
+    results.reserve(lags.size());
+    for (const int lag : lags) {
+        static_cast<void>(lag);
+        factor_series_result result;
+        result.dates.reserve(date_count);
+        for (std::size_t date = 0U; date < date_count; ++date) {
+            result.dates.push_back(panel.dates[date_offsets[date]]);
+        }
+        result.values.assign(date_count, nan);
+        results.push_back(std::move(result));
+    }
+    if (date_count == 0U || panel.dates.empty()) {
+        return results;
+    }
+
+    std::vector<double> left;
+    std::vector<double> right;
+    for (std::size_t lag_index = 0U; lag_index < lags.size(); ++lag_index) {
+        const auto lag = static_cast<std::size_t>(lags[lag_index]);
+        auto& result = results[lag_index];
+        for (std::size_t position = lag; position < date_count; ++position) {
+            left.clear();
+            right.clear();
+            std::size_t current_row = date_offsets[position];
+            const std::size_t current_end = date_offsets[position + 1U];
+            std::size_t previous_row = date_offsets[position - lag];
+            const std::size_t previous_end =
+                date_offsets[position - lag + 1U];
+            while (current_row < current_end &&
+                   previous_row < previous_end) {
+                if (!std::isfinite(ranks[current_row])) {
+                    ++current_row;
+                    continue;
+                }
+                if (!std::isfinite(ranks[previous_row])) {
+                    ++previous_row;
+                    continue;
+                }
+                const auto& current_asset = panel.assets[current_row];
+                const auto& previous_asset = panel.assets[previous_row];
+                if (current_asset < previous_asset) {
+                    ++current_row;
+                } else if (previous_asset < current_asset) {
+                    ++previous_row;
+                } else {
+                    left.push_back(ranks[current_row]);
+                    right.push_back(ranks[previous_row]);
+                    ++current_row;
+                    ++previous_row;
+                }
+            }
+            result.values[position] = pearson(left, right);
+        }
+    }
+    return results;
+}
+
+}  // namespace research_detailed_detail
 
 }  // namespace fincore

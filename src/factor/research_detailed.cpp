@@ -486,6 +486,40 @@ std::vector<double> average_ranks_including_infinities(
     return result;
 }
 
+void average_ranks_including_infinities_into(
+    const std::span<const double> values, const std::span<double> result) {
+    if (values.size() != result.size()) {
+        throw factor_data_error{
+            "detailed rank input and output must have equal lengths"};
+    }
+    std::fill(result.begin(), result.end(), nan);
+    std::vector<std::size_t> order;
+    order.reserve(values.size());
+    for (std::size_t index = 0; index < values.size(); ++index) {
+        if (!std::isnan(values[index])) {
+            order.push_back(index);
+        }
+    }
+    std::stable_sort(order.begin(), order.end(), [&values](const auto left,
+                                                          const auto right) {
+        return values[left] < values[right];
+    });
+    for (std::size_t first = 0U; first < order.size();) {
+        std::size_t last = first + 1U;
+        while (last < order.size() &&
+               values[order[last]] == values[order[first]]) {
+            ++last;
+        }
+        const double rank =
+            (static_cast<double>(first + 1U) + static_cast<double>(last)) /
+            2.0;
+        for (std::size_t position = first; position < last; ++position) {
+            result[order[position]] = rank;
+        }
+        first = last;
+    }
+}
+
 int turnover_lag(const std::string& label) {
     if (label.empty() || label.back() != 'D') {
         return 1;
@@ -973,41 +1007,65 @@ research_detailed_result evaluate_factor_research_detailed(
 
         const std::size_t lag =
             static_cast<std::size_t>(turnover_lag(input.period));
-        for (const int quantile : prepared.available_quantiles) {
-            std::map<timestamp, std::set<std::string>> names_by_date;
-            for (std::size_t index = 0; index < prepared.panel_rows.size();
-                 ++index) {
-                if (prepared.quantiles[index] == quantile) {
-                    const std::size_t row = prepared.panel_rows[index];
-                    names_by_date[panel.dates[row]].insert(panel.assets[row]);
+        for (std::size_t quantile_slot = 0U;
+             quantile_slot < quantile_count; ++quantile_slot) {
+            const int quantile =
+                prepared.available_quantiles[quantile_slot];
+            std::vector<std::size_t> quantile_dates;
+            quantile_dates.reserve(date_count);
+            for (std::size_t date = 0U; date < date_count; ++date) {
+                if (daily_counts[date * quantile_count + quantile_slot] !=
+                    0U) {
+                    quantile_dates.push_back(date);
                 }
             }
-            std::vector<timestamp> dates;
-            std::vector<std::set<std::string>> names;
-            dates.reserve(names_by_date.size());
-            names.reserve(names_by_date.size());
-            for (const auto& [date, assets] : names_by_date) {
-                dates.push_back(date);
-                names.push_back(assets);
-            }
-            for (std::size_t position = lag; position < names.size();
-                 ++position) {
-                const auto& current = names[position];
-                if (current.empty()) {
-                    continue;
-                }
+            for (std::size_t position = lag;
+                 position < quantile_dates.size(); ++position) {
+                const std::size_t current_date = quantile_dates[position];
+                const std::size_t previous_date =
+                    quantile_dates[position - lag];
+                const auto& current_run = prepared.date_runs[current_date];
+                const auto& previous_run =
+                    prepared.date_runs[previous_date];
+                std::size_t current_index = current_run.begin;
+                std::size_t previous_index = previous_run.begin;
                 std::size_t common = 0U;
-                for (const auto& asset : current) {
-                    common += static_cast<std::size_t>(
-                        names[position - lag].contains(asset));
+                while (current_index < current_run.end &&
+                       previous_index < previous_run.end) {
+                    if (prepared.quantiles[current_index] != quantile) {
+                        ++current_index;
+                        continue;
+                    }
+                    if (prepared.quantiles[previous_index] != quantile) {
+                        ++previous_index;
+                        continue;
+                    }
+                    const auto& current_asset = panel.assets[
+                        prepared.panel_rows[current_index]];
+                    const auto& previous_asset = panel.assets[
+                        prepared.panel_rows[previous_index]];
+                    if (current_asset < previous_asset) {
+                        ++current_index;
+                    } else if (previous_asset < current_asset) {
+                        ++previous_index;
+                    } else {
+                        ++common;
+                        ++current_index;
+                        ++previous_index;
+                    }
                 }
+                const std::size_t current_count =
+                    daily_counts[current_date * quantile_count +
+                                 quantile_slot];
                 const double turnover =
-                    static_cast<double>(current.size() - common) /
-                    static_cast<double>(current.size());
+                    static_cast<double>(current_count - common) /
+                    static_cast<double>(current_count);
                 if (std::isfinite(turnover)) {
+                    const std::size_t first_panel_row =
+                        prepared.panel_rows[current_run.begin];
                     result.turnover.push_back(
-                        {dates[position], factor, input.period, quantile,
-                         turnover});
+                        {panel.dates[first_panel_row], factor, input.period,
+                         quantile, turnover});
                 }
             }
         }
@@ -1033,37 +1091,26 @@ research_detailed_result evaluate_factor_research_detailed(
              ic_summary.count});
     }
 
-    prepared_factor_data full_panel;
-    full_panel.rows.reserve(panel.dates.size());
-    std::map<timestamp, std::vector<std::size_t>> stability_rows_by_date;
-    for (std::size_t row = 0; row < panel.dates.size(); ++row) {
-        stability_rows_by_date[panel.dates[row]].push_back(row);
-    }
-    for (const auto& [date, rows] : stability_rows_by_date) {
-        std::vector<double> values;
-        values.reserve(rows.size());
-        for (const std::size_t row : rows) {
-            values.push_back(panel.values[row]);
+    std::vector<double> stability_ranks(panel.dates.size(), nan);
+    std::vector<std::size_t> stability_date_offsets{0U};
+    for (std::size_t date_begin = 0U; date_begin < panel.dates.size();) {
+        std::size_t date_end = date_begin + 1U;
+        while (date_end < panel.dates.size() &&
+               panel.dates[date_end] == panel.dates[date_begin]) {
+            ++date_end;
         }
-        const auto ranks = average_ranks_including_infinities(values);
-        for (std::size_t position = 0; position < rows.size(); ++position) {
-            const auto row = rows[position];
-            factor_row item;
-            item.date = date;
-            item.asset = panel.assets[row];
-            // The public Python path ranks all non-NaN values, including
-            // infinities. Store ranks so the shared finite-only C++ helper
-            // preserves those observations; ranking these finite ranks again
-            // is idempotent, including ties.
-            item.factor = ranks[position];
-            item.has_group = true;
-            item.group = groups.at(panel.assets[row]);
-            full_panel.rows.push_back(std::move(item));
-        }
+        const std::size_t count = date_end - date_begin;
+        average_ranks_including_infinities_into(
+            std::span<const double>{panel.values.data() + date_begin, count},
+            std::span<double>{stability_ranks.data() + date_begin, count});
+        stability_date_offsets.push_back(date_end);
+        date_begin = date_end;
     }
     const auto stability =
-        detail::factor_rank_autocorrelation_many(full_panel,
-                                                 spec.stability_lags);
+        research_detailed_detail::factor_rank_autocorrelation_ranked_panel(
+            panel, std::span<const double>{stability_ranks},
+            std::span<const std::size_t>{stability_date_offsets},
+            spec.stability_lags);
     for (std::size_t lag = 0; lag < stability.size(); ++lag) {
         const auto summary = summarize(stability[lag].values);
         result.stability.push_back(

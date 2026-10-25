@@ -827,6 +827,141 @@ TEST(FactorResearchDetailed, StabilityRanksIncludeInfinities) {
     EXPECT_NEAR(result.stability[0].mean_rank_autocorrelation, 1.0, 1e-12);
 }
 
+TEST(FactorResearchDetailed,
+     StabilityMatchesPreparedReferenceForSparsePanelAndMultipleLags) {
+    const auto start = fincore::utc_timestamp(2024, 4, 8);
+    constexpr fincore::timestamp day = 86'400'000'000'000LL;
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+    const std::vector<std::string> assets{"A", "B", "C"};
+
+    fincore::factor_series factors;
+    const auto add_factor = [&factors, start, day](const int date,
+                                                   const std::string& asset,
+                                                   const double value) {
+        factors.dates.push_back(
+            start + static_cast<fincore::timestamp>(date) * day);
+        factors.assets.push_back(asset);
+        factors.values.push_back(value);
+    };
+    add_factor(0, "A", 0.0);
+    add_factor(0, "B", 1.0);
+    add_factor(0, "C", 2.0);
+    add_factor(1, "A", 0.0);
+    add_factor(1, "C", 1.0);
+    add_factor(2, "A", nan);
+    add_factor(2, "B", nan);
+    add_factor(2, "C", nan);
+    add_factor(3, "B", 0.0);
+    add_factor(3, "C", 1.0);
+    add_factor(4, "A", 0.0);
+    add_factor(4, "B", 2.0);
+    add_factor(4, "C", 1.0);
+
+    fincore::dataframe prices;
+    prices.load_index(std::vector<fincore::timestamp>{
+        start, start + day, start + 2 * day, start + 3 * day,
+        start + 4 * day, start + 5 * day});
+    prices.load_column<double>("A", {10.0, 11.0, 12.0, 13.0, 14.0, 15.0},
+                               hmdf::nan_policy::dont_pad_with_nans);
+    prices.load_column<double>("B", {20.0, 21.0, 22.0, 23.0, 24.0, 25.0},
+                               hmdf::nan_policy::dont_pad_with_nans);
+    prices.load_column<double>("C", {30.0, 31.0, 32.0, 33.0, 34.0, 35.0},
+                               hmdf::nan_policy::dont_pad_with_nans);
+
+    fincore::research_spec spec;
+    spec.targets = assets;
+    spec.start = start;
+    spec.end = start + 4 * day;
+    spec.periods = {1};
+    spec.quantiles = 2;
+    spec.min_assets = 2;
+    spec.min_quantile_assets = 1;
+    spec.max_loss = 1.0;
+    spec.stability_lags = {1, 2};
+    spec.label = "close_to_close";
+    spec.preprocess = "none";
+
+    const auto actual = fincore::evaluate_factor_research_detailed(
+        "sparse_stability_signal", factors, prices, spec);
+
+    // The legacy prepared-factor helper remains the exact Pearson reference.
+    // These are the whole-panel average ranks, including the empty date as
+    // three NaN rows, before that helper's idempotent second rank pass.
+    fincore::prepared_factor_data reference_panel;
+    const auto add_reference = [&reference_panel, start, day](
+                                  const int date, const std::string& asset,
+                                  const double rank) {
+        fincore::factor_row row;
+        row.date = start + static_cast<fincore::timestamp>(date) * day;
+        row.asset = asset;
+        row.factor = rank;
+        reference_panel.rows.push_back(row);
+    };
+    add_reference(0, "A", 1.0);
+    add_reference(0, "B", 2.0);
+    add_reference(0, "C", 3.0);
+    add_reference(1, "A", 1.0);
+    add_reference(1, "C", 2.0);
+    add_reference(2, "A", nan);
+    add_reference(2, "B", nan);
+    add_reference(2, "C", nan);
+    add_reference(3, "B", 1.0);
+    add_reference(3, "C", 2.0);
+    add_reference(4, "A", 1.0);
+    add_reference(4, "B", 3.0);
+    add_reference(4, "C", 2.0);
+    const auto reference = fincore::detail::factor_rank_autocorrelation_many(
+        reference_panel, spec.stability_lags);
+
+    ASSERT_EQ(actual.stability.size(), spec.stability_lags.size());
+    ASSERT_EQ(reference.size(), actual.stability.size());
+    for (std::size_t lag = 0U; lag < actual.stability.size(); ++lag) {
+        SCOPED_TRACE(std::string{"lag="} +
+                     std::to_string(spec.stability_lags[lag]));
+        std::size_t count = 0U;
+        double sum = 0.0;
+        for (const double value : reference[lag].values) {
+            if (std::isfinite(value)) {
+                ++count;
+                sum += value;
+            }
+        }
+        EXPECT_EQ(actual.stability[lag].lag, spec.stability_lags[lag]);
+        EXPECT_EQ(actual.stability[lag].n_dates, count);
+        if (count == 0U) {
+            EXPECT_TRUE(std::isnan(
+                actual.stability[lag].mean_rank_autocorrelation));
+            EXPECT_TRUE(
+                std::isnan(actual.stability[lag].std_rank_autocorrelation));
+            continue;
+        }
+        const double mean = sum / static_cast<double>(count);
+        EXPECT_NEAR(actual.stability[lag].mean_rank_autocorrelation, mean,
+                    1e-12);
+        if (count < 2U) {
+            EXPECT_TRUE(
+                std::isnan(actual.stability[lag].std_rank_autocorrelation));
+            continue;
+        }
+        double squared = 0.0;
+        for (const double value : reference[lag].values) {
+            if (std::isfinite(value)) {
+                const double delta = value - mean;
+                squared += delta * delta;
+            }
+        }
+        const double deviation =
+            std::sqrt(squared / static_cast<double>(count - 1U));
+        EXPECT_NEAR(actual.stability[lag].std_rank_autocorrelation,
+                    deviation, 1e-12);
+    }
+    EXPECT_EQ(actual.stability[0].n_dates, 2U);
+    EXPECT_NEAR(actual.stability[0].mean_rank_autocorrelation, 0.0, 1e-12);
+    EXPECT_NEAR(actual.stability[0].std_rank_autocorrelation,
+                std::sqrt(2.0), 1e-12);
+    EXPECT_EQ(actual.stability[1].n_dates, 0U);
+}
+
 TEST(FactorResearchDetailed, RejectsDuplicateFactorKeys) {
     const auto start = fincore::utc_timestamp(2024, 5, 6);
     fincore::factor_series factors;
