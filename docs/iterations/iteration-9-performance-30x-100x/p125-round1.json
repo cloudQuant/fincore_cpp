@@ -1,0 +1,127 @@
+{
+  "status": "PASS_BUILD_CONFIGURATION_AND_SANITIZER_TESTS_ONLY",
+  "repository": "D:/source_code/fincore_cpp",
+  "branch": "dev",
+  "base_commit": "e4fed743aba20b2c0ebadecc0252f0f6d4df29c7",
+  "source": [
+    {
+      "path": "CMakeLists.txt",
+      "size_bytes": 7347,
+      "checkout_sha256": "c1211b92def8e00fb582721b6dba45b4848de849e9de028d93911632fc4cc99f"
+    },
+    {
+      "path": "cmake/fincore_sanitizers.cmake",
+      "size_bytes": 2036,
+      "checkout_sha256": "c987aaa00b6684cb4528ef63e7101d890d010434af3e92c26d736f2416d8d268"
+    },
+    {
+      "path": "tests/CMakeLists.txt",
+      "size_bytes": 5939,
+      "checkout_sha256": "3415b764d0c93fd4291f142a425b7fe2b733b7d9a6f9467814f58544b0661299"
+    }
+  ],
+  "release": {
+    "passed": 1092,
+    "failed": 0,
+    "exit_code": 0,
+    "seconds": 20.08
+  },
+  "asan": {
+    "passed": 1092,
+    "failed": 0,
+    "exit_code": 0,
+    "seconds": 179.3,
+    "finding_count": 0,
+    "compile_command_coverage": {
+      "compile_commands": 239,
+      "asan_commands": 239,
+      "debug_info_commands": 239,
+      "link_inferasan": true,
+      "command_capture_sha256": "04a0498578eef6370c77be7a80ebfcdd923bc9c07d628c40db8f559fa56fef3b"
+    },
+    "instrumented_scope": [
+      "fincore",
+      "fincore_tests",
+      "source-built DataFrame",
+      "gtest",
+      "gtest_main"
+    ],
+    "ubsan": "NOT_SUPPORTED_BY_MSVC",
+    "compiler_warning": "one C4858 at existing tests/unit/runtime_test.cpp:295; no suppression or unrelated edit"
+  },
+  "review": "independent static GO for scope propagation and final /Z7 /DEBUG correction; tests performed by Root",
+  "artifacts": [
+    {
+      "path": "build-win/p125-r1-asan-debug-configure.log",
+      "size_bytes": 148,
+      "checkout_sha256": "adfa1253efd2797ddd40768b0ad92841dccf8a5809f6557c7be6a0c6b04324ac"
+    },
+    {
+      "path": "build-win/p125-r1-asan-debug-build.log",
+      "size_bytes": 8659810,
+      "checkout_sha256": "4cf283d30706ee0b62a114b92d358876f6923a09732c0723a32f1f4fef1a1f6c"
+    },
+    {
+      "path": "build-win/p125-r1-asan-debug-ctest.log",
+      "size_bytes": 242977,
+      "checkout_sha256": "8b29e6f70ab69b25dffa3559130ff1d6c050a1216f1088ffcbcc751eadc14394"
+    },
+    {
+      "path": "build-win/p125-r1-release-build.log",
+      "size_bytes": 540,
+      "checkout_sha256": "d23555bd6cd3a02caf17b4770a44e4369c6e76080926a30aa04e214089cb34b2"
+    },
+    {
+      "path": "build-win/p125-r1-release-ctest.log",
+      "size_bytes": 242941,
+      "checkout_sha256": "af0a924202d05d0c73fcc29afb9b9bb8b3a03fcc556d15a253c69e323f970f9c"
+    },
+    {
+      "path": "build-win/p125-r1-asan-command-coverage.json",
+      "size_bytes": 213,
+      "checkout_sha256": "4004c0f192d7494cf455ad0c72cea6e882150fa7fcc615537cf70d0b7c9306a9"
+    },
+    {
+      "path": "build-win/p125-r1-asan-commands.log",
+      "size_bytes": 157877,
+      "checkout_sha256": "04a0498578eef6370c77be7a80ebfcdd923bc9c07d628c40db8f559fa56fef3b"
+    },
+    {
+      "path": "build-win-p120-asan-e4fed74/build.log",
+      "size_bytes": 8954944,
+      "checkout_sha256": "0e0b9fc06cd4c62c67bd87f892117fb6336ca70a670014247081acf67fd5c768"
+    },
+    {
+      "path": "build-win/p125-r1-asan-build.log",
+      "size_bytes": 5266507,
+      "checkout_sha256": "354d115a70bb0d7e547fd093aafd45ced8c995a8f72c615070400c3f27f23bc7"
+    }
+  ],
+  "binaries": [
+    {
+      "path": "build-win/fincore_alpha003_research.exe",
+      "size_bytes": 630272,
+      "checkout_sha256": "ed34e9e8a75e6564d8a1874785721508fafe41a064fdd6062c79c758f67b1763"
+    },
+    {
+      "path": "build-win/fincore_factor_benchmark.exe",
+      "size_bytes": 2963456,
+      "checkout_sha256": "4e678abe1546cb99ae15f613468e6f9299d57ef8d841433acd7f85ec4396742e"
+    },
+    {
+      "path": "build-win/tests/fincore_tests.exe",
+      "size_bytes": 15401984,
+      "checkout_sha256": "e723a9ff72b2e8f2caf96a4c97fd252e2ffb8da4f36da733b981681525c87989"
+    },
+    {
+      "path": "build-win-p120-asan-e4fed74/tests/fincore_tests.exe",
+      "size_bytes": 39276032,
+      "checkout_sha256": "da58962aa20b5a7151c40f7750f20beb516ba83312046f5be7dcfe7cf3f725f7"
+    }
+  ],
+  "performance_measurement": "none; normal Release relinked after CMake regenerated ECharts resource object; no new timing score",
+  "previous_failures": [
+    "initial invalid linker option plus annotation mismatch and unresolved ASan runtime symbols",
+    "first correction then C5072 promoted by GoogleTest /WX; debug info subsequently enabled"
+  ]
+}

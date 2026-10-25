@@ -17,8 +17,16 @@ function(fincore_enable_sanitizers target)
 
     if(FINCORE_ENABLE_ASAN)
         if(MSVC AND CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-            target_compile_options(${target} ${compile_scope} /fsanitize=address)
-            target_link_options(${target} ${link_scope} /fsanitize=address)
+            # MSVC STL container annotations must agree across the final
+            # executable's objects and static libraries, including consumers.
+            set(msvc_compile_scope ${compile_scope})
+            if(target_type STREQUAL "STATIC_LIBRARY")
+                set(msvc_compile_scope PUBLIC)
+            endif()
+            # Embedded debug info also avoids C5072 under dependency /WX builds.
+            target_compile_options(${target} ${msvc_compile_scope} /fsanitize=address /Z7)
+            # CMake invokes link.exe directly; /fsanitize is a cl.exe option.
+            target_link_options(${target} ${link_scope} /INFERASANLIBS /DEBUG)
         else()
             target_compile_options(${target} ${compile_scope} -fsanitize=address)
             target_link_options(${target} ${link_scope} -fsanitize=address)

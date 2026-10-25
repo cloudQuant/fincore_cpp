@@ -41,6 +41,17 @@ include(cmake/fincore_dependencies.cmake)
 include(cmake/fincore_report_assets.cmake)
 include(cmake/fincore_sanitizers.cmake)
 
+# Source-built dependencies share MSVC's STL annotation setting. An imported
+# DataFrame archive must already have compatible sanitizer instrumentation.
+get_target_property(_fincore_dataframe_target DataFrame::DataFrame ALIASED_TARGET)
+if(NOT _fincore_dataframe_target)
+    set(_fincore_dataframe_target DataFrame::DataFrame)
+endif()
+get_target_property(_fincore_dataframe_imported ${_fincore_dataframe_target} IMPORTED)
+if(NOT _fincore_dataframe_imported)
+    fincore_enable_sanitizers(${_fincore_dataframe_target})
+endif()
+
 add_library(fincore
     src/calendar.cpp
     src/dataframe.cpp
