@@ -5,6 +5,12 @@ The C++23, DataFrame-native foundation for fincore analytics.
 中文项目介绍、安装示例与 Python 性能对比：
 [fincore_cpp 用 C++ 做量化分析与因子研究](docs/articles/fincore-cpp-introduction-wechat.md)。
 
+双语在线文档以 `docs/site/` 为源，由 Doxygen + Breathe + Sphinx 构建，公共 API
+参考逐模块生成（中英各 30 个页面），构建步骤见
+[maintainer notes](docs/site/maintainer/README.md)。截至 2026-10-26，两语言的
+严格构建与 1092 项 C++ 测试均通过，但 Read the Docs 与 GitHub Pages 尚未完成
+线上验证，状态见[发布说明](docs/site/publication.md)。
+
 The [Alpha003 benchmark](benchmarks/alpha003_a_stocks/README.md) now emits one
 offline research HTML per engine. Paired comparisons retain only the two
 research reports and one HTML comparison summary; generated results are ignored
@@ -3493,9 +3499,9 @@ plus a fresh offline package build and relocated consumers after scratch
 source/build removal. Linux used GCC 13.3 cross-compilation on aarch64 Ubuntu
 and execution in an x86_64 guest. The revised six-iteration native scope and
 capability ledger are reconciled in the
-[candidate acceptance](docs/acceptance/2026-10-23-revised-plan-candidate-acceptance.md).
+[iteration-8 acceptance](docs/acceptance/2026-10-24-iteration-8-native-parity-acceptance.md).
 The raw performance comparator remains FAIL with 14 explicitly dispositioned
 triggers; no speedup or no-regression claim is made. The
-[scope decisions](docs/acceptance/2026-10-23-revised-plan-scope-decisions.md)
+[iteration-8 requirements](docs/iterations/iteration-8-full-python-parity/requirements.md)
 retain partial models, deferred routes and native-versus-Python boundaries.
 No full Python package parity, hosted CI or external release is claimed.

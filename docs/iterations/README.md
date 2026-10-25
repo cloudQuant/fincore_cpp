@@ -1,5 +1,13 @@
 # Fincore C++ — Iteration Plan Index
 
+## Comments and bilingual documentation plan — 2026-10-25
+
+[Iteration 10: Google-style comments and bilingual online documentation](iteration-10-comments-bilingual-docs/README.md)
+plans P126–P134 for source comments, English/Chinese product and API documentation,
+and publication on Read the Docs and GitHub Pages. This is a **plan-only** delivery;
+implementation and publication remain **NOT_RUN**. Suspected defects are recorded
+for review and separate fixes; this planning round changes no code or configuration.
+
 ## Performance delivery closeout — 2026-10-25
 
 [Iteration 9: at least 30x, aiming for 100x end-to-end performance](iteration-9-performance-30x-100x/README.md)

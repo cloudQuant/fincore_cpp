@@ -1,8 +1,8 @@
 # Native Usage, Packaging and Migration Notes
 
 The delivery is a C++23/DataFrame library. It has no Python bindings or
-`import fincore` compatibility. Use the [current candidate acceptance](../acceptance/2026-10-23-revised-plan-candidate-acceptance.md)
-for measured compiler/platform/test results and the [capability ledger](../iterations/capability-ledger.tsv)
+`import fincore` compatibility. Use the [current iteration-8 acceptance](../acceptance/2026-10-24-iteration-8-native-parity-acceptance.md)
+for measured compiler/platform/test results and the [route ledger](../iterations/iteration-8-full-python-parity/route-ledger.tsv)
 for exact route mappings and exclusions. Historical counts in older phase
 records describe those earlier candidates.
 
@@ -33,9 +33,10 @@ prepopulated, for example with `FETCHCONTENT_SOURCE_DIR_GOOGLETEST`. An offline
 build with supplied dependencies is different from the first dependency download.
 
 Enable `FINCORE_BUILD_IMPLOT=ON` with `FINCORE_IMGUI_SOURCE_DIR` and
-`FINCORE_IMPLOT_SOURCE_DIR` for the optional adapter. Pins are ImGui
-`46d39d56febc2a00bdd2270dc88c8a13f2a0441a` and ImPlot
-`7eeb9168d2e5e6b14e266d8782ecf7e649dfc3a4`. Install that separate component with
+`FINCORE_IMPLOT_SOURCE_DIR` for the optional adapter. The current submodule
+pins are ImGui `4e99c0ab1a28c2b3d1f250ec0266dbf1e455ef58` and ImPlot
+`7eeb9168d2e5e6b14e266d8782ecf7e649dfc3a4`; older phase records that mention
+another ImGui revision describe an earlier candidate. Install that separate component with
 `cmake --install build --component implot`. The demo additionally needs
 `FINCORE_BUILD_IMPLOT_DEMO=ON` and its platform window/OpenGL dependencies.
 Core headers do not require GUI headers.
@@ -79,7 +80,9 @@ Factor processing is `prepare_*` → `analyze_factor` → report/chart projectio
 renderers consume already computed values. Requested full-universe group
 snapshots differ from independent subgroup analyses.
 
-`builtin_catalog()` contains 48 selected exact source operation IDs.
+`builtin_catalog()` contains 270 registered native operation IDs in the
+iteration-8 candidate; the three live-provider IDs are deliberately excluded
+and remain `EXTERNAL_OPTIONAL` ([registration evidence](../evidence/iteration-8/p105/registered-operation-ids.txt)).
 `plan` is a flat ordered request list, not a dependency graph. `run`/`batch`
 use typed inputs; config is provenance and is not forwarded implicitly.
 Sessions cache deterministic operations only, own inputs/outputs and reject
@@ -118,7 +121,7 @@ repetitions and per-process RSS. Retained comparator failures and documented
 tradeoffs are not speedup claims. Full Python/native factor-model and report
 costs are not equivalent workloads.
 
-Read the [scope decisions](../acceptance/2026-10-23-revised-plan-scope-decisions.md)
+Read the [iteration-8 scope and claim boundaries](../acceptance/2026-10-24-iteration-8-native-parity-acceptance.md#1-scope-and-claim-boundaries)
 before migrating Python workflows. Network SDKs, Python discovery/object
 facades and backend artist objects are excluded; specialized plots, calendar
 helpers and additional runtime registrations have individually named deferred
