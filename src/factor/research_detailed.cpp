@@ -388,8 +388,9 @@ struct detailed_factor_order_cache {
         row_offset_to_paired_local.resize(max_date_size);
     }
 
-    // Absolute panel rows, sorted by the post-preprocess factor value. A date
-    // is inserted only after the first horizon has a finite paired sample.
+    // Absolute panel rows, sorted by the post-preprocess factor value. Rank
+    // preprocessing seeds every date; other methods populate lazily when a
+    // horizon has a finite paired sample.
     std::map<timestamp, std::vector<std::size_t>> sorted_finite_rows_by_date;
     // The current horizon's paired-local index, indexed by row offset within
     // its date. This is reused across dates and horizons.
@@ -608,6 +609,31 @@ void average_ranks_including_infinities_into(
     }
 }
 
+void average_ranks_in_panel_order_into(
+    const std::span<const double> values,
+    const std::vector<std::size_t>& sorted_rows,
+    const std::span<double> result) {
+    if (values.size() != result.size()) {
+        throw factor_data_error{
+            "detailed rank input and output must have equal lengths"};
+    }
+    for (std::size_t first = 0U; first < sorted_rows.size();) {
+        std::size_t last = first + 1U;
+        const double tied_value = values[sorted_rows[first]];
+        while (last < sorted_rows.size() &&
+               values[sorted_rows[last]] == tied_value) {
+            ++last;
+        }
+        const double rank =
+            (static_cast<double>(first + 1U) + static_cast<double>(last)) /
+            2.0;
+        for (std::size_t position = first; position < last; ++position) {
+            result[sorted_rows[position]] = rank;
+        }
+        first = last;
+    }
+}
+
 int turnover_lag(const std::string& label) {
     if (label.empty() || label.back() != 'D') {
         return 1;
@@ -818,10 +844,11 @@ research_detailed_result evaluate_factor_research_detailed(
             csv_list(missing_price_columns)};
     }
 
+    detailed_factor_order_cache factor_order_cache{panel};
     std::size_t collapsed_cross_sections = 0U;
     // The panel was canonicalized by (date, asset) above, so each date is one
-    // contiguous row range. Keep only rank scratch, growing to the largest
-    // cross-section instead of materializing row-index lists for the panel.
+    // contiguous row range. Reuse rank scratch across dates and retain its
+    // owned sorted orders only for rank preprocessing.
     std::vector<std::size_t> rank_order;
     for (std::size_t date_begin = 0U; date_begin < panel.dates.size();) {
         std::size_t date_end = date_begin + 1U;
@@ -836,6 +863,13 @@ research_detailed_result evaluate_factor_research_detailed(
             [](const double value) { return std::isfinite(value); });
         preprocess_cross_section(date_begin, date_end, panel, spec.preprocess,
                                  rank_order);
+        if (spec.preprocess == "cross_section_rank") {
+            // Ranking preprocess already owns a sorted non-NaN row order.
+            // Its outputs are all finite, so preserve that order for the
+            // horizon qcut and stability passes without another sort.
+            factor_order_cache.sorted_finite_rows_by_date.emplace(
+                panel.dates[date_begin], rank_order);
+        }
         const bool has_finite = std::any_of(
             date_values.begin(), date_values.end(),
             [](const double value) { return std::isfinite(value); });
@@ -895,7 +929,6 @@ research_detailed_result evaluate_factor_research_detailed(
 
     std::vector<std::size_t> n_dates;
     n_dates.reserve(label_input.horizons.size());
-    detailed_factor_order_cache factor_order_cache{panel};
     for (std::size_t horizon = 0; horizon < label_input.horizons.size();
          ++horizon) {
         const auto& input = label_input.horizons[horizon];
@@ -1219,9 +1252,19 @@ research_detailed_result evaluate_factor_research_detailed(
             ++date_end;
         }
         const std::size_t count = date_end - date_begin;
-        average_ranks_including_infinities_into(
-            std::span<const double>{panel.values.data() + date_begin, count},
-            std::span<double>{stability_ranks.data() + date_begin, count});
+        if (spec.preprocess == "cross_section_rank") {
+            average_ranks_in_panel_order_into(
+                std::span<const double>{panel.values},
+                factor_order_cache.sorted_finite_rows_by_date.at(
+                    panel.dates[date_begin]),
+                std::span<double>{stability_ranks});
+        } else {
+            average_ranks_including_infinities_into(
+                std::span<const double>{panel.values.data() + date_begin,
+                                        count},
+                std::span<double>{stability_ranks.data() + date_begin,
+                                  count});
+        }
         stability_date_offsets.push_back(date_end);
         date_begin = date_end;
     }

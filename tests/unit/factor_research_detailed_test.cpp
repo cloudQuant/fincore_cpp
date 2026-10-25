@@ -1345,6 +1345,178 @@ TEST(FactorResearchDetailed,
 }
 
 TEST(FactorResearchDetailed,
+     RankPreprocessReusesSortedOrderAcrossHorizonAndStability) {
+    const auto start = fincore::utc_timestamp(2024, 3, 19);
+    constexpr fincore::timestamp day = 86'400'000'000'000LL;
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+    const double infinity = std::numeric_limits<double>::infinity();
+    const std::vector<std::string> assets{"A", "B", "C", "D", "E"};
+    const std::vector<std::vector<double>> source_values{
+        {0.0, -0.0, 2.0, infinity, nan},
+        {1.0, -infinity, 1.0, nan, infinity},
+        {nan, nan, nan, nan, nan},
+        {-infinity, -0.0, 0.0, 1.0, nan},
+        {3.0, 2.0, 1.0, infinity, -infinity},
+    };
+    // These expected percentiles are tabulated from the source rows above;
+    // they intentionally do not use the production ranking helper.
+    const std::vector<std::vector<double>> expected_ranked_values{
+        {0.375, 0.375, 0.75, 1.0, nan},
+        {0.625, 0.25, 0.625, nan, 1.0},
+        {nan, nan, nan, nan, nan},
+        {0.25, 0.625, 0.625, 1.0, nan},
+        {0.8, 0.6, 0.4, 1.0, 0.2},
+    };
+
+    fincore::factor_series factors;
+    fincore::factor_series manually_ranked_factors;
+    for (std::size_t date = 0U; date < source_values.size(); ++date) {
+        const auto current_date =
+            start + static_cast<fincore::timestamp>(date) * day;
+        for (std::size_t asset = 0U; asset < assets.size(); ++asset) {
+            factors.dates.push_back(current_date);
+            factors.assets.push_back(assets[asset]);
+            factors.values.push_back(source_values[date][asset]);
+            manually_ranked_factors.dates.push_back(current_date);
+            manually_ranked_factors.assets.push_back(assets[asset]);
+            manually_ranked_factors.values.push_back(
+                expected_ranked_values[date][asset]);
+        }
+    }
+
+    fincore::dataframe prices;
+    prices.load_index(std::vector<fincore::timestamp>{
+        start, start + day, start + 2 * day, start + 3 * day,
+        start + 4 * day});
+    for (std::size_t asset = 0U; asset < assets.size(); ++asset) {
+        std::vector<double> values;
+        values.reserve(5U);
+        const double daily_growth = static_cast<double>(asset + 1U);
+        double price = 1.0;
+        for (std::size_t date = 0U; date < 5U; ++date) {
+            values.push_back(price);
+            price *= daily_growth;
+        }
+        prices.load_column<double>(
+            assets[asset].c_str(), values,
+            hmdf::nan_policy::dont_pad_with_nans);
+    }
+
+    fincore::research_spec spec;
+    spec.targets = assets;
+    spec.start = start;
+    spec.end = start + 4 * day;
+    spec.periods = {1};
+    spec.quantiles = 2;
+    spec.min_assets = 2;
+    spec.min_quantile_assets = 1;
+    spec.max_loss = 1.0;
+    spec.stability_lags = {1};
+    spec.label = "close_to_close";
+    spec.price_basis = "close";
+    spec.preprocess = "cross_section_rank";
+    const auto ranked = fincore::evaluate_factor_research_detailed(
+        "signal", factors, prices, spec);
+    spec.preprocess = "none";
+    const auto expected = fincore::evaluate_factor_research_detailed(
+        "signal", manually_ranked_factors, prices, spec);
+
+    const auto expect_same_number = [](const double actual,
+                                       const double reference) {
+        if (std::isnan(reference)) {
+            EXPECT_TRUE(std::isnan(actual));
+        } else if (std::isinf(reference)) {
+            EXPECT_TRUE(std::isinf(actual));
+            EXPECT_EQ(std::signbit(actual), std::signbit(reference));
+        } else {
+            EXPECT_DOUBLE_EQ(actual, reference);
+        }
+    };
+    ASSERT_EQ(ranked.signals.size(), expected_ranked_values.size() *
+                                         assets.size());
+    ASSERT_EQ(ranked.signals.size(), expected.signals.size());
+    for (std::size_t date = 0U; date < expected_ranked_values.size(); ++date) {
+        for (std::size_t asset = 0U; asset < assets.size(); ++asset) {
+            const std::size_t row = date * assets.size() + asset;
+            EXPECT_EQ(ranked.signals[row].date, expected.signals[row].date);
+            EXPECT_EQ(ranked.signals[row].asset, expected.signals[row].asset);
+            expect_same_number(ranked.signals[row].processed_value,
+                               expected_ranked_values[date][asset]);
+            expect_same_number(ranked.signals[row].processed_value,
+                               expected.signals[row].processed_value);
+        }
+    }
+    EXPECT_DOUBLE_EQ(ranked.signals[0].value, 0.0);
+    EXPECT_FALSE(std::signbit(ranked.signals[0].value));
+    EXPECT_DOUBLE_EQ(ranked.signals[1].value, 0.0);
+    EXPECT_TRUE(std::signbit(ranked.signals[1].value));
+
+    ASSERT_EQ(ranked.labels.size(), expected.labels.size());
+    for (std::size_t row = (expected_ranked_values.size() - 1U) * assets.size();
+         row < ranked.labels.size(); ++row) {
+        EXPECT_TRUE(std::isnan(ranked.labels[row].value));
+    }
+
+    ASSERT_EQ(ranked.ic.size(), expected.ic.size());
+    for (std::size_t row = 0U; row < ranked.ic.size(); ++row) {
+        EXPECT_EQ(ranked.ic[row].time, expected.ic[row].time);
+        EXPECT_EQ(ranked.ic[row].factor, expected.ic[row].factor);
+        EXPECT_EQ(ranked.ic[row].period, expected.ic[row].period);
+        EXPECT_EQ(ranked.ic[row].n_assets, expected.ic[row].n_assets);
+        expect_same_number(ranked.ic[row].ic, expected.ic[row].ic);
+        expect_same_number(ranked.ic[row].rank_ic,
+                           expected.ic[row].rank_ic);
+    }
+    const auto first_day_ic = std::find_if(
+        ranked.ic.begin(), ranked.ic.end(),
+        [start](const auto& row) { return row.time == start; });
+    ASSERT_NE(first_day_ic, ranked.ic.end());
+    EXPECT_EQ(first_day_ic->n_assets, 4U);
+    EXPECT_NEAR(first_day_ic->rank_ic, 4.5 / std::sqrt(22.5), 1e-12);
+
+    ASSERT_EQ(ranked.quantile_returns.size(), expected.quantile_returns.size());
+    for (std::size_t row = 0U; row < ranked.quantile_returns.size(); ++row) {
+        const auto& actual = ranked.quantile_returns[row];
+        const auto& reference = expected.quantile_returns[row];
+        EXPECT_EQ(actual.time, reference.time);
+        EXPECT_EQ(actual.factor, reference.factor);
+        EXPECT_EQ(actual.period, reference.period);
+        EXPECT_EQ(actual.quantile, reference.quantile);
+        EXPECT_EQ(actual.n_assets, reference.n_assets);
+        expect_same_number(actual.mean_return, reference.mean_return);
+    }
+    const auto first_day_lower_quantile = std::find_if(
+        ranked.quantile_returns.begin(), ranked.quantile_returns.end(),
+        [start](const auto& row) {
+            return row.time == start && row.quantile == 1;
+        });
+    ASSERT_NE(first_day_lower_quantile, ranked.quantile_returns.end());
+    EXPECT_EQ(first_day_lower_quantile->n_assets, 2U);
+    EXPECT_DOUBLE_EQ(first_day_lower_quantile->mean_return, 0.5);
+    const auto first_day_upper_quantile = std::find_if(
+        ranked.quantile_returns.begin(), ranked.quantile_returns.end(),
+        [start](const auto& row) {
+            return row.time == start && row.quantile == 2;
+        });
+    ASSERT_NE(first_day_upper_quantile, ranked.quantile_returns.end());
+    EXPECT_EQ(first_day_upper_quantile->n_assets, 2U);
+    EXPECT_DOUBLE_EQ(first_day_upper_quantile->mean_return, 2.5);
+
+    ASSERT_EQ(ranked.stability.size(), 1U);
+    ASSERT_EQ(expected.stability.size(), 1U);
+    EXPECT_EQ(ranked.stability[0].lag, 1);
+    EXPECT_EQ(ranked.stability[0].n_dates, 2U);
+    EXPECT_EQ(ranked.stability[0].n_dates, expected.stability[0].n_dates);
+    EXPECT_NEAR(ranked.stability[0].mean_rank_autocorrelation,
+                expected.stability[0].mean_rank_autocorrelation, 1e-12);
+    EXPECT_NEAR(ranked.stability[0].mean_rank_autocorrelation,
+                (0.5 + 1.5 / std::sqrt(22.5)) / 2.0, 1e-12);
+
+    EXPECT_TRUE(ranked.diagnostics.empty());
+    EXPECT_TRUE(expected.diagnostics.empty());
+}
+
+TEST(FactorResearchDetailed,
      MissingPriceErrorKeepsPanelOrderAndRejectsNonDoubleColumn) {
     const auto start = fincore::utc_timestamp(2024, 3, 20);
     fincore::factor_series factors;
