@@ -21,17 +21,20 @@ namespace fincore {
  * `frequency` enum instead of the Python string convention.
  */
 struct render_model {
-  dataframe returns;
-  std::optional<dataframe> factor_returns;
-  frequency period = frequency::daily;
+  dataframe returns;                        ///< Portfolio return frame.
+  std::optional<dataframe> factor_returns;  ///< Optional factor return frame.
+  frequency period = frequency::daily;      ///< Return frequency.
 
+  /// Creates an owning render model from the supplied frames and period.
   explicit render_model(dataframe returns,
                         std::optional<dataframe> factor_returns = std::nullopt,
                         frequency period = frequency::daily);
 };
 
+/// Callback that converts a render model into a report document.
 using renderer_callback =
     std::function<report_document(const render_model &model)>;
+/// Renderer callbacks keyed by caller-provided name.
 using renderer_map = std::map<std::string, renderer_callback>;
 
 /**
@@ -48,9 +51,20 @@ using renderer_map = std::map<std::string, renderer_callback>;
  */
 class renderer_snapshot {
 public:
+  /// Creates an immutable snapshot of the supplied renderer callbacks.
+  ///
+  /// Throws `input_error` for an empty normalized name, an empty callback, or
+  /// names that collide after trimming and ASCII lowercasing.
   explicit renderer_snapshot(renderer_map renderers);
 
+  /// Returns the callback registered under `name` after name normalization.
+  ///
+  /// Throws `input_error` for an empty or unknown normalized name.
   renderer_callback resolve_renderer(std::string_view name) const;
+  /// Renders `name` with a copied model and returns its report document.
+  ///
+  /// Throws `input_error` for an unknown renderer; exceptions raised by the
+  /// callback propagate unchanged.
   report_document render(std::string_view name,
                          const render_model &model) const;
 

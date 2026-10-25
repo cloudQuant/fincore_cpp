@@ -15,6 +15,8 @@
  */
 namespace fincore::viz {
 
+/// Backend identifiers provided by the native interactive visualization
+/// headers: Plotly-compatible, Bokeh-compatible and self-contained HTML.
 inline constexpr std::string_view interactive_backends[] = {
     "plotly", "bokeh", "html"};
 
