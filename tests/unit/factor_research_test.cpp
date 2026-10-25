@@ -3,6 +3,7 @@
 #include <fincore/factor/exceptions.hpp>
 #include <fincore/factor/research.hpp>
 #include "../../src/factor/research_export_internal.hpp"
+#include "../../src/factor/research_detailed_internal.hpp"
 
 #include <gtest/gtest.h>
 
@@ -1318,6 +1319,17 @@ TEST(FactorResearch, UnsortedUniquePanelPreservesSourceOrderSubsequence) {
     EXPECT_EQ(panel.dates[3], start + day);
     EXPECT_EQ(panel.assets[3], "B");
     EXPECT_EQ(panel.values[3], 40.0);
+
+    fincore::detail::factor_compute_diagnostics_scope diagnostics_scope;
+    const auto source_rows =
+        fincore::research_detailed_detail::select_panel_source_rows(
+            factors, config);
+    EXPECT_EQ(diagnostics_scope.snapshot().panel_preprocessings, 1U);
+    ASSERT_EQ(source_rows.size(), 4U);
+    EXPECT_EQ(source_rows[0], 0U);
+    EXPECT_EQ(source_rows[1], 1U);
+    EXPECT_EQ(source_rows[2], 3U);
+    EXPECT_EQ(source_rows[3], 4U);
 }
 
 TEST(FactorResearch, RejectsNonAdjacentDuplicateOutsideWindowFirst) {

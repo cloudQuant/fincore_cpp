@@ -164,15 +164,8 @@ void require_targets_present(const std::unordered_set<std::string>& observed,
     }
 }
 
-}  // namespace
-
-research_capabilities research_capabilities_report() {
-    return {};
-}
-
-factor_series research_panel(const factor_series& factors,
-                              const research_spec& spec) {
-    detail::note_panel_preprocessing();
+std::vector<std::size_t> select_panel_source_rows_impl(
+    const factor_series& factors, const research_spec& spec) {
     if (!(spec.max_loss >= 0.0 && spec.max_loss <= 1.0)) {
         throw factor_data_error{
             "max_loss must be a number between 0 and 1"};
@@ -288,17 +281,35 @@ factor_series research_panel(const factor_series& factors,
             selected[found->second] = 1U;
         }
     }
+    if (!spec.targets.empty()) {
+        const auto selected_end = std::remove_if(
+            window_indices.begin(), window_indices.end(),
+            [&](const std::size_t row) {
+                const auto found = asset_ids.find(factors.assets[row]);
+                return found == asset_ids.end() ||
+                       selected[found->second] == 0U;
+            });
+        window_indices.erase(selected_end, window_indices.end());
+    }
+    return window_indices;
+}
+
+}  // namespace
+
+research_capabilities research_capabilities_report() {
+    return {};
+}
+
+factor_series research_panel(const factor_series& factors,
+                              const research_spec& spec) {
+    detail::note_panel_preprocessing();
+    const auto selected_rows =
+        select_panel_source_rows_impl(factors, spec);
     factor_series panel;
-    panel.dates.reserve(window_indices.size());
-    panel.assets.reserve(window_indices.size());
-    panel.values.reserve(window_indices.size());
-    for (const std::size_t row : window_indices) {
-        if (!spec.targets.empty()) {
-            const auto found = asset_ids.find(factors.assets[row]);
-            if (found == asset_ids.end() || selected[found->second] == 0U) {
-                continue;
-            }
-        }
+    panel.dates.reserve(selected_rows.size());
+    panel.assets.reserve(selected_rows.size());
+    panel.values.reserve(selected_rows.size());
+    for (const std::size_t row : selected_rows) {
         panel.dates.push_back(factors.dates[row]);
         panel.assets.push_back(factors.assets[row]);
         panel.values.push_back(factors.values[row]);
@@ -642,9 +653,11 @@ forward_return_table next_open_table(const dataframe& prices,
 
 }  // namespace
 
-factor_series research_detailed_detail::select_panel(
+std::vector<std::size_t>
+research_detailed_detail::select_panel_source_rows(
     const factor_series& factors, const research_spec& spec) {
-    return research_panel(factors, spec);
+    detail::note_panel_preprocessing();
+    return select_panel_source_rows_impl(factors, spec);
 }
 
 research_detailed_detail::label_input

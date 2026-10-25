@@ -18,7 +18,10 @@ struct label_input {
     std::vector<horizon_input> horizons;
 };
 
-factor_series select_panel(const factor_series& factors, const research_spec& spec);
+// Validate the shared window/target selection and return original source-row
+// indices in source order without materializing an intermediate panel.
+std::vector<std::size_t> select_panel_source_rows(
+    const factor_series& factors, const research_spec& spec);
 
 // Label vectors follow the selected panel row order, including NaN holes.
 label_input build_detailed_label_input(

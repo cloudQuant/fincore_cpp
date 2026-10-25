@@ -701,27 +701,12 @@ research_detailed_result evaluate_factor_research_detailed(
     validation_spec.combinations.clear();
     validation_spec.comparisons.clear();
     validation_spec.preprocess = "none";
-    factor_series selected = research_detailed_detail::select_panel(factors, validation_spec);
-
-    std::vector<std::size_t> ordered_source_rows;
-    ordered_source_rows.reserve(selected.dates.size());
-    // select_panel returns a stable source-order subsequence and has already
-    // validated duplicate keys. Walk the source to recover original values,
-    // since its validation copy canonicalizes non-finite values to NaN.
-    std::size_t source_row = 0U;
-    for (std::size_t row = 0; row < selected.dates.size(); ++row) {
-        while (source_row < factors.dates.size() &&
-               (factors.dates[source_row] != selected.dates[row] ||
-                factors.assets[source_row] != selected.assets[row])) {
-            ++source_row;
-        }
-        if (source_row == factors.dates.size()) {
-            throw factor_data_error{
-                "selected research panel could not be mapped to input rows"};
-        }
-        ordered_source_rows.push_back(source_row);
-        ++source_row;
-    }
+    // Shared validation returns a source-order index view, avoiding an
+    // intermediate owning panel. Reading original values here preserves
+    // infinities and NaNs that the legacy validation panel canonicalizes.
+    std::vector<std::size_t> ordered_source_rows =
+        research_detailed_detail::select_panel_source_rows(
+            factors, validation_spec);
     const auto source_row_less = [&factors](const std::size_t left,
                                             const std::size_t right) {
         return std::tie(factors.dates[left], factors.assets[left]) <
