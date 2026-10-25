@@ -13,6 +13,8 @@ script checks both the factor panel and the research tables.
 from __future__ import annotations
 
 import argparse
+import ctypes
+import hashlib
 import json
 import os
 import sys
@@ -29,6 +31,14 @@ DEFAULT_OUT = BENCHMARK_ROOT / "results" / "python"
 TIMEZONE = "Asia/Shanghai"
 FACTOR = "alpha003"
 WINDOW = 10
+THREAD_LIMIT_ENV_NAMES = (
+    "OMP_NUM_THREADS",
+    "OPENBLAS_NUM_THREADS",
+    "MKL_NUM_THREADS",
+    "NUMEXPR_NUM_THREADS",
+    "VECLIB_MAXIMUM_THREADS",
+    "BLIS_NUM_THREADS",
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -51,10 +61,15 @@ def parse_args() -> argparse.Namespace:
 
 
 def import_fincore(root: Path) -> Any:
+    root = root.resolve()
     if str(root) not in sys.path:
         sys.path.insert(0, str(root))
     import fincore  # noqa: F401
     from fincore.factor_analysis.research import evaluate_factor_research
+    expected = root / "fincore" / "factor_analysis" / "research.py"
+    if (Path(fincore.__file__).resolve() != root / "fincore" / "__init__.py"
+            or Path(evaluate_factor_research.__code__.co_filename).resolve() != expected):
+        raise RuntimeError("loaded fincore sources do not match --fincore-root")
     return fincore, evaluate_factor_research
 
 
@@ -179,25 +194,132 @@ def compute_alpha003(open_panel: pd.DataFrame,
     return long, alpha_values
 
 
-def write_json(path: Path, payload: Any) -> None:
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True, default=str) + "\n",
+def write_json(path: Path, payload: Any, *, require_finite: bool = False) -> None:
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True, default=str,
+                               allow_nan=not require_finite) + "\n",
                     encoding="utf-8", newline="\n")
 
 
+def peak_memory_observation() -> dict[str, Any]:
+    """Return process peak resident memory in bytes when the OS reports it."""
+    if os.name == "nt":
+        class ProcessMemoryCounters(ctypes.Structure):
+            _fields_ = [
+                ("cb", ctypes.c_uint32), ("page_faults", ctypes.c_uint32),
+                ("peak_working_set", ctypes.c_size_t),
+                ("working_set", ctypes.c_size_t),
+                ("quota_peak_paged", ctypes.c_size_t),
+                ("quota_paged", ctypes.c_size_t),
+                ("quota_peak_nonpaged", ctypes.c_size_t),
+                ("quota_nonpaged", ctypes.c_size_t),
+                ("pagefile", ctypes.c_size_t),
+                ("peak_pagefile", ctypes.c_size_t),
+            ]
+        try:
+            kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+            psapi = ctypes.WinDLL("psapi", use_last_error=True)
+            kernel32.GetCurrentProcess.restype = ctypes.c_void_p
+            query = psapi.GetProcessMemoryInfo
+            query.argtypes = [ctypes.c_void_p,
+                              ctypes.POINTER(ProcessMemoryCounters),
+                              ctypes.c_uint32]
+            query.restype = ctypes.c_int
+            counters = ProcessMemoryCounters()
+            counters.cb = ctypes.sizeof(counters)
+            okay = query(kernel32.GetCurrentProcess(), ctypes.byref(counters),
+                         counters.cb)
+            peak = int(counters.peak_working_set) if okay else None
+            status = "available" if okay else "query_failed"
+        except (AttributeError, OSError):
+            peak, status = None, "api_unavailable"
+        return {"peak_memory_bytes": peak,
+                "peak_memory_source": "GetProcessMemoryInfo.PeakWorkingSetSize",
+                "peak_memory_status": status}
+
+    try:
+        import resource
+        raw_peak = int(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+    except (ImportError, AttributeError, OSError, ValueError):
+        raw_peak = -1
+    if raw_peak < 0:
+        peak, status = None, "unavailable_or_invalid"
+    elif sys.platform == "darwin":
+        peak, status = raw_peak, "available"
+    elif sys.platform.startswith(("linux", "freebsd")):
+        peak, status = raw_peak * 1024, "available"
+    else:
+        peak, status = None, "unit_unknown_for_platform"
+    return {"peak_memory_bytes": peak,
+            "peak_memory_source": "resource.getrusage.ru_maxrss",
+            "peak_memory_status": status}
+
+
+def process_affinity_observation() -> dict[str, Any]:
+    """Report the process's observed CPU affinity without changing it."""
+    if os.name == "nt":
+        try:
+            mask_type = ctypes.c_size_t
+            kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+            kernel32.GetCurrentProcess.restype = ctypes.c_void_p
+            query = kernel32.GetProcessAffinityMask
+            query.argtypes = [ctypes.c_void_p, ctypes.POINTER(mask_type),
+                              ctypes.POINTER(mask_type)]
+            query.restype = ctypes.c_int
+            process_mask = mask_type()
+            system_mask = mask_type()
+            if query(kernel32.GetCurrentProcess(), ctypes.byref(process_mask),
+                     ctypes.byref(system_mask)):
+                mask = int(process_mask.value)
+                ids = [index for index in range(ctypes.sizeof(mask_type) * 8)
+                       if mask & (1 << index)]
+                return {"affinity_cpu_ids": ids,
+                        "affinity_mask_hex": hex(mask),
+                        "affinity_source": "GetProcessAffinityMask",
+                        "affinity_status": "available"}
+            status = "query_failed"
+        except (AttributeError, OSError):
+            status = "api_unavailable"
+        return {"affinity_cpu_ids": None, "affinity_mask_hex": None,
+                "affinity_source": "GetProcessAffinityMask",
+                "affinity_status": status}
+
+    if hasattr(os, "sched_getaffinity"):
+        try:
+            ids = sorted(int(cpu) for cpu in os.sched_getaffinity(0))
+            return {"affinity_cpu_ids": ids, "affinity_mask_hex": None,
+                    "affinity_source": "os.sched_getaffinity",
+                    "affinity_status": "available"}
+        except (OSError, ValueError):
+            status = "query_failed"
+    else:
+        status = "api_unavailable"
+    return {"affinity_cpu_ids": None, "affinity_mask_hex": None,
+            "affinity_source": "os.sched_getaffinity",
+            "affinity_status": status}
+
+
+def thread_limit_environment() -> dict[str, str | None]:
+    """Capture configured thread-limit variables; this does not verify pools."""
+    return {name: os.environ.get(name) for name in THREAD_LIMIT_ENV_NAMES}
+
+
 def main() -> int:
+    internal_started = time.perf_counter()
+    cpu_started = time.process_time()
     args = parse_args()
     periods = tuple(int(value) for value in args.periods.split(",") if value)
     fincore, evaluate_factor_research = import_fincore(args.fincore_root)
 
-    cpu_started = time.process_time()
-    started = time.perf_counter()
+    load_started = time.perf_counter()
+    preparation_seconds = load_started - internal_started
     grid, open_panel, close_panel, volume_panel, files = load_panel(
         args.data_dir, args.max_symbols)
-    load_seconds = time.perf_counter() - started
+    load_seconds = time.perf_counter() - load_started
 
-    started = time.perf_counter()
+    factor_started = time.perf_counter()
     factor_long, _ = compute_alpha003(open_panel, volume_panel)
-    factor_seconds = time.perf_counter() - started
+    factor_seconds = time.perf_counter() - factor_started
+    materialization_started = time.perf_counter()
 
     if args.end_offset < 0 or args.end_offset >= len(grid) - 1:
         raise ValueError("--end-offset must leave at least two grid dates")
@@ -236,7 +358,8 @@ def main() -> int:
         "feed_time_kind": "close_time",
     }
 
-    started = time.perf_counter()
+    research_started = time.perf_counter()
+    materialization_seconds = research_started - materialization_started
     result = evaluate_factor_research(
         factor_frame,
         grid=grid,
@@ -246,11 +369,11 @@ def main() -> int:
         precomputed_returns=None,
         spec=spec,
     )
-    research_seconds = time.perf_counter() - started
+    research_seconds = time.perf_counter() - research_started
 
     out = args.out.resolve()
+    export_started = time.perf_counter()
     out.mkdir(parents=True, exist_ok=True)
-    started = time.perf_counter()
     factor_out = pd.DataFrame({
         "date": factor_long["time"].dt.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "asset": factor_long["asset"],
@@ -264,20 +387,42 @@ def main() -> int:
     for name in table_names:
         result.table(name).to_csv(out / f"{name}.csv", index=False,
                                   encoding="utf-8")
-    export_seconds = time.perf_counter() - started
+    export_seconds = time.perf_counter() - export_started
+
+    write_json(out / "manifest.json", dict(result.manifest))
+    internal_wall_seconds = time.perf_counter() - internal_started
+    cpu_seconds = time.process_time() - cpu_started
+    peak_memory = peak_memory_observation()
+    measured_stage_seconds = (preparation_seconds + materialization_seconds + load_seconds +
+                              factor_seconds + research_seconds +
+                              export_seconds)
+    other_seconds = internal_wall_seconds - measured_stage_seconds
 
     timings = {
+        "preparation_seconds": preparation_seconds,
+        "materialization_seconds": materialization_seconds,
         "load_seconds": load_seconds,
         "factor_seconds": factor_seconds,
         "research_seconds": research_seconds,
         "export_seconds": export_seconds,
-        "total_seconds": load_seconds + factor_seconds + research_seconds + export_seconds,
-        "cpu_seconds": time.process_time() - cpu_started,
+        "other_seconds": other_seconds,
+        "total_seconds": internal_wall_seconds,
+        "internal_wall_seconds": internal_wall_seconds,
+        "accounted_stage_seconds": measured_stage_seconds + other_seconds,
+        "cpu_seconds": cpu_seconds,
+        "internal_process_cpu_seconds": cpu_seconds,
+        "cpu_measurement_source": "time.process_time (user + system)",
+        **peak_memory,
     }
     run_info = {
         "run_id": args.run_id,
         "engine": "python-fincore",
         "fincore_version": getattr(fincore, "__version__", "unknown"),
+        "loaded_fincore_sources": [
+            {"path": str(Path(path).resolve()),
+             "sha256": hashlib.sha256(Path(path).read_bytes()).hexdigest()}
+            for path in (fincore.__file__, evaluate_factor_research.__code__.co_filename)
+        ],
         "python": sys.version.split()[0],
         "pandas": pd.__version__,
         "numpy": np.__version__,
@@ -294,11 +439,26 @@ def main() -> int:
         "preprocess": args.preprocess,
         "window": WINDOW,
         "status": result.status,
+        "measurement_scope": {
+            "internal_wall":
+                "main entry through research outputs and manifest write; excludes interpreter startup and module-level NumPy/pandas imports, plus timing/run_info JSON and stdout writes",
+            "process_wall":
+                "measured externally from process launch to exit by the parent runner",
+            "cpu": "process CPU delta over the internal runner interval",
+            "peak_memory":
+                "process-lifetime peak resident working set observed at internal completion",
+            "affinity_and_thread_limits":
+                "observed only; this runner does not apply affinity or thread limits",
+        },
+        "environment": {
+            "affinity": process_affinity_observation(),
+            "thread_limit_environment": thread_limit_environment(),
+            "effective_thread_pools_verified": False,
+        },
         "timings": timings,
     }
-    write_json(out / "timings.json", timings)
-    write_json(out / "run_info.json", run_info)
-    write_json(out / "manifest.json", dict(result.manifest))
+    write_json(out / "timings.json", timings, require_finite=True)
+    write_json(out / "run_info.json", run_info, require_finite=True)
     print(json.dumps(run_info, sort_keys=True, default=str))
     return 0
 

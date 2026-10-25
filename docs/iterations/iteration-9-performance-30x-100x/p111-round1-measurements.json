@@ -1,0 +1,1334 @@
+{
+  "phase": "P111-R1",
+  "scope": "measurement component and real small-data smoke only",
+  "formal_acceptance": "NOT_ELIGIBLE_PENDING_FULL_PARITY",
+  "base_commit": "6a7e77db96bcc023f88b33622eac28ffc3b864ac",
+  "command": "C:/Python314/python.exe benchmarks/alpha003_a_stocks/run_benchmark.py --max-symbols 50 --repeats 5 --results-dir benchmarks/alpha003_a_stocks/results-i9-p111-smoke-r1",
+  "environment": {
+    "build": {
+      "cache": {
+        "path": "D:\\source_code\\fincore_cpp\\build-win\\CMakeCache.txt",
+        "sha256": "4669f310f2d3ebbfaa5e9a59d1c885dcf1ea87290e1ee27db1a3ce3a7407bb40",
+        "size_bytes": 23209
+      },
+      "compiler_binary": {
+        "path": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.42.34433\\bin\\Hostx64\\x64\\cl.exe",
+        "sha256": "3e761c082f491950ed5565f198f2113a8043897ce4d8084e37de8e0fee43202a",
+        "size_bytes": 862792
+      },
+      "configuration": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_COMPILER": "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/bin/Hostx64/x64/cl.exe",
+        "CMAKE_CXX_FLAGS": "/DWIN32 /D_WINDOWS /EHsc",
+        "CMAKE_CXX_FLAGS_RELEASE": "/O2 /Ob2 /DNDEBUG",
+        "CMAKE_GENERATOR": "Ninja"
+      }
+    },
+    "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900HX",
+    "logical_cpu_count": 32,
+    "numpy": "2.4.1",
+    "pandas": "2.3.3",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "power_scheme_guid": "381b4222-f694-41f0-9685-ff5bb260df2e",
+    "processor": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+    "python": "3.14.2 (tags/v3.14.2:df79316, Dec  5 2025, 17:18:21) [MSC v.1944 64 bit (AMD64)]",
+    "windows_version": [
+      "11",
+      "10.0.26300",
+      "SP0",
+      "Multiprocessor Free"
+    ]
+  },
+  "input_record_sha256": "9d316bc3aea5159df9b743a7e98d12cca3b6da5d17e328d23477cad81b1146db",
+  "native_binary": {
+    "path": "D:\\source_code\\fincore_cpp\\build-win\\fincore_alpha003_research.exe",
+    "sha256": "cf900068fb193e7218ce34360a645f2408ade1ff73352748971c81e948ae1272",
+    "size_bytes": 590848
+  },
+  "python_repository": {
+    "branch": "dev",
+    "head": "3e9ef205ef2023f92e89fddd1052d46b16429c64",
+    "tracked_status": ""
+  },
+  "inputs_unchanged": true,
+  "performance": {
+    "repeats": 5,
+    "sampling": {
+      "cpp": {
+        "count": 5,
+        "iqr": 0.004504599957726896,
+        "iqr_over_median": 0.04822752091519268,
+        "max": 0.10257320001255721,
+        "median": 0.09340309997787699,
+        "min": 0.08890460000839084,
+        "noise_limit": 0.1,
+        "protocol": "iteration9-r1",
+        "q1": 0.09237770002800971,
+        "q3": 0.09688229998573661,
+        "samples": [
+          0.10257320001255721,
+          0.09340309997787699,
+          0.09237770002800971,
+          0.08890460000839084,
+          0.09688229998573661
+        ],
+        "status": "VALID"
+      },
+      "paired_speedups": [
+        44.48056314348535,
+        49.39433488898904,
+        51.80621403825518,
+        46.01119514180551,
+        42.353847922902204
+      ],
+      "pairs_at_least_100x": 0,
+      "pairs_at_least_30x": 5,
+      "python": {
+        "count": 5,
+        "iqr": 0.5102457999601029,
+        "iqr_over_median": 0.11183436007248718,
+        "max": 4.785738900012802,
+        "median": 4.562513699987903,
+        "min": 4.0906068999902345,
+        "noise_limit": 0.1,
+        "protocol": "iteration9-r1",
+        "q1": 4.1033382000168785,
+        "q3": 4.613583999976981,
+        "samples": [
+          4.562513699987903,
+          4.613583999976981,
+          4.785738900012802,
+          4.0906068999902345,
+          4.1033382000168785
+        ],
+        "status": "INCONCLUSIVE"
+      }
+    },
+    "stages": {
+      "accounted_stage_seconds": {
+        "cpp_seconds": 0.0806227,
+        "python_seconds": 3.535716699960176,
+        "speedup": 43.85510160240448
+      },
+      "cpu_seconds": {
+        "cpp_seconds": 0.0625,
+        "python_seconds": 3.0625,
+        "speedup": 49.0
+      },
+      "export_seconds": {
+        "cpp_seconds": 0.0307212,
+        "python_seconds": 0.2781350000295788,
+        "speedup": 9.05352004575273
+      },
+      "factor_seconds": {
+        "cpp_seconds": 0.0019444,
+        "python_seconds": 0.01107929996214807,
+        "speedup": 5.698055936097547
+      },
+      "internal_process_cpu_seconds": {
+        "cpp_seconds": 0.0625,
+        "python_seconds": 3.0625,
+        "speedup": 49.0
+      },
+      "internal_wall_seconds": {
+        "cpp_seconds": 0.0806227,
+        "python_seconds": 3.535716699960176,
+        "speedup": 43.85510160240448
+      },
+      "load_seconds": {
+        "cpp_seconds": 0.0198932,
+        "python_seconds": 0.3862774000153877,
+        "speedup": 19.41755976994087
+      },
+      "other_seconds": {
+        "cpp_seconds": 0.00038359999999999783,
+        "python_seconds": 0.004519400012213737,
+        "speedup": 11.781543306083844
+      },
+      "preparation_seconds": {
+        "cpp_seconds": 0.0001121,
+        "python_seconds": 0.051898200006689876,
+        "speedup": 462.9634255726126
+      },
+      "research_seconds": {
+        "cpp_seconds": 0.0239725,
+        "python_seconds": 2.8033883999451064,
+        "speedup": 116.94184586276384
+      },
+      "total_seconds": {
+        "cpp_seconds": 0.0806227,
+        "python_seconds": 3.535716699960176,
+        "speedup": 43.85510160240448
+      }
+    },
+    "wall": {
+      "cpp_seconds": 0.09340309997787699,
+      "python_seconds": 4.562513699987903,
+      "speedup": 48.84756181613414
+    }
+  },
+  "runs": [
+    {
+      "group": "warmups",
+      "pair": 1,
+      "order": [
+        "A",
+        "B"
+      ],
+      "legacy_subset_pass": true,
+      "engines": {
+        "python": {
+          "process": {
+            "affinity_mask": 1,
+            "affinity_method": "inherited_parent_affinity_before_create_process",
+            "affinity_verified": true,
+            "command": [
+              "C:\\Python314\\python.exe",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\python\\run_research.py",
+              "--data-dir",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\data\\a_stocks",
+              "--out",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p111-smoke-r1\\warmups\\python\\run1",
+              "--max-symbols",
+              "50",
+              "--end-offset",
+              "22",
+              "--preprocess",
+              "cross_section_rank",
+              "--run-id",
+              "warmup1",
+              "--fincore-root",
+              "D:\\source_code\\fincore"
+            ],
+            "cpu_index": 0,
+            "cpu_seconds": 3.46875,
+            "peak_working_set_bytes": 165957632,
+            "returncode": 0,
+            "thread_environment": {
+              "BLIS_NUM_THREADS": "1",
+              "MKL_DYNAMIC": "FALSE",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_MAX_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "OMP_DYNAMIC": "FALSE",
+              "OMP_NUM_THREADS": "1",
+              "OMP_THREAD_LIMIT": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "TBB_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1"
+            },
+            "wall_seconds": 4.203904399997555
+          },
+          "internal": {
+            "accounted_stage_seconds": 3.2700156000209972,
+            "cpu_measurement_source": "time.process_time (user + system)",
+            "cpu_seconds": 2.90625,
+            "export_seconds": 0.2956106999772601,
+            "factor_seconds": 0.009674999979324639,
+            "internal_process_cpu_seconds": 2.90625,
+            "internal_wall_seconds": 3.2700156000209972,
+            "load_seconds": 0.3899480999680236,
+            "other_seconds": 0.0036108000786043704,
+            "peak_memory_bytes": 165957632,
+            "peak_memory_source": "GetProcessMemoryInfo.PeakWorkingSetSize",
+            "peak_memory_status": "available",
+            "preparation_seconds": 0.06738850002875552,
+            "research_seconds": 2.503782499989029,
+            "total_seconds": 3.2700156000209972
+          },
+          "observed_environment": {
+            "affinity": {
+              "affinity_cpu_ids": [
+                0
+              ],
+              "affinity_mask_hex": "0x1",
+              "affinity_source": "GetProcessAffinityMask",
+              "affinity_status": "available"
+            },
+            "effective_thread_pools_verified": false,
+            "thread_limit_environment": {
+              "BLIS_NUM_THREADS": "1",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "OMP_NUM_THREADS": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1"
+            }
+          }
+        },
+        "cpp": {
+          "process": {
+            "affinity_mask": 1,
+            "affinity_method": "inherited_parent_affinity_before_create_process",
+            "affinity_verified": true,
+            "command": [
+              "D:\\source_code\\fincore_cpp\\build-win\\fincore_alpha003_research.exe",
+              "--data-dir",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\data\\a_stocks",
+              "--out",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p111-smoke-r1\\warmups\\cpp\\run1",
+              "--max-symbols",
+              "50",
+              "--end-offset",
+              "22",
+              "--preprocess",
+              "cross_section_rank",
+              "--run-id",
+              "warmup1"
+            ],
+            "cpu_index": 0,
+            "cpu_seconds": 0.046875,
+            "peak_working_set_bytes": 14041088,
+            "returncode": 0,
+            "thread_environment": {
+              "BLIS_NUM_THREADS": "1",
+              "MKL_DYNAMIC": "FALSE",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_MAX_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "OMP_DYNAMIC": "FALSE",
+              "OMP_NUM_THREADS": "1",
+              "OMP_THREAD_LIMIT": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "TBB_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1"
+            },
+            "wall_seconds": 0.1516344000119716
+          },
+          "internal": {
+            "preparation_seconds": 0.000136,
+            "load_seconds": 0.0217578,
+            "factor_seconds": 0.0019375,
+            "research_seconds": 0.0258022,
+            "export_seconds": 0.027663,
+            "other_seconds": 0.00036330000000001084,
+            "accounted_stage_seconds": 0.0776598,
+            "total_seconds": 0.0776598,
+            "internal_wall_seconds": 0.0776598,
+            "cpu_seconds": 0.03125,
+            "internal_process_cpu_seconds": 0.03125,
+            "cpu_measurement_source": "GetProcessTimes (kernel + user)",
+            "peak_memory_bytes": 14041088,
+            "peak_memory_source": "GetProcessMemoryInfo.PeakWorkingSetSize",
+            "peak_memory_status": "available"
+          },
+          "observed_environment": {
+            "affinity": {
+              "affinity_cpu_ids": [
+                0
+              ],
+              "affinity_mask_hex": "0x1",
+              "affinity_source": "GetProcessAffinityMask (current processor group)",
+              "affinity_status": "available"
+            },
+            "thread_limit_environment": {
+              "OMP_NUM_THREADS": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1",
+              "BLIS_NUM_THREADS": "1"
+            },
+            "effective_thread_pools_verified": false
+          }
+        }
+      }
+    },
+    {
+      "group": "warmups",
+      "pair": 2,
+      "order": [
+        "B",
+        "A"
+      ],
+      "legacy_subset_pass": true,
+      "engines": {
+        "python": {
+          "process": {
+            "affinity_mask": 1,
+            "affinity_method": "inherited_parent_affinity_before_create_process",
+            "affinity_verified": true,
+            "command": [
+              "C:\\Python314\\python.exe",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\python\\run_research.py",
+              "--data-dir",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\data\\a_stocks",
+              "--out",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p111-smoke-r1\\warmups\\python\\run2",
+              "--max-symbols",
+              "50",
+              "--end-offset",
+              "22",
+              "--preprocess",
+              "cross_section_rank",
+              "--run-id",
+              "warmup2",
+              "--fincore-root",
+              "D:\\source_code\\fincore"
+            ],
+            "cpu_index": 0,
+            "cpu_seconds": 4.15625,
+            "peak_working_set_bytes": 165969920,
+            "returncode": 0,
+            "thread_environment": {
+              "BLIS_NUM_THREADS": "1",
+              "MKL_DYNAMIC": "FALSE",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_MAX_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "OMP_DYNAMIC": "FALSE",
+              "OMP_NUM_THREADS": "1",
+              "OMP_THREAD_LIMIT": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "TBB_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1"
+            },
+            "wall_seconds": 4.499532299989369
+          },
+          "internal": {
+            "accounted_stage_seconds": 3.5924855999764986,
+            "cpu_measurement_source": "time.process_time (user + system)",
+            "cpu_seconds": 3.328125,
+            "export_seconds": 0.2905709000187926,
+            "factor_seconds": 0.011104399978648871,
+            "internal_process_cpu_seconds": 3.328125,
+            "internal_wall_seconds": 3.5924855999764986,
+            "load_seconds": 0.4027236999827437,
+            "other_seconds": 0.005742400011513382,
+            "peak_memory_bytes": 165969920,
+            "peak_memory_source": "GetProcessMemoryInfo.PeakWorkingSetSize",
+            "peak_memory_status": "available",
+            "preparation_seconds": 0.05039829999441281,
+            "research_seconds": 2.8319458999903873,
+            "total_seconds": 3.5924855999764986
+          },
+          "observed_environment": {
+            "affinity": {
+              "affinity_cpu_ids": [
+                0
+              ],
+              "affinity_mask_hex": "0x1",
+              "affinity_source": "GetProcessAffinityMask",
+              "affinity_status": "available"
+            },
+            "effective_thread_pools_verified": false,
+            "thread_limit_environment": {
+              "BLIS_NUM_THREADS": "1",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "OMP_NUM_THREADS": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1"
+            }
+          }
+        },
+        "cpp": {
+          "process": {
+            "affinity_mask": 1,
+            "affinity_method": "inherited_parent_affinity_before_create_process",
+            "affinity_verified": true,
+            "command": [
+              "D:\\source_code\\fincore_cpp\\build-win\\fincore_alpha003_research.exe",
+              "--data-dir",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\data\\a_stocks",
+              "--out",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p111-smoke-r1\\warmups\\cpp\\run2",
+              "--max-symbols",
+              "50",
+              "--end-offset",
+              "22",
+              "--preprocess",
+              "cross_section_rank",
+              "--run-id",
+              "warmup2"
+            ],
+            "cpu_index": 0,
+            "cpu_seconds": 0.046875,
+            "peak_working_set_bytes": 15319040,
+            "returncode": 0,
+            "thread_environment": {
+              "BLIS_NUM_THREADS": "1",
+              "MKL_DYNAMIC": "FALSE",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_MAX_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "OMP_DYNAMIC": "FALSE",
+              "OMP_NUM_THREADS": "1",
+              "OMP_THREAD_LIMIT": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "TBB_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1"
+            },
+            "wall_seconds": 0.08633919997373596
+          },
+          "internal": {
+            "preparation_seconds": 0.0001089,
+            "load_seconds": 0.0195355,
+            "factor_seconds": 0.0018785,
+            "research_seconds": 0.0234017,
+            "export_seconds": 0.0278605,
+            "other_seconds": 0.0003590000000000121,
+            "accounted_stage_seconds": 0.0731441,
+            "total_seconds": 0.0731441,
+            "internal_wall_seconds": 0.0731441,
+            "cpu_seconds": 0.046875,
+            "internal_process_cpu_seconds": 0.046875,
+            "cpu_measurement_source": "GetProcessTimes (kernel + user)",
+            "peak_memory_bytes": 15319040,
+            "peak_memory_source": "GetProcessMemoryInfo.PeakWorkingSetSize",
+            "peak_memory_status": "available"
+          },
+          "observed_environment": {
+            "affinity": {
+              "affinity_cpu_ids": [
+                0
+              ],
+              "affinity_mask_hex": "0x1",
+              "affinity_source": "GetProcessAffinityMask (current processor group)",
+              "affinity_status": "available"
+            },
+            "thread_limit_environment": {
+              "OMP_NUM_THREADS": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1",
+              "BLIS_NUM_THREADS": "1"
+            },
+            "effective_thread_pools_verified": false
+          }
+        }
+      }
+    },
+    {
+      "group": "pairs",
+      "pair": 1,
+      "order": [
+        "A",
+        "B"
+      ],
+      "legacy_subset_pass": true,
+      "engines": {
+        "python": {
+          "process": {
+            "affinity_mask": 1,
+            "affinity_method": "inherited_parent_affinity_before_create_process",
+            "affinity_verified": true,
+            "command": [
+              "C:\\Python314\\python.exe",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\python\\run_research.py",
+              "--data-dir",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\data\\a_stocks",
+              "--out",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p111-smoke-r1\\python\\run1",
+              "--max-symbols",
+              "50",
+              "--end-offset",
+              "22",
+              "--preprocess",
+              "cross_section_rank",
+              "--run-id",
+              "run1",
+              "--fincore-root",
+              "D:\\source_code\\fincore"
+            ],
+            "cpu_index": 0,
+            "cpu_seconds": 4.1875,
+            "peak_working_set_bytes": 165543936,
+            "returncode": 0,
+            "thread_environment": {
+              "BLIS_NUM_THREADS": "1",
+              "MKL_DYNAMIC": "FALSE",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_MAX_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "OMP_DYNAMIC": "FALSE",
+              "OMP_NUM_THREADS": "1",
+              "OMP_THREAD_LIMIT": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "TBB_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1"
+            },
+            "wall_seconds": 4.562513699987903
+          },
+          "internal": {
+            "accounted_stage_seconds": 3.6260377000435255,
+            "cpu_measurement_source": "time.process_time (user + system)",
+            "cpu_seconds": 3.3125,
+            "export_seconds": 0.2859868000377901,
+            "factor_seconds": 0.010009099962189794,
+            "internal_process_cpu_seconds": 3.3125,
+            "internal_wall_seconds": 3.6260377000435255,
+            "load_seconds": 0.3862774000153877,
+            "other_seconds": 0.00452040001982823,
+            "peak_memory_bytes": 165543936,
+            "peak_memory_source": "GetProcessMemoryInfo.PeakWorkingSetSize",
+            "peak_memory_status": "available",
+            "preparation_seconds": 0.0488739000284113,
+            "research_seconds": 2.8903700999799185,
+            "total_seconds": 3.6260377000435255
+          },
+          "observed_environment": {
+            "affinity": {
+              "affinity_cpu_ids": [
+                0
+              ],
+              "affinity_mask_hex": "0x1",
+              "affinity_source": "GetProcessAffinityMask",
+              "affinity_status": "available"
+            },
+            "effective_thread_pools_verified": false,
+            "thread_limit_environment": {
+              "BLIS_NUM_THREADS": "1",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "OMP_NUM_THREADS": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1"
+            }
+          }
+        },
+        "cpp": {
+          "process": {
+            "affinity_mask": 1,
+            "affinity_method": "inherited_parent_affinity_before_create_process",
+            "affinity_verified": true,
+            "command": [
+              "D:\\source_code\\fincore_cpp\\build-win\\fincore_alpha003_research.exe",
+              "--data-dir",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\data\\a_stocks",
+              "--out",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p111-smoke-r1\\cpp\\run1",
+              "--max-symbols",
+              "50",
+              "--end-offset",
+              "22",
+              "--preprocess",
+              "cross_section_rank",
+              "--run-id",
+              "run1"
+            ],
+            "cpu_index": 0,
+            "cpu_seconds": 0.078125,
+            "peak_working_set_bytes": 15273984,
+            "returncode": 0,
+            "thread_environment": {
+              "BLIS_NUM_THREADS": "1",
+              "MKL_DYNAMIC": "FALSE",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_MAX_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "OMP_DYNAMIC": "FALSE",
+              "OMP_NUM_THREADS": "1",
+              "OMP_THREAD_LIMIT": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "TBB_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1"
+            },
+            "wall_seconds": 0.10257320001255721
+          },
+          "internal": {
+            "preparation_seconds": 0.0001108,
+            "load_seconds": 0.0250067,
+            "factor_seconds": 0.0022292,
+            "research_seconds": 0.0233192,
+            "export_seconds": 0.0344736,
+            "other_seconds": 0.00038359999999999783,
+            "accounted_stage_seconds": 0.0855231,
+            "total_seconds": 0.0855231,
+            "internal_wall_seconds": 0.0855231,
+            "cpu_seconds": 0.0625,
+            "internal_process_cpu_seconds": 0.0625,
+            "cpu_measurement_source": "GetProcessTimes (kernel + user)",
+            "peak_memory_bytes": 15273984,
+            "peak_memory_source": "GetProcessMemoryInfo.PeakWorkingSetSize",
+            "peak_memory_status": "available"
+          },
+          "observed_environment": {
+            "affinity": {
+              "affinity_cpu_ids": [
+                0
+              ],
+              "affinity_mask_hex": "0x1",
+              "affinity_source": "GetProcessAffinityMask (current processor group)",
+              "affinity_status": "available"
+            },
+            "thread_limit_environment": {
+              "OMP_NUM_THREADS": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1",
+              "BLIS_NUM_THREADS": "1"
+            },
+            "effective_thread_pools_verified": false
+          }
+        }
+      }
+    },
+    {
+      "group": "pairs",
+      "pair": 2,
+      "order": [
+        "B",
+        "A"
+      ],
+      "legacy_subset_pass": true,
+      "engines": {
+        "python": {
+          "process": {
+            "affinity_mask": 1,
+            "affinity_method": "inherited_parent_affinity_before_create_process",
+            "affinity_verified": true,
+            "command": [
+              "C:\\Python314\\python.exe",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\python\\run_research.py",
+              "--data-dir",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\data\\a_stocks",
+              "--out",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p111-smoke-r1\\python\\run2",
+              "--max-symbols",
+              "50",
+              "--end-offset",
+              "22",
+              "--preprocess",
+              "cross_section_rank",
+              "--run-id",
+              "run2",
+              "--fincore-root",
+              "D:\\source_code\\fincore"
+            ],
+            "cpu_index": 0,
+            "cpu_seconds": 3.9375,
+            "peak_working_set_bytes": 165748736,
+            "returncode": 0,
+            "thread_environment": {
+              "BLIS_NUM_THREADS": "1",
+              "MKL_DYNAMIC": "FALSE",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_MAX_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "OMP_DYNAMIC": "FALSE",
+              "OMP_NUM_THREADS": "1",
+              "OMP_THREAD_LIMIT": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "TBB_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1"
+            },
+            "wall_seconds": 4.613583999976981
+          },
+          "internal": {
+            "accounted_stage_seconds": 3.535716699960176,
+            "cpu_measurement_source": "time.process_time (user + system)",
+            "cpu_seconds": 3.0625,
+            "export_seconds": 0.2781350000295788,
+            "factor_seconds": 0.011453700019046664,
+            "internal_process_cpu_seconds": 3.0625,
+            "internal_wall_seconds": 3.535716699960176,
+            "load_seconds": 0.3861095999600366,
+            "other_seconds": 0.004731799999717623,
+            "peak_memory_bytes": 165748736,
+            "peak_memory_source": "GetProcessMemoryInfo.PeakWorkingSetSize",
+            "peak_memory_status": "available",
+            "preparation_seconds": 0.051898200006689876,
+            "research_seconds": 2.8033883999451064,
+            "total_seconds": 3.535716699960176
+          },
+          "observed_environment": {
+            "affinity": {
+              "affinity_cpu_ids": [
+                0
+              ],
+              "affinity_mask_hex": "0x1",
+              "affinity_source": "GetProcessAffinityMask",
+              "affinity_status": "available"
+            },
+            "effective_thread_pools_verified": false,
+            "thread_limit_environment": {
+              "BLIS_NUM_THREADS": "1",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "OMP_NUM_THREADS": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1"
+            }
+          }
+        },
+        "cpp": {
+          "process": {
+            "affinity_mask": 1,
+            "affinity_method": "inherited_parent_affinity_before_create_process",
+            "affinity_verified": true,
+            "command": [
+              "D:\\source_code\\fincore_cpp\\build-win\\fincore_alpha003_research.exe",
+              "--data-dir",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\data\\a_stocks",
+              "--out",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p111-smoke-r1\\cpp\\run2",
+              "--max-symbols",
+              "50",
+              "--end-offset",
+              "22",
+              "--preprocess",
+              "cross_section_rank",
+              "--run-id",
+              "run2"
+            ],
+            "cpu_index": 0,
+            "cpu_seconds": 0.09375,
+            "peak_working_set_bytes": 14016512,
+            "returncode": 0,
+            "thread_environment": {
+              "BLIS_NUM_THREADS": "1",
+              "MKL_DYNAMIC": "FALSE",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_MAX_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "OMP_DYNAMIC": "FALSE",
+              "OMP_NUM_THREADS": "1",
+              "OMP_THREAD_LIMIT": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "TBB_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1"
+            },
+            "wall_seconds": 0.09340309997787699
+          },
+          "internal": {
+            "preparation_seconds": 0.0001181,
+            "load_seconds": 0.0198932,
+            "factor_seconds": 0.0019444,
+            "research_seconds": 0.0227049,
+            "export_seconds": 0.0371098,
+            "other_seconds": 0.00038800000000001333,
+            "accounted_stage_seconds": 0.0821584,
+            "total_seconds": 0.0821584,
+            "internal_wall_seconds": 0.0821584,
+            "cpu_seconds": 0.078125,
+            "internal_process_cpu_seconds": 0.078125,
+            "cpu_measurement_source": "GetProcessTimes (kernel + user)",
+            "peak_memory_bytes": 14016512,
+            "peak_memory_source": "GetProcessMemoryInfo.PeakWorkingSetSize",
+            "peak_memory_status": "available"
+          },
+          "observed_environment": {
+            "affinity": {
+              "affinity_cpu_ids": [
+                0
+              ],
+              "affinity_mask_hex": "0x1",
+              "affinity_source": "GetProcessAffinityMask (current processor group)",
+              "affinity_status": "available"
+            },
+            "thread_limit_environment": {
+              "OMP_NUM_THREADS": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1",
+              "BLIS_NUM_THREADS": "1"
+            },
+            "effective_thread_pools_verified": false
+          }
+        }
+      }
+    },
+    {
+      "group": "pairs",
+      "pair": 3,
+      "order": [
+        "A",
+        "B"
+      ],
+      "legacy_subset_pass": true,
+      "engines": {
+        "python": {
+          "process": {
+            "affinity_mask": 1,
+            "affinity_method": "inherited_parent_affinity_before_create_process",
+            "affinity_verified": true,
+            "command": [
+              "C:\\Python314\\python.exe",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\python\\run_research.py",
+              "--data-dir",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\data\\a_stocks",
+              "--out",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p111-smoke-r1\\python\\run3",
+              "--max-symbols",
+              "50",
+              "--end-offset",
+              "22",
+              "--preprocess",
+              "cross_section_rank",
+              "--run-id",
+              "run3",
+              "--fincore-root",
+              "D:\\source_code\\fincore"
+            ],
+            "cpu_index": 0,
+            "cpu_seconds": 4.125,
+            "peak_working_set_bytes": 166146048,
+            "returncode": 0,
+            "thread_environment": {
+              "BLIS_NUM_THREADS": "1",
+              "MKL_DYNAMIC": "FALSE",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_MAX_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "OMP_DYNAMIC": "FALSE",
+              "OMP_NUM_THREADS": "1",
+              "OMP_THREAD_LIMIT": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "TBB_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1"
+            },
+            "wall_seconds": 4.785738900012802
+          },
+          "internal": {
+            "accounted_stage_seconds": 3.7470306999748573,
+            "cpu_measurement_source": "time.process_time (user + system)",
+            "cpu_seconds": 3.25,
+            "export_seconds": 0.301930200017523,
+            "factor_seconds": 0.010111100040376186,
+            "internal_process_cpu_seconds": 3.25,
+            "internal_wall_seconds": 3.7470306999748573,
+            "load_seconds": 0.5043931000400335,
+            "other_seconds": 0.003690199926495552,
+            "peak_memory_bytes": 166146048,
+            "peak_memory_source": "GetProcessMemoryInfo.PeakWorkingSetSize",
+            "peak_memory_status": "available",
+            "preparation_seconds": 0.051092399982735515,
+            "research_seconds": 2.8758136999676935,
+            "total_seconds": 3.7470306999748573
+          },
+          "observed_environment": {
+            "affinity": {
+              "affinity_cpu_ids": [
+                0
+              ],
+              "affinity_mask_hex": "0x1",
+              "affinity_source": "GetProcessAffinityMask",
+              "affinity_status": "available"
+            },
+            "effective_thread_pools_verified": false,
+            "thread_limit_environment": {
+              "BLIS_NUM_THREADS": "1",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "OMP_NUM_THREADS": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1"
+            }
+          }
+        },
+        "cpp": {
+          "process": {
+            "affinity_mask": 1,
+            "affinity_method": "inherited_parent_affinity_before_create_process",
+            "affinity_verified": true,
+            "command": [
+              "D:\\source_code\\fincore_cpp\\build-win\\fincore_alpha003_research.exe",
+              "--data-dir",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\data\\a_stocks",
+              "--out",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p111-smoke-r1\\cpp\\run3",
+              "--max-symbols",
+              "50",
+              "--end-offset",
+              "22",
+              "--preprocess",
+              "cross_section_rank",
+              "--run-id",
+              "run3"
+            ],
+            "cpu_index": 0,
+            "cpu_seconds": 0.0625,
+            "peak_working_set_bytes": 15265792,
+            "returncode": 0,
+            "thread_environment": {
+              "BLIS_NUM_THREADS": "1",
+              "MKL_DYNAMIC": "FALSE",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_MAX_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "OMP_DYNAMIC": "FALSE",
+              "OMP_NUM_THREADS": "1",
+              "OMP_THREAD_LIMIT": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "TBB_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1"
+            },
+            "wall_seconds": 0.09237770002800971
+          },
+          "internal": {
+            "preparation_seconds": 0.0001121,
+            "load_seconds": 0.021768,
+            "factor_seconds": 0.002811,
+            "research_seconds": 0.0239725,
+            "export_seconds": 0.0291908,
+            "other_seconds": 0.00041839999999999933,
+            "accounted_stage_seconds": 0.0782728,
+            "total_seconds": 0.0782728,
+            "internal_wall_seconds": 0.0782728,
+            "cpu_seconds": 0.0625,
+            "internal_process_cpu_seconds": 0.0625,
+            "cpu_measurement_source": "GetProcessTimes (kernel + user)",
+            "peak_memory_bytes": 15265792,
+            "peak_memory_source": "GetProcessMemoryInfo.PeakWorkingSetSize",
+            "peak_memory_status": "available"
+          },
+          "observed_environment": {
+            "affinity": {
+              "affinity_cpu_ids": [
+                0
+              ],
+              "affinity_mask_hex": "0x1",
+              "affinity_source": "GetProcessAffinityMask (current processor group)",
+              "affinity_status": "available"
+            },
+            "thread_limit_environment": {
+              "OMP_NUM_THREADS": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1",
+              "BLIS_NUM_THREADS": "1"
+            },
+            "effective_thread_pools_verified": false
+          }
+        }
+      }
+    },
+    {
+      "group": "pairs",
+      "pair": 4,
+      "order": [
+        "B",
+        "A"
+      ],
+      "legacy_subset_pass": true,
+      "engines": {
+        "python": {
+          "process": {
+            "affinity_mask": 1,
+            "affinity_method": "inherited_parent_affinity_before_create_process",
+            "affinity_verified": true,
+            "command": [
+              "C:\\Python314\\python.exe",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\python\\run_research.py",
+              "--data-dir",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\data\\a_stocks",
+              "--out",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p111-smoke-r1\\python\\run4",
+              "--max-symbols",
+              "50",
+              "--end-offset",
+              "22",
+              "--preprocess",
+              "cross_section_rank",
+              "--run-id",
+              "run4",
+              "--fincore-root",
+              "D:\\source_code\\fincore"
+            ],
+            "cpu_index": 0,
+            "cpu_seconds": 3.71875,
+            "peak_working_set_bytes": 165740544,
+            "returncode": 0,
+            "thread_environment": {
+              "BLIS_NUM_THREADS": "1",
+              "MKL_DYNAMIC": "FALSE",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_MAX_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "OMP_DYNAMIC": "FALSE",
+              "OMP_NUM_THREADS": "1",
+              "OMP_THREAD_LIMIT": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "TBB_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1"
+            },
+            "wall_seconds": 4.0906068999902345
+          },
+          "internal": {
+            "accounted_stage_seconds": 3.0946035999804735,
+            "cpu_measurement_source": "time.process_time (user + system)",
+            "cpu_seconds": 2.875,
+            "export_seconds": 0.23806239996338263,
+            "factor_seconds": 0.01107929996214807,
+            "internal_process_cpu_seconds": 2.875,
+            "internal_wall_seconds": 3.0946035999804735,
+            "load_seconds": 0.4258441000129096,
+            "other_seconds": 0.0037131000426597893,
+            "peak_memory_bytes": 165740544,
+            "peak_memory_source": "GetProcessMemoryInfo.PeakWorkingSetSize",
+            "peak_memory_status": "available",
+            "preparation_seconds": 0.054446699970867485,
+            "research_seconds": 2.361458000028506,
+            "total_seconds": 3.0946035999804735
+          },
+          "observed_environment": {
+            "affinity": {
+              "affinity_cpu_ids": [
+                0
+              ],
+              "affinity_mask_hex": "0x1",
+              "affinity_source": "GetProcessAffinityMask",
+              "affinity_status": "available"
+            },
+            "effective_thread_pools_verified": false,
+            "thread_limit_environment": {
+              "BLIS_NUM_THREADS": "1",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "OMP_NUM_THREADS": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1"
+            }
+          }
+        },
+        "cpp": {
+          "process": {
+            "affinity_mask": 1,
+            "affinity_method": "inherited_parent_affinity_before_create_process",
+            "affinity_verified": true,
+            "command": [
+              "D:\\source_code\\fincore_cpp\\build-win\\fincore_alpha003_research.exe",
+              "--data-dir",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\data\\a_stocks",
+              "--out",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p111-smoke-r1\\cpp\\run4",
+              "--max-symbols",
+              "50",
+              "--end-offset",
+              "22",
+              "--preprocess",
+              "cross_section_rank",
+              "--run-id",
+              "run4"
+            ],
+            "cpu_index": 0,
+            "cpu_seconds": 0.078125,
+            "peak_working_set_bytes": 15302656,
+            "returncode": 0,
+            "thread_environment": {
+              "BLIS_NUM_THREADS": "1",
+              "MKL_DYNAMIC": "FALSE",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_MAX_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "OMP_DYNAMIC": "FALSE",
+              "OMP_NUM_THREADS": "1",
+              "OMP_THREAD_LIMIT": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "TBB_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1"
+            },
+            "wall_seconds": 0.08890460000839084
+          },
+          "internal": {
+            "preparation_seconds": 0.0001134,
+            "load_seconds": 0.0195153,
+            "factor_seconds": 0.0018828,
+            "research_seconds": 0.0258389,
+            "export_seconds": 0.0307212,
+            "other_seconds": 0.00037149999999999683,
+            "accounted_stage_seconds": 0.0784431,
+            "total_seconds": 0.0784431,
+            "internal_wall_seconds": 0.0784431,
+            "cpu_seconds": 0.078125,
+            "internal_process_cpu_seconds": 0.078125,
+            "cpu_measurement_source": "GetProcessTimes (kernel + user)",
+            "peak_memory_bytes": 15302656,
+            "peak_memory_source": "GetProcessMemoryInfo.PeakWorkingSetSize",
+            "peak_memory_status": "available"
+          },
+          "observed_environment": {
+            "affinity": {
+              "affinity_cpu_ids": [
+                0
+              ],
+              "affinity_mask_hex": "0x1",
+              "affinity_source": "GetProcessAffinityMask (current processor group)",
+              "affinity_status": "available"
+            },
+            "thread_limit_environment": {
+              "OMP_NUM_THREADS": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1",
+              "BLIS_NUM_THREADS": "1"
+            },
+            "effective_thread_pools_verified": false
+          }
+        }
+      }
+    },
+    {
+      "group": "pairs",
+      "pair": 5,
+      "order": [
+        "A",
+        "B"
+      ],
+      "legacy_subset_pass": true,
+      "engines": {
+        "python": {
+          "process": {
+            "affinity_mask": 1,
+            "affinity_method": "inherited_parent_affinity_before_create_process",
+            "affinity_verified": true,
+            "command": [
+              "C:\\Python314\\python.exe",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\python\\run_research.py",
+              "--data-dir",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\data\\a_stocks",
+              "--out",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p111-smoke-r1\\python\\run5",
+              "--max-symbols",
+              "50",
+              "--end-offset",
+              "22",
+              "--preprocess",
+              "cross_section_rank",
+              "--run-id",
+              "run5",
+              "--fincore-root",
+              "D:\\source_code\\fincore"
+            ],
+            "cpu_index": 0,
+            "cpu_seconds": 3.671875,
+            "peak_working_set_bytes": 165675008,
+            "returncode": 0,
+            "thread_environment": {
+              "BLIS_NUM_THREADS": "1",
+              "MKL_DYNAMIC": "FALSE",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_MAX_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "OMP_DYNAMIC": "FALSE",
+              "OMP_NUM_THREADS": "1",
+              "OMP_THREAD_LIMIT": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "TBB_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1"
+            },
+            "wall_seconds": 4.1033382000168785
+          },
+          "internal": {
+            "accounted_stage_seconds": 3.100497599982191,
+            "cpu_measurement_source": "time.process_time (user + system)",
+            "cpu_seconds": 2.8125,
+            "export_seconds": 0.23543850000714883,
+            "factor_seconds": 0.011483200010843575,
+            "internal_process_cpu_seconds": 2.8125,
+            "internal_wall_seconds": 3.100497599982191,
+            "load_seconds": 0.379480000003241,
+            "other_seconds": 0.004519400012213737,
+            "peak_memory_bytes": 165675008,
+            "peak_memory_source": "GetProcessMemoryInfo.PeakWorkingSetSize",
+            "peak_memory_status": "available",
+            "preparation_seconds": 0.054827299958560616,
+            "research_seconds": 2.414749199990183,
+            "total_seconds": 3.100497599982191
+          },
+          "observed_environment": {
+            "affinity": {
+              "affinity_cpu_ids": [
+                0
+              ],
+              "affinity_mask_hex": "0x1",
+              "affinity_source": "GetProcessAffinityMask",
+              "affinity_status": "available"
+            },
+            "effective_thread_pools_verified": false,
+            "thread_limit_environment": {
+              "BLIS_NUM_THREADS": "1",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "OMP_NUM_THREADS": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1"
+            }
+          }
+        },
+        "cpp": {
+          "process": {
+            "affinity_mask": 1,
+            "affinity_method": "inherited_parent_affinity_before_create_process",
+            "affinity_verified": true,
+            "command": [
+              "D:\\source_code\\fincore_cpp\\build-win\\fincore_alpha003_research.exe",
+              "--data-dir",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\data\\a_stocks",
+              "--out",
+              "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p111-smoke-r1\\cpp\\run5",
+              "--max-symbols",
+              "50",
+              "--end-offset",
+              "22",
+              "--preprocess",
+              "cross_section_rank",
+              "--run-id",
+              "run5"
+            ],
+            "cpu_index": 0,
+            "cpu_seconds": 0.046875,
+            "peak_working_set_bytes": 14061568,
+            "returncode": 0,
+            "thread_environment": {
+              "BLIS_NUM_THREADS": "1",
+              "MKL_DYNAMIC": "FALSE",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_MAX_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "OMP_DYNAMIC": "FALSE",
+              "OMP_NUM_THREADS": "1",
+              "OMP_THREAD_LIMIT": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "TBB_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1"
+            },
+            "wall_seconds": 0.09688229998573661
+          },
+          "internal": {
+            "preparation_seconds": 9.56e-05,
+            "load_seconds": 0.018008,
+            "factor_seconds": 0.0015496,
+            "research_seconds": 0.031718,
+            "export_seconds": 0.0289503,
+            "other_seconds": 0.00030120000000000147,
+            "accounted_stage_seconds": 0.0806227,
+            "total_seconds": 0.0806227,
+            "internal_wall_seconds": 0.0806227,
+            "cpu_seconds": 0.046875,
+            "internal_process_cpu_seconds": 0.046875,
+            "cpu_measurement_source": "GetProcessTimes (kernel + user)",
+            "peak_memory_bytes": 14061568,
+            "peak_memory_source": "GetProcessMemoryInfo.PeakWorkingSetSize",
+            "peak_memory_status": "available"
+          },
+          "observed_environment": {
+            "affinity": {
+              "affinity_cpu_ids": [
+                0
+              ],
+              "affinity_mask_hex": "0x1",
+              "affinity_source": "GetProcessAffinityMask (current processor group)",
+              "affinity_status": "available"
+            },
+            "thread_limit_environment": {
+              "OMP_NUM_THREADS": "1",
+              "OPENBLAS_NUM_THREADS": "1",
+              "MKL_NUM_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1",
+              "BLIS_NUM_THREADS": "1"
+            },
+            "effective_thread_pools_verified": false
+          }
+        }
+      }
+    }
+  ]
+}

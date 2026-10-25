@@ -8,13 +8,14 @@
 #include <chrono>
 #include <cmath>
 #include <cstdint>
+#include <cstdlib>
 #include <cstdio>
-#include <ctime>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <limits>
 #include <numeric>
+#include <optional>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -23,6 +24,22 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
+
+#if defined(_WIN32)
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#include <psapi.h>
+#elif defined(__unix__) || defined(__APPLE__)
+#include <sys/resource.h>
+#if defined(__linux__)
+#include <sched.h>
+#endif
+#endif
 
 namespace {
 
@@ -586,8 +603,241 @@ void write_json(const std::filesystem::path& path, const std::string& text) {
 }
 
 std::string json_number(const double value) {
+    if (!std::isfinite(value)) {
+        return "null";
+    }
     std::ostringstream output;
     output << std::setprecision(17) << value;
+    return output.str();
+}
+
+std::string json_string(const std::string_view value) {
+    constexpr char hex[] = "0123456789abcdef";
+    std::string output;
+    output.reserve(value.size() + 2U);
+    output.push_back('"');
+    for (const unsigned char character : value) {
+        switch (character) {
+            case '"': output += "\\\""; break;
+            case '\\': output += "\\\\"; break;
+            case '\b': output += "\\b"; break;
+            case '\f': output += "\\f"; break;
+            case '\n': output += "\\n"; break;
+            case '\r': output += "\\r"; break;
+            case '\t': output += "\\t"; break;
+            default:
+                if (character < 0x20U) {
+                    output += "\\u00";
+                    output.push_back(hex[(character >> 4U) & 0x0fU]);
+                    output.push_back(hex[character & 0x0fU]);
+                } else {
+                    output.push_back(static_cast<char>(character));
+                }
+        }
+    }
+    output.push_back('"');
+    return output;
+}
+
+std::string json_optional_number(const std::optional<double> value) {
+    if (!value.has_value() || !std::isfinite(*value)) {
+        return "null";
+    }
+    return json_number(*value);
+}
+
+std::string json_optional_integer(
+    const std::optional<std::uint64_t> value) {
+    if (!value.has_value()) {
+        return "null";
+    }
+    return std::to_string(*value);
+}
+
+struct process_snapshot {
+    std::optional<double> cpu_seconds;
+    std::optional<std::uint64_t> peak_memory_bytes;
+    std::string cpu_source = "unavailable";
+    std::string peak_memory_source = "unavailable";
+    std::string peak_memory_status = "unsupported_platform";
+};
+
+process_snapshot current_process_snapshot() {
+    process_snapshot snapshot;
+#if defined(_WIN32)
+    snapshot.cpu_source = "GetProcessTimes (kernel + user)";
+    FILETIME creation_time{};
+    FILETIME exit_time{};
+    FILETIME kernel_time{};
+    FILETIME user_time{};
+    if (GetProcessTimes(GetCurrentProcess(), &creation_time, &exit_time,
+                        &kernel_time, &user_time) != FALSE) {
+        ULARGE_INTEGER kernel_ticks{};
+        kernel_ticks.LowPart = kernel_time.dwLowDateTime;
+        kernel_ticks.HighPart = kernel_time.dwHighDateTime;
+        ULARGE_INTEGER user_ticks{};
+        user_ticks.LowPart = user_time.dwLowDateTime;
+        user_ticks.HighPart = user_time.dwHighDateTime;
+        snapshot.cpu_seconds =
+            static_cast<double>(kernel_ticks.QuadPart + user_ticks.QuadPart) /
+            10'000'000.0;
+    }
+
+    snapshot.peak_memory_source = "GetProcessMemoryInfo.PeakWorkingSetSize";
+    using get_process_memory_info_fn = BOOL(WINAPI*)(
+        HANDLE, PPROCESS_MEMORY_COUNTERS, DWORD);
+    auto kernel32 = GetModuleHandleW(L"kernel32.dll");
+    auto query = kernel32 == nullptr ? nullptr
+        : reinterpret_cast<get_process_memory_info_fn>(GetProcAddress(
+              kernel32, "K32GetProcessMemoryInfo"));
+    HMODULE psapi = nullptr;
+    if (query == nullptr) {
+        psapi = LoadLibraryW(L"Psapi.dll");
+        if (psapi != nullptr) {
+            query = reinterpret_cast<get_process_memory_info_fn>(
+                GetProcAddress(psapi, "GetProcessMemoryInfo"));
+        }
+    }
+    PROCESS_MEMORY_COUNTERS counters{};
+    counters.cb = static_cast<DWORD>(sizeof(counters));
+    if (query != nullptr &&
+        query(GetCurrentProcess(), &counters, counters.cb) != FALSE) {
+        snapshot.peak_memory_bytes = static_cast<std::uint64_t>(
+            counters.PeakWorkingSetSize);
+        snapshot.peak_memory_status = "available";
+    } else {
+        snapshot.peak_memory_status =
+            query == nullptr ? "api_unavailable" : "query_failed";
+    }
+    if (psapi != nullptr) {
+        FreeLibrary(psapi);
+    }
+#elif defined(__unix__) || defined(__APPLE__)
+    snapshot.cpu_source = "getrusage(RUSAGE_SELF) (user + system)";
+    snapshot.peak_memory_source = "getrusage(RUSAGE_SELF).ru_maxrss";
+    rusage usage{};
+    if (getrusage(RUSAGE_SELF, &usage) == 0) {
+        const auto user_seconds =
+            static_cast<double>(usage.ru_utime.tv_sec) +
+            static_cast<double>(usage.ru_utime.tv_usec) / 1'000'000.0;
+        const auto system_seconds =
+            static_cast<double>(usage.ru_stime.tv_sec) +
+            static_cast<double>(usage.ru_stime.tv_usec) / 1'000'000.0;
+        const auto total_cpu_seconds = user_seconds + system_seconds;
+        if (std::isfinite(total_cpu_seconds) && total_cpu_seconds >= 0.0) {
+            snapshot.cpu_seconds = total_cpu_seconds;
+        }
+        if (usage.ru_maxrss >= 0) {
+            const auto raw_peak =
+                static_cast<std::uint64_t>(usage.ru_maxrss);
+#if defined(__APPLE__)
+            snapshot.peak_memory_bytes = raw_peak;
+            snapshot.peak_memory_status = "available";
+#elif defined(__linux__) || defined(__FreeBSD__)
+            if (raw_peak <= std::numeric_limits<std::uint64_t>::max() / 1024U) {
+                snapshot.peak_memory_bytes = raw_peak * 1024U;
+                snapshot.peak_memory_status = "available";
+            } else {
+                snapshot.peak_memory_status = "value_overflow";
+            }
+#else
+            snapshot.peak_memory_status = "unit_unknown_for_platform";
+#endif
+        } else {
+            snapshot.peak_memory_status = "invalid_value";
+        }
+    } else {
+        snapshot.peak_memory_status = "query_failed";
+    }
+#endif
+    return snapshot;
+}
+
+std::optional<double> process_cpu_delta(const process_snapshot& start,
+                                        const process_snapshot& end) {
+    if (!start.cpu_seconds.has_value() || !end.cpu_seconds.has_value() ||
+        *end.cpu_seconds < *start.cpu_seconds) {
+        return std::nullopt;
+    }
+    const auto delta = *end.cpu_seconds - *start.cpu_seconds;
+    if (!std::isfinite(delta)) {
+        return std::nullopt;
+    }
+    return delta;
+}
+
+std::string affinity_observation_json() {
+    std::ostringstream output;
+#if defined(_WIN32)
+    DWORD_PTR process_mask = 0;
+    DWORD_PTR system_mask = 0;
+    std::vector<unsigned> cpu_ids;
+    if (GetProcessAffinityMask(GetCurrentProcess(), &process_mask,
+                               &system_mask) != FALSE) {
+        for (unsigned index = 0U;
+             index < static_cast<unsigned>(sizeof(DWORD_PTR) * 8U); ++index) {
+            const auto bit = static_cast<DWORD_PTR>(1U) << index;
+            if ((process_mask & bit) != 0U) {
+                cpu_ids.push_back(index);
+            }
+        }
+        std::ostringstream mask;
+        mask << "0x" << std::hex << process_mask;
+        output << "{\"affinity_cpu_ids\":[";
+        for (std::size_t index = 0U; index < cpu_ids.size(); ++index) {
+            if (index != 0U) output << ',';
+            output << cpu_ids[index];
+        }
+        output << "],\"affinity_mask_hex\":" << json_string(mask.str())
+               << ",\"affinity_source\":"
+               << json_string("GetProcessAffinityMask (current processor group)")
+               << ",\"affinity_status\":\"available\"}";
+        return output.str();
+    }
+    return "{\"affinity_cpu_ids\":null,\"affinity_mask_hex\":null,"
+           "\"affinity_source\":\"GetProcessAffinityMask\","
+           "\"affinity_status\":\"query_failed\"}";
+#elif defined(__linux__)
+    cpu_set_t cpus;
+    CPU_ZERO(&cpus);
+    if (sched_getaffinity(0, sizeof(cpus), &cpus) == 0) {
+        output << "{\"affinity_cpu_ids\":[";
+        bool first = true;
+        for (int index = 0; index < CPU_SETSIZE; ++index) {
+            if (CPU_ISSET(index, &cpus)) {
+                if (!first) output << ',';
+                output << index;
+                first = false;
+            }
+        }
+        output << "],\"affinity_mask_hex\":null,"
+               "\"affinity_source\":\"sched_getaffinity\","
+               "\"affinity_status\":\"available\"}";
+        return output.str();
+    }
+    return "{\"affinity_cpu_ids\":null,\"affinity_mask_hex\":null,"
+           "\"affinity_source\":\"sched_getaffinity\","
+           "\"affinity_status\":\"query_failed\"}";
+#else
+    return "{\"affinity_cpu_ids\":null,\"affinity_mask_hex\":null,"
+           "\"affinity_source\":\"unsupported\","
+           "\"affinity_status\":\"api_unavailable\"}";
+#endif
+}
+
+std::string thread_limit_environment_json() {
+    constexpr std::array<const char*, 6U> names{
+        "OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS",
+        "NUMEXPR_NUM_THREADS", "VECLIB_MAXIMUM_THREADS", "BLIS_NUM_THREADS"};
+    std::ostringstream output;
+    output << '{';
+    for (std::size_t index = 0U; index < names.size(); ++index) {
+        if (index != 0U) output << ',';
+        output << json_string(names[index]) << ':';
+        const auto* value = std::getenv(names[index]);
+        output << (value == nullptr ? "null" : json_string(value));
+    }
+    output << '}';
     return output.str();
 }
 
@@ -595,7 +845,10 @@ std::string json_number(const double value) {
 
 int main(int argc, char** argv) {
     try {
-        const auto process_start = std::clock();
+        const auto internal_started = clock_type::now();
+        const auto process_started = current_process_snapshot();
+        const auto affinity_json = affinity_observation_json();
+        const auto thread_limits_json = thread_limit_environment_json();
         std::filesystem::path data_dir =
             std::filesystem::path("benchmarks") / "alpha003_a_stocks" /
             "data" / "a_stocks";
@@ -627,14 +880,16 @@ int main(int argc, char** argv) {
             }
         }
 
-        const auto started = clock_type::now();
         auto load_start = clock_type::now();
+        const auto preparation_seconds =
+            std::chrono::duration<double>(load_start - internal_started).count();
         auto prices = load_panel(data_dir, max_symbols);
         const auto load_seconds = seconds_since(load_start);
 
         auto factor_start = clock_type::now();
         auto factor = compute_alpha003(prices);
         const auto factor_seconds = seconds_since(factor_start);
+        const auto materialization_start = clock_type::now();
 
         if (end_offset < 0 ||
             static_cast<std::size_t>(end_offset) + 2U > prices.grid.size()) {
@@ -693,37 +948,65 @@ int main(int argc, char** argv) {
         spec.frequency = "1D";
 
         auto research_start = clock_type::now();
+        const auto materialization_seconds = std::chrono::duration<double>(
+            research_start - materialization_start).count();
         const auto result = fincore::evaluate_factor_research(
             factor.series, price_frame, spec);
         const auto research_seconds = seconds_since(research_start);
 
+        auto export_start = clock_type::now();
         std::filesystem::create_directories(out_dir);
         const auto tables_dir = out_dir / "tables";
         std::error_code error;
         std::filesystem::remove_all(tables_dir, error);
-        auto export_start = clock_type::now();
         const auto exported = fincore::export_factor_research(
             result, tables_dir.string(), false);
         write_factor_values(out_dir / "factor_values.csv", factor);
         const auto export_seconds = seconds_since(export_start);
 
-        const auto total_seconds = seconds_since(started);
-        const auto cpu_seconds =
-            static_cast<double>(std::clock() - process_start) / CLOCKS_PER_SEC;
+        const auto process_finished = current_process_snapshot();
+        const auto total_seconds = seconds_since(internal_started);
+        const auto cpu_seconds = process_cpu_delta(process_started,
+                                                   process_finished);
+        const auto accounted_stages = preparation_seconds + materialization_seconds + load_seconds +
+            factor_seconds + research_seconds + export_seconds;
+        const auto other_seconds = total_seconds - accounted_stages;
+        const auto fully_accounted_seconds = accounted_stages + other_seconds;
         std::ostringstream timings;
         timings << "{\n"
-                << "  \"load_seconds\": " << json_number(load_seconds)
+                << "  \"preparation_seconds\": "
+                << json_number(preparation_seconds)
+                << ",\n  \"materialization_seconds\": "
+                << json_number(materialization_seconds)
+                << ",\n  \"load_seconds\": " << json_number(load_seconds)
                 << ",\n  \"factor_seconds\": " << json_number(factor_seconds)
-                << ",\n  \"research_seconds\": " << json_number(research_seconds)
+                << ",\n  \"research_seconds\": "
+                << json_number(research_seconds)
                 << ",\n  \"export_seconds\": " << json_number(export_seconds)
+                << ",\n  \"other_seconds\": " << json_number(other_seconds)
+                << ",\n  \"accounted_stage_seconds\": "
+                << json_number(fully_accounted_seconds)
                 << ",\n  \"total_seconds\": " << json_number(total_seconds)
-                << ",\n  \"cpu_seconds\": " << json_number(cpu_seconds)
+                << ",\n  \"internal_wall_seconds\": "
+                << json_number(total_seconds)
+                << ",\n  \"cpu_seconds\": "
+                << json_optional_number(cpu_seconds)
+                << ",\n  \"internal_process_cpu_seconds\": "
+                << json_optional_number(cpu_seconds)
+                << ",\n  \"cpu_measurement_source\": "
+                << json_string(process_started.cpu_source)
+                << ",\n  \"peak_memory_bytes\": "
+                << json_optional_integer(process_finished.peak_memory_bytes)
+                << ",\n  \"peak_memory_source\": "
+                << json_string(process_finished.peak_memory_source)
+                << ",\n  \"peak_memory_status\": "
+                << json_string(process_finished.peak_memory_status)
                 << "\n}\n";
         write_json(out_dir / "timings.json", timings.str());
 
         std::ostringstream info;
-        info << "{\n  \"run_id\": \"" << run_id
-             << "\",\n  \"engine\": \"cpp-fincore\",\n  \"assets\": "
+        info << "{\n  \"run_id\": " << json_string(run_id)
+             << ",\n  \"engine\": \"cpp-fincore\",\n  \"assets\": "
              << factor.target_columns.size() << ",\n  \"grid_dates\": "
              << prices.rows() << ",\n  \"end_offset\": " << end_offset
              << ",\n  \"research_end\": \""
@@ -733,7 +1016,17 @@ int main(int argc, char** argv) {
              << factor.series.values.size() << ",\n  \"status\": \""
              << result.status << "\",\n  \"exported_files\": "
              << exported.files.size() << ",\n  \"timings\": "
-             << timings.str() << "}\n";
+             << timings.str()
+             << ",\n  \"measurement_scope\": {"
+                "\"internal_wall\": \"main entry through result-file writes; excludes process startup and timing/run_info JSON/stdout writes\","
+                "\"process_wall\": \"measured externally from process launch to exit by the parent runner\","
+                "\"cpu\": \"process CPU delta over the internal interval; process startup is excluded\","
+                "\"peak_memory\": \"process-lifetime peak resident working set at internal completion\","
+                "\"affinity_and_thread_limits\": \"observed only; this runner does not apply limits\"},"
+             << "\n  \"environment\": {\"affinity\": " << affinity_json
+             << ", \"thread_limit_environment\": "
+             << thread_limits_json
+             << ", \"effective_thread_pools_verified\": false}\n}\n";
         write_json(out_dir / "run_info.json", info.str());
         std::printf("%s", info.str().c_str());
         return 0;
