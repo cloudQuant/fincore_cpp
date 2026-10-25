@@ -54,14 +54,51 @@ jobs:
           cp -r docs/_build/html/zh_CN/. site/zh-cn/latest/
           cp docs/site/root.html site/index.html
           touch site/.nojekyll
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - name: Upload the deployable site
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-site
+          path: site
+
+  pages:
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/master')
+    needs: build
+    runs-on: ubuntu-24.04
+    outputs:
+      enabled: ${{ steps.precheck.outputs.enabled }}
+    steps:
+      - id: precheck
+        name: Check whether Pages is enabled for this repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          status=$(curl -s -o /dev/null -w '%{http_code}' \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/${{ github.repository }}/pages")
+          if [ "$status" = "200" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=GitHub Pages is not enabled (HTTP $status); docs site built but not published"
+          fi
+      - name: Download the deployable site
+        if: steps.precheck.outputs.enabled == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: docs-site
+          path: site
+      - name: Configure Pages
+        if: steps.precheck.outputs.enabled == 'true'
+        uses: actions/configure-pages@v5
+      - name: Upload Pages artifact
+        if: steps.precheck.outputs.enabled == 'true'
+        uses: actions/upload-pages-artifact@v3
         with:
           path: site
 
   deploy:
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/master')
-    needs: build
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/master') && needs.pages.outputs.enabled == 'true'
+    needs: pages
     runs-on: ubuntu-latest
     environment:
       name: github-pages

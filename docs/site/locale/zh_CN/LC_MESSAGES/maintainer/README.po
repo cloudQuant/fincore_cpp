@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fincore_cpp 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-26 07:36+0800\n"
+"POT-Creation-Date: 2026-10-26 07:48+0800\n"
 "PO-Revision-Date: 2026-10-26 00:24+0800\n"
 "Last-Translator: fincore_cpp documentation maintainers\n"
 "Language: zh_CN\n"
@@ -91,22 +91,24 @@ msgstr ""
 #: ../../site/maintainer/README.md:29
 msgid ""
 "cd docs/site\n"
+"mkdir -p ../_build/doxygen   # Doxygen creates one level only\n"
 "doxygen Doxyfile\n"
 "python tools/normalize_doxygen_xml.py ../_build/doxygen/xml\n"
 "python tools/build_api_ledger.py\n"
 "python tools/generate_api_pages.py\n"
 msgstr ""
 "cd docs/site\n"
+"mkdir -p ../_build/doxygen   # Doxygen creates one level only\n"
 "doxygen Doxyfile\n"
 "python tools/normalize_doxygen_xml.py ../_build/doxygen/xml\n"
 "python tools/build_api_ledger.py\n"
 "python tools/generate_api_pages.py\n"
 
-#: ../../site/maintainer/README.md:37
+#: ../../site/maintainer/README.md:38
 msgid "Translation"
 msgstr "翻译"
 
-#: ../../site/maintainer/README.md:39
+#: ../../site/maintainer/README.md:40
 msgid ""
 "cd docs/site\n"
 "sphinx-build -b gettext -W --keep-going . ../_build/gettext\n"
@@ -122,7 +124,7 @@ msgstr ""
 "FINCORE_DOCS_LANGUAGE=zh_CN sphinx-build -b html -W -n --keep-going . "
 "../_build/html/zh_CN\n"
 
-#: ../../site/maintainer/README.md:47
+#: ../../site/maintainer/README.md:48
 msgid ""
 "`tools/apply_translations.py <catalog> <json>` fills a catalog from a msgid-"
 "to-msgstr JSON mapping, which keeps bulk translations reviewable and avoids "
@@ -131,11 +133,11 @@ msgstr ""
 "`tools/apply_translations.py <catalog> <json>` 按 msgid 到 msgstr 的 JSON "
 "映射填充目录，使批量翻译保持可审阅，并避免手工处理换行。提交前先核对总数："
 
-#: ../../site/maintainer/README.md:51
+#: ../../site/maintainer/README.md:52
 msgid "msgfmt --statistics -o /dev/null locale/zh_CN/LC_MESSAGES/**/*.po\n"
 msgstr "msgfmt --statistics -o /dev/null locale/zh_CN/LC_MESSAGES/**/*.po\n"
 
-#: ../../site/maintainer/README.md:55
+#: ../../site/maintainer/README.md:56
 msgid ""
 "The untranslated set must stay exactly the reviewed identifier exemptions in"
 " `docs/iterations/iteration-10-comments-bilingual-docs/exemptions.md`; any "
@@ -144,7 +146,7 @@ msgstr ""
 "未翻译集合必须恰好等于 `docs/iterations/iteration-10-comments-bilingual-"
 "docs/exemptions.md` 中经审阅的标识符豁免；任何其它未翻译条目都会阻止双语发布。"
 
-#: ../../site/maintainer/README.md:59
+#: ../../site/maintainer/README.md:60
 msgid ""
 "Keep identifiers, commands, paths, formulas and code blocks literal. The "
 "glossary uses returns=收益率, drawdown=回撤, volatility=波动率, horizon=预测期, "
@@ -153,7 +155,7 @@ msgstr ""
 "保留标识符、命令、路径、公式和代码块的字面形式。术语表使用 "
 "returns=收益率、drawdown=回撤、volatility=波动率、horizon=预测期、turnover=换手率、exposure=暴露、annualization=年化。"
 
-#: ../../site/maintainer/README.md:63
+#: ../../site/maintainer/README.md:64
 msgid ""
 "Doxygen auto-links are disabled (`AUTOLINK_SUPPORT = NO`) because reference "
 "nodes cannot survive gettext: a translated paragraph that drops them fails "
@@ -163,11 +165,11 @@ msgstr ""
 "由于引用节点无法在 gettext 中保留（译文段落丢掉引用就会让严格构建失败），Doxygen 自动链接已被关闭（`AUTOLINK_SUPPORT "
 "= NO`）。请改为在叙述页面中显式书写交叉引用。"
 
-#: ../../site/maintainer/README.md:67
+#: ../../site/maintainer/README.md:68
 msgid "Generated artifacts"
 msgstr "生成的产物"
 
-#: ../../site/maintainer/README.md:69
+#: ../../site/maintainer/README.md:70
 #, python-brace-format
 msgid ""
 "`docs/_build/` (Doxygen XML, gettext templates, `.mo`, HTML) is ignored. "

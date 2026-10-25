@@ -103,11 +103,18 @@ Total Test time (real) = 54.57 sec
 
 Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
-`src`, `tests`, `tools`, `examples` and `benchmarks` carry comment markers in
-every file (106/106, 138/138, 24/31, 3/3, 13/13), but the per-file
-"reviewed / needs more / justified-none" audit for implementation-side
-invariants was **not** completed in this round, so P131 is recorded as
-`PARTIAL` and not counted as passed.
+`src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
+[`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
+(287 files; 17 with three or more explanatory comment blocks, 24 sparse, 246
+with no explanatory block). This round added implementation-invariant notes to
+the four files where the code is least inferable from its contract —
+`src/detail/mt19937.cpp` (NumPy seed multiplier and mask-based bounded draw),
+`src/portfolio/round_trips.cpp` (signed-price FIFO matching and the
+close-and-reopen remainder), `src/risk/garch.cpp` (why the parameters are
+reparameterized before the unconstrained search) and
+`src/factor/data.cpp` (bin interval convention and edge widening). Those four
+were also verified comment-only. The remaining audit is deliberately deferred,
+so **P131 is PARTIAL**, not passed.
 
 ## 4. P132 — bilingual site content
 
@@ -151,20 +158,35 @@ ledger and generated API pages are source artifacts and are committed.
 ## 5. P133 — publication: PLATFORM_PENDING
 
 Configuration is in the repository and is buildable, but no live site was
-verified, so this gate is not claimed:
+verified, so this gate is not claimed.
+
+Observed on the pushed `dev` branch (run
+[`40246178068`](https://github.com/cloudQuant/fincore_cpp/actions/runs/40246178068)):
+the **Linux** job installed Doxygen 1.9.8 and the pinned Python 3.13
+dependencies, generated the XML, and completed **both** strict builds
+(`-W -n --keep-going`, `fail_on_warning`) for English and Chinese. The run then
+failed only at `actions/configure-pages`, because Pages is not enabled:
+`Get Pages site failed … Not Found`. Two earlier configuration defects were
+found and fixed by the same evidence: the docs pins required Python 3.13
+(Sphinx 9.2.0 rejects 3.12), and Doxygen could not create `docs/_build/doxygen`
+on a fresh checkout because it only creates one directory level.
+
+The workflow now separates the two concerns: a `build` job that must pass and
+uploads the assembled site as a normal artifact, and a `pages` job that probes
+`GET /repos/.../pages` and only configures, uploads and deploys when Pages
+exists. Until the owner enables Pages, the pipeline reports a notice instead of
+a false green, and the deliverable stays a verified **deployable artifact**.
 
 - [`.readthedocs.yaml`](../../../.readthedocs.yaml) — v2 config, Ubuntu 24.04,
-  Python 3.12, Doxygen apt package, `pre_build` runs Doxygen and the XML
-  normalizer, `fail_on_warning: true`. **No RTD account or project is
-  configured on this host**, so neither language project has been built or
-  visited.
+  Python 3.13, Doxygen apt package, `pre_build` creates the output directory,
+  runs Doxygen and the XML normalizer, `fail_on_warning: true`. **No RTD
+  account or project is configured on this host**, so neither language project
+  has been built or visited.
 - [`.github/workflows/docs.yml`](../../../.github/workflows/docs.yml) — builds
-  both languages with the same strict flags and assembles a Pages artifact at
-  `/fincore_cpp/en/latest/` and `/fincore_cpp/zh-cn/latest/`, deploying on
-  pushes to `dev`/`master`. **Pages is not enabled on the repository**:
-  `gh api repos/cloudquant/fincore_cpp` reports `has_pages: false`, and
-  `gh api repos/cloudquant/fincore_cpp/pages` returns 404. The workflow has
-  not yet run for this iteration because the changes are local.
+  both languages with the same strict flags, assembles
+  `/fincore_cpp/en/latest/` and `/fincore_cpp/zh-cn/latest/`, and gates Pages
+  deployment on repository enablement. `has_pages` is `false` and
+  `GET /repos/cloudQuant/fincore_cpp/pages` returns 404.
 
 Required runbook before P133 can be marked PASS (four combinations, each with
 home, installation, one deep API page, language switch, version label, static
