@@ -200,6 +200,77 @@ def write_json(path: Path, payload: Any, *, require_finite: bool = False) -> Non
                     encoding="utf-8", newline="\n")
 
 
+def validate_utc_seconds(frame: pd.DataFrame) -> None:
+    """Validate timestamp arrays before pandas formats them without offsets."""
+    for column in ("time", "date"):
+        if column not in frame.columns:
+            continue
+        values = frame[column]
+        if values.empty:
+            continue
+        if not pd.api.types.is_datetime64_any_dtype(values.dtype):
+            raise ValueError(f"{column} must remain a UTC datetime column")
+        if str(values.dt.tz) != "UTC":
+            raise ValueError(f"{column} timestamps must be UTC")
+        if np.any(values.array.asi8 % 1_000_000_000 != 0):
+            raise ValueError(f"{column} timestamps must have whole-second precision")
+
+
+def write_csv_frame(frame: pd.DataFrame, path: Path) -> None:
+    """Write a complete table with canonical UTC text and round-trip floats."""
+    validate_utc_seconds(frame)
+    with path.open("w", encoding="utf-8", newline="") as stream:
+        frame.to_csv(stream, index=False, date_format="%Y-%m-%dT%H:%M:%SZ",
+                     lineterminator="\n", na_rep="")
+
+
+def canonical_utc_text(value: pd.Timestamp) -> str:
+    timestamp = pd.Timestamp(value)
+    if timestamp.tzinfo is None:
+        raise ValueError("workload timestamps must be timezone-aware")
+    timestamp = timestamp.tz_convert("UTC")
+    if timestamp.value % 1_000_000_000 != 0:
+        raise ValueError("workload timestamps must have whole-second precision")
+    return timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def workload_snapshot(*, periods: tuple[int, ...], args: argparse.Namespace,
+                      grid: pd.DataFrame, research_end: pd.Timestamp,
+                      assets: int, factor_cells: int) -> dict[str, Any]:
+    return {
+        "contract": "alpha003-complete-v2",
+        "factor": FACTOR,
+        "periods": [f"{period}D" for period in periods],
+        "quantiles": args.quantiles,
+        "min_assets": args.min_assets,
+        "min_quantile_assets": 1,
+        "preprocess": args.preprocess,
+        "label": args.label,
+        "direction": 1,
+        "stability_lags": [1, 5, 20],
+        "start": canonical_utc_text(grid.index[0]),
+        "research_end": canonical_utc_text(research_end),
+        "grid_dates": len(grid),
+        "assets": assets,
+        "factor_cells": factor_cells,
+        "label_config": {
+            "snapshot_id": "a_stocks_2025",
+            "price_basis": "unadjusted_open",
+            "frequency": "1D",
+            "calendar_id": "observed_calendar",
+            "feed_time_kind": "close_time",
+            "source_timezone": TIMEZONE,
+        },
+        "serialization": {
+            "encoding": "utf-8",
+            "line_ending": "LF",
+            "timestamp": "ISO8601-UTC-Z",
+            "float": "roundtrip-binary64",
+            "nan": "empty",
+        },
+    }
+
+
 def peak_memory_observation() -> dict[str, Any]:
     """Return process peak resident memory in bytes when the OS reports it."""
     if os.name == "nt":
@@ -314,6 +385,10 @@ def main() -> int:
     preparation_seconds = load_started - internal_started
     grid, open_panel, close_panel, volume_panel, files = load_panel(
         args.data_dir, args.max_symbols)
+    for timestamps, name in ((grid.index, "calendar close_time"),
+                             (grid["open_time"], "calendar first_trade_time")):
+        if np.any(pd.DatetimeIndex(timestamps).asi8 % 1_000_000_000 != 0):
+            raise ValueError(f"{name} timestamps must have whole-second precision")
     load_seconds = time.perf_counter() - load_started
 
     factor_started = time.perf_counter()
@@ -375,21 +450,38 @@ def main() -> int:
     export_started = time.perf_counter()
     out.mkdir(parents=True, exist_ok=True)
     factor_out = pd.DataFrame({
-        "date": factor_long["time"].dt.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "date": factor_long["time"],
         "asset": factor_long["asset"],
         FACTOR: factor_long[FACTOR],
     })
-    factor_out.to_csv(out / "factor_values.csv", index=False, encoding="utf-8")
+    write_csv_frame(factor_out, out / "factor_values.csv")
     table_names = (
         "signals", "labels", "ic", "ic_summary", "quantile_returns",
         "turnover", "spreads", "stability", "coverage", "diagnostics",
     )
+    manifest = dict(result.manifest)
+    manifest_tables = manifest.get("tables")
+    if not isinstance(manifest_tables, dict):
+        raise RuntimeError("fincore result manifest is missing table metadata")
     for name in table_names:
-        result.table(name).to_csv(out / f"{name}.csv", index=False,
-                                  encoding="utf-8")
+        table = result.table(name)
+        descriptor = manifest_tables.get(name)
+        expected = {"rows": len(table),
+                    "columns": [str(column) for column in table.columns]}
+        if (not isinstance(descriptor, dict) or
+                descriptor.get("rows") != expected["rows"] or
+                descriptor.get("columns") != expected["columns"]):
+            raise RuntimeError(
+                f"fincore manifest metadata differs from exported {name} table")
+        write_csv_frame(table, out / f"{name}.csv")
+
+    workload = workload_snapshot(
+        periods=periods, args=args, grid=grid, research_end=research_end,
+        assets=len(targets), factor_cells=len(factor_long))
+    write_json(out / "workload.json", workload, require_finite=True)
+    write_json(out / "manifest.json", manifest)
     export_seconds = time.perf_counter() - export_started
 
-    write_json(out / "manifest.json", dict(result.manifest))
     internal_wall_seconds = time.perf_counter() - internal_started
     cpu_seconds = time.process_time() - cpu_started
     peak_memory = peak_memory_observation()
@@ -431,7 +523,7 @@ def main() -> int:
         "assets": len(targets),
         "grid_dates": len(grid),
         "end_offset": args.end_offset,
-        "research_end": research_end.isoformat(),
+        "research_end": canonical_utc_text(research_end),
         "factor_cells": len(factor_long),
         "periods": list(periods),
         "quantiles": args.quantiles,
@@ -441,7 +533,7 @@ def main() -> int:
         "status": result.status,
         "measurement_scope": {
             "internal_wall":
-                "main entry through research outputs and manifest write; excludes interpreter startup and module-level NumPy/pandas imports, plus timing/run_info JSON and stdout writes",
+                "main entry through factor, research, workload, CSV, and result manifest writes; excludes interpreter startup and module-level NumPy/pandas imports, plus timing/run_info JSON and stdout writes",
             "process_wall":
                 "measured externally from process launch to exit by the parent runner",
             "cpu": "process CPU delta over the internal runner interval",

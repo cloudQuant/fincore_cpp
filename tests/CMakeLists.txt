@@ -66,6 +66,8 @@ add_executable(fincore_tests
     unit/report_models_test.cpp
     unit/factor_report_test.cpp
     unit/factor_research_test.cpp
+    unit/factor_research_detailed_test.cpp
+    unit/factor_research_detailed_export_test.cpp
     unit/factor_tears_test.cpp
     unit/factor_pit_test.cpp
     unit/factor_portfolio_test.cpp

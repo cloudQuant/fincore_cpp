@@ -1,6 +1,7 @@
 #include <fincore/calendar.hpp>
 #include <fincore/dataframe.hpp>
-#include <fincore/factor/research.hpp>
+#include <fincore/factor/research_detailed.hpp>
+#include <fincore/factor/research_detailed_export.hpp>
 
 #include <algorithm>
 #include <array>
@@ -155,6 +156,10 @@ std::size_t header_index(const csv_fields& header, const std::string_view name) 
 }
 
 std::string format_utc(const timestamp value) {
+    if (value % nanoseconds_per_second != 0) {
+        throw std::runtime_error(
+            "alpha003 daily timestamps must have whole-second precision");
+    }
     const auto seconds = std::chrono::seconds{
         value / nanoseconds_per_second};
     const auto point = std::chrono::sys_time<std::chrono::seconds>{seconds};
@@ -600,6 +605,67 @@ void write_json(const std::filesystem::path& path, const std::string& text) {
         throw std::runtime_error("cannot write " + path.string());
     }
     stream << text;
+    if (!stream) {
+        throw std::runtime_error("cannot write " + path.string());
+    }
+}
+
+std::string json_string(std::string_view value);
+
+void write_workload(const std::filesystem::path& path,
+                    const fincore::research_spec& spec,
+                    const std::size_t grid_dates, const std::size_t assets,
+                    const std::size_t factor_cells) {
+    std::ostringstream output;
+    output << "{\n"
+           << "  \"contract\": \"alpha003-complete-v2\",\n"
+           << "  \"factor\": " << json_string(factor_name) << ",\n"
+           << "  \"periods\": [";
+    for (std::size_t index = 0U; index < spec.periods.size(); ++index) {
+        if (index != 0U) output << ", ";
+        output << json_string(std::to_string(spec.periods[index]) + "D");
+    }
+    output << "],\n"
+           << "  \"quantiles\": " << spec.quantiles << ",\n"
+           << "  \"min_assets\": " << spec.min_assets << ",\n"
+           << "  \"min_quantile_assets\": " << spec.min_quantile_assets
+           << ",\n"
+           << "  \"preprocess\": " << json_string(spec.preprocess) << ",\n"
+           << "  \"label\": " << json_string(spec.label) << ",\n"
+           << "  \"direction\": 1,\n"
+           << "  \"stability_lags\": [";
+    for (std::size_t index = 0U; index < spec.stability_lags.size(); ++index) {
+        if (index != 0U) output << ", ";
+        output << spec.stability_lags[index];
+    }
+    output << "],\n"
+           << "  \"start\": " << json_string(format_utc(spec.start)) << ",\n"
+           << "  \"research_end\": " << json_string(format_utc(spec.end))
+           << ",\n"
+           << "  \"grid_dates\": " << grid_dates << ",\n"
+           << "  \"assets\": " << assets << ",\n"
+           << "  \"factor_cells\": " << factor_cells << ",\n"
+           << "  \"label_config\": {\n"
+           << "    \"snapshot_id\": " << json_string(spec.snapshot_id)
+           << ",\n"
+           << "    \"price_basis\": " << json_string(spec.price_basis)
+           << ",\n"
+           << "    \"frequency\": " << json_string(spec.frequency)
+           << ",\n"
+           << "    \"calendar_id\": " << json_string(spec.calendar_id)
+           << ",\n"
+           << "    \"feed_time_kind\": \"close_time\",\n"
+           << "    \"source_timezone\": \"Asia/Shanghai\"\n"
+           << "  },\n"
+           << "  \"serialization\": {\n"
+           << "    \"encoding\": \"utf-8\",\n"
+           << "    \"line_ending\": \"LF\",\n"
+           << "    \"timestamp\": \"ISO8601-UTC-Z\",\n"
+           << "    \"float\": \"roundtrip-binary64\",\n"
+           << "    \"nan\": \"empty\"\n"
+           << "  }\n"
+           << "}\n";
+    write_json(path, output.str());
 }
 
 std::string json_number(const double value) {
@@ -884,6 +950,13 @@ int main(int argc, char** argv) {
         const auto preparation_seconds =
             std::chrono::duration<double>(load_start - internal_started).count();
         auto prices = load_panel(data_dir, max_symbols);
+        if (std::any_of(prices.grid.begin(), prices.grid.end(),
+                        [](const timestamp value) {
+                            return value % nanoseconds_per_second != 0;
+                        })) {
+            throw std::runtime_error(
+                "alpha003 daily timestamps must have whole-second precision");
+        }
         const auto load_seconds = seconds_since(load_start);
 
         auto factor_start = clock_type::now();
@@ -950,18 +1023,19 @@ int main(int argc, char** argv) {
         auto research_start = clock_type::now();
         const auto materialization_seconds = std::chrono::duration<double>(
             research_start - materialization_start).count();
-        const auto result = fincore::evaluate_factor_research(
-            factor.series, price_frame, spec);
+        const auto result = fincore::evaluate_factor_research_detailed(
+            factor_name, factor.series, price_frame, spec);
         const auto research_seconds = seconds_since(research_start);
 
         auto export_start = clock_type::now();
         std::filesystem::create_directories(out_dir);
         const auto tables_dir = out_dir / "tables";
-        std::error_code error;
-        std::filesystem::remove_all(tables_dir, error);
-        const auto exported = fincore::export_factor_research(
-            result, tables_dir.string(), false);
+        const auto exported = fincore::export_factor_research_detailed(
+            result, tables_dir.string());
         write_factor_values(out_dir / "factor_values.csv", factor);
+        write_workload(out_dir / "workload.json", spec, prices.rows(),
+                       factor.target_columns.size(),
+                       factor.series.values.size());
         const auto export_seconds = seconds_since(export_start);
 
         const auto process_finished = current_process_snapshot();
@@ -1006,7 +1080,16 @@ int main(int argc, char** argv) {
 
         std::ostringstream info;
         info << "{\n  \"run_id\": " << json_string(run_id)
-             << ",\n  \"engine\": \"cpp-fincore\",\n  \"assets\": "
+             << ",\n  \"engine\": \"cpp-fincore\","
+                "\n  \"engine_fingerprint\": {\"detailed_api_version\": "
+             << json_string(fincore::research_detailed_api_version)
+             << ", \"result_schema_version\": "
+             << fincore::research_detailed_result_schema_version
+             << ", \"export_schema_id\": "
+             << json_string(fincore::research_detailed_export_schema_id)
+             << ", \"export_schema_version\": "
+             << fincore::research_detailed_export_schema_version << "},"
+             << "\n  \"assets\": "
              << factor.target_columns.size() << ",\n  \"grid_dates\": "
              << prices.rows() << ",\n  \"end_offset\": " << end_offset
              << ",\n  \"research_end\": \""
@@ -1018,7 +1101,7 @@ int main(int argc, char** argv) {
              << exported.files.size() << ",\n  \"timings\": "
              << timings.str()
              << ",\n  \"measurement_scope\": {"
-                "\"internal_wall\": \"main entry through result-file writes; excludes process startup and timing/run_info JSON/stdout writes\","
+                "\"internal_wall\": \"main entry through factor, research, workload, CSV, and result manifest writes; excludes process startup and timing/run_info JSON/stdout writes\","
                 "\"process_wall\": \"measured externally from process launch to exit by the parent runner\","
                 "\"cpu\": \"process CPU delta over the internal interval; process startup is excluded\","
                 "\"peak_memory\": \"process-lifetime peak resident working set at internal completion\","

@@ -70,6 +70,8 @@ add_library(fincore
     src/factor/analysis.cpp
     src/factor/report.cpp
     src/factor/research.cpp
+    src/factor/research_detailed.cpp
+    src/factor/research_detailed_export.cpp
     src/factor/tears.cpp
     src/factor/pit.cpp
     src/factor/portfolio.cpp
@@ -171,6 +173,11 @@ add_executable(fincore_alpha003_research EXCLUDE_FROM_ALL
     benchmarks/alpha003_a_stocks/cpp/alpha003_research.cpp)
 target_link_libraries(fincore_alpha003_research PRIVATE fincore)
 fincore_enable_sanitizers(fincore_alpha003_research)
+
+add_executable(fincore_research_detailed_oracle EXCLUDE_FROM_ALL
+    tests/oracle/research_detailed_probe.cpp)
+target_link_libraries(fincore_research_detailed_oracle PRIVATE fincore)
+fincore_enable_sanitizers(fincore_research_detailed_oracle)
 
 if (FINCORE_BUILD_IMPLOT_DEMO AND NOT FINCORE_BUILD_IMPLOT)
     message(FATAL_ERROR

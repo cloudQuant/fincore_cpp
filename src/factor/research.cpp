@@ -1,4 +1,5 @@
 #include <fincore/factor/research.hpp>
+#include "research_detailed_internal.hpp"
 
 #include "research_export_internal.hpp"
 
@@ -622,6 +623,80 @@ forward_return_table next_open_table(const dataframe& prices,
 }
 
 }  // namespace
+
+factor_series research_detailed_detail::select_panel(
+    const factor_series& factors, const research_spec& spec) {
+    return research_panel(factors, spec);
+}
+
+research_detailed_detail::label_input
+research_detailed_detail::build_detailed_label_input(
+    const factor_series& panel, const dataframe& prices,
+    const research_spec& spec) {
+    if (spec.label != "close_to_close" &&
+        spec.label != "next_open_to_open") {
+        throw factor_data_error{"unsupported research label: " + spec.label};
+    }
+    const auto periods = canonical_period_labels(
+        prices, spec, research_study_dates(prices, spec));
+    research_detailed_detail::label_input result;
+    result.periods = periods;
+    result.horizons.reserve(periods.size());
+    if (spec.label == "close_to_close") {
+        auto forward = compute_forward_returns(panel, prices, spec.periods,
+                                               std::nullopt, true);
+        if (forward.values.size() != periods.size()) {
+            throw factor_data_error{
+                "price-derived labels must match the requested periods"};
+        }
+        for (std::size_t horizon = 0; horizon < periods.size(); ++horizon) {
+            auto values = std::move(forward.values[horizon]);
+            for (double& value : values) {
+                if (!std::isfinite(value)) {
+                    value = nan;
+                }
+            }
+            result.horizons.push_back(
+                {periods[horizon], std::move(values)});
+        }
+        return result;
+    }
+
+    auto forward = next_open_table(prices, spec, periods);
+    if (forward.values.size() != periods.size() ||
+        forward.assets.empty()) {
+        throw factor_data_error{
+            "next-open labels must match the requested periods"};
+    }
+    std::unordered_map<std::string, std::size_t> asset_positions;
+    asset_positions.reserve(forward.assets.size());
+    for (std::size_t asset = 0; asset < forward.assets.size(); ++asset) {
+        asset_positions.emplace(forward.assets[asset], asset);
+    }
+    std::unordered_map<timestamp, std::size_t> date_positions;
+    date_positions.reserve(forward.dates.size());
+    for (std::size_t row = 0; row < forward.dates.size(); ++row) {
+        date_positions.emplace(forward.dates[row], row);
+    }
+    for (std::size_t horizon = 0; horizon < periods.size(); ++horizon) {
+        std::vector<double> values(panel.dates.size(), nan);
+        for (std::size_t row = 0; row < panel.dates.size(); ++row) {
+            const auto date = date_positions.find(panel.dates[row]);
+            const auto asset = asset_positions.find(panel.assets[row]);
+            if (date == date_positions.end() ||
+                asset == asset_positions.end()) {
+                continue;
+            }
+            const auto cell = date->second * forward.assets.size() +
+                              asset->second;
+            const double value = forward.values[horizon][cell];
+            values[row] = std::isfinite(value) ? value : nan;
+        }
+        result.horizons.push_back(
+            {periods[horizon], std::move(values)});
+    }
+    return result;
+}
 
 namespace {
 

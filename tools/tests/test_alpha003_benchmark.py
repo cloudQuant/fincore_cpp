@@ -82,7 +82,7 @@ class CampaignTests(unittest.TestCase):
             report = json.loads((args.results_dir / "comparison.json").read_text())
             self.assertFalse(report["all_pairs_pass"])
             self.assertEqual(len(report["all_comparisons"]), 5)
-            self.assertEqual(report["formal_acceptance"], "NOT_ELIGIBLE_PENDING_FULL_PARITY")
+            self.assertEqual(report["formal_acceptance"], "DEVELOPMENT_CAMPAIGN_ONLY")
 
 
 if __name__ == "__main__":

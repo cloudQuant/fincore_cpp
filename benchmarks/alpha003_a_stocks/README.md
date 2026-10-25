@@ -8,9 +8,49 @@ research stacks on the same raw A-share panel:
 - **C++**: native `fincore_cpp` loads the panel, computes alpha003, evaluates
   the research and writes the same table set.
 
-It then compares factor values and research tables with a strict tolerance and
-reports stage-level timings. The comparison script exits non-zero when a
-primary numeric check fails.
+It compares complete factor/research tables and reports external process wall
+time alongside internal stages. The comparison script exits non-zero when any
+required file, schema, row, field or manifest check fails.
+
+## Iteration 9 complete contract
+
+The current runners use `alpha003-complete-v2`. The C++ path calls the reusable
+`evaluate_factor_research_detailed` and `export_factor_research_detailed` APIs;
+the original version-1 result and export API remain available to existing users.
+The Python reference remains pinned to fincore commit
+`3e9ef205ef2023f92e89fddd1052d46b16429c64` with no tracked modifications.
+
+The required files are factor_values, signals, labels, ic, ic_summary,
+quantile_returns, turnover, spreads, stability, coverage and diagnostics CSVs,
+plus each engine's result manifest and a shared workload manifest. Comparison
+includes Pearson and rank IC, daily quantile returns and counts, every period's
+turnover, full processed-panel stability, and all NaN label rows. The checker
+streams every row in the registered Python output order; it does not join away
+missing keys or aggregate away daily differences. Keys, schemas, counts,
+categories and missing/infinite masks must match exactly. Every finite numeric
+field has the same absolute error limit, `1e-6`.
+
+CSV uses UTF-8, LF record endings, UTC ISO8601 timestamps ending in `Z`, empty
+NaN fields and round-trip binary64 formatting. Equivalent shortest/decimal
+float representations need not have identical bytes. These daily benchmark
+inputs must have whole-second timestamps; the reusable C++ exporter also
+preserves fractional nanoseconds. The shared workload includes label settings,
+time range, panel size and serialization policy. Engine-specific fingerprints
+remain in the result manifest/run information rather than being compared as
+cross-language hashes.
+
+Every process starts on the same logical CPU, with one-thread library settings.
+Two symmetric warmup pairs precede alternating AB/BA measured pairs. Comparison
+finishes outside the timed interval before the next pair starts. The external
+timer includes interpreter startup/imports, all computation/output, close and
+process exit. Raw CPU time, peak working set, affinity and input/binary/source
+identities are retained. Use a fresh output directory for every campaign.
+
+This contract is undergoing P112 acceptance. The historical results below use
+the older partial table contract and **are not the Iteration 9 baseline**. Formal
+30x/100x acceptance additionally requires both 500/full cases, two independent
+batches of at least ten pairs, the noise gates and representative API regression
+checks in the [iteration plan](../../docs/iterations/iteration-9-performance-30x-100x/acceptance.md).
 
 ## Factor definition
 
@@ -68,12 +108,13 @@ cmake --build build-win --target fincore_alpha003_research --parallel
 Run the comparison from the repository root:
 
 ```powershell
-# 500-symbol benchmark, three repeats, medians in the report
-python benchmarks/alpha003_a_stocks/run_benchmark.py --max-symbols 500 --repeats 3
+# 500-symbol development benchmark, five measured pairs
+python benchmarks/alpha003_a_stocks/run_benchmark.py --max-symbols 500 --repeats 5 `
+  --results-dir benchmarks/alpha003_a_stocks/results-i9-500-run1
 
-# full available universe, one repeat
-python benchmarks/alpha003_a_stocks/run_benchmark.py --max-symbols 0 --repeats 1 `
-  --results-dir benchmarks/alpha003_a_stocks/results-full
+# full available universe, five measured pairs
+python benchmarks/alpha003_a_stocks/run_benchmark.py --max-symbols 0 --repeats 5 `
+  --results-dir benchmarks/alpha003_a_stocks/results-i9-full-run1
 ```
 
 The Python runner needs the local `fincore` checkout:
@@ -84,7 +125,9 @@ $env:FINCORE_ROOT = "D:\source_code\fincore"
 
 or pass `--fincore-root`. The default is that path. The C++ executable is found
 automatically under `build-win/` (or `build/`); pass `--cpp-exe` if it lives
-elsewhere. `--skip-run` reuses `results/<engine>/run1`.
+elsewhere. `--cpu` selects a logical processor (default: first permitted CPU).
+`--skip-run --results-dir ...` rechecks the recorded campaign and writes a new
+report without replacing its original measurements.
 
 Outputs:
 
@@ -100,7 +143,7 @@ benchmarks/alpha003_a_stocks/
 
 `results/` and `results-full/` are generated and gitignored.
 
-## Numeric result — 500 symbols, 3 repeats
+## Historical partial numeric result — 500 symbols, 3 repeats
 
 Data scale: 498 evaluated assets, 243 grid dates, 212 research dates after the
 22-row tail reserve, 114,509 factor cells and 103,601 signal cells.
@@ -120,7 +163,7 @@ Data scale: 498 evaluated assets, 243 grid dates, 212 research dates after the
 | stability, published summary | 3 / 3 / 3 | 1.82e-04 | PASS (secondary) |
 | stability, per-date kernel | 610 common rows | 1.44e-15 | PASS |
 
-## Numeric result — full universe, 3 repeats
+## Historical partial numeric result — full universe, 3 repeats
 
 Data scale: 5,449 evaluated assets (5,471 files minus late-history/no-window
 assets), 1,255,737 factor cells and 1,136,571 signal cells.
