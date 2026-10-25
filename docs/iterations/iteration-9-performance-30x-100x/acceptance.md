@@ -117,7 +117,7 @@ AB/BA、完整比较等缺失项，并在轮次记录保存实际命令/环境�
 
 | Phase | 状态 | 证据/提交 |
 |---|---|---|
-| P111 测量与profile | PARTIAL | [R1测量组件验证](p111-round1.md)；profile与八类配对campaign待P112 |
+| P111 测量与profile | PARTIAL | [R1测量组件](p111-round1.md)、[Windows native](p111-generic-pairs.md)、[配对入口](p111-paired-entry.md)已验证；profile及正式回归待测 |
 | P112 完整契约与基线 | PARTIAL | [R1 完整结果正确性](p112-round1.md)；500/full 正式基线待测 |
 | P113 分配与索引 | NOT_RUN | 无 |
 | P114 导出 | NOT_RUN | 无 |
