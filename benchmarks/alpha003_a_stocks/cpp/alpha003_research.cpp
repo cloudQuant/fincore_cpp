@@ -253,7 +253,6 @@ struct panel {
     std::vector<timestamp> grid;
     std::vector<std::string> assets;
     std::vector<double> open;
-    std::vector<double> close;
     std::vector<double> volume;
 
     std::size_t rows() const noexcept { return grid.size(); }
@@ -278,7 +277,6 @@ panel load_panel(const std::filesystem::path& data_dir, const int limit) {
     }
     const auto cells = result.rows() * result.columns();
     result.open.assign(cells, nan);
-    result.close.assign(cells, nan);
     result.volume.assign(cells, nan);
 
     const auto columns = result.columns();
@@ -355,8 +353,6 @@ panel load_panel(const std::filesystem::path& data_dir, const int limit) {
                 seen[row] = 1U;
                 result.open[row * columns + asset] =
                     parse_number(fields.values[open_column]);
-                result.close[row * columns + asset] =
-                    parse_number(fields.values[close_column]);
                 result.volume[row * columns + asset] =
                     parse_number(fields.values[volume_column]);
             }
