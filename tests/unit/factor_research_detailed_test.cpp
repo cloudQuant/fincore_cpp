@@ -904,6 +904,165 @@ TEST(FactorResearchDetailed, RejectsMissingNextOpenTargetPriceColumn) {
                  fincore::factor_data_error);
 }
 
+TEST(FactorResearchDetailed,
+     PreprocessContiguousDateRangesPreservesValuesAndCollapsedCount) {
+    const auto start = fincore::utc_timestamp(2024, 3, 18);
+    constexpr fincore::timestamp day = 86'400'000'000'000LL;
+    const double nan = std::numeric_limits<double>::quiet_NaN();
+    const double infinity = std::numeric_limits<double>::infinity();
+    const std::vector<fincore::timestamp> dates{
+        start, start + day, start + 2 * day};
+    const std::vector<std::string> assets{"A", "B", "C", "D", "E"};
+    const std::vector<std::vector<double>> source_values{
+        {0.0, -0.0, -infinity, infinity, nan},
+        {-infinity, infinity, nan, -infinity, infinity},
+        {1.0, nan, 3.0, 5.0, nan},
+    };
+
+    fincore::factor_series factors;
+    for (std::size_t date = dates.size(); date > 0U; --date) {
+        const std::size_t date_index = date - 1U;
+        for (std::size_t asset = assets.size(); asset > 0U; --asset) {
+            const std::size_t asset_index = asset - 1U;
+            factors.dates.push_back(dates[date_index]);
+            factors.assets.push_back(assets[asset_index]);
+            factors.values.push_back(source_values[date_index][asset_index]);
+        }
+    }
+
+    fincore::dataframe prices;
+    prices.load_index(
+        std::vector<fincore::timestamp>{start, start + day,
+                                        start + 2 * day, start + 3 * day});
+    for (const auto& asset : assets) {
+        prices.load_column<double>(
+            asset.c_str(), {10.0, 11.0, 12.0, 13.0},
+            hmdf::nan_policy::dont_pad_with_nans);
+    }
+
+    fincore::research_spec spec;
+    spec.targets = assets;
+    spec.start = start;
+    spec.end = start + 2 * day;
+    spec.periods = {1};
+    spec.quantiles = 2;
+    spec.min_assets = 1;
+    spec.min_quantile_assets = 1;
+    spec.max_loss = 1.0;
+    spec.stability_lags = {1};
+    spec.label = "close_to_close";
+    spec.price_basis = "close";
+
+    const auto evaluate_with_preprocess = [&](const std::string& method) {
+        auto method_spec = spec;
+        method_spec.preprocess = method;
+        return fincore::evaluate_factor_research_detailed(
+            "signal", factors, prices, method_spec);
+    };
+    const auto none = evaluate_with_preprocess("none");
+    const auto rank = evaluate_with_preprocess("cross_section_rank");
+    const auto zscore = evaluate_with_preprocess("cross_section_zscore");
+
+    const std::vector<std::vector<double>> expected_rank{
+        {0.625, 0.625, 0.25, 1.0, nan},
+        {0.375, 0.875, nan, 0.375, 0.875},
+        {1.0 / 3.0, nan, 2.0 / 3.0, 1.0, nan},
+    };
+    const std::vector<std::vector<double>> expected_zscore{
+        {nan, nan, nan, nan, nan},
+        {nan, nan, nan, nan, nan},
+        {-1.0, nan, 0.0, 1.0, nan},
+    };
+    const auto expect_value = [](const double actual, const double expected) {
+        if (std::isnan(expected)) {
+            EXPECT_TRUE(std::isnan(actual));
+        } else if (std::isinf(expected)) {
+            EXPECT_TRUE(std::isinf(actual));
+            EXPECT_EQ(std::signbit(actual), std::signbit(expected));
+        } else {
+            EXPECT_DOUBLE_EQ(actual, expected);
+            if (expected == 0.0) {
+                EXPECT_EQ(std::signbit(actual), std::signbit(expected));
+            }
+        }
+    };
+    const auto expect_signals = [&](const auto& result,
+                                    const std::vector<std::vector<double>>&
+                                        expected_processed) {
+        ASSERT_EQ(result.signals.size(), dates.size() * assets.size());
+        for (std::size_t date = 0U; date < dates.size(); ++date) {
+            for (std::size_t asset = 0U; asset < assets.size(); ++asset) {
+                const std::size_t row = date * assets.size() + asset;
+                const auto& signal = result.signals[row];
+                EXPECT_EQ(signal.date, dates[date]);
+                EXPECT_EQ(signal.asset, assets[asset]);
+                expect_value(signal.value, source_values[date][asset]);
+                expect_value(signal.processed_value,
+                             expected_processed[date][asset]);
+            }
+        }
+    };
+    expect_signals(none, source_values);
+    expect_signals(rank, expected_rank);
+    expect_signals(zscore, expected_zscore);
+
+    const auto collapsed_count = [](const auto& result) {
+        return static_cast<std::size_t>(std::count_if(
+            result.diagnostics.begin(), result.diagnostics.end(),
+            [](const auto& row) {
+                return row.code == "preprocess_collapsed_cross_section";
+            }));
+    };
+    EXPECT_EQ(collapsed_count(none), 0);
+    EXPECT_EQ(collapsed_count(rank), 0);
+    ASSERT_EQ(collapsed_count(zscore), 1);
+    const auto collapsed = std::find_if(
+        zscore.diagnostics.begin(), zscore.diagnostics.end(),
+        [](const auto& row) {
+            return row.code == "preprocess_collapsed_cross_section";
+        });
+    ASSERT_NE(collapsed, zscore.diagnostics.end());
+    ASSERT_TRUE(collapsed->factor.has_value());
+    EXPECT_EQ(*collapsed->factor, "signal");
+    EXPECT_EQ(collapsed->stage, "preprocess");
+    EXPECT_EQ(collapsed->severity, "warning");
+    EXPECT_EQ(collapsed->message,
+              "1 cross-sections for factor 'signal' became fully undefined "
+              "under preprocess='cross_section_zscore'");
+}
+
+TEST(FactorResearchDetailed,
+     MissingPriceErrorKeepsPanelOrderAndRejectsNonDoubleColumn) {
+    const auto start = fincore::utc_timestamp(2024, 3, 20);
+    fincore::factor_series factors;
+    factors.dates = {start, start, start};
+    factors.assets = {"C", "B", "A"};
+    factors.values = {3.0, 2.0, 1.0};
+
+    fincore::dataframe prices;
+    prices.load_index(std::vector<fincore::timestamp>{start});
+    prices.load_column<std::string>("A", {"not a price"},
+                                   hmdf::nan_policy::dont_pad_with_nans);
+    prices.load_column<double>("C", {10.0},
+                              hmdf::nan_policy::dont_pad_with_nans);
+
+    fincore::research_spec spec;
+    spec.targets = {"B", "A", "C"};
+    spec.start = start;
+    spec.end = start;
+    spec.periods = {1};
+    spec.preprocess = "cross_section_zscore";
+
+    try {
+        static_cast<void>(fincore::evaluate_factor_research_detailed(
+            "signal", factors, prices, spec));
+        FAIL() << "expected missing double price columns to be rejected";
+    } catch (const fincore::factor_data_error& error) {
+        EXPECT_STREQ(error.what(),
+                     "prices are missing target assets: A,B");
+    }
+}
+
 TEST(FactorResearchDetailed, MapsFilteredUnsortedRowsToOriginalValues) {
     const auto start = fincore::utc_timestamp(2024, 3, 25);
     constexpr fincore::timestamp day = 86'400'000'000'000LL;

@@ -17,6 +17,7 @@
 #include <string>
 #include <tuple>
 #include <typeinfo>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -163,34 +164,30 @@ void append_diagnostic(research_detailed_result& result,
         {factor, stage, severity, code, message});
 }
 
-std::vector<double> preprocess_cross_section(
-    const std::vector<std::size_t>& positions, factor_series& panel,
-    const std::string& method) {
-    std::vector<double> values;
-    values.reserve(positions.size());
-    for (const std::size_t position : positions) {
-        values.push_back(panel.values[position]);
-    }
+void preprocess_cross_section(const std::size_t begin,
+                              const std::size_t end, factor_series& panel,
+                              const std::string& method,
+                              std::vector<std::size_t>& order) {
     if (method == "none") {
-        return values;
+        return;
     }
     if (method == "cross_section_rank") {
-        std::vector<std::size_t> order;
-        order.reserve(values.size());
-        for (std::size_t index = 0; index < values.size(); ++index) {
-            if (!std::isnan(values[index])) {
-                order.push_back(index);
+        order.clear();
+        for (std::size_t row = begin; row < end; ++row) {
+            if (!std::isnan(panel.values[row])) {
+                order.push_back(row);
             }
         }
         std::stable_sort(order.begin(), order.end(),
-                         [&values](const std::size_t left,
-                                   const std::size_t right) {
-                             return values[left] < values[right];
+                         [&panel](const std::size_t left,
+                                  const std::size_t right) {
+                             return panel.values[left] < panel.values[right];
                          });
+        // Finish sorting before writes; each later tie run remains untouched.
         for (std::size_t first = 0; first < order.size();) {
             std::size_t last = first + 1U;
             while (last < order.size() &&
-                   values[order[last]] == values[order[first]]) {
+                   panel.values[order[last]] == panel.values[order[first]]) {
                 ++last;
             }
             const double average_rank =
@@ -200,57 +197,62 @@ std::vector<double> preprocess_cross_section(
             const double percentile =
                 average_rank / static_cast<double>(order.size());
             for (std::size_t rank = first; rank < last; ++rank) {
-                panel.values[positions[order[rank]]] = percentile;
+                panel.values[order[rank]] = percentile;
             }
             first = last;
         }
-        return values;
+        return;
     }
 
     // pandas skips NaN but includes +/-Inf. Any infinite member makes the
     // row-wise mean/std projection undefined; preserve that outcome instead
     // of silently coercing infinity to a missing value before preprocessing.
-    if (std::any_of(values.begin(), values.end(),
-                    [](const double value) { return std::isinf(value); })) {
-        for (const std::size_t position : positions) {
-            panel.values[position] = nan;
+    for (std::size_t row = begin; row < end; ++row) {
+        if (std::isinf(panel.values[row])) {
+            for (std::size_t collapsed = begin; collapsed < end;
+                 ++collapsed) {
+                panel.values[collapsed] = nan;
+            }
+            return;
         }
-        return values;
     }
-    std::vector<double> finite;
-    finite.reserve(values.size());
-    for (const double value : values) {
+    std::size_t finite_count = 0U;
+    double total = 0.0;
+    for (std::size_t row = begin; row < end; ++row) {
+        const double value = panel.values[row];
         if (!std::isnan(value)) {
-            finite.push_back(value);
+            ++finite_count;
+            total += value;
         }
     }
-    if (finite.size() < 2U) {
-        for (const std::size_t position : positions) {
-            panel.values[position] = nan;
+    if (finite_count < 2U) {
+        for (std::size_t row = begin; row < end; ++row) {
+            panel.values[row] = nan;
         }
-        return values;
+        return;
     }
-    const double mean =
-        std::accumulate(finite.begin(), finite.end(), 0.0) /
-        static_cast<double>(finite.size());
+    const double mean = total / static_cast<double>(finite_count);
     double squared = 0.0;
-    for (const double value : finite) {
-        const double delta = value - mean;
-        squared += delta * delta;
+    for (std::size_t row = begin; row < end; ++row) {
+        const double value = panel.values[row];
+        if (!std::isnan(value)) {
+            const double delta = value - mean;
+            squared += delta * delta;
+        }
     }
     const double deviation = std::sqrt(
-        squared / static_cast<double>(finite.size() - 1U));
+        squared / static_cast<double>(finite_count - 1U));
     if (!(deviation > 0.0) || !std::isfinite(deviation)) {
-        for (const std::size_t position : positions) {
-            panel.values[position] = nan;
+        for (std::size_t row = begin; row < end; ++row) {
+            panel.values[row] = nan;
         }
-        return values;
+        return;
     }
-    for (std::size_t index = 0; index < positions.size(); ++index) {
-        panel.values[positions[index]] =
-            std::isnan(values[index]) ? nan : (values[index] - mean) / deviation;
+    for (std::size_t row = begin; row < end; ++row) {
+        const double value = panel.values[row];
+        panel.values[row] =
+            std::isnan(value) ? nan : (value - mean) / deviation;
     }
-    return values;
 }
 
 std::size_t count_finite(const std::vector<double>& values) {
@@ -738,8 +740,15 @@ research_detailed_result evaluate_factor_research_detailed(
         }
     }
 
-    std::set<std::string> available_price_columns;
-    for (const auto& info : prices.get_columns_info<double>()) {
+    const auto price_column_infos = prices.get_columns_info<double>();
+    const auto double_price_column_count = static_cast<std::size_t>(
+        std::count_if(price_column_infos.begin(), price_column_infos.end(),
+                      [](const auto& info) {
+                          return std::get<2>(info) == typeid(double);
+                      }));
+    std::unordered_set<std::string> available_price_columns;
+    available_price_columns.reserve(double_price_column_count);
+    for (const auto& info : price_column_infos) {
         if (std::get<2>(info) == typeid(double)) {
             available_price_columns.emplace(std::get<0>(info).c_str());
         }
@@ -759,26 +768,31 @@ research_detailed_result evaluate_factor_research_detailed(
             csv_list(missing_price_columns)};
     }
 
-    std::map<timestamp, std::vector<std::size_t>> rows_by_date;
-    for (std::size_t row = 0; row < panel.dates.size(); ++row) {
-        rows_by_date[panel.dates[row]].push_back(row);
-    }
     std::size_t collapsed_cross_sections = 0U;
-    for (const auto& [date, positions] : rows_by_date) {
-        static_cast<void>(date);
+    // The panel was canonicalized by (date, asset) above, so each date is one
+    // contiguous row range. Keep only rank scratch, growing to the largest
+    // cross-section instead of materializing row-index lists for the panel.
+    std::vector<std::size_t> rank_order;
+    for (std::size_t date_begin = 0U; date_begin < panel.dates.size();) {
+        std::size_t date_end = date_begin + 1U;
+        while (date_end < panel.dates.size() &&
+               panel.dates[date_end] == panel.dates[date_begin]) {
+            ++date_end;
+        }
+        const auto date_values = std::span<const double>{panel.values}.subspan(
+            date_begin, date_end - date_begin);
         const bool had_finite = std::any_of(
-            positions.begin(), positions.end(), [&panel](const std::size_t row) {
-                return std::isfinite(panel.values[row]);
-            });
-        static_cast<void>(preprocess_cross_section(positions, panel,
-                                                   spec.preprocess));
+            date_values.begin(), date_values.end(),
+            [](const double value) { return std::isfinite(value); });
+        preprocess_cross_section(date_begin, date_end, panel, spec.preprocess,
+                                 rank_order);
         const bool has_finite = std::any_of(
-            positions.begin(), positions.end(), [&panel](const std::size_t row) {
-                return std::isfinite(panel.values[row]);
-            });
+            date_values.begin(), date_values.end(),
+            [](const double value) { return std::isfinite(value); });
         if (had_finite && !has_finite) {
             ++collapsed_cross_sections;
         }
+        date_begin = date_end;
     }
 
     research_detailed_result result;
