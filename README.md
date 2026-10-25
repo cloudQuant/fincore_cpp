@@ -2,6 +2,22 @@
 
 The C++23, DataFrame-native foundation for fincore analytics.
 
+## Iteration 9 performance delivery — 2026-10-25
+
+The user requested closeout at the current performance level; further tuning
+and the remaining formal performance campaigns are deferred. In the same-CPU
+alpha003 complete-output comparison, the 500-file development batch reached
+**41.20x** (five measured pairs); separate 1,000/2,000-file diagnostic pairs
+reached **34.46x / 35.63x**. These results are not a claim that every API or the
+full corpus has passed the original two-batch 30x gate. The full-corpus formal
+attempt remained inconclusive because of wall-time noise.
+
+The implementation includes shared ordering/index work, compact research
+buffers, faster CSV export and a combined evaluation/export API that avoids
+materializing the large signal and label row objects. Existing owning APIs
+remain available. See the [closeout record](docs/iterations/iteration-9-performance-30x-100x/closeout.md)
+for correctness checks, memory results, exact evidence levels and deferred work.
+
 ## Dependencies
 
 The dependencies are pinned git submodules under `third_party/`:

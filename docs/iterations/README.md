@@ -1,15 +1,17 @@
 # Fincore C++ — Iteration Plan Index
 
-## Current performance plan — 2026-10-25
+## Performance delivery closeout — 2026-10-25
 
 [Iteration 9: at least 30x, aiming for 100x end-to-end performance](iteration-9-performance-30x-100x/README.md)
-adds Phases 111–120. Its [requirements](iteration-9-performance-30x-100x/requirements.md),
+implemented bounded rounds through P125. Its [requirements](iteration-9-performance-30x-100x/requirements.md),
 [design](iteration-9-performance-30x-100x/design.md) and
 [acceptance protocol](iteration-9-performance-30x-100x/acceptance.md) define the
 same-CPU, complete-output comparison and evidence-driven plan revisions.
-Implementation and performance acceptance are **NOT_RUN**; publishing the plan
-does not establish either speedup target. Start with P111/P112 measurement and
-workload-contract repairs, then accept and commit small rounds on existing `dev`.
+The user requested closeout at the current performance level. The 500-file
+development batch reached 41.20x; 1,000/2,000-file diagnostic pairs reached
+34.46x/35.63x. The original two-batch formal gate remains incomplete, including
+the noisy full-corpus attempt. Further tuning and remaining performance gates
+are deferred; see the [closeout record](iteration-9-performance-30x-100x/closeout.md).
 
 Iteration 8's current execution state is in its
 [2026-10-24 acceptance record](../acceptance/2026-10-24-iteration-8-native-parity-acceptance.md).
@@ -59,7 +61,7 @@ Start with the [review findings](review-2026-10-23.md), the
 | 6 | [requirements](iteration-6-report-runtime/requirements.md) | [design](iteration-6-report-runtime/design.md) | [acceptance](iteration-6-report-runtime/acceptance.md) | 88a early contract; 88b–92 integration; 93 distribution |
 | 7 | [requirements](iteration-7-latest-fincore-alignment/requirements.md) | [design](iteration-7-latest-fincore-alignment/design.md) | [acceptance](iteration-7-latest-fincore-alignment/acceptance.md) | 94–99: freeze/re-pin, research corrections, compute reuse, export/hash/positions, measured closeout; NOT_RUN |
 | 8 | [requirements](iteration-8-full-python-parity/requirements.md) | [design](iteration-8-full-python-parity/design.md) | [acceptance](iteration-8-full-python-parity/acceptance.md) | 100–110: native parity; see dated execution record above |
-| 9 | [requirements](iteration-9-performance-30x-100x/requirements.md) | [design](iteration-9-performance-30x-100x/design.md) | [acceptance](iteration-9-performance-30x-100x/acceptance.md) | 111–120: complete-output 30x minimum / 100x stretch; NOT_RUN |
+| 9 | [requirements](iteration-9-performance-30x-100x/requirements.md) | [design](iteration-9-performance-30x-100x/design.md) | [acceptance](iteration-9-performance-30x-100x/acceptance.md) | 111–125: delivery closed at user request; formal performance acceptance partial |
 
 ## Verified planning snapshot
 
