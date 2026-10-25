@@ -143,77 +143,85 @@ exactly.
 
 ## Performance
 
-Final medians on the same Windows 11 host (MSVC 19.42 Release). The Python
-runner is single-threaded. The native runner uses 8 parallel file-loading
-threads and, for large runs, 3 parallel horizon workers for IC and quantile
-aggregation; the threading is part of the measured C++ result and is disclosed
-here rather than hidden in the factor stage.
+Final medians on the same Windows 11 host (MSVC 19.42 Release). Both
+implementations are single-threaded: the native parallel loader and horizon
+workers were removed, and the Python `fincore` package has no computational
+multiprocessing/thread-pool usage. Instrumentation shows C++ CPU time equal to
+pipeline wall time (6.804 s / 6.804 s in one full run); Python CPU time is
+~94% of wall (62.4 s / 66.5 s), consistent with one worker plus I/O waits.
 
-### Optimized 500 symbols, 3 repeats
+### 500 symbols, 3 repeats, equal CPU
 
 | Stage | Python | C++ | Python / C++ |
 |---|---:|---:|---:|
-| load | 1.247 s | 0.045 s | 27.9x |
-| factor | 0.086 s | 0.026 s | 3.3x |
-| research | 3.660 s | 0.247 s | 14.8x |
-| export | 2.657 s | 0.247 s | 10.8x |
-| **total stage** | **7.477 s** | **0.555 s** | **13.5x** |
-| wall (process) | 8.094 s | 0.579 s | 14.0x |
+| load | 1.283 s | 0.069 s | 18.6x |
+| factor | 0.081 s | 0.023 s | 3.6x |
+| research | 3.681 s | 0.263 s | 14.0x |
+| export | 2.723 s | 0.211 s | 12.9x |
+| **total stage** | **7.782 s** | **0.574 s** | **13.6x** |
+| wall (process) | 8.445 s | 0.608 s | 13.9x |
 
-### Optimized full universe, 3 repeats
+### Full universe, 3 repeats, equal CPU
 
 5,449 evaluated assets, 1,255,737 factor cells, 1,136,571 signal cells and
-3,404,416 exported label rows; the CSV output is roughly 300 MB.
+3,404,416 exported label rows; the CSV output is roughly 32.5 MB at 500
+symbols and 347 MB full.
 
 | Stage | Python | C++ | Python / C++ |
 |---|---:|---:|---:|
-| load | 11.520 s | 0.195 s | 59.2x |
-| factor | 0.889 s | 0.337 s | 2.6x |
-| research | 20.397 s | 3.007 s | 6.8x |
-| export | 28.220 s | 2.364 s | 11.9x |
-| **total stage** | **60.585 s** | **5.975 s** | **10.1x** |
-| wall (process) | 61.395 s | 6.068 s | 10.1x |
+| load | 14.785 s | 0.666 s | 22.2x |
+| factor | 1.095 s | 0.296 s | 3.7x |
+| research | 23.086 s | 3.665 s | 6.3x |
+| export | 28.157 s | 2.350 s | 12.0x |
+| **total stage** | **66.485 s** | **7.860 s** | **8.5x** |
+| wall (process) | 67.398 s | 7.973 s | 8.5x |
 
-### Before vs after
+### Before vs after (equal CPU)
 
-The first accepted benchmark (before this optimization pass) measured
-1.740 s C++ at 500 symbols and 24.531 s full. The final medians are 0.555 s and
-5.975 s: the native implementation itself became **3.1x** faster at 500
-symbols and **4.1x** faster on the full panel. Relative to the Python fincore
-run, the end-to-end speedup moved from **4.1x to 13.5x** at 500 symbols and
-from **2.7x to 10.1x** full. The target of at least 10x is met for both the
-default and full medians.
+Before this optimization program the native benchmark took 1.740 s at 500
+symbols and 24.531 s full. The equal-CPU final medians are 0.574 s and
+7.860 s: the native implementation is about **3.0-3.1x** faster, and the
+end-to-end speedup versus Python moved from **4.1x to 13.6x** at 500 and from
+**2.7x to 8.5x** full. The parallel run that reached 10.1x/13.5x is recorded
+in history but is not the equal-CPU headline.
 
-### Interpretation
+### Data-structure and algorithm opportunities
 
-- **Load dominates Python, not native:** whole-file parsing plus 8-way file
-  reads moved the full load stage to 0.195 s (59x faster than pandas).
-- **The factor kernel is no longer a native weakness:** fixed 10-element
-  correlation scratch arrays and contiguous rank sorting bring it to 0.337 s
-  full (2.6x faster than the vectorized pandas/NumPy implementation).
-- **Research is the largest remaining absolute cost** (3.007 s full). The
-  O(dates x rows) rank-autocorrelation scan was removed, multi-lag and
-  multi-quantile passes replaced repeated scans, and horizon IC/quantile work
-  runs on three workers for large inputs. Further single-thread gains would
-  require touching the label/signal materialization or the per-date quantile
-  sorts.
-- **Export is I/O- and formatting-bound:** 2.364 s for ~300 MB. The default
-  writer already uses 1 MB buffers, in-place float formatting, cached dates and
-  `to_chars`; 11.9x versus Python export. The remaining full-run gap to a
-  larger speedup is dominated by this mandatory output volume.
+The remaining single-thread costs are research (3.665 s full) and export
+(2.350 s). Feasible improvements, without parallelism or output changes:
 
-### 100x feasibility
+1. **Reuse the preprocessed rank order.** `cross_section_rank` already sorts
+   every cross-section; IC, quantile, stability and turnover then sort/rank
+   the same factor again per horizon. Carrying the rank/order through the
+   prepared rows can remove one factor sort per date per horizon, with an
+   expected 20-30% research reduction.
+2. **Compact label/signal rows.** The native tables currently materialize
+   millions of per-row `std::string` asset/period fields and one-element
+   `forward_returns` vectors. Interning asset IDs and using a fixed
+   single-horizon return field would cut allocation and memory traffic,
+   especially in label assembly and export.
+3. **Direct row-buffer serialization.** Table writers still build a
+   `std::vector<std::string>` per row and a temporary string per number.
+   A single reusable row buffer with `to_chars`/`string_view` escaping can
+   remove tens of millions of small allocations; measured export headroom is
+   roughly 30-40%.
+4. **Loader/format micro-work.** Whole-file parsing is already used;
+   memory-mapped or larger batched reads and a decimal-format fast path can
+   shave the remaining load/format overhead.
 
-A 100x end-to-end result would require 0.075 s at 500 symbols and 0.606 s full.
-The current load+factor stages alone are 0.070 s and 0.532 s, while the full
-CSV result is 32.5 MB at 500 symbols and 347 MB full (173 MB labels + 114 MB
-signals + 61 MB factor values). The 500-symbol budget is effectively exhausted
-before research and export; the full budget leaves ~0.074 s for 347 MB of
-serialization. Therefore 100x is not physically achievable under the complete
-CSV/parity contract, even with more parallel export or research. A separate
-summary/hash or reduced-output profile could target a different number, but it
-would not be the same comparison. The full-output 10.1x full / 13.5x default
-result is retained by owner decision.
+Even combining all four, the single-thread complete-output ceiling is roughly
+**15-20x at 500 and 11-13x full**, not 50x.
+
+### 50x feasibility (equal CPU, complete output)
+
+50x would require **0.156 s** at 500 symbols and **1.329 s** full. The current
+load+factor stages alone are 0.092 s and 0.961 s, and the mandatory CSV output
+is 32.5 MB and 347 MB. The 500-symbol budget is effectively consumed before
+research and export; the full budget cannot accommodate 347 MB of serialization
+plus the remaining research in one thread. A 50x result requires either a
+reduced-output summary/hash benchmark or multiple CPUs, and therefore a
+different comparison contract. The equal-CPU full-output result remains
+8.5x full / 13.6x default.
 
 ## Parity bugs found and fixed
 

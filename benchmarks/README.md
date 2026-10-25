@@ -41,42 +41,42 @@ errors, spreads, turnover and stability.
   or `--max-symbols 0 --results-dir benchmarks/alpha003_a_stocks/results-full`
   for the full universe.
 
-### Performance (optimized)
+### Performance (equal CPU, single-threaded)
 
-The optimization pass targeting the native load, factor, research and export
-hot paths is complete. Measured on the same Windows 11 host; Python is
-single-threaded, native uses 8 file-loading threads and 3 horizon workers for
-large inputs:
+The native parallel paths were removed so both implementations use the same
+CPU model: one worker, no native thread pool. The C++ instrumented run reports
+CPU time equal to its pipeline wall time (6.804 s vs 6.804 s in one full run),
+and the Python process uses ~94% CPU time versus wall time (62.4 s vs 66.5 s).
+The Python `fincore` package contains no computational multiprocessing or
+thread-pool usage; only an `RLock` in the optional session API is present.
 
 | Scale | Python total | C++ total | C++ speedup | Native improvement |
 |---|---:|---:|---:|---:|
-| 500 symbols, 3-repeat median | 7.477 s | 0.555 s | 13.5x | 3.1x |
-| 5,449 assets, 3-repeat median | 60.585 s | 5.975 s | 10.1x | 4.1x |
+| 500 symbols, 3-repeat median | 7.782 s | 0.574 s | 13.6x | 3.0x |
+| 5,449 assets, 3-repeat median | 66.485 s | 7.860 s | 8.5x | 3.1x |
 
-The target of at least 10x end-to-end versus Python is met for the default
-500-symbol run and the full A-share panel. The native code itself is 3-4x
-faster than the first accepted benchmark (24.531 s full -> 5.975 s). Stage
-detail: load 59x, factor 2.6x, research 6.8x and export 11.9x versus Python on
-the full panel. The remaining full-run cost is research (3.0 s) and the
-mandatory ~300 MB CSV export (2.4 s); export is I/O/formatting bound, not a
-regression.
+Stage detail full panel: load 22.2x, factor 3.7x, research 6.3x and export
+12.0x versus Python. The native code itself is about 3x faster than the first
+accepted benchmark (24.531 s full -> 7.860 s). The earlier parallel numbers
+(10.1x full / 13.5x at 500) are intentionally not used as the headline because
+they did not hold CPU usage equal.
 
-Parity is unchanged: every primary comparison stays at 1e-15, and the full
-1,044-test suite passes. See the
-[alpha003 README](alpha003_a_stocks/README.md) for the before/after tables and
-the optimization notes.
+### 50x feasibility (equal CPU, complete output)
 
-### 100x feasibility
+A 50x result would require 0.156 s at 500 symbols and 1.329 s full. Current
+load+factor alone is 0.092 s and 0.961 s, and the mandatory result payload is
+32.5 MB and 347 MB. Even with research and serialization at zero, the 500
+budget is nearly consumed; full would need 347 MB of CSV generated inside
+~0.37 s after load+factor. Single-thread complete-output 50x is therefore not
+physically achievable. The realistic single-thread ceiling after further
+rank-order reuse and compact row export is roughly 15-20x at 500 and 11-13x
+full. A 50x headline would require a reduced-output summary/hash mode or
+parallelism and would be a different benchmark contract.
 
-100x would require a C++ total of **0.075 s** at 500 symbols and **0.606 s**
-on the full panel. Current load+factor alone is 0.070 s and 0.532 s, and the
-mandatory full-result CSV payload is 32.5 MB and 347 MB respectively; the full
-budget leaves only ~0.074 s for the remaining research and serialization. A
-100x claim is therefore not achievable while preserving the complete CSV
-output and numeric parity. The realistic ceiling is roughly 10-30x depending
-on how much extra export/research parallelism is justified; a summary/hash or
-reduced-output profile would be a different benchmark contract. The current
-full-output result (10.1x full, 13.5x default) is retained and documented.
+Parity is unchanged in the equal-CPU run: every primary comparison stays at
+1e-15 and the full 1,044-test suite passes. See the
+[alpha003 README](alpha003_a_stocks/README.md) for the stage tables and the
+50x analysis.
 
 ## Native-only harnesses
 

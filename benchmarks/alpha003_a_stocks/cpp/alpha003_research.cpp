@@ -9,9 +9,9 @@
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
+#include <ctime>
 #include <filesystem>
 #include <fstream>
-#include <future>
 #include <iomanip>
 #include <limits>
 #include <numeric>
@@ -340,20 +340,7 @@ panel load_panel(const std::filesystem::path& data_dir, const int limit) {
             }
         }
     };
-    const auto thread_count = std::min<std::size_t>(8U, files.size());
-    std::vector<std::future<void>> futures;
-    futures.reserve(thread_count);
-    for (std::size_t thread = 0; thread < thread_count; ++thread) {
-        const auto begin = files.size() * thread / thread_count;
-        const auto end = files.size() * (thread + 1U) / thread_count;
-        if (begin != end) {
-            futures.push_back(
-                std::async(std::launch::async, load_range, begin, end));
-        }
-    }
-    for (auto& future : futures) {
-        future.get();
-    }
+    load_range(0U, files.size());
     return result;
 }
 
@@ -608,6 +595,7 @@ std::string json_number(const double value) {
 
 int main(int argc, char** argv) {
     try {
+        const auto process_start = std::clock();
         std::filesystem::path data_dir =
             std::filesystem::path("benchmarks") / "alpha003_a_stocks" /
             "data" / "a_stocks";
@@ -720,6 +708,8 @@ int main(int argc, char** argv) {
         const auto export_seconds = seconds_since(export_start);
 
         const auto total_seconds = seconds_since(started);
+        const auto cpu_seconds =
+            static_cast<double>(std::clock() - process_start) / CLOCKS_PER_SEC;
         std::ostringstream timings;
         timings << "{\n"
                 << "  \"load_seconds\": " << json_number(load_seconds)
@@ -727,6 +717,7 @@ int main(int argc, char** argv) {
                 << ",\n  \"research_seconds\": " << json_number(research_seconds)
                 << ",\n  \"export_seconds\": " << json_number(export_seconds)
                 << ",\n  \"total_seconds\": " << json_number(total_seconds)
+                << ",\n  \"cpu_seconds\": " << json_number(cpu_seconds)
                 << "\n}\n";
         write_json(out_dir / "timings.json", timings.str());
 

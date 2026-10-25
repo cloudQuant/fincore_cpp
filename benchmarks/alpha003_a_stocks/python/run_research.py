@@ -189,6 +189,7 @@ def main() -> int:
     periods = tuple(int(value) for value in args.periods.split(",") if value)
     fincore, evaluate_factor_research = import_fincore(args.fincore_root)
 
+    cpu_started = time.process_time()
     started = time.perf_counter()
     grid, open_panel, close_panel, volume_panel, files = load_panel(
         args.data_dir, args.max_symbols)
@@ -271,6 +272,7 @@ def main() -> int:
         "research_seconds": research_seconds,
         "export_seconds": export_seconds,
         "total_seconds": load_seconds + factor_seconds + research_seconds + export_seconds,
+        "cpu_seconds": time.process_time() - cpu_started,
     }
     run_info = {
         "run_id": args.run_id,

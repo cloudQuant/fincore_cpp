@@ -10,7 +10,6 @@
 #include <cmath>
 #include <cstdint>
 #include <filesystem>
-#include <future>
 #include <fstream>
 #include <iterator>
 #include <limits>
@@ -711,30 +710,10 @@ research_result assemble_research(
     }
 
     // Combine per-horizon ICs into one date x horizon table and summaries.
-    std::size_t total_prepared_rows = 0U;
-    for (const auto& entry : prepared.by_horizon) {
-        total_prepared_rows += entry.second.rows.size();
-    }
-    const bool parallel_horizons =
-        prepared.by_horizon.size() > 1U && total_prepared_rows >= 100000U;
     std::vector<factor_ic_table> ics(prepared.by_horizon.size());
-    if (parallel_horizons) {
-        std::vector<std::future<factor_ic_table>> futures;
-        futures.reserve(prepared.by_horizon.size());
-        for (const auto& entry : prepared.by_horizon) {
-            futures.push_back(std::async(
-                std::launch::async,
-                [&entry] { return factor_information_coefficient(entry.second); }));
-        }
-        for (std::size_t index = 0; index < futures.size(); ++index) {
-            ics[index] = futures[index].get();
-        }
-    } else {
-        for (std::size_t index = 0; index < prepared.by_horizon.size();
-             ++index) {
-            ics[index] = factor_information_coefficient(
-                prepared.by_horizon[index].second);
-        }
+    for (std::size_t index = 0; index < prepared.by_horizon.size(); ++index) {
+        ics[index] = factor_information_coefficient(
+            prepared.by_horizon[index].second);
     }
     std::set<timestamp> dates_set;
     for (const auto& ic : ics) {
@@ -770,26 +749,9 @@ research_result assemble_research(
         result.quantile_returns.quantiles.size() * labels, nan);
     std::vector<quantile_return_table> quantile_tables(
         prepared.by_horizon.size());
-    if (parallel_horizons) {
-        std::vector<std::future<quantile_return_table>> futures;
-        futures.reserve(prepared.by_horizon.size());
-        for (const auto& entry : prepared.by_horizon) {
-            futures.push_back(std::async(
-                std::launch::async,
-                [&entry] {
-                    return mean_return_by_quantile(
-                        entry.second, false, false, false, false);
-                }));
-        }
-        for (std::size_t index = 0; index < futures.size(); ++index) {
-            quantile_tables[index] = futures[index].get();
-        }
-    } else {
-        for (std::size_t index = 0; index < prepared.by_horizon.size();
-             ++index) {
-            quantile_tables[index] = mean_return_by_quantile(
-                prepared.by_horizon[index].second, false, false, false, false);
-        }
+    for (std::size_t index = 0; index < prepared.by_horizon.size(); ++index) {
+        quantile_tables[index] = mean_return_by_quantile(
+            prepared.by_horizon[index].second, false, false, false, false);
     }
     std::map<timestamp, std::size_t> date_position;
     for (std::size_t index = 0; index < dates; ++index) {
