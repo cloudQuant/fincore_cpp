@@ -278,11 +278,11 @@ Two further `tests/unit` batches (47 files) were audited with help from
 subordinate agents, because the comment-only gate makes that class of edit
 mechanically checkable. The controls used were: each agent was confined to a
 disjoint file list, forbidden to touch docs, the ledger or any behaviour, and
-forbidden to start a build; the `check_comment_only.py` gate was then re-run by
-the owner over all 42 changed sources (`checked=42 failures=0`), the full build
-and `ctest` were re-run twice (`100% tests passed, 0 tests failed out of 1092`
-after each batch), and every quantitative claim was re-checked here before it was
-accepted — for example that the two-row tail case gives exactly 19.0 because half
+forbidden to start a build; the `check_comment_only.py` gate was then re-run here over all 42 changed sources
+(`checked=42 failures=0`), the full build and `ctest` were re-run twice
+(`100% tests passed, 0 tests failed out of 1092`
+after each batch), and the arithmetic claims that reached the source files were
+re-derived here first — for example that the two-row tail case gives exactly 19.0 because half
 the observations are wins and the 95th-over-5th percentile ratio is 19.0
 (recomputed with numpy), that the cash-inclusive allocation denominator is
 80 / 1220 = 6.557377%, that positional pairing in the style-performance case
@@ -291,7 +291,12 @@ compares only the digest length under `_MSC_VER`. One agent's summary line
 described a fixture as all-positive when it is mostly negative
 `-denorm_min`; that claim never reached a source file, and the comment actually
 written for that test was verified separately, which is why summaries are not
-treated as evidence here. Four cases whose literals are pinned oracle evidence
+treated as evidence here. Claims about ordering rather than arithmetic — event-major
+hook lists, top-down quantile series, which guard fires first — were read by the
+auditing agent against the named implementation under `src/` and are reproduced in
+the ledger note so each can be re-checked on its own; they were not all re-derived
+in this session, so a review pass over the added comment blocks is still advisable.
+Four cases whose literals are pinned oracle evidence
 (`factor_performance_test.cpp`, `factor_prediction_test.cpp`,
 `factor_regression_test.cpp`, `factor_research_detailed_test.cpp`) were audited
 and deliberately left untouched, matching the rule applied to `tools/oracles`.
