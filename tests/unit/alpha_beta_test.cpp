@@ -34,6 +34,8 @@ TEST(AlphaBeta, MatchesReferenceAlphaAfterAlignment) {
 }
 
 TEST(AlphaBeta, IgnoresPairwiseNanAndSupportsNamedColumns) {
+    // The NaN removes the whole date from both sides rather than leaving a hole
+    // in one vector, which is why the two surviving pairs still give 0.5.
     const auto returns = fincore::make_series(
         {1, 2, 3}, "strategy", {0.01, std::numeric_limits<double>::quiet_NaN(), 0.03});
     const auto benchmark = fincore::make_series({1, 2, 3}, "market", {0.02, 0.04, 0.06});
@@ -91,6 +93,9 @@ TEST(AlphaBeta, PercentileRankMatchesPythonOracle) {
     EXPECT_TRUE(std::isnan(fincore::alpha_percentile_rank(
         strategy, std::span<const fincore::dataframe>{}, benchmark)));
 
+    // local_peers dies with the lambda, so this pins that the rank is a value
+    // computed during the call rather than something that reads peer memory
+    // later.
     const auto owned = [&] {
         std::vector<fincore::dataframe> local_peers;
         local_peers.push_back(fincore::make_series(index, "returns", first));

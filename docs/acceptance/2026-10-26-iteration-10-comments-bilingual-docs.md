@@ -105,9 +105,9 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 158 marked `reviewed_this_round` with a one-line note naming the
+(287 files: 162 marked `reviewed_this_round` with a one-line note naming the
 invariant recorded or why none was needed, 6 with several explanatory blocks
-but not yet audited, 7 sparse, 116 with no explanatory block). Auditing may
+but not yet audited, 7 sparse, 112 with no explanatory block). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
 because its validation clauses are the entire contract. This round audited and,
 where warranted, extended the following implementation files:
@@ -270,9 +270,26 @@ comment-only checker and by review only, not by a build. Its claims about the
 vendored ImPlot were checked against `third_party/implot` — the tick-label
 array is copied during `SetupAxisTicks`, and the range overload asserts at least
 two ticks when labels are supplied, which is the reason for the `> 1U` guard.
-The remaining 129 files are 126 under
+The remaining 125 files are 122 under
 `tests/` and three under `benchmarks/`, and are deliberately not
 claimed as audited, so **P131 is PARTIAL**, not passed.
+
+The first `tests/unit` entries were audited with the same rule: a comment is
+only earned when it names something the assertions cannot show by themselves.
+`basic_test.cpp` got one because a zero adjustment that returns the input frame
+would pass every arithmetic expectation and fail only on the mutation made after
+the call, `analysis_context_test.cpp` because two equal summaries would also
+follow from recomputation, so the computation count is the caching claim, and
+`calendar_test.cpp` because `utc_year(-1) == 1969` shows the extraction floors
+toward earlier time rather than truncating toward zero. `alpha_beta_test.cpp`
+gained the pairwise-NaN rule and the observation that the percentile rank has to
+be a value since the peer vector dies with the lambda; its alignment case is
+registered as **F10-D13** instead of strengthened, because aligned pairing gives
+exactly 0.5 while positional pairing gives 0.4999999999999999 and both pass at
+`1e-12`, so the case cannot distinguish the two paths — verified by recomputing
+both ratios with numpy rather than by argument. After these edits the full gate
+was re-run: the library, tests and both render examples rebuilt and `ctest`
+reported `100% tests passed, 0 tests failed out of 1092`.
 
 Six `benchmarks/` entries were audited in the same round. The five Python modules
 already carry module docstrings that state the contract and the deliberate
@@ -561,3 +578,4 @@ checks, which belong to P133 and cannot be substituted by a local build.
 | F10-D10 | Sector-free `min_variance` cannot reach a negative weight bound | registered, awaiting review — no behaviour changed |
 | F10-D11 | Uniqueness by adjacency presumes a sorted index (two sites) | registered, awaiting review — no behaviour changed |
 | F10-D12 | Three pre-existing `tools/tests` failures, outside CI coverage | registered, awaiting review — no test or tool changed |
+| F10-D13 | Alignment case cannot distinguish aligned from positional pairing | registered, awaiting review — no test data changed |

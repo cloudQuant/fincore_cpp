@@ -109,8 +109,8 @@ tests/consumer/headless/main.cpp	cpp	0	no_explanatory_block_not_audited
 tests/consumer/implot/main.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/fixtures/bootstrap_fixed_indices.hpp	hpp	0	no_explanatory_block_not_audited	
 tests/oracle/research_detailed_probe.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/alpha_beta_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/analysis_context_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/alpha_beta_test.cpp	cpp	0	reviewed_this_round	comments added: a NaN removes the whole date from both sides so the two survivors still give 0.5, and the percentile rank must be a value because the peer vector dies with the lambda; the alignment case is registered as F10-D13 because aligned and positional pairing both pass at 1e-12
+tests/unit/analysis_context_test.cpp	cpp	0	reviewed_this_round	comment added: two equal summaries would also follow from recomputation, so the computation count is what proves the cache served the repeat call
 tests/unit/annual_alpha_beta_test.cpp	cpp	0	reviewed_this_round	the fixture's uneven three-year spread pins one row per touched year, labelled at its start, with intra-year gaps adding nothing
 tests/unit/antithetic_variates_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/attribution_facades_test.cpp	cpp	0	no_explanatory_block_not_audited	
@@ -125,14 +125,14 @@ tests/unit/attribution_style_performance_umbrella_test.cpp	cpp	0	no_explanatory_
 tests/unit/attribution_style_regression_attribution_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/attribution_style_tilts_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/attribution_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/basic_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/basic_test.cpp	cpp	0	reviewed_this_round	comment added: a zero adjustment still has to copy, so the mutation after the call is the only thing separating a fresh frame from an alias of the input
 tests/unit/bayesian_cone_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/bootstrap_confidence_interval_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/bootstrap_distribution_test.cpp	cpp	3	multi_block_not_audited	
 tests/unit/bootstrap_summary_test.cpp	cpp	2	sparse_not_audited	
 tests/unit/brinson_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/build_contract_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/calendar_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/calendar_test.cpp	cpp	0	reviewed_this_round	comments added: utc_year(-1) is 1969, so the extraction floors toward earlier time instead of truncating toward zero; the int64 nanosecond bounds are asserted exactly and one nanosecond beyond each side
 tests/unit/capacity_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/chart_data_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/consecutive_test.cpp	cpp	0	no_explanatory_block_not_audited	
