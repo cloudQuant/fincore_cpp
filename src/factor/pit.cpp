@@ -46,6 +46,9 @@ factor_series materialize_pit_factor(
     }
     std::set<std::tuple<std::string, timestamp, timestamp, timestamp>>
         revisions;
+    // The uniqueness key is asset plus the full point-in-time triple, so two
+    // observations that claim the same (as_of, known_at, effective_from) state
+    // for one asset are rejected rather than resolved arbitrarily later.
     for (const auto& observation : observations) {
         if (observation.asset.empty()) {
             throw factor_data_error{
@@ -75,6 +78,9 @@ factor_series materialize_pit_factor(
                 continue;
             }
             const auto& current = *found->second;
+            // Comparison order is significant: effective_from dominates, then
+            // known_at, then as_of, so a revision that became effective later
+            // wins even when it was known earlier.
             const auto key = std::tie(observation.point.effective_from,
                                       observation.point.known_at,
                                       observation.point.as_of);

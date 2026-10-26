@@ -122,6 +122,10 @@ std::vector<double> adjusted_returns(const dataframe& valuations,
         const double closing_for_return =
             treatment == fee_treatment::gross ? closing + fee_values[period + 1]
                                               : closing;
+        // Flows are bucketed by valuation date, so the entries stored at
+        // period + 1 are the ones that belong to the period ending there: a
+        // start-of-period flow joins the opening capital, an end-of-period
+        // flow is withdrawn before the closing capital is compared.
         const double capital_base = opening + flows.start[period + 1];
         const double adjusted_closing =
             closing_for_return - flows.end[period + 1];
@@ -145,6 +149,9 @@ std::vector<double> adjusted_returns(const dataframe& valuations,
         if (!std::isfinite(gross_factor) || !std::isfinite(period_return)) {
             throw input_error{"cashflow-adjusted returns must be finite"};
         }
+        // A positive closing valuation that still divides to exactly -100% is
+        // a rounding artifact of an enormous outflow; rejecting it keeps the
+        // compounded chain finite.
         if (adjusted_closing > 0.0 && period_return == -1.0) {
             throw input_error{"cashflow-adjusted return factor is not representable"};
         }

@@ -105,10 +105,12 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 22 marked `reviewed_this_round`, 13 with several explanatory blocks
-but not yet audited, 21 sparse, 231 with no explanatory block). This round
-audited and extended the twenty-two implementation files whose behaviour is not
-inferable from their declared contract:
+(287 files: 26 marked `reviewed_this_round` with a one-line note naming the
+invariant recorded or why none was needed, 13 with several explanatory blocks
+but not yet audited, 21 sparse, 227 with no explanatory block). Auditing may
+legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
+because its validation clauses are the entire contract. This round audited and,
+where warranted, extended the following implementation files:
 
 | File | Invariant recorded |
 |---|---|
@@ -134,9 +136,13 @@ inferable from their declared contract:
 | `src/metrics/returns.cpp` | NaN periods compound flat; a wiped-out series reports -1.0 |
 | `src/risk/models.cpp` | Digest pairs timestamp with value; ES tail is inclusive and degrades to the threshold |
 | `src/simulation/scenarios.cpp` | crash/spike shock the upper middle element; only NaN input is rejected |
+| `src/factor/pit.cpp` | Revision uniqueness key; `effective_from` then `known_at` then `as_of` tie-break |
+| `src/optimization/risk_parity.cpp` | Positive weight floor; degenerate portfolios get a large finite penalty, not NaN |
+| `src/performance/cashflows.cpp` | Flows bucketed by valuation date; a spurious -100% period is rejected |
+| `src/risk/specs.cpp` | Audited with no change: the validation clauses are the whole contract |
 
-All twenty-two were verified comment-only and are covered by the re-run below.
-The remaining 265 files are deliberately not claimed as audited, so **P131 is
+Every edit above was verified comment-only and is covered by the re-run below.
+The remaining 261 files are deliberately not claimed as audited, so **P131 is
 PARTIAL**, not passed.
 
 ## 4. P132 — bilingual site content

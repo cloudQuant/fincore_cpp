@@ -64,12 +64,17 @@ risk_parity_result risk_parity(
     }
 
     solver_constraints constraints;
+    // A strictly positive lower bound keeps every risk-contribution share
+    // defined; a zero weight would make the normalized comparison 0/0.
     constraints.lower = 1e-6;
     constraints.upper = 1.0;
     std::function<double(const std::vector<double>&)> risk_contribution_error =
         [&problem, &budget](const std::vector<double>& weights) {
             const double variance =
                 detail::portfolio_variance(problem, weights);
+            // Degenerate portfolios get a large finite penalty rather than NaN:
+            // the search reads a non-finite value as convergence failure and
+            // would stop instead of moving away from the corner.
             if (variance < 1e-16) {
                 return 1e6;
             }
