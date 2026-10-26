@@ -435,6 +435,13 @@ the site README documents:
 | `docs/site/tools/check_built_site.py` | `pages=60 broken_links=0 machine_path_pages=0 fuzzy=0`, exit code 0 |
 | CMake Release + `ctest` | `100% tests passed, 0 tests failed out of 1092` |
 
+The gate has since been re-run on `8c9a540`, after every later comment batch, and
+produced byte-identical committed artifacts: the regenerated ledger matches the
+committed one, all three strict builds pass, and the site verifier reports the same
+`pages=60 broken_links=0 machine_path_pages=0 entries=3233 translated=3230
+untranslated=3 fuzzy=0`. `git status` after the re-run is empty, which is the
+evidence that no source-only comment round disturbed the documentation.
+
 The gate above ran on `385db07` (forty-fourth audited file) and has been re-run
 after every subsequent comment batch through `2e738e7`, the seventy-fifth: each
 `ctest` run reported `100% tests passed, 0 tests failed out of 1092`. The docs
