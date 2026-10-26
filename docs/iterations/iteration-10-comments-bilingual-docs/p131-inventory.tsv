@@ -20,7 +20,7 @@ src/errors.cpp	cpp	0	reviewed_this_round	payload is UTF-8 JSON with numeric esca
 src/extensions/discovery.cpp	cpp	0	reviewed_this_round	manifest JSON emits keys in fixed alphabetical order so the fingerprint survives member reordering; an entry-point value must hold exactly one separator with text on both sides
 src/extensions/snapshot.cpp	cpp	0	reviewed_this_round	an extension id needs two dots so it cannot claim the namespace root; whitespace-only fields count as absent and the two governance options must be supplied together
 src/factor/analysis.cpp	cpp	2	reviewed_this_round	the March-shifted year numbering is what lets the civil-date arithmetic run without a month table; quantile statistics bucket finite values only, use the sample divisor and a cross-quantile denominator
-src/factor/artifacts.cpp	cpp	0	no_explanatory_block_not_audited	
+src/factor/artifacts.cpp	cpp	0	reviewed_this_round	artifact bytes pin the classic locale and rewrite negative zero because they are compared and hashed
 src/factor/calendar.cpp	cpp	1	reviewed_this_round	sorted-disjoint digit ranges probed by range end; strict UTF-8 rejection; every digit run needs a unit; backshift counts levels not rows
 src/factor/costs.cpp	cpp	0	reviewed_this_round	opening book charged as a trade; capacity is the tightest single-asset limit; ties take earliest date then first asset
 src/factor/data.cpp	cpp	6	reviewed_this_round	right-closed bins; outer edges widened
@@ -84,7 +84,7 @@ src/risk/report.cpp	cpp	1	reviewed_this_round	comparison is relative with an abs
 src/risk/specs.cpp	cpp	0	reviewed_this_round	audited: the validation rules are the whole contract, no hidden invariant to add
 src/risk/walk_forward.cpp	cpp	5	reviewed_this_round	Newton-refined inverse normal; type-6 quantile; NUL-terminated digest fields
 src/rolling_engine.cpp	cpp	2	reviewed_this_round	beta moments share one 1/count divisor so the ratio is scale-free; flat or NaN benchmark guarded by a negated comparison
-src/runtime/operations_factor.cpp	cpp	21	multi_block_not_audited	
+src/runtime/operations_factor.cpp	cpp	21	reviewed_this_round	audited with no change: the banner already states that typed lookups fail rather than coerce, as in the builtin catalog
 src/runtime/operations_metrics.cpp	cpp	33	reviewed_this_round	an absent optional input and a supplied-but-mis-typed one are different outcomes, so a wrong type is never defaulted
 src/runtime/operations_portfolio.cpp	cpp	0	reviewed_this_round	the eight-hour pairing window duplicates the public default as a raw integer, so the two must move together
 src/runtime/runtime.cpp	cpp	0	reviewed_this_round	runtime digests length-prefix every field and tag each value with its declared type, so neither separators nor a bool-vs-one collision can alias two payloads; the exclusive-open shims differ per platform because only POSIX can refuse a symlink at open time

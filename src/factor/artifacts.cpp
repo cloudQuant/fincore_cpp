@@ -24,6 +24,10 @@ namespace {
 constexpr double quiet_nan = std::numeric_limits<double>::quiet_NaN();
 constexpr double pi = 3.14159265358979323846;
 
+// The classic locale is imposed rather than inherited: these bytes are compared
+// and hashed, and a host whose default locale uses a comma as the decimal separator
+// would otherwise change them. The negative-zero rewrite stops a value that rounded
+// to zero from carrying a sign no other zero has.
 std::string format_number(const double value) {
     if (!std::isfinite(value)) {
         return "0";

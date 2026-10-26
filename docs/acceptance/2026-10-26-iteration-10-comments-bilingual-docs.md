@@ -105,7 +105,7 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 101 marked `reviewed_this_round` with a one-line note naming the
+(287 files: 103 marked `reviewed_this_round` with a one-line note naming the
 invariant recorded or why none was needed, 12 with several explanatory blocks
 but not yet audited, 13 sparse, 219 with no explanatory block). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
@@ -215,9 +215,11 @@ where warranted, extended the following implementation files:
 | `src/viz/plotly_document.cpp` | SVG geometry collapses a non-finite coordinate to zero while the JSON channels write null, since a path cannot hold a gap and a trace can |
 | `src/viz/bokeh_document.cpp` | The shared helpers are duplicated per backend and must stay identical, because both are compared against the same reference |
 | `src/viz/implot_backend.cpp` | The axis runs in days and the tick formatter rounds back to nanoseconds, so a value an ulp under a whole day cannot label the previous date |
+| `src/factor/artifacts.cpp` | Artifact bytes pin the classic locale and rewrite negative zero because they are compared and hashed |
+| `src/runtime/operations_factor.cpp` | Audited with no change: the banner already states that typed lookups fail rather than coerce |
 
 Every edit above was verified comment-only and is covered by the re-run below.
-The remaining 186 files are deliberately not claimed as audited, so **P131 is
+The remaining 184 files are deliberately not claimed as audited, so **P131 is
 PARTIAL**, not passed.
 
 One audit ended in a registered question rather than a comment: the
