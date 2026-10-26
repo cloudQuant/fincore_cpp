@@ -189,7 +189,7 @@ tests/unit/performance_inference_test.cpp	cpp	0	no_explanatory_block_not_audited
 tests/unit/performance_returns_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/portfolio_models_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/positions_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/ratios_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/ratios_test.cpp	cpp	0	reviewed_this_round	the static_asserts pin exported signatures through named function-pointer types; defaults and values are covered by the cases below
 tests/unit/report_html_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/report_models_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/report_portfolio_test.cpp	cpp	0	no_explanatory_block_not_audited	
@@ -207,7 +207,7 @@ tests/unit/risk_test.cpp	cpp	0	no_explanatory_block_not_audited
 tests/unit/risk_walk_forward_test.cpp	cpp	1	sparse_not_audited	
 tests/unit/rolling_engine_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/rolling_metrics_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/round_trips_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/round_trips_test.cpp	cpp	0	reviewed_this_round	an expected NaN or infinity asserts the marker exactly while only finite expectations get the tolerance
 tests/unit/runtime_lifecycle_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/runtime_operations_factor_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/runtime_operations_metrics_test.cpp	cpp	0	no_explanatory_block_not_audited	

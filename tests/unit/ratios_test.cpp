@@ -39,6 +39,11 @@ using capture_return_signature =
     double (*)(const fincore::dataframe&, const fincore::dataframe&, double,
                std::string_view, std::string_view);
 
+// These assert shape, not behaviour: taking the address of each overload set
+// through a named function-pointer type pins the parameter order and types that a
+// caller compiles against, so a reordered or retyped signature fails the build
+// before any test runs. Defaults are invisible to them, which is what the value
+// cases below are for.
 static_assert(std::is_same_v<
               decltype(static_cast<kappa_three_ratio_signature>(
                   &fincore::kappa_three_ratio)),

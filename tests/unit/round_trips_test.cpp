@@ -29,6 +29,9 @@ fincore::timestamp at(const std::chrono::nanoseconds offset) {
     return jan_2_2024_09 + offset.count();
 }
 
+// An expected NaN or infinity is an assertion about the marker itself, not a value
+// to approximate: only finite expectations get the tolerance, so a case that should
+// produce "not measurable" cannot pass by producing a large number instead.
 void expect_double_values(const std::vector<double>& actual,
                           const std::vector<double>& expected) {
     ASSERT_EQ(actual.size(), expected.size());
