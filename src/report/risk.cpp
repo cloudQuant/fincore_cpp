@@ -10,6 +10,9 @@
 namespace fincore {
 namespace {
 
+// A non-finite figure leaves the metric without a value rather than carrying
+// NaN, and the same applies to cells below, so a renderer can tell "not
+// measurable here" apart from a zero written out as text.
 report_metric number_metric(std::string key, std::string label,
                             std::string unit, const double value) {
     report_metric metric;
@@ -105,6 +108,9 @@ report_document build_risk_report(const risk_validation_report& report,
     report_table refits;
     refits.key = "refits";
     refits.title = "Refits";
+    // The refit columns follow the fitted distribution rather than a fixed
+    // schema, so a consumer has to read the header row instead of assuming
+    // positions; the two families name their parameters differently by design.
     if (report.specification.distribution == "normal") {
         refits.columns = {"timestamp", "forecast", "mean",
                           "standard_deviation", "n_observations"};

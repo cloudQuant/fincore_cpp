@@ -73,7 +73,7 @@ src/report/models.cpp	cpp	0	no_explanatory_block_not_audited
 src/report/pdf.cpp	cpp	0	no_explanatory_block_not_audited	
 src/report/portfolio.cpp	cpp	0	no_explanatory_block_not_audited	
 src/report/renderers.cpp	cpp	0	no_explanatory_block_not_audited	
-src/report/risk.cpp	cpp	0	no_explanatory_block_not_audited	
+src/report/risk.cpp	cpp	0	reviewed_this_round	non-finite metrics and cells carry no value instead of NaN text; the refit column set follows the fitted distribution, so headers not positions are the contract
 src/report/xlsx.cpp	cpp	0	no_explanatory_block_not_audited	
 src/risk/backtesting.cpp	cpp	5	reviewed_this_round	log-space binomial mass; CDF summed outward from mode
 src/risk/evt.cpp	cpp	7	reviewed_this_round	threshold one representable step below percentile (strict exceedances)
