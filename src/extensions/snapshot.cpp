@@ -48,11 +48,18 @@ std::string require_normalized(std::string_view value,
   return normalized;
 }
 
+// Two dots are required, not one, so an identifier must arrive as
+// extension.<group>.<name>: the prefix alone would let an extension claim the
+// namespace root and collide with every other registration.
 bool uses_extension_namespace(const std::string& value) {
   return value.rfind("extension.", 0U) == 0U &&
          std::count(value.begin(), value.end(), '.') >= 2;
 }
 
+// Whitespace-only counts as absent for every field here, and the two governance
+// options must arrive together: a declared semantic mode without a recorded
+// approval, or the reverse, is the half of a decision that cannot be honoured on
+// its own.
 void validate_operation(const extension_operation& operation) {
   if (operation.operation_id.empty() || is_blank(operation.operation_id) ||
       !uses_extension_namespace(operation.operation_id)) {

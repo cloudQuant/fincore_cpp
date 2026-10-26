@@ -18,7 +18,7 @@ src/detail/digest.cpp	cpp	0	no_explanatory_block_not_audited
 src/detail/mt19937.cpp	cpp	3	reviewed_this_round	NumPy seed multiplier; mask+rejection bounded draw
 src/errors.cpp	cpp	0	no_explanatory_block_not_audited	
 src/extensions/discovery.cpp	cpp	0	reviewed_this_round	manifest JSON emits keys in fixed alphabetical order so the fingerprint survives member reordering; an entry-point value must hold exactly one separator with text on both sides
-src/extensions/snapshot.cpp	cpp	0	no_explanatory_block_not_audited	
+src/extensions/snapshot.cpp	cpp	0	reviewed_this_round	an extension id needs two dots so it cannot claim the namespace root; whitespace-only fields count as absent and the two governance options must be supplied together
 src/factor/analysis.cpp	cpp	2	sparse_not_audited	
 src/factor/artifacts.cpp	cpp	0	no_explanatory_block_not_audited	
 src/factor/calendar.cpp	cpp	1	reviewed_this_round	sorted-disjoint digit ranges probed by range end; strict UTF-8 rejection; every digit run needs a unit; backshift counts levels not rows
