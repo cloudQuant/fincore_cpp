@@ -48,6 +48,12 @@ xlsx_cell boolean_cell(const bool value) {
     return cell;
 }
 
+// Two different substitutions keep the output well-formed: a malformed byte
+// sequence is replaced one byte at a time, because the decoder cannot know how far
+// a valid character was meant to extend, while a correctly encoded code point that
+// XML 1.0 does not allow is replaced as a whole unit. The apostrophe is escaped as
+// &apos; here, where the HTML builder uses the numeric form the Python reference
+// emits.
 std::string escape_xml(const std::string_view text) {
     std::string output;
     output.reserve(text.size());
@@ -132,6 +138,9 @@ std::string escape_xml(const std::string_view text) {
     return output;
 }
 
+// Bijective base twenty-six, which is why the quotient is reduced by one after
+// dividing: without it the sequence would run A..Z then BA instead of AA, and
+// there is no zero digit to represent an empty column.
 std::string column_name(std::size_t index) {
     std::string name;
     do {

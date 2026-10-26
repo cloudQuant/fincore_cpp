@@ -105,7 +105,7 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 63 marked `reviewed_this_round` with a one-line note naming the
+(287 files: 64 marked `reviewed_this_round` with a one-line note naming the
 invariant recorded or why none was needed, 12 with several explanatory blocks
 but not yet audited, 13 sparse, 219 with no explanatory block). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
@@ -177,9 +177,10 @@ where warranted, extended the following implementation files:
 | `src/attribution/factor_exposures.cpp` | Selector rules are re-declared per module rather than shared, so a change must be mirrored across regression, prediction and decomposition |
 | `src/operations.cpp` | The catalog appends domain tables in a fixed, non-alphabetical order, so enumerations and digests depend on that sequence |
 | `src/runtime/utilities.cpp` | The short-path accumulator seeds at negative zero to preserve signed-zero results; a zero shape dimension skips the overflow test |
+| `src/report/xlsx.cpp` | Column names are bijective base twenty-six; malformed bytes are substituted one at a time while a legal but XML-disallowed code point is replaced whole |
 
 Every edit above was verified comment-only and is covered by the re-run below.
-The remaining 224 files are deliberately not claimed as audited, so **P131 is
+The remaining 223 files are deliberately not claimed as audited, so **P131 is
 PARTIAL**, not passed.
 
 One audit ended in a registered question rather than a comment: the
