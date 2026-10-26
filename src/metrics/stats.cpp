@@ -69,6 +69,9 @@ central_moments calculate_central_moments(std::span<const double> values) {
     third_total += squared * deviation;
     fourth_total += squared * squared;
   }
+  // One pass yields all three moments, each divided by n: the population form the
+  // skew and excess-kurtosis ratios below are built from, whereas the
+  // sample-adjusted estimators live with the ratio helpers.
   const double count = static_cast<double>(values.size());
   return {second_total / count, third_total / count, fourth_total / count};
 }
@@ -105,6 +108,9 @@ double safe_pearson_correlation(std::span<const double> first,
 
   const double first_standard_deviation = std::sqrt(first_variance);
   const double second_standard_deviation = std::sqrt(second_variance);
+  // A standard deviation under the floor is treated as no dispersion rather than
+  // as a tiny one: dividing by it would report a correlation near +/-1 for two
+  // series that only differ by rounding noise, so the honest answer is NaN.
   if (first_standard_deviation < minimum_standard_deviation ||
       second_standard_deviation < minimum_standard_deviation ||
       !std::isfinite(first_standard_deviation) ||
@@ -285,6 +291,10 @@ double tracking_difference(const dataframe& returns,
   return std::isfinite(result) ? result : nan;
 }
 
+// Above thirty periods the lags are spaced logarithmically at thirty points with
+// the last pinned to the requested maximum; rounding can fold two positions onto
+// the same integer, which is why the list is sorted and deduplicated and can come
+// back shorter than thirty entries.
 std::vector<std::size_t> hurst_lags(std::size_t max_lag) {
     std::vector<std::size_t> lags;
     const std::size_t span = max_lag - 1;
