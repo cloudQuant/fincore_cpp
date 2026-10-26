@@ -37,7 +37,7 @@ src/factor/serialization.cpp	cpp	6	reviewed_this_round	length-prefixed big-endia
 src/factor/tears.cpp	cpp	0	no_explanatory_block_not_audited	
 src/factor/timedelta.cpp	cpp	1	reviewed_this_round	Monday-first weekday offset; off-session roll consumes one step; half-open busday count; gap-in-data becomes a holiday; floor-decomposed sub-day remainder
 src/factor/workflows.cpp	cpp	0	no_explanatory_block_not_audited	
-src/metrics/alpha_beta.cpp	cpp	0	no_explanatory_block_not_audited	
+src/metrics/alpha_beta.cpp	cpp	0	reviewed_this_round	zero benchmark belongs to the down side here, unlike the strict split in the ratio helpers; NaN-only and finite-only filters coexist deliberately
 src/metrics/basic.cpp	cpp	0	no_explanatory_block_not_audited	
 src/metrics/bayesian.cpp	cpp	0	no_explanatory_block_not_audited	
 src/metrics/consecutive.cpp	cpp	0	no_explanatory_block_not_audited	

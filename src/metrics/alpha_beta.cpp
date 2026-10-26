@@ -33,6 +33,10 @@ struct yearly_paired_returns {
 
 enum class benchmark_selection { all, up, down };
 
+// Zero belongs to the down side here, which is the opposite of the strict sign
+// split the capture and up/down ratio helpers use; ExtendedAlphaBeta.
+// IncludesZeroBenchmarkInDownSelection pins it, and it is what lets the three
+// selections cover every finite pair without leaving a gap between them.
 bool selects_benchmark(double benchmark_value, benchmark_selection selection) {
     switch (selection) {
     case benchmark_selection::all:
@@ -81,6 +85,10 @@ std::pair<double, double> nan_pair() {
     return {nan, nan};
 }
 
+// Two different filters live in this file on purpose: the pair above drops
+// non-finite values because it feeds a conditional selection, while this one
+// drops only NaN so an infinity stays a sample and makes the regression result
+// non-finite rather than silently excluded.
 paired_returns aligned_valid_pairs(const dataframe& returns,
                                    const dataframe& benchmark,
                                    std::string_view returns_column_name,
