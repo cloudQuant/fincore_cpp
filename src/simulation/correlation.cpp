@@ -67,6 +67,10 @@ std::vector<timestamp> make_ordinal_index(const std::size_t asset_count) {
 
 }  // namespace
 
+// The target is only required to be finite: a constant-correlation matrix is
+// positive semidefinite only within a range that depends on the asset count, so an
+// out-of-range value is written out faithfully rather than clamped, and whoever
+// later factors it discovers the infeasibility.
 dataframe generate_correlation_breakdown(
     const std::span<const std::string_view> asset_names,
     const double target_correlation) {

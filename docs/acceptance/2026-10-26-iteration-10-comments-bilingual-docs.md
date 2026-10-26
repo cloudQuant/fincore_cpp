@@ -105,7 +105,7 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 81 marked `reviewed_this_round` with a one-line note naming the
+(287 files: 83 marked `reviewed_this_round` with a one-line note naming the
 invariant recorded or why none was needed, 12 with several explanatory blocks
 but not yet audited, 13 sparse, 219 with no explanatory block). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
@@ -195,9 +195,11 @@ where warranted, extended the following implementation files:
 | `src/detail/digest.cpp` | The rotation helper is never called with a zero distance, which would shift by the full width |
 | `src/performance/disclosures.cpp` | Every disclosure line is emitted, with `unspecified` for missing text and `none` for a missing benchmark |
 | `src/runtime/serialization.cpp` | Floats ride as lowercase IEEE bit patterns so NaN payloads and signed zeros survive; any other hex spelling is refused; integers are strings so they stay beyond the 53-bit mantissa |
+| `src/simulation/correlation.cpp` | The target correlation need only be finite, so an infeasible constant matrix is written out rather than clamped |
+| `src/simulation/parameters.cpp` | An unrecognized period annualizes as daily and the scaling is the volatility square root; NaN is skipped while an infinity stops the estimation |
 
 Every edit above was verified comment-only and is covered by the re-run below.
-The remaining 206 files are deliberately not claimed as audited, so **P131 is
+The remaining 204 files are deliberately not claimed as audited, so **P131 is
 PARTIAL**, not passed.
 
 One audit ended in a registered question rather than a comment: the

@@ -92,9 +92,9 @@ src/runtime/serialization.cpp	cpp	2	reviewed_this_round	floats ride as lowercase
 src/runtime/utilities.cpp	cpp	3	reviewed_this_round	the short-path accumulator starts at negative zero to keep signed-zero results; a zero shape dimension skips the overflow test because the product is already zero
 src/simulation/base.cpp	cpp	0	no_explanatory_block_not_audited	
 src/simulation/bootstrap.cpp	cpp	5	reviewed_this_round	rejection removes modulo bias; single stream defines reproducibility
-src/simulation/correlation.cpp	cpp	0	no_explanatory_block_not_audited	
+src/simulation/correlation.cpp	cpp	0	reviewed_this_round	the target correlation is only required to be finite, so an out-of-range constant matrix is written rather than clamped
 src/simulation/monte_carlo.cpp	cpp	2	reviewed_this_round	252 shared by calibration and horizon scaling
-src/simulation/parameters.cpp	cpp	0	no_explanatory_block_not_audited	
+src/simulation/parameters.cpp	cpp	0	reviewed_this_round	an unrecognized period name silently annualizes as daily and the scaling is the volatility square root; NaN observations are skipped while an infinity stops the estimation
 src/simulation/paths.cpp	cpp	9	reviewed_this_round	modulo-bias threshold draw; LHS resamples until the stratum survives rounding; seed price row dropped from the return frame
 src/simulation/result.cpp	cpp	0	reviewed_this_round	an unbounded simulation statistic throws rather than returning NaN, except a single path's dispersion; the seven percentile cutoffs are fixed and the median is hoisted
 src/simulation/scenarios.cpp	cpp	2	reviewed_this_round	crash/spike shock upper middle element; only NaN rejected

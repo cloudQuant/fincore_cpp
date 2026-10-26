@@ -12,6 +12,10 @@
 
 namespace fincore {
 
+// The period name is matched case-insensitively and anything unrecognized, empty
+// included, falls through to the daily factor, so a typo annualizes as daily
+// instead of raising; the scaling is a square root, which is the volatility
+// convention rather than the linear one a drift needs.
 double annualize(const double value, const std::string_view period) {
     double factor = 252.0;
     std::string lower{period};
@@ -82,6 +86,9 @@ void add_observation(running_moments& moments, const double value) {
     moments = {next_count, next_mean, next_sum_of_squared_deviations};
 }
 
+// NaN is treated as an absent observation and skipped, while an infinity is corrupt
+// data and stops the estimation: a missing print should not derail a calibration,
+// but an unbounded one would move the mean the rest of the update builds on.
 running_moments finite_moments(const std::span<const double> values) {
     running_moments moments;
     for (const double value : values) {
