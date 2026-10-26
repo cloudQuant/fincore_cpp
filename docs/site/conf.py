@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import re
+import sys
 from pathlib import Path
 
 SITE_DIR = Path(__file__).resolve().parent
@@ -16,7 +17,10 @@ author = "fincore_cpp contributors"
 version = "0.1.0"
 release = "0.1.0"
 
+sys.path.insert(0, str(SITE_DIR / "_ext"))
+
 extensions = [
+    "fincore_ids",
     "breathe",
     "myst_parser",
     "sphinx.ext.autosectionlabel",
@@ -135,6 +139,8 @@ html_context = {
     "display_language_switch": True,
     "fc_docs_root": fc_docs_root,
     "fc_docs_zh_url": fc_docs_zh_url,
+    # The build's own language root, used for the canonical link.
+    "fc_canonical_base": _DOCS_BASE,
     "languages": [("English", "/en/latest/"), ("简体中文", "/zh-cn/latest/")],
 }
 html_show_sourcelink = True
