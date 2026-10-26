@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import glob
+from pathlib import Path
 import html.parser
 import os
 import re
@@ -82,12 +83,28 @@ def walk_catalogs(locale_dir: str) -> tuple[int, int, int, int, int]:
     return catalogs, entries, translated, missing, fuzzy
 
 
+def _default_zh_build() -> str:
+    # Local builds write zh_CN (the Sphinx language code); the Pages artifact and
+    # Read the Docs use zh-cn. Prefer whichever exists so a default run checks two
+    # languages rather than silently checking one.
+    for name in ("zh_CN", "zh-cn"):
+        candidate = Path("docs/_build/html") / name
+        if candidate.is_dir():
+            return str(candidate)
+    return "docs/_build/html/zh_CN"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--en", default="docs/_build/html/en")
-    parser.add_argument("--zh", default="docs/_build/html/zh-cn")
+    parser.add_argument("--zh", default=_default_zh_build())
     parser.add_argument("--locale", default="docs/site/locale/zh_CN/LC_MESSAGES")
     args = parser.parse_args()
+
+    missing_builds = [path for path in (args.en, args.zh) if not Path(path).is_dir()]
+    if missing_builds:
+        parser.error(f"build directory not found: {', '.join(missing_builds)}; "
+                     "build the site first (see docs/site/README.md)")
 
     pages, broken, machine = walk_pages([args.en, args.zh])
     catalogs, entries, translated, missing, fuzzy = walk_catalogs(args.locale)

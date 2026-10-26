@@ -8,62 +8,408 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fincore_cpp 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-25 22:15+0800\n"
+"POT-Creation-Date: 2026-10-26 17:32+0800\n"
 "PO-Revision-Date: 2026-10-25 22:20+0800\n"
 "Last-Translator: fincore_cpp documentation maintainers\n"
-"Language-Team: zh_CN <LL@li.org>\n"
 "Language: zh_CN\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
+"Language-Team: zh_CN <LL@li.org>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
 #: ../../site/guides/factor-research.md:1
-msgid "Factor research"
-msgstr "因子研究"
+msgid "Factor research: from rows to tables"
+msgstr "因子研究：从行到表"
 
 #: ../../site/guides/factor-research.md:3
 msgid ""
-"The native factor workflow separates preparation, evaluation and reporting:"
-msgstr "原生因子工作流将准备、评估和报告三个阶段分离："
-
-#: ../../site/guides/factor-research.md:5
-msgid ""
-"`prepare_factor_data` aligns a factor panel with forward returns and assigns "
-"quantiles on the documented cross-section."
-msgstr ""
-"`prepare_factor_data` 将因子面板与前瞻收益率对齐，并在文档说明的横截面上分配"
-"分位数。"
+"The factor area turns a prepared panel into IC studies, quantile buckets, "
+"tears, artifacts and export tables. This guide follows that path and points "
+"out the places where a configuration choice changes the result."
+msgstr "因子领域把准备好的面板变成 IC 研究、分位分桶、tears、artifacts 与导出表。本指南沿着这条路径走，并指出配置选择会改变结果的地方。"
 
 #: ../../site/guides/factor-research.md:7
-msgid ""
-"`analyze_factor` builds an owning model for tears, IC, turnover and group "
-"views."
-msgstr ""
-"`analyze_factor` 构建一个拥有所有权的模型，用于业绩速览（tears）、IC、换手率"
-"和分组视图。"
+msgid "The input panel"
+msgstr "输入面板"
 
 #: ../../site/guides/factor-research.md:9
-msgid ""
-"`evaluate_factor_research` evaluates a factor panel against a price grid "
-"with explicit targets, periods, labels and preprocessing."
-msgstr ""
-"`evaluate_factor_research` 依据价格网格评估因子面板，并显式指定目标、周期、标"
-"签和预处理。"
+msgid "`prepared_factor_data` is the only accepted input:"
+msgstr "`prepared_factor_data` 是唯一接受的输入："
 
 #: ../../site/guides/factor-research.md:11
+#, python-brace-format
 msgid ""
-"Report/chart builders consume the frozen result rather than recomputing "
-"backward dependencies in renderers."
-msgstr "报告/图表构建器使用已冻结的结果，而不是在渲染器中重新计算反向依赖。"
-
-#: ../../site/guides/factor-research.md:14
-msgid ""
-"Factor alignment, missing labels, quantile ties and label horizons are "
-"contractual inputs. A high IC or a benchmark speedup is not evidence that a "
-"factor is profitable. See the repository's dated benchmark records before "
-"quoting performance numbers."
+"struct prepared_factor_data {\n"
+"    std::vector<factor_row> rows;      // retained observations\n"
+"    std::vector<std::string> forward_labels;  // labels aligned with row "
+"returns\n"
+"    factor_loss_report loss_report;    // cleaning-loss accounting\n"
+"};\n"
 msgstr ""
-"因子对齐、缺失标签、分位数并列和标签预测期都是契约输入。高 IC 或基准加速比并"
-"不能证明因子能够盈利。在引用性能数据之前，请查阅仓库中带日期的基准记录。"
+"struct prepared_factor_data {\n"
+"    std::vector<factor_row> rows;      // retained observations\n"
+"    std::vector<std::string> forward_labels;  // labels aligned with row "
+"returns\n"
+"    factor_loss_report loss_report;    // cleaning-loss accounting\n"
+"};\n"
+
+#: ../../site/guides/factor-research.md:19
+msgid ""
+"Each `factor_row` carries a date, an asset, a finite factor value, a one-"
+"based quantile label supplied by the caller, an optional group label, and a "
+"vector of forward returns **aligned by position with `forward_labels`**. "
+"That alignment is the contract: the label order and the per-row vector order"
+" must describe the same columns."
+msgstr ""
+"每个 `factor_row` 携带日期、资产、有限的因子值、由调用方给出一基分位标签、可选的分组标签，以及一个与 `forward_labels` "
+"**按位置对齐**的前瞻收益向量。这个对齐就是契约：标签顺序与每行向量顺序必须描述同一批列。"
+
+#: ../../site/guides/factor-research.md:25
+msgid "Analysis configuration"
+msgstr "分析配置"
+
+#: ../../site/guides/factor-research.md:27
+#, python-brace-format
+msgid ""
+"fincore::factor_analysis_config config;\n"
+"config.periods = {\"1D\", \"5D\"};        // must name prepared labels\n"
+"config.turnover_periods = {1, 5};     // positive, unique lags\n"
+"config.by_group = true;               // needs a group column\n"
+"config.include_portfolio_inputs = false;\n"
+"const auto model = fincore::analyze_factor(prepared, config);\n"
+msgstr ""
+"fincore::factor_analysis_config config;\n"
+"config.periods = {\"1D\", \"5D\"};        // must name prepared labels\n"
+"config.turnover_periods = {1, 5};     // positive, unique lags\n"
+"config.by_group = true;               // needs a group column\n"
+"config.include_portfolio_inputs = false;\n"
+"const auto model = fincore::analyze_factor(prepared, config);\n"
+
+#: ../../site/guides/factor-research.md
+msgid "Field"
+msgstr "字段"
+
+#: ../../site/guides/factor-research.md
+msgid "Default"
+msgstr "默认值"
+
+#: ../../site/guides/factor-research.md
+msgid "What it changes"
+msgstr "改变了什么"
+
+#: ../../site/guides/factor-research.md
+msgid "`long_short`"
+msgstr "`long_short`"
+
+#: ../../site/guides/factor-research.md
+msgid "`true`"
+msgstr "`true`"
+
+#: ../../site/guides/factor-research.md
+msgid "Demeans weights and returns per date; `false` keeps raw values"
+msgstr "按日期对权重和收益去均值；`false` 保留原始值"
+
+#: ../../site/guides/factor-research.md
+msgid "`group_neutral`"
+msgstr "`group_neutral`"
+
+#: ../../site/guides/factor-research.md
+msgid "`false`"
+msgstr "`false`"
+
+#: ../../site/guides/factor-research.md
+msgid "Demeans within date and group; needs groups"
+msgstr "在日期与分组内去均值；需要分组"
+
+#: ../../site/guides/factor-research.md
+msgid "`equal_weight`"
+msgstr "`equal_weight`"
+
+#: ../../site/guides/factor-research.md
+msgid "Equal-weights the positive and negative sides"
+msgstr "对正负两侧等权"
+
+#: ../../site/guides/factor-research.md
+msgid "`by_group`"
+msgstr "`by_group`"
+
+#: ../../site/guides/factor-research.md
+msgid "Adds per-group views; needs a group column"
+msgstr "增加逐组视图；需要分组列"
+
+#: ../../site/guides/factor-research.md
+msgid "`periods`"
+msgstr "`periods`"
+
+#: ../../site/guides/factor-research.md
+msgid "empty (all)"
+msgstr "空（全部）"
+
+#: ../../site/guides/factor-research.md
+msgid "Narrows the analysed forward-return labels"
+msgstr "收窄被分析的前瞻收益标签"
+
+#: ../../site/guides/factor-research.md
+msgid "`turnover_periods`"
+msgstr "`turnover_periods`"
+
+#: ../../site/guides/factor-research.md
+#, python-brace-format
+msgid "`{1}`"
+msgstr "`{1}`"
+
+#: ../../site/guides/factor-research.md
+msgid "Positive, unique lag values"
+msgstr "正且唯一的滞后值"
+
+#: ../../site/guides/factor-research.md
+msgid "`time_aggregation`"
+msgstr "`time_aggregation`"
+
+#: ../../site/guides/factor-research.md
+#, python-brace-format
+msgid "`{\"M\"}`"
+msgstr "`{\"M\"}`"
+
+#: ../../site/guides/factor-research.md
+msgid "Monthly `\"M\"`/`\"ME\"` is the only native aggregation"
+msgstr "月度 `\"M\"`/`\"ME\"` 是唯一的原生聚合"
+
+#: ../../site/guides/factor-research.md
+msgid "`include_portfolio_inputs`"
+msgstr "`include_portfolio_inputs`"
+
+#: ../../site/guides/factor-research.md
+msgid "Builds portfolio inputs for the **first** selected period"
+msgstr "为**第一个**选中的周期构建组合输入"
+
+#: ../../site/guides/factor-research.md
+msgid "`portfolio_benchmark_period`"
+msgstr "`portfolio_benchmark_period`"
+
+#: ../../site/guides/factor-research.md
+msgid "`\"1D\"`"
+msgstr "`\"1D\"`"
+
+#: ../../site/guides/factor-research.md
+msgid "Non-empty label recorded in the fingerprint"
+msgstr "记录进 fingerprint 的非空标签"
+
+#: ../../site/guides/factor-research.md:48
+msgid ""
+"`analyze_factor` raises `factor_data_error` when the panel has no rows or "
+"labels, a row's return count does not match the label count, "
+"`turnover_periods` or `time_aggregation` is empty, duplicated or invalid, "
+"the benchmark period is empty, a requested period is not a prepared whole-"
+"day label, or `by_group` is set without a group column."
+msgstr ""
+"当面板没有行或标签、某行的收益个数与标签数不符、`turnover_periods` 或 `time_aggregation` "
+"为空/重复/非法、基准周期为空、请求的周期不是已准备的整日标签，或在没有分组列时设置 `by_group`，`analyze_factor` 会抛 "
+"`factor_data_error`。"
+
+#: ../../site/guides/factor-research.md:54
+msgid "What the model contains"
+msgstr "模型包含什么"
+
+#: ../../site/guides/factor-research.md:56
+msgid ""
+"Aggregate views such as `mean_returns_by_quantile` and "
+"`mean_returns_by_date`, plus IC and turnover tables."
+msgstr "诸如 `mean_returns_by_quantile` 与 `mean_returns_by_date` 的聚合视图，以及 IC 与换手表。"
+
+#: ../../site/guides/factor-research.md:58
+msgid ""
+"Per-group views when `by_group` is set; those tables were computed from the "
+"full universe **before** group rows were selected, so demeaning can span "
+"groups."
+msgstr "设置 `by_group` 时的逐组视图；这些表是在选择分组行**之前**用整个 universe 计算的，因此去均值可能跨组。"
+
+#: ../../site/guides/factor-research.md:61
+msgid ""
+"A fingerprint (`result_fingerprint`) that hashes the **inputs**, not the "
+"results, so two runs with the same inputs agree even before comparing "
+"numbers."
+msgstr "一个 fingerprint（`result_fingerprint`），哈希的是**输入**而不是结果，因此相同输入的两次运行在比较数值之前就已经一致。"
+
+#: ../../site/guides/factor-research.md:64
+msgid ""
+"Two quantile tables exist and they are flattened differently. The aggregate "
+"one (`quantile_return_table`) is **quantiles × labels**: `quantiles` holds "
+"the row keys and `labels` the column keys. The per-date one "
+"(`quantile_date_return_table`) adds a leading row axis, so it is **date × "
+"quantiles × labels**, and one date's block is `quantiles × labels` wide. "
+"Read the field comment before indexing by hand; both carry `groups` only "
+"when the output is grouped."
+msgstr ""
+"分位表有两张，展平方式不同。聚合表（`quantile_return_table`）是**分位 × 标签**：`quantiles` "
+"是行键，`labels` 是列键。逐日表（`quantile_date_return_table`）多一条行轴，因此是**日期 × 分位 × "
+"标签**，一个日期的块宽为 `quantiles × labels`。手工索引前先读字段注释；两者只有在输出分组时才携带 `groups`。"
+
+#: ../../site/guides/factor-research.md:72
+msgid "Tears and artifacts"
+msgstr "Tears 与 artifacts"
+
+#: ../../site/guides/factor-research.md:74
+msgid ""
+"`build_factor_tear_charts(model)` packages the model into chart-ready "
+"series: information coefficient, mean return by quantile and period, top-"
+"minus-bottom spread, turnover, rank autocorrelation, plus optional event and"
+" group snapshots. `build_cumulative_returns_by_quantile`, "
+"`build_events_distribution`, `build_ic_qq`, `build_quantile_returns_violin` "
+"and `build_monthly_ic_heatmap` produce individual charts from the same "
+"tables."
+msgstr ""
+"`build_factor_tear_charts(model)` 把模型打包成可直接绘图的序列：信息系数、按分位与周期的平均收益、top-minus-"
+"bottom "
+"价差、换手、秩自相关，以及可选的事件与分组快照。`build_cumulative_returns_by_quantile`、`build_events_distribution`、`build_ic_qq`、`build_quantile_returns_violin`"
+" 与 `build_monthly_ic_heatmap` 从同一批表生成单张图。"
+
+#: ../../site/guides/factor-research.md:81
+msgid ""
+"`factor/artifacts.hpp` provides the export path. Its tables are an ordered "
+"contract: column order is part of the digest, so a column inserted in the "
+"middle is a contract change even when the values are identical."
+msgstr "`factor/artifacts.hpp` 提供导出路径。它的表是有序契约：列顺序是摘要的一部分，因此即使在中间插入一列、数值完全相同，也属于契约变更。"
+
+#: ../../site/guides/factor-research.md:85
+msgid "Point-in-time joins"
+msgstr "时点连接"
+
+#: ../../site/guides/factor-research.md:87
+msgid ""
+"Point-in-time helpers join a signal panel to a reference panel using three "
+"timestamps per reference row: when the value became **effective**, when it "
+"became **known**, and the **as-of** date being evaluated. A reference row is"
+" eligible only when it was effective and known by the as-of date; ties "
+"resolve in the order the header documents. Universe filters — for example "
+"dropping assets that are not in the index on that date — are applied on top "
+"of that cut, which is why a case can legitimately end up with fewer cross-"
+"sections than input dates."
+msgstr ""
+"时点辅助函数用参考行上的三个时间戳把信号面板与参考面板连接起来：值何时**生效**、何时**可知**，以及被评估的 **as-of** "
+"日期。参考行只有在 as-of 日期之前既已生效又已可知时才可选；并列时按头文件写明的顺序解决。universe 过滤 —— "
+"例如剔除当天不在指数中的资产 —— 叠加在该截断之上，这就是为什么一个用例最后可能少于输入日期的截面数。"
+
+#: ../../site/guides/factor-research.md:95
+msgid "Exports and comparison"
+msgstr "导出与比较"
+
+#: ../../site/guides/factor-research.md:97
+msgid ""
+"`factor/research.hpp` writes the research tables used by the Alpha003 "
+"benchmark. The comparison is **streamed** and runs outside every timed "
+"interval; no join, dropna, aggregation or tolerance expansion is applied to "
+"hide missing observations. A mismatch is reported with the table, row and "
+"column that differ, not as a single failing boolean."
+msgstr ""
+"`factor/research.hpp` 写出 Alpha003 基准使用的研究表。比较是**流式**的，并且完全在每个计时区间之外运行；不使用 "
+"join、dropna、聚合或放宽容差来掩盖缺失观测。不一致会按表、行、列报告，而不是一个失败的布尔值。"
+
+#: ../../site/guides/factor-research.md:103
+msgid "Two practical rules follow:"
+msgstr "由此得到两条实用规则："
+
+#: ../../site/guides/factor-research.md:105
+msgid ""
+"Changing a header, a label or a column order changes the digest, so export "
+"changes are visible in the paired benchmark even when the numbers are equal."
+msgstr "改头文件、改标签或改列顺序都会改变摘要，因此即使数值相同，导出变更也会在成对基准中显现。"
+
+#: ../../site/guides/factor-research.md:107
+msgid ""
+"Pinned reference files under `tests/fixtures` and `tests/data` are evidence."
+" Treat their text as data, not as prose to reword."
+msgstr "`tests/fixtures` 与 `tests/data` 下的固定参考文件是证据。把它们的文本当数据，不要当作可以改写的散文。"
+
+#: ../../site/guides/factor-research.md:110
+msgid "A minimal study"
+msgstr "最小研究"
+
+#: ../../site/guides/factor-research.md:112
+#, python-brace-format, python-format
+msgid ""
+"const auto model = fincore::analyze_factor(prepared, config);\n"
+"const auto tears = fincore::build_factor_tear_charts(model);\n"
+"const auto& table = model.mean_returns_by_quantile;\n"
+"\n"
+"// Row keys are quantiles, column keys are labels: stride the row-major "
+"buffer.\n"
+"for (std::size_t q = 0; q < table.quantiles.size(); ++q) {\n"
+"    for (std::size_t l = 0; l < table.labels.size(); ++l) {\n"
+"        const double mean = table.means[q * table.labels.size() + l];\n"
+"        std::printf(\"Q%d %s %.5f\n"
+"\", table.quantiles[q],\n"
+"                    table.labels[l].c_str(), mean);\n"
+"    }\n"
+"}\n"
+msgstr ""
+"const auto model = fincore::analyze_factor(prepared, config);\n"
+"const auto tears = fincore::build_factor_tear_charts(model);\n"
+"const auto& table = model.mean_returns_by_quantile;\n"
+"\n"
+"// Row keys are quantiles, column keys are labels: stride the row-major "
+"buffer.\n"
+"for (std::size_t q = 0; q < table.quantiles.size(); ++q) {\n"
+"    for (std::size_t l = 0; l < table.labels.size(); ++l) {\n"
+"        const double mean = table.means[q * table.labels.size() + l];\n"
+"        std::printf(\"Q%d %s %.5f\n"
+"\", table.quantiles[q],\n"
+"                    table.labels[l].c_str(), mean);\n"
+"    }\n"
+"}\n"
+
+#: ../../site/guides/factor-research.md:128
+msgid ""
+"The aggregate table's label order follows the request, so print "
+"`mean_returns_by_quantile.labels` alongside any table you save; a table "
+"without its label order is ambiguous once it leaves the process."
+msgstr ""
+"聚合表的标签顺序遵循请求，因此在保存任何表时同时打印 "
+"`mean_returns_by_quantile.labels`；一份离开进程的表若缺少标签顺序就是有歧义的。"
+
+#~ msgid "Factor research"
+#~ msgstr "因子研究"
+
+#~ msgid ""
+#~ "The native factor workflow separates "
+#~ "preparation, evaluation and reporting:"
+#~ msgstr "原生因子工作流将准备、评估和报告三个阶段分离："
+
+#~ msgid ""
+#~ "`prepare_factor_data` aligns a factor panel "
+#~ "with forward returns and assigns quantiles"
+#~ " on the documented cross-section."
+#~ msgstr "`prepare_factor_data` 将因子面板与前瞻收益率对齐，并在文档说明的横截面上分配分位数。"
+
+#~ msgid ""
+#~ "`analyze_factor` builds an owning model for"
+#~ " tears, IC, turnover and group views."
+#~ msgstr "`analyze_factor` 构建一个拥有所有权的模型，用于业绩速览（tears）、IC、换手率和分组视图。"
+
+#~ msgid ""
+#~ "`evaluate_factor_research` evaluates a factor "
+#~ "panel against a price grid with "
+#~ "explicit targets, periods, labels and "
+#~ "preprocessing."
+#~ msgstr "`evaluate_factor_research` 依据价格网格评估因子面板，并显式指定目标、周期、标签和预处理。"
+
+#~ msgid ""
+#~ "Report/chart builders consume the frozen "
+#~ "result rather than recomputing backward "
+#~ "dependencies in renderers."
+#~ msgstr "报告/图表构建器使用已冻结的结果，而不是在渲染器中重新计算反向依赖。"
+
+#~ msgid ""
+#~ "Factor alignment, missing labels, quantile "
+#~ "ties and label horizons are contractual "
+#~ "inputs. A high IC or a benchmark "
+#~ "speedup is not evidence that a factor"
+#~ " is profitable. See the repository's "
+#~ "dated benchmark records before quoting "
+#~ "performance numbers."
+#~ msgstr ""
+#~ "因子对齐、缺失标签、分位数并列和标签预测期都是契约输入。高 IC "
+#~ "或基准加速比并不能证明因子能够盈利。在引用性能数据之前，请查阅仓库中带日期的基准记录。"
+

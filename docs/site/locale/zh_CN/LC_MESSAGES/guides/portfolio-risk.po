@@ -8,15 +8,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fincore_cpp 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-25 22:15+0800\n"
+"POT-Creation-Date: 2026-10-26 17:32+0800\n"
 "PO-Revision-Date: 2026-10-25 22:20+0800\n"
 "Last-Translator: fincore_cpp documentation maintainers\n"
-"Language-Team: zh_CN <LL@li.org>\n"
 "Language: zh_CN\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
+"Language-Team: zh_CN <LL@li.org>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
 #: ../../site/guides/portfolio-risk.md:1
@@ -25,30 +25,512 @@ msgstr "投资组合、风险、优化与模拟"
 
 #: ../../site/guides/portfolio-risk.md:3
 msgid ""
-"Portfolio inputs own their typed positions, transactions, prices and "
-"weights. The returned models copy or own their data; callers should not rely "
-"on a view remaining valid after the source frame changes."
+"This guide covers the four areas that share one failure model: they own "
+"their inputs, they report what happened instead of returning a plausible-"
+"looking number, and they state their preconditions in the header. The API "
+"reference carries the exact fields; this page explains how to use them "
+"together."
 msgstr ""
-"投资组合输入拥有其类型化的持仓、交易、价格和权重。返回的模型会复制或拥有其数"
-"据；调用方不应依赖视图在源数据帧发生变化后仍然有效。"
+"本指南覆盖共享同一套失败模型的四个领域：它们拥有自己的输入，报告发生了什么而不是返回看起来合理的数字，并在头文件里写明前置条件。API "
+"参考给出确切字段；本页说明如何把它们配合使用。"
 
-#: ../../site/guides/portfolio-risk.md:7
-msgid ""
-"Risk and optimization APIs report infeasible, nonconvergent or unavailable "
-"fits through documented statuses/exceptions instead of silently returning a "
-"plausible-looking number. Simulation APIs take an explicit seed where "
-"documented; matching a seed does not imply cross-language RNG identity."
-msgstr ""
-"风险和优化 API 通过文档化的状态/异常报告不可行、不收敛或不可用的拟合结果，而"
-"不是静默返回一个看似合理的数值。模拟 API 在文档说明之处接受显式随机种子；相同"
-"的随机种子并不意味着跨语言 RNG 一致。"
+#: ../../site/guides/portfolio-risk.md:8
+msgid "Portfolio inputs own their data"
+msgstr "组合输入拥有自己的数据"
 
-#: ../../site/guides/portfolio-risk.md:12
+#: ../../site/guides/portfolio-risk.md:10
 msgid ""
-"The API reference lists the exact result fields, failure statuses and warm-"
-"up requirements. This guide only describes the shared ownership and failure "
-"model; it does not turn a deferred optimization experiment into a supported "
-"feature."
+"`portfolio_inputs` copies the frames it is given at ingestion, so a later "
+"mutation of the caller's frame never reaches the report. `materialize()` "
+"returns fresh frames on every call: mutating the result does not affect the "
+"next call."
 msgstr ""
-"API 参考列出了确切的结果字段、失败状态和预热期要求。本指南仅描述共有的所有权"
-"与失败模型；它不会把一项暂缓的优化实验变成受支持的功能。"
+"`portfolio_inputs` 在接收时就复制传入的帧，因此之后修改调用方的帧永远不会影响报表。`materialize()` "
+"每次调用都返回新帧：修改结果不会影响下一次调用。"
+
+#: ../../site/guides/portfolio-risk.md:14
+msgid ""
+"The four maps keys are fixed — `returns`, `positions`, `transactions` and "
+"`benchmark_returns`. \"Not supplied\" and \"supplied but empty\" are "
+"different states: the first materializes to no key at all, the second to one"
+" key holding an empty frame."
+msgstr ""
+"四个映射键是固定的 —— `returns`、`positions`、`transactions` 与 "
+"`benchmark_returns`。“未提供”和“提供了但为空”是两种状态：前者物化为没有键，后者物化为一个持有空帧的键。"
+
+#: ../../site/guides/portfolio-risk.md:19
+msgid ""
+"Positions are row-oriented, not date-keyed: two rows may share a timestamp, "
+"and the caller's row order is preserved. The cash column is named `cash` by "
+"default, counts in the allocation denominator and is excluded from the per-"
+"asset output columns and from the asset count."
+msgstr ""
+"持仓是面向行的，不是按日期键控的：两行可以共享同一个时间戳，调用方的行顺序被保留。现金列默认名为 "
+"`cash`，计入配置分母，并从逐资产输出列与资产计数中排除。"
+
+#: ../../site/guides/portfolio-risk.md:24
+msgid "Positions, transactions and capacity"
+msgstr "持仓、交易与容量"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "Area"
+msgstr "领域"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "Behaviour worth knowing"
+msgstr "值得了解的行为"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "Round trips"
+msgstr "往返交易"
+
+#: ../../site/guides/portfolio-risk.md
+msgid ""
+"FIFO against a signed price; one block may close and reopen within the same "
+"direction"
+msgstr "按带符号价格做 FIFO；同一方向下同一块可以平仓后重新开仓"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "Turnover"
+msgstr "换手"
+
+#: ../../site/guides/portfolio-risk.md
+msgid ""
+"Uses the per-date book; the first day of a book with no previous state is "
+"halved"
+msgstr "使用逐日账面；没有前一日状态的第一天按一半计算"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "Capacity"
+msgstr "容量"
+
+#: ../../site/guides/portfolio-risk.md
+msgid ""
+"Days to liquidate combine position size, rolling mean volume and the "
+"tightest single-asset limit; ties resolve to the earliest date, then the "
+"first asset"
+msgstr "清仓天数综合持仓规模、滚动平均成交量与最紧的单资产限制；并列时先取最早日期，再取第一个资产"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "Transaction frames"
+msgstr "交易帧"
+
+#: ../../site/guides/portfolio-risk.md
+msgid ""
+"Daily notional adds absolute trade values, so a buy and a sell on the same "
+"date reinforce rather than cancel; trading days count distinct dates"
+msgstr "每日名义金额累加绝对交易值，因此同一天的买入与卖出相互叠加而不是抵消；交易日数统计的是不同日期"
+
+#: ../../site/guides/portfolio-risk.md:33
+msgid ""
+"These are accounting rules, not preferences: reports built from the same "
+"transactions will match only if the same convention is used on both sides."
+msgstr "这些是记账规则而不是偏好：只有两侧使用同一约定，同一批交易构建的报表才会一致。"
+
+#: ../../site/guides/portfolio-risk.md:36
+msgid "Risk estimates"
+msgstr "风险估计"
+
+#: ../../site/guides/portfolio-risk.md:38
+msgid ""
+"`forecast_var` and `forecast_es` return a `risk_estimate` whose `estimate` "
+"is **negative for losses** under the `losses_negative` sign convention. The "
+"label is carried on the result, so a consumer never has to guess the sign."
+msgstr ""
+"`forecast_var` 与 `forecast_es` 返回 `risk_estimate`，在 `losses_negative` "
+"符号约定下，其 `estimate` **对亏损为负**。符号约定随结果一起返回，消费方无需猜测。"
+
+#: ../../site/guides/portfolio-risk.md:42
+#, python-brace-format, python-format
+msgid ""
+"fincore::risk_forecast_config config;\n"
+"config.method = fincore::risk_forecast_method::historical;\n"
+"config.confidence_level = 0.99;\n"
+"\n"
+"const auto var = fincore::forecast_var(returns, config);\n"
+"if (var.status == fincore::risk_estimate_status::ok) {\n"
+"    std::printf(\"1-day 99%% VaR: %.4f\\n\", var.estimate);\n"
+"}\n"
+msgstr ""
+"fincore::risk_forecast_config config;\n"
+"config.method = fincore::risk_forecast_method::historical;\n"
+"config.confidence_level = 0.99;\n"
+"\n"
+"const auto var = fincore::forecast_var(returns, config);\n"
+"if (var.status == fincore::risk_estimate_status::ok) {\n"
+"    std::printf(\"1-day 99%% VaR: %.4f\\n\", var.estimate);\n"
+"}\n"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "Method"
+msgstr "方法"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "What it does"
+msgstr "做什么"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "`horizon`"
+msgstr "`horizon`"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "`kernel`"
+msgstr "`kernel`"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "`historical`"
+msgstr "`historical`"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "Empirical quantile of the cleaned sample"
+msgstr "清洗后样本的经验分位"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "Ignored"
+msgstr "忽略"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "empty"
+msgstr "空"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "`evt`"
+msgstr "`evt`"
+
+#: ../../site/guides/portfolio-risk.md
+msgid ""
+"GPD peaks-over-threshold or GEV block maxima, `threshold`/`block_size` "
+"optional"
+msgstr "GPD 超阈值或 GEV 块最大值，`threshold`/`block_size` 可选"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "`evt_var`, `evt_cvar`"
+msgstr "`evt_var`、`evt_cvar`"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "`garch`"
+msgstr "`garch`"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "Conditional variance forecast composed over the horizon"
+msgstr "在期限上组合条件方差预测"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "Used, at least 1"
+msgstr "使用，至少为 1"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "`conditional_var`, `conditional_es`"
+msgstr "`conditional_var`、`conditional_es`"
+
+#: ../../site/guides/portfolio-risk.md:59
+msgid "Preconditions and statuses:"
+msgstr "前置条件与状态："
+
+#: ../../site/guides/portfolio-risk.md:61
+msgid ""
+"The index must be strictly ascending and duplicate-free; `NaN` observations "
+"are dropped first. An empty result set, an unsorted or duplicated index, or "
+"an invalid configuration raises `input_error`."
+msgstr "索引必须严格升序且无重复；先丢弃 `NaN` 观测。结果为空、索引乱序或重复、配置非法都会抛 `input_error`。"
+
+#: ../../site/guides/portfolio-risk.md:64
+msgid ""
+"`status` is `ok` when at least two non-`NaN` observations were usable and "
+"any GARCH fit converged, `insufficient_data` when fewer than two remained, "
+"and `failed` when a GARCH fit did not converge or failed its stationarity "
+"checks. A non-converged GARCH fit also fills `note`."
+msgstr ""
+"当至少有两个可用非 `NaN` 观测且任何 GARCH 拟合都收敛时 `status` 为 `ok`；剩余少于两个时为 "
+"`insufficient_data`；GARCH 拟合未收敛或未通过平稳性检查时为 `failed`。未收敛的 GARCH 拟合还会填写 "
+"`note`。"
+
+#: ../../site/guides/portfolio-risk.md:68
+msgid ""
+"`inputs_digest` is a lowercase SHA-256 over the cleaned timestamps and "
+"values, so two runs can be compared without comparing floats."
+msgstr "`inputs_digest` 是对清洗后时间戳与数值的小写 SHA-256，因此两次运行可以在不比较浮点的情况下对照。"
+
+#: ../../site/guides/portfolio-risk.md:70
+msgid ""
+"Under the GARCH family, `garch_model::egarch` recurses on the **log** "
+"variance, so a negative `omega` is admissible there while the GARCH and GJR "
+"`omega` intercepts are positive because they enter a variance."
+msgstr ""
+"在 GARCH 家族中，`garch_model::egarch` 在**对数**方差上递推，因此负的 `omega` 在那里是允许的；GARCH 与 "
+"GJR 的 `omega` 截距为正，因为它们进入方差。"
+
+#: ../../site/guides/portfolio-risk.md:74
+msgid "Backtesting what you estimated"
+msgstr "回测你估计的东西"
+
+#: ../../site/guides/portfolio-risk.md:76
+msgid ""
+"`backtest_var` pairs a forecast series with realised returns and reports "
+"Kupiec unconditional coverage and Christoffersen independence. "
+"`expected_exceptions` is `observations * (1 - confidence_level)`."
+msgstr ""
+"`backtest_var` 把预测序列与实际收益配对，报告 Kupiec 无条件覆盖与 Christoffersen "
+"独立性。`expected_exceptions` 为 `observations * (1 - confidence_level)`。"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "Status"
+msgstr "状态"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "When"
+msgstr "何时"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "`pass`"
+msgstr "`pass`"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "Coverage tests do not reject the model and the sample is adequate"
+msgstr "覆盖检验不拒绝模型且样本充足"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "`fail`"
+msgstr "`fail`"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "A coverage test rejects the model and the sample is adequate"
+msgstr "覆盖检验拒绝模型且样本充足"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "`inconclusive`"
+msgstr "`inconclusive`"
+
+#: ../../site/guides/portfolio-risk.md
+msgid ""
+"Fewer than three paired observations **or** fewer than five expected "
+"exceptions"
+msgstr "配对观测少于三个**或**期望例外少于五个"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "`experimental`"
+msgstr "`experimental`"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "The ES bootstrap path, whose z-score depends on the resample seed"
+msgstr "ES bootstrap 路径，其 z 分数取决于重采样种子"
+
+#: ../../site/guides/portfolio-risk.md:87
+#, python-format
+msgid ""
+"That is why zero exceptions at 99% on 250 days is `inconclusive` rather than"
+" a pass: 2.5 expected exceptions is below the five-exception floor. "
+"`basel_traffic_light` turns the exception count into `green`/`yellow`/`red` "
+"using binomial bands that move with both the sample size and the confidence "
+"level."
+msgstr ""
+"这就是 250 天 99% 下零例外是 `inconclusive` 而不是通过的原因：2.5 "
+"个期望例外低于五个的门槛。`basel_traffic_light` 用随样本量与置信水平变动的二项分带，把例外数转成 "
+"`green`/`yellow`/`red`。"
+
+#: ../../site/guides/portfolio-risk.md:92
+msgid "Walk-forward validation"
+msgstr "滚动前推验证"
+
+#: ../../site/guides/portfolio-risk.md:94
+msgid ""
+"`walk_forward_var` re-fits on a rolling window and emits one forecast per "
+"observation after the first complete window. The result reports `index`, "
+"`forecast`, `realized`, `refit_timestamps`, `fits`, an optional `backtest`, "
+"and a status:"
+msgstr ""
+"`walk_forward_var` 在滚动窗口上重新拟合，并在第一个完整窗口之后为每个观测产出一个预测。结果报告 "
+"`index`、`forecast`、`realized`、`refit_timestamps`、`fits`、可选 `backtest` 与状态："
+
+#: ../../site/guides/portfolio-risk.md
+msgid "Meaning"
+msgstr "含义"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "`ok`"
+msgstr "`ok`"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "Forecasts were produced"
+msgstr "产生了预测"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "`insufficient_data`"
+msgstr "`insufficient_data`"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "The series is not longer than the window"
+msgstr "序列长度不超过窗口"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "`unsupported`"
+msgstr "`unsupported`"
+
+#: ../../site/guides/portfolio-risk.md
+msgid ""
+"The requested target, horizon or quantile is not implemented; "
+"`unsupported_reason` names it"
+msgstr "请求的目标、期限或分位未实现；`unsupported_reason` 会说明"
+
+#: ../../site/guides/portfolio-risk.md:105
+msgid ""
+"The point-in-time invariant is testable: perturbing returns from some index "
+"onward must leave every earlier forecast bit-identical, move the first "
+"affected fit's mean and forecast by exactly the perturbation, and leave its "
+"standard deviation unchanged. A constant shift moves the level, not the "
+"dispersion."
+msgstr "时点不变量是可检验的：从某个下标起扰动收益，必须让此前每个预测逐位不变，让第一个受影响的拟合均值与预测恰好移动该扰动量，并让其标准差保持不变。常数平移改变水平，不改变离散度。"
+
+#: ../../site/guides/portfolio-risk.md:110
+msgid "Optimization"
+msgstr "优化"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "Entry point"
+msgstr "入口"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "Purpose"
+msgstr "用途"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "`optimize_portfolio` (`objectives.hpp`)"
+msgstr "`optimize_portfolio`（`objectives.hpp`）"
+
+#: ../../site/guides/portfolio-risk.md
+msgid ""
+"One of `max_sharpe`, `min_variance`, `target_return` or `target_risk`, with "
+"box, sector and turnover constraints"
+msgstr "`max_sharpe`、`min_variance`、`target_return` 或 `target_risk` 之一，支持箱式、行业与换手约束"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "`efficient_frontier` (`frontier.hpp`)"
+msgstr "`efficient_frontier`（`frontier.hpp`）"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "Frontier points plus the minimum-variance and maximum-Sharpe portfolios"
+msgstr "前沿点，以及最小方差与最大夏普组合"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "`risk_parity` (`risk_parity.hpp`)"
+msgstr "`risk_parity`（`risk_parity.hpp`）"
+
+#: ../../site/guides/portfolio-risk.md
+msgid ""
+"Weights whose risk-contribution shares match an equal or user-supplied "
+"budget; fixed 252-period year, weights bounded to `[1e-6, 1]` while solving"
+msgstr "风险贡献份额匹配等权或用户给定预算的权重；固定 252 期年，求解时权重限制在 `[1e-6, 1]`"
+
+#: ../../site/guides/portfolio-risk.md:118
+msgid ""
+"Constraints are applied by projection, and the result reports diagnostics "
+"that mirror the solved constraint set rather than a convergence flag. One "
+"documented limitation matters when reading results: **`min_variance` without"
+" sector constraints is solved over the unit simplex**, so it returns a long-"
+"only book regardless of `short_allowed` or a negative `min_weight`."
+msgstr ""
+"约束通过投影施加，结果报告的诊断镜像实际求解的约束集合，而不是一个收敛标志。读结果时有一条已记录的限制：**不带行业约束的 `min_variance`"
+" 在单位单纯形上求解**，因此无论 `short_allowed` 或负 `min_weight` 如何设置，它都返回长仓组合。"
+
+#: ../../site/guides/portfolio-risk.md:124
+msgid "Simulation"
+msgstr "模拟"
+
+#: ../../site/guides/portfolio-risk.md:126
+msgid ""
+"Simulation functions take an explicit seed wherever the result must be "
+"reproducible. Two facts are worth keeping straight:"
+msgstr "需要可复现的结果处，模拟函数都接受显式种子。有两点需要分清："
+
+#: ../../site/guides/portfolio-risk.md:129
+msgid ""
+"A seed reproduces a stream inside this library; it does not promise the same"
+" numbers as a Python or NumPy call unless the function documents that "
+"mapping (the MT19937 stream does)."
+msgstr "种子只在本库内复现同一条流；除非函数写明了映射（MT19937 流写明了），否则不承诺与 Python 或 NumPy 给出相同数值。"
+
+#: ../../site/guides/portfolio-risk.md:132
+msgid ""
+"Antithetic variates mirror the **return path** — `+10%` becomes `-10%` — "
+"rather than inverting the wealth level, so a mirrored path is `90`, not `100"
+" / 1.1`."
+msgstr ""
+"对偶变量镜像的是**收益路径** —— `+10%` 变成 `-10%` —— 而不是反转财富水平，因此镜像路径是 `90`，而不是 `100 / "
+"1.1`。"
+
+#: ../../site/guides/portfolio-risk.md:135
+msgid "Failure model summary"
+msgstr "失败模型小结"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "Situation"
+msgstr "情形"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "What you get"
+msgstr "得到什么"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "Missing or mis-typed column, embedded NUL, unsorted or duplicated index"
+msgstr "列缺失或类型不符、内嵌 NUL、索引乱序或重复"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "`input_error`"
+msgstr "`input_error`"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "Not enough observations for the statistic"
+msgstr "统计量观测不足"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "`NaN` or `insufficient_data`, never a silent zero"
+msgstr "`NaN` 或 `insufficient_data`，绝不静默返回 0"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "A fit that cannot converge"
+msgstr "拟合无法收敛"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "`failed` status with a `note`, or `unsupported` with a reason"
+msgstr "带 `note` 的 `failed` 状态，或带原因的 `unsupported`"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "A result that must be compared or stored"
+msgstr "需要比较或存储的结果"
+
+#: ../../site/guides/portfolio-risk.md
+msgid "`inputs_digest` (SHA-256) instead of raw floats"
+msgstr "`inputs_digest`（SHA-256），而不是裸浮点"
+
+#~ msgid ""
+#~ "Portfolio inputs own their typed positions,"
+#~ " transactions, prices and weights. The "
+#~ "returned models copy or own their "
+#~ "data; callers should not rely on a"
+#~ " view remaining valid after the source"
+#~ " frame changes."
+#~ msgstr "投资组合输入拥有其类型化的持仓、交易、价格和权重。返回的模型会复制或拥有其数据；调用方不应依赖视图在源数据帧发生变化后仍然有效。"
+
+#~ msgid ""
+#~ "Risk and optimization APIs report "
+#~ "infeasible, nonconvergent or unavailable fits "
+#~ "through documented statuses/exceptions instead of"
+#~ " silently returning a plausible-looking "
+#~ "number. Simulation APIs take an explicit"
+#~ " seed where documented; matching a seed"
+#~ " does not imply cross-language RNG "
+#~ "identity."
+#~ msgstr ""
+#~ "风险和优化 API 通过文档化的状态/异常报告不可行、不收敛或不可用的拟合结果，而不是静默返回一个看似合理的数值。模拟"
+#~ " API 在文档说明之处接受显式随机种子；相同的随机种子并不意味着跨语言 RNG 一致。"
+
+#~ msgid ""
+#~ "The API reference lists the exact "
+#~ "result fields, failure statuses and "
+#~ "warm-up requirements. This guide only "
+#~ "describes the shared ownership and failure"
+#~ " model; it does not turn a "
+#~ "deferred optimization experiment into a "
+#~ "supported feature."
+#~ msgstr "API 参考列出了确切的结果字段、失败状态和预热期要求。本指南仅描述共有的所有权与失败模型；它不会把一项暂缓的优化实验变成受支持的功能。"
+

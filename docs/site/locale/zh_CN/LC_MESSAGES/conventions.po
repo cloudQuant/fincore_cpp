@@ -8,15 +8,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fincore_cpp 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-25 22:15+0800\n"
+"POT-Creation-Date: 2026-10-26 17:32+0800\n"
 "PO-Revision-Date: 2026-10-25 22:20+0800\n"
 "Last-Translator: fincore_cpp documentation maintainers\n"
-"Language-Team: zh_CN <LL@li.org>\n"
 "Language: zh_CN\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
+"Language-Team: zh_CN <LL@li.org>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
 #: ../../site/conventions.md:1
@@ -24,77 +24,378 @@ msgid "Data and numerical conventions"
 msgstr "数据与数值约定"
 
 #: ../../site/conventions.md:3
+msgid ""
+"These are the rules every module follows. Where a function deviates, its own"
+" documentation says so."
+msgstr "这些是每个模块都遵循的规则。若某个函数另有做法，它自己的文档会说明。"
+
+#: ../../site/conventions.md:6
 msgid "Frames and time"
 msgstr "数据帧与时间"
 
-#: ../../site/conventions.md:5
+#: ../../site/conventions.md:8
 msgid ""
 "The native `fincore::dataframe` is a `hmdf::StdDataFrame` whose index is a "
-"signed 64-bit UTC nanosecond timestamp. Index order and uniqueness are "
-"validated by the individual APIs; do not assume that every function sorts or "
-"deduplicates implicitly."
+"signed 64-bit UTC nanosecond timestamp. The representable range is therefore"
+" `1677-09-21T00:12:43.145224192Z` to `2262-04-11T23:47:16.854775807Z`; a "
+"calendar value outside it raises `input_error` rather than wrapping. Sub-day"
+" precision is preserved exactly, and `utc_year` floors toward earlier time —"
+" one nanosecond before the epoch is year 1969, not 1970."
 msgstr ""
-"原生 `fincore::dataframe` 是一个 `hmdf::StdDataFrame`，其索引为带符号的 64 "
-"位 UTC 纳秒时间戳。索引顺序与唯一性由各个 API 分别校验；不要假设每个函数都会"
-"隐式排序或去重。"
+"原生 `fincore::dataframe` 是 `hmdf::StdDataFrame`，索引是带符号 64 位 UTC "
+"纳秒时间戳。因此可表示范围是 `1677-09-21T00:12:43.145224192Z` 到 "
+"`2262-04-11T23:47:16.854775807Z`；超出范围的日历值会抛 "
+"`input_error`，而不是回绕。日内精度被完整保留，`utc_year` 向更早的时间取整 —— 纪元前一纳秒属于 1969 年，而不是 "
+"1970 年。"
 
-#: ../../site/conventions.md:10
+#: ../../site/conventions.md:15
+msgid "Index requirements belong to each API, and they differ on purpose:"
+msgstr "索引要求由每个 API 自己决定，而且是有意不同的："
+
+#: ../../site/conventions.md
+msgid "Requirement"
+msgstr "要求"
+
+#: ../../site/conventions.md
+msgid "Where it appears"
+msgstr "出现位置"
+
+#: ../../site/conventions.md
+msgid "Strictly ascending, duplicate-free"
+msgstr "严格升序、无重复"
+
+#: ../../site/conventions.md
+msgid ""
+"Risk estimation, backtests and walk-forward validation — a duplicated or "
+"unsorted index raises `input_error`"
+msgstr "风险估计、回测与滚动前推验证 —— 索引重复或乱序会抛 `input_error`"
+
+#: ../../site/conventions.md
+msgid "Sortedness not required, rows positional"
+msgstr "不要求有序，按行处理"
+
+#: ../../site/conventions.md
+msgid ""
+"Simulation paths and analysis inputs — the caller's row order is preserved "
+"and the index is copied as-is"
+msgstr "模拟路径与分析输入 —— 保留调用方的行顺序，索引按原样复制"
+
+#: ../../site/conventions.md
+msgid "Uniqueness by adjacency"
+msgstr "按相邻判断唯一性"
+
+#: ../../site/conventions.md
+msgid ""
+"Attribution alignment, where a sorted index is an unstated premise (recorded"
+" as F10-D11)"
+msgstr "归因对齐：那里“索引已排序”是未写明的前提（记为 F10-D11）"
+
+#: ../../site/conventions.md:23
+msgid ""
+"Do not assume that a function sorts or deduplicates for you. If an API needs"
+" a particular order, it validates it and says so."
+msgstr "不要假设函数会替你排序或去重。如果某个 API 需要特定顺序，它会校验并说明。"
+
+#: ../../site/conventions.md:26
 msgid "Returns, units and annualization"
 msgstr "收益率、单位与年化"
 
-#: ../../site/conventions.md:12
+#: ../../site/conventions.md:28
 msgid ""
-"Return series are decimal simple returns unless a function states otherwise. "
-"`0.01` means one percent. Annualization factors are passed explicitly where "
-"an API exposes them; `daily_annualization` is 252. Portfolio weights, prices "
-"and amounts carry their call-site units and are not converted implicitly."
+"Return series are decimal simple returns unless a function states otherwise:"
+" `0.01` means one percent. `daily_annualization` is 252. Ratios that scale "
+"by `sqrt(annualization)` use the factor directly; "
+"`annualization_factor(frequency)` maps "
+"`daily`/`weekly`/`monthly`/`quarterly`/`yearly` to 252/52/12/4/1 and returns"
+" an explicit override untouched — including zero or a negative value, "
+"because validation belongs to the caller."
 msgstr ""
-"除非函数另有说明，收益率序列均为小数形式的简单收益率。`0.01` 表示百分之一。"
-"在 API 暴露年化因子的地方，年化因子需显式传入；`daily_annualization` 为 252。"
-"投资组合权重、价格和金额沿用调用处的单位，不会被隐式换算。"
+"除非函数另有说明，收益序列都是小数简单收益：`0.01` 表示 1%。`daily_annualization` 为 252。按 "
+"`sqrt(annualization)` 缩放的比率直接使用该因子；`annualization_factor(frequency)` 把 "
+"`daily`/`weekly`/`monthly`/`quarterly`/`yearly` 映射为 252/52/12/4/1，并原样返回显式覆盖值"
+" —— 包括 0 或负数，因为校验责任在调用方。"
 
-#: ../../site/conventions.md:17
+#: ../../site/conventions.md:35
+msgid ""
+"Weights, prices and amounts carry their call-site units and are never "
+"converted implicitly. A function that expects basis points says so."
+msgstr "权重、价格与金额沿用调用处的单位，从不做隐式换算。需要基点的函数会明确说明。"
+
+#: ../../site/conventions.md:38
 msgid "Missing values and alignment"
 msgstr "缺失值与对齐"
 
-#: ../../site/conventions.md:19
+#: ../../site/conventions.md:40
 msgid ""
-"`NaN` is the native missing numeric marker. Multi-input APIs document their "
-"alignment policy: strict equality, common index, inner join, or an explicit "
-"outer policy. A missing label is not silently replaced with zero. Windowed "
-"metrics state their warm-up and complete-window rules in the API reference."
-msgstr ""
-"`NaN` 是原生的数值缺失标记。多输入 API 会在文档中说明其对齐策略：严格相等、公"
-"共索引、内连接或显式的外连接策略。缺失的标签不会被静默替换为零。窗口类指标在 "
-"API 参考中说明了其预热期与完整窗口规则。"
+"`NaN` is the native missing numeric marker; it is not a small number and it "
+"is not zero. Three behaviours coexist and each function documents which one "
+"it uses:"
+msgstr "`NaN` 是原生的缺失数值标记；它既不是很小的数，也不是 0。三种行为并存，每个函数都会说明自己用哪一种："
 
-#: ../../site/conventions.md:24
-msgid "Randomness"
-msgstr "随机性"
-
-#: ../../site/conventions.md:26
+#: ../../site/conventions.md:43
 msgid ""
-"Simulation and bootstrap APIs accept an explicit seed where documented. A "
-"matching seed is not a cross-language RNG-identity claim unless the "
-"reference implementation is also the pinned algorithm. Read each result's "
-"failure status and diagnostics instead of assuming convergence."
-msgstr ""
-"模拟和自助法（bootstrap）API 在文档说明之处接受显式随机种子。除非参考实现也采"
-"用所固定的算法，否则相同的随机种子并不构成跨语言 RNG 一致性的声明。请查看每个"
-"结果的失败状态和诊断信息，而不是假定其已收敛。"
+"**Drop the observation** (pairwise where two series are involved). Most "
+"scalar risk and return metrics do this."
+msgstr "**丢弃该观测**（涉及两个序列时按配对丢弃）。大多数标量风险与收益指标如此。"
 
-#: ../../site/conventions.md:31
+#: ../../site/conventions.md:45
+msgid ""
+"**Reject non-finite input** entirely. Stress testing and some risk kernels "
+"refuse a `NaN` return rather than skipping it."
+msgstr "**整体拒绝非有限输入**。压力测试与部分风险内核会拒绝含 `NaN` 的收益，而不是跳过它。"
+
+#: ../../site/conventions.md:47
+msgid ""
+"**Propagate**: a window that touches a missing value yields `NaN` for that "
+"window instead of a partial statistic."
+msgstr "**传播**：窗口只要触到缺失值，该窗口就产出 `NaN`，而不是部分统计量。"
+
+#: ../../site/conventions.md:50
+msgid ""
+"Alignment is equally explicit: strict equality, common index, inner join, or"
+" a documented outer policy. A missing label is never silently replaced with "
+"zero."
+msgstr "对齐同样显式：严格相等、公共索引、内连接，或文档写明的外连接策略。缺失标签从不被静默替换为 0。"
+
+#: ../../site/conventions.md:53
+msgid ""
+"When loading columns, `hmdf::nan_policy::dont_pad_with_nans` keeps the value"
+" as given; padding policies insert `NaN` for absent positions. Pick the one "
+"that matches the frame's own contract, and remember that an empty result is "
+"often returned as an **empty typed column**, not as a missing column."
+msgstr ""
+"加载列时，`hmdf::nan_policy::dont_pad_with_nans` 按给定值保留；补齐策略会为缺失位置插入 "
+"`NaN`。请选择与帧自身契约一致的那种，并记住空结果常常以**空的类型化列**返回，而不是缺失列。"
+
+#: ../../site/conventions.md:58
+msgid "Ownership and lifetime"
+msgstr "所有权与生命周期"
+
+#: ../../site/conventions.md:60
+msgid ""
+"`make_series` and `load_column` copy or take ownership; a frame returned by "
+"a function owns its values. `validate_returns` returns a copy, so writing "
+"through the result never touches the input."
+msgstr ""
+"`make_series` 与 `load_column` 会复制或接管所有权；函数返回的帧拥有自己的数值。`validate_returns` "
+"返回副本，因此通过结果写入永远不会影响输入。"
+
+#: ../../site/conventions.md:63
+msgid ""
+"`portfolio_inputs` copies at ingestion, and `materialize()` returns fresh "
+"frames on every call."
+msgstr "`portfolio_inputs` 在接收时复制，`materialize()` 每次调用都返回新帧。"
+
+#: ../../site/conventions.md:65
+msgid ""
+"Some accessors return views (a column span, a `std::string_view`). A view is"
+" valid only while its frame is alive and unmodified."
+msgstr "有些访问器返回视图（列视图、`std::string_view`）。视图只在其帧存活且未被修改期间有效。"
+
+#: ../../site/conventions.md:67
+msgid ""
+"`analysis_context` caches computed metrics, which makes one instance single-"
+"threaded by construction. Share frames freely; share a context only behind "
+"your own lock."
+msgstr "`analysis_context` 会缓存已算出的指标，因此单个实例在构造上就是单线程的。帧可以随意共享；上下文只在你自己加锁之后共享。"
+
+#: ../../site/conventions.md:71
+msgid "Determinism and digests"
+msgstr "确定性与摘要"
+
+#: ../../site/conventions.md:73
+msgid ""
+"Results that need to be compared, stored or replayed carry a digest instead "
+"of raw floats:"
+msgstr "需要比较、存储或重放的结果携带摘要，而不是裸浮点数："
+
+#: ../../site/conventions.md:76
+msgid ""
+"Runtime digests length-prefix every field and tag each value with its "
+"declared type, so neither separators nor a `bool`-versus-`1` collision can "
+"make two different payloads hash the same."
+msgstr "运行时摘要给每个字段加长度前缀，并为每个值标注声明的类型，因此分隔符或 `bool` 与 `1` 的混淆都不会让两份不同载荷哈希成同一个值。"
+
+#: ../../site/conventions.md:79
+msgid ""
+"Float values are serialized as lowercase IEEE-754 bit patterns, so `NaN` "
+"payloads and signed zeros survive a round trip. Some writers normalize "
+"negative zero to positive zero because the bytes are hashed."
+msgstr "浮点值序列化为小写 IEEE-754 位模式，因此 `NaN` 载荷与带符号零可以完整往返。部分写出器会把负零规范成正零，因为字节会被哈希。"
+
+#: ../../site/conventions.md:82
+msgid ""
+"A digest that covers inputs answers \"same inputs?\"; one that covers "
+"outputs answers \"same result?\". The factor model fingerprint hashes "
+"inputs, so two runs agree before their numbers are compared."
+msgstr ""
+"覆盖输入的摘要回答“输入是否相同？”；覆盖输出的摘要回答“结果是否相同？”。因子模型的 fingerprint "
+"哈希的是输入，因此两次运行在比较数值之前就能确认一致。"
+
+#: ../../site/conventions.md:86
+msgid ""
+"Determinism is per function, not global: a seeded simulation reproduces a "
+"stream inside this library, and only functions that document a NumPy mapping"
+" promise the same numbers as the reference implementation."
+msgstr "确定性是按函数而言的，不是全局的：带种子的模拟只保证在本库内复现同一序列，只有文档写明 NumPy 映射的函数才承诺与参考实现给出相同数值。"
+
+#: ../../site/conventions.md:90
+msgid "Errors"
+msgstr "错误"
+
+#: ../../site/conventions.md:92
+msgid ""
+"All library errors derive from `fincore_error` and carry a category, a code "
+"and structured fields:"
+msgstr "所有库错误都派生自 `fincore_error`，并带有分类、代码与结构化字段："
+
+#: ../../site/conventions.md
+msgid "Situation"
+msgstr "情形"
+
+#: ../../site/conventions.md
+msgid "Type"
+msgstr "类型"
+
+#: ../../site/conventions.md
+msgid "Bad argument, missing or mis-typed column, embedded NUL, invalid index"
+msgstr "参数错误、列缺失或类型不符、内嵌 NUL、非法索引"
+
+#: ../../site/conventions.md
+msgid "`input_error`"
+msgstr "`input_error`"
+
+#: ../../site/conventions.md
+msgid "Malformed factor panel or configuration"
+msgstr "因子面板或配置格式错误"
+
+#: ../../site/conventions.md
+msgid "`factor_data_error`"
+msgstr "`factor_data_error`"
+
+#: ../../site/conventions.md
+msgid "Domain validation in metrics (for example an out-of-range cutoff)"
+msgstr "指标中的定义域校验（例如超出范围的 cutoff）"
+
+#: ../../site/conventions.md
+msgid "returns `NaN`, not an exception"
+msgstr "返回 `NaN`，不抛异常"
+
+#: ../../site/conventions.md:101
+msgid ""
+"Out-of-range *values* inside a well-formed frame are usually answered with "
+"`NaN` (for example a cutoff outside `(0, 1)`), while a structural problem "
+"throws. Tests compare rejection messages exactly, so two different diagnoses"
+" cannot collapse into one passing assertion."
+msgstr ""
+"结构合法帧内的越界**值**通常以 `NaN` 回应（例如 `(0, 1)` 之外的 "
+"cutoff），而结构性问题会抛异常。测试会逐字比较拒绝消息，因此两种不同诊断不会合并成一条通过的断言。"
+
+#: ../../site/conventions.md:106
 msgid "Reports and files"
 msgstr "报告与文件"
 
-#: ../../site/conventions.md:33
+#: ../../site/conventions.md:108
 msgid ""
-"Report schema versions and artifact-bundle manifests are separate version "
-"domains from the runtime serialization envelope. Writers reject unsafe or "
-"preexisting destinations and clean up partial output where documented. CSV "
-"is an exchange format; it does not carry the full provenance of a result "
-"model."
+"A report document has its own schema version, separate from the runtime "
+"serialization envelope and from artifact-bundle manifests. Writers reject "
+"unsafe destinations — an empty path, a directory that cannot be created, a "
+"pre-existing file where the contract forbids one — and clean up partial "
+"output where they say they do. CSV is an exchange format; it does not carry "
+"the provenance of a result model, which is what the digest and the JSON "
+"manifest are for."
 msgstr ""
-"报告 schema 版本和产物包清单是与运行时序列化封装相互独立的版本域。写入器会拒"
-"绝不安全或已存在的目标位置，并在文档说明的情况下清理部分输出。CSV 是一种交换"
-"格式；它不携带结果模型的完整溯源信息。"
+"报表文档有自己的模式版本，独立于运行时序列化信封与 artifact bundle 清单。写出器会拒绝不安全的目标 —— "
+"空路径、无法创建的目录、契约禁止覆盖的既有文件 —— 并在文档说明的情况下清理部分输出。CSV 是交换格式；它不携带结果模型的溯源信息，那正是摘要与 "
+"JSON 清单的用途。"
+
+#: ../../site/conventions.md:115
+msgid "Frequencies and labels"
+msgstr "频率与标签"
+
+#: ../../site/conventions.md:117
+msgid ""
+"Input period names are canonical words; letter aliases such as `ME`, `QE`, "
+"`YE` are produced on output so a converted frequency means the same boundary"
+" in a modern date range. Label ordering is part of the contract: weekly "
+"aggregation orders rows by calendar year and ISO week label rather than by "
+"bucket start, which can place a January observation after a December row of "
+"the same year."
+msgstr ""
+"输入的周期名是规范词；`ME`、`QE`、`YE` "
+"这类字母别名只在输出中出现，使转换后的频率在现代日期范围里对应同一个边界。标签顺序也是契约的一部分：周聚合按日历年与 ISO "
+"周标签排序，而不是按桶起点，因此可能出现 1 月的观测排在同一年的 12 月行之后。"
+
+#~ msgid ""
+#~ "The native `fincore::dataframe` is a "
+#~ "`hmdf::StdDataFrame` whose index is a "
+#~ "signed 64-bit UTC nanosecond timestamp. "
+#~ "Index order and uniqueness are validated"
+#~ " by the individual APIs; do not "
+#~ "assume that every function sorts or "
+#~ "deduplicates implicitly."
+#~ msgstr ""
+#~ "原生 `fincore::dataframe` 是一个 "
+#~ "`hmdf::StdDataFrame`，其索引为带符号的 64 位 UTC "
+#~ "纳秒时间戳。索引顺序与唯一性由各个 API 分别校验；不要假设每个函数都会隐式排序或去重。"
+
+#~ msgid ""
+#~ "Return series are decimal simple returns"
+#~ " unless a function states otherwise. "
+#~ "`0.01` means one percent. Annualization "
+#~ "factors are passed explicitly where an "
+#~ "API exposes them; `daily_annualization` is "
+#~ "252. Portfolio weights, prices and amounts"
+#~ " carry their call-site units and "
+#~ "are not converted implicitly."
+#~ msgstr ""
+#~ "除非函数另有说明，收益率序列均为小数形式的简单收益率。`0.01` 表示百分之一。在 API "
+#~ "暴露年化因子的地方，年化因子需显式传入；`daily_annualization` 为 "
+#~ "252。投资组合权重、价格和金额沿用调用处的单位，不会被隐式换算。"
+
+#~ msgid ""
+#~ "`NaN` is the native missing numeric "
+#~ "marker. Multi-input APIs document their "
+#~ "alignment policy: strict equality, common "
+#~ "index, inner join, or an explicit "
+#~ "outer policy. A missing label is not"
+#~ " silently replaced with zero. Windowed "
+#~ "metrics state their warm-up and "
+#~ "complete-window rules in the API "
+#~ "reference."
+#~ msgstr ""
+#~ "`NaN` 是原生的数值缺失标记。多输入 API "
+#~ "会在文档中说明其对齐策略：严格相等、公共索引、内连接或显式的外连接策略。缺失的标签不会被静默替换为零。窗口类指标在 API "
+#~ "参考中说明了其预热期与完整窗口规则。"
+
+#~ msgid "Randomness"
+#~ msgstr "随机性"
+
+#~ msgid ""
+#~ "Simulation and bootstrap APIs accept an "
+#~ "explicit seed where documented. A matching"
+#~ " seed is not a cross-language "
+#~ "RNG-identity claim unless the reference "
+#~ "implementation is also the pinned "
+#~ "algorithm. Read each result's failure "
+#~ "status and diagnostics instead of assuming"
+#~ " convergence."
+#~ msgstr ""
+#~ "模拟和自助法（bootstrap）API "
+#~ "在文档说明之处接受显式随机种子。除非参考实现也采用所固定的算法，否则相同的随机种子并不构成跨语言 RNG "
+#~ "一致性的声明。请查看每个结果的失败状态和诊断信息，而不是假定其已收敛。"
+
+#~ msgid ""
+#~ "Report schema versions and artifact-bundle"
+#~ " manifests are separate version domains "
+#~ "from the runtime serialization envelope. "
+#~ "Writers reject unsafe or preexisting "
+#~ "destinations and clean up partial output"
+#~ " where documented. CSV is an exchange"
+#~ " format; it does not carry the "
+#~ "full provenance of a result model."
+#~ msgstr ""
+#~ "报告 schema "
+#~ "版本和产物包清单是与运行时序列化封装相互独立的版本域。写入器会拒绝不安全或已存在的目标位置，并在文档说明的情况下清理部分输出。CSV "
+#~ "是一种交换格式；它不携带结果模型的完整溯源信息。"
+
