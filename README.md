@@ -1,6 +1,7 @@
 # fincore_cpp
 
 [![Docs](https://github.com/cloudQuant/fincore_cpp/actions/workflows/docs.yml/badge.svg?branch=master)](https://cloudquant.github.io/fincore_cpp/en/latest/)
+[![Release](https://img.shields.io/github/v/release/cloudQuant/fincore_cpp)](https://github.com/cloudQuant/fincore_cpp/releases)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![C++23](https://img.shields.io/badge/C%2B%2B-23-blue.svg)](#requirements)
 

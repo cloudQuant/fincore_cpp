@@ -18,9 +18,12 @@ oracle. If you want the library version at run time, read
 
 ## Current status
 
-`0.1.0` is in development and **no git tag has been cut yet**. `master` is the
-published branch, and every push to it rebuilds the documentation site. That
-means "latest" on the site and `master` in the repository are the same tree.
+`0.1.0` is tagged **`v0.1.0`** on 2026-10-26, from the commit whose CI passed on
+Windows, macOS and Ubuntu; the
+[GitHub release](https://github.com/cloudQuant/fincore_cpp/releases/tag/v0.1.0)
+carries the notes. `master` is the published branch, and every push to it
+rebuilds the documentation site, so "latest" on the site and `master` are the
+same tree.
 
 What is stable enough to build on:
 
@@ -72,7 +75,7 @@ Recorded by area rather than by commit; the linked records carry the evidence.
 See [publication](publication.md) for what is live, and the iteration records in
 `docs/iterations/` for dated acceptance evidence.
 
-## How a release will be cut
+## How the next release will be cut
 
 1. Update `version.hpp` and `docs/site/conf.py` together, then run the full gate
    (`ctest`, both strict Sphinx builds, the site checker).
@@ -80,3 +83,5 @@ See [publication](publication.md) for what is live, and the iteration records in
 3. Confirm the documentation site rebuilt from the tag's tree, and record the
    deployed URLs in the publication page.
 4. Write the release notes from the iteration records, not from memory.
+
+`v0.1.0` followed exactly this sequence; the tag points at the commit whose `ci` run was green on all three platforms.

@@ -738,6 +738,27 @@ infrastructure, so they were left to the owner rather than executed from this
 session. Pages is live and verified (the section above); RTD remains a verified
 **deployable artifact**, which is not a publication PASS.
 
+## 5b. Release v0.1.0 and cross-platform CI (2026-10-26)
+
+The owner asked for a green `ci` matrix on Windows, Ubuntu and macOS before the
+first tag. The Ubuntu failure was not environmental: the generated
+`echarts_asset.cpp` declared 129 `std::string_view` literals, so GCC 13 had to
+measure roughly 2 MB of hex during constant evaluation and aborted with
+`'constexpr' evaluation operation count exceeds limit of 33554432`. The chunks
+are now a `const char*` array with the view built at run time, which removes the
+constant evaluation without changing a decoded byte.
+
+Run [`40332447774`](https://github.com/cloudQuant/fincore_cpp/actions/runs/40332447774)
+is green on all three jobs. The previously flaky Windows junction test now
+retries briefly and skips with a message when the host genuinely cannot create a
+junction, so a scanner holding the temp directory no longer reads as a product
+failure.
+
+`v0.1.0` was tagged on the CI-verified commit `1bd902d` and published at
+<https://github.com/cloudQuant/fincore_cpp/releases/tag/v0.1.0>. The README also
+became one document with `#english` and `#简体中文` anchors instead of a second
+file.
+
 ## 6. Out-of-scope observation
 
 The repository's business `ci` workflow fails on `ubuntu-latest` with

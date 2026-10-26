@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fincore_cpp 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-26 18:57+0800\n"
+"POT-Creation-Date: 2026-10-26 22:11+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -94,95 +94,99 @@ msgstr "当前状态"
 
 #: ../../site/releases.md:21
 msgid ""
-"`0.1.0` is in development and **no git tag has been cut yet**. `master` is "
-"the published branch, and every push to it rebuilds the documentation site. "
-"That means \"latest\" on the site and `master` in the repository are the "
-"same tree."
+"`0.1.0` is tagged **`v0.1.0`** on 2026-10-26, from the commit whose CI "
+"passed on Windows, macOS and Ubuntu; the [GitHub "
+"release](https://github.com/cloudQuant/fincore_cpp/releases/tag/v0.1.0) "
+"carries the notes. `master` is the published branch, and every push to it "
+"rebuilds the documentation site, so \"latest\" on the site and `master` are "
+"the same tree."
 msgstr ""
-"`0.1.0` 仍在开发中，**尚未打任何 git tag**。`master` 是发布分支，每次推送到它都会重建文档站点。也就是说站点上的 "
-"“latest” 与仓库的 `master` 是同一棵树。"
+"`0.1.0` 已于 2026-10-26 打上 **`v0.1.0`** 标签，取自 CI 在 Windows、macOS 与 Ubuntu "
+"上全部通过的提交；说明见 [GitHub "
+"Release](https://github.com/cloudQuant/fincore_cpp/releases/tag/v0.1.0)。`master`"
+" 是发布分支，每次推送都会重建文档站点，因此站点上的“latest”与仓库 `master` 是同一棵树。"
 
-#: ../../site/releases.md:25
+#: ../../site/releases.md:28
 msgid "What is stable enough to build on:"
 msgstr "可以放心构建的部分："
 
-#: ../../site/releases.md:27
+#: ../../site/releases.md:30
 msgid ""
 "The public headers under `include/fincore`, documented symbol by symbol in "
 "the API ledger."
 msgstr "`include/fincore` 下的公共头文件，在 API 清单中逐符号记录。"
 
-#: ../../site/releases.md:29
+#: ../../site/releases.md:32
 msgid "The CMake package contract (`fincore::fincore`, optional `implot` component)."
 msgstr "CMake 包契约（`fincore::fincore`，可选 `implot` 组件）。"
 
-#: ../../site/releases.md:30
+#: ../../site/releases.md:33
 msgid "The report document schema and the artifact bundle shape."
 msgstr "报表文档模式与 artifact bundle 形状。"
 
-#: ../../site/releases.md:31
+#: ../../site/releases.md:34
 msgid "Error categories and their structured fields."
 msgstr "错误分类及其结构化字段。"
 
-#: ../../site/releases.md:33
+#: ../../site/releases.md:36
 msgid ""
 "What may still move without a deprecation cycle, because `0.x` makes no "
 "compatibility promise:"
 msgstr "仍可能在没有弃用周期的情况下变化的部分，因为 `0.x` 不承诺兼容："
 
-#: ../../site/releases.md:36
+#: ../../site/releases.md:39
 msgid "Internal `fincore::detail` helpers, which are outside the public surface."
 msgstr "内部的 `fincore::detail` 辅助函数，它们在公共接口之外。"
 
-#: ../../site/releases.md:37
+#: ../../site/releases.md:40
 msgid "Optional extension and plotting adapters."
 msgstr "可选的扩展与绘图适配器。"
 
-#: ../../site/releases.md:38
+#: ../../site/releases.md:41
 msgid "Diagnostic field names inside `diagnostics` maps."
 msgstr "`diagnostics` 映射里的诊断字段名。"
 
-#: ../../site/releases.md:40
+#: ../../site/releases.md:43
 msgid "Change log for this cycle"
 msgstr "本周期的变更记录"
 
-#: ../../site/releases.md:42
+#: ../../site/releases.md:45
 msgid ""
 "Recorded by area rather than by commit; the linked records carry the "
 "evidence."
 msgstr "按领域记录而不是按提交；链接的记录携带证据。"
 
-#: ../../site/releases.md:44
+#: ../../site/releases.md:47
 msgid "**Library and correctness**"
 msgstr "**库与正确性**"
 
-#: ../../site/releases.md:46
+#: ../../site/releases.md:49
 msgid ""
 "Native C++23 surface across core data, metrics, risk, portfolio, factor, "
 "attribution, optimization, reporting, runtime and simulation modules."
 msgstr "覆盖核心数据、指标、风险、组合、因子、归因、优化、报表、运行时与模拟模块的原生 C++23 接口。"
 
-#: ../../site/releases.md:48
+#: ../../site/releases.md:51
 msgid "1092 C++ tests, including oracle comparisons and consumer build checks."
 msgstr "1092 个 C++ 测试，包括 oracle 对比与消费者构建检查。"
 
-#: ../../site/releases.md:49
+#: ../../site/releases.md:52
 msgid ""
 "Documented failure model: structural problems throw, undefined statistics "
 "return `NaN`, and fits report status instead of a plausible number."
 msgstr "已记录的失败模型：结构性问题抛异常，无定义的统计量返回 `NaN`，拟合报告状态而不是一个看似合理的数字。"
 
-#: ../../site/releases.md:52
+#: ../../site/releases.md:55
 msgid "**Documentation**"
 msgstr "**文档**"
 
-#: ../../site/releases.md:54
+#: ../../site/releases.md:57
 msgid ""
 "One bilingual site (English and Simplified Chinese) with a language switch "
 "on every page; the Chinese build is a full translation, not a stub."
 msgstr "一套双语文档站点（英文与简体中文），每页都有语言切换；中文构建是完整翻译，不是占位。"
 
-#: ../../site/releases.md:56
+#: ../../site/releases.md:59
 msgid ""
 "Every public symbol documented; the few reviewed exemptions (three "
 "`Subclassed by` lists, two multi-line string constants, functions without "
@@ -192,48 +196,48 @@ msgstr ""
 "每个公共符号都有说明；少数经审阅的豁免（三条 `Subclassed by` 列表、两个多行字符串常量、缺少 `@param` 的函数）记录在迭代 10"
 " 的豁免文件里，而不是藏在构建中。"
 
-#: ../../site/releases.md:60
+#: ../../site/releases.md:63
 msgid ""
 "Tutorial, cookbook, task guides, migration mapping and troubleshooting built"
 " from the same headers the reference is generated from."
 msgstr "教程、配方集、任务指南、迁移映射与故障排查，都基于生成参考的同一批头文件。"
 
-#: ../../site/releases.md:63
+#: ../../site/releases.md:66
 msgid "**Tooling and evidence**"
 msgstr "**工具与证据**"
 
-#: ../../site/releases.md:65
+#: ../../site/releases.md:68
 msgid "`check_comment_only.py` proves comment rounds change only comments."
 msgstr "`check_comment_only.py` 证明注释轮只改了注释。"
 
-#: ../../site/releases.md:66
+#: ../../site/releases.md:69
 msgid ""
 "`check_built_site.py` checks both language builds for broken links, machine "
 "paths and untranslated catalogs, and refuses to run when one build is "
 "missing."
 msgstr "`check_built_site.py` 检查两种语言构建的断链、机器路径与未翻译目录，并在缺少一种构建时拒绝运行。"
 
-#: ../../site/releases.md:68
+#: ../../site/releases.md:71
 msgid "`write_sitemap.py` derives the sitemap from the deployed artefact."
 msgstr "`write_sitemap.py` 从部署的产物推导 sitemap。"
 
-#: ../../site/releases.md:69
+#: ../../site/releases.md:72
 msgid ""
 "Paired benchmark harness with digest-gated correctness and recorded "
 "INCONCLUSIVE outcomes."
 msgstr "成对基准框架，正确性由摘要门控，并记录 INCONCLUSIVE 结果。"
 
-#: ../../site/releases.md:72
+#: ../../site/releases.md:75
 msgid ""
 "See [publication](publication.md) for what is live, and the iteration "
 "records in `docs/iterations/` for dated acceptance evidence."
 msgstr "线上状态见[发布说明](publication.md)，有日期的验收证据见 `docs/iterations/` 下的迭代记录。"
 
-#: ../../site/releases.md:75
-msgid "How a release will be cut"
-msgstr "如何切一个发布"
+#: ../../site/releases.md:78
+msgid "How the next release will be cut"
+msgstr "下一个发布如何切出"
 
-#: ../../site/releases.md:77
+#: ../../site/releases.md:80
 msgid ""
 "Update `version.hpp` and `docs/site/conf.py` together, then run the full "
 "gate (`ctest`, both strict Sphinx builds, the site checker)."
@@ -241,17 +245,23 @@ msgstr ""
 "同时更新 `version.hpp` 与 `docs/site/conf.py`，然后运行完整门禁（`ctest`、两种严格 Sphinx "
 "构建、站点检查器）。"
 
-#: ../../site/releases.md:79
+#: ../../site/releases.md:82
 msgid "Tag `v<version>` on the commit that passed, and push the tag."
 msgstr "在通过的那个提交上打 `v<version>` 标签并推送标签。"
 
-#: ../../site/releases.md:80
+#: ../../site/releases.md:83
 msgid ""
 "Confirm the documentation site rebuilt from the tag's tree, and record the "
 "deployed URLs in the publication page."
 msgstr "确认文档站点已从该标签的树重建，并把部署地址记录到发布页。"
 
-#: ../../site/releases.md:82
+#: ../../site/releases.md:85
 msgid "Write the release notes from the iteration records, not from memory."
 msgstr "依据迭代记录撰写发布说明，而不是凭记忆。"
+
+#: ../../site/releases.md:87
+msgid ""
+"`v0.1.0` followed exactly this sequence; the tag points at the commit whose "
+"`ci` run was green on all three platforms."
+msgstr "`v0.1.0` 正是按这个顺序完成的；标签指向 `ci` 在三个平台全绿的那个提交。"
 
