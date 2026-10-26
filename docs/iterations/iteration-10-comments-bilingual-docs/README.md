@@ -100,6 +100,15 @@ P131 中不依赖模块改动的工具说明可提前进行。P127 的 API 翻�
 验收结果、仓库/分支和实际提交哈希，不新建大批临时证据或复制可再生产物。
 HTML、Doxygen XML、翻译中间文件和站点构建缓存不进入 Git 历史。
 
+当前发布状态（2026-10-26）：GitHub Pages 已从 `master`（合并提交 `1ea8025`，
+运行 `40286395187`）部署成功，`build`/`pages`/`deploy` 三个 job 全绿；英文站点
+https://cloudquant.github.io/fincore_cpp/en/latest/ 与中文站点
+https://cloudquant.github.io/fincore_cpp/zh-cn/latest/ 已逐页验证——首页、安装页、
+guides 页、metrics API 深页、语言切换与 CSS 资源均返回 200，中文页面的正文确实是
+中文。Read the Docs 的 `en`、`zh_CN` 两个项目仍需仓库所有者用 RTD 账号创建，
+因此 P133 保持 PARTIAL：Pages 的两个组合已线上验证，RTD 的两个组合属于
+“平台发布待完成”。
+
 计划完成不等于迭代实施完成。未来只有源代码说明、双语内容、构建检查和两个
 平台的实际发布均达到[验收要求](acceptance.md)，才能宣布整个迭代完成。
 若平台账号或仓库设置尚未就绪，可交付已验证的可部署文档，但必须单列

@@ -531,6 +531,53 @@ Two consequences for the route the owner proposed (finish, then update `master`)
   once `dev` is merged. Until that merge, the deploy path cannot be exercised on
   `dev`, and P133 stays **PLATFORM_PENDING** with both URLs answering 404.
 
+### Live verification after the master merge (2026-10-26)
+
+The owner asked for publication to run from `master`. `dev` was merged into
+`master` locally with `--no-ff` (merge commit `1ea8025`) and pushed
+(`debd948..1ea8025`). The only master-side content that dev did not already carry
+was `.superpowers/sdd/2026-08-10-fincore-cpp-foundation/progress.md` (four added
+lines), so the merge had nothing to resolve and the resulting tree is the dev tree
+plus that file. The push triggered
+[`40286395187`](https://github.com/cloudQuant/fincore_cpp/actions/runs/40286395187),
+the first run in which **all three jobs succeeded**: `build` success, `pages`
+success, `deploy` success. The deploy job that had previously ended with zero
+steps actually ran, which confirms the environment allow-list holds `master`
+rather than `dev`.
+
+The live site was then checked page by page (HTTP status and bytes):
+
+| URL under `https://cloudquant.github.io/fincore_cpp/` | Status | Bytes |
+|---|---|---|
+| `/` | 200 | 604 (landing page carrying the two language links) |
+| `/en/latest/` | 200 | 17,845 |
+| `/zh-cn/latest/` | 200 | 17,538 |
+| `/en/latest/installation.html` | 200 | 15,541 |
+| `/zh-cn/latest/installation.html` | 200 | 15,382 |
+| `/en/latest/api/metrics.html` | 200 | 657,831 |
+| `/zh-cn/latest/api/metrics.html` | 200 | 616,635 |
+| `/en/latest/guides/metrics.html` | 200 | 12,904 |
+| `/zh-cn/latest/guides/metrics.html` | 200 | 12,742 |
+| `/zh-cn/latest/conventions.html` | 200 | 13,892 |
+| `/en/latest/_static/css/theme.css` | 200 | 137,285 |
+
+The language switch resolves in both directions (`en/latest/` links to
+`zh-cn/latest/` and back), and the served Chinese pages really are Chinese: the
+index contains 文档 / 安装 / 快速开始 / 简体中文, and the metrics API page contains
+参数 (3), 夏普比率 (11) and 年化 (65).
+
+Two corrections for anyone repeating this check. The language directories are
+`en/latest/` and `zh-cn/latest/`, not `en/` and `zh_CN/`; probing the latter
+returns 404 and says nothing about the deployment. And a Pages build carries the
+version in the path segment (`latest`) with no Read the Docs style version
+switcher — that switcher is an RTD feature, so on Pages the version requirement is
+met by the URL plus the landing page text.
+
+Result: **Pages × 2 languages verified live; RTD × 2 still not created**, so P133
+remains PARTIAL. Creating the `en` and `zh_CN` projects from `.readthedocs.yaml`
+needs the Read the Docs account, so the published state is "GitHub Pages live,
+Read the Docs release pending".
+
 Required runbook before P133 can be marked PASS (four combinations, each with
 home, installation, one deep API page, language switch, version label, static
 assets and search checked from the same commit):
@@ -603,8 +650,8 @@ checks, which belong to P133 and cannot be substituted by a local build.
 | ID | Item | Status |
 |---|---|---|
 | P131 | Per-file implementation/test/tool comment audit | PARTIAL |
-| P133 | RTD ×2 and Pages ×2 live checks | PLATFORM_PENDING |
-| P134 | Iteration close-out | PARTIAL — local gate complete, live checks owed by P133 |
+| P133 | RTD ×2 and Pages ×2 live checks | PARTIAL — Pages en + zh-cn live and checked; RTD projects not created |
+| P134 | Iteration close-out | PARTIAL — local gate complete, Pages close-out verified; RTD checks owed |
 | E-01 | 3 `Subclassed by` identifier lists left in English | reviewed exemption |
 | E-02 | 2 multi-line string constants not rendered as declarations | reviewed exemption |
 | E-03 | 296 functions without `@param` lists | reviewed exemption, per module |
