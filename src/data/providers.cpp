@@ -14,6 +14,10 @@
 namespace fincore {
 namespace {
 
+// Only the unadorned UTC form is accepted: a trailing Z or offset fails the
+// separator test, a space may stand in for the T because feed payloads quote
+// both ways, and a fraction longer than nine digits is rejected outright, which
+// is what lets the accumulation loop below stay free of any overflow test.
 timestamp parse_iso_utc(const std::string_view text) {
   const auto fail = []() -> timestamp {
     throw fincore_error{validation_error("Invalid date values")};
@@ -87,6 +91,10 @@ timestamp parse_iso_utc(const std::string_view text) {
   }
 }
 
+// Both helpers sort the failing symbols before joining them, so the order a map
+// happens to iterate in cannot leak into an error string that callers compare or
+// log; the two joins are kept identical on purpose so the structured fields and
+// the sentence name the same symbols in the same sequence.
 std::map<std::string, std::string> batch_error_fields(
     const std::string& provider,
     const std::map<std::string, std::string>& errors) {
@@ -150,6 +158,10 @@ std::map<std::string, dataframe> data_provider::fetch_multiple(
   const bool adjust_value = adjust.value_or(batch_adjust_default());
   std::map<std::string, dataframe> results;
   std::map<std::string, std::string> errors;
+  // A lenient batch still keys the failed symbol, with an empty frame standing
+  // in for the data, so a caller that indexes the result by symbol finds every
+  // entry it asked for; strict mode keeps the same partial map but hands it to
+  // the error instead of returning it.
   for (const auto& symbol : symbols) {
     try {
       results[symbol] = fetch(symbol, start, end, interval, adjust_value);
@@ -179,6 +191,11 @@ std::vector<double> data_provider::to_returns(
     return returns;
   }
   returns.reserve(values.size() - 1U);
+  // Unusable steps are dropped rather than emitted as NaN, so the result can be
+  // shorter than the price series minus one and is not positionally aligned with
+  // the input. A zero price is kept as a signed infinity when the next print
+  // moves, and as a dropped step when the price stays at zero, because no ratio
+  // can say what 0 to 0 grew by.
   for (std::size_t index = 1U; index < values.size(); ++index) {
     const double previous = values[index - 1U];
     const double current = values[index];
