@@ -105,7 +105,7 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 53 marked `reviewed_this_round` with a one-line note naming the
+(287 files: 55 marked `reviewed_this_round` with a one-line note naming the
 invariant recorded or why none was needed, 12 with several explanatory blocks
 but not yet audited, 13 sparse, 219 with no explanatory block). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
@@ -167,9 +167,11 @@ where warranted, extended the following implementation files:
 | `src/metrics/yearly.cpp` | A year's row is labelled at its January while the metric sees only that year; a partial final year is unmarked and empty years are absent |
 | `src/attribution/factor_regression.cpp` | `alpha` is reserved so inputs cannot collide with the output; Householder QR avoids squaring the design's condition number; an exactly constant series reports R-squared as zero |
 | `src/report/models.cpp` | A metric's JSON kind follows number/boolean/text precedence rather than validation, and every branch emits the same five keys |
+| `src/simulation/result.cpp` | An unbounded statistic raises here rather than returning NaN, with a single path's dispersion as the deliberate exception; the seven percentile cutoffs are fixed |
+| `src/factor/tears.cpp` | Chart series drop non-finite points instead of leaving holes; a mixed-lag turnover input renders only its first lag |
 
 Every edit above was verified comment-only and is covered by the re-run below.
-The remaining 234 files are deliberately not claimed as audited, so **P131 is
+The remaining 232 files are deliberately not claimed as audited, so **P131 is
 PARTIAL**, not passed.
 
 One audit ended in a registered question rather than a comment: the

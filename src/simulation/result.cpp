@@ -33,6 +33,11 @@ void require_finite_terminal(const double value) {
   }
 }
 
+// A simulation artifact reports an unbounded statistic as an error rather than as
+// the NaN the metrics helpers return, because the caller here is producing a
+// result object whose percentiles and standard deviation are expected to be
+// numbers; a single path is the exception, where dispersion is genuinely
+// undefined and NaN is the honest answer.
 double checked_mean(const std::span<const double> values) {
   double total = 0.0;
   for (const double value : values) {
@@ -88,6 +93,10 @@ make_statistics(const std::span<const double> terminal_values) {
   const double mean = checked_mean(terminal_values);
   const double sample_standard_deviation =
       checked_sample_standard_deviation(terminal_values, mean);
+  // The seven cutoffs are the artifact's fixed vocabulary, evaluated in ascending
+  // order over the same terminal values the mean and standard deviation used; the
+  // median is hoisted into its own field because callers reach for it constantly
+  // while the struct keeps the full set for whoever needs the tails.
   const simulation_terminal_percentiles percentiles{
       checked_percentile(terminal_values, 0.01),
       checked_percentile(terminal_values, 0.05),

@@ -34,7 +34,7 @@ src/factor/research_detailed_export.cpp	cpp	0	no_explanatory_block_not_audited
 src/factor/research_detailed_internal.hpp	hpp	4	multi_block_not_audited	
 src/factor/research_export_internal.hpp	hpp	0	no_explanatory_block_not_audited	
 src/factor/serialization.cpp	cpp	6	reviewed_this_round	length-prefixed big-endian; quiet-NaN; sorted map; versioned tag
-src/factor/tears.cpp	cpp	0	no_explanatory_block_not_audited	
+src/factor/tears.cpp	cpp	0	reviewed_this_round	chart series drop non-finite points rather than leaving holes; a mixed-lag turnover input renders as the first lag alone
 src/factor/timedelta.cpp	cpp	1	reviewed_this_round	Monday-first weekday offset; off-session roll consumes one step; half-open busday count; gap-in-data becomes a holiday; floor-decomposed sub-day remainder
 src/factor/workflows.cpp	cpp	0	no_explanatory_block_not_audited	
 src/metrics/alpha_beta.cpp	cpp	0	reviewed_this_round	zero benchmark belongs to the down side here, unlike the strict split in the ratio helpers; NaN-only and finite-only filters coexist deliberately
@@ -96,7 +96,7 @@ src/simulation/correlation.cpp	cpp	0	no_explanatory_block_not_audited
 src/simulation/monte_carlo.cpp	cpp	2	reviewed_this_round	252 shared by calibration and horizon scaling
 src/simulation/parameters.cpp	cpp	0	no_explanatory_block_not_audited	
 src/simulation/paths.cpp	cpp	9	reviewed_this_round	modulo-bias threshold draw; LHS resamples until the stratum survives rounding; seed price row dropped from the return frame
-src/simulation/result.cpp	cpp	0	no_explanatory_block_not_audited	
+src/simulation/result.cpp	cpp	0	reviewed_this_round	an unbounded simulation statistic throws rather than returning NaN, except a single path's dispersion; the seven percentile cutoffs are fixed and the median is hoisted
 src/simulation/scenarios.cpp	cpp	2	reviewed_this_round	crash/spike shock upper middle element; only NaN rejected
 src/version.cpp	cpp	0	no_explanatory_block_not_audited	
 src/viz/bokeh_document.cpp	cpp	0	no_explanatory_block_not_audited	

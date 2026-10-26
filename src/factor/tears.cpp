@@ -10,6 +10,9 @@
 namespace fincore {
 namespace {
 
+// Non-finite observations are removed rather than left as holes, so the index and
+// the values stay parallel and the rendered line joins the two points around a
+// missing date instead of breaking there.
 chart_series series_for(const std::string &label,
                         const std::vector<timestamp> &dates,
                         const std::vector<double> &values) {
@@ -65,6 +68,10 @@ turnover_chart(const std::vector<factor_turnover_series> &turnover) {
   series_chart chart;
   chart.title = "Quantile turnover";
   chart.y_label = "Turnover";
+  // The chart follows whichever lag comes first and silently leaves the others
+  // out: the dates shown are that series' own, and a second lag would plot a
+  // different horizon against the same axis, so mixed-lag input reads as a
+  // single-lag chart rather than as two overlapping ones.
   const int primary_lag = turnover.empty() ? 1 : turnover.front().lag;
   const auto &dates = turnover.empty() ? std::vector<timestamp>{}
                                        : turnover.front().values.dates;
