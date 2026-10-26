@@ -35,6 +35,8 @@ jobs:
           mkdir -p ../_build/doxygen
           doxygen Doxyfile
           python tools/normalize_doxygen_xml.py ../_build/doxygen/xml
+      - name: Test the language switch
+        run: node docs/site/tools/tests/test_language_switch.js
       - name: Build English documentation
         working-directory: docs/site
         env:
