@@ -394,10 +394,11 @@ the site README documents:
 | `docs/site/tools/check_built_site.py` | `pages=60 broken_links=0 machine_path_pages=0 fuzzy=0`, exit code 0 |
 | CMake Release + `ctest` | `100% tests passed, 0 tests failed out of 1092` |
 
-The gate above ran on `385db07` (forty-fourth audited file) and was repeated on
-`e23ba9a`, the commit carrying the forty-seventh: `ctest` reported
-`100% tests passed, 0 tests failed out of 1092` on both trees, and the docs
-artifacts stayed current because no public header changed after them.
+The gate above ran on `385db07` (forty-fourth audited file) and has been re-run
+after every subsequent comment batch through `2e738e7`, the seventy-fifth: each
+`ctest` run reported `100% tests passed, 0 tests failed out of 1092`. The docs
+artifacts stayed current throughout because no public header changed after the
+`short_allowed` note, which is the only comment-round edit that reaches Doxygen.
 
 `check_built_site.py` is new in this round: the link, machine-path and catalog
 measures used to be ad hoc queries, and committing them makes the numbers above
