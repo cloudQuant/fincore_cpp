@@ -99,11 +99,11 @@ src/simulation/paths.cpp	cpp	9	reviewed_this_round	modulo-bias threshold draw; L
 src/simulation/result.cpp	cpp	0	reviewed_this_round	an unbounded simulation statistic throws rather than returning NaN, except a single path's dispersion; the seven percentile cutoffs are fixed and the median is hoisted
 src/simulation/scenarios.cpp	cpp	2	reviewed_this_round	crash/spike shock upper middle element; only NaN rejected
 src/version.cpp	cpp	0	reviewed_this_round	the version string is a compiled-in literal, so a binary reports what it was built from rather than resolving metadata at run time
-src/viz/bokeh_document.cpp	cpp	0	no_explanatory_block_not_audited	
+src/viz/bokeh_document.cpp	cpp	0	reviewed_this_round	the shared helpers are duplicated per backend and must stay identical, since both are compared against the same reference
 src/viz/chart_data.cpp	cpp	0	reviewed_this_round	sorted allows duplicates; one non-finite print invalidates a whole month; two-pass year rows must match; half-open histogram bins fold the maximum into the last bin
 src/viz/html_builder.cpp	cpp	1	reviewed_this_round	escaping mirrors the reference including the apostrophe form and covers every interpolating call site; non-finite numbers print as words and a short buffer degrades to the same marker; only a finite non-zero value earns a colour class
-src/viz/implot_backend.cpp	cpp	0	no_explanatory_block_not_audited	
-src/viz/plotly_document.cpp	cpp	1	sparse_not_audited	
+src/viz/implot_backend.cpp	cpp	0	reviewed_this_round	the axis works in days and the tick formatter rounds back to nanoseconds, so a value an ulp under a whole day cannot label the previous date
+src/viz/plotly_document.cpp	cpp	1	reviewed_this_round	SVG geometry collapses a non-finite to zero while the JSON channels write null, because a path cannot hold a gap and a trace can
 src/viz/render_model.cpp	cpp	0	reviewed_this_round	normalization is ASCII-only and shared by registration and lookup; the model is copied before the renderer runs
 tests/consumer/headless/main.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/consumer/implot/main.cpp	cpp	0	no_explanatory_block_not_audited	

@@ -26,6 +26,10 @@ constexpr std::string_view bokeh_neutral = "#212121";
 constexpr std::string_view bokeh_highlight = "#2962FF";
 constexpr std::string_view bokeh_warning = "#FF6D00";
 
+// These helpers exist once per backend file rather than in a shared unit, and the
+// two copies must stay identical: the figure comparison is made against the same
+// reference for both, so a formatting change landing in one backend alone would
+// show up as a difference rather than as a shared convention.
 std::string svg_number(const double value) {
     if (!std::isfinite(value)) {
         return "0";

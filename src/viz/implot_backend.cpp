@@ -17,6 +17,10 @@
 namespace fincore {
 namespace {
 
+// ImPlot's axis works in days rather than nanoseconds, so the timestamps are
+// divided here and the tick formatter multiplies them back with a round rather a
+// truncation: a value one ulp under a whole day would otherwise label the previous
+// date. Only the leading date part of the formatted timestamp reaches the tick.
 constexpr double backend_nanoseconds_per_day = 86'400'000'000'000.0;
 
 int format_date_axis(double value, char* buffer, int size, void*);

@@ -31,6 +31,10 @@ constexpr std::string_view plotly_grid_dark = "#424242";
 constexpr std::string_view plotly_text_light = "#424242";
 constexpr std::string_view plotly_text_dark = "#E0E0E0";
 
+// SVG geometry has no way to express a gap: a non-finite coordinate would
+// invalidate the whole path, so it collapses to zero. The JSON channels in this
+// file do the opposite and write null, because a trace can hold a gap without
+// breaking the figure.
 std::string svg_number(const double value) {
     if (!std::isfinite(value)) {
         return "0";
