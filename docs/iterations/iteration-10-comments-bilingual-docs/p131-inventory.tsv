@@ -10,7 +10,7 @@ src/attribution/fama_french_patch.cpp	cpp	0	no_explanatory_block_not_audited
 src/attribution/performance.cpp	cpp	0	no_explanatory_block_not_audited	
 src/attribution/style.cpp	cpp	0	no_explanatory_block_not_audited	
 src/calendar.cpp	cpp	2	reviewed_this_round	boundary-day windows (epoch not whole days)
-src/data/contracts.cpp	cpp	0	no_explanatory_block_not_audited	
+src/data/contracts.cpp	cpp	0	reviewed_this_round	validation runs in the valued constructor and on explicit calls only, because the fields are public; remaining attempts clamps at zero
 src/data/providers.cpp	cpp	0	reviewed_this_round	unadorned UTC form only; failing symbols sorted before joining; lenient batch keys a failed symbol with an empty frame; to_returns drops unusable steps so it is not positionally aligned
 src/data/snapshots.cpp	cpp	4	reviewed_this_round	closed type list; column order is part of the digest
 src/dataframe.cpp	cpp	2	reviewed_this_round	no NaN padding; type-restricted lookup

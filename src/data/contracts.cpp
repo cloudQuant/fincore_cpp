@@ -4,6 +4,9 @@
 
 namespace fincore {
 
+// Validation runs here and on an explicit validate() call only: the four fields
+// are public and default-initialized, so a policy adjusted in place can hold a
+// non-positive timeout or a zero attempt count until somebody calls validate().
 request_policy::request_policy(double connect_timeout_value,
                                double read_timeout_value,
                                double total_timeout_value, int max_attempts_value)
@@ -30,6 +33,8 @@ bool request_policy::should_retry(transport_error_kind kind) const noexcept {
          kind == transport_error_kind::operating_system;
 }
 
+// Clamped at zero, so a caller that has already overrun its budget sees "none
+// left" rather than a negative count it would have to interpret.
 int request_policy::remaining_attempts(int attempt) const noexcept {
   const int remaining = max_attempts - attempt;
   return remaining > 0 ? remaining : 0;
