@@ -37,6 +37,10 @@ fincore::dataframe dollar_positions() {
   return positions;
 }
 
+// The loading frame is the odd one out in this fixture: its index repeats each
+// date once per symbol, where the positions and factor frames carry each date
+// exactly once. Everything that joins the two has to key on the pair rather than
+// on the row position, so the repetition is the point of the shape.
 fincore::dataframe factor_loadings() {
   fincore::dataframe loadings;
   loadings.load_index(

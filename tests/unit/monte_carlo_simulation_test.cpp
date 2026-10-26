@@ -35,6 +35,9 @@ static_assert(std::is_same_v<
               decltype(fincore::simulate_monte_carlo(
                   std::declval<const fincore::dataframe&>())),
               fincore::simulation_result>);
+// These repeat the same call with one more argument each time, which is what pins
+// the default chain rather than the parameter types: an argument that stops being
+// optional, or a default that changes position, fails to compile here.
 static_assert(std::is_same_v<
               decltype(fincore::simulate_monte_carlo_from_parameters(0.0, 0.0)),
               fincore::simulation_result>);

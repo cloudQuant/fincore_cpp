@@ -174,13 +174,13 @@ tests/unit/metrics_bayesian_pure_test.cpp	cpp	0	no_explanatory_block_not_audited
 tests/unit/metrics_frequencies_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/metrics_helpers_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/metrics_umbrella_test.cpp	cpp	0	reviewed_this_round	the block pins every exported signature through named pointer types so a parameter change stops the build
-tests/unit/monte_carlo_simulation_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/monte_carlo_simulation_test.cpp	cpp	0	reviewed_this_round	the repeated calls add one argument at a time, which pins the optional-parameter chain rather than the types
 tests/unit/monte_carlo_simulation_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/numpy_mt19937_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/operations_descriptors_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/optimization_numerics_test.cpp	cpp	2	sparse_not_audited	
 tests/unit/optimization_portfolio_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/perf_attrib_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/perf_attrib_test.cpp	cpp	0	reviewed_this_round	the loading frame repeats each date per symbol while the other frames are unique, so joins must key on the pair
 tests/unit/perf_stats_public_header_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/perf_stats_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/performance_cashflows_test.cpp	cpp	0	no_explanatory_block_not_audited	
