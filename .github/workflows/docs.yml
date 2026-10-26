@@ -49,6 +49,8 @@ jobs:
           FINCORE_DOCS_LANGUAGE: zh_CN
           FINCORE_DOCS_BASEURL: https://cloudquant.github.io/fincore_cpp/zh-cn/latest/
         run: sphinx-build -b html -W -n --keep-going . ../_build/html/zh_CN
+      - name: Check the built site
+        run: python docs/site/tools/check_built_site.py
       - name: Assemble GitHub Pages site
         run: |
           mkdir -p site/en/latest site/zh-cn/latest
