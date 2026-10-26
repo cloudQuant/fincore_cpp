@@ -497,6 +497,42 @@ starts with a number is parsed by MyST in a way that leaves it untranslated, and
 `check_built_site.py` now refuses to run when one language build is missing
 instead of reporting a single-language result as green.
 
+### Site quality round (2026-10-26, after the owner's "industry best" request)
+
+The site was brought to the shape a mature documentation product is expected to
+have, all bilingual and gated in CI:
+
+- **Structure.** Tutorial, cookbook, task guides, reference, and the explanation
+  pages (conventions, architecture) plus a glossary now cover the four Diátaxis
+  quadrants; examples and release notes were added as their own pages.
+- **Reading experience.** Top-right EN / 中文 pill (same page, host-aware),
+  light/dark switch with no flash before first paint and a remembered choice,
+  copy button on every code block, Ctrl+K to focus search, skip link, focus
+  outlines, print stylesheet, "Edit on GitHub" and a version badge.
+- **Discoverability.** Per-language description and Open Graph tags, hreflang
+  alternates, self-canonical links, `sitemap.xml` derived from the deployed
+  artefact, `robots.txt`, a bilingual 404 page and an SVG favicon.
+- **Validity and accessibility.** A Sphinx extension de-duplicates element ids —
+  Breathe repeated twelve of them across module pages — leaving one `h1` per page,
+  all inputs with accessible names and no images without `alt`. Measured at a
+  530 px viewport in both themes: no horizontal overflow, body contrast 10.11:1
+  (light) and 13.15:1 (dark), code contrast 9.76:1 / 10.56:1.
+- **Gates.** The docs workflow runs the language-switch test and
+  `check_built_site.py` after building both languages, so a broken link, a machine
+  path or an untranslated/fuzzy entry fails CI. Final counts: `pages=72
+  broken_links=0 machine_path_pages=0 catalogs=34 entries=3995 translated=3992
+  untranslated=3 fuzzy=0`; the three remaining entries are the reviewed
+  `Subclassed by` exemption.
+
+Two defaults were corrected along the way and are worth remembering: the site
+checker used to point at a `zh-cn` build directory while local builds write
+`zh_CN` (it now auto-detects and refuses to check one language), and the first
+canonical link used `html_baseurl` from the template context, which can be absent
+and silently produced relative hrefs — the checker caught it on twenty pages.
+
+What remains is not a structural gap: the owner creates the single Read the Docs
+project, and content keeps being maintained as the library evolves.
+
 ## 5. P133 — publication: PLATFORM_PENDING
 
 Configuration is in the repository and is buildable, but no live site was
