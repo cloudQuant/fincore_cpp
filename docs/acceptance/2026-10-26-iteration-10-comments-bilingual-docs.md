@@ -105,16 +105,29 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files; 17 with three or more explanatory comment blocks, 24 sparse, 246
-with no explanatory block). This round added implementation-invariant notes to
-the four files where the code is least inferable from its contract —
-`src/detail/mt19937.cpp` (NumPy seed multiplier and mask-based bounded draw),
-`src/portfolio/round_trips.cpp` (signed-price FIFO matching and the
-close-and-reopen remainder), `src/risk/garch.cpp` (why the parameters are
-reparameterized before the unconstrained search) and
-`src/factor/data.cpp` (bin interval convention and edge widening). Those four
-were also verified comment-only. The remaining audit is deliberately deferred,
-so **P131 is PARTIAL**, not passed.
+(287 files: 12 marked `reviewed_this_round`, 13 with several explanatory blocks
+but not yet audited, 21 sparse, 241 with no explanatory block). This round
+audited and extended the twelve implementation files whose behaviour is not
+inferable from their declared contract:
+
+| File | Invariant recorded |
+|---|---|
+| `src/detail/mt19937.cpp` | NumPy's seed multiplier; mask-plus-rejection bounded draw |
+| `src/portfolio/round_trips.cpp` | Signed-price FIFO rule; block may close and reopen |
+| `src/risk/garch.cpp` | Why parameters are reparameterized before the unconstrained search |
+| `src/factor/data.cpp` | Bin interval convention and why outer edges are widened |
+| `src/factor/performance.cpp` | NaN-safe variance guard; rank-then-Pearson; membership ignores non-finite factor values |
+| `src/optimization/portfolio_solver.cpp` | Gradient-scale normalization; feasibility restored by projection; Armijo test |
+| `src/risk/evt.cpp` | Automatic threshold steps one representable value below the percentile because exceedances are strict |
+| `src/simulation/bootstrap.cpp` | Rejection threshold removes modulo bias; one continuous stream defines reproducibility |
+| `src/portfolio/transactions.cpp` | First-day gross book is halved when no previous book exists |
+| `src/data/snapshots.cpp` | Closed supported-type list; column order is part of the digest |
+| `src/risk/backtesting.cpp` | Log-space binomial mass with lgamma/log1p; CDF summed from the mode outward |
+| `src/factor/serialization.cpp` | Length-prefixed big-endian encoding, quiet-NaN normalization, sorted map order, versioned tag |
+
+All twelve were verified comment-only and are covered by the re-run below. The
+remaining 275 files are deliberately not claimed as audited, so **P131 is
+PARTIAL**, not passed.
 
 ## 4. P132 — bilingual site content
 

@@ -281,6 +281,8 @@ std::map<timestamp, double> actual_gross_book_denominators(
     double previous_gross = 0.0;
     for (std::size_t row = 0U; row < days.size(); ++row) {
         const double current_gross = gross_book(columns, cash_column_name, row);
+        // The first day has no previous book to average with, so half of the
+        // current gross book stands in for it, as in the pinned convention.
         const double denominator =
             row == 0U ? current_gross / 2.0
                       : (previous_gross + current_gross) / 2.0;

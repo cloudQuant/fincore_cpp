@@ -159,6 +159,8 @@ std::mt19937_64 make_engine(const std::optional<std::uint64_t> seed) {
     if (seed.has_value()) {
         return std::mt19937_64{*seed};
     }
+    // Unseeded runs are intentionally non-reproducible; only a supplied seed
+    // defines the stream the documented results are calibrated against.
     std::random_device device;
     return std::mt19937_64{static_cast<std::uint64_t>(device())};
 }
@@ -168,6 +170,9 @@ std::size_t random_index(std::mt19937_64& engine, const std::size_t bound) {
         throw input_error{"bootstrap sample size is not representable"};
     }
     const auto bound_as_word = static_cast<std::uint64_t>(bound);
+    // Words below this threshold are the remainder of the 2^64 range that
+    // cannot be split evenly across `bound`; rejecting them removes the modulo
+    // bias that `word % bound` alone would introduce.
     const std::uint64_t threshold = (std::uint64_t{0} - bound_as_word) % bound_as_word;
     std::uint64_t word = 0U;
     do {
@@ -370,6 +375,9 @@ dataframe bootstrap_distribution(const dataframe& returns,
         results.reserve(resample_count);
         std::vector<double> sample(retained.size());
         auto engine = make_engine(seed);
+        // One continuous stream: every draw resamples the retained population
+        // at its original size with replacement, so a given seed and
+        // resample_count reproduce the whole distribution, not just the first.
         for (std::size_t row = 0U; row < resample_count; ++row) {
             for (double& value : sample) {
                 value = retained[random_index(engine, retained.size())];

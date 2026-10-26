@@ -116,12 +116,16 @@ double linear_quantile(std::vector<double> values, const double q) {
 
 double binomial_log_pmf(const std::size_t k, const std::size_t n,
                         const double p) {
+    // Degenerate probabilities are resolved exactly instead of through
+    // log(0); a VaR tail probability can legitimately be 1 - confidence = 0.
     if (p <= 0.0) {
         return k == 0U ? 0.0 : -std::numeric_limits<double>::infinity();
     }
     if (p >= 1.0) {
         return k == n ? 0.0 : -std::numeric_limits<double>::infinity();
     }
+    // Kept in log space with lgamma and log1p: the backtest thresholds compare
+    // probabilities near 0.9999, where the raw binomial term would underflow.
     return std::lgamma(static_cast<double>(n) + 1.0) -
            std::lgamma(static_cast<double>(k) + 1.0) -
            std::lgamma(static_cast<double>(n - k) + 1.0) +
@@ -142,6 +146,10 @@ double binomial_cdf(const std::size_t k, const std::size_t n,
     }
     const auto mode = static_cast<std::size_t>(
         std::floor((static_cast<double>(n) + 1.0) * p));
+    // Recurring outward from the mode with the pmf ratio keeps the number of
+    // summed terms small; below the mode the mass is accumulated directly,
+    // above it the upper tail is summed and subtracted so the result stays
+    // inside [0, 1] instead of losing precision to cancellation.
     if (k < mode) {
         double pmf = std::exp(binomial_log_pmf(k, n, p));
         double total = pmf;

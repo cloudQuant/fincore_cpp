@@ -707,6 +707,9 @@ factor_model_envelope deserialize_factor_model(const std::string_view text) {
 std::string detail::canonical_factor_value(const factor_value& value) {
     std::string output;
     output.reserve(256U);
+    // Length-prefixed big-endian encoding: a payload never needs delimiter
+    // escaping, so a string containing a tag letter cannot imitate another
+    // value, and nesting is unambiguous without a recursive terminator.
     const auto encode = [&output](const factor_value& item, const auto& self) -> void {
         if (item.is_null()) {
             output += "N";
@@ -725,6 +728,8 @@ std::string detail::canonical_factor_value(const factor_value& value) {
         if (item.is_number()) {
             output += "D";
             double number = item.as_number();
+            // Quiet-NaN normalization keeps signalling NaN payloads and the
+            // platform-specific NaN bits out of the fingerprint.
             if (std::isnan(number)) {
                 number = std::numeric_limits<double>::quiet_NaN();
             }
@@ -750,12 +755,16 @@ std::string detail::canonical_factor_value(const factor_value& value) {
         }
         output += "O";
         append_big_endian(output, item.as_object().size());
+        // factor_value objects are ordered containers, so the emitted key order
+        // is fixed and independent of the order entries were inserted in.
         for (const auto& [key, entry] : item.as_object()) {
             append_big_endian(output, key.size());
             output += key;
             self(entry, self);
         }
     };
+    // Tagged so a future encoding change cannot silently collide with an
+    // existing fingerprint.
     output += "fincore-factor-value-v1";
     encode(value, encode);
     return output;

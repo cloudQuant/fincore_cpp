@@ -226,6 +226,9 @@ std::vector<double> minimize_projected(
                 break;
             }
             const double gradient_norm = std::sqrt(squared_norm);
+            // Dividing by max(1, |g|) makes the unit step independent of the
+            // covariance scale, so daily-return sized problems and variance
+            // sized problems need the same number of backtracks.
             const double scale = std::max(1.0, gradient_norm);
             const double slope =
                 -squared_norm / scale;
@@ -238,11 +241,15 @@ std::vector<double> minimize_projected(
                     trial[index] =
                         weights[index] - step * gradient[index] / scale;
                 }
+                // The descent step is taken in the unconstrained space and the
+                // bounds/sum constraint are restored by the projection, which
+                // is what keeps every evaluated iterate feasible.
                 candidate = project(trial);
                 candidate_value =
                     objective.value(candidate) +
                     penalty_weight * penalty_value(problem, constraints,
                                                    candidate);
+                // Armijo condition using the projected-direction slope.
                 if (std::isfinite(candidate_value) &&
                     candidate_value <= value + 1e-4 * step * slope) {
                     accepted = true;

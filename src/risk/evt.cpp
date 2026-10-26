@@ -119,6 +119,9 @@ double default_pot_threshold(const std::vector<double>& values,
         return conventional;
     }
     const double selected = magnitudes[magnitudes.size() - required];
+    // Exceedances are counted with a strict ">", so dropping one
+    // representable step below the selected magnitude keeps the required
+    // sample in the tail instead of losing the boundary observation.
     const double threshold = std::nextafter(selected,
                                             -std::numeric_limits<double>::infinity());
     if (!std::isfinite(threshold) || threshold <= 0.0) {

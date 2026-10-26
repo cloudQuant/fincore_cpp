@@ -104,6 +104,9 @@ std::string column_value(const dataframe& frame, const std::string& name,
 }  // namespace
 
 std::string canonical_dataframe_csv(const dataframe& frame) {
+  // The supported type list is closed: a column outside it would serialize to
+  // something the digest could not reproduce, so the snapshot fails closed
+  // instead of quietly omitting the column.
   const auto columns = frame.get_columns_info<
       bool, char, signed char, unsigned char, short, unsigned short, int,
       unsigned int, long, unsigned long, long long, unsigned long long, float,
@@ -115,6 +118,9 @@ std::string canonical_dataframe_csv(const dataframe& frame) {
   const auto& index = frame.get_index();
 
   std::ostringstream output;
+  // Header order and row order are the frame's own, not a sorted order, so two
+  // frames holding the same data with different column order get different
+  // digests by design.
   output << "index";
   for (const auto& column : columns) {
     output << ',' << csv_escape(std::string(std::get<0>(column).c_str()));

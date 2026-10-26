@@ -87,12 +87,16 @@ double pearson(std::span<const double> left,
         variance_left += first * first;
         variance_right += second * second;
     }
+    // Written as a negated comparison so a NaN variance also returns NaN
+    // instead of leaking a division by zero.
     if (!(variance_left > 0.0) || !(variance_right > 0.0)) {
         return nan;
     }
     return covariance / std::sqrt(variance_left * variance_right);
 }
 
+// Ranking first and then correlating is the rank-Pearson definition used by
+// the pinned source; average_ranks gives tied values their mean rank.
 double spearman(std::span<const double> left,
                 std::span<const double> right) {
     const auto left_ranks = average_ranks(left);
@@ -1310,6 +1314,8 @@ factor_series_result quantile_turnover(
     std::unordered_map<std::string, std::uint32_t> asset_ids;
     asset_ids.reserve(factor_data.rows.size());
     std::vector<std::vector<std::uint32_t>> names(dates.size());
+    // Membership is taken from the quantile rows as they were assigned, so a
+    // non-finite factor value still counts as a member of its bucket.
     for (const auto& row : factor_data.rows) {
         if (row.quantile != quantile) {
             continue;
