@@ -105,9 +105,9 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 240 marked `reviewed_this_round` with a one-line note naming the
+(287 files: 253 marked `reviewed_this_round` with a one-line note naming the
 invariant recorded or why none was needed, 2 with several explanatory blocks
-but not yet audited, 2 sparse, 43 with no explanatory block). Auditing may
+but not yet audited, 2 sparse, 30 with no explanatory block). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
 because its validation clauses are the entire contract. This round audited and,
 where warranted, extended the following implementation files:
@@ -270,6 +270,20 @@ comment-only checker and by review only, not by a build. Its claims about the
 vendored ImPlot were checked against `third_party/implot` — the tick-label
 array is copied during `SetupAxisTicks`, and the range overload asserts at least
 two ticks when labels are supplied, which is the reason for the `> 1U` guard.
+Thirteen more followed, mostly the simulation facades: they are short smoke tests,
+so the value was in naming what each fixture forces — a collapsed confidence
+interval from identical observations, the crash scenario overwriting the
+upper-middle observation with a fixed -0.20, the published `vol_crush` label, the
+mirror that negates returns rather than inverting wealth (`90` rather than
+`100 / 1.1`), the one-stratum-per-sample requirement, the closed form under zero
+volatility, the `exp(0.01 t) - 1` path from constant returns, and the terminal
+values (80 and 110) that every statistic is taken over. `transaction_mapping_test`
+records that a repeated date stays two rows and that the drawdown window starts at
+the latest equal high, `risk_report_serialization_test` that the file is
+newline-terminated, byte-identical and never created on rejection, and
+`report_risk_test` that seven forecast rows and four refits are the window
+arithmetic rather than fixture sizes.
+
 Seven further unit files were then read without assistance: `risk_evt_test.cpp`
 records why the embedded-NUL selector proves rejection rather than truncation and
 that GEV leaves the peak-over-threshold fields unset where GPD fills them;
@@ -285,7 +299,7 @@ reuse, copy-on-validate and the omitted-versus-empty distinction.
 A third assisted batch covered 24 more entries, including the two consumer smoke
 programs, the point-in-time probe and the generated bootstrap fixture — the last
 three left untouched because their bytes are pinned or regenerated — bringing the
-assisted total to 71 files and leaving 47 (44 under `tests/`, three under
+assisted total to 71 files and leaving 34 (31 under `tests/`, three under
 `benchmarks/`). Among the claims re-derived in that batch: `perf_stats.cpp`
 passes the daily constant to both the Omega row and the alpha-beta pair, so the
 weekly and daily frames must compare exactly, and the first entry of the pinned

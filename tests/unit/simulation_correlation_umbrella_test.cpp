@@ -17,6 +17,9 @@ TEST(SimulationCorrelationUmbrella, ExportsNamedCorrelationBreakdownMatrix) {
 
     const auto matrix = fincore::generate_correlation_breakdown(asset_names, 0.25);
 
+    // The row index is positional (0, 1) rather than the asset names, and with
+    // two assets both off-diagonal entries carry the same value, so this pins the
+    // shape, the column naming and the exact diagonal, not any asymmetry.
     EXPECT_EQ(matrix.get_index(),
               (std::vector<fincore::timestamp>{
                   static_cast<fincore::timestamp>(0),

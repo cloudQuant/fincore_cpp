@@ -71,6 +71,8 @@ TEST(RiskReportSerialization, WriteJsonRoundTripsDeterministically) {
     const std::string first = read_text(path);
     EXPECT_EQ(first, report.to_json());
     EXPECT_FALSE(first.empty());
+    // The trailing newline and the byte-identical second file are what make the
+    // output safe to diff and hash: same value in, same bytes out, no path in it.
     EXPECT_EQ(first.back(), '\n');
     EXPECT_EQ(report.to_json(), report.to_json());
 
@@ -92,6 +94,8 @@ TEST(RiskReportSerialization, RejectsNonFiniteValuesAsStructuredErrors) {
     std::filesystem::remove(path);
     EXPECT_THROW(static_cast<void>(report.write_json(path)),
                  fincore::fincore_error);
+    // Rejection happens before the stream is opened, so a failed write must not
+    // leave an empty or half-written file behind.
     EXPECT_FALSE(std::filesystem::exists(path));
 
     auto infinite = sample_report();

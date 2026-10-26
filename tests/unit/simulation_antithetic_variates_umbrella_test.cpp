@@ -39,6 +39,9 @@ TEST(SimulationAntitheticVariatesUmbrella, ExportsNamedMirroredPaths) {
     EXPECT_EQ(std::get<2>(columns[1]), typeid(double));
     EXPECT_EQ(result.get_column<double>("strategy"),
               (std::vector<double>{100.0, 110.0}));
+    // The mirror reflects the return path rather than inverting the wealth level:
+    // +10% becomes -10%, which gives exactly 90 where 100 / 1.1 would give
+    // 90.909..., so the difference is visible in the low digits.
     EXPECT_EQ(result.get_column<double>("antithetic_strategy"),
               (std::vector<double>{100.0, 90.0}));
 }

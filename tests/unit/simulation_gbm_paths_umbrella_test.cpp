@@ -12,6 +12,9 @@
 namespace {
 
 TEST(SimulationGbmPathsUmbrella, ExportsNamedZeroVolatilityPaths) {
+    // Zero volatility closes the form: each point is 100 * exp(0.1 * t) with
+    // t = 0, 0.25, ..., 1, so the two paths coincide and the seed cannot matter;
+    // the 1e-12 tolerance only has to cover the exponential.
     const auto paths = fincore::geometric_brownian_motion(
         100.0, 0.1, 0.0, 1.0, 0.25, 2U, 42U);
     const std::array<double, 5U> expected{100.0,

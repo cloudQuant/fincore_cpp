@@ -194,14 +194,14 @@ tests/unit/report_html_test.cpp	cpp	0	no_explanatory_block_not_audited
 tests/unit/report_models_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/report_portfolio_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/report_renderers_test.cpp	cpp	0	reviewed_this_round	comments added: only the axis key the caller supplied loses ownership, the default CSS is bare text with no style wrapper and no blank lines because the document is byte-compared, and reading the recorded startxref offset back proves structural validity rather than a well-shaped file
-tests/unit/report_risk_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/report_risk_test.cpp	cpp	0	reviewed_this_round	comments added: seven forecast rows and four refits are the window arithmetic (12 - 5, ceil(7 / 2)), and an insufficient window drops the backtest metrics from the set entirely rather than emptying values
 tests/unit/report_xlsx_test.cpp	cpp	0	reviewed_this_round	comment added: rendering twice pins reproducibility, since a ZIP entry records a modification time and equal bytes mean that field is fixed rather than stamped from the clock
 tests/unit/returns_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/risk_backtesting_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/risk_evt_test.cpp	cpp	1	reviewed_this_round	comments added: the selector's NUL-terminated prefix is a real column so the throw proves embedded NULs are rejected rather than truncated, and GEV leaves the peak-over-threshold fields unset (NaN threshold, zero exceedances) where the GPD cases fill them
 tests/unit/risk_garch_test.cpp	cpp	4	multi_block_not_audited	
 tests/unit/risk_models_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/risk_report_serialization_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/risk_report_serialization_test.cpp	cpp	0	reviewed_this_round	comments added: the trailing newline plus byte-identical second file is what makes the output diff- and hash-safe, and a rejected write must not leave a file because validation precedes opening the stream
 tests/unit/risk_report_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/risk_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/risk_walk_forward_test.cpp	cpp	1	sparse_not_audited	
@@ -215,20 +215,20 @@ tests/unit/runtime_operations_portfolio_test.cpp	cpp	0	no_explanatory_block_not_
 tests/unit/runtime_serialization_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/runtime_test.cpp	cpp	1	sparse_not_audited	
 tests/unit/runtime_utilities_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/simulation_antithetic_variates_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/simulation_antithetic_variates_umbrella_test.cpp	cpp	0	reviewed_this_round	comment added: the mirror reflects the return path (+10% becomes -10%, giving exactly 90) rather than inverting the wealth level, which would give 100/1.1
 tests/unit/simulation_base_test.cpp	cpp	0	reviewed_this_round	comment added: writing through the validated result is what proves it owns its values rather than viewing the caller's vector
-tests/unit/simulation_bootstrap_confidence_interval_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/simulation_bootstrap_summary_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/simulation_bootstrap_confidence_interval_umbrella_test.cpp	cpp	0	reviewed_this_round	comment added: both observations are identical so the interval has to collapse exactly, which is why the two ends are compared without a tolerance
+tests/unit/simulation_bootstrap_summary_umbrella_test.cpp	cpp	0	reviewed_this_round	no change: the case is a signature pin plus a finiteness smoke test, and no unstated precondition or misleading number was found
 tests/unit/simulation_bootstrap_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/simulation_correlation_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/simulation_gbm_from_returns_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/simulation_gbm_paths_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/simulation_latin_hypercube_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/simulation_correlation_umbrella_test.cpp	cpp	0	reviewed_this_round	comment added: the row index is positional and with two assets both off-diagonal entries coincide, so the case pins shape, column naming and the exact diagonal rather than asymmetry
+tests/unit/simulation_gbm_from_returns_umbrella_test.cpp	cpp	0	reviewed_this_round	comment added: constant returns zero the volatility so both paths collapse onto exp(0.01*t)-1, and the output index starting at 1 is the first step after the anchor
+tests/unit/simulation_gbm_paths_umbrella_test.cpp	cpp	0	reviewed_this_round	comment added: zero volatility closes the form 100*exp(0.1*t), so both paths coincide, the seed cannot matter and the tolerance only covers the exponential
+tests/unit/simulation_latin_hypercube_umbrella_test.cpp	cpp	0	reviewed_this_round	comment added: each of the four strata must be hit exactly once, and the strict upper bound keeps a value of exactly 1.0 from naming a fifth stratum
 tests/unit/simulation_parameters_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/simulation_parameters_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/simulation_parameters_umbrella_test.cpp	cpp	0	reviewed_this_round	comment added: the repeated/unsorted index is irrelevant because values are read row-wise, the NaN is dropped before both moments, and the daily annualisation explains 1.26 and the sqrt(252)-scaled deviation
 tests/unit/simulation_result_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/simulation_result_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/simulation_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/simulation_result_umbrella_test.cpp	cpp	0	reviewed_this_round	comment added: every statistic is over the terminal value of each path (the last row, 80 and 110), not over all six observations, and the repeated 7 shows terminal means final row by position
+tests/unit/simulation_umbrella_test.cpp	cpp	0	reviewed_this_round	comments added: the crash scenario replaces the upper-middle observation with a fixed -0.20 rather than scaling it, and the published name of volatility_crush is vol_crush
 tests/unit/stable_double_order_test.cpp	cpp	1	reviewed_this_round	comment added: the scratch buffer is exercised across shrinking then growing lengths, because a buffer sized by a longer earlier run must not leak its old contents
 tests/unit/stats_test.cpp	cpp	0	reviewed_this_round	rejection messages are compared exactly, so the exception type alone cannot hide two different diagnoses
 tests/unit/stress_scenarios_test.cpp	cpp	0	no_explanatory_block_not_audited	
@@ -237,7 +237,7 @@ tests/unit/style_performance_test.cpp	cpp	0	no_explanatory_block_not_audited
 tests/unit/style_regression_attribution_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/style_tilts_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/timing_test.cpp	cpp	0	reviewed_this_round	comments added: dropping a non-finite pair from either side must give the same numbers, which is what makes the filter pairwise; nine common dates sit one below the documented ten-pair floor and a constant benchmark is the singular design; the crisis windows overlap so their order is a contract
-tests/unit/transaction_mapping_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/transaction_mapping_test.cpp	cpp	0	reviewed_this_round	comments added: a repeated date stays two rows because the frame is row-oriented, and the drawdown window starts at the latest high-water mark before the worst trough rather than the first equal high
 tests/unit/transactions_test.cpp	cpp	0	reviewed_this_round	the shared fixture carries several distinct defects at once, so repairing one removes the matching rejection's coverage
 tests/unit/viz_documents_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/viz_html_builder_test.cpp	cpp	0	no_explanatory_block_not_audited	

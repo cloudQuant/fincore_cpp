@@ -35,6 +35,8 @@ TEST(TransactionMappingTest, BuildsOwningFrameWithDuplicateDates) {
       {first, "AAA", 10.0, 100.0},
       {first, "BBB", -4.0, 25.0},
       {fincore::utc_timestamp(2020, 1, 3), "AAA", 2.0, 101.0}};
+  // Two rows share one date on purpose: the frame is row-oriented, so a repeated
+  // date stays two rows and the caller's order is kept.
   auto frame = fincore::make_transaction_frame(transactions);
   ASSERT_EQ(frame.shape().first, 3U);
   ASSERT_EQ(frame.shape().second, 3U);
@@ -59,6 +61,9 @@ TEST(DrawdownUnderwaterTest, FindsPeakValleyAndRecovery) {
       index, "drawdown", {0.0, -0.1, -0.2, -0.05, 0.0, -0.3, 0.0});
   const auto window = fincore::max_drawdown_underwater(series);
   ASSERT_TRUE(window.has_value());
+  // Two earlier zeros are equally high, yet the window starts at the later one
+  // (index 4), so it covers only the worst episode instead of measuring from the
+  // first high-water mark.
   EXPECT_EQ(window->peak, index[4]);
   EXPECT_EQ(window->valley, index[5]);
   ASSERT_TRUE(window->recovery.has_value());
