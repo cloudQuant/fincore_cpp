@@ -2,8 +2,8 @@
 
 **Date:** 2026-10-26 (Asia/Shanghai)
 **Base:** `dev` at `8a1174fe5a08fd524f6728536fc0b34c55d59c27`
-**Status:** **IN_PROGRESS** — P126–P132 pass on this host; P133 (platform
-publication) is **PLATFORM_PENDING** and P134 (final close-out) is therefore
+**Status:** **IN_PROGRESS** — P126–P132 pass on this host and P134's local gate
+is complete (§7); P133 (platform publication) is **PLATFORM_PENDING** so P134 is
 not claimed. No local build result is presented as a live-site PASS.
 
 Plan: [README](../iterations/iteration-10-comments-bilingual-docs/README.md),
@@ -308,13 +308,36 @@ This is a pre-existing Linux toolchain gate, not documentation work, and no
 comment round changed a non-comment token, so it is recorded here rather than
 fixed inside iteration 10.
 
-## 7. Open items
+## 7. P134 — close-out verification on the final tree
+
+The whole gate was re-run end to end after the last comment round, in the order
+the site README documents:
+
+| Step | Result |
+|---|---|
+| `doxygen Doxyfile` + `normalize_doxygen_xml.py` | 0 warnings (empty `doxygen.log`), 1 XML file normalized |
+| `build_api_ledger.py` | 2484 symbols, 2484 documented, 0 missing, 296 `@param` exemptions |
+| `generate_api_pages.py` | 13 module pages unchanged apart from two declaration line numbers shifted by the `short_allowed` note |
+| `sphinx-build -b gettext` + `sphinx-intl update` | 3233 entries, 3230 translated, 3 exemptions, 0 fuzzy |
+| Strict HTML builds `-E -W -n --keep-going` | English, `zh_CN` and `zh-cn` all succeeded |
+| `docs/site/tools/check_built_site.py` | `pages=60 broken_links=0 machine_path_pages=0 fuzzy=0`, exit code 0 |
+| CMake Release + `ctest` | `100% tests passed, 0 tests failed out of 1092` |
+
+`check_built_site.py` is new in this round: the link, machine-path and catalog
+measures used to be ad hoc queries, and committing them makes the numbers above
+reproducible by anyone who rebuilds the site.
+
+P134 is therefore **PARTIAL**: every local close-out item is complete and
+re-measurable, but the phase's gate also requires the four live site/language
+checks, which belong to P133 and cannot be substituted by a local build.
+
+## 8. Open items
 
 | ID | Item | Status |
 |---|---|---|
 | P131 | Per-file implementation/test/tool comment audit | PARTIAL |
 | P133 | RTD ×2 and Pages ×2 live checks | PLATFORM_PENDING |
-| P134 | Iteration close-out | NOT_RUN, blocked by P133 |
+| P134 | Iteration close-out | PARTIAL — local gate complete, live checks owed by P133 |
 | E-01 | 3 `Subclassed by` identifier lists left in English | reviewed exemption |
 | E-02 | 2 multi-line string constants not rendered as declarations | reviewed exemption |
 | E-03 | 296 functions without `@param` lists | reviewed exemption, per module |

@@ -24,6 +24,11 @@ Pass `-E` when the Doxygen XML changed since the last build: reused doctrees
 keep the previous C++ domain symbols, and resolving a reference against them
 aborts inside `sphinx.domains.cpp` instead of reporting a warning.
 
+After both languages are built, run
+`python docs/site/tools/check_built_site.py` from the repository root. It walks
+the built pages for internal links that do not resolve and for absolute machine
+paths, and reports the catalog counts, exiting non-zero on any of them.
+
 Windows uses `.venv-docs\Scripts\pip.exe`, `sphinx-build.exe` and
 `sphinx-intl.exe`; the same source paths apply. The verified toolchain is
 pinned in `docs/requirements-docs.txt` and `docs/requirements-docs.lock.txt`.

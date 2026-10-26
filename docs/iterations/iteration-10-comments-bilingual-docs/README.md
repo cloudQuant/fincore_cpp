@@ -3,7 +3,8 @@
 **版本：** R1，2026-10-25（Asia/Shanghai）。
 
 **状态：** IN_PROGRESS — P126–P132 在本机通过，P131 为 PARTIAL，P133 为
-PLATFORM_PENDING，P134 未执行。实施证据见
+PLATFORM_PENDING，P134 的本机收尾项已完成（验收记录第 7 节），但因门禁要求四种
+线上组合，仍记为 PARTIAL。实施证据见
 [验收记录](../../acceptance/2026-10-26-iteration-10-comments-bilingual-docs.md)
 与[审阅豁免清单](exemptions.md)。
 
@@ -64,7 +65,7 @@ comment-only 校验；文档站由 Doxygen 1.9.7 + Breathe 5.1.0 + Sphinx 9.2.0
 | P131 | 内部算法注释补审；examples、tests、benchmarks、tools 使用说明 | 对应模块轮次 | 解释关键不变量、测试依据和计时范围；Python docstring 单独审阅 | PARTIAL |
 | P132 | 完成双语教程、操作指南、解释文档和迁移说明，整合 API 导航 | P128–P131；内容可提前随轮交付 | 页面清单完整、示例有效、翻译同步、现行事实和链接核验通过 | PASS |
 | P133 | 接入 Read the Docs 双语言项目与 GitHub Pages 发布；线上检查 | P132 | 同一提交的四种站点/语言组合通过发布检查，版本和地址可追溯 | PLATFORM_PENDING |
-| P134 | 独立终审、例外清单、维护规则与迭代收尾 | P133 | 所有必需项有证据；未解决项明确列出，不用本地成功替代线上成功 | NOT_RUN |
+| P134 | 独立终审、例外清单、维护规则与迭代收尾 | P133 | 所有必需项有证据；未解决项明确列出，不用本地成功替代线上成功 | PARTIAL |
 
 执行顺序为 P126 → P127 → 各模块小轮 → P132 → P133 → P134。
 P128–P130 可按不重叠文件并行；翻译、API 页面和检查随每轮同步推进。
