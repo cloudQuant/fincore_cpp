@@ -65,6 +65,10 @@ void validate_non_empty_keys(const runtime_inputs& values,
     }
 }
 
+// Every field is written as its byte count, a colon and its bytes, so no value can
+// be reinterpreted as a separator, and each entry's position is digested too: the
+// same pair in a different order gives a different digest even though the map
+// itself iterates in one fixed order.
 std::string runtime_map_digest(const std::string_view map_type,
                                const runtime_inputs& values) {
     std::string payload;
@@ -87,6 +91,9 @@ std::string runtime_map_digest(const std::string_view map_type,
     return digest_text(payload);
 }
 
+// Each field carries a one-character type tag alongside its name, so a bool written
+// as "1" and an integer one cannot produce the same bytes: the digest distinguishes
+// the declared type, not just the rendered text.
 class typed_digest_builder {
   public:
     explicit typed_digest_builder(const std::string_view type) {
