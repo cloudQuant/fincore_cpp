@@ -256,3 +256,32 @@ P126/P127 处理清单和试点，不以批量添加空注释或生成英文菜�
   本轮未构造带缺月的周/月序列，因此差异幅度未经实测确认。
 - **建议：** 评审后明确口径——“连续”指数据中相邻的桶还是日历上相邻的桶；若为后者，
   需要在遍历时检查 `key == previous_key + 1`，并补一个中间缺桶的对照用例。
+
+## 待复核的候选观察（由审阅助手提出，本轮未逐条证实）
+
+下面这些条目是批阅 `tests/unit` 时助手提出的“某断言可能无法失败/无法区分”的
+候选观察。本轮**没有**逐条重算或构造对照数据，因此它们既不是结论，也没有据此
+改动任何测试；列在这里是为了让评审者能按文件与用例名复查。凡本轮已核实的，都已
+单独登记为 F10-D10 至 F10-D15。
+
+- `tests/unit/factor_tears_test.cpp`：`SpreadUsesPeriodCategories…` 用例——
+  `src/factor/tears.cpp` 未见按 label/date 计数分派，且 spread 行被构造成
+  top-minus-bottom，两条重载可能给出同样的帧，用例因此无法区分调用了哪一条。
+- `tests/unit/factor_analysis_test.cpp`：`CallableMatchesTheCanonicalAnalysis`
+  用例——若 `build_factor_model` 内部就是 `analyze_factor(data, config)`，则指纹
+  相等不可能失败，属于“同义反复”的覆盖。
+- `tests/unit/metrics_helpers_test.cpp`：`AlignedFramesKeepEveryDoubleColumn`
+  用例——被修改的是 `left` 的副本，而 hmdf 按值复制列，故该“所有权”检查无法失败
+  （对照：`EnsureDatetimeIndexIsAnOwningCopy` 的写法是能失败的）。
+- `tests/unit/metrics_frequencies_test.cpp`：越界枚举的两条 `EXPECT_THROW`——
+  switch 尾部本身也会抛出，用例无法定位到底是前置守卫还是兜底分支在工作。
+- `tests/unit/monte_carlo_simulation_umbrella_test.cpp`：第一个用例把两条路径列
+  与同一向量比较，统计量随之坍缩，实际钉住的是管道而非分位数计算。
+- `tests/consumer/headless/main.cpp`：`{0,1}` 与 `{1,0}` 的均值对排列不变，
+  该检查只能证明代码可达，不能证明顺序语义。
+- `tests/unit/factor_costs_test.cpp`：`const auto empty_volume = volume_fixture();`
+  得到的是完整填充的帧，用例真正检验的“空”在 weights/gross 一侧，命名易误导。
+- `tests/unit/performance_disclosures_test.cpp` 与
+  `tests/oracle/research_detailed_probe.cpp`：`research_spec.max_loss = 1.0` 的
+  单位口径、以及 `ledger_timing` 的 `start_value` 形参实际承载 1 月 4 日流量这类
+  命名与量纲问题，值得在评审时一并确认。

@@ -46,10 +46,11 @@ P131 的范围进度：`src/` 全部 106 个文件已完成审阅并各有一条
 comment-only 校验，没有编译证据。`benchmarks/` 中 6 个条目同轮完成（5 个 Python 模块
 的 docstring 已覆盖契约与非目标，记为“审阅后无需改动”；`run_benchmark.py` 与
 `factor_alignment_benchmark.cpp` 各补了不变量说明，后者不是 CMake 目标，本机无从编译）。
-其后 47 个 `tests/unit` 条目分两批完成，批内改动全部由 comment-only 校验复核
+其后 71 个条目（`tests/unit`、两个 consumer 冒烟程序、point-in-time 探针与生成的
+bootstrap fixture）分三批完成，批内改动全部由 comment-only 校验复核
 （42 个改动源 `checked=42 failures=0`），每批之后重跑全量构建与 1092 项测试；其中
-算数类结论逐条重算，排序类结论保留在清单注记里等待人工复核。其余 78 个条目是
-`tests/` 的 75 个与 `benchmarks/` 的 3 个，尚未逐项确认。
+算数类结论逐条重算，排序类结论保留在清单注记里等待人工复核。其余 54 个条目是
+`tests/` 的 51 个与 `benchmarks/` 的 3 个，尚未逐项确认。
 
 实施后的事实基线（2026-10-26）：`docs/site/api-ledger.tsv` 记录 2484 个公共
 符号（含重载逐项），全部有说明；117 个头文件中 97 个在本轮修改并通过

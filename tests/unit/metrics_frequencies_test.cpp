@@ -54,6 +54,9 @@ TEST(MetricsFrequencies, RoundTripsEveryCanonicalName) {
 }
 
 TEST(MetricsFrequencies, RejectsUnknownNamesWithSourceMessage) {
+    // Only the five canonical words are matched, so no letter form is accepted
+    // even though aliases are published further up; the trailing-space entry
+    // shows the input is compared verbatim and never trimmed.
     constexpr std::string_view invalid[]{
         "", "Daily", "annually", "M", "Q", "A", "daily "};
     for (const std::string_view name : invalid) {
@@ -69,6 +72,9 @@ TEST(MetricsFrequencies, RejectsUnknownNamesWithSourceMessage) {
 }
 
 TEST(MetricsFrequencies, RejectsInvalidNativeFrequencyValues) {
+    // A scoped enum has a fixed integer underlying type, so 99 is a legal value
+    // to hand over; the rejection comes from the range guard each accessor runs
+    // before its switch, not from the enumeration itself.
     const auto invalid = static_cast<fincore::frequency>(99);
     EXPECT_THROW(static_cast<void>(fincore::frequency_name(invalid)),
                  fincore::input_error);

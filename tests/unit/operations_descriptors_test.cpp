@@ -54,6 +54,9 @@ TEST(OperationsDescriptors, AllOperationIdsAreUniqueAndComplete) {
     }
     EXPECT_EQ(ids.size(), 273U);
 
+    // Every check above is order-free, so these position pins are the only ones
+    // holding the domain tables in source order rather than accepting the same
+    // set of ids in any permutation.
     EXPECT_EQ(fincore::attribution_operations().front().operation_id,
               "attribution.brinson.brinson_attribution");
     EXPECT_EQ(fincore::metrics_operations().back().operation_id,
@@ -66,6 +69,9 @@ TEST(OperationsDescriptors, AllOperationIdsAreUniqueAndComplete) {
     EXPECT_TRUE(fincore::attribution_operations()[0].deterministic);
     EXPECT_EQ(fincore::attribution_operations()[0].rng_policy, "none");
 
+    // The 273 size is already pinned above, so the pointer comparison is the
+    // load-bearing line here: it shows both calls view one buffer that outlives
+    // them, which is what lets a consumer keep a returned span.
     const auto second = fincore::all_operations();
     EXPECT_EQ(second.data(), all.data());
     EXPECT_EQ(second.size(), all.size());

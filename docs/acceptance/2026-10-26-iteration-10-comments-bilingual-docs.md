@@ -105,9 +105,9 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 209 marked `reviewed_this_round` with a one-line note naming the
+(287 files: 233 marked `reviewed_this_round` with a one-line note naming the
 invariant recorded or why none was needed, 2 with several explanatory blocks
-but not yet audited, 5 sparse, 71 with no explanatory block). Auditing may
+but not yet audited, 4 sparse, 48 with no explanatory block). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
 because its validation clauses are the entire contract. This round audited and,
 where warranted, extended the following implementation files:
@@ -270,8 +270,15 @@ comment-only checker and by review only, not by a build. Its claims about the
 vendored ImPlot were checked against `third_party/implot` — the tick-label
 array is copied during `SetupAxisTicks`, and the range overload asserts at least
 two ticks when labels are supplied, which is the reason for the `> 1U` guard.
-The remaining 78 files are 75 under
-`tests/` and three under `benchmarks/`, and are deliberately not
+A third assisted batch covered 24 more entries, including the two consumer smoke
+programs, the point-in-time probe and the generated bootstrap fixture — the last
+three left untouched because their bytes are pinned or regenerated — bringing the
+assisted total to 71 files and leaving 54 (51 under `tests/`, three under
+`benchmarks/`). Among the claims re-derived in that batch: `perf_stats.cpp`
+passes the daily constant to both the Omega row and the alpha-beta pair, so the
+weekly and daily frames must compare exactly, and the first entry of the pinned
+draw fixture really is the identity `0` through `7`, which is what makes that
+column plain statistics rather than a resample. The remaining files are not
 claimed as audited, so **P131 is PARTIAL**, not passed.
 
 Two further `tests/unit` batches (47 files) were audited with help from

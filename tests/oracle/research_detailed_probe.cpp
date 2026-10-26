@@ -41,6 +41,9 @@ std::int64_t integer_value(const factor_value& value) {
     throw std::runtime_error{"expected a JSON integer"};
 }
 
+// The reference fixture encodes gaps in prices and factor values as JSON null,
+// so a null is a missing observation to hand the engine rather than a malformed
+// input; only a value that is neither null nor numeric is an error.
 double number_value(const factor_value& value) {
     if (value.is_null()) {
         return std::numeric_limits<double>::quiet_NaN();

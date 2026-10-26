@@ -204,6 +204,9 @@ TEST(PerfStats, AppliesWeeklyFactorOnlyToPythonPeriodSensitiveMetrics) {
     EXPECT_NEAR(weekly.at("Sharpe ratio"), 2.7817432013209333, 1.0e-12);
     EXPECT_NEAR(weekly.at("Calmar ratio"), 18.724081450957954, 1.0e-12);
     EXPECT_NEAR(weekly.at("Sortino ratio"), 5.70087712549569, 1.0e-12);
+    // Only the period-sensitive entries see annualization_factor(period): the
+    // Omega row is built from the daily constant and alpha_beta is called with
+    // it regardless of period, so equality here must be exact, not tolerated.
     EXPECT_DOUBLE_EQ(weekly.at("Alpha"), daily.at("Alpha"));
     EXPECT_DOUBLE_EQ(weekly.at("Beta"), daily.at("Beta"));
     EXPECT_DOUBLE_EQ(weekly.at("Omega ratio"), daily.at("Omega ratio"));
@@ -455,6 +458,9 @@ TEST(PerfStats, PerfStatsBootstrapMatchesPinnedPythonFixedDrawFixture) {
     }
     const auto returns =
         fincore::make_series(index, "returns", performance_returns);
+    // The first pinned draw is the population in original order, so its column
+    // of samples is the plain perf_stats of the fixture; only later draws test
+    // a resample, which is why order-sensitive metrics differ there.
     const auto actual = fincore::perf_stats_bootstrap(
         returns, std::span<const std::vector<std::size_t>>{performance_draws});
 

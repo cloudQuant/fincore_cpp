@@ -38,6 +38,8 @@ TEST(PerformanceDisclosures, RendersCustomContextWithNotes) {
     context.units = "USD";
     context.frequency = "monthly";
 
+    // Notes are appended without a line terminator, so this expected block ends
+    // mid-line whereas the note-free default block ends after a newline.
     const std::string expected =
         "Convention: MWR\n"
         "Return type: arithmetic\n"
@@ -56,6 +58,9 @@ TEST(PerformanceDisclosures, RendersCustomContextWithNotes) {
 
 TEST(PerformanceDisclosures, RendersEmptyFieldsAsUnspecified) {
     fincore::disclosure_context context;
+    // Clearing every field is not the same as the default context: benchmark is
+    // the one text field whose empty value renders "none" rather than
+    // "unspecified", because a missing benchmark is itself a stated fact.
     context.convention.clear();
     context.return_type.clear();
     context.units.clear();

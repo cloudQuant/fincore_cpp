@@ -62,6 +62,9 @@ void expect_open_unit_strata(const fincore::dataframe& samples,
             ASSERT_TRUE(std::isfinite(value));
             ASSERT_GE(value, 0.0);
             ASSERT_LT(value, 1.0);
+            // Multiplying back into the unit interval is the generator's own rejection
+            // rule, so this also catches a jittered value that rounding slid into the
+            // neighbouring stratum.
             const double raw_stratum = std::floor(value * denominator);
             ASSERT_GE(raw_stratum, 0.0);
             ASSERT_LT(raw_stratum, denominator);
@@ -171,6 +174,9 @@ TEST(LatinHypercubeSampling, RejectsUnrepresentableOutputCountsBeforeAllocation)
         static_cast<unsigned>(std::numeric_limits<double>::digits);
     constexpr auto size_digits =
         static_cast<unsigned>(std::numeric_limits<std::size_t>::digits);
+    // One past the largest count whose strata can still each hold a distinct double, which
+    // mirrors the implementation's own precision guard; where the two significand widths
+    // agree that guard has nothing left to reject and the branch compiles out.
     if constexpr (double_digits < size_digits) {
         constexpr std::size_t maximum_precise_sample_count =
             std::size_t{1} << double_digits;

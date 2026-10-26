@@ -22,6 +22,9 @@ TEST(PerformanceInference, StandardErrorOfMeanMatchesPythonOracle) {
     EXPECT_NEAR(fincore::standard_error_of_mean(inference_fixture()),
                 0.00896908269804914, 1e-15);
 
+    // NaN rows are dropped before counting, so this figure comes from the three
+    // surviving observations and their count-minus-one deviation, not from the
+    // four-row index length.
     const auto nan_mixed = fincore::make_series(
         {1, 2, 3, 4}, "returns", {0.01, nan, -0.02, 0.03});
     EXPECT_NEAR(fincore::standard_error_of_mean(nan_mixed),
@@ -41,6 +44,9 @@ TEST(PerformanceInference, SharpeStandardErrorMatchesPythonOracle) {
     const auto constant =
         fincore::make_series({1, 2, 3, 4}, "returns",
                              {0.01, 0.01, 0.01, 0.01});
+    // A flat series reaches the zero-deviation branch, so the ratio is reported
+    // as 0 rather than undefined and the estimator collapses to one over the
+    // root of the count; that quotient is exact, hence the bit comparison.
     EXPECT_DOUBLE_EQ(fincore::sharpe_standard_error(constant), 0.5);
 
     const auto singleton = fincore::make_series({1}, "returns", {0.01});

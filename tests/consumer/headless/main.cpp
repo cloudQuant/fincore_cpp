@@ -96,6 +96,9 @@ bool verify_manifest_file(const std::string& manifest,
     const auto expected_provenance =
         "\"provenance\": {\n        \"format\": \"" + format +
         "\",\n        \"producer\": \"headless-package-consumer\"\n      }";
+    // The digest is checked for shape only, never recomputed: this process
+    // rendered the bytes itself, and the comparison above already pins them, so
+    // the manifest only has to describe what it recorded.
     const std::string_view sha_prefix{"\"sha256\": \""};
     const auto sha_position = record.find(sha_prefix);
     bool sha_is_64_lowercase_hex = false;
@@ -167,6 +170,9 @@ int main() {
 
     const fincore::portfolio_inputs inputs{
         frame, std::nullopt, std::nullopt, std::nullopt};
+    // The frame is rewritten after the container is built, and the copy again
+    // afterwards: the shipped header must own its inputs and hand out a fresh
+    // copy per call, so neither write may be visible through the other.
     frame.get_column<double>("returns")[0] = 99.0;
     auto materialized = inputs.materialize();
     const auto copied_values = fincore::require_double_column(

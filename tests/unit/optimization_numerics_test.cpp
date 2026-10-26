@@ -73,6 +73,9 @@ TEST(OptimizationNumerics, NelderMeadDoesNotConvergeOnNonfiniteObjective) {
 
     EXPECT_FALSE(nan_result.converged);
     EXPECT_FALSE(infinity_result.converged);
+    // Both callbacks return a non-finite value and the engine replaces those
+    // with its own positive-infinity sentinel before comparing, so isinf is what
+    // shows the sentinel reached the caller rather than the NaN.
     EXPECT_TRUE(std::isinf(nan_result.value));
     EXPECT_TRUE(std::isinf(infinity_result.value));
 }
@@ -239,6 +242,9 @@ TEST(OptimizationNumerics, ProjectedGradientZeroIterationIsNotConverged) {
     EXPECT_FALSE(result.converged);
     EXPECT_EQ(result.iterations, 0U);
     EXPECT_NEAR(result.value, 0.75, 1e-12);
+    // The seed's stationarity is measured before the loop can run, so a positive
+    // norm is what separates "reported at the projected start" from a field the
+    // zero-budget path left at its default.
     EXPECT_GT(result.projected_gradient_norm, 0.0);
 }
 

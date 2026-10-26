@@ -39,6 +39,9 @@ fincore::dataframe ledger_timing(double start, double end, double start_value) {
          fincore::utc_timestamp(2021, 1, 3),
          fincore::utc_timestamp(2021, 1, 4)},
         "amount", {start, end, start_value});
+    // Timing flags bucket each flow into the period ending on its own
+    // valuation date: 1 joins that period's opening capital, 0 is withdrawn
+    // from its closing capital, so a positive amount is money in.
     frame.load_column<double>(
         "timing", std::vector<double>{0.0, 0.0, 1.0},
         hmdf::nan_policy::dont_pad_with_nans);
@@ -83,6 +86,9 @@ TEST(PerformanceCashflows, GrossFeeTreatmentMatchesPythonOracle) {
                     fincore::fee_treatment::gross),
                 0.12165178571428581, 1e-12);
 
+    // Fee_treatment::net passes the valuations through untouched, so this is
+    // the fee-free figure from the ledger test above: the fee column has to be
+    // inert under net, not deducted from the closing capital.
     EXPECT_NEAR(fincore::cashflow_adjusted_twr(
                     valuations, ledger, fees,
                     fincore::fee_treatment::net),

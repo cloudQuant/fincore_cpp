@@ -113,6 +113,8 @@ TEST(FactorTears, SpreadUsesPeriodCategoriesWhenThereAreMoreLabelsThanDates) {
   model.factor_returns.dates = {fincore::utc_timestamp(2022, 1, 3)};
   model.mean_returns_by_quantile.quantiles = {1, 2};
   model.mean_returns_by_quantile.labels = {"1D", "5D", "10D", "20D"};
+  // Flat means are quantile-major, one labels.size() block per quantile starting from the
+  // bottom one, so the top leg is the second four entries.
   model.mean_returns_by_quantile.means = {-0.01, -0.02, -0.03, -0.04,
                                           0.01,  0.02,  0.03,  0.04};
   model.mean_return_spread = {{"1D", 0.02, 0.0},
@@ -147,6 +149,8 @@ TEST(FactorTears, BuildsOptionalEventMeanDistributionAndQuantileCharts) {
   fincore::factor_analysis_model model;
   fincore::factor_event_model event;
   event.offsets = {-1, 0, 1};
+  // Non-finite means are dropped rather than gapped, so the offset-0 point leaves the
+  // series index while the all-finite quantile series below keeps its three offsets.
   event.mean_returns = {0.01, std::numeric_limits<double>::quiet_NaN(), -0.01};
   event.return_distribution = {-0.02, -0.01, 0.01, 0.02};
   fincore::quantile_event_statistics q1;

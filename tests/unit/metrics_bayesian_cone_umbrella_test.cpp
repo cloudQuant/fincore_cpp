@@ -42,6 +42,8 @@ TEST(MetricsBayesianConeUmbrella, ExposesBayesianConeOnlyThroughMetricsFacade) {
     EXPECT_EQ(fincore::bayesian_cone_percentile_99_column, "percentile_99");
 
     fincore::dataframe predicted_returns;
+    // Duplicate and unsorted labels are deliberate: rows are consumed positionally and the
+    // input index is copied to the result untouched.
     predicted_returns.load_index(
         std::vector<fincore::timestamp>{42, -7, 42});
     predicted_returns.load_column<double>(
@@ -77,6 +79,9 @@ TEST(MetricsBayesianConeUmbrella, ExposesBayesianConeOnlyThroughMetricsFacade) {
     const auto& percentile_99 = actual.get_column<double>(
         fincore::bayesian_cone_percentile_99_column.data());
 
+    // The path columns are exact sign mirrors, so the middle percentile sits on the
+    // starting level at row 0 only; the outer percentiles interpolate between the two
+    // wealths, and the row of zero returns repeats the band above it.
     EXPECT_DOUBLE_EQ(percentile_1[0], 1.804);
     EXPECT_DOUBLE_EQ(percentile_50[0], 2.0);
     EXPECT_DOUBLE_EQ(percentile_99[0], 2.196);

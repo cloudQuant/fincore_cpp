@@ -33,6 +33,8 @@ fincore::factor_analysis_model tiny_model() {
             data.rows.push_back(row);
         }
     }
+    // analyze_factor stores the caller's prepared data verbatim, so these counts are the
+    // payload the round trip carries; unequal values show each field lands in its own slot.
     data.loss_report.input_count = 9U;
     data.loss_report.forward_returns_count = 8U;
     fincore::factor_analysis_config config;
@@ -91,6 +93,8 @@ TEST(FactorSerialization, FingerprintIsStableAndSensitive) {
     EXPECT_TRUE(is_hex_digest(fingerprint));
     EXPECT_EQ(fingerprint, fincore::fingerprint_value(model));
 
+    // The digest is taken over the analysis inputs, loss-report counts among them, so
+    // perturbing one count alone is enough to move it.
     fincore::factor_loss_report changed = model.factor_data.loss_report;
     changed.input_count += 1U;
     EXPECT_NE(fincore::fingerprint_value(model),

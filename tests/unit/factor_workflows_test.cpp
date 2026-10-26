@@ -78,6 +78,8 @@ TEST(FactorWorkflows, CallableMatchesTheCanonicalAnalysis) {
     ASSERT_NE(workflow, nullptr);
     const auto from_workflow = workflow->build(data, config);
     const auto direct = fincore::analyze_factor(data, config);
+    // The digest is a hash of the analysis inputs rather than of its results, and the plan
+    // builder forwards these very same arguments, so this pins the entry point it reached.
     EXPECT_EQ(from_workflow.result_fingerprint, direct.result_fingerprint);
     EXPECT_EQ(from_workflow.information_coefficient.labels,
               direct.information_coefficient.labels);
@@ -85,6 +87,8 @@ TEST(FactorWorkflows, CallableMatchesTheCanonicalAnalysis) {
 
 TEST(FactorWorkflows, ExposesStableOperationDescriptors) {
     const auto& operations = fincore::factor_operation_descriptors();
+    // The descriptor list is the registry's own enumeration and the digest hashes it in
+    // that order, so the length plus the endpoint identifiers fix the whole listing.
     ASSERT_EQ(operations.size(), 41U);
     EXPECT_EQ(operations.front().operation_id,
               "factor_analysis.analysis.analyze_factor");

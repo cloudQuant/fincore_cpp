@@ -30,6 +30,9 @@ TEST(FactorTimedelta, InfersWeekdaysAndMissingSessionHolidays) {
     EXPECT_FALSE(calendar.weekdays[2]);
     EXPECT_TRUE(calendar.weekdays[3]);
     EXPECT_FALSE(calendar.weekdays[4]);
+    // Only weekdays present in the input have their gaps read as closures, so the absent
+    // Thursday 2022-01-06 becomes a holiday while never-observed Friday stays a closed
+    // weekday; holiday entries are day numbers, hence the divide below.
     ASSERT_EQ(calendar.holidays.size(), 1U);
     EXPECT_EQ(calendar.holidays[0], at(2022, 1, 6) / day);
     EXPECT_TRUE(calendar.is_session(at(2022, 1, 10)));
@@ -107,6 +110,8 @@ TEST(FactorTimedelta, FormatsAndParsesPinnedDurationStrings) {
                       4'000'000'000LL + 5'000'000LL + 6'000LL + 7LL),
               "1D2h3m4s5ms6us7ns");
 
+    // Labels are floored to whole days, so a negative sub-day label still counts one day
+    // back while a positive one shorter than a day counts none.
     EXPECT_EQ(fincore::timedelta_strings_to_integers(
                   {"1D", "-1D", "-1h", "1D2h", "2h30m"}),
               (std::vector<int>{1, -1, -1, 1, 0}));

@@ -51,6 +51,9 @@ TEST(MetricsHelpers, MatrixStoresRowMajorValuesWithBoundsChecks) {
 }
 
 TEST(MetricsHelpers, AlignedSeriesUsesLeftOrderAndDropsMissingTimestamps) {
+    // The surviving timestamps keep the left frame's own order, so the four
+    // expectations below pin keyed lookup by timestamp: pairing the frames by
+    // row position, or re-sorting the result ascending, would not pass.
     const auto left = fincore::make_series({30, 10, 20}, "a", {3.0, 1.0, 2.0});
     const auto right = fincore::make_series({10, 30, 40}, "b",
                                             {10.0, 30.0, 40.0});
@@ -91,6 +94,9 @@ TEST(MetricsHelpers, AlignedSeriesKeepsNaNButRequiresUniqueTimestamps) {
                                                   duplicate_right, "b")),
         fincore::input_error);
 
+    // These two indexes do not overlap and hold no duplicate, so without the
+    // NaT guard the call would answer with two empty frames instead of
+    // throwing; the throw is the only thing this pair proves.
     const auto nat_left = fincore::make_series(
         {std::numeric_limits<timestamp>::min()}, "a", {1.0});
     const auto single_right = fincore::make_series({5}, "b", {2.0});

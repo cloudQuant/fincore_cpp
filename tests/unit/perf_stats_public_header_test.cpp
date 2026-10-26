@@ -7,6 +7,8 @@
 namespace {
 
 TEST(PerfStatsPublicHeader, PublishesUnaryAndBenchmarkKeyContracts) {
+    // This file includes only perf_stats.hpp, so the series helpers below arrive
+    // through its transitive includes rather than from their own headers.
     const auto returns = fincore::make_series(
         std::vector<fincore::timestamp>{1, 2, 3}, "returns",
         std::vector<double>{.01, -.02, .03});
@@ -17,6 +19,9 @@ TEST(PerfStatsPublicHeader, PublishesUnaryAndBenchmarkKeyContracts) {
     const auto unary = fincore::perf_stats(returns);
     const auto paired = fincore::perf_stats(returns, benchmark);
 
+    // The two sizes are what make the loop below exhaustive: each listed key
+    // present in both maps would still pass if the benchmark map carried an
+    // extra display name the case never mentions.
     EXPECT_EQ(unary.size(), 13U);
     EXPECT_EQ(paired.size(), 15U);
     for (const auto* key : {"Annual return", "Cumulative returns",

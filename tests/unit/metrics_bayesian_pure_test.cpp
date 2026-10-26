@@ -40,6 +40,9 @@ TEST(MetricsBayesianPure, ConsistencyScoreCountsStrictlyBelowRealizedWealth) {
 
 TEST(MetricsBayesianPure, ConsistencyScoreAveragesAcrossFourPaths) {
     const auto returns = fincore::make_series({0, 1}, "returns", {0.0, 0.0});
+    // Rows are paths and columns are days, compared on each row's compounded wealth rather
+    // than on its own return: the all-zero path ties the realized level exactly, and the
+    // strict test keeps that tie out of the day-1 count.
     const matrix predicted{4, 2,
                            {0.5, -0.5,
                             -0.5, 0.5,
@@ -121,6 +124,8 @@ TEST(MetricsBayesianPure, SimulatePathsHasRequestedShapeAndIsDeterministic) {
         different_seed.values().begin(), different_seed.values().end()};
     EXPECT_NE(first_values, different_values);
 
+    // simulate_paths keeps starting_value for signature parity and discards it, so any
+    // value gives the same draw; the cone level is applied later, in summarize_paths.
     const auto ignored_start =
         fincore::simulate_paths(in_sample, 4, 7.5, 5, 42U);
     const std::vector<double> ignored_values{ignored_start.values().begin(),
