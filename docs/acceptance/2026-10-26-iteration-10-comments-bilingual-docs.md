@@ -223,7 +223,18 @@ infrastructure, so they were deliberately left to the owner rather than
 executed from this session. The deliverable at this point is a verified
 **deployable artifact**, which is not a publication PASS.
 
-## 6. Open items
+## 6. Out-of-scope observation
+
+The repository's business `ci` workflow fails on `ubuntu-latest` with
+`'constexpr' evaluation operation count exceeds limit of 33554432` inside
+`/usr/include/c++/13/bits/char_traits.h` (GCC 13 constexpr budget). The same
+job failed identically on the two pushes before this iteration started
+(runs `40198219958` and older), while `windows-latest` and `macos-latest` pass.
+This is a pre-existing Linux toolchain gate, not documentation work, and no
+comment round changed a non-comment token, so it is recorded here rather than
+fixed inside iteration 10.
+
+## 7. Open items
 
 | ID | Item | Status |
 |---|---|---|
