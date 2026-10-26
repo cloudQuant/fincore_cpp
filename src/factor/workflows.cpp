@@ -17,6 +17,9 @@ factor_analysis_model build_factor_model(
 }
 
 std::vector<factor_workflow> make_workflows() {
+    // The seven workflows share one operation id and one builder, so the analysis
+    // itself runs in full whichever name is asked for; only the columns each
+    // workflow exposes differ, and summary and full expose the same set.
     return {
         {"summary",
          factor_analyze_operation_id,
@@ -56,6 +59,10 @@ std::vector<factor_workflow> make_workflows() {
     };
 }
 
+// This list is the registry's own enumeration: the descriptors and capability
+// entries are built from these ids, so an operation that exists but is missing
+// here stays undiscoverable, and one listed without an implementation reaches the
+// catalog as a broken entry.
 std::vector<std::string> operation_ids() {
     return {
         "factor_analysis.analysis.analyze_factor",

@@ -105,7 +105,7 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 57 marked `reviewed_this_round` with a one-line note naming the
+(287 files: 59 marked `reviewed_this_round` with a one-line note naming the
 invariant recorded or why none was needed, 12 with several explanatory blocks
 but not yet audited, 13 sparse, 219 with no explanatory block). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
@@ -171,9 +171,11 @@ where warranted, extended the following implementation files:
 | `src/factor/tears.cpp` | Chart series drop non-finite points instead of leaving holes; a mixed-lag turnover input renders only its first lag |
 | `src/attribution/performance.cpp` | Uniqueness compares adjacency, so a sorted index is an unstated premise registered as F10-D11; an asset without loadings is dropped silently while a total absence errors |
 | `src/extensions/discovery.cpp` | Manifest JSON emits keys in fixed alphabetical order so a fingerprint survives member reordering; an entry-point value allows exactly one separator |
+| `src/attribution/factor_prediction.cpp` | The coefficient table is read positionally, so its shape, index, ordering and labels are re-derived rather than trusted |
+| `src/factor/workflows.cpp` | The seven workflows share one operation id and builder and differ only in exposed columns; the id list decides whether an operation is discoverable at all |
 
 Every edit above was verified comment-only and is covered by the re-run below.
-The remaining 230 files are deliberately not claimed as audited, so **P131 is
+The remaining 228 files are deliberately not claimed as audited, so **P131 is
 PARTIAL**, not passed.
 
 One audit ended in a registered question rather than a comment: the

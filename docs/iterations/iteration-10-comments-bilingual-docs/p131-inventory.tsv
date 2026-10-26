@@ -3,7 +3,7 @@ src/analysis_context.cpp	cpp	0	reviewed_this_round	mutable caches reached from c
 src/attribution/brinson.cpp	cpp	0	reviewed_this_round	BHB allocation reading keeps the three terms summing to the excess; cumulative effects add while wealth compounds; sector returns average and sector weights add; omitted benchmark zeroes selection
 src/attribution/factor_attribution.cpp	cpp	0	no_explanatory_block_not_audited	
 src/attribution/factor_exposures.cpp	cpp	0	no_explanatory_block_not_audited	
-src/attribution/factor_prediction.cpp	cpp	0	no_explanatory_block_not_audited	
+src/attribution/factor_prediction.cpp	cpp	0	reviewed_this_round	coefficients are read positionally, so the regression frame's shape, ordering and labels are re-derived before prediction
 src/attribution/factor_regression.cpp	cpp	0	reviewed_this_round	alpha is a reserved factor name; Householder QR keeps the design's condition number unsquared against the normal-equation solvers elsewhere; an exactly constant series reports R-squared as zero
 src/attribution/fama_french.cpp	cpp	2	reviewed_this_round	pivot test reads X'X not X; the variance shift is translation-invariant and kept for cancellation; beta index one is MKT with the intercept at zero; negative idiosyncratic residual clamps to zero
 src/attribution/fama_french_patch.cpp	cpp	0	no_explanatory_block_not_audited	
@@ -36,7 +36,7 @@ src/factor/research_export_internal.hpp	hpp	0	no_explanatory_block_not_audited
 src/factor/serialization.cpp	cpp	6	reviewed_this_round	length-prefixed big-endian; quiet-NaN; sorted map; versioned tag
 src/factor/tears.cpp	cpp	0	reviewed_this_round	chart series drop non-finite points rather than leaving holes; a mixed-lag turnover input renders as the first lag alone
 src/factor/timedelta.cpp	cpp	1	reviewed_this_round	Monday-first weekday offset; off-session roll consumes one step; half-open busday count; gap-in-data becomes a holiday; floor-decomposed sub-day remainder
-src/factor/workflows.cpp	cpp	0	no_explanatory_block_not_audited	
+src/factor/workflows.cpp	cpp	0	reviewed_this_round	all seven workflows share one operation id and builder and differ only in exposed columns; the id list is what makes an operation discoverable in the catalog
 src/metrics/alpha_beta.cpp	cpp	0	reviewed_this_round	zero benchmark belongs to the down side here, unlike the strict split in the ratio helpers; NaN-only and finite-only filters coexist deliberately
 src/metrics/basic.cpp	cpp	0	no_explanatory_block_not_audited	
 src/metrics/bayesian.cpp	cpp	0	no_explanatory_block_not_audited	

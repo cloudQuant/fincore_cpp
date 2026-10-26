@@ -74,6 +74,11 @@ bool has_expected_column(const Columns& columns,
     return false;
 }
 
+// The coefficient table is read positionally, so its shape is re-derived rather
+// than trusted: an index of 0..n, exactly two columns of the expected types and
+// lengths, alpha in the first label, and the caller's selectors in the same order
+// afterwards. A regression whose labels were written in a different order is
+// refused here instead of being applied to the wrong factors.
 validated_regression validate_regression(
     const factor_regression_result& regression,
     const std::vector<std::string>& factor_names) {
