@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 from pathlib import Path
 
 SITE_DIR = Path(__file__).resolve().parent
@@ -84,6 +85,12 @@ nitpick_ignore = [
 ]
 
 html_theme = "sphinx_rtd_theme"
+_DOCS_BASE = (os.environ.get("FINCORE_DOCS_BASEURL") or
+              os.environ.get("READTHEDOCS_CANONICAL_URL") or
+              "https://docs.example.invalid/fincore_cpp/")
+# Everything before the "<language>/latest/" segment, so the sidebar switcher
+# can build a sibling-language URL without JavaScript as a fallback.
+fc_docs_root = re.sub(r"(en|zh-cn|zh_CN)/.*$", "", _DOCS_BASE)
 html_theme_options = {
     "navigation_depth": 3,
     "collapse_navigation": False,
@@ -96,11 +103,13 @@ html_short_title = "fincore_cpp"
 templates_path = ["_templates"]
 html_static_path = ["_static"]
 html_css_files = ["custom.css"]
+html_js_files = ["language_switch.js"]
 html_baseurl = (os.environ.get("FINCORE_DOCS_BASEURL") or
                 os.environ.get("READTHEDOCS_CANONICAL_URL") or
                 "https://docs.example.invalid/fincore_cpp/")
 html_context = {
     "display_language_switch": True,
+    "fc_docs_root": fc_docs_root,
     "languages": [("English", "/en/latest/"), ("简体中文", "/zh-cn/latest/")],
 }
 html_show_sourcelink = True

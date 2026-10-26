@@ -152,6 +152,22 @@ per-module JSON mappings, and validated with `msgfmt --check` before each
 build. Glossary terms follow
 [`maintainer/README.md`](../../site/maintainer/README.md).
 
+Language switching is rendered in the sidebar of every page. `sphinx_rtd_theme`
+3.1.0 includes `searchbox.html` directly and ignores `html_sidebars`, so
+`_templates/layout.html` injects the switcher into the theme's `menu` block;
+`_static/language_switch.js` rewrites the two links from the current path so a
+switch keeps the same page and version, and degrades to the other language's
+home page when scripting is off. The static hrefs are derived from
+`FINCORE_DOCS_BASEURL` / `READTHEDOCS_CANONICAL_URL`, so Pages and Read the
+Docs each get their own prefix; a local build without either variable shows the
+placeholder `https://docs.example.invalid/fincore_cpp/...`, which the script
+still rewrites to the sibling directory when previewing the assembled site. Verified in the built output: the switcher and
+the script are present in both languages (`grep fc-language-switch` on
+`en/api/factor.html` and `zh-cn/api/factor.html`).
+
+The full suite was re-run on the final tree: `100% tests passed, 0 tests failed
+out of 1092`.
+
 Generated output (`docs/_build/`, `.mo`) stays out of Git; the `.po` catalogs,
 ledger and generated API pages are source artifacts and are committed.
 
@@ -174,8 +190,11 @@ on a fresh checkout because it only creates one directory level.
 The workflow now separates the two concerns: a `build` job that must pass and
 uploads the assembled site as a normal artifact, and a `pages` job that probes
 `GET /repos/.../pages` and only configures, uploads and deploys when Pages
-exists. Until the owner enables Pages, the pipeline reports a notice instead of
-a false green, and the deliverable stays a verified **deployable artifact**.
+exists. Run [`40246627229`](https://github.com/cloudQuant/fincore_cpp/actions/runs/40246627229)
+on the restructured workflow is **success** — `build` passed, `pages` reported
+the not-enabled notice, `deploy` was skipped. Until the owner enables Pages the
+deliverable stays a verified **deployable artifact**, which is not a
+publication PASS.
 
 - [`.readthedocs.yaml`](../../../.readthedocs.yaml) — v2 config, Ubuntu 24.04,
   Python 3.13, Doxygen apt package, `pre_build` creates the output directory,
