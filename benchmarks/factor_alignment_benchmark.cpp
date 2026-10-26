@@ -29,6 +29,10 @@
 
 namespace bench_tracker {
 
+// The header is written immediately before the address handed back, so every
+// tracked block carries its own size and the malloc pointer needed to release
+// it; the magic word is what tells a tracked block from memory allocated
+// elsewhere.
 struct header {
     std::uint64_t magic = 0;
     std::size_t size = 0;
@@ -70,6 +74,8 @@ void deallocate(void* pointer) {
         return;
     }
     auto* block = reinterpret_cast<header*>(pointer) - 1;
+    // A block that does not carry the magic word was not allocated here, so it
+    // is released untouched rather than counted against the tracked ledger.
     if (block->magic != magic_value) {
         std::free(pointer);
         return;
@@ -80,6 +86,8 @@ void deallocate(void* pointer) {
 }
 
 void reset_peak() {
+    // Seeding from the bytes already live means a measurement window reports
+    // its true high-water mark instead of the growth inside the window alone.
     peak_bytes.store(live_bytes.load(std::memory_order_relaxed),
                      std::memory_order_relaxed);
 }
@@ -102,6 +110,10 @@ struct validation {
 };
 
 validation validate() {
+    // Self-test of the tracker itself: the 1 MiB and 2 MiB requests have to move
+    // the ledger as expected, so live rises by at least each size, the
+    // high-water mark reaches the baseline plus the 2 MiB step, and releasing
+    // both brings live back to where it started.
     validation result;
     result.live_before = current().live;
     reset_peak();

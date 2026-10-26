@@ -277,12 +277,12 @@ tools/verify_xlsx_structure.py	py	0	reviewed_this_round	audited: docstring plus 
 examples/implot_dashboard.cpp	cpp	1	reviewed_this_round	comments added: PPM rows reversed for the GL origin; unset and unknown FINCORE_IMPLOT_VIEW both fall back to general, so main re-reads the raw value; capture height is per view because one frame is read back; six assets fold into three quantiles and two groups on one event calendar; ImPlot asserts at least two labelled ticks; means are date x quantile x label
 examples/render_factor_report.cpp	cpp	0	reviewed_this_round	comments added: fixture has no random draw; the quantile label is caller-supplied and equals the asset index; periods must name prepared labels aligned by position; portfolio inputs are never read by the report; one argument yields three paths; every write is attempted before the status combines
 examples/render_iteration8_artifacts.cpp	cpp	0	reviewed_this_round	comments added: constants are hand-written so the printed digest identifies them; one document drives all six artifacts; write_pdf is the only renderer that takes a path; a missing file artifact is the failure signal
-benchmarks/alpha003_a_stocks/contract.py	py	0	no_explanatory_block_not_audited	
+benchmarks/alpha003_a_stocks/contract.py	py	0	reviewed_this_round	audited with no change: the module docstring already states the complete-ordered contract and that comparison is streamed outside every timed interval with no join, dropna or aggregation
 benchmarks/alpha003_a_stocks/cpp/alpha003_research.cpp	cpp	0	no_explanatory_block_not_audited	
-benchmarks/alpha003_a_stocks/html_report.py	py	0	no_explanatory_block_not_audited	
-benchmarks/alpha003_a_stocks/measurement.py	py	0	no_explanatory_block_not_audited	
-benchmarks/alpha003_a_stocks/python/run_research.py	py	0	no_explanatory_block_not_audited	
-benchmarks/alpha003_a_stocks/run_benchmark.py	py	0	no_explanatory_block_not_audited	
-benchmarks/factor_alignment_benchmark.cpp	cpp	0	no_explanatory_block_not_audited	
+benchmarks/alpha003_a_stocks/html_report.py	py	0	reviewed_this_round	audited with no change: the docstring fixes the single-file offline scope, and the inline notes already cover NaN to null versus rejecting infinity
+benchmarks/alpha003_a_stocks/measurement.py	py	0	reviewed_this_round	audited with no change: the docstring already explains affinity inheritance, the narrow-before-CreateProcess order, the measured interval bounds and the deliberate non-goals
+benchmarks/alpha003_a_stocks/python/run_research.py	py	0	reviewed_this_round	audited with no change: the docstring states the alpha003 rank-and-correlation contract and the deliberate independence from the C++ runner
+benchmarks/alpha003_a_stocks/run_benchmark.py	py	0	reviewed_this_round	comment added: skip-run re-judges parity with the tolerance saved in the retained report, under the same (0, 1e-6] ceiling, and requires the recomputed parity to equal the recorded entry
+benchmarks/factor_alignment_benchmark.cpp	cpp	0	reviewed_this_round	comments added: the header sits immediately before the returned address and its magic word separates tracked blocks from foreign ones; reset_peak seeds from live so a window reports its true high-water mark; validate() moves the ledger by 1 MiB and 2 MiB and expects live to return to baseline. Not a CMake target, so nothing compiled it on this host
 benchmarks/factor_layout_comparison.cpp	cpp	3	multi_block_not_audited	
 benchmarks/factor_pipeline_benchmark.cpp	cpp	0	no_explanatory_block_not_audited	

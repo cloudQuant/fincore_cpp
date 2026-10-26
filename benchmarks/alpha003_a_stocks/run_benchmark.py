@@ -516,6 +516,11 @@ def verify_skip_run(results: Path) -> dict[str, Any]:
     expected_comparison = row.get("comparison")
     if not isinstance(expected_comparison, dict):
         raise ValueError("retained pair has no recorded parity result")
+    # Parity is re-judged with the tolerance recorded in the retained report, not
+    # with the one on the command line, and that saved value is held to the same
+    # (0, 1e-6] ceiling as a fresh run. The recomputed result then has to match
+    # the recorded dictionary entry for entry, so a loosened bound cannot turn a
+    # stored failure into a pass.
     saved_tolerance = report.get("configuration", {}).get("tolerance")
     if not _valid_wall(saved_tolerance) or saved_tolerance <= 0 or saved_tolerance > 1e-6:
         raise ValueError("comparison report has an invalid saved tolerance")

@@ -105,9 +105,9 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 152 marked `reviewed_this_round` with a one-line note naming the
+(287 files: 158 marked `reviewed_this_round` with a one-line note naming the
 invariant recorded or why none was needed, 6 with several explanatory blocks
-but not yet audited, 7 sparse, 122 with no explanatory block). Auditing may
+but not yet audited, 7 sparse, 116 with no explanatory block). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
 because its validation clauses are the entire contract. This round audited and,
 where warranted, extended the following implementation files:
@@ -270,9 +270,27 @@ comment-only checker and by review only, not by a build. Its claims about the
 vendored ImPlot were checked against `third_party/implot` — the tick-label
 array is copied during `SetupAxisTicks`, and the range overload asserts at least
 two ticks when labels are supplied, which is the reason for the `> 1U` guard.
-The remaining 135 files are under
-`tests/` and `benchmarks/`, and are deliberately not
+The remaining 129 files are 126 under
+`tests/` and three under `benchmarks/`, and are deliberately not
 claimed as audited, so **P131 is PARTIAL**, not passed.
+
+Six `benchmarks/` entries were audited in the same round. The five Python modules
+already carry module docstrings that state the contract and the deliberate
+non-goals — `measurement.py` explains affinity inheritance and the narrow before
+`CreateProcess` order, `contract.py` that comparison is streamed outside every
+timed interval, `run_research.py` the alpha003 rank-and-correlation contract and
+its independence from the C++ runner — so they were recorded as audited without a
+change. `run_benchmark.py` gained one note: in `skip-run` mode parity is
+re-judged with the tolerance stored in the retained report under the same
+`(0, 1e-6]` ceiling, and the recomputed result must equal the recorded one, so a
+loosened bound cannot turn a stored failure into a pass.
+`benchmarks/factor_alignment_benchmark.cpp` gained the allocator-tracker
+invariants (header before the returned address, magic word separating tracked
+blocks, `reset_peak` seeding from live, and what `validate()` asserts). It is not
+a CMake target — `benchmarks/README.md` records it as a manual, POSIX-only build —
+so it was verified comment-only and by review, and nothing on this host compiled
+it; `pytest tools/tests` after the Python edit still reported the same
+`3 failed, 90 passed, 23 subtests passed`.
 
 One audit ended in a registered question rather than a comment: the
 sector-free `min_variance` branch solves over the unit simplex, so a lowered
@@ -427,6 +445,40 @@ be a weaker signal than a 404 on the live URL.
 Deployment branches → add `dev` (and `master` if wanted), then re-run the `docs`
 workflow on `dev`. Until that is done, both Pages combinations stay
 **PLATFORM_PENDING**, and no local artifact is presented as a live site.
+
+### Third update on the Pages configuration (2026-10-26, later run)
+
+The owner reported that Settings → Pages had been updated to build from `master`.
+Reading `GET /repos/cloudQuant/fincore_cpp/pages` at that moment returned
+`"build_type": "legacy"` with `"source": {"branch": "master", "path": "/"}`.
+A branch source is precisely the configuration that makes `deploy-pages` fail,
+because Actions can publish only while the Pages source is "GitHub Actions", so the
+`legacy` value explains the deploy failures seen after the earlier enablement.
+`PUT /repos/cloudQuant/fincore_cpp/pages {"build_type": "workflow"}` was then
+applied — the source the owner had already authorised when choosing the enablement
+option — and the endpoint now returns `"build_type": "workflow"` while the stale
+`source` object still reads `master` / `/`.
+
+Run [`40267180410`](https://github.com/cloudQuant/fincore_cpp/actions/runs/40267180410)
+was re-run for the failed job (attempt 2) under that configuration: `build` success,
+`pages` success, `deploy` failure again. The decisive observation is that the deploy
+job reports **no steps at all** and its log endpoint returns 404, so the job never
+started — this is the environment deployment-branch policy rejecting `dev`, not a
+build or artifact problem. `GET …/environments/github-pages/deployment-branches`
+also returns 404 for the token in use, so the allow-list can be neither read nor
+written from this host.
+
+Two consequences for the route the owner proposed (finish, then update `master`):
+
+- A branch source of `master` plus a folder would publish files committed into the
+  repository, while this iteration deliberately keeps the built site out of git —
+  `docs/_build/` is generated output. Publication therefore has to go through the
+  committed Actions pipeline in `docs.yml`, in `workflow` mode.
+- `docs.yml` does trigger on push to `master`, but `master` currently contains no
+  `.github/workflows` files at all and is 525 commits behind `dev`
+  (`git rev-list --count master..dev`), so the workflow only starts to exist there
+  once `dev` is merged. Until that merge, the deploy path cannot be exercised on
+  `dev`, and P133 stays **PLATFORM_PENDING** with both URLs answering 404.
 
 Required runbook before P133 can be marked PASS (four combinations, each with
 home, installation, one deep API page, language switch, version label, static
