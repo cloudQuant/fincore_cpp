@@ -12,6 +12,10 @@ bool is_ascii_whitespace(const char value) {
          value == '\f' || value == '\v';
 }
 
+// Trimming and lowercasing cover ASCII only, so a non-Latin name keeps its
+// bytes and stays case-sensitive. Registration and lookup both pass through here,
+// which is what makes renderer selection case-insensitive without any two
+// spellings resolving differently.
 std::string normalize_renderer_name(const std::string_view name) {
   std::size_t first = 0U;
   while (first < name.size() && is_ascii_whitespace(name[first])) {
@@ -75,6 +79,9 @@ renderer_snapshot::resolve_renderer(const std::string_view name) const {
 report_document renderer_snapshot::render(const std::string_view name,
                                           const render_model &model) const {
   const auto callback = resolve_renderer(name);
+  // The model is copied before the callback runs, so a renderer that writes to
+  // what it is handed cannot disturb the caller's frames or the view another
+  // renderer gets from the same snapshot.
   const render_model frozen_model = model;
   return callback(frozen_model);
 }

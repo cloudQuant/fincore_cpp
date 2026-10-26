@@ -104,7 +104,7 @@ src/viz/chart_data.cpp	cpp	0	reviewed_this_round	sorted allows duplicates; one n
 src/viz/html_builder.cpp	cpp	1	reviewed_this_round	escaping mirrors the reference including the apostrophe form and covers every interpolating call site; non-finite numbers print as words and a short buffer degrades to the same marker; only a finite non-zero value earns a colour class
 src/viz/implot_backend.cpp	cpp	0	no_explanatory_block_not_audited	
 src/viz/plotly_document.cpp	cpp	1	sparse_not_audited	
-src/viz/render_model.cpp	cpp	0	no_explanatory_block_not_audited	
+src/viz/render_model.cpp	cpp	0	reviewed_this_round	normalization is ASCII-only and shared by registration and lookup; the model is copied before the renderer runs
 tests/consumer/headless/main.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/consumer/implot/main.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/fixtures/bootstrap_fixed_indices.hpp	hpp	0	no_explanatory_block_not_audited	
