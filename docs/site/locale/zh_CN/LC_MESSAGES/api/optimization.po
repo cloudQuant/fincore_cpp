@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fincore_cpp 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-26 01:10+0800\n"
+"POT-Creation-Date: 2026-10-26 08:47+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -174,6 +174,12 @@ msgstr "target_risk 所需的年化波动率；必须有限且可达。"
 #: ../../site/api/optimization.md:16
 msgid "Allow weights down to -max_weight when min_weight is unset."
 msgstr "当 min_weight 未设置时，允许权重下探至 -max_weight。"
+
+#: ../../site/api/optimization.md:16
+msgid ""
+"min_variance without sector_constraints is solved over the unit simplex, so "
+"that combination yields a long-only book regardless of this flag."
+msgstr "不带 sector_constraints 的 min_variance 在单位单纯形上求解，因此无论该标志如何设置，这一组合都会返回长仓书。"
 
 #: ../../site/api/optimization.md:16
 msgid ""

@@ -105,9 +105,9 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 26 marked `reviewed_this_round` with a one-line note naming the
-invariant recorded or why none was needed, 13 with several explanatory blocks
-but not yet audited, 21 sparse, 227 with no explanatory block). Auditing may
+(287 files: 32 marked `reviewed_this_round` with a one-line note naming the
+invariant recorded or why none was needed, 12 with several explanatory blocks
+but not yet audited, 20 sparse, 223 with no explanatory block). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
 because its validation clauses are the entire contract. This round audited and,
 where warranted, extended the following implementation files:
@@ -140,10 +140,25 @@ where warranted, extended the following implementation files:
 | `src/optimization/risk_parity.cpp` | Positive weight floor; degenerate portfolios get a large finite penalty, not NaN |
 | `src/performance/cashflows.cpp` | Flows bucketed by valuation date; a spurious -100% period is rejected |
 | `src/risk/specs.cpp` | Audited with no change: the validation clauses are the whole contract |
+| `src/factor/costs.cpp` | Opening book charged as a trade; capacity is the tightest single-asset limit; ties take the earliest date then first asset |
+| `src/optimization/frontier.cpp` | Tolerance-scaled PSD test; maximum-return endpoint is a box corner, not a solve; interior points warm-start; diagnostics mirror the constraints actually solved |
+| `src/optimization/objectives.cpp` | `min_weight` overrides `short_allowed`; unmapped sectors dropped; feasibility probes drop the ceiling they test; simplex branch cannot reach a negative bound |
+| `src/metrics/ratios.cpp` | NaN-only and finite-only filters differ; flat-series guard scaled by magnitude; strict benchmark sign split excludes zero days; degenerate third-moment downside reports infinity |
+| `src/simulation/paths.cpp` | Modulo-bias rejection threshold; Latin-hypercube resamples until the stratum survives rounding; seed price row dropped from the return frame |
+| `src/performance/returns.cpp` | Floor day division before the epoch; bracket ends exclude the rate of -1; scaled NPV carries an anchor factor; sign changes read the sign bit; zero-net days dropped |
 
 Every edit above was verified comment-only and is covered by the re-run below.
-The remaining 261 files are deliberately not claimed as audited, so **P131 is
+The remaining 255 files are deliberately not claimed as audited, so **P131 is
 PARTIAL**, not passed.
+
+One audit ended in a registered question rather than a comment: the
+sector-free `min_variance` branch solves over the unit simplex, so a lowered
+weight bound cannot be reached there, and the existing cases do not distinguish
+the two because their unconstrained optimum is interior. No behaviour was
+changed; **F10-D10** in
+[`review-findings.md`](../iterations/iteration-10-comments-bilingual-docs/review-findings.md)
+records the observation, and the `short_allowed` header note now states which
+combination returns a long-only book.
 
 ## 4. P132 — bilingual site content
 
@@ -167,19 +182,33 @@ Translation state of the committed `zh_CN` catalogs:
 | Measure | Value |
 |---|---:|
 | Catalogs | 28 |
-| Message entries | 3232 |
-| Translated | 3229 |
+| Message entries | 3233 |
+| Translated | 3230 |
 | Untranslated (reviewed identifier exemptions) | 3 |
 | Fuzzy | 0 |
 | HTML pages built per language | 30 |
 | Broken internal links (`href`/`src` resolved on disk) | 0 |
 | Absolute machine paths in built HTML | 0 |
-| External `http(s)` links inside site Markdown | 0 |
+| External hyperlinks in Markdown link syntax | 0 |
 
 Translations were applied with `docs/site/tools/apply_translations.py` from
 per-module JSON mappings, and validated with `msgfmt --check` before each
 build. Glossary terms follow
 [`maintainer/README.md`](../../site/maintainer/README.md).
+
+The header note that F10-D10 describes added one msgid, which was translated in
+the same round, so the entry count moved from 3232 to 3233 and the three
+untranslated rows remain the reviewed `Subclassed by` exemptions. The
+external-link measure counts Markdown link syntax only; the one `http` URL in
+the site's Markdown is the `git clone` address inside a fenced block in
+`installation.md`, which the link checker does not follow.
+
+One operational limit surfaced while rebuilding: an incremental Chinese build
+over doctrees left from a previous Doxygen XML aborted inside
+`sphinx.domains.cpp` (`assert parent_symbol`) while resolving a stale
+cross-reference, and it passed with `-E`. CI is unaffected because each run
+builds fresh; `docs/site/README.md` now documents `-E` plus the missing
+`normalize_doxygen_xml.py` step.
 
 Language switching is rendered in the sidebar of every page. `sphinx_rtd_theme`
 3.1.0 includes `searchbox.html` directly and ignores `html_sidebars`, so

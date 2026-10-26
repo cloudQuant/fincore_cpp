@@ -13,11 +13,16 @@ python -m venv .venv-docs
 .venv-docs/bin/pip install -r docs/requirements-docs.txt
 cd docs/site
 doxygen Doxyfile
+python tools/normalize_doxygen_xml.py ../_build/doxygen/xml
 sphinx-build -b gettext -W --keep-going . ../_build/gettext
 sphinx-intl update -p ../_build/gettext -l zh_CN
 sphinx-build -b html -W -n --keep-going . ../_build/html/en
 FINCORE_DOCS_LANGUAGE=zh_CN sphinx-build -b html -W -n --keep-going . ../_build/html/zh_CN
 ```
+
+Pass `-E` when the Doxygen XML changed since the last build: reused doctrees
+keep the previous C++ domain symbols, and resolving a reference against them
+aborts inside `sphinx.domains.cpp` instead of reporting a warning.
 
 Windows uses `.venv-docs\Scripts\pip.exe`, `sphinx-build.exe` and
 `sphinx-intl.exe`; the same source paths apply. The verified toolchain is

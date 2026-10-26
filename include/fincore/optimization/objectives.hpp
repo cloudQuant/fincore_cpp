@@ -43,6 +43,9 @@ struct portfolio_optimization_config {
     /// attainable.
     std::optional<double> target_volatility;
     /// Allow weights down to `-max_weight` when `min_weight` is unset.
+    /// `min_variance` without `sector_constraints` is solved over the unit
+    /// simplex, so that combination yields a long-only book regardless of this
+    /// flag.
     bool short_allowed = false;
     /// Per-asset upper bound; must be finite and greater than 0.
     double max_weight = 1.0;

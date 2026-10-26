@@ -6,7 +6,8 @@
 
 **处理状态：** F10-D01–D04 与 F10-G01 已在 2026-10-26 实施轮处理（见下方新增
 条目与[验收记录](../../acceptance/2026-10-26-iteration-10-comments-bilingual-docs.md)）；
-本轮新登记的 F10-D05–D09 已随注释轮修正并记录依据。审阅前不自动给疑点定性
+本轮新登记的 F10-D05–D09 已随注释轮修正并记录依据；F10-D10 是注释轮发现的
+行为疑点，只登记不处理，等待审阅。审阅前不自动给疑点定性
 为缺陷，记录不等于修复授权。
 
 本次只读查看接口、现有文档和构建入口，没有运行业务程序或性能基准。
@@ -148,3 +149,23 @@ P126/P127 处理清单和试点，不以批量添加空注释或生成英文菜�
 - **处理：** 清单改为全限定名并逐签名记录重载（2408 → 2484 行），页面生成器
   为重载输出签名、模板函数按名称解析；`__LINE__` 之外的非注释 token 未变，
   由 comment-only 校验与 1092 项测试回归确认。
+
+### F10-D10 `min_variance` 的单纯形分支用不到负下界
+
+- **分类：** 待审阅的行为疑点，本轮只登记，不改代码。
+- **位置：** [objectives.cpp](file:///D:/source_code/fincore_cpp/src/optimization/objectives.cpp)
+  的 `optimize_portfolio` 专用分支，
+  [objectives.hpp](file:///D:/source_code/fincore_cpp/include/fincore/optimization/objectives.hpp)
+  的 `short_allowed`。
+- **观察：** 不带行业约束的 `min_variance` 走
+  `minimize_quadratic_on_simplex`，其求解域是单位单纯形（下界为 0）。
+  因此 `short_allowed = true`，或显式给出负 `min_weight` 时，该分支不可能
+  产出负权重；随后 `validate_weights` 只按外层盒式约束复核，长仓解必然通过，
+  所以调用方拿不到任何“下界被放宽”的信号。
+- **证据边界：** 现有用例
+  `OptimizationPortfolio.SectorAndMinWeightConstraints` 无法区分两种实现，
+  因为该 fixture 的无约束最小方差权重落在 0.24–0.26，界本身并不生效；
+  本轮没有构造新的对照数据，不能据此断言真实差异幅度。
+- **建议：** 若评审认定该组合应允许做空，后续单独一轮改用
+  `project_onto_simplex` 已有的 lower/upper 参数，并补一个下界真正生效的
+  对照用例；本轮仅在实现处记录不变量，并在头文件说明该组合返回长仓书。
