@@ -8,15 +8,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fincore_cpp 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-25 22:15+0800\n"
+"POT-Creation-Date: 2026-10-26 17:32+0800\n"
 "PO-Revision-Date: 2026-10-25 22:20+0800\n"
 "Last-Translator: fincore_cpp documentation maintainers\n"
-"Language-Team: zh_CN <LL@li.org>\n"
 "Language: zh_CN\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
+"Language-Team: zh_CN <LL@li.org>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
 #: ../../site/guides/metrics.md:1
@@ -25,37 +25,497 @@ msgstr "指标与滚动窗口"
 
 #: ../../site/guides/metrics.md:3
 msgid ""
-"Metric functions consume a `fincore::dataframe` and return typed scalars or "
-"series. Units are decimal returns unless the API says otherwise. `NaN` "
-"inputs are missing; a window is evaluable only when its documented "
-"completeness rule is satisfied."
+"This guide explains how the metric families fit together, which conventions "
+"the numbers follow, and what each family returns when the input is "
+"degenerate. It is a map, not a substitute for the API reference: every "
+"function carries the exact formula and failure rule in its own "
+"documentation."
 msgstr ""
-"指标函数接收 `fincore::dataframe`，并返回类型化的标量或序列。除非 API 另有说"
-"明，单位均为小数收益率。`NaN` 输入表示缺失；只有当窗口满足其文档说明的完整性"
-"规则时，该窗口才可计算。"
+"本指南说明各指标族之间的关系、数值遵循的约定，以及输入退化时每个族返回什么。它是地图，不能替代 API "
+"参考：每个函数的确切公式与失败规则都写在它自己的文档里。"
 
 #: ../../site/guides/metrics.md:8
-msgid "Scalar risk/return metrics are in `include/fincore/metrics/`."
-msgstr "标量风险/收益指标位于 `include/fincore/metrics/` 中。"
+msgid "Inputs and units"
+msgstr "输入与单位"
 
-#: ../../site/guides/metrics.md:9
+#: ../../site/guides/metrics.md:10
 msgid ""
-"Rolling and multi-column statistics are in `metrics/rolling.hpp` and "
-"`rolling_engine.hpp`."
+"Metric functions take a `fincore::dataframe`, a column name (defaulting to "
+"`\"returns\"` for most of them) and, where relevant, a risk-free rate. "
+"Values are decimal returns (`0.01` is one percent). Timestamps are UTC "
+"nanosecond instants and are used for ordering, window boundaries and date-"
+"based grouping, not for arithmetic on the values."
 msgstr ""
-"滚动统计与多列统计位于 `metrics/rolling.hpp` 和 `rolling_engine.hpp` 中。"
+"指标函数接受 `fincore::dataframe`、列名（多数函数默认 "
+"`\"returns\"`）以及（在相关时）无风险利率。数值是小数收益（`0.01` 表示 1%）。时间戳是 UTC "
+"纳秒时刻，用于排序、窗口边界与按日期分组，而不是对数值做算术。"
 
-#: ../../site/guides/metrics.md:11
+#: ../../site/guides/metrics.md:16
 msgid ""
-"Date-wise and period summaries preserve the input ordering rules stated in "
-"their API entries."
-msgstr "按日期和按周期的汇总遵循其 API 条目中声明的输入排序规则。"
-
-#: ../../site/guides/metrics.md:14
-msgid ""
-"Use the numerator/denominator conventions described by the function rather "
-"than assuming that two similarly named metrics annualize or handle ties the "
-"same way. The API reference is generated from the public headers."
+"`NaN` means \"missing\" everywhere in this library. It is not silently "
+"replaced by zero, and it is not dropped from a frame. Each function states "
+"whether it drops missing observations pairwise, per column or not at all; "
+"the default for the scalar ratios is to drop `NaN` and work with the "
+"remaining values."
 msgstr ""
-"请使用函数所描述的分子/分母约定，而不要假设两个名称相似的指标会以相同方式年化"
-"或处理并列值。API 参考由公共头文件生成。"
+"`NaN` 在本库中到处表示“缺失”。它不会被静默替换为 "
+"0，也不会被从帧中删掉。每个函数都会说明它是按配对、按列还是完全不丢弃缺失观测；标量比率的默认做法是丢弃 `NaN` 并用剩下的值计算。"
+
+#: ../../site/guides/metrics.md:21
+msgid ""
+"An empty or mis-typed column is a structural error and raises `input_error`."
+" A column that exists but is too short usually yields `NaN` rather than an "
+"exception, because \"not enough data\" is a value, not a programming "
+"mistake."
+msgstr "空列或类型不符的列是结构性错误，会抛 `input_error`。列存在但过短通常返回 `NaN` 而不是异常，因为“数据不足”是一个值，不是编程错误。"
+
+#: ../../site/guides/metrics.md:25
+msgid "Annualization"
+msgstr "年化"
+
+#: ../../site/guides/metrics.md:27
+msgid "`annualization_factor(frequency)` returns the number of periods per year:"
+msgstr "`annualization_factor(frequency)` 返回每年的期数："
+
+#: ../../site/guides/metrics.md
+msgid "Frequency"
+msgstr "频率"
+
+#: ../../site/guides/metrics.md
+msgid "Factor"
+msgstr "因子"
+
+#: ../../site/guides/metrics.md
+msgid "`daily`"
+msgstr "`daily`"
+
+#: ../../site/guides/metrics.md
+msgid "252"
+msgstr "252"
+
+#: ../../site/guides/metrics.md
+msgid "`weekly`"
+msgstr "`weekly`"
+
+#: ../../site/guides/metrics.md
+msgid "52"
+msgstr "52"
+
+#: ../../site/guides/metrics.md
+msgid "`monthly`"
+msgstr "`monthly`"
+
+#: ../../site/guides/metrics.md
+msgid "12"
+msgstr "12"
+
+#: ../../site/guides/metrics.md
+msgid "`quarterly`"
+msgstr "`quarterly`"
+
+#: ../../site/guides/metrics.md
+msgid "4"
+msgstr "4"
+
+#: ../../site/guides/metrics.md
+msgid "`yearly`"
+msgstr "`yearly`"
+
+#: ../../site/guides/metrics.md
+msgid "1"
+msgstr "1"
+
+#: ../../site/guides/metrics.md:37
+msgid ""
+"Passing an explicit value as the second argument returns it unchanged, "
+"including zero or a negative number — validation belongs to the caller. "
+"Ratios that scale by `sqrt(annualization)` use this factor directly, so "
+"switching frequency changes a Sharpe ratio but never the sign of the mean."
+msgstr ""
+"把显式数值作为第二个参数传入会原样返回，包括 0 或负数 —— 校验责任在调用方。按 `sqrt(annualization)` "
+"缩放的比率直接使用该因子，因此切换频率会改变夏普比率，但不会改变均值的符号。"
+
+#: ../../site/guides/metrics.md:42
+msgid "Return and ratio family"
+msgstr "收益与比率族"
+
+#: ../../site/guides/metrics.md
+msgid "Group"
+msgstr "组"
+
+#: ../../site/guides/metrics.md
+msgid "Functions"
+msgstr "函数"
+
+#: ../../site/guides/metrics.md
+msgid "Notes"
+msgstr "说明"
+
+#: ../../site/guides/metrics.md
+msgid "Level and excess"
+msgstr "水平与超额"
+
+#: ../../site/guides/metrics.md
+msgid "`mean_return`, `annual_return`, `adjust_returns`"
+msgstr "`mean_return`、`annual_return`、`adjust_returns`"
+
+#: ../../site/guides/metrics.md
+msgid ""
+"`adjust_returns` subtracts a constant from every value and keeps `NaN` as "
+"`NaN`"
+msgstr "`adjust_returns` 从每个值中减去常数，并让 `NaN` 保持为 `NaN`"
+
+#: ../../site/guides/metrics.md
+msgid "Risk-adjusted"
+msgstr "风险调整"
+
+#: ../../site/guides/metrics.md
+msgid ""
+"`sharpe_ratio`, `adjusted_sharpe_ratio`, `sortino_ratio`, `calmar_ratio`, "
+"`mar_ratio`, `conditional_sharpe_ratio`, `deflated_sharpe_ratio`, "
+"`omega_ratio`"
+msgstr "`sharpe_ratio`、`adjusted_sharpe_ratio`、`sortino_ratio`、`calmar_ratio`、`mar_ratio`、`conditional_sharpe_ratio`、`deflated_sharpe_ratio`、`omega_ratio`"
+
+#: ../../site/guides/metrics.md
+msgid "Each has its own deviation divisor and its own degenerate rule"
+msgstr "每个都有自己的偏差除数与退化规则"
+
+#: ../../site/guides/metrics.md
+msgid "Tail"
+msgstr "尾部"
+
+#: ../../site/guides/metrics.md
+msgid ""
+"`conditional_sharpe_ratio`, `tail_ratio`, `common_sense_ratio`, "
+"`value_at_risk` family in `metrics/risk.hpp`"
+msgstr ""
+"`conditional_sharpe_ratio`、`tail_ratio`、`common_sense_ratio`，以及 "
+"`metrics/risk.hpp` 中的 `value_at_risk` 系列"
+
+#: ../../site/guides/metrics.md
+msgid "The tail is defined by a cutoff quantile, not by a fixed count"
+msgstr "尾部由 cutoff 分位定义，而不是由固定样本数定义"
+
+#: ../../site/guides/metrics.md
+msgid "Benchmark-relative"
+msgstr "相对基准"
+
+#: ../../site/guides/metrics.md
+msgid ""
+"`alpha`, `beta`, `alpha_beta`, `up_alpha_beta`, `down_alpha_beta`, "
+"`tracking_error`, `information_ratio`, `capm_r_squared`"
+msgstr "`alpha`、`beta`、`alpha_beta`、`up_alpha_beta`、`down_alpha_beta`、`tracking_error`、`information_ratio`、`capm_r_squared`"
+
+#: ../../site/guides/metrics.md
+msgid "Pairwise alignment against a benchmark column"
+msgstr "与基准列按配对对齐"
+
+#: ../../site/guides/metrics.md:51
+msgid "Two rules explain most surprises:"
+msgstr "两条规则解释了大部分意外："
+
+#: ../../site/guides/metrics.md:53
+msgid ""
+"**Sample versus population.** `sharpe_ratio` divides by the sample standard "
+"deviation (one degree of freedom), while the downside deviation inside "
+"`sortino_ratio` divides squared deviations by the number of usable "
+"observations. The two ratios are therefore not interchangeable denominators."
+msgstr ""
+"**样本与总体。** `sharpe_ratio` 除以样本标准差（一个自由度），而 `sortino_ratio` "
+"内部的下行偏差把平方偏差除以可用观测数。因此两个比率的分母不可互换。"
+
+#: ../../site/guides/metrics.md:57
+msgid ""
+"**Zero is not special-cased.** A zero deviation is left to IEEE arithmetic "
+"rather than replaced by `NaN` or infinity, except where a function says "
+"otherwise. `calmar_ratio` and `mar_ratio` return `NaN` when the maximum "
+"drawdown is zero or positive, because the quotient would be meaningless."
+msgstr ""
+"**零不做特殊处理。** 零偏差交给 IEEE 算术处理，而不是替换成 `NaN` 或无穷，除非函数另有说明。当最大回撤为 0 "
+"或为正时，`calmar_ratio` 与 `mar_ratio` 返回 `NaN`，因为商没有意义。"
+
+#: ../../site/guides/metrics.md:62
+msgid ""
+"`adjusted_sharpe_ratio` clamps its skew/kurtosis adjustment to `[0.9, 1.1]` "
+"for fewer than 20 raw observations and to `[0.8, 1.3]` otherwise, and "
+"returns `NaN` for fewer than four raw values. `deflated_sharpe_ratio` treats"
+" a trial count below one as one and returns exactly 0 or 1 when its "
+"estimated Sharpe variance is non-positive."
+msgstr ""
+"`adjusted_sharpe_ratio` 在原始观测少于 20 个时把偏度/峰度调整夹在 `[0.9, 1.1]`，否则夹在 `[0.8, "
+"1.3]`；原始值少于 4 个时返回 `NaN`。`deflated_sharpe_ratio` 把小于 1 的试验次数当作 "
+"1，并在估计出的夏普方差非正时返回精确的 0 或 1。"
+
+#: ../../site/guides/metrics.md:68
+msgid "Drawdown family"
+msgstr "回撤族"
+
+#: ../../site/guides/metrics.md
+msgid "Function"
+msgstr "函数"
+
+#: ../../site/guides/metrics.md
+msgid "Returns"
+msgstr "返回"
+
+#: ../../site/guides/metrics.md
+msgid "`drawdown_series`"
+msgstr "`drawdown_series`"
+
+#: ../../site/guides/metrics.md
+msgid "A frame with the running drawdown for each observation"
+msgstr "每个观测点上的滚动回撤帧"
+
+#: ../../site/guides/metrics.md
+msgid "`max_drawdown`, `second_max_drawdown`, `third_max_drawdown`"
+msgstr "`max_drawdown`、`second_max_drawdown`、`third_max_drawdown`"
+
+#: ../../site/guides/metrics.md
+msgid "A single depth as a negative or zero fraction"
+msgstr "单个深度，为负数或零的小数"
+
+#: ../../site/guides/metrics.md
+msgid "`max_drawdown_window`, `max_drawdown_underwater`"
+msgstr "`max_drawdown_window`、`max_drawdown_underwater`"
+
+#: ../../site/guides/metrics.md
+msgid "The peak, valley and optional recovery timestamps of the deepest episode"
+msgstr "最深一次回撤的峰、谷以及可选的恢复时间戳"
+
+#: ../../site/guides/metrics.md
+msgid "`get_all_drawdowns`, `get_all_drawdowns_detailed`, `get_top_drawdowns`"
+msgstr "`get_all_drawdowns`、`get_all_drawdowns_detailed`、`get_top_drawdowns`"
+
+#: ../../site/guides/metrics.md
+msgid "Depth lists, or rows with peak/valley/recovery and duration"
+msgstr "深度列表，或含峰/谷/恢复与持续时间的行"
+
+#: ../../site/guides/metrics.md
+msgid "`max_drawdown_days` / `_weeks` / `_months`"
+msgstr "`max_drawdown_days` / `_weeks` / `_months`"
+
+#: ../../site/guides/metrics.md
+msgid "Depth of the worst drawdown measured over that calendar bucket"
+msgstr "按该日历桶衡量的最差回撤深度"
+
+#: ../../site/guides/metrics.md
+msgid "`max_drawdown_recovery_days` / `_weeks` / `_months`"
+msgstr "`max_drawdown_recovery_days` / `_weeks` / `_months`"
+
+#: ../../site/guides/metrics.md
+msgid "Time to recover the worst drawdown"
+msgstr "最差回撤的恢复时间"
+
+#: ../../site/guides/metrics.md:79
+msgid ""
+"When several highs are equal, the window starts at the **latest** one, so it"
+" covers the episode that produced the trough rather than everything since "
+"the first equal high. A series that never declines has no drawdown window at"
+" all, which is why the window functions return `std::optional`."
+msgstr ""
+"当多个高点相等时，窗口从**最新**的那个开始，因此它覆盖造成该谷底的那一段，而不是从第一个等高点算起的全部区间。从不下跌的序列没有回撤窗口，这正是窗口函数返回"
+" `std::optional` 的原因。"
+
+#: ../../site/guides/metrics.md:84
+msgid "Distribution and stability statistics"
+msgstr "分布与稳定性统计"
+
+#: ../../site/guides/metrics.md:86
+msgid ""
+"`skewness`, `kurtosis`, `serial_correlation`, `hurst_exponent`, "
+"`stutzer_index`, `r_cubed`, `r_cubed_turtle`, `win_rate`, `loss_rate`, "
+"`relative_win_rate`, `safe_correlation` and the performance-statistics "
+"family in `metrics/perf_stats.hpp` answer \"what shape is this series?\" "
+"rather than \"what did it earn?\"."
+msgstr ""
+"`skewness`、`kurtosis`、`serial_correlation`、`hurst_exponent`、`stutzer_index`、`r_cubed`、`r_cubed_turtle`、`win_rate`、`loss_rate`、`relative_win_rate`、`safe_correlation`，以及"
+" `metrics/perf_stats.hpp` 中的业绩统计族"
+
+#: ../../site/guides/metrics.md:91
+msgid ""
+"They share two conventions: non-finite observations are excluded from the "
+"statistic and reported through the usable count, and the divisor is the one "
+"stated in each function's documentation. Some use the biased (population) "
+"form to match a reference implementation; do not assume consistency across "
+"functions."
+msgstr "它们共享两条约定：非有限观测被排除在统计之外，并通过可用计数体现；除数采用各函数文档写明的那个。有些使用有偏（总体）形式以匹配参考实现；不要假设函数之间一致。"
+
+#: ../../site/guides/metrics.md:96
+msgid "Rolling windows and tables"
+msgstr "滚动窗口与表"
+
+#: ../../site/guides/metrics.md:98
+msgid ""
+"`rolling_engine` computes a requested set of metrics over a fixed window and"
+" returns one frame per metric. Windows are complete-window only: the first "
+"`window - 1` observations produce no row, so the output index is shorter "
+"than the input index. `metrics/rolling.hpp` exposes the individual rolling "
+"primitives for callers that need a single series."
+msgstr ""
+"`rolling_engine` 在固定窗口上计算一组请求的指标，并为每个指标返回一帧。窗口只取完整窗口：前 `window - 1` "
+"个观测不产生行，所以输出索引比输入索引短。`metrics/rolling.hpp` 暴露单项滚动原语，供只需一条序列的调用方使用。"
+
+#: ../../site/guides/metrics.md:104
+msgid ""
+"Table builders (`metrics/yearly.hpp`, `metrics/frequencies.hpp` and the "
+"quantile tables in `factor/performance.hpp`) group by date or period. They "
+"preserve the ordering rule stated in their own documentation — some order by"
+" calendar year and ISO week label rather than by bucket start, which can "
+"place a January observation after a December row of the same year."
+msgstr ""
+"表构造器（`metrics/yearly.hpp`、`metrics/frequencies.hpp` 以及 "
+"`factor/performance.hpp` 中的分位表）按日期或周期分组。它们保留各自文档写明的排序规则 —— 有些按日历年与 ISO "
+"周标签排序而不是按桶起点，因此可能出现 1 月的观测排在同一年的 12 月行之后。"
+
+#: ../../site/guides/metrics.md:110
+msgid "Worked example"
+msgstr "示例"
+
+#: ../../site/guides/metrics.md:112
+#, python-brace-format, python-format
+msgid ""
+"#include <fincore/dataframe.hpp>\n"
+"#include <fincore/metrics/drawdown.hpp>\n"
+"#include <fincore/metrics/ratios.hpp>\n"
+"\n"
+"#include <cstdio>\n"
+"\n"
+"int main() {\n"
+"    const auto returns = fincore::make_series(\n"
+"        {fincore::utc_timestamp(2025, 1, 2),\n"
+"         fincore::utc_timestamp(2025, 1, 3),\n"
+"         fincore::utc_timestamp(2025, 1, 6),\n"
+"         fincore::utc_timestamp(2025, 1, 7)},\n"
+"        \"returns\", {0.012, -0.02, 0.005, 0.03});\n"
+"\n"
+"    std::printf(\"sharpe   %.4f\\n\", fincore::sharpe_ratio(returns, "
+"\"returns\"));\n"
+"    std::printf(\"sortino  %.4f\\n\", fincore::sortino_ratio(returns, "
+"\"returns\"));\n"
+"    std::printf(\"max dd   %.4f\\n\", fincore::max_drawdown(returns, "
+"\"returns\"));\n"
+"\n"
+"    if (const auto window = fincore::max_drawdown_underwater(returns, "
+"\"returns\")) {\n"
+"        std::printf(\"peak %lld valley %lld\\n\",\n"
+"                    static_cast<long long>(window->peak),\n"
+"                    static_cast<long long>(window->valley));\n"
+"    }\n"
+"    return 0;\n"
+"}\n"
+msgstr ""
+"#include <fincore/dataframe.hpp>\n"
+"#include <fincore/metrics/drawdown.hpp>\n"
+"#include <fincore/metrics/ratios.hpp>\n"
+"\n"
+"#include <cstdio>\n"
+"\n"
+"int main() {\n"
+"    const auto returns = fincore::make_series(\n"
+"        {fincore::utc_timestamp(2025, 1, 2),\n"
+"         fincore::utc_timestamp(2025, 1, 3),\n"
+"         fincore::utc_timestamp(2025, 1, 6),\n"
+"         fincore::utc_timestamp(2025, 1, 7)},\n"
+"        \"returns\", {0.012, -0.02, 0.005, 0.03});\n"
+"\n"
+"    std::printf(\"sharpe   %.4f\\n\", fincore::sharpe_ratio(returns, "
+"\"returns\"));\n"
+"    std::printf(\"sortino  %.4f\\n\", fincore::sortino_ratio(returns, "
+"\"returns\"));\n"
+"    std::printf(\"max dd   %.4f\\n\", fincore::max_drawdown(returns, "
+"\"returns\"));\n"
+"\n"
+"    if (const auto window = fincore::max_drawdown_underwater(returns, "
+"\"returns\")) {\n"
+"        std::printf(\"peak %lld valley %lld\\n\",\n"
+"                    static_cast<long long>(window->peak),\n"
+"                    static_cast<long long>(window->valley));\n"
+"    }\n"
+"    return 0;\n"
+"}\n"
+
+#: ../../site/guides/metrics.md:140
+msgid ""
+"Four observations are enough for a Sharpe ratio but not enough to be "
+"representative; the example shows the calling shape, not a research result."
+msgstr "四个观测足够算出夏普比率，但不足以具有代表性；示例展示的是调用形态，不是研究结论。"
+
+#: ../../site/guides/metrics.md:143
+msgid "Choosing a metric"
+msgstr "如何选择指标"
+
+#: ../../site/guides/metrics.md:145
+msgid ""
+"Reporting a headline risk-adjusted number? Use `sharpe_ratio` and say which "
+"annualization you used."
+msgstr "要报一个风险调整后的头条数字？用 `sharpe_ratio`，并说明你用的年化因子。"
+
+#: ../../site/guides/metrics.md:147
+msgid "Penalising downside only? `sortino_ratio` with an explicit `required_return`."
+msgstr "只惩罚下行？用带显式 `required_return` 的 `sortino_ratio`。"
+
+#: ../../site/guides/metrics.md:148
+msgid ""
+"Judging a short track record? `adjusted_sharpe_ratio` or "
+"`deflated_sharpe_ratio`; both try to discount luck, and both say so in their"
+" clamped ranges."
+msgstr ""
+"判断较短的业绩记录？用 `adjusted_sharpe_ratio` 或 "
+"`deflated_sharpe_ratio`；两者都试图折算运气，并都在夹紧区间里说明了这一点。"
+
+#: ../../site/guides/metrics.md:151
+msgid ""
+"Comparing against a benchmark? `alpha`/`beta` and `information_ratio`, and "
+"remember the alignment rule: the two frames are paired on the timestamps "
+"they share."
+msgstr "与基准比较？用 `alpha`/`beta` 与 `information_ratio`，并记住对齐规则：两帧按共有的时间戳配对。"
+
+#: ../../site/guides/metrics.md:154
+msgid ""
+"Summarising a path? Drawdown windows and recovery lengths are more "
+"informative than a single maximum, because they say how long a reader would "
+"have suffered."
+msgstr "概括一条路径？回撤窗口与恢复长度比单个最大值更有信息量，因为它们说明读者会承受多久。"
+
+#: ../../site/guides/metrics.md:157
+msgid ""
+"The API reference lists every function with its exact formula and failure "
+"rule; when a number surprises you, the function's own documentation is the "
+"authority."
+msgstr "API 参考列出每个函数的确切公式与失败规则；当某个数字出乎意料时，函数自己的文档就是权威。"
+
+#~ msgid ""
+#~ "Metric functions consume a `fincore::dataframe`"
+#~ " and return typed scalars or series. "
+#~ "Units are decimal returns unless the "
+#~ "API says otherwise. `NaN` inputs are "
+#~ "missing; a window is evaluable only "
+#~ "when its documented completeness rule is"
+#~ " satisfied."
+#~ msgstr ""
+#~ "指标函数接收 `fincore::dataframe`，并返回类型化的标量或序列。除非 API "
+#~ "另有说明，单位均为小数收益率。`NaN` 输入表示缺失；只有当窗口满足其文档说明的完整性规则时，该窗口才可计算。"
+
+#~ msgid "Scalar risk/return metrics are in `include/fincore/metrics/`."
+#~ msgstr "标量风险/收益指标位于 `include/fincore/metrics/` 中。"
+
+#~ msgid ""
+#~ "Rolling and multi-column statistics are "
+#~ "in `metrics/rolling.hpp` and `rolling_engine.hpp`."
+#~ msgstr "滚动统计与多列统计位于 `metrics/rolling.hpp` 和 `rolling_engine.hpp` 中。"
+
+#~ msgid ""
+#~ "Date-wise and period summaries preserve "
+#~ "the input ordering rules stated in "
+#~ "their API entries."
+#~ msgstr "按日期和按周期的汇总遵循其 API 条目中声明的输入排序规则。"
+
+#~ msgid ""
+#~ "Use the numerator/denominator conventions "
+#~ "described by the function rather than "
+#~ "assuming that two similarly named metrics"
+#~ " annualize or handle ties the same "
+#~ "way. The API reference is generated "
+#~ "from the public headers."
+#~ msgstr "请使用函数所描述的分子/分母约定，而不要假设两个名称相似的指标会以相同方式年化或处理并列值。API 参考由公共头文件生成。"
+
