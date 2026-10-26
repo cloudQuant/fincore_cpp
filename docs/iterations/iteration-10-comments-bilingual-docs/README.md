@@ -41,9 +41,12 @@ PLATFORM_PENDING，P134 的本机收尾项已完成（验收记录第 7 节）�
 实施后的事实基线（2026-10-26）：`docs/site/api-ledger.tsv` 记录 2484 个公共
 符号（含重载逐项），全部有说明；117 个头文件中 97 个在本轮修改并通过
 comment-only 校验；文档站由 Doxygen 1.9.7 + Breathe 5.1.0 + Sphinx 9.2.0
-构建，中英双语严格构建均通过，1092 个 C++ 测试全部通过。当前仓库已具备
-`.readthedocs.yaml` 与 `.github/workflows/docs.yml`，但两个平台尚未发布验证
-（Pages 未启用、无 RTD 项目），因此 P133 保持 PLATFORM_PENDING。
+构建，中英双语严格构建均通过，1092 个 C++ 测试全部通过；收尾度量已由
+`docs/site/tools/check_built_site.py` 固化为可复跑命令。GitHub Pages 已在本日
+开启（`build_type: workflow`），`docs` 工作流的 `build`、`pages` 两步通过，但
+`deploy` 被自动创建的 `github-pages` 环境的分支策略拒绝（允许列表为空），线上
+地址仍返回 404；Read the Docs 尚无项目。因此 P133 保持 PLATFORM_PENDING，
+P134 只在本机门禁范围内完成。
 
 [迭代 8 验收记录](../../acceptance/2026-10-24-iteration-8-native-parity-acceptance.md)
 和[最新 HTML 基准记录](../../acceptance/2026-10-25-alpha003-html-benchmark.md)
