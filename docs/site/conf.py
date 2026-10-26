@@ -110,7 +110,7 @@ html_short_title = "fincore_cpp"
 templates_path = ["_templates"]
 html_static_path = ["_static"]
 html_css_files = ["custom.css"]
-html_js_files = ["language_switch.js", "copy_code.js"]
+html_js_files = ["language_switch.js", "copy_code.js", "keyboard.js"]
 html_baseurl = (os.environ.get("FINCORE_DOCS_BASEURL") or
                 os.environ.get("READTHEDOCS_CANONICAL_URL") or
                 "https://docs.example.invalid/fincore_cpp/")
