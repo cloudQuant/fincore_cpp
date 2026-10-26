@@ -8,15 +8,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fincore_cpp 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-25 22:15+0800\n"
+"POT-Creation-Date: 2026-10-26 18:50+0800\n"
 "PO-Revision-Date: 2026-10-25 22:20+0800\n"
 "Last-Translator: fincore_cpp documentation maintainers\n"
-"Language-Team: zh_CN <LL@li.org>\n"
 "Language: zh_CN\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
+"Language-Team: zh_CN <LL@li.org>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
 #: ../../site/migration.md:1
@@ -25,34 +25,267 @@ msgstr "从 Python fincore 迁移"
 
 #: ../../site/migration.md:3
 msgid ""
-"`fincore_cpp` is a native library, not a Python binding. It does not provide "
-"`import fincore` compatibility, Python exception inheritance, pandas views "
+"`fincore_cpp` is a native library, not a Python binding. It does not provide"
+" `import fincore` compatibility, Python exception inheritance, pandas views "
 "or NumPy dtypes. Port workflows by matching the native typed inputs and "
 "outputs, not by mechanically renaming Python objects."
 msgstr ""
-"`fincore_cpp` 是原生库，而不是 Python 绑定。它不提供 `import fincore` 兼容"
-"性、Python 异常继承、pandas 视图或 NumPy dtype。迁移工作流时，应匹配原生的类"
-"型化输入和输出，而不是机械地重命名 Python 对象。"
+"`fincore_cpp` 是原生库，而不是 Python 绑定。它不提供 `import fincore` 兼容性、Python "
+"异常继承、pandas 视图或 NumPy dtype。迁移工作流时，应匹配原生的类型化输入和输出，而不是机械地重命名 Python 对象。"
 
 #: ../../site/migration.md:8
+msgid "Mapping table"
+msgstr "映射表"
+
+#: ../../site/migration.md
+msgid "Python / pandas"
+msgstr "Python / pandas"
+
+#: ../../site/migration.md
+msgid "Native equivalent"
+msgstr "原生等价物"
+
+#: ../../site/migration.md
+msgid "Note"
+msgstr "说明"
+
+#: ../../site/migration.md
+msgid "`pd.DataFrame` with a `DatetimeIndex`"
+msgstr "`pd.DataFrame` 与 `DatetimeIndex`"
+
+#: ../../site/migration.md
+msgid "`fincore::dataframe`"
+msgstr "`fincore::dataframe`"
+
+#: ../../site/migration.md
+msgid "Index is a signed 64-bit UTC nanosecond timestamp"
+msgstr "索引是带符号 64 位 UTC 纳秒时间戳"
+
+#: ../../site/migration.md
+msgid "`series.values`"
+msgstr "`series.values`"
+
+#: ../../site/migration.md
+msgid "`get_column<double>(\"name\")`"
+msgstr "`get_column<double>(\"name\")`"
+
+#: ../../site/migration.md
+msgid "Returned as a span/view; copy if it must outlive the frame"
+msgstr "以 span/视图返回；若需在帧之后存活请复制"
+
+#: ../../site/migration.md
+msgid "`series.pct_change()`"
+msgstr "`series.pct_change()`"
+
+#: ../../site/migration.md
+msgid "`fincore::simple_returns(frame, \"close\")`"
+msgstr "`fincore::simple_returns(frame, \"close\")`"
+
+#: ../../site/migration.md
+msgid "Drops the first observation, keeps the later timestamp"
+msgstr "丢弃第一个观测，保留较晚的时间戳"
+
+#: ../../site/migration.md
+msgid "`series.shift(n)`"
+msgstr "`series.shift(n)`"
+
+#: ../../site/migration.md
+msgid "Not provided as a primitive"
+msgstr "不提供原语"
+
+#: ../../site/migration.md
+msgid "Most APIs take the lag explicitly (`turnover_periods`)"
+msgstr "多数 API 显式接受滞后（`turnover_periods`）"
+
+#: ../../site/migration.md
+msgid "`series.rolling(w).mean()`"
+msgstr "`series.rolling(w).mean()`"
+
+#: ../../site/migration.md
+#, python-brace-format
+msgid "`rolling_engine{..., w, 252.0}.compute(...)`"
+msgstr "`rolling_engine{..., w, 252.0}.compute(...)`"
+
+#: ../../site/migration.md
+msgid "Complete windows only"
+msgstr "仅完整窗口"
+
+#: ../../site/migration.md
+msgid "`series.std(ddof=1)`"
+msgstr "`series.std(ddof=1)`"
+
+#: ../../site/migration.md
+msgid "`calc_distribution_stats(values).std`"
+msgstr "`calc_distribution_stats(values).std`"
+
+#: ../../site/migration.md
+msgid "The native field divides by the count (population), not `count - 1`"
+msgstr "原生字段除以计数（总体），不是 `count - 1`"
+
+#: ../../site/migration.md
+msgid "`df.groupby(level=0).mean()`"
+msgstr "`df.groupby(level=0).mean()`"
+
+#: ../../site/migration.md
+msgid "`aggregate_returns(...)` / table builders"
+msgstr "`aggregate_returns(...)` / 表构造器"
+
+#: ../../site/migration.md
+msgid "Bucket ordering is explicit, not insertion order"
+msgstr "分桶顺序是显式的，不是插入顺序"
+
+#: ../../site/migration.md
+msgid "`np.nan`"
+msgstr "`np.nan`"
+
+#: ../../site/migration.md
+msgid "`NaN` in a double column"
+msgstr "双精度列中的 `NaN`"
+
+#: ../../site/migration.md
+msgid "Treated as missing, never as zero"
+msgstr "视为缺失，绝不当成 0"
+
+#: ../../site/migration.md
+msgid "`raise ValueError(...)`"
+msgstr "`raise ValueError(...)`"
+
+#: ../../site/migration.md
+msgid "`fincore::input_error` / `factor_data_error`"
+msgstr "`fincore::input_error` / `factor_data_error`"
+
+#: ../../site/migration.md
+msgid "Carries category, code and structured fields"
+msgstr "带分类、代码与结构化字段"
+
+#: ../../site/migration.md
+msgid "`df.to_html()` / `to_excel()`"
+msgstr "`df.to_html()` / `to_excel()`"
+
+#: ../../site/migration.md
+msgid "`render_html(document, ...)` / `render_xlsx(document)`"
+msgstr "`render_html(document, ...)` / `render_xlsx(document)`"
+
+#: ../../site/migration.md
+msgid "Render one typed document, not a frame"
+msgstr "渲染一份类型化文档，而不是帧"
+
+#: ../../site/migration.md
+msgid "`corr()`, `cov()`"
+msgstr "`corr()`、`cov()`"
+
+#: ../../site/migration.md
+msgid "`correlation_breakdown`, `beta`, `tracking_error`"
+msgstr "`correlation_breakdown`、`beta`、`tracking_error`"
+
+#: ../../site/migration.md
+msgid "Pairwise alignment on shared timestamps"
+msgstr "按共有时间戳成对对齐"
+
+#: ../../site/migration.md:24
+msgid "Porting checklist"
+msgstr "迁移检查清单"
+
+#: ../../site/migration.md:26
+msgid ""
+"**Find the native symbol.** Every public symbol is in the API ledger; if a "
+"Python call has no native counterpart, it is not implemented, and a wrapper "
+"that pretends otherwise will drift."
+msgstr "**找到原生符号。** 每个公共符号都在 API 清单里；若某个 Python 调用没有原生对应物，那就是未实现，假装实现的包装层迟早会漂移。"
+
+#: ../../site/migration.md:29
+msgid ""
+"**Check the unit contract.** Native functions take decimal returns, not "
+"percentages, and never convert units implicitly."
+msgstr "**检查单位契约。** 原生函数接受小数收益而不是百分比，且从不做隐式换算。"
+
+#: ../../site/migration.md:31
+msgid ""
+"**Check the alignment contract.** Pairwise APIs join on shared timestamps; "
+"strict ones reject duplicated or unsorted indexes. A Python query that "
+"relied on positional order must be rewritten, not translated."
+msgstr "**检查对齐契约。** 成对 API 按共有时间戳连接；严格 API 会拒绝重复或乱序索引。依赖位置顺序的 Python 查询必须重写，而不是直译。"
+
+#: ../../site/migration.md:34
+msgid ""
+"**Check the failure contract.** A `NaN` result and an exception mean "
+"different things here; see [conventions](conventions.md)."
+msgstr "**检查失败契约。** 这里的 `NaN` 结果与异常含义不同；见[约定](conventions.md)。"
+
+#: ../../site/migration.md:36
+msgid ""
+"**Keep the oracle budget.** Reuse the same fixture and the same reference "
+"values you used in Python, so a port is verified against evidence rather "
+"than against itself."
+msgstr "**保留 oracle 预算。** 复用你在 Python 里用的同一 fixture 与参考值，这样移植是对照证据验证，而不是自我验证。"
+
+#: ../../site/migration.md:40
+msgid "Known differences that bite"
+msgstr "容易踩到的已知差异"
+
+#: ../../site/migration.md:42
+msgid ""
+"**Signed zero and NaN payloads.** Digests serialize doubles as IEEE-754 bit "
+"patterns; some writers normalize negative zero because the bytes are hashed."
+msgstr "**带符号零与 NaN 载荷。** 摘要把浮点序列化为 IEEE-754 位模式；部分写出器会规范负零，因为字节会被哈希。"
+
+#: ../../site/migration.md:44
+msgid ""
+"**Annualization defaults.** 252 for daily. A Python helper that used 365 "
+"will disagree by the square root of the ratio."
+msgstr "**年化默认值。** 日频为 252。用 365 的 Python 辅助函数会相差该比值的平方根。"
+
+#: ../../site/migration.md:46
+msgid ""
+"**Deviation divisor.** `calc_distribution_stats` reports the population "
+"deviation, while pandas defaults to `ddof=1`; the difference is visible on "
+"short samples and vanishes only asymptotically. It also does not filter "
+"`NaN`."
+msgstr ""
+"**偏差除数。** `calc_distribution_stats` 报告总体偏差，而 pandas 默认 "
+"`ddof=1`；短样本上差异可见，只有渐近才消失。它也不过滤 `NaN`。"
+
+#: ../../site/migration.md:49
+msgid ""
+"**Drawdown signs.** `max_drawdown` returns a negative fraction, while "
+"`gen_drawdown_table` reports a positive percentage of the prior peak."
+msgstr "**回撤符号。** `max_drawdown` 返回负数小数，而 `gen_drawdown_table` 报告相对前高的正百分比。"
+
+#: ../../site/migration.md:51
+msgid ""
+"**Backtest verdicts.** `inconclusive` is a real outcome, not a failure; the "
+"five-expected-exception floor is applied on purpose."
+msgstr "**回测结论。** `inconclusive` 是真实结果而不是失败；五期望例外的下限是刻意设置的。"
+
+#: ../../site/migration.md:53
+msgid ""
+"**Optional routes.** Provider or extension surfaces marked optional are not "
+"parity claims. The iteration records list what is implemented and what is "
+"deferred."
+msgstr "**可选路径。** 标记为可选的 provider 或扩展接口不是 parity 承诺。迭代记录列出了已实现与推迟的部分。"
+
+#: ../../site/migration.md:57
+msgid "What parity means here"
+msgstr "这里的 parity 指什么"
+
+#: ../../site/migration.md:59
 msgid ""
 "The repository's parity records describe the implemented native surface and "
-"its declared variances. The current iteration-8 record is the authoritative "
-"scope snapshot; later performance work does not retroactively expand it. The "
-"current dependency and platform status should be checked in the dated "
-"acceptance records rather than inferred from a phase count."
+"its declared variances. The iteration-8 record is the authoritative scope "
+"snapshot; later performance work does not retroactively expand it. Check the"
+" dated acceptance records for dependency and platform status rather than "
+"inferring it from a phase count."
 msgstr ""
-"仓库的对等性记录描述了已实现的原生接口及其声明的差异。当前的 iteration-8 记录"
-"是权威的范围快照；后续的性能工作不会追溯扩展该范围。当前的依赖与平台状态应查"
-"阅带日期的验收记录，而不是根据阶段数量进行推断。"
+"仓库的 parity 记录描述已实现的原生接口及其声明的差异。迭代 8 "
+"的记录是权威范围快照；后续性能工作不会追溯扩大它。依赖与平台状态请查有日期的验收记录，而不是从阶段编号推断。"
 
-#: ../../site/migration.md:14
+#: ../../site/migration.md:65
 msgid ""
 "For a migration review, map each Python call to a public native symbol, "
-"verify its unit/alignment contract and retain the same fixture or oracle "
-"budget. Do not treat `EXTERNAL_OPTIONAL` provider or PyMC routes as native "
-"parity."
+"verify its unit and alignment contract, and retain the same fixture or "
+"oracle budget. A port that changes both the code and the reference values "
+"proves nothing."
 msgstr ""
-"在进行迁移评审时，将每个 Python 调用映射到公共原生符号，验证其单位/对齐契约，"
-"并保留相同的测试夹具或基准结果预算。不要将 `EXTERNAL_OPTIONAL` 提供方或 PyMC "
-"路径视为原生对等。"
+"做迁移评审时，把每个 Python 调用映射到公共原生符号，验证其单位与对齐契约，并保留同样的 fixture 或 oracle "
+"预算。同时改动代码与参考值的移植什么也证明不了。"
+
