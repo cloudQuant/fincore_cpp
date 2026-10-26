@@ -15,6 +15,7 @@
 {% endblock %}
 
 {% block extrabody %}
+  <a class="fc-skip" href="#fc-main">Skip to content / 跳到正文</a>
   <div class="fc-lang-toggle" role="navigation" aria-label="Documentation language">
     <a href="{{ fc_docs_root }}en/latest/" data-fc-language="en"
        {% if language == 'en' %}class="fc-active" aria-current="true"{% endif %}>EN</a>
@@ -36,4 +37,14 @@
     <a href="{{ fc_docs_zh_url }}" data-fc-language="zh-cn"
        {% if language != 'en' %}class="fc-active"{% endif %}>简体中文</a>
   </div>
+{% endblock %}
+
+{% block content %}
+  <span id="fc-main" tabindex="-1"></span>
+  {{ super() }}
+{% endblock %}
+
+{% block sidebartitle %}
+  {{ super() }}
+  <div class="fc-version">v{{ release }}</div>
 {% endblock %}

@@ -162,3 +162,42 @@
     opacity: 1;
   }
 }
+
+/* Keyboard access and "Edit on GitHub" affordances. */
+.fc-skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 2000;
+  padding: 0.4rem 0.8rem;
+  background: #ffffff;
+  border: 1px solid #2980b9;
+  border-radius: 0.35rem;
+  color: #1f4e79;
+  text-decoration: none;
+}
+.fc-skip:focus {
+  left: 0.75rem;
+  top: 0.75rem;
+}
+#fc-main:focus {
+  outline: none;
+}
+.fc-version {
+  margin-top: 0.15rem;
+  font-size: 0.78rem;
+  color: #8a99a6;
+  letter-spacing: 0.02em;
+}
+a:focus-visible,
+button:focus-visible,
+.fc-button:focus-visible,
+.fc-card:focus-visible {
+  outline: 2px solid #2980b9;
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fc-copy {
+    transition: none;
+  }
+}

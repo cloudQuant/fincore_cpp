@@ -8,15 +8,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fincore_cpp 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-25 22:15+0800\n"
+"POT-Creation-Date: 2026-10-26 18:54+0800\n"
 "PO-Revision-Date: 2026-10-25 22:20+0800\n"
 "Last-Translator: fincore_cpp documentation maintainers\n"
-"Language-Team: zh_CN <LL@li.org>\n"
 "Language: zh_CN\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
+"Language-Team: zh_CN <LL@li.org>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
 #: ../../site/contributing.md:1
@@ -24,78 +24,204 @@ msgid "Contributing to code and documentation"
 msgstr "参与代码与文档贡献"
 
 #: ../../site/contributing.md:3
-msgid "Code changes"
-msgstr "代码变更"
+msgid "Before you start"
+msgstr "开始之前"
 
 #: ../../site/contributing.md:5
 msgid ""
-"Build and run the full C++ suite, then add targeted tests for new behavior. "
-"Keep public signatures and contracts explicit; update the English API "
-"comment, the Chinese translation and the public symbol ledger in the same "
-"change."
+"Open an issue for anything larger than a bug fix or a documentation "
+"correction, so scope is agreed before you spend time on it. Security reports"
+" go through `SECURITY.md`, never a public issue. Small, focused pull "
+"requests are reviewed faster than large ones."
 msgstr ""
-"构建并运行完整的 C++ 测试套件，然后为新行为补充有针对性的测试。保持公共签名和"
-"契约明确；在同一次变更中更新英文 API 注释、中文译文和公共符号清单。"
+"对于任何大于缺陷修复或文档订正的工作，请先开 issue，以便在投入时间前确认范围。安全问题走 `SECURITY.md`，绝不开公开 "
+"issue。小而聚焦的 pull request 比大块改动更快得到评审。"
 
-#: ../../site/contributing.md:9
+#: ../../site/contributing.md:10
+msgid "Code changes"
+msgstr "代码变更"
+
+#: ../../site/contributing.md:12
+msgid "Build and run the full suite, then add targeted tests for new behaviour:"
+msgstr "构建并运行完整测试套件，然后为新行为补充针对性测试："
+
+#: ../../site/contributing.md:14
+msgid ""
+"cmake -S . -B build -DCMAKE_BUILD_TYPE=Release\n"
+"cmake --build build --parallel\n"
+"ctest --test-dir build --output-on-failure\n"
+msgstr ""
+"cmake -S . -B build -DCMAKE_BUILD_TYPE=Release\n"
+"cmake --build build --parallel\n"
+"ctest --test-dir build --output-on-failure\n"
+
+#: ../../site/contributing.md:20
+msgid "Rules that reviewers check:"
+msgstr "评审者会检查的规则："
+
+#: ../../site/contributing.md:22
+msgid ""
+"Public signatures and contracts stay explicit; a new public declaration "
+"needs a comment, a Chinese translation and a refreshed API ledger in the "
+"same change."
+msgstr "公共签名与契约保持显式；新增公共声明必须在同一次改动里带上注释、中文翻译与刷新后的 API 清单。"
+
+#: ../../site/contributing.md:24
+msgid ""
+"A numeric change comes with the fixture or oracle that justifies it. Do not "
+"weaken an assertion or loosen a tolerance to make a platform pass."
+msgstr "数值改动必须附带能说明它的 fixture 或 oracle。不要为了让某个平台通过而削弱断言或放宽容差。"
+
+#: ../../site/contributing.md:26
+msgid ""
+"A performance change states its workload, machine and statistic; a noisy "
+"result is recorded as INCONCLUSIVE rather than summarised upward."
+msgstr "性能改动要说明负载、机器与统计量；噪声结果记为 INCONCLUSIVE，而不是向上汇总。"
+
+#: ../../site/contributing.md:28
+msgid ""
+"Optional surfaces (ImPlot, extensions) stay optional: no core target may "
+"start depending on a GUI library."
+msgstr "可选接口（ImPlot、扩展）保持可选：任何核心 target 都不得开始依赖图形库。"
+
+#: ../../site/contributing.md:31
 msgid "Comment standard"
 msgstr "注释规范"
 
-#: ../../site/contributing.md:11
+#: ../../site/contributing.md:33
 msgid ""
 "Public declarations use `///` Google-style contracts: a verb phrase such as "
-"“Returns …”, units, alignment/missing-value rules, ownership, and verified "
-"failure modes. Implementation comments explain non-obvious algorithms and "
-"invariants, not line-by-line mechanics. Do not invent complexity, thread "
-"safety or exception guarantees."
+"\"Returns ...\", units, alignment and missing-value rules, ownership, and "
+"verified failure modes. Implementation comments explain non-obvious "
+"algorithms and invariants, not line-by-line mechanics. Do not invent "
+"complexity, thread-safety or exception guarantees."
 msgstr ""
-"公共声明使用 `///` 风格的 Google 契约注释：以“Returns …”这类动词短语开头，并"
-"说明单位、对齐/缺失值规则、所有权以及经验证的失败模式。实现注释用于解释不显而"
-"易见的算法和不变量，而不是逐行说明实现机制。不要臆造复杂度、线程安全或异常保"
-"证。"
+"公共声明使用 `///` 的 Google 风格契约：以“Returns "
+"...”这类动词短语开头，写明单位、对齐与缺失值规则、所有权，以及经过验证的失败模式。实现注释解释不明显的算法与不变量，而不是逐行复述机械步骤。不要臆造复杂度、线程安全或异常保证。"
 
-#: ../../site/contributing.md:17
+#: ../../site/contributing.md:39
+msgid "A comment-only change must be provably comment-only:"
+msgstr "纯注释改动必须可证明是纯注释："
+
+#: ../../site/contributing.md:41
+msgid "python docs/site/tools/check_comment_only.py <files>\n"
+msgstr "python docs/site/tools/check_comment_only.py <files>\n"
+
+#: ../../site/contributing.md:45
 msgid "Documentation changes"
 msgstr "文档变更"
 
-#: ../../site/contributing.md:19
+#: ../../site/contributing.md:47
 msgid ""
-"The English source is authoritative. Generate gettext catalogs, update "
-"Chinese translations, and build both languages with strict warnings. The "
-"docs source is under `docs/site`; generated HTML/XML and `.mo` files stay "
-"out of Git."
-msgstr ""
-"英文源文件是权威版本。生成 gettext 消息目录、更新中文译文，并在严格警告模式下"
-"构建两种语言。文档源位于 `docs/site` 下；生成的 HTML/XML 和 `.mo` 文件不纳入 "
-"Git。"
+"The English source is authoritative. Generate the catalogs, translate the "
+"new strings, then build both languages with strict warnings:"
+msgstr "英文源是权威。先生成目录、翻译新字符串，再用严格警告构建两种语言："
 
-#: ../../site/contributing.md:23
+#: ../../site/contributing.md:50
 msgid ""
 "cd docs/site\n"
 "doxygen Doxyfile\n"
+"python tools/normalize_doxygen_xml.py ../_build/doxygen/xml\n"
 "sphinx-build -b gettext -W --keep-going . ../_build/gettext\n"
 "sphinx-intl update -p ../_build/gettext -l zh_CN\n"
 "sphinx-build -b html -W -n --keep-going . ../_build/html/en\n"
-"FINCORE_DOCS_LANGUAGE=zh_CN sphinx-build -b html -W -n --keep-going . ../"
-"_build/html/zh_CN\n"
+"FINCORE_DOCS_LANGUAGE=zh_CN sphinx-build -b html -W -n --keep-going . "
+"../_build/html/zh_CN\n"
+"cd ../..\n"
+"python docs/site/tools/check_built_site.py\n"
 msgstr ""
 "cd docs/site\n"
 "doxygen Doxyfile\n"
+"python tools/normalize_doxygen_xml.py ../_build/doxygen/xml\n"
 "sphinx-build -b gettext -W --keep-going . ../_build/gettext\n"
 "sphinx-intl update -p ../_build/gettext -l zh_CN\n"
 "sphinx-build -b html -W -n --keep-going . ../_build/html/en\n"
-"FINCORE_DOCS_LANGUAGE=zh_CN sphinx-build -b html -W -n --keep-going . ../"
-"_build/html/zh_CN\n"
+"FINCORE_DOCS_LANGUAGE=zh_CN sphinx-build -b html -W -n --keep-going . "
+"../_build/html/zh_CN\n"
+"cd ../..\n"
+"python docs/site/tools/check_built_site.py\n"
 
-#: ../../site/contributing.md:32
+#: ../../site/contributing.md:62
+msgid "Documentation rules that are enforced, not suggested:"
+msgstr "会被强制执行的文档规则："
+
+#: ../../site/contributing.md:64
+msgid ""
+"Every page has a Chinese entry in `locale/zh_CN/LC_MESSAGES/`; untranslated "
+"or fuzzy entries fail the site check."
+msgstr "每个页面在 `locale/zh_CN/LC_MESSAGES/` 都有中文条目；未翻译或 fuzzy 条目会让站点检查失败。"
+
+#: ../../site/contributing.md:66
+msgid ""
+"A heading must not start with a number (`## 1. ...`), or MyST leaves it "
+"untranslated even when the catalog has the string."
+msgstr "标题不得以数字开头（`## 1. ...`），否则即使目录里有该字符串，MyST 也会让它保持未翻译。"
+
+#: ../../site/contributing.md:68
+msgid "Identifiers, commands, paths and formulas stay literal in the translation."
+msgstr "标识符、命令、路径与公式在翻译中保持原样。"
+
+#: ../../site/contributing.md:69
+msgid ""
+"Generated HTML, Doxygen XML, `.pot`/`.mo` files and benchmark outputs stay "
+"out of git."
+msgstr "生成的 HTML、Doxygen XML、`.pot`/`.mo` 文件与基准输出不入库。"
+
+#: ../../site/contributing.md:71
+msgid ""
+"A page that describes a failure mode names the real message, not a "
+"paraphrase."
+msgstr "描述失败模式的页面要写出真实消息，而不是转述。"
+
+#: ../../site/contributing.md:73
+msgid "Commits and pull requests"
+msgstr "提交与 pull request"
+
+#: ../../site/contributing.md:75
+msgid ""
+"One topic per commit: behaviour, documentation, and generated-artifact "
+"updates do not share a commit."
+msgstr "一次提交一个主题：行为改动、文档改动与产物更新不放在同一提交里。"
+
+#: ../../site/contributing.md:77
+msgid ""
+"Say what you ran and what you could not verify — platform, hardware, "
+"external service. A local build is not an online deployment."
+msgstr "说明你跑了什么、以及没能验证什么 —— 平台、硬件、外部服务。本地构建不等于线上部署。"
+
+#: ../../site/contributing.md:79
+msgid ""
+"If a platform is unavailable, record it as pending with the exact flip path "
+"instead of claiming success."
+msgstr "若某个平台不可用，请连同确切的操作路径一起记为待完成，而不是声称成功。"
+
+#: ../../site/contributing.md:82
 msgid "Review and evidence"
 msgstr "评审与证据"
 
-#: ../../site/contributing.md:34
+#: ../../site/contributing.md:84
 msgid ""
-"Keep behavior changes, documentation-only changes and generated-artifact "
-"updates in separate commits. Record the actual commit, checks and "
-"exceptions; do not cite a local build as an online deployment."
+"Reviewers look for: the contract is stated where a reader will look for it; "
+"the test would fail if the behaviour regressed; the documentation says what "
+"the code does rather than what it was intended to do; and any number that "
+"appears in prose can be reproduced from the repository."
+msgstr "评审者关注：契约写在读者会去找的位置；如果行为回退，测试会失败；文档写的是代码实际做什么而不是打算做什么；文中出现的每个数字都能从仓库复现。"
+
+#: ../../site/contributing.md:89
+msgid ""
+"Acceptance records under `docs/acceptance/` and iteration notes under "
+"`docs/iterations/` are the project's memory. Update them when a change "
+"alters what is true, and never rewrite history to look cleaner than it was."
 msgstr ""
-"将行为变更、仅文档变更和生成产物更新放在不同的提交中。记录实际提交、检查项和"
-"例外情况；不要把本地构建说成在线部署。"
+"`docs/acceptance/` 下的验收记录与 `docs/iterations/` "
+"下的迭代说明是项目的记忆。当改动改变了事实时更新它们，绝不为了看起来更整洁而改写历史。"
+
+#~ msgid ""
+#~ "Keep behavior changes, documentation-only "
+#~ "changes and generated-artifact updates in"
+#~ " separate commits. Record the actual "
+#~ "commit, checks and exceptions; do not "
+#~ "cite a local build as an online "
+#~ "deployment."
+#~ msgstr "将行为变更、仅文档变更和生成产物更新放在不同的提交中。记录实际提交、检查项和例外情况；不要把本地构建说成在线部署。"
+

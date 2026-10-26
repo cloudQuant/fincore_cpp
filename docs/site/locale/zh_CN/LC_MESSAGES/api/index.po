@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fincore_cpp 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-26 01:10+0800\n"
+"POT-Creation-Date: 2026-10-26 18:54+0800\n"
 "PO-Revision-Date: 2026-10-26 00:15+0800\n"
 "Last-Translator: fincore_cpp documentation maintainers\n"
 "Language: zh_CN\n"
@@ -45,26 +45,66 @@ msgid "Modules"
 msgstr "模块"
 
 #: ../../site/api/index.md:35
+msgid "How to read a reference page"
+msgstr "如何阅读参考页"
+
+#: ../../site/api/index.md:37
+msgid ""
+"Every module page is generated from the public header, so the order you read"
+" is the order a maintainer writes:"
+msgstr "每个模块页都由公共头文件生成，因此阅读顺序就是维护者的书写顺序："
+
+#: ../../site/api/index.md:40
+msgid ""
+"**Signature.** Types, defaults and template parameters are literal; a "
+"default is part of the contract, not a convenience."
+msgstr "**签名。** 类型、默认值与模板参数都是字面契约；默认值是契约的一部分，而不是便利。"
+
+#: ../../site/api/index.md:42
+msgid ""
+"**Contract prose.** What the function returns, in what units, and what it "
+"does with missing or non-finite values."
+msgstr "**契约文字。** 函数返回什么、以什么单位返回、对缺失或非有限值如何处理。"
+
+#: ../../site/api/index.md:44
+msgid ""
+"**Parameters, returns and throws.** The failure modes are enumerated; each "
+"one is implemented, not aspirational."
+msgstr "**参数、返回值与抛出。** 失败模式被逐一列出，每一条都确实实现，而不是愿望。"
+
+#: ../../site/api/index.md:46
+msgid ""
+"**Ownership.** Whether a returned frame or view owns its data, and how long "
+"a view stays valid."
+msgstr "**所有权。** 返回的帧或视图是否拥有数据，以及视图在多长时间内有效。"
+
+#: ../../site/api/index.md:49
+msgid ""
+"Identifiers, commands, paths and formulas are not translated: the Chinese "
+"pages carry the same declarations with Chinese explanatory prose."
+msgstr "标识符、命令、路径与公式不翻译：中文页面保留同样的声明，配以中文说明文字。"
+
+#: ../../site/api/index.md:52
 msgid "Conventions used by every module"
 msgstr "各模块通用的约定"
 
-#: ../../site/api/index.md:37
+#: ../../site/api/index.md:54
 msgid "Timestamps are UTC nanoseconds; calendar helpers return UTC midnights."
 msgstr "时间戳为 UTC 纳秒；日历辅助函数返回 UTC 零点。"
 
-#: ../../site/api/index.md:38
+#: ../../site/api/index.md:55
 msgid ""
 "Prices and returns are decimal fractions unless a field name says otherwise."
 " Annualization is explicit in each signature."
 msgstr "除非字段名称另有说明，价格与收益率均为小数。年化方式在每个签名中显式给出。"
 
-#: ../../site/api/index.md:40
+#: ../../site/api/index.md:57
 msgid ""
 "`dataframe` inputs and outputs follow the DataFrame submodule's column "
 "rules; column names are part of each contract."
 msgstr "`dataframe` 的输入与输出遵循 DataFrame 子模块的列规则；列名是各契约的一部分。"
 
-#: ../../site/api/index.md:42
+#: ../../site/api/index.md:59
 #, python-brace-format
 msgid ""
 "Errors carry a stable category, code and message through "
@@ -73,17 +113,17 @@ msgstr ""
 "错误通过 {cpp:class}`fincore::fincore_error` 携带稳定的 category、code 与 "
 "message；研究路径另有带类型的子类。"
 
-#: ../../site/api/index.md:44
+#: ../../site/api/index.md:61
 msgid ""
 "Optional dependencies are named at the call site; no API downloads data or "
 "renders a chart implicitly."
 msgstr "可选依赖在调用处显式命名；任何接口都不会隐式下载数据或渲染图表。"
 
-#: ../../site/api/index.md:47
+#: ../../site/api/index.md:64
 msgid "Coverage"
 msgstr "覆盖情况"
 
-#: ../../site/api/index.md:49
+#: ../../site/api/index.md:66
 msgid ""
 "The public symbol ledger records every extracted symbol, its module, source "
 "line and documentation status. The maintainers regenerate it with "
@@ -95,7 +135,7 @@ msgstr ""
 "公共符号清单记录每个被提取的符号、其模块、源码行号与文档状态。维护者使用 `tools/build_api_ledger.py` "
 "重新生成它，并要求在文档发布前为每个符号提供说明或经审阅的豁免。清单本身是仓库中的源产物，因此其计数可与同一提交进行比对。"
 
-#: ../../site/api/index.md:56
+#: ../../site/api/index.md:73
 msgid ""
 "The rendered signatures are the normative C++ surface. Python-compatible "
 "behaviour, including exception inheritance and DataFrame object identity, is"
