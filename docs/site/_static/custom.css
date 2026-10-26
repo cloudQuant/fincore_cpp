@@ -234,3 +234,250 @@ button:focus-visible,
     page-break-after: avoid;
   }
 }
+
+/* Top-right cluster: language pill and theme switch. */
+.fc-topbar {
+  position: fixed;
+  top: 0.55rem;
+  right: 1rem;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.fc-topbar .fc-lang-toggle {
+  position: static;
+}
+.fc-theme-toggle {
+  width: 1.9rem;
+  height: 1.9rem;
+  padding: 0;
+  border: 1px solid #d6dce1;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #5a6b7b;
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+}
+.fc-theme-toggle:hover {
+  background: #eef4fa;
+  color: #1f4e79;
+}
+
+/* Dark theme, applied as .fc-dark on <html> by theme.js. */
+.fc-dark {
+  color-scheme: dark;
+}
+.fc-dark body,
+.fc-dark .wy-body-for-nav,
+.fc-dark .wy-nav-content-wrap {
+  background: #12181d;
+  color: #d6dee5;
+}
+.fc-dark .rst-content h1,
+.fc-dark .rst-content h2,
+.fc-dark .rst-content h3,
+.fc-dark .rst-content h4,
+.fc-dark .rst-content h5,
+.fc-dark .rst-content h6,
+.fc-dark .rst-content .toctree-wrapper p.caption {
+  color: #e6edf3;
+}
+.fc-dark a {
+  color: #6cb6ff;
+}
+.fc-dark a:visited {
+  color: #9ecbff;
+}
+.fc-dark code,
+.fc-dark .rst-content tt,
+.fc-dark .rst-content code {
+  background: rgba(255, 255, 255, 0.07);
+  color: #f0a8a0;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+.fc-dark .wy-nav-side {
+  background: #1b232b;
+}
+.fc-dark .wy-side-nav-search {
+  background: #235a82;
+}
+.fc-dark .wy-side-nav-search input[type="text"] {
+  background: #12181d;
+  color: #d6dee5;
+  border-color: #33414d;
+}
+.fc-dark .wy-menu-vertical li.current {
+  background: #24303a;
+}
+.fc-dark .wy-menu-vertical li.current > a,
+.fc-dark .wy-menu-vertical li.on a {
+  color: #e6edf3;
+  background: #24303a;
+  border-color: #3a4a58;
+}
+.fc-dark .wy-menu-vertical a:hover {
+  background: #2b3945;
+}
+.fc-dark .wy-breadcrumbs li,
+.fc-dark .wy-breadcrumbs li a {
+  color: #9fb0be;
+}
+.fc-dark .rst-content table.docutils,
+.fc-dark .rst-content table.field-list {
+  border-color: #33414d;
+}
+.fc-dark .rst-content table.docutils thead th,
+.fc-dark .rst-content table.docutils td,
+.fc-dark .rst-content table.docutils th {
+  background: #1b232b;
+  border-color: #33414d;
+  color: #d6dee5;
+}
+.fc-dark .rst-content table.docutils td p {
+  color: #d6dee5;
+}
+.fc-dark .rst-content .admonition,
+.fc-dark .rst-content .note,
+.fc-dark .rst-content .warning,
+.fc-dark .rst-content .seealso {
+  background: #1b2733;
+  border-color: #2d4b66;
+}
+.fc-dark .rst-content .admonition-title {
+  background: #223142;
+  color: #cfe3ff;
+}
+.fc-dark .rst-content pre,
+.fc-dark .rst-content .highlight {
+  background: #202020;
+}
+.fc-dark .rst-content .highlight pre {
+  color: #d0d0d0;
+}
+.fc-dark hr {
+  border-color: #33414d;
+}
+.fc-dark .rst-content dl dt {
+  color: #e6edf3;
+}
+.fc-dark .rst-content .headerlink {
+  color: #55636f;
+}
+.fc-dark footer,
+.fc-dark .rst-footer-buttons a {
+  color: #9fb0be;
+}
+.fc-dark .fc-lang-toggle,
+.fc-dark .fc-theme-toggle {
+  background: #1b232b;
+  border-color: #33414d;
+  box-shadow: none;
+}
+.fc-dark .fc-lang-toggle a {
+  color: #9fb0be;
+}
+.fc-dark .fc-lang-toggle a.fc-active {
+  background: #2f6f9f;
+  color: #ffffff;
+}
+.fc-dark .fc-theme-toggle {
+  color: #cfe3ff;
+}
+.fc-dark .fc-skip {
+  background: #1b232b;
+  border-color: #6cb6ff;
+  color: #cfe3ff;
+}
+.fc-dark .fc-copy {
+  background: #24303a;
+  border-color: #3a4a58;
+  color: #c6d3dd;
+}
+.fc-dark .fc-version {
+  color: #7d8b97;
+}
+.fc-dark .fc-button {
+  background: #1b232b;
+  border-color: #33414d;
+  color: #9ecbff;
+}
+.fc-dark .fc-button.fc-primary {
+  background: #2f6f9f;
+  border-color: #2f6f9f;
+  color: #ffffff;
+}
+.fc-dark .fc-card {
+  background: #171f26;
+  border-color: #33414d;
+  color: #d6dee5;
+}
+.fc-dark .fc-card strong {
+  color: #9ecbff;
+}
+.fc-dark .fc-card span {
+  color: #a8b7c3;
+}
+.fc-dark .rst-content .section > .section > h2 {
+  border-color: #33414d;
+}
+@media (max-width: 768px) {
+  .fc-topbar {
+    top: 0.35rem;
+    right: 0.5rem;
+    gap: 0.25rem;
+  }
+}
+.fc-dark .rst-content table.docutils tbody td,
+.fc-dark .rst-content .wy-table-odd td,
+.fc-dark .rst-content .wy-table-striped tr:nth-child(2n-1) td {
+  background: #1b232b;
+  color: #d6dee5;
+}
+.fc-dark .rst-content .wy-table-striped tr:nth-child(2n) td {
+  background: #171f26;
+  color: #d6dee5;
+}
+/* The theme's zebra rule is more specific than a plain table selector. */
+.fc-dark .rst-content table.docutils:not(.field-list) tr:nth-child(2n-1) td,
+.fc-dark .rst-content table.docutils:not(.field-list) tr:nth-child(2n) td {
+  background-color: #1b232b;
+  color: #d6dee5;
+}
+.fc-dark .rst-content table.docutils:not(.field-list) tr:nth-child(2n) td {
+  background-color: #171f26;
+}
+.fc-dark .rst-content a.reference,
+.fc-dark .rst-content a.reference.internal,
+.fc-dark .rst-content a.reference.external {
+  color: #6cb6ff;
+}
+.fc-dark .rst-content .btn,
+.fc-dark .rst-content .btn-neutral,
+.fc-dark .rst-content .btn-neutral:visited {
+  background: #1b232b;
+  border-color: #33414d;
+  color: #cfe3ff;
+}
+.fc-dark .rst-content .btn:hover {
+  background: #24303a;
+}
+/* Footer navigation keeps a light button from the theme; darken it explicitly. */
+.fc-dark .rst-content .btn,
+.fc-dark .rst-content .btn-neutral,
+.fc-dark .rst-content .btn-neutral:visited,
+.fc-dark .rst-footer-buttons .btn {
+  background: #1b232b !important;
+  border-color: #33414d !important;
+  color: #cfe3ff !important;
+}
+/* Primary call-to-action must keep white text in dark mode. */
+.fc-dark a.fc-button.fc-primary,
+.fc-dark a.fc-button.fc-primary:visited,
+.fc-dark a.fc-button.fc-primary:hover {
+  color: #ffffff !important;
+  background: #2f6f9f !important;
+  border-color: #2f6f9f !important;
+}
