@@ -41,7 +41,10 @@ PLATFORM_PENDING，P134 的本机收尾项已完成（验收记录第 7 节）�
 P131 的范围进度：`src/` 全部 106 个文件已完成审阅并各有一条说明，`tools/` 另有
 16 个脚本因模块 docstring 已覆盖用途与调用方式而记为“审阅后无需改动”；本轮又为
 `tools/tests/` 的 7 个测试模块补上缺失的模块 docstring，`tools/` 的 31 个条目因此
-全部完成审阅。其余 138 个条目位于 `tests/`、`examples/`、`benchmarks/`，尚未逐项确认。
+全部完成审阅。`examples/` 的 3 个条目同轮完成，其中两个可执行目标显式构建并重跑，
+输出与迭代 8 留档一致；`implot_dashboard.cpp` 依赖本机未启用的 ImPlot 选项，只有
+comment-only 校验，没有编译证据。其余 135 个条目位于 `tests/`、`benchmarks/`，
+尚未逐项确认。
 
 实施后的事实基线（2026-10-26）：`docs/site/api-ledger.tsv` 记录 2484 个公共
 符号（含重载逐项），全部有说明；117 个头文件中 97 个在本轮修改并通过

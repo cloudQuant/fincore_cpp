@@ -48,6 +48,9 @@ int main(int argc, char **argv) {
                  argv[0]);
     return 2;
   }
+  // Fixture written without a random draw: every value is a closed-form
+  // function of the date index and the asset index, so the tables depend only
+  // on the constants below.
   fincore::prepared_factor_data data;
   data.forward_labels = {"1D", "5D"};
   const auto start = fincore::utc_timestamp(2022, 1, 3);
@@ -60,6 +63,9 @@ int main(int argc, char **argv) {
       row.asset = assets[asset];
       row.factor = 0.4 * std::sin((date + 1) * 0.21 + asset * 0.8) +
                    0.15 * std::cos((date + 1) * 0.07 + asset) + 0.02 * asset;
+      // The quantile label is supplied by the caller rather than computed, and
+      // here it is the asset index, so each date's breakdown holds one member
+      // per quantile.
       row.quantile = asset + 1;
       row.forward_returns = {
           0.002 * std::sin((date + 1) * 0.13 + asset * 0.7) + 0.0008 * asset,
@@ -68,11 +74,19 @@ int main(int argc, char **argv) {
     }
   }
   fincore::factor_analysis_config config;
+  // Selected periods must be prepared labels, and a row's forward returns are
+  // aligned to those labels by position, so this list and the labels above
+  // describe the same two columns in the same order.
   config.periods = {"1D", "5D"};
   config.turnover_periods = {1, 5};
+  // Portfolio inputs would be built only for the first selected period, and the
+  // factor report never reads them, so this flag changes the size of the model
+  // rather than the rendered document.
   config.include_portfolio_inputs = false;
   const auto model = fincore::analyze_factor(data, config);
   const auto document = fincore::build_factor_report(model, "Factor Report");
+  // The two pages are the same document rendered twice: the language option is
+  // the only difference, which is what makes the pair comparable.
   fincore::report_html_options english_options;
   english_options.language = "en";
   if (use_echarts) {
@@ -84,6 +98,8 @@ int main(int argc, char **argv) {
     chinese_options.chart_backend = fincore::report_chart_backend::echarts;
   }
 
+  // One argument fixes all three paths: the Chinese page takes a ".zh" infix
+  // before the extension and the workbook reuses the stem as .xlsx.
   const std::filesystem::path english_path{output_argument};
   auto chinese_path = english_path;
   chinese_path.replace_filename(english_path.stem().string() + ".zh" +
@@ -96,6 +112,8 @@ int main(int argc, char **argv) {
   const std::string chinese_html =
       fincore::render_html(document, chinese_options);
   const std::string workbook = fincore::render_xlsx(document);
+  // Each write is evaluated into its own flag before the status is combined, so
+  // one failing artifact still lets the other two be produced.
   const bool english_written = write_file(english_path, english_html);
   const bool chinese_written = write_file(chinese_path, chinese_html);
   const bool workbook_written = write_file(xlsx_path, workbook);

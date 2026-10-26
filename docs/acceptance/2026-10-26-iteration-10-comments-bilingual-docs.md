@@ -105,9 +105,9 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 149 marked `reviewed_this_round` with a one-line note naming the
+(287 files: 152 marked `reviewed_this_round` with a one-line note naming the
 invariant recorded or why none was needed, 6 with several explanatory blocks
-but not yet audited, 8 sparse, 124 with no explanatory block). Auditing may
+but not yet audited, 7 sparse, 122 with no explanatory block). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
 because its validation clauses are the entire contract. This round audited and,
 where warranted, extended the following implementation files:
@@ -251,8 +251,27 @@ line numbering (the assertion in `test_capability_inventory.py` moves from 490 t
 capability-inventory gate, not a consequence of this round, and are registered as
 **F10-D12**; no CI workflow runs `tools/tests`, so they stay red silently.
 Every one of the 106 files under `src/` is now audited and carries a note naming
-the invariant recorded or why none was needed. The remaining 138 files are under
-`tests/`, `examples/` and `benchmarks/`, and are deliberately not
+the invariant recorded or why none was needed. The three files under `examples/`
+were audited next, and because they are `EXCLUDE_FROM_ALL` targets the ordinary
+build would not have compiled them: `fincore_report_render` and
+`fincore_i8_artifacts` were built explicitly (both objects recompiled and both
+executables linked), the full library and test targets rebuilt after them, and
+`ctest` in the same run reported `100% tests passed, 0 tests failed out of
+1092`. The two examples were then re-run. `fincore_i8_artifacts` printed the same
+`report_digest` as the committed iteration-8 evidence
+(`7de8b05c5ffeef83bfef79f75922941f98d6c277036565797403d5cefbfe8ec6`) and the same
+five artifact sizes — 9808, 1039755, 5250, 843 and 850 bytes — with only the
+output path differing, and `fincore_report_render` produced its three artifacts,
+which is also how the documented `.zh` infix naming was confirmed rather than
+assumed. `examples/implot_dashboard.cpp` stays uncompiled on this host: its
+target needs `FINCORE_BUILD_IMPLOT` and `FINCORE_BUILD_IMPLOT_DEMO`, both `OFF`
+here and never enabled by any workflow, so that file is covered by the
+comment-only checker and by review only, not by a build. Its claims about the
+vendored ImPlot were checked against `third_party/implot` — the tick-label
+array is copied during `SetupAxisTicks`, and the range overload asserts at least
+two ticks when labels are supplied, which is the reason for the `> 1U` guard.
+The remaining 135 files are under
+`tests/` and `benchmarks/`, and are deliberately not
 claimed as audited, so **P131 is PARTIAL**, not passed.
 
 One audit ended in a registered question rather than a comment: the

@@ -24,6 +24,8 @@ namespace {
 
 bool write_ppm(const char *path, const int width, const int height,
                const std::vector<unsigned char> &pixels) {
+  // glReadPixels fills the buffer from the lower-left corner while a PPM image
+  // starts at the top row, so the rows are emitted in reverse.
   FILE *stream = std::fopen(path, "wb");
   if (stream == nullptr) {
     return false;
@@ -40,6 +42,9 @@ bool write_ppm(const char *path, const int width, const int height,
 enum class dashboard_view { general, factor, groups, events, specialized };
 
 dashboard_view selected_view() {
+  // An unset variable and an unrecognized value both land on `general`, so the
+  // caller cannot tell them apart from the enum alone; main re-reads the raw
+  // value to decide whether to reject the request.
   const char *value = std::getenv("FINCORE_IMPLOT_VIEW");
   if (value == nullptr || std::string(value) == "general") {
     return dashboard_view::general;
@@ -74,6 +79,9 @@ fincore::factor_analysis_model make_factor_demo_model() {
   for (int date = 0; date < 60; ++date) {
     const auto timestamp = start + static_cast<fincore::timestamp>(date) * day;
     return_dates.push_back(timestamp);
+    // Only every tenth date carries factor rows, and the event panel below uses
+    // the same `date % 10` rule for its offsets, so the ledger events and the
+    // factor observations land on one shared set of six dates.
     if (date % 10 != 5) {
       continue;
     }
@@ -85,6 +93,9 @@ fincore::factor_analysis_model make_factor_demo_model() {
       row.date = timestamp;
       row.asset = assets[asset];
       row.factor = factor;
+      // Six assets fold into three quantiles (two each) and two groups (three
+      // each), so the group and quantile panels show different partitions of the
+      // same rows rather than different data.
       row.quantile = asset % 3 + 1;
       row.has_group = true;
       row.group = groups[asset / 3];
@@ -127,6 +138,9 @@ fincore::factor_analysis_model make_factor_demo_model() {
   // The demo event panel is a raw mean-return path. With long_short enabled,
   // event analysis demeans that same date mean and its fixture appears flat.
   config.long_short = false;
+  // The two trailing arguments are the event window in ledger rows on each side
+  // of an event date; three on each side plus the event day is the seven-value
+  // profile built above.
   return fincore::analyze_factor(data, config, event_returns, 3, 3);
 }
 
@@ -151,8 +165,12 @@ void plot_event_chart(const fincore::series_chart &chart) {
     labels.push_back(event_offset_label(offset));
   }
   for (const auto &label : labels) {
+    // SetupAxisTicks takes a C array of pointers and copies each string into
+    // its own buffer, so the strings above only have to survive until here.
     label_pointers.push_back(label.c_str());
   }
+  // The range overload asserts n_ticks >= 2 whenever labels are supplied, which
+  // is why a single-offset panel skips the custom ticks instead of passing one.
   if (ticks.size() > 1U) {
     ImPlot::SetupAxisTicks(ImAxis_X1, ticks.front(), ticks.back(),
                            static_cast<int>(ticks.size()),
@@ -216,6 +234,8 @@ void draw_event_view(const fincore::factor_tear_charts &charts) {
 
 int main() {
   const auto view = selected_view();
+  // A typo in the variable would otherwise render the general view silently, so
+  // the raw value is checked once more here and rejected with its own exit code.
   const char *raw_view = std::getenv("FINCORE_IMPLOT_VIEW");
   if (raw_view != nullptr && view == dashboard_view::general &&
       std::string(raw_view) != "general") {
@@ -234,6 +254,9 @@ int main() {
     glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
   }
 
+  // Capture mode renders into a hidden window and reads back a single frame, so
+  // the per-view height is what decides whether every panel fits in the image;
+  // the interactive path keeps the ordinary 720 pixels and scrolls instead.
   const int window_height_for_capture = view == dashboard_view::general  ? 3200
                                         : view == dashboard_view::factor ? 1700
                                         : view == dashboard_view::groups ? 2100
@@ -321,6 +344,9 @@ int main() {
   if (!quantile_dates.quantiles.empty() && !quantile_dates.labels.empty()) {
     const std::size_t quantile_count = quantile_dates.quantiles.size();
     for (std::size_t date = 0U; date < quantile_dates.dates.size(); ++date) {
+      // `means` is flattened date-major, then quantile, then label, so one date's
+      // block is quantile_count * labels wide and its top quantile starts a
+      // label-count before the next block.
       const std::size_t base = date * quantile_count * quantile_dates.labels.size();
       const double top = quantile_dates.means.at(
           base + (quantile_count - 1U) * quantile_dates.labels.size());

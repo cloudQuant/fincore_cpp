@@ -26,6 +26,9 @@ bool write_file(const std::filesystem::path& path, const std::string& data) {
 }
 
 fincore::report_document make_document() {
+  // Hand-written constants rather than computed data: the binary exists to
+  // compare artifacts rendered from a fixed input, so changing a value here
+  // also changes the digest printed at the end.
   fincore::report_document document;
   document.domain = "factor";
   document.title = "Iteration 8 Native Artifact Check";
@@ -85,6 +88,8 @@ int main(int argc, char** argv) {
   }
 
   const auto document = make_document();
+  // One document drives every backend, so the six artifacts written below are
+  // views of the same identity rather than six independently built reports.
   const std::string html =
       fincore::render_html(document, {.language = "en",
                                       .chart_backend =
@@ -98,6 +103,10 @@ int main(int argc, char** argv) {
   const auto bokeh = fincore::render_bokeh(document);
   const auto pdf = fincore::write_pdf(document, (output / "report.pdf").string());
 
+  // write_pdf already wrote its file to disk; the other five artifacts are
+  // serialized here. find() yields nullptr for an absent name, so the two
+  // "figure" lookups would fail as a dereference, not a diagnostic, if a bundle
+  // ever stopped emitting one.
   bool ok = true;
   ok &= write_file(output / "report.html", html);
   ok &= write_file(output / "report-echarts.html", echarts);
@@ -106,6 +115,8 @@ int main(int argc, char** argv) {
                    plotly.find("figure")->content);
   ok &= write_file(output / "report-bokeh.json",
                    bokeh.find("figure")->content);
+  // The PDF bundle reports its output through the "file" artifact, so a missing
+  // entry, not an error code, is what this branch treats as failure.
   if (!ok || pdf.find("file") == nullptr) {
     return 1;
   }

@@ -274,9 +274,9 @@ tools/tests/test_research_contract.py	py	0	reviewed_this_round	docstring added t
 tools/tests/test_run_benchmarks.py	py	0	reviewed_this_round	docstring added this round (module had none): covers the legacy single-run driver while the paired campaign has its own module
 tools/verify_installed_package.py	py	0	reviewed_this_round	audited: purpose in the docstring, behaviour documented by the checks it runs; options have no help text by design of the original script
 tools/verify_xlsx_structure.py	py	0	reviewed_this_round	audited: docstring plus two option help strings already state the job and the independent reader used
-examples/implot_dashboard.cpp	cpp	1	sparse_not_audited	
-examples/render_factor_report.cpp	cpp	0	no_explanatory_block_not_audited	
-examples/render_iteration8_artifacts.cpp	cpp	0	no_explanatory_block_not_audited	
+examples/implot_dashboard.cpp	cpp	1	reviewed_this_round	comments added: PPM rows reversed for the GL origin; unset and unknown FINCORE_IMPLOT_VIEW both fall back to general, so main re-reads the raw value; capture height is per view because one frame is read back; six assets fold into three quantiles and two groups on one event calendar; ImPlot asserts at least two labelled ticks; means are date x quantile x label
+examples/render_factor_report.cpp	cpp	0	reviewed_this_round	comments added: fixture has no random draw; the quantile label is caller-supplied and equals the asset index; periods must name prepared labels aligned by position; portfolio inputs are never read by the report; one argument yields three paths; every write is attempted before the status combines
+examples/render_iteration8_artifacts.cpp	cpp	0	reviewed_this_round	comments added: constants are hand-written so the printed digest identifies them; one document drives all six artifacts; write_pdf is the only renderer that takes a path; a missing file artifact is the failure signal
 benchmarks/alpha003_a_stocks/contract.py	py	0	no_explanatory_block_not_audited	
 benchmarks/alpha003_a_stocks/cpp/alpha003_research.cpp	cpp	0	no_explanatory_block_not_audited	
 benchmarks/alpha003_a_stocks/html_report.py	py	0	no_explanatory_block_not_audited	
