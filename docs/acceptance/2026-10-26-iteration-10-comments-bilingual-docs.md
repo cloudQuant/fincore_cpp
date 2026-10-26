@@ -288,6 +288,31 @@ likewise **success**.
   deployment on repository enablement. `has_pages` is `false` and
   `GET /repos/cloudQuant/fincore_cpp/pages` returns 404.
 
+### Update after the owner enabled Pages (2026-10-26)
+
+Pages is now enabled on the repository with `build_type: workflow` and
+`html_url` `https://cloudquant.github.io/fincore_cpp/`. The consequence in CI is
+visible on run [`40253764660`](https://github.com/cloudQuant/fincore_cpp/actions/runs/40253764660):
+`build` **success**, `pages` **success** (the precheck now finds the site and
+`configure-pages` accepts it), `deploy` **failure**. The deploy annotation is
+`Branch "dev" is not allowed to deploy to github-pages due to environment
+protection rules`, and both live URLs still answer 404 because nothing has been
+deployed yet.
+
+The remaining blocker is the auto-created `github-pages` environment: it carries
+a `branch_policy` protection rule with `custom_branch_policies: true` and an
+empty allow-list, so no branch can deploy. The allow-list could not be set from
+this host: the environment `PUT` accepts neither `deployer_policies` nor
+`deployable_branches`, the branch-list endpoints return 404, and the GraphQL
+schema exposes no mutation for it, so the only remaining paths are the Settings
+UI or giving `dev` branch protection and switching to
+`protected_branches: true`, which changes push governance and was not done.
+
+**Owner step left for P133:** Settings → Environments → `github-pages` →
+Deployment branches → add `dev` (and `master` if wanted), then re-run the `docs`
+workflow on `dev`. Until that is done, both Pages combinations stay
+**PLATFORM_PENDING**, and no local artifact is presented as a live site.
+
 Required runbook before P133 can be marked PASS (four combinations, each with
 home, installation, one deep API page, language switch, version label, static
 assets and search checked from the same commit):
