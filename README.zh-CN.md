@@ -2,6 +2,11 @@
 
 [English](README.md) | **简体中文**
 
+[![文档](https://github.com/cloudQuant/fincore_cpp/actions/workflows/docs.yml/badge.svg?branch=master)](https://cloudquant.github.io/fincore_cpp/zh-cn/latest/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![C++23](https://img.shields.io/badge/C%2B%2B-23-blue.svg)](#环境要求)
+
+
 `fincore_cpp` 是一个原生 C++23 库，用于量化投资组合、因子、业绩与风险分析。它在
 本地 `DataFrame` 类型之上提供自己的类型化 API，运行时不依赖 Python、pandas 或
 NumPy，也不承诺与 pandas 对象兼容。

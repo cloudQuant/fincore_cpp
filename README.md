@@ -2,6 +2,11 @@
 
 **English** | [简体中文](README.zh-CN.md)
 
+[![Docs](https://github.com/cloudQuant/fincore_cpp/actions/workflows/docs.yml/badge.svg?branch=master)](https://cloudquant.github.io/fincore_cpp/en/latest/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![C++23](https://img.shields.io/badge/C%2B%2B-23-blue.svg)](#requirements)
+
+
 `fincore_cpp` is a native C++23 library for quantitative portfolio, factor,
 performance and risk analytics. It ships its own typed API over a local
 `DataFrame` type and does not depend on Python, pandas or NumPy at runtime — nor

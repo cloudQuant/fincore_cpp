@@ -20,8 +20,10 @@ def main() -> int:
     args = parser.parse_args()
 
     base = args.base_url.rstrip("/") + "/"
+    # 404.html answers an error rather than representing a page, so it stays out.
     pages = sorted(path.relative_to(args.site_root).as_posix()
-                   for path in args.site_root.rglob("*.html"))
+                   for path in args.site_root.rglob("*.html")
+                   if path.name != "404.html")
     lines = ['<?xml version="1.0" encoding="UTF-8"?>',
              '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
     for page in pages:
