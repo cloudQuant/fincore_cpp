@@ -39,7 +39,7 @@ src/factor/timedelta.cpp	cpp	1	reviewed_this_round	Monday-first weekday offset; 
 src/factor/workflows.cpp	cpp	0	reviewed_this_round	all seven workflows share one operation id and builder and differ only in exposed columns; the id list is what makes an operation discoverable in the catalog
 src/metrics/alpha_beta.cpp	cpp	0	reviewed_this_round	zero benchmark belongs to the down side here, unlike the strict split in the ratio helpers; NaN-only and finite-only filters coexist deliberately
 src/metrics/basic.cpp	cpp	0	no_explanatory_block_not_audited	
-src/metrics/bayesian.cpp	cpp	0	no_explanatory_block_not_audited	
+src/metrics/bayesian.cpp	cpp	0	reviewed_this_round	cone percentiles are cross-sectional over paths at each step; a zero starting value reads as excess rather than level; a bound name normalizes negative zero so one width has one identity
 src/metrics/consecutive.cpp	cpp	0	reviewed_this_round	a flat or NaN day ends both runs; ties keep the earliest dates and run totals add simple returns instead of compounding
 src/metrics/drawdown.cpp	cpp	3	reviewed_this_round	NaN freezes wealth; equal peak closes episode and advances peak
 src/metrics/frequencies.cpp	cpp	0	no_explanatory_block_not_audited	

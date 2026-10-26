@@ -49,6 +49,9 @@ double checked_percentile(const std::span<const double> wealths,
     return value;
 }
 
+// Each row's percentiles are taken across the paths at that point in time, over a
+// wealth vector updated in place, so a column of the result is a distribution of
+// outcomes at one step rather than one path's history.
 dataframe compute_bayes_cone_impl(const dataframe& predicted_returns,
                                   const double starting_value) {
     require_finite(starting_value, "bayesian cone starting value must be finite");
@@ -131,6 +134,9 @@ double compound_return(const double wealth,
     return next;
 }
 
+// A starting value of zero has no multiplicative reading — every path would scale
+// to zero — so the result is expressed as the excess over one instead, which makes
+// that cone report returns where the others report levels.
 double scale_wealth(const double compounded,
                     const double starting_value) {
     const double scaled = starting_value == 0.0
@@ -165,6 +171,9 @@ std::size_t random_index(detail::numpy_mt19937& engine,
         engine.randint(static_cast<std::uint32_t>(bound)));
 }
 
+// The formatted number becomes a column name, so a zero written with a minus sign
+// would give the same bound two identities; the rewrite makes negative zero print
+// exactly as positive zero does.
 std::string shortest_number(const double value) {
     const double normalized = value == 0.0 ? 0.0 : value;
     std::array<char, 64U> buffer{};
