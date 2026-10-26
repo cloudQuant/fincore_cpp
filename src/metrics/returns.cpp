@@ -14,6 +14,8 @@ namespace {
 double compound_wealth(const std::span<const double> returns) {
     double wealth = 1.0;
     for (const double value : returns) {
+        // A NaN period is treated as flat, so one missing observation cannot
+        // invalidate the rest of the chain.
         wealth *= 1.0 + (std::isnan(value) ? 0.0 : value);
     }
     return wealth;
@@ -309,6 +311,8 @@ double annual_return(const dataframe& returns,
     }
 
     const double ending_wealth = compound_returns(values) + 1.0;
+    // A wiped-out (or negative) terminal wealth has no real annualized root,
+    // so the total-loss case is reported as -1.0 instead of NaN.
     if (ending_wealth <= 0.0) {
         return -1.0;
     }

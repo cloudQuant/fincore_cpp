@@ -47,7 +47,7 @@ src/metrics/helpers.cpp	cpp	1	sparse_not_audited
 src/metrics/perf_attrib.cpp	cpp	0	no_explanatory_block_not_audited
 src/metrics/perf_stats.cpp	cpp	0	no_explanatory_block_not_audited
 src/metrics/ratios.cpp	cpp	0	no_explanatory_block_not_audited
-src/metrics/returns.cpp	cpp	0	no_explanatory_block_not_audited
+src/metrics/returns.cpp	cpp	2	reviewed_this_round
 src/metrics/risk.cpp	cpp	0	no_explanatory_block_not_audited
 src/metrics/rolling.cpp	cpp	3	reviewed_this_round
 src/metrics/stats.cpp	cpp	0	no_explanatory_block_not_audited
@@ -79,7 +79,7 @@ src/risk/backtesting.cpp	cpp	5	reviewed_this_round
 src/risk/evt.cpp	cpp	7	reviewed_this_round
 src/risk/garch.cpp	cpp	7	reviewed_this_round
 src/risk/garch_internal.hpp	hpp	1	sparse_not_audited
-src/risk/models.cpp	cpp	0	no_explanatory_block_not_audited
+src/risk/models.cpp	cpp	3	reviewed_this_round
 src/risk/report.cpp	cpp	1	sparse_not_audited
 src/risk/specs.cpp	cpp	0	no_explanatory_block_not_audited
 src/risk/walk_forward.cpp	cpp	5	reviewed_this_round
@@ -97,7 +97,7 @@ src/simulation/monte_carlo.cpp	cpp	2	reviewed_this_round
 src/simulation/parameters.cpp	cpp	0	no_explanatory_block_not_audited
 src/simulation/paths.cpp	cpp	9	multi_block_not_audited
 src/simulation/result.cpp	cpp	0	no_explanatory_block_not_audited
-src/simulation/scenarios.cpp	cpp	0	no_explanatory_block_not_audited
+src/simulation/scenarios.cpp	cpp	2	reviewed_this_round
 src/version.cpp	cpp	0	no_explanatory_block_not_audited
 src/viz/bokeh_document.cpp	cpp	0	no_explanatory_block_not_audited
 src/viz/chart_data.cpp	cpp	0	no_explanatory_block_not_audited

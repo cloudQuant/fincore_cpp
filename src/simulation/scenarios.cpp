@@ -50,6 +50,8 @@ void validate_returns(const dataframe& returns, const std::string_view column) {
         throw input_error{"stress testing requires at least one return"};
     }
     for (const double value : values) {
+        // Only NaN is rejected: an infinite return is a legal extreme input
+        // here and survives into the compounded scenario result.
         if (std::isnan(value)) {
             throw input_error{"stress testing does not accept NaN returns"};
         }
@@ -90,6 +92,8 @@ std::vector<double> transform_predefined(
     const predefined_definition::transformation transformation) {
     std::vector<double> values{returns.begin(), returns.end()};
     switch (transformation) {
+    // crash and spike shock exactly one observation: the upper middle element
+    // for an even-length series, as in the pinned scenario definition.
     case predefined_definition::transformation::crash:
         values[values.size() / 2U] = -0.20;
         break;

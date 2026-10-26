@@ -105,9 +105,9 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 19 marked `reviewed_this_round`, 13 with several explanatory blocks
-but not yet audited, 21 sparse, 234 with no explanatory block). This round
-audited and extended the nineteen implementation files whose behaviour is not
+(287 files: 22 marked `reviewed_this_round`, 13 with several explanatory blocks
+but not yet audited, 21 sparse, 231 with no explanatory block). This round
+audited and extended the twenty-two implementation files whose behaviour is not
 inferable from their declared contract:
 
 | File | Invariant recorded |
@@ -131,9 +131,12 @@ inferable from their declared contract:
 | `src/calendar.cpp` | Boundary-day windows because the epoch is not a whole number of days |
 | `src/dataframe.cpp` | No NaN padding; type-restricted lookup reports a wrong-typed column as such |
 | `src/metrics/rolling.cpp` | Right-aligned labels, no short-window padding, windows rebuilt per step |
+| `src/metrics/returns.cpp` | NaN periods compound flat; a wiped-out series reports -1.0 |
+| `src/risk/models.cpp` | Digest pairs timestamp with value; ES tail is inclusive and degrades to the threshold |
+| `src/simulation/scenarios.cpp` | crash/spike shock the upper middle element; only NaN input is rejected |
 
-All nineteen were verified comment-only and are covered by the re-run below. The
-remaining 268 files are deliberately not claimed as audited, so **P131 is
+All twenty-two were verified comment-only and are covered by the re-run below.
+The remaining 265 files are deliberately not claimed as audited, so **P131 is
 PARTIAL**, not passed.
 
 ## 4. P132 — bilingual site content

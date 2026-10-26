@@ -59,6 +59,8 @@ std::string digest_of(const cleaned_series& series) {
     };
     for (std::size_t position = 0; position < series.values.size();
          ++position) {
+        // Timestamp and value are hashed as a pair, so the same values shifted
+        // onto different dates produce a different digest.
         append_u64(static_cast<std::uint64_t>(series.index[position]));
         std::uint64_t bits = 0;
         std::memcpy(&bits, &series.values[position], sizeof(bits));
@@ -109,11 +111,15 @@ risk_estimate forecast_impl(const dataframe& returns,
                 double total = 0.0;
                 std::size_t count = 0U;
                 for (const double value : cleaned.values) {
+                    // Inclusive tail: the interpolated threshold itself is one
+                    // of the observations, matching the pinned mean-of-tail.
                     if (value <= threshold) {
                         total += value;
                         ++count;
                     }
                 }
+                // An empty tail (possible when interpolation lands above every
+                // observation) degrades to the threshold instead of NaN.
                 result.estimate =
                     count == 0U ? threshold
                                 : total / static_cast<double>(count);
