@@ -55,6 +55,7 @@ ctest --test-dir build --output-on-failure
 
 installation
 quickstart
+tutorial
 conventions
 ```
 

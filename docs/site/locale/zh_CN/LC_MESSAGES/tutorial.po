@@ -1,0 +1,413 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 18:32+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/tutorial.md:1
+msgid "Tutorial: a monthly performance report from prices"
+msgstr "教程：从价格生成一份月度业绩报告"
+
+#: ../../site/tutorial.md:3
+msgid ""
+"This tutorial builds a small but complete artefact: a price series becomes "
+"returns, headline statistics, a rolling view, a monthly table and a rendered"
+" report. It takes about fifteen minutes and needs nothing but a compiler and"
+" the installed library."
+msgstr "本教程构建一个小而完整的产物：价格序列变成收益、头条统计量、滚动视图、月度表以及一份渲染好的报表。大约十五分钟，只需要编译器和已安装的库。"
+
+#: ../../site/tutorial.md:8
+msgid "Values are synthetic. Nothing here is an investment result."
+msgstr "数值是合成的。这里没有任何内容构成投资结论。"
+
+#: ../../site/tutorial.md:10
+msgid "Set up"
+msgstr "准备工作"
+
+#: ../../site/tutorial.md:12
+msgid ""
+"Build and install the library as described in "
+"[installation](installation.md), or add `include/` and the built library to "
+"a scratch project. Every snippet below continues from the previous one."
+msgstr "按[安装](installation.md)说明构建并安装库，或把 `include/` 与构建出的库加入一个临时工程。下面的片段依次衔接。"
+
+#: ../../site/tutorial.md:16
+msgid ""
+"#include <fincore/dataframe.hpp>\n"
+"#include <fincore/metrics/drawdown.hpp>\n"
+"#include <fincore/metrics/ratios.hpp>\n"
+"#include <fincore/metrics/returns.hpp>\n"
+"#include <fincore/report/html.hpp>\n"
+"#include <fincore/report/models.hpp>\n"
+"#include <fincore/report/xlsx.hpp>\n"
+"#include <fincore/rolling_engine.hpp>\n"
+"\n"
+"#include <cmath>\n"
+"#include <cstdio>\n"
+"#include <string>\n"
+"#include <vector>\n"
+msgstr ""
+"#include <fincore/dataframe.hpp>\n"
+"#include <fincore/metrics/drawdown.hpp>\n"
+"#include <fincore/metrics/ratios.hpp>\n"
+"#include <fincore/metrics/returns.hpp>\n"
+"#include <fincore/report/html.hpp>\n"
+"#include <fincore/report/models.hpp>\n"
+"#include <fincore/report/xlsx.hpp>\n"
+"#include <fincore/rolling_engine.hpp>\n"
+"\n"
+"#include <cmath>\n"
+"#include <cstdio>\n"
+"#include <string>\n"
+"#include <vector>\n"
+
+#: ../../site/tutorial.md:32
+msgid "Step 1 — Turn prices into returns"
+msgstr "第 1 步：把价格变成收益"
+
+#: ../../site/tutorial.md:34
+msgid ""
+"`simple_returns` divides each price by the previous one and drops the first "
+"observation, keeping the timestamp of the later price of each pair."
+msgstr "`simple_returns` 用每个价格除以前一个，并丢弃第一个观测，保留每对中较晚价格的时间戳。"
+
+#: ../../site/tutorial.md:37
+#, python-brace-format
+msgid ""
+"std::vector<fincore::timestamp> index;\n"
+"std::vector<double> prices;\n"
+"const auto day = 86'400'000'000'000LL;\n"
+"for (int i = 0; i < 260; ++i) {\n"
+"    index.push_back(fincore::utc_timestamp(2025, 1, 2) + i * day);\n"
+"    prices.push_back(100.0 + 6.0 * std::sin(i * 0.11) +\n"
+"                     3.0 * std::cos(i * 0.37) + 0.02 * i);\n"
+"}\n"
+"fincore::dataframe price_frame;\n"
+"price_frame.load_index(std::vector<fincore::timestamp>(index));\n"
+"price_frame.load_column<double>(\"close\", prices,\n"
+"                                hmdf::nan_policy::dont_pad_with_nans);\n"
+"\n"
+"const auto returns = fincore::simple_returns(price_frame, \"close\");\n"
+"std::printf(\"returns: %zu rows\\n\", returns.shape().first);\n"
+msgstr ""
+"std::vector<fincore::timestamp> index;\n"
+"std::vector<double> prices;\n"
+"const auto day = 86'400'000'000'000LL;\n"
+"for (int i = 0; i < 260; ++i) {\n"
+"    index.push_back(fincore::utc_timestamp(2025, 1, 2) + i * day);\n"
+"    prices.push_back(100.0 + 6.0 * std::sin(i * 0.11) +\n"
+"                     3.0 * std::cos(i * 0.37) + 0.02 * i);\n"
+"}\n"
+"fincore::dataframe price_frame;\n"
+"price_frame.load_index(std::vector<fincore::timestamp>(index));\n"
+"price_frame.load_column<double>(\"close\", prices,\n"
+"                                hmdf::nan_policy::dont_pad_with_nans);\n"
+"\n"
+"const auto returns = fincore::simple_returns(price_frame, \"close\");\n"
+"std::printf(\"returns: %zu rows\\n\", returns.shape().first);\n"
+
+#: ../../site/tutorial.md:55
+msgid ""
+"Check the row count: 260 prices produce 259 returns, and the first timestamp"
+" is the second price's date. If your count differs, the input index probably"
+" repeats a date or is unsorted."
+msgstr "检查行数：260 个价格产生 259 个收益，第一个时间戳是第二个价格的日期。如果数量不对，通常是输入索引重复了日期或未排序。"
+
+#: ../../site/tutorial.md:59
+msgid "Step 2 — Headline statistics"
+msgstr "第 2 步：头条统计量"
+
+#: ../../site/tutorial.md:61
+#, python-format
+msgid ""
+"const double sharpe = fincore::sharpe_ratio(returns, \"returns\");\n"
+"const double sortino = fincore::sortino_ratio(returns, \"returns\");\n"
+"const double drawdown = fincore::max_drawdown(returns, \"returns\");\n"
+"const double calmar = fincore::calmar_ratio(returns, \"returns\");\n"
+"\n"
+"std::printf(\"sharpe %.3f  sortino %.3f  max dd %.3f  calmar %.3f\\n\",\n"
+"            sharpe, sortino, drawdown, calmar);\n"
+msgstr ""
+"const double sharpe = fincore::sharpe_ratio(returns, \"returns\");\n"
+"const double sortino = fincore::sortino_ratio(returns, \"returns\");\n"
+"const double drawdown = fincore::max_drawdown(returns, \"returns\");\n"
+"const double calmar = fincore::calmar_ratio(returns, \"returns\");\n"
+"\n"
+"std::printf(\"sharpe %.3f  sortino %.3f  max dd %.3f  calmar %.3f\\n\",\n"
+"            sharpe, sortino, drawdown, calmar);\n"
+
+#: ../../site/tutorial.md:71
+msgid ""
+"All four annualize with 252 periods and drop `NaN`. A series that never "
+"declines has no drawdown, so `calmar_ratio` returns `NaN` rather than a "
+"large number — that is deliberate, and worth handling in your own output."
+msgstr ""
+"这四个指标都以 252 期年化并丢弃 `NaN`。从不下跌的序列没有回撤，因此 `calmar_ratio` 返回 `NaN` 而不是一个很大的数 ——"
+" 这是刻意的，值得在你自己的输出里处理。"
+
+#: ../../site/tutorial.md:75
+msgid "Step 3 — A rolling view"
+msgstr "第 3 步：滚动视图"
+
+#: ../../site/tutorial.md:77
+msgid ""
+"`rolling_engine` evaluates metrics over every complete trailing window. A "
+"20-observation window therefore starts producing output at row 20, not row "
+"1."
+msgstr "`rolling_engine` 在每个完整的尾部窗口上评估指标。因此 20 个观测的窗口从第 20 行开始产出，而不是第 1 行。"
+
+#: ../../site/tutorial.md:80
+#, python-brace-format, python-format
+msgid ""
+"fincore::rolling_engine rolling{returns, std::nullopt, 20U, 252.0};\n"
+"const auto series = rolling.compute(\n"
+"    {fincore::rolling_metric::sharpe,\n"
+"     fincore::rolling_metric::volatility});\n"
+"\n"
+"for (const auto& [name, frame] : series) {\n"
+"    const auto& values = frame.get_column<double>(fincore::returns_column);\n"
+"    std::printf(\"%-12s %zu rows, last %.4f\n"
+"\", name.c_str(),\n"
+"                frame.shape().first, values.back());\n"
+"}\n"
+msgstr ""
+"fincore::rolling_engine rolling{returns, std::nullopt, 20U, 252.0};\n"
+"const auto series = rolling.compute(\n"
+"    {fincore::rolling_metric::sharpe,\n"
+"     fincore::rolling_metric::volatility});\n"
+"\n"
+"for (const auto& [name, frame] : series) {\n"
+"    const auto& values = frame.get_column<double>(fincore::returns_column);\n"
+"    std::printf(\"%-12s %zu rows, last %.4f\n"
+"\", name.c_str(),\n"
+"                frame.shape().first, values.back());\n"
+"}\n"
+
+#: ../../site/tutorial.md:94
+msgid ""
+"The map key names the metric; the output frame still uses the ordinary "
+"returns column name, so one loop reads both series."
+msgstr "映射的键是指标名；输出帧仍然使用常规的收益列名，因此一个循环即可读取两条序列。"
+
+#: ../../site/tutorial.md:97
+msgid "Step 4 — A monthly table"
+msgstr "第 4 步：月度表"
+
+#: ../../site/tutorial.md:99
+msgid ""
+"`aggregate_returns` groups by calendar month and adds integer year and "
+"period columns next to the aggregated value."
+msgstr "`aggregate_returns` 按日历月分组，并在聚合值旁添加整数年份与期内序号列。"
+
+#: ../../site/tutorial.md:102
+msgid ""
+"const auto monthly = fincore::aggregate_returns(\n"
+"    returns, fincore::return_aggregation_period::monthly, \"returns\");\n"
+"std::printf(\"months: %zu\\n\", monthly.shape().first);\n"
+msgstr ""
+"const auto monthly = fincore::aggregate_returns(\n"
+"    returns, fincore::return_aggregation_period::monthly, \"returns\");\n"
+"std::printf(\"months: %zu\\n\", monthly.shape().first);\n"
+
+#: ../../site/tutorial.md:108
+msgid ""
+"Monthly values are compounded within the month, not summed. That distinction"
+" is the usual reason a hand-rolled table disagrees with this one."
+msgstr "月度值在月内复利，而不是相加。这个区别通常是手写表格与本表不一致的原因。"
+
+#: ../../site/tutorial.md:111
+msgid "Step 5 — Compare with a benchmark"
+msgstr "第 5 步：与基准比较"
+
+#: ../../site/tutorial.md:113
+#, python-format
+msgid ""
+"const auto benchmark_prices = price_frame;   // stand-in for a real index\n"
+"const auto benchmark = fincore::simple_returns(benchmark_prices, \"close\");"
+"\n"
+"\n"
+"std::printf(\"beta %.3f  alpha %.4f\\n\",\n"
+"            fincore::beta(returns, benchmark),\n"
+"            fincore::alpha(returns, benchmark));\n"
+msgstr ""
+"const auto benchmark_prices = price_frame;   // stand-in for a real index\n"
+"const auto benchmark = fincore::simple_returns(benchmark_prices, \"close\");"
+"\n"
+"\n"
+"std::printf(\"beta %.3f  alpha %.4f\\n\",\n"
+"            fincore::beta(returns, benchmark),\n"
+"            fincore::alpha(returns, benchmark));\n"
+
+#: ../../site/tutorial.md:122
+msgid ""
+"The two frames are paired on the timestamps they share, so a benchmark with "
+"a different holiday calendar shortens the sample rather than shifting it."
+msgstr "两帧按共有的时间戳配对，因此节假日日历不同的基准会缩短样本，而不是让样本错位。"
+
+#: ../../site/tutorial.md:125
+msgid "Step 6 — Build and render the report"
+msgstr "第 6 步：构建并渲染报表"
+
+#: ../../site/tutorial.md:127
+msgid ""
+"fincore::report_document document;\n"
+"document.domain = \"portfolio\";\n"
+"document.title = \"Monthly performance review\";\n"
+"document.metadata = {{\"source\", \"tutorial\"}, {\"frequency\", "
+"\"daily\"}};\n"
+"\n"
+"fincore::report_section section;\n"
+"section.key = \"performance\";\n"
+"section.title = \"Performance\";\n"
+"\n"
+"auto add_metric = [&section](std::string key, std::string label, double "
+"value) {\n"
+"    fincore::report_metric metric;\n"
+"    metric.key = std::move(key);\n"
+"    metric.label = std::move(label);\n"
+"    metric.number = value;\n"
+"    section.metrics.push_back(std::move(metric));\n"
+"};\n"
+"add_metric(\"sharpe\", \"Sharpe ratio\", sharpe);\n"
+"add_metric(\"sortino\", \"Sortino ratio\", sortino);\n"
+"add_metric(\"max_drawdown\", \"Maximum drawdown\", drawdown);\n"
+"\n"
+"fincore::report_table table;\n"
+"table.key = \"monthly_returns\";\n"
+"table.title = \"Monthly returns\";\n"
+"table.columns = {\"month\", \"return\"};\n"
+"for (std::size_t row = 0; row < monthly.shape().first; ++row) {\n"
+"    table.rows.push_back(\n"
+"        {fincore::report_cell::number_cell(\n"
+"             static_cast<double>(row + 1U)),\n"
+"         fincore::report_cell::number_cell(\n"
+"             monthly.get_column<double>(\"returns\")[row])});\n"
+"}\n"
+"section.tables.push_back(std::move(table));\n"
+"document.sections.push_back(std::move(section));\n"
+"\n"
+"const std::string html = fincore::render_html(document, {.language = "
+"\"en\"});\n"
+"const std::string workbook = fincore::render_xlsx(document);\n"
+msgstr ""
+"fincore::report_document document;\n"
+"document.domain = \"portfolio\";\n"
+"document.title = \"Monthly performance review\";\n"
+"document.metadata = {{\"source\", \"tutorial\"}, {\"frequency\", "
+"\"daily\"}};\n"
+"\n"
+"fincore::report_section section;\n"
+"section.key = \"performance\";\n"
+"section.title = \"Performance\";\n"
+"\n"
+"auto add_metric = [&section](std::string key, std::string label, double "
+"value) {\n"
+"    fincore::report_metric metric;\n"
+"    metric.key = std::move(key);\n"
+"    metric.label = std::move(label);\n"
+"    metric.number = value;\n"
+"    section.metrics.push_back(std::move(metric));\n"
+"};\n"
+"add_metric(\"sharpe\", \"Sharpe ratio\", sharpe);\n"
+"add_metric(\"sortino\", \"Sortino ratio\", sortino);\n"
+"add_metric(\"max_drawdown\", \"Maximum drawdown\", drawdown);\n"
+"\n"
+"fincore::report_table table;\n"
+"table.key = \"monthly_returns\";\n"
+"table.title = \"Monthly returns\";\n"
+"table.columns = {\"month\", \"return\"};\n"
+"for (std::size_t row = 0; row < monthly.shape().first; ++row) {\n"
+"    table.rows.push_back(\n"
+"        {fincore::report_cell::number_cell(\n"
+"             static_cast<double>(row + 1U)),\n"
+"         fincore::report_cell::number_cell(\n"
+"             monthly.get_column<double>(\"returns\")[row])});\n"
+"}\n"
+"section.tables.push_back(std::move(table));\n"
+"document.sections.push_back(std::move(section));\n"
+"\n"
+"const std::string html = fincore::render_html(document, {.language = "
+"\"en\"});\n"
+"const std::string workbook = fincore::render_xlsx(document);\n"
+
+#: ../../site/tutorial.md:166
+msgid ""
+"Write `html` and `workbook` to files and open them: the HTML is self-"
+"contained, and the workbook has one sheet per section. Rendering the same "
+"document twice produces identical bytes, so the files are safe to hash."
+msgstr ""
+"把 `html` 与 `workbook` 写入文件并打开：HTML 是自包含的，工作簿每个 section "
+"一个工作表。同一文档渲染两次会产生相同字节，因此文件可以安全地哈希。"
+
+#: ../../site/tutorial.md:170
+msgid "What you built"
+msgstr "你构建了什么"
+
+#: ../../site/tutorial.md:172
+msgid "A returns frame derived from prices with the documented warm-up rule."
+msgstr "一个按文档化的预热规则从价格推导出的收益帧。"
+
+#: ../../site/tutorial.md:173
+msgid "Four headline statistics, each with its own degenerate behaviour."
+msgstr "四个头条统计量，各自带有退化行为。"
+
+#: ../../site/tutorial.md:174
+msgid "Two rolling series aligned to a complete-window rule."
+msgstr "两条按完整窗口规则对齐的滚动序列。"
+
+#: ../../site/tutorial.md:175
+msgid "A monthly table that compounds inside each month."
+msgstr "一张在月内复利的月度表。"
+
+#: ../../site/tutorial.md:176
+msgid "A benchmark comparison that pairs on common dates."
+msgstr "一次按共同交易日配对的基准比较。"
+
+#: ../../site/tutorial.md:177
+msgid "One report document rendered to two formats."
+msgstr "一份渲染成两种格式的报表文档。"
+
+#: ../../site/tutorial.md:179
+msgid "Where to go next"
+msgstr "接下来往哪走"
+
+#: ../../site/tutorial.md:181
+msgid ""
+"[Metrics and rolling windows](guides/metrics.md) for the definition behind "
+"each number you just printed."
+msgstr "[指标与滚动窗口](guides/metrics.md)：你刚打印的每个数字背后的定义。"
+
+#: ../../site/tutorial.md:183
+msgid ""
+"[Portfolio, risk, optimization and simulation](guides/portfolio-risk.md) to "
+"add VaR, expected shortfall and a backtest verdict."
+msgstr "[组合、风险、优化与模拟](guides/portfolio-risk.md)：加入 VaR、期望损失与回测结论。"
+
+#: ../../site/tutorial.md:185
+msgid ""
+"[Factor research](guides/factor-research.md) to move from one series to a "
+"panel."
+msgstr "[因子研究](guides/factor-research.md)：从单条序列走向面板。"
+
+#: ../../site/tutorial.md:186
+msgid ""
+"[Reports, runtime and extensions](guides/reports-runtime.md) for the other "
+"backends and the artifact bundle contract."
+msgstr "[报表、运行时与扩展](guides/reports-runtime.md)：其他后端与 artifact bundle 契约。"
+
