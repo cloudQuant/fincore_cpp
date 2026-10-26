@@ -45,14 +45,14 @@ src/metrics/drawdown.cpp	cpp	3	reviewed_this_round	NaN freezes wealth; equal pea
 src/metrics/frequencies.cpp	cpp	0	no_explanatory_block_not_audited	
 src/metrics/helpers.cpp	cpp	1	reviewed_this_round	NaT sentinel rejected by both index validators; uniqueness judged on a sorted copy while the strict variant demands stored order; calendar labels land on month ends starting January 1970; column spans alias the frame; flatten is row-major
 src/metrics/perf_attrib.cpp	cpp	0	no_explanatory_block_not_audited	
-src/metrics/perf_stats.cpp	cpp	0	no_explanatory_block_not_audited	
+src/metrics/perf_stats.cpp	cpp	0	reviewed_this_round	bootstrap samples are labelled by draw position, so order-sensitive statistics measure the synthetic sequence; Omega's pinned annualization is a no-op only because its required return is zero
 src/metrics/ratios.cpp	cpp	0	reviewed_this_round	NaN-only and finite-only filters differ; flat-series guard scaled by magnitude; strict benchmark sign split excludes zero days; degenerate LPM3 reports infinity
 src/metrics/returns.cpp	cpp	2	reviewed_this_round	NaN compounds flat; wiped series returns -1.0
 src/metrics/risk.cpp	cpp	0	no_explanatory_block_not_audited	
 src/metrics/rolling.cpp	cpp	3	reviewed_this_round	right-aligned labels; no padding; windows rebuilt per step
 src/metrics/stats.cpp	cpp	0	no_explanatory_block_not_audited	
 src/metrics/timing.cpp	cpp	0	reviewed_this_round	the three timing models differ only in the third design column and Cornell goes collinear without a market crossing zero; pivot rejections are relative to the matrix scale; callers read coefficient index two
-src/metrics/yearly.cpp	cpp	0	no_explanatory_block_not_audited	
+src/metrics/yearly.cpp	cpp	0	reviewed_this_round	each year is labelled at its January while the metric sees only that year's observations; a partial final year is unmarked and empty years are absent
 src/operations.cpp	cpp	0	no_explanatory_block_not_audited	
 src/optimization/frontier.cpp	cpp	0	reviewed_this_round	PSD test is tolerance-scaled; max-return endpoint is a box corner not a solve; interior points warm-start; diagnostics mirror solved constraints
 src/optimization/numerics.cpp	cpp	4	reviewed_this_round	corner cases bypassed; fixed-iteration bisection in long double

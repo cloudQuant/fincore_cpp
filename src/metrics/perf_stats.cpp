@@ -45,6 +45,10 @@ double bootstrap_statistic(
     const std::string_view name,
     const double annualization,
     const std::string_view column) {
+    // A resample is labelled by draw position rather than by any calendar date,
+    // so the annualization acts on the sample's length and an order-sensitive
+    // statistic such as the drawdown is measured over the synthetic sequence the
+    // resample produced, not over a realized path.
     const auto returns = make_series(
         [&values] {
             std::vector<timestamp> index(values.size());
@@ -76,6 +80,10 @@ double bootstrap_statistic(
     if (name == "Max drawdown") {
         return max_drawdown(returns, column);
     }
+    // Omega is the one entry that does not carry the caller's annualization, and
+    // that is safe only because its required return is zero: the conversion of a
+    // zero annual threshold is zero at any cadence, so the pinned daily constant
+    // cannot disagree with the rest of the row.
     if (name == "Omega ratio") {
         return omega_ratio(returns, 0.0, 0.0, daily_annualization, column);
     }
