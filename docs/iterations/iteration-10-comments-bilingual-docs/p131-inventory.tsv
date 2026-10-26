@@ -247,22 +247,22 @@ tools/capability_inventory.py	py	0	reviewed_this_round	module docstring already 
 tools/check_alpha003_loader.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Compare alpha003 loader outputs on deterministic synthetic CSV inputs....)
 tools/check_research_detailed_oracle.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Compare the native detailed research exporter with the pinned Python o...)
 tools/investigate_native_benchmark_order.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Collect alternating native-only benchmark runs with host/process conte...)
-tools/iteration8_artifact_check.py	py	0	no_explanatory_block_not_audited	
+tools/iteration8_artifact_check.py	py	0	reviewed_this_round	audited: purpose is the one-line module docstring, options carry no help text, and adding it would change CLI output, which a comment round may not do
 tools/iteration8_new_pin_survival.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Recheck new-pin survival for Iteration 8 NOT_RUN route rows....)
 tools/iteration8_performance_check.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Paired C4-vs-current native performance no-regression check....)
 tools/iteration8_route_ledger.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Build the Iteration 8 native route ledger from the frozen split and te...)
 tools/iteration8_route_split.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Build and validate the Iteration 8 native/optional route split....)
-tools/iteration8_source_manifest.py	py	0	no_explanatory_block_not_audited	
+tools/iteration8_source_manifest.py	py	0	reviewed_this_round	audited: docstring states the job, option names are the only usage text; extending help= is a CLI change rather than a comment
 tools/iteration8_test_port_ledger.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Build the Iteration 8 Python test-file port ledger....)
-tools/oracles/bootstrap_fixed_indices.py	py	0	no_explanatory_block_not_audited	
+tools/oracles/bootstrap_fixed_indices.py	py	0	reviewed_this_round	audited: fixture builder for the pinned kernels; anything under tools/oracles is content-hashed and must not be reworded
 tools/oracles/garch_fixed_parameters.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Record fixed-parameter GARCH-family references from the pinned Python ...)
 tools/oracles/irr_extremes.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Replay pinned Python MWR/XIRR fixtures and measure returned-rate resid...)
 tools/oracles/iteration8_python_fixtures.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Generate the Iteration 8 NumPy RandomState oracle fixture....)
-tools/oracles/phase38_adjusted_sharpe.py	py	0	no_explanatory_block_not_audited	
+tools/oracles/phase38_adjusted_sharpe.py	py	0	reviewed_this_round	audited with no change permitted: archived oracle whose bytes are hashed by the replay tools, so adding a docstring would change a pinned digest
 tools/oracles/solver_spike.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Compare the supported numerical solver classes with SciPy references....)
-tools/parity_ledger.py	py	0	no_explanatory_block_not_audited	
+tools/parity_ledger.py	py	0	reviewed_this_round	audited: the docstring names what is regenerated and the pinned side; the PAIRS table is the rest of the usage
 tools/replay_historical_oracles.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Prepare or run bounded paired replays of archived Python oracle script...)
-tools/replay_oracle_baseline.py	py	0	no_explanatory_block_not_audited	
+tools/replay_oracle_baseline.py	py	0	reviewed_this_round	audited: the script hashes archived evidence and refuses to hash its own checksums file, so its own text is read-only to this round
 tools/run_benchmarks.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Run isolated fincore C++ and Python performance workloads....)
 tools/run_paired_benchmarks.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Run a paired, single-CPU C++ reference/candidate regression campaign....)
 tools/tests/test_alpha003_benchmark.py	py	0	no_explanatory_block_not_audited	
@@ -272,8 +272,8 @@ tools/tests/test_measurement.py	py	0	no_explanatory_block_not_audited
 tools/tests/test_paired_benchmarks.py	py	0	no_explanatory_block_not_audited	
 tools/tests/test_research_contract.py	py	0	no_explanatory_block_not_audited	
 tools/tests/test_run_benchmarks.py	py	0	no_explanatory_block_not_audited	
-tools/verify_installed_package.py	py	0	no_explanatory_block_not_audited	
-tools/verify_xlsx_structure.py	py	0	no_explanatory_block_not_audited	
+tools/verify_installed_package.py	py	0	reviewed_this_round	audited: purpose in the docstring, behaviour documented by the checks it runs; options have no help text by design of the original script
+tools/verify_xlsx_structure.py	py	0	reviewed_this_round	audited: docstring plus two option help strings already state the job and the independent reader used
 examples/implot_dashboard.cpp	cpp	1	sparse_not_audited	
 examples/render_factor_report.cpp	cpp	0	no_explanatory_block_not_audited	
 examples/render_iteration8_artifacts.cpp	cpp	0	no_explanatory_block_not_audited	
