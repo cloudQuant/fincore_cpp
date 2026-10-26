@@ -21,6 +21,10 @@ struct validated_inputs {
     std::vector<std::span<const double>> factors;
 };
 
+// The output frame is keyed by these same names plus the reserved alpha column, so
+// a factor may not be called alpha: it would otherwise arrive both as an input and
+// as the result. Names are compared as owned strings and must be distinct before
+// anything is read from the frames.
 std::vector<std::string> checked_factor_names(
     const std::span<const std::string_view> factor_column_names) {
     if (factor_column_names.empty()) {
@@ -116,6 +120,12 @@ validated_inputs validate_inputs(
     return {std::move(factor_names), return_values, std::move(factor_values)};
 }
 
+// Householder QR on the design itself, unlike the normal-equation solves used by
+// the timing and factor-beta paths: forming X'X would square the condition number
+// of the design, and this factor exposure is read as a coefficient rather than as
+// a ratio that cancels. The rank test is scaled by epsilon times the larger
+// dimension, and a reflection whose denominator vanishes is reported as rank
+// deficiency rather than divided through.
 std::vector<double> solve_householder_qr(std::vector<double> matrix,
                                          std::vector<double> response,
                                          const std::size_t row_count,
@@ -307,6 +317,10 @@ factor_regression_result fit_factor_regression(
         require_finite_intermediate(sse);
         require_finite_intermediate(sst);
     }
+    // An exactly constant series has no variance to explain, so the statistic is
+    // reported as zero rather than as a perfect fit even though every residual is
+    // zero; the test is on equality with the first value, so a factor or return
+    // varying by one representable step counts as varying.
     const double r_squared = values_are_exactly_constant(inputs.returns)
                                  ? 0.0
                                  : (sst > 0.0 ? 1.0 - sse / sst : 0.0);

@@ -4,7 +4,7 @@ src/attribution/brinson.cpp	cpp	0	reviewed_this_round	BHB allocation reading kee
 src/attribution/factor_attribution.cpp	cpp	0	no_explanatory_block_not_audited	
 src/attribution/factor_exposures.cpp	cpp	0	no_explanatory_block_not_audited	
 src/attribution/factor_prediction.cpp	cpp	0	no_explanatory_block_not_audited	
-src/attribution/factor_regression.cpp	cpp	0	no_explanatory_block_not_audited	
+src/attribution/factor_regression.cpp	cpp	0	reviewed_this_round	alpha is a reserved factor name; Householder QR keeps the design's condition number unsquared against the normal-equation solvers elsewhere; an exactly constant series reports R-squared as zero
 src/attribution/fama_french.cpp	cpp	2	reviewed_this_round	pivot test reads X'X not X; the variance shift is translation-invariant and kept for cancellation; beta index one is MKT with the intercept at zero; negative idiosyncratic residual clamps to zero
 src/attribution/fama_french_patch.cpp	cpp	0	no_explanatory_block_not_audited	
 src/attribution/performance.cpp	cpp	0	no_explanatory_block_not_audited	
@@ -69,7 +69,7 @@ src/portfolio/positions.cpp	cpp	0	no_explanatory_block_not_audited
 src/portfolio/round_trips.cpp	cpp	2	reviewed_this_round	signed-price FIFO; block may close and reopen
 src/portfolio/transactions.cpp	cpp	1	reviewed_this_round	first-day gross book halved
 src/report/html.cpp	cpp	0	no_explanatory_block_not_audited	
-src/report/models.cpp	cpp	0	no_explanatory_block_not_audited	
+src/report/models.cpp	cpp	0	reviewed_this_round	metric kind is decided by number/boolean/text precedence rather than validated, and every branch emits the same five keys
 src/report/pdf.cpp	cpp	0	no_explanatory_block_not_audited	
 src/report/portfolio.cpp	cpp	0	no_explanatory_block_not_audited	
 src/report/renderers.cpp	cpp	0	no_explanatory_block_not_audited	

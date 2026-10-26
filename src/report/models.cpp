@@ -30,6 +30,11 @@ void write_cell(detail::json_writer& writer, const report_cell& cell) {
     }
 }
 
+// The kind is decided by precedence rather than validated: number wins over
+// boolean wins over text, and a metric carrying two of them is written as the
+// first with the other silently dropped, which is why the producers set exactly
+// one. Every branch emits the same five keys so a consumer can select on "kind"
+// without probing for optional fields.
 void write_metric(detail::json_writer& writer,
                   const report_metric& metric) {
     writer.begin_object();
