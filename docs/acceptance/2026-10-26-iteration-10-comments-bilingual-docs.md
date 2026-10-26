@@ -304,10 +304,16 @@ The remaining blocker is the auto-created `github-pages` environment: it carries
 a `branch_policy` protection rule with `custom_branch_policies: true` and an
 empty allow-list, so no branch can deploy. The allow-list could not be set from
 this host: the environment `PUT` accepts neither `deployer_policies` nor
-`deployable_branches`, the branch-list endpoints return 404, and the GraphQL
-schema exposes no mutation for it, so the only remaining paths are the Settings
-UI or giving `dev` branch protection and switching to
+`deployable_branches` or `protection_rules`, the branch-list endpoints return
+404, and the GraphQL schema exposes no mutation for it, so the only remaining
+paths are the Settings UI or giving `dev` branch protection and switching to
 `protected_branches: true`, which changes push governance and was not done.
+
+A consequence worth knowing: because the deploy step now runs instead of being
+skipped, the `docs` workflow reports **failure** on every `dev` push until the
+allow-list is filled (runs `40254185674` and `40254528959`). The failure is left
+visible rather than suppressed by another precheck, since a green workflow would
+be a weaker signal than a 404 on the live URL.
 
 **Owner step left for P133:** Settings → Environments → `github-pages` →
 Deployment branches → add `dev` (and `master` if wanted), then re-run the `docs`
@@ -360,9 +366,10 @@ the site README documents:
 | `docs/site/tools/check_built_site.py` | `pages=60 broken_links=0 machine_path_pages=0 fuzzy=0`, exit code 0 |
 | CMake Release + `ctest` | `100% tests passed, 0 tests failed out of 1092` |
 
-This gate ran on `385db07`, the commit carrying the forty-fourth audited file;
-the suite was measured twice on that tree with the same result, and the docs
-artifacts are current because no public header changed after them.
+The gate above ran on `385db07` (forty-fourth audited file) and was repeated on
+`e23ba9a`, the commit carrying the forty-seventh: `ctest` reported
+`100% tests passed, 0 tests failed out of 1092` on both trees, and the docs
+artifacts stayed current because no public header changed after them.
 
 `check_built_site.py` is new in this round: the link, machine-path and catalog
 measures used to be ad hoc queries, and committing them makes the numbers above
