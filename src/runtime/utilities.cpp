@@ -25,6 +25,9 @@ std::size_t checked_shape_size(const std::vector<std::size_t> &shape,
     throw input_error{std::string{name} + " must be an array, not a scalar"};
   }
 
+  // A zero dimension skips the overflow test because the product is already zero
+  // and cannot grow again, while a multiply that would wrap is refused with the
+  // parameter's own name so the caller sees which shape was rejected.
   std::size_t product = 1U;
   for (const std::size_t dimension : shape) {
     if (dimension != 0U &&
@@ -80,6 +83,9 @@ void validate_policy(const alignment_policy policy) {
 double numpy_pairwise_sum(const std::span<const double> values) {
   constexpr std::size_t block_size = 128U;
   if (values.size() < 8U) {
+    // The accumulator starts at negative zero rather than zero: adding -0.0 to
+    // +0.0 yields +0.0, so a short run of negative zeros would otherwise lose the
+    // sign the reference keeps.
     double result = -0.0;
     for (const double value : values) {
       result += value;

@@ -53,7 +53,7 @@ src/metrics/rolling.cpp	cpp	3	reviewed_this_round	right-aligned labels; no paddi
 src/metrics/stats.cpp	cpp	0	no_explanatory_block_not_audited	
 src/metrics/timing.cpp	cpp	0	reviewed_this_round	the three timing models differ only in the third design column and Cornell goes collinear without a market crossing zero; pivot rejections are relative to the matrix scale; callers read coefficient index two
 src/metrics/yearly.cpp	cpp	0	reviewed_this_round	each year is labelled at its January while the metric sees only that year's observations; a partial final year is unmarked and empty years are absent
-src/operations.cpp	cpp	0	no_explanatory_block_not_audited	
+src/operations.cpp	cpp	0	reviewed_this_round	the catalog's domain concatenation order is fixed and not alphabetical, so digests depend on it; the merged vector is built once
 src/optimization/frontier.cpp	cpp	0	reviewed_this_round	PSD test is tolerance-scaled; max-return endpoint is a box corner not a solve; interior points warm-start; diagnostics mirror solved constraints
 src/optimization/numerics.cpp	cpp	4	reviewed_this_round	corner cases bypassed; fixed-iteration bisection in long double
 src/optimization/objectives.cpp	cpp	0	reviewed_this_round	min_weight overrides short_allowed; unmapped sectors dropped; target probes drop the ceiling they test; simplex branch ignores a negative bound (F10-D10)
@@ -89,7 +89,7 @@ src/runtime/operations_metrics.cpp	cpp	33	multi_block_not_audited
 src/runtime/operations_portfolio.cpp	cpp	0	no_explanatory_block_not_audited	
 src/runtime/runtime.cpp	cpp	0	no_explanatory_block_not_audited	
 src/runtime/serialization.cpp	cpp	2	sparse_not_audited	
-src/runtime/utilities.cpp	cpp	3	multi_block_not_audited	
+src/runtime/utilities.cpp	cpp	3	reviewed_this_round	the short-path accumulator starts at negative zero to keep signed-zero results; a zero shape dimension skips the overflow test because the product is already zero
 src/simulation/base.cpp	cpp	0	no_explanatory_block_not_audited	
 src/simulation/bootstrap.cpp	cpp	5	reviewed_this_round	rejection removes modulo bias; single stream defines reproducibility
 src/simulation/correlation.cpp	cpp	0	no_explanatory_block_not_audited	

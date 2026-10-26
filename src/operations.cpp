@@ -364,6 +364,10 @@ std::span<const operation_descriptor> metrics_operations() {
     return metrics_table;
 }
 
+// The concatenation order is part of what the catalog exposes: the domain tables
+// are appended in this fixed sequence rather than alphabetically, so a digest or
+// golden enumeration taken from it shifts if a domain is moved here even though no
+// operation was added or removed. Built once on first use.
 std::span<const operation_descriptor> all_operations() {
     static const std::vector<operation_descriptor> operations = [] {
         std::vector<operation_descriptor> result;
