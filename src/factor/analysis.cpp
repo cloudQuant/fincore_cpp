@@ -30,7 +30,10 @@ struct civil_date {
     unsigned day;
 };
 
-// Howard Hinnant's civil-from-days algorithm.
+// Howard Hinnant's civil-from-days algorithm. Both directions renumber the year so
+// it begins in March, which keeps the leap day at the end of the shifted year and
+// lets the month arithmetic run without a table; the corrections at the edges
+// convert back to calendar years.
 civil_date civil_from_days(std::int64_t days) {
     days += 719'468;
     const std::int64_t era = (days >= 0 ? days : days - 146'096) / 146'097;
@@ -198,6 +201,10 @@ void validate_config(const factor_analysis_config& config) {
     }
 }
 
+// Only finite factor values are bucketed, the spread uses the sample divisor so a
+// one-member quantile reports none rather than zero, and the share is taken over
+// the finite total across every quantile, so the column can fall short of the row
+// count without anything being wrong.
 std::vector<factor_quantile_statistics> quantile_statistics(
     const prepared_factor_data& data) {
     std::map<int, std::vector<double>> values;
