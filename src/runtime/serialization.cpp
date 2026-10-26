@@ -513,6 +513,9 @@ int small_integer(const json_value &value) {
   return result;
 }
 
+// Floating-point values travel as their raw IEEE bit pattern in hexadecimal, so a
+// NaN payload, a signed zero and an infinity all come back byte-identical; decimal
+// text would lose the payload and the sign of zero.
 std::string hex_bits(const std::uint64_t bits, const std::size_t digits) {
   static constexpr char alphabet[] = "0123456789abcdef";
   std::string result(digits, '0');
@@ -523,6 +526,10 @@ std::string hex_bits(const std::uint64_t bits, const std::size_t digits) {
   return result;
 }
 
+// Lowercase and exactly the expected number of digits, with no prefix or padding
+// accepted: a document written by another encoder would have to differ
+// representationally to be read here, which is what makes the round trip the only
+// supported path.
 std::uint64_t parse_hex_bits(const json_value &value,
                              const std::size_t digits) {
   const auto text = json_string(value);
@@ -565,6 +572,10 @@ float parse_float32(const json_value &value) {
       static_cast<std::uint32_t>(parse_hex_bits(member(value, "$f32"), 8U)));
 }
 
+// Integers are written as decimal strings rather than JSON numbers: a 64-bit
+// column would exceed the 53-bit mantissa that a generic JSON reader brings back,
+// and the string form keeps every bit recoverable without depending on the
+// reader's number type.
 template <typename T> json_value integer_column_value(const T value) {
   if constexpr (std::is_signed_v<T>) {
     return string_value(std::to_string(static_cast<std::int64_t>(value)));

@@ -88,7 +88,7 @@ src/runtime/operations_factor.cpp	cpp	21	multi_block_not_audited
 src/runtime/operations_metrics.cpp	cpp	33	multi_block_not_audited	
 src/runtime/operations_portfolio.cpp	cpp	0	no_explanatory_block_not_audited	
 src/runtime/runtime.cpp	cpp	0	no_explanatory_block_not_audited	
-src/runtime/serialization.cpp	cpp	2	sparse_not_audited	
+src/runtime/serialization.cpp	cpp	2	reviewed_this_round	floats ride as lowercase IEEE bit patterns so NaN payloads and signed zeros survive; the parser refuses any other hex spelling; integers are strings to stay beyond the 53-bit mantissa
 src/runtime/utilities.cpp	cpp	3	reviewed_this_round	the short-path accumulator starts at negative zero to keep signed-zero results; a zero shape dimension skips the overflow test because the product is already zero
 src/simulation/base.cpp	cpp	0	no_explanatory_block_not_audited	
 src/simulation/bootstrap.cpp	cpp	5	reviewed_this_round	rejection removes modulo bias; single stream defines reproducibility

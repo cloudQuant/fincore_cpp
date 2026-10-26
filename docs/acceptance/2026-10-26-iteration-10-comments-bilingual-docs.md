@@ -105,7 +105,7 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 80 marked `reviewed_this_round` with a one-line note naming the
+(287 files: 81 marked `reviewed_this_round` with a one-line note naming the
 invariant recorded or why none was needed, 12 with several explanatory blocks
 but not yet audited, 13 sparse, 219 with no explanatory block). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
@@ -194,9 +194,10 @@ where warranted, extended the following implementation files:
 | `src/performance/inference.cpp` | A flat series reports a zero Sharpe rather than an undefined one, which the standard-error form reads as no risk adjustment |
 | `src/detail/digest.cpp` | The rotation helper is never called with a zero distance, which would shift by the full width |
 | `src/performance/disclosures.cpp` | Every disclosure line is emitted, with `unspecified` for missing text and `none` for a missing benchmark |
+| `src/runtime/serialization.cpp` | Floats ride as lowercase IEEE bit patterns so NaN payloads and signed zeros survive; any other hex spelling is refused; integers are strings so they stay beyond the 53-bit mantissa |
 
 Every edit above was verified comment-only and is covered by the re-run below.
-The remaining 207 files are deliberately not claimed as audited, so **P131 is
+The remaining 206 files are deliberately not claimed as audited, so **P131 is
 PARTIAL**, not passed.
 
 One audit ended in a registered question rather than a comment: the
