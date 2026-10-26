@@ -109,8 +109,12 @@ html_title = "fincore_cpp documentation"
 html_short_title = "fincore_cpp"
 templates_path = ["_templates"]
 html_static_path = ["_static"]
-html_css_files = ["custom.css"]
-html_js_files = ["language_switch.js", "copy_code.js", "keyboard.js"]
+html_css_files = [
+    "custom.css",
+    # Syntax colours for the dark switch; scoped to .fc-dark by pygmentize -a.
+    "pygments-dark.css",
+]
+html_js_files = ["language_switch.js", "copy_code.js", "keyboard.js", "theme.js"]
 html_baseurl = (os.environ.get("FINCORE_DOCS_BASEURL") or
                 os.environ.get("READTHEDOCS_CANONICAL_URL") or
                 "https://docs.example.invalid/fincore_cpp/")

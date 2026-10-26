@@ -14,18 +14,34 @@
   <meta property="og:type" content="website">
   <link rel="alternate" hreflang="en" href="{{ fc_docs_root }}en/latest/{{ pagename }}.html">
   <link rel="alternate" hreflang="zh-CN" href="{{ fc_docs_zh_url }}{{ pagename }}.html">
+  <script>
+    // Set the theme class before first paint so a dark-mode reader never sees a
+    // white flash; theme.js only wires the button and keeps the choice.
+    (function () {
+      try {
+        var stored = window.localStorage.getItem("fincore-docs-theme");
+        var dark = stored
+          ? stored === "dark"
+          : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        if (dark) { document.documentElement.classList.add("fc-dark"); }
+      } catch (error) { /* storage blocked: fall back to the light theme */ }
+    })();
+  </script>
   <link rel="icon" type="image/svg+xml" href="{{ pathto('_static/favicon.svg', 1) }}">
   <link rel="alternate" hreflang="x-default" href="{{ fc_docs_root }}en/latest/{{ pagename }}.html">
 {% endblock %}
 
 {% block extrabody %}
   <a class="fc-skip" href="#fc-main">Skip to content / 跳到正文</a>
+  <div class="fc-topbar">
   <div class="fc-lang-toggle" role="navigation" aria-label="Documentation language">
     <a href="{{ fc_docs_root }}en/latest/" data-fc-language="en"
        {% if language == 'en' %}class="fc-active" aria-current="true"{% endif %}>EN</a>
     <span class="fc-sep" aria-hidden="true">/</span>
     <a href="{{ fc_docs_zh_url }}" data-fc-language="zh-cn"
        {% if language != 'en' %}class="fc-active" aria-current="true"{% endif %}>中文</a>
+  </div>
+  <button type="button" class="fc-theme-toggle" aria-pressed="false">☾</button>
   </div>
   {{ super() }}
 {% endblock %}
