@@ -259,6 +259,9 @@ TEST(Consecutive, RejectsMissingEmptyWrongTypedAndShortColumns) {
                  fincore::input_error);
 }
 
+// The run lengths are doubles rather than counts so that "no data" can be NaN,
+// which the empty-input case above relies on; these assertions keep that marker
+// representable if the statistics struct is ever re-typed.
 static_assert(std::is_same_v<
               decltype(fincore::daily_consecutive_statistics::max_consecutive_up_days),
               double>);
@@ -392,6 +395,9 @@ TEST(Consecutive, ConsecutiveStatsComposesAllSixRuns) {
     const auto empty_stats = fincore::consecutive_stats(empty);
     EXPECT_TRUE(std::isnan(empty_stats.at("max_consecutive_up_days")));
 
+    // This frame really does hold a "returns" column, so a selector cut at the
+    // embedded NUL would be found by a plain name lookup; only the NUL guard can
+    // turn this call into a rejection.
     const std::array<char, 13> embedded_storage{
         'r', 'e', 't', 'u', 'r', 'n', 's', '\0', 'e', 'v', 'i', 'l', '!'};
     const std::string_view embedded_selector{embedded_storage.data(),

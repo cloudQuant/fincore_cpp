@@ -95,6 +95,8 @@ TEST(ErrorsTest, SafeDivideSqrtAndNanHelpers) {
 }
 
 TEST(ErrorsTest, HandleNumericalErrorWrapsAndPassesThrough) {
+  // Each catch hands back 1: without that sentinel a missing throw would skip
+  // the block and its expectations would never run.
   const auto wrapped = [&]() -> int {
     try {
       return fincore::handle_numerical_error("kernel", []() -> double {
@@ -128,6 +130,9 @@ TEST(ErrorsTest, CheckDependenciesListsAllMissing) {
       {"numpy", true, ""}, {"pandas", true, ""}};
   EXPECT_NO_THROW(fincore::check_dependencies(available));
 
+  // numpy stays in the failing list as an available entry that must be left
+  // out of the joined names, and extra carries only the first unavailable
+  // entry's reason, never yfinance's.
   const std::vector<fincore::dependency_status> missing{
       {"numpy", true, ""}, {"pymc", false, "bayesian"},
       {"yfinance", false, "data"}};

@@ -23,6 +23,9 @@ static_assert(std::is_same_v<decltype(fincore::calculate_style_tilts(
 
 TEST(AttributionStyleTiltsUmbrella,
      ExportsDefaultCallThroughAttributionFacade) {
+  // 253 rows is one more than the default 252-observation window, so exactly
+  // one output row remains; all-zero returns leave every tilt test on a tie,
+  // which is why this umbrella asserts shape, index tail and names only.
   fincore::dataframe returns;
   std::vector<fincore::timestamp> index(253U);
   for (std::size_t row{0U}; row < index.size(); ++row) {

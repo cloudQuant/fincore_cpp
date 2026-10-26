@@ -21,6 +21,9 @@ TEST(AttributionFactorRegressionUmbrella, ExportsFactorRegressionSurface) {
                                 hmdf::nan_policy::dont_pad_with_nans);
 
     constexpr std::array<std::string_view, 1U> factor_names{"MKT"};
+    // Two rows is the documented floor for a one-factor fit and the two points
+    // lie exactly on y = 2x + 1, so the design is exactly determined: the unit
+    // R-squared and the zero residual come from the fixture, not from a least fit.
     const auto result =
         fincore::fit_factor_regression(returns, factors, factor_names);
 

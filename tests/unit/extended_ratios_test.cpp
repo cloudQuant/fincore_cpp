@@ -27,6 +27,8 @@ TEST(ExtendedRatios, MatchesCommonSenseRatioPythonOracle) {
       fincore::make_series({1, 2, 3, 4}, "returns", {.01, -.02, .03, -.01});
   const auto zeros_mixed = fincore::make_series(
       {1, 2, 3, 4, 5}, "returns", {.01, 0., -.02, .03, 0.});
+  // Half the observations are wins, so the win-rate factor is one half over
+  // one half and cancels: 19.0 is purely the 95th-over-5th percentile ratio.
   const auto zero_tail = fincore::make_series({1, 2}, "returns", {0., .01});
 
   EXPECT_NEAR(fincore::common_sense_ratio(mixed), 1.4594594594594592, 1e-12);
@@ -104,6 +106,8 @@ TEST(ExtendedRatios, PreservesInfiniteDelegatedTailWithoutClamping) {
 TEST(ExtendedRatios, ValidatesCommonSenseRatioSelectorBeforeRawLength) {
   const auto strategy = fincore::make_series({1, 2, 3, 4}, "strategy",
                                               {.01, -.02, .03, -.01});
+  // One row can never yield a ratio, only NaN, so every throw below is proof
+  // that the selector is validated ahead of the raw-length shortcut.
   const auto single_strategy =
       fincore::make_series({1}, "strategy", std::vector<double>{.01});
   const std::array<char, 8> bounded_name{'s', 't', 'r', 'a',

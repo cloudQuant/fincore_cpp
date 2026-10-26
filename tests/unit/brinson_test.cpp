@@ -180,6 +180,8 @@ TEST(Brinson, ValidatesSelectorsIndexesAndSelectedColumns) {
                                           fixture.benchmark_weights, sectors),
                  fincore::input_error);
 
+    // The same two labels in swapped order: index matching compares sequences,
+    // so a permutation is a rejection, not something the kernel re-sorts.
     auto mismatched_index = fixture.benchmark_weights;
     mismatched_index.load_index({1704240000000000000LL, 1704153600000000000LL});
     EXPECT_THROW(fincore::brinson_results(fixture.portfolio_returns,
@@ -252,6 +254,8 @@ TEST(Brinson, PreservesNanAndSignedInfinityPropagation) {
     EXPECT_TRUE(std::isnan(nan_result.get_column<double>("total")[0]));
     EXPECT_TRUE(std::isnan(nan_result.get_column<double>("portfolio_return")[0]));
 
+    // A zero benchmark weight makes selection the undefined 0 * (-inf), hence
+    // NaN, and total inherits it, so only the unit-weighted terms are asserted.
     const auto infinity_result = fincore::brinson_results(
         make_frame({1}, {-std::numeric_limits<double>::infinity()}, {.0}, {.0}),
         make_frame({1}, {.01}, {.0}, {.0}),

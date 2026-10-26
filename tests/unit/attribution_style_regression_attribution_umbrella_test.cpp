@@ -42,6 +42,9 @@ TEST(AttributionStyleRegressionAttributionUmbrella,
                              hmdf::nan_policy::dont_pad_with_nans);
   const std::array<std::string_view, 1U> selected{"selected"};
 
+  // No contribution value is asserted on either path, and the two frames above
+  // share one index in one order, so aligned pairing and positional pairing
+  // coincide: what is pinned here is the arity, labels and column schema.
   const auto explicit_result =
       static_cast<explicit_function>(&fincore::calculate_regression_attribution)(
           portfolio, styles, selected);

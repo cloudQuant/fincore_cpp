@@ -19,6 +19,8 @@ using antithetic_variates_function = fincore::dataframe (*) (const fincore::data
 static_assert(std::is_same_v<decltype(&fincore::antithetic_variates),
                              antithetic_variates_function>);
 
+// Index repeats 9 and descends: mirroring walks rows by position, so a
+// duplicate or unordered label must neither reorder rows nor merge them.
 fincore::dataframe canonical_paths() {
     fincore::dataframe paths;
     paths.load_index(std::vector<fincore::timestamp>{9, 3, 9});
@@ -98,6 +100,8 @@ TEST(AntitheticVariates, PreservesPythonStyleNanAndInfinityArithmetic) {
     EXPECT_EQ(result.get_column<double>("antithetic_path_0")[0], 1.0);
     EXPECT_EQ(result.get_column<double>("antithetic_path_0")[1],
               -std::numeric_limits<double>::infinity());
+    // Every column mirrors around the first column's first value; anchoring
+    // path_1 on its own leading value would leave both of these NaN.
     EXPECT_TRUE(std::isnan(result.get_column<double>("antithetic_path_1")[0]));
     EXPECT_EQ(result.get_column<double>("antithetic_path_1")[1],
               std::numeric_limits<double>::infinity());

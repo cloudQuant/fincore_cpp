@@ -120,6 +120,9 @@ TEST(FactorPortfolio, BuildsOverlappingGrossNormalizedPositions) {
     EXPECT_NEAR(inputs.benchmark_returns->values[1], 0.02, 1e-15);
     EXPECT_NEAR(inputs.benchmark_returns->values[2], 0.02, 1e-15);
 
+    // "5D" and "1H" are both absent from the panel's labels, so each stops
+    // at the label-presence check before the day-count grammar runs; the
+    // quantile filter {9} is the only case reaching an empty selection.
     EXPECT_THROW(
         static_cast<void>(fincore::factor_positions(data, "5D")),
         fincore::factor_data_error);
@@ -320,6 +323,9 @@ TEST(FactorPortfolio, DensePositionsMatchIndependentLegacyReducer) {
         }
     }
     static_cast<void>(weights);
+    // Supplying raw weights makes the three weighting flags inert and leaves
+    // the panel as a label and row-count check only; its factor values and
+    // forward returns never reach the compared output.
     const auto dense = fincore::factor_positions(
         data, "1D2D", true, false, false, {}, {}, raw);
     const auto legacy = legacy_positions("1D2D", raw);

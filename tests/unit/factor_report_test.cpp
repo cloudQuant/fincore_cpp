@@ -64,6 +64,9 @@ TEST(FactorReport, ProjectsModelToSharedDocument) {
     EXPECT_EQ(report.sections[2].notes.size(), 2U);
     EXPECT_EQ(report.sections[3].tables.size(), 3U);
     ASSERT_FALSE(report.sections[2].tables[0].rows.empty());
+    // Positional cell: the returns-summary top-quantile row, "1D" column,
+    // scaled to basis points. The default long-short setting demeans each
+    // date's forward returns, so the top quantile contributes 0.03 - 0.02.
     EXPECT_DOUBLE_EQ(report.sections[2].tables[0].rows[2][1].number,
                      0.01 * 10'000.0);
 

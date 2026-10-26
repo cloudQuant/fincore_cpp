@@ -12,6 +12,9 @@
 namespace {
 
 TEST(FactorCalendar, SelectsLabelsMatchingThePinnedForwardGrammar) {
+    // The non-ASCII labels pin the code-point grammar: U+0661 and U+FF11 count
+    // as decimal digits, U+00B2 is a number but not a digit, and U+017F is
+    // accepted wherever the grammar wants an s.
     const std::vector<std::string> columns{
         "1D", "10d", "2h", "30m", "15s", "1ms", "1us", "1ns",
         "1D2h3m4s5ms6us7ns", "1D1D", "1MS2US", "0D", "bad", "",
@@ -44,6 +47,8 @@ TEST(FactorCalendar, BackshiftsRowsByCompleteDateLevelPositions) {
         first_date + 3 * day, first_date + 4 * day,
         first_date + 5 * day};
 
+    // Date levels one and three hold no rows at all, so a shifted row can land
+    // on a level the series never used rather than on an earlier present date.
     fincore::factor_series returns;
     returns.dates = {date_levels[0], date_levels[2], date_levels[2],
                      date_levels[4], date_levels[5]};

@@ -46,6 +46,9 @@ std::vector<fincore::factor_weight_row> short_weights() {
 }
 
 fincore::factor_cost_model cost_model() {
+    // Aggregate order is half_spread_bps, impact_coefficient,
+    // max_participation, impact_exponent: the repeated 0.1 values are two
+    // different fields that happen to share a number.
     return {2.0, 0.1, 0.1, 0.5};
 }
 
@@ -136,6 +139,9 @@ TEST(FactorCosts, RejectsInvalidLedgers) {
                      std::vector<double>{0.01, -0.005}, long_weights(),
                      volume_fixture(), 100000.0, cost_model())),
                  fincore::factor_data_error);
+    // Neither failure is a ledger-shape problem: 1e6 is over the capacity the
+    // same panel reports above, and the short book fails only because its
+    // negative weights came with no borrow panels at all.
     EXPECT_THROW(static_cast<void>(fincore::apply_factor_costs(
                      gross, long_weights(), volume_fixture(), 1000000.0,
                      cost_model())),

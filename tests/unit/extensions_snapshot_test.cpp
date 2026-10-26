@@ -141,6 +141,8 @@ TEST(ExtensionSnapshotTest, OrdersOperationsHooksAndRenderers) {
   EXPECT_EQ(snapshot.operations()[0].operation_id, "extension.demo.alpha");
   EXPECT_EQ(snapshot.operations()[1].operation_id, "extension.demo.zeta");
 
+  // Hook ordering is event-major, so the align hook leads even though its
+  // priority is the largest in the snapshot; one global priority sort differs.
   ASSERT_EQ(snapshot.hooks().size(), 3U);
   EXPECT_EQ(snapshot.hooks()[0].event(), "align");
   EXPECT_EQ(snapshot.hooks()[1].fingerprint(), "demo.plugin:hook_a");
@@ -263,6 +265,8 @@ TEST(ExtensionSnapshotTest, DigestMatchesPinnedPythonCanonicalPayload) {
 }
 
 TEST(ExtensionSnapshotTest, DigestUsesAsciiEscapedStableJson) {
+  // The renderer name arrives as raw UTF-8 bytes, so the pinned digest covers
+  // the escaped payload rather than whatever the host text encoding emits.
   const ext::extension_snapshot snapshot{
       {}, {}, {make_renderer("\xCE\xB2-render", "demo.plugin:render", "")}};
   EXPECT_EQ(snapshot.digest(),

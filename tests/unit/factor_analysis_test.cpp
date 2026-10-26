@@ -37,6 +37,8 @@ fincore::prepared_factor_data prepared_fixture() {
                 0.03 * asset);
         }
     }
+    // The price index runs ten stamps past the factor panel, so no factor date
+    // loses its five-day label at the end of the series.
     std::vector<fincore::timestamp> index;
     for (int position = 0; position < 70; ++position) {
         index.push_back(start + position * day);
@@ -1061,6 +1063,8 @@ TEST(FactorAnalysis, FingerprintIncludesUnselectedInputsAndOwnsConfig) {
     EXPECT_NE(loss_model.result_fingerprint, model.result_fingerprint);
     EXPECT_EQ(loss_model.factor_returns.values, model.factor_returns.values);
 
+    // Omitting periods resolves to the same selected periods as naming every
+    // label, so only the fingerprint records which spelling the caller used.
     auto implicit_all_periods = config;
     implicit_all_periods.periods.clear();
     auto explicit_all_periods = config;

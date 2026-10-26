@@ -110,6 +110,8 @@ TEST(BootstrapConfidenceInterval, RejectsInvalidAlphaBeforeDistributionWork) {
                      fincore::input_error);
     }
 
+    // The frame is invalid as well, so the caught wording is the ordering proof:
+    // only validation that ran before the distribution work can name alpha.
     fincore::dataframe missing;
     missing.load_index(std::vector<fincore::timestamp>{1, 2});
     try {
@@ -122,6 +124,9 @@ TEST(BootstrapConfidenceInterval, RejectsInvalidAlphaBeforeDistributionWork) {
 }
 
 TEST(BootstrapConfidenceInterval, RejectsEmptyAndNonfiniteGeneratedDistributions) {
+    // The frames below are all valid; every rejection concerns the generated
+    // distribution: empty for zero resamples, infinite for a constant book's
+    // Sharpe, NaN for a singleton's deviation.
     const auto constant = fincore::make_series({1, 2}, "returns", {0.01, 0.01});
     EXPECT_THROW(static_cast<void>(fincore::bootstrap_confidence_interval(
                      constant, 0U, 0.05, fincore::bootstrap_statistic::mean, 42U)),

@@ -125,6 +125,9 @@ TEST(DataProviderTest, ToReturnsDropsNaNButKeepsInfiniteChange) {
   frame.load_column<double>(
       "Close", std::vector<double>{0.0, 5.0, std::nan(""), 7.0},
       hmdf::nan_policy::dont_pad_with_nans);
+  // The NaN row drops both of its pairs, so 5.0 is never paired across the hole.
+  // The one survivor is the 0.0 to 5.0 step, and a zero base yields an infinite
+  // change rather than being skipped, which is why the expectation is isinf.
   const auto returns = provider.to_returns(frame);
   ASSERT_EQ(returns.size(), 1U);
   EXPECT_TRUE(std::isinf(returns[0]));
@@ -180,6 +183,9 @@ TEST(DataSnapshotTest, FromFrameIsContentAddressedAndDefensivelyCopied) {
   EXPECT_DOUBLE_EQ(snapshot.stored_data().get_column<double>("Adj Close")[0],
                    100.0);
 
+  // data() returns a copy while stored_data() refers to the snapshot's own frame,
+  // so this case separates the two accessors rather than repeating the defensive
+  // copy checked just above.
   auto copy = snapshot.data();
   copy.get_column<double>("Adj Close")[0] = -1.0;
   EXPECT_DOUBLE_EQ(snapshot.stored_data().get_column<double>("Adj Close")[0],

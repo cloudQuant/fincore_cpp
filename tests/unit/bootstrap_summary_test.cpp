@@ -170,6 +170,9 @@ TEST(BootstrapSummary,
         fincore::bootstrap_summary(returns, resample_count, alpha, seed);
     const std::vector<double> source_values{-0.04, -0.03, -0.02, -0.01};
 
+    // With no positive return the Sortino's clipped deviation set equals the
+    // Sharpe's, so this loop cannot separate the two ratios; the mixed-sign case
+    // in the next test is what does.
     const std::array statistics{
         fincore::bootstrap_statistic::mean,
         fincore::bootstrap_statistic::sample_standard_deviation,
@@ -262,6 +265,8 @@ TEST(BootstrapSummary, ValidatesAlphaThenCountBeforeInputOrDistributionWork) {
                      fincore::input_error);
     }
 
+    // One resample would still give a valid distribution, but no standard error,
+    // so the summary's own floor is two and the wording names resamples.
     for (const std::size_t count : {0U, 1U}) {
         try {
             static_cast<void>(

@@ -105,9 +105,9 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 162 marked `reviewed_this_round` with a one-line note naming the
-invariant recorded or why none was needed, 6 with several explanatory blocks
-but not yet audited, 7 sparse, 112 with no explanatory block). Auditing may
+(287 files: 209 marked `reviewed_this_round` with a one-line note naming the
+invariant recorded or why none was needed, 2 with several explanatory blocks
+but not yet audited, 5 sparse, 71 with no explanatory block). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
 because its validation clauses are the entire contract. This round audited and,
 where warranted, extended the following implementation files:
@@ -270,9 +270,31 @@ comment-only checker and by review only, not by a build. Its claims about the
 vendored ImPlot were checked against `third_party/implot` — the tick-label
 array is copied during `SetupAxisTicks`, and the range overload asserts at least
 two ticks when labels are supplied, which is the reason for the `> 1U` guard.
-The remaining 125 files are 122 under
+The remaining 78 files are 75 under
 `tests/` and three under `benchmarks/`, and are deliberately not
 claimed as audited, so **P131 is PARTIAL**, not passed.
+
+Two further `tests/unit` batches (47 files) were audited with help from
+subordinate agents, because the comment-only gate makes that class of edit
+mechanically checkable. The controls used were: each agent was confined to a
+disjoint file list, forbidden to touch docs, the ledger or any behaviour, and
+forbidden to start a build; the `check_comment_only.py` gate was then re-run by
+the owner over all 42 changed sources (`checked=42 failures=0`), the full build
+and `ctest` were re-run twice (`100% tests passed, 0 tests failed out of 1092`
+after each batch), and every quantitative claim was re-checked here before it was
+accepted — for example that the two-row tail case gives exactly 19.0 because half
+the observations are wins and the 95th-over-5th percentile ratio is 19.0
+(recomputed with numpy), that the cash-inclusive allocation denominator is
+80 / 1220 = 6.557377%, that positional pairing in the style-performance case
+blends different returns than name matching, and that the golden fingerprint case
+compares only the digest length under `_MSC_VER`. One agent's summary line
+described a fixture as all-positive when it is mostly negative
+`-denorm_min`; that claim never reached a source file, and the comment actually
+written for that test was verified separately, which is why summaries are not
+treated as evidence here. Four cases whose literals are pinned oracle evidence
+(`factor_performance_test.cpp`, `factor_prediction_test.cpp`,
+`factor_regression_test.cpp`, `factor_research_detailed_test.cpp`) were audited
+and deliberately left untouched, matching the rule applied to `tools/oracles`.
 
 The first `tests/unit` entries were audited with the same rule: a comment is
 only earned when it names something the assertions cannot show by themselves.

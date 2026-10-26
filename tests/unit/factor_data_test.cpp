@@ -175,6 +175,9 @@ TEST(FactorData, QuantizationMatchesPandasQcutAndCut) {
         factor.values.push_back(values[index]);
     }
     fincore::quantization_config qcut;
+    // Four buckets over the duplicated two repeat an interior edge, which is the
+    // rejected case; three buckets keep the edges distinct but leave the middle
+    // bucket empty, so the labels below skip two.
     qcut.quantiles = 4;
     EXPECT_THROW(static_cast<void>(
                      fincore::quantize_factor(factor, qcut)),
@@ -280,6 +283,8 @@ TEST(FactorData, PresentNaNAndAbsentForwardPairsBothAppearInLossAccounting) {
   EXPECT_EQ(prepared.loss_report.finite_factor_count, 4U);
   EXPECT_EQ(prepared.loss_report.forward_returns_count, 2U);
   EXPECT_EQ(prepared.loss_report.binning_count, 2U);
+  // Each stage measures its own loss against the untouched input count, so the
+  // three fractions add up to the panel-level total instead of compounding.
   EXPECT_NEAR(prepared.loss_report.factor_input_loss, 0.2, 1e-15);
   EXPECT_NEAR(prepared.loss_report.forward_returns_loss, 0.4, 1e-15);
   EXPECT_DOUBLE_EQ(prepared.loss_report.binning_loss, 0.0);

@@ -51,6 +51,9 @@ TEST(AttributionStyleAnalysisUmbrella,
     beta.reserve(row_count);
     gamma.reserve(row_count);
     for (std::size_t row{0U}; row < row_count; ++row) {
+        // Rows 0 and 2 repeat 42 and row 1 is a negative label: overall_returns
+        // copies the input index as it stands while the exposures are renumbered,
+        // so neither sorting nor deduplication of the dates is allowed here.
         index.push_back(row == 0U ? 42 : row == 1U ? -7 : row == 2U ? 42 :
                         static_cast<fincore::timestamp>(row + 100U));
         alpha.push_back(row % 3U == 0U ? .010 : -.004);
@@ -129,6 +132,9 @@ TEST(AttributionStyleAnalysisUmbrella,
                     fincore::style_return_column.data()).front(),
                 .0016666666666666663, 1.0e-12);
 
+    // Eight columns rather than the ten above: with no market caps the three size
+    // styles are replaced by the single equal_weight column, so the count itself
+    // is the substitution, and the column check names which one took their place.
     EXPECT_EQ(default_result.exposures.shape().second, 8U);
     EXPECT_TRUE(default_result.exposures.has_column(
         fincore::style_equal_weight_column.data()));

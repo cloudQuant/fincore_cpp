@@ -22,6 +22,9 @@ using fincore::timestamp;
 using correlation_breakdown_function = fincore::dataframe (*) (
     std::span<const std::string_view>, double);
 
+// The pointer type pins the exported parameter list and the by-value return only;
+// default arguments are not part of a function's type, so the single-argument call
+// in the first test is what pins the default target.
 static_assert(
     std::is_same_v<decltype(&fincore::generate_correlation_breakdown),
                    correlation_breakdown_function>);
@@ -142,6 +145,9 @@ TEST(CorrelationBreakdown, AcceptsBoundedNonTerminatedNames) {
 
     const auto matrix = fincore::generate_correlation_breakdown(bounded_name, 0.25);
 
+    // The four characters carry no terminator, so a label taken from the view's
+    // pointer alone would read past them; finding "BOND" proves the length was
+    // honoured when the column name was built.
     expect_named_matrix_schema(matrix, bounded_name);
     EXPECT_DOUBLE_EQ(matrix.get_column<double>("BOND")[0], 1.0);
 }

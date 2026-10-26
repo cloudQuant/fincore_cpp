@@ -73,6 +73,9 @@ TEST(Capacity, AssessLiquidityComposesAcceptedKernels) {
     auto positions = capacity_frame(
         {100.0, 120.0, 90.0, 150.0, 160.0, 140.0, 170.0},
         {50.0, 40.0, 60.0, 55.0, 70.0, 80.0, 75.0});
+    // "cash" is the default cash column name, so it widens the allocation
+    // denominator the goldens below were computed against while being excluded
+    // from the per-asset output columns.
     positions.load_column<double>("cash", std::vector<double>(7, 1000.0),
                                   hmdf::nan_policy::dont_pad_with_nans);
     const auto prices = capacity_frame(
@@ -123,6 +126,9 @@ TEST(Capacity, VolumeBoundariesMatchTheDeclaredRollingContract) {
     constexpr double max_bar_consumption = 0.5;
     constexpr std::size_t window = 2U;
 
+    // A zero rolling mean is folded into the same NaN marker as a missing volume,
+    // so the figure never prints as infinite days, while the negative mean below
+    // stays an ordinary divisor and yields a signed day count.
     const auto zero_volume = single_asset_frame(
         {0.0, 0.0, 100.0, 100.0, 100.0, 100.0, 100.0});
     const auto zero_days = fincore::days_to_liquidate_positions(

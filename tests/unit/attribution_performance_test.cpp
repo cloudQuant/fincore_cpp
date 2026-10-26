@@ -42,6 +42,8 @@ TEST(AttributionPerformance, AlignsAssetsAndLoadingDatesWithWarnings) {
     const auto aligned =
         fincore::align_and_warn(returns, positions, factor_returns, loadings);
     ASSERT_EQ(aligned.warnings.size(), 2U);
+    // The pinned ratio shows cash is not counted as a stock: one unloaded asset
+    // out of A/B/C reads 0.333, while including cash would have read 0.250.
     EXPECT_NE(aligned.warnings[0].find("0.333"), std::string::npos);
     EXPECT_NE(aligned.warnings[0].find("C"), std::string::npos);
     EXPECT_NE(aligned.warnings[1].find("1 dates"), std::string::npos);
@@ -58,6 +60,8 @@ TEST(AttributionPerformance, AlignsAssetsAndLoadingDatesWithWarnings) {
     ASSERT_EQ(aligned.factor_returns.get_index().size(), 1U);
     EXPECT_DOUBLE_EQ(aligned.factor_returns.get_column<double>("F1")[0],
                      0.03);
+    // The loading table passes through untouched: date truncation narrows the
+    // three frames only, so 1 x 2 x 2 values survive the dropped row.
     EXPECT_EQ(aligned.factor_loadings.values.size(), 4U);
 
     fincore::factor_loading_table unrelated;

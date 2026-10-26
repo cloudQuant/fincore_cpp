@@ -59,6 +59,9 @@ TEST(FactorPit, MaterializesOnlyKnownEffectiveUniverseValues) {
     EXPECT_EQ(factor.dates[3], fixture.dates[2]);
     EXPECT_EQ(factor.assets[3], "C");
     EXPECT_DOUBLE_EQ(factor.values[3], 4.0);
+    // B is known and effective from the first evaluation date, so its
+    // universe flag is the only disqualifier: its absence here tests
+    // universe filtering rather than the point-in-time cut.
     for (const auto& asset : factor.assets) {
         EXPECT_NE(asset, "B");
     }
@@ -69,6 +72,9 @@ TEST(FactorPit, MaterializesOnlyKnownEffectiveUniverseValues) {
     config.max_loss = 1.0;
     const auto prepared = fincore::prepare_pit_factor_data(
         fixture.observations, fixture.prices, fixture.dates, config);
+    // The first two evaluation dates materialize a single asset, which
+    // cannot fill two buckets, so only the last date's A/C cross-section
+    // reaches the prepared panel.
     ASSERT_EQ(prepared.rows.size(), 2U);
     EXPECT_EQ(prepared.forward_labels.size(), 1U);
     EXPECT_EQ(prepared.rows.front().asset, "A");

@@ -27,6 +27,9 @@ TEST(AttributionFactorPredictionUmbrella,
         fincore::fit_factor_regression(returns, training_factors, factor_names);
 
     fincore::dataframe prediction_factors;
+    // The index repeats 42 and is out of order: predictions are formed row by
+    // row and the input index is copied over as it stands, so neither sorting nor
+    // deduplication may happen even though a timestamp index is usually unique.
     prediction_factors.load_index({42, 7, 42});
     prediction_factors.load_column<double>("MKT", {3.0, -1.0, 1.5},
                                            hmdf::nan_policy::dont_pad_with_nans);

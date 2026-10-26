@@ -46,6 +46,9 @@ fincore::dataframe multi_column_frame() {
     return frame;
 }
 
+// build_monthly_heatmap rejects an index that steps backwards, so every fixture
+// here is ascending by construction; repeated dates would be accepted but are not
+// exercised by this file.
 TEST(ChartData, MonthlyHeatmapCompoundsAndMarksMissing) {
     std::vector<double> values;
     for (int position = 0; position < 55; ++position) {
@@ -155,6 +158,9 @@ TEST(ChartData, SeriesChartsOwnIndexValuesAndMetadata) {
     const auto sharpe = daily_series(
         fincore::utc_timestamp(2021, 1, 1), 4, {0.1, 0.2, 0.15, 0.3},
         "sharpe");
+    // The benchmark is deliberately one day later and one row shorter, so the
+    // size and front timestamp below prove the series keeps the benchmark frame's
+    // own index instead of the portfolio's four-day index.
     const auto benchmark = daily_series(
         fincore::utc_timestamp(2021, 1, 2), 3, {0.05, 0.1, 0.2},
         "benchmark_sharpe");

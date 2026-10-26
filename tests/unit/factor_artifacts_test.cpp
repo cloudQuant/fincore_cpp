@@ -34,6 +34,8 @@ fincore::quantile_date_return_table two_quantile_returns() {
 TEST(FactorArtifacts, BuildsCumulativeQuantileChartData) {
     const auto chart = fincore::build_cumulative_returns_by_quantile(
         two_quantile_returns(), "1D");
+    // Series are emitted from the top quantile down, and the zero return on the
+    // second date holds quantile two at its first value instead of re-basing it.
     ASSERT_EQ(chart.series.size(), 2U);
     EXPECT_EQ(chart.series[0].quantile, 2);
     EXPECT_EQ(chart.series[1].quantile, 1);
@@ -76,6 +78,9 @@ TEST(FactorArtifacts, BucketsEventsOnEqualTimeIntervals) {
                                      std::numeric_limits<double>::quiet_NaN(),
                                      4.0, 5.0};
     const auto chart = fincore::build_events_distribution(dates, values, 4U);
+    // Four bars emit five boundary stamps and the last bar is right-closed, so
+    // the maximum date is counted instead of falling past the edge; bucket one
+    // stays empty only because its boundary date carries the dropped value.
     ASSERT_EQ(chart.bucket_starts.size(), 5U);
     ASSERT_EQ(chart.counts.size(), 5U);
     EXPECT_EQ(chart.counts, (std::vector<double>{2.0, 0.0, 1.0, 0.0, 1.0}));

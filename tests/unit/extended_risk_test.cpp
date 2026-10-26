@@ -169,6 +169,8 @@ TEST(ExtendedRisk, ValidatesTradingValueAtRiskSelectorBeforeRawLength) {
       fincore::make_series({1, 2, 3}, "strategy", {.01, -.02, .03});
   const auto single_strategy =
       fincore::make_series({1}, "strategy", std::vector<double>{.10});
+  // The view stops one byte short of the array, so finding the column shows
+  // the name is read by length rather than as a NUL-terminated string.
   const std::array<char, 9> bounded_storage{
       's', 't', 'r', 'a', 't', 'e', 'g', 'y', '!'};
   const std::string_view bounded_selector{bounded_storage.data(), 8U};
@@ -275,6 +277,8 @@ TEST(ExtendedRisk, PreservesVarExcessReturnFrequencyAndCutoffOrder) {
                                           unknown_frequency);
       },
       "unrecognized frequency");
+  // An explicit annualization is returned before the period switch, so 999 is
+  // never inspected here; the NaN below still exercises the cutoff domain.
   EXPECT_NEAR(fincore::var_excess_return(returns, .05, 0.0,
                                          unknown_frequency, 7.0),
               2.2423926838665866, 1e-12);

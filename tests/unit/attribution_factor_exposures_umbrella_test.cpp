@@ -23,6 +23,9 @@ TEST(AttributionFactorExposuresUmbrella, ExportsRollingFactorExposuresSurface) {
                                 hmdf::nan_policy::dont_pad_with_nans);
 
     constexpr std::array<std::string_view, 1U> factor_names{"MKT"};
+    // The window argument is omitted, so the fit is expanding. Both columns lie
+    // exactly on y = 2x + 1, so every eligible window refits the same line: the
+    // expectations pin the surface and the leading NaN, not how a window shrinks.
     const auto exposures =
         fincore::rolling_factor_exposures(returns, factors, factor_names);
 

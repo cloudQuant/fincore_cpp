@@ -61,6 +61,9 @@ factor_fixture oracle_fixture() {
     const std::vector<double> hml{.00, .02, .01, -.01, .025, -.005, .015, -.02};
     const std::vector<double> residual{.0005, -.001, .0, .0015,
                                        -.0005, .00025, -.00075, .00025};
+    // Returns are synthesised from a known alpha, known betas and a small
+    // residual, so every pinned contribution is a recovered coefficient rather
+    // than an opaque fitted constant.
     std::vector<double> values;
     values.reserve(oracle_index.size());
     for (std::size_t row = 0; row < oracle_index.size(); ++row) {
@@ -453,6 +456,9 @@ TEST(FactorAttribution, IgnoresUnrelatedMetadataAndOwnsResult) {
         const auto clean_output = fincore::factor_attribution_decomposition(
             fixture.returns, clean_factors, source_factor_name_views, .0002);
         expect_same_summary_values(output, clean_output);
+        // The std::strings behind the selector views are rewritten after the
+        // call, so the summary's unchanged component labels prove it stored
+        // copies rather than views into the caller's storage.
         fixture.returns.get_column<double>("returns")[0] = 123.0;
         fixture.factors.get_column<double>("MKT")[0] = -123.0;
         fixture.returns.load_index({11, 12, 13, 14, 15, 16, 17, 18});

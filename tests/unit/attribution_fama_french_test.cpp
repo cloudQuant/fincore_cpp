@@ -63,6 +63,8 @@ TEST(AttributionFamaFrench, CalculatesIdiosyncraticRiskWithOracleValues) {
     EXPECT_EQ(result.assets[0], "A");
     EXPECT_EQ(result.assets[1], "B");
     EXPECT_EQ(result.assets[2], "C");
+    // One shared beta, fitted on the first asset column A alone, is applied to B
+    // and C too, so their volatilities differ only through their own variance.
     EXPECT_NEAR(result.market_beta, 0.30357142857141906, 1e-10);
     EXPECT_NEAR(result.specific_volatility[0], 0.008701654177846832, 1e-12);
     EXPECT_NEAR(result.specific_volatility[1], 0.0041562412088803, 1e-12);
@@ -91,6 +93,8 @@ TEST(AttributionFamaFrench, CalculatesIdiosyncraticRiskWithOracleValues) {
             name.c_str(), std::vector<double>(values.begin(), values.end()),
             hmdf::nan_policy::dont_pad_with_nans);
     }
+    // Only the beta fit demands all five columns; with an explicit beta just MKT
+    // is read, so this same CMA-less frame flips from rejection to acceptance.
     EXPECT_THROW(
         static_cast<void>(
             fincore::calculate_idiosyncratic_risk(returns, without_cma)),

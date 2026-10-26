@@ -36,6 +36,9 @@ TEST(AttributionUmbrella, ExportsTheDataframeNativeBrinsonSurface) {
 
     EXPECT_NEAR(period.allocation, .004, 1.0e-12);
     EXPECT_NEAR(results.get_column<double>("total").at(0), .020, 1.0e-12);
+    // With the single period the helper builds, compounding one return is the
+    // same arithmetic as passing it through, so this pins the cumulative surface
+    // and not the wealth path; a summed cumulative would read .080 as well.
     EXPECT_NEAR(cumulative.portfolio_cumulative, .080, 1.0e-12);
 }
 

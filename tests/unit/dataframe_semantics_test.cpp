@@ -53,6 +53,9 @@ TEST(DataframeSemantics, PadsAnExplicitlyShortColumnWithNaN) {
   frame.load_index(std::vector<fincore::timestamp>{
       fincore::utc_timestamp(2020, 1, 2), fincore::utc_timestamp(2020, 1, 3),
       fincore::utc_timestamp(2020, 1, 6)});
+  // The same one-value column stays short, and is reported as malformed by
+  // require_double_column(), under dont_pad_with_nans in the sibling frame tests,
+  // so the padding argument alone decides this outcome.
   frame.load_column<double>("sparse", std::vector<double>{1.0},
                             hmdf::nan_policy::pad_with_nans);
   const auto values = fincore::require_double_column(frame, "sparse");
@@ -87,6 +90,9 @@ TEST(DataframeSemantics, PreservesDuplicateTimestampsInInsertionOrder) {
 
 TEST(DataframeSemantics, CopyOwnsValuesIndependently) {
   auto original = make_mixed_frame();
+  // Frame assignment copies, whereas require_double_column() hands out a view into
+  // the caller's frame; the mutations below must not reach the copy through either
+  // path.
   auto copy = original;
   original.get_column<double>("returns")[0] = 9.0;
   original.get_column<std::string>("symbol")[0] = "MUT";

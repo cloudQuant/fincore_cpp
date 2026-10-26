@@ -86,6 +86,9 @@ TEST(AttributionFacades, InjectedFamaFrenchProviderDetachesAndValidates) {
     EXPECT_EQ(seen_start, "2024-01-01");
     EXPECT_EQ(seen_end, "2024-12-31");
     EXPECT_EQ(seen_library, "french");
+    // Reloading an existing name overwrites that column, so the original values
+    // below are reachable only if the fetch detached them; an aliased provider
+    // buffer would read 9.0 here.
     owned.load_column<double>("returns", {9.0, 9.0, 9.0, 9.0, 9.0, 9.0},
                               hmdf::nan_policy::dont_pad_with_nans);
     const auto& values = fetched.get_column<double>("returns");
@@ -164,6 +167,8 @@ TEST(AttributionFacades, BrinsonFacadeDelegatesToKernelWithEqualWeights) {
     const fincore::BrinsonAttribution facade;
     const auto actual = facade.calculate(returns);
     const std::array<std::string_view, 2U> sectors{"tech", "health"};
+    // The expectation reruns the same kernel with the documented defaults, so
+    // this pins only the delegation: a kernel change moves both sides together.
     const auto expected = fincore::brinson_results(
         returns, returns, equal_weights, equal_weights, sectors);
     ASSERT_EQ(actual.get_index(), expected.get_index());

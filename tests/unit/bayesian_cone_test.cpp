@@ -46,6 +46,8 @@ constexpr std::array<std::string_view, 7U> cone_column_names{
 
 fincore::dataframe source_oracle_paths() {
     fincore::dataframe predicted_returns;
+    // The label 19 repeats and the index is not ascending on purpose: rows are
+    // consumed positionally, so the raw index must reappear unchanged.
     predicted_returns.load_index(
         std::vector<fincore::timestamp>{19, -3, 19, 7});
     predicted_returns.load_column<double>(
@@ -202,6 +204,9 @@ TEST(BayesianCone, RejectsInvalidShapesTypesNonfiniteInputsAndArithmetic) {
                      fincore::compute_bayes_cone(cumulative_overflow, maximum)),
                  fincore::input_error);
 
+    // Both wealths stay finite here, so the throw is the percentile's: the
+    // interpolation takes upper minus lower, which overflows at opposite DBL_MAX
+    // extremes where the case above overflows during compounding instead.
     fincore::dataframe percentile_overflow;
     percentile_overflow.load_index(std::vector<fincore::timestamp>{1});
     percentile_overflow.load_column<double>("negative_path", {-maximum},

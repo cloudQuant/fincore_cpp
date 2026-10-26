@@ -33,6 +33,9 @@ TEST(AttributionStylePerformanceUmbrella,
                               hmdf::nan_policy::dont_pad_with_nans);
 
   fincore::dataframe exposures;
+  // The rows list BETA before ALPHA, opposite to the return column order, so
+  // .0125 only comes from matching assets by name; pairing the two frames by
+  // position would blend different returns and give a different blend.
   exposures.load_index({0, 1});
   exposures.load_column<std::string>(fincore::style_asset_column.data(),
                                      {"BETA", "ALPHA"},

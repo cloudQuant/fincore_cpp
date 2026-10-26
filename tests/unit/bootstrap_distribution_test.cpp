@@ -224,6 +224,9 @@ TEST(BootstrapDistribution, UsesExplicitDrawsOverNaNCleanedPositions) {
     const auto returns = fincore::make_series(
         {10, 20, 30, 40}, "returns",
         {0.01, std::numeric_limits<double>::quiet_NaN(), 0.0, -0.02});
+    // Positions address the NaN-cleaned population {0.01, 0.0, -0.02}, not the
+    // frame rows, so each draw has length 3 and index 2 reads the fourth
+    // timestamp's return.
     const std::vector<std::vector<std::size_t>> draws{
         {0U, 0U, 0U}, {2U, 2U, 2U}, {0U, 1U, 2U},
         {1U, 1U, 1U}, {2U, 0U, 2U}};
@@ -390,6 +393,8 @@ TEST(BootstrapDistribution, RejectsInvalidColumnsValuesStatisticsAndOutputBounds
     const double maximum = std::numeric_limits<double>::max();
     const auto arithmetic_overflow =
         fincore::make_series({1, 2}, "returns", {maximum, -maximum});
+    // Only a draw mixing the two extremes overflows the running variance, so any
+    // seed that does is enough: a resample of one repeated value stays finite.
     bool rejected_overflowing_resample = false;
     for (std::uint64_t seed = 1U; seed <= 64U; ++seed) {
         try {

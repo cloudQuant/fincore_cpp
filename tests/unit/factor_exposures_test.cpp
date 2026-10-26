@@ -70,6 +70,9 @@ factor_fixture oracle_fixture() {
     auto factors = make_factors(
         std::vector<timestamp>{oracle_index.begin(), oracle_index.end()}, mkt, smb,
         hml);
+    // A short non-double column that no selector names: carrying it in the
+    // shared fixture makes every successful call also a check that unrelated
+    // metadata is skipped rather than validated.
     factors.load_column<int>("unrelated_malformed", {7},
                              hmdf::nan_policy::dont_pad_with_nans);
     return {make_returns(std::vector<timestamp>{oracle_index.begin(), oracle_index.end()},
@@ -324,6 +327,9 @@ TEST(FactorExposures, ReturnsTypedEmptyAndShortTrailingOutputs) {
     }
 
     const auto fixture = oracle_fixture();
+    // A three-row trailing window can never reach the four observations an
+    // alpha plus three slopes need, so this frame keeps its schema and carries
+    // NaN in every row.
     const auto short_window = fincore::rolling_factor_exposures(
         fixture.returns, fixture.factors, factor_names, 3U);
     expect_exposure_schema(short_window, factor_names, fixture.returns.get_index());

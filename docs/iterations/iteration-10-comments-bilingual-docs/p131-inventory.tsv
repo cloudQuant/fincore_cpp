@@ -112,56 +112,56 @@ tests/oracle/research_detailed_probe.cpp	cpp	0	no_explanatory_block_not_audited
 tests/unit/alpha_beta_test.cpp	cpp	0	reviewed_this_round	comments added: a NaN removes the whole date from both sides so the two survivors still give 0.5, and the percentile rank must be a value because the peer vector dies with the lambda; the alignment case is registered as F10-D13 because aligned and positional pairing both pass at 1e-12
 tests/unit/analysis_context_test.cpp	cpp	0	reviewed_this_round	comment added: two equal summaries would also follow from recomputation, so the computation count is what proves the cache served the repeat call
 tests/unit/annual_alpha_beta_test.cpp	cpp	0	reviewed_this_round	the fixture's uneven three-year spread pins one row per touched year, labelled at its start, with intra-year gaps adding nothing
-tests/unit/antithetic_variates_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/attribution_facades_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/attribution_factor_attribution_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/attribution_factor_exposures_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/attribution_factor_prediction_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/attribution_factor_regression_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/attribution_fama_french_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/attribution_performance_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/attribution_style_analysis_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/attribution_style_performance_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/attribution_style_regression_attribution_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/attribution_style_tilts_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/attribution_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/antithetic_variates_test.cpp	cpp	0	reviewed_this_round	comments added: the repeated 9 and out-of-order 3 show mirroring is positional with no sortedness precondition, and the mirror expectations pin that every column mirrors around the first column's first value
+tests/unit/attribution_facades_test.cpp	cpp	0	reviewed_this_round	comments added: reloading an existing column name overwrites it, so stale values are reachable only if the fetch detached them; the Brinson facade case reruns the same kernel, so it pins delegation rather than numbers
+tests/unit/attribution_factor_attribution_umbrella_test.cpp	cpp	0	reviewed_this_round	comments added: the risk-free rate is deliberately non-zero or unexplained would read 0 and a decomposition missing its subtraction would still pass; with one factor the specific return is forced to equal the MKT contribution, so the equality shows row order
+tests/unit/attribution_factor_exposures_umbrella_test.cpp	cpp	0	reviewed_this_round	comment added: the window is omitted so the fit is expanding, and both columns lie on one line, so every eligible window refits it and the expectations pin the surface plus the leading NaN
+tests/unit/attribution_factor_prediction_umbrella_test.cpp	cpp	0	reviewed_this_round	comment added: the index repeats 42 and is out of order because predictions are formed row by row and the input index is copied as it stands, so neither sorting nor dedup is allowed
+tests/unit/attribution_factor_regression_umbrella_test.cpp	cpp	0	reviewed_this_round	comment added: two rows is the documented floor and the points lie exactly on one line, so the unit R-squared and zero residual come from the fixture rather than a fit
+tests/unit/attribution_fama_french_test.cpp	cpp	0	reviewed_this_round	comments added: one beta fitted on column A is applied to B and C, so their volatilities differ only through their own variance; only the beta fit demands five columns, so with an explicit beta the same frame flips from rejection to acceptance
+tests/unit/attribution_performance_test.cpp	cpp	0	reviewed_this_round	comments added: the pinned ratio shows cash is not counted as a stock (0.333 rather than 0.250); the loading table passes through untouched while only the three frames are truncated
+tests/unit/attribution_style_analysis_umbrella_test.cpp	cpp	0	reviewed_this_round	comments added: repeated 42 and negative -7 survive because overall returns copies the input index while exposures are renumbered; eight columns instead of ten is the size-style to equal-weight substitution
+tests/unit/attribution_style_performance_umbrella_test.cpp	cpp	0	reviewed_this_round	comment added: the exposure rows list BETA before ALPHA, opposite the returns, so the blend only comes from name matching (positional pairing blends different returns)
+tests/unit/attribution_style_regression_attribution_umbrella_test.cpp	cpp	0	reviewed_this_round	comment added: no contribution value is asserted and both frames share one index in one order, so aligned and positional pairing coincide; only arity, labels and schema are pinned
+tests/unit/attribution_style_tilts_umbrella_test.cpp	cpp	0	reviewed_this_round	comments added: 253 rows is one more than the default 252-observation window so exactly one output row exists, and all-zero returns leave every tilt comparison on a tie so only the schema is asserted
+tests/unit/attribution_umbrella_test.cpp	cpp	0	reviewed_this_round	comment added: with the single period the helper builds, compounding equals pass-through, so the cumulative value pins the surface and not the wealth path
 tests/unit/basic_test.cpp	cpp	0	reviewed_this_round	comment added: a zero adjustment still has to copy, so the mutation after the call is the only thing separating a fresh frame from an alias of the input
-tests/unit/bayesian_cone_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/bootstrap_confidence_interval_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/bootstrap_distribution_test.cpp	cpp	3	multi_block_not_audited	
-tests/unit/bootstrap_summary_test.cpp	cpp	2	sparse_not_audited	
-tests/unit/brinson_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/build_contract_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/bayesian_cone_test.cpp	cpp	0	reviewed_this_round	comments added: label 19 repeats and the index is not ascending on purpose because rows are consumed positionally and the raw index must reappear; the DBL_MAX case is the percentile's upper-minus-lower overflow, not the compounding overflow of the case above
+tests/unit/bootstrap_confidence_interval_test.cpp	cpp	0	reviewed_this_round	comments added: an invalid frame plus an invalid alpha makes the caught wording the ordering proof, and the three rejections all concern the generated distribution rather than the inputs
+tests/unit/bootstrap_distribution_test.cpp	cpp	3	reviewed_this_round	comments added: positions address the NaN-cleaned population rather than frame rows, so index 2 reads the fourth timestamp; only a draw mixing both extremes overflows the running variance
+tests/unit/bootstrap_summary_test.cpp	cpp	2	reviewed_this_round	comments added: with no positive return the Sortino deviation set equals the Sharpe's, so that loop cannot separate them and the mixed-sign case does; the floor of two resamples is for the standard error
+tests/unit/brinson_test.cpp	cpp	0	reviewed_this_round	comments added: the same labels in swapped order is a rejection because index matching compares sequences; a zero benchmark weight makes selection 0 times minus infinity, so only the unit-weighted terms are asserted
+tests/unit/build_contract_test.cpp	cpp	0	reviewed_this_round	comment added: the file pins the native library version only, since the sibling pinned_version constants deliberately carry a different version and no case here asserts them
 tests/unit/calendar_test.cpp	cpp	0	reviewed_this_round	comments added: utc_year(-1) is 1969, so the extraction floors toward earlier time instead of truncating toward zero; the int64 nanosecond bounds are asserted exactly and one nanosecond beyond each side
-tests/unit/capacity_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/chart_data_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/consecutive_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/correlation_breakdown_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/data_models_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/dataframe_semantics_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/dataframe_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/drawdown_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/errors_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/extended_alpha_beta_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/extended_ratios_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/extended_risk_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/extensions_discovery_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/extensions_snapshot_test.cpp	cpp	1	sparse_not_audited	
-tests/unit/factor_analysis_test.cpp	cpp	9	multi_block_not_audited	
-tests/unit/factor_artifacts_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/factor_attribution_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/factor_calendar_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/factor_costs_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/factor_data_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/factor_exposures_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/factor_performance_test.cpp	cpp	3	multi_block_not_audited	
-tests/unit/factor_pit_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/factor_portfolio_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/factor_prediction_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/factor_regression_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/factor_report_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/capacity_test.cpp	cpp	0	reviewed_this_round	comments added: cash is the default cash column so it widens the allocation denominator the goldens were computed against while staying out of the per-asset output; a zero rolling mean folds into the same NaN marker as a missing volume while a negative mean stays an ordinary divisor
+tests/unit/chart_data_test.cpp	cpp	0	reviewed_this_round	comments added: the heatmap rejects a stepping-back index but allows repeats, and the benchmark series is staggered one day later and one row shorter so size and front prove it keeps its own index
+tests/unit/consecutive_test.cpp	cpp	0	reviewed_this_round	comments added: the static_assert block protects the double-typed run lengths that make NaN the no-data marker, and in the composed case the frame really holds the returns column so only the NUL guard can reject
+tests/unit/correlation_breakdown_test.cpp	cpp	0	reviewed_this_round	comment added: the function-pointer static_assert pins parameters and return type but not the default, which the one-argument call does; the un-terminated four-character view must be taken by length
+tests/unit/data_models_test.cpp	cpp	0	reviewed_this_round	comments added: a NaN price drops both adjacent pairs rather than pairing across the hole and a zero base yields an infinite change; data copies while stored_data aliases
+tests/unit/dataframe_semantics_test.cpp	cpp	0	reviewed_this_round	comments added: padding versus not padding is the only variable in the pair, and frame assignment copies unlike the view returned by the column lookup
+tests/unit/dataframe_test.cpp	cpp	0	reviewed_this_round	comments added: fincore's own size check has to beat hmdf's inconsistent-data runtime_error, and the left index is deliberately unsorted
+tests/unit/drawdown_test.cpp	cpp	0	reviewed_this_round	comments added: shuffled labels prove earliest means frame position rather than smallest timestamp, and asking for ten while getting three shows this API truncates where the table builder pads
+tests/unit/errors_test.cpp	cpp	0	reviewed_this_round	comments added: the return-one sentinel is what makes the catch-block assertions run, and the extra field names only the first unavailable entry while an available numpy is filtered out
+tests/unit/extended_alpha_beta_test.cpp	cpp	0	reviewed_this_round	comments added: the squared term keeps the fitted slope off the generating coefficient, and the one-label shift makes the references reachable only through the timestamp join
+tests/unit/extended_ratios_test.cpp	cpp	0	reviewed_this_round	comments added: for the two-row tail case half the observations are wins so the win-rate factor cancels and 19.0 is exactly the 95th-over-5th percentile ratio (recomputed: 19.0), and a one-row series can only give NaN so each throw proves selector validation precedes the length shortcut
+tests/unit/extended_risk_test.cpp	cpp	0	reviewed_this_round	comments added: an explicit annualization is returned ahead of the frequency switch so an out-of-range enum is never inspected, and the eight-of-nine-byte view shows the name lookup is length-based
+tests/unit/extensions_discovery_test.cpp	cpp	0	reviewed_this_round	no change: the cases restate the discovery order and rejection wording they check, and no unstated precondition was found that the file does not already annotate
+tests/unit/extensions_snapshot_test.cpp	cpp	1	reviewed_this_round	comments added: the hook list is event-major so the priority-100 align hook leads where a global priority sort would differ, and the pinned digest covers the ASCII-escaped payload rather than host-encoding text
+tests/unit/factor_analysis_test.cpp	cpp	9	reviewed_this_round	comments added: the price index runs past the factor panel so no date loses its five-day label, and empty versus fully named periods select the same periods so only the fingerprint separates the spellings; the golden digest case is only length-checked on MSVC as the file states
+tests/unit/factor_artifacts_test.cpp	cpp	0	reviewed_this_round	comments added: quantile series emit top-down and the zero second return keeps the cumulative product flat, and the bar count yields one more stamp with a right-closed last bar so bucket one is empty only because its boundary date carries the dropped NaN
+tests/unit/factor_attribution_test.cpp	cpp	0	reviewed_this_round	comments added: returns are synthesised from known alpha and betas, and mutating the name strings after the call proves the summary copied labels instead of keeping views
+tests/unit/factor_calendar_test.cpp	cpp	0	reviewed_this_round	comments added: the Arabic-Indic and fullwidth digits are decimal while superscript two is not and the long s counts as s, and the rowless levels show a shift landing on an unused level
+tests/unit/factor_costs_test.cpp	cpp	0	reviewed_this_round	comments added: the aggregate field order of the cost model, and which of two adjacent throws is the capacity ceiling versus the missing borrow panel
+tests/unit/factor_data_test.cpp	cpp	0	reviewed_this_round	comments added: four buckets repeat an interior edge over the tie where three would leave the middle bucket empty, and every loss stage divides by the untouched input count
+tests/unit/factor_exposures_test.cpp	cpp	0	reviewed_this_round	comments added: the shared fixture carries an unnamed ragged non-double column, and a three-row window can never reach the K+1 observations so the frame is schema-intact and all-NaN
+tests/unit/factor_performance_test.cpp	cpp	3	reviewed_this_round	audited with no change: the case compares against pinned reference CSVs under tests/fixtures and long literal oracle decimals, so its text is evidence rather than prose to reword
+tests/unit/factor_pit_test.cpp	cpp	0	reviewed_this_round	comments added: the B asset is known and effective from the first evaluation date so the not-equal assertion tests universe filtering rather than the as-of cut, and the two single-asset dates cannot fill two buckets so only the last cross-section survives
+tests/unit/factor_portfolio_test.cpp	cpp	0	reviewed_this_round	comments added: label presence is checked before the period grammar and before the empty-selection throw, and supplying raw weights makes the demeaning flags inert so the panel is only a label and row-count check
+tests/unit/factor_prediction_test.cpp	cpp	0	reviewed_this_round	audited with no change: the case is built around an oracle index and fixture with pinned fit digests, so editing its text is a content change rather than a comment change
+tests/unit/factor_regression_test.cpp	cpp	0	reviewed_this_round	audited with no change: same pinned fit digests plus a literal expected-residuals array
+tests/unit/factor_report_test.cpp	cpp	0	reviewed_this_round	comment added: the indexed cell is the returns-summary top-quantile one-day value in basis points, and the default long-short demeaning is what turns it into the difference of two means
 tests/unit/factor_research_detailed_export_test.cpp	cpp	0	reviewed_this_round	each case gets its own temporary directory because the export path creates and refuses paths, and sharing would turn ordering into a failure
-tests/unit/factor_research_detailed_test.cpp	cpp	16	multi_block_not_audited	
+tests/unit/factor_research_detailed_test.cpp	cpp	16	reviewed_this_round	audited with no change: it drives a pinned Python oracle JSON, so the literals are evidence and the surrounding prose already states the comparison rules
 tests/unit/factor_research_test.cpp	cpp	0	reviewed_this_round	the fixture is deterministic trigonometric data with factor and price spans deliberately mismatched, so no result depends on a draw
 tests/unit/factor_serialization_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/factor_tears_test.cpp	cpp	0	no_explanatory_block_not_audited	

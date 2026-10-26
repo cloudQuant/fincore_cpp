@@ -111,6 +111,8 @@ TEST(Drawdown, ReportsDetailedEpisodesInChronologicalFrameOrder) {
 }
 
 TEST(Drawdown, UsesEarliestTroughAndEpisodeWhenDrawdownsTie) {
+    // Labels are deliberately out of ascending order: the scan walks frame
+    // positions, so "earliest" here is the first row, not the smallest label.
     const auto returns = fincore::make_series(
         {30, 10, 20, 40, 50, 60}, "returns",
         {0.0, -0.20, 0.0, 0.25, -0.20, 0.25});
@@ -382,6 +384,8 @@ TEST(Drawdown, TopDrawdownsMatchPythonOracleOrderAndRecovery) {
     EXPECT_EQ(windows[2].valley, fincore::utc_timestamp(2021, 1, 18));
     EXPECT_FALSE(windows[2].recovery.has_value());
 
+    // Ten asked for but three found: this API stops at the episodes that
+    // exist, unlike gen_drawdown_table, which always returns the asked size.
     EXPECT_EQ(fincore::get_top_drawdowns(drawdown_fixture(), 10).size(), 3U);
 }
 
