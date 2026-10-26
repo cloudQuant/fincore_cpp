@@ -7,6 +7,10 @@
 namespace fincore {
 namespace {
 
+// Control characters are escaped numerically while everything from 0x20 upward is
+// copied through, including non-ASCII text: this payload is meant to be read as
+// UTF-8 JSON rather than the ASCII-escaped form the extension snapshots use, so a
+// message keeps the caller's wording byte for byte.
 std::string json_escape(const std::string_view text) {
   std::string escaped;
   escaped.reserve(text.size() + 2U);
@@ -81,6 +85,11 @@ std::string optional_number(const std::optional<std::int64_t> value) {
 
 }  // namespace
 
+// The flat dictionary starts from the free-form fields and then overwrites the
+// reserved names, so a caller cannot shadow the category or message with a field of
+// the same key; an empty code is the one exception, leaving whatever the caller put
+// there. Nested report entries come in prefixed rather than colliding, and the map's
+// key order is what makes the rendering deterministic.
 std::map<std::string, std::string> error_info::to_dict() const {
   std::map<std::string, std::string> data = fields;
   data["error_type"] = category;
