@@ -662,6 +662,22 @@ the site README documents:
 | `sphinx-build -b gettext` + `sphinx-intl update` | 3233 entries, 3230 translated, 3 exemptions, 0 fuzzy |
 | Strict HTML builds `-E -W -n --keep-going` | English, `zh_CN` and `zh-cn` all succeeded |
 | `docs/site/tools/check_built_site.py` | `pages=60 broken_links=0 machine_path_pages=0 fuzzy=0`, exit code 0 |
+
+Re-run once more after the comment audit closed at 287/287, this time from a clean
+Doxygen tree:
+
+| Step | Result |
+|---|---|
+| `doxygen Doxyfile` (1.9.7) | exit 0, 389 XML files, `doxygen.log` empty |
+| `normalize_doxygen_xml.py` | 1 XML file rewritten |
+| Strict HTML builds `-E -W -n --keep-going` | English and `zh_CN` both exit 0 |
+| `check_built_site.py` | `pages=60 broken_links=0 machine_path_pages=0 catalogs=28 entries=3233 translated=3230 untranslated=3 fuzzy=0` |
+
+The order matters and cost one failed attempt: running `normalize_doxygen_xml.py`
+*before* regenerating the XML leaves the raw Doxygen output in place, and the
+strict build then fails with `2 warnings (with warnings treated as errors)`.
+Regenerating and normalizing in the documented order makes both builds clean, so
+the sequence in `docs/site/README.md` is load-bearing rather than stylistic.
 | CMake Release + `ctest` | `100% tests passed, 0 tests failed out of 1092` |
 
 The gate has since been re-run on `8c9a540`, after every later comment batch, and
