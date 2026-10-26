@@ -8,15 +8,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fincore_cpp 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-25 22:15+0800\n"
+"POT-Creation-Date: 2026-10-26 18:50+0800\n"
 "PO-Revision-Date: 2026-10-25 22:20+0800\n"
 "Last-Translator: fincore_cpp documentation maintainers\n"
-"Language-Team: zh_CN <LL@li.org>\n"
 "Language: zh_CN\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
+"Language-Team: zh_CN <LL@li.org>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
 #: ../../site/performance.md:1
@@ -25,32 +25,210 @@ msgstr "性能方法与局限"
 
 #: ../../site/performance.md:3
 msgid ""
-"Performance claims must state the workload, data scale, CPU/thread settings, "
-"environment, statistic and noise handling. The native library and the Python "
-"reference are different implementations; a throughput comparison is not a "
-"claim of Python API equivalence."
-msgstr ""
-"性能声明必须说明工作负载、数据规模、CPU/线程设置、运行环境、统计量和噪声处理"
-"方式。原生库与 Python 参考实现是两种不同的实现；吞吐量比较并不等同于声明 "
-"Python API 等价。"
+"A performance claim is only meaningful with six things attached: the "
+"workload, the data scale, the CPU and thread settings, the environment, the "
+"statistic, and how noise was handled. This page states how the repository's "
+"numbers were produced so a reader can judge, or reproduce, them."
+msgstr "一条性能结论只有附带六件事才有意义：负载、数据规模、CPU 与线程设置、环境、统计量与噪声处理方式。本页说明仓库里的数字是如何产生的，以便读者判断或复现。"
 
 #: ../../site/performance.md:8
-msgid ""
-"The repository's acceptance records contain the raw benchmark method and "
-"dated results. The Iteration 9 and alpha003 records explicitly preserve "
-"INCONCLUSIVE outcomes; do not summarize a noisy run as a stable speedup. "
-"Historical CSV and HTML benchmarks use different workloads and are not "
-"interchangeable."
-msgstr ""
-"仓库的验收记录包含原始基准测试方法和带日期的结果。Iteration 9 和 alpha003 记"
-"录明确保留了 INCONCLUSIVE（无定论）结果；不要将有噪声的运行总结为稳定的加速"
-"比。历史 CSV 和 HTML 基准使用不同的工作负载，不能互换。"
+msgid "How the harness measures"
+msgstr "测量方式"
 
-#: ../../site/performance.md:14
+#: ../../site/performance.md:10
 msgid ""
-"For a reproducible run, use the committed benchmark source and the "
-"documented data preparation steps. Large generated results are not part of "
-"the docs site."
+"The paired harness runs the pinned Python reference and the native candidate"
+" on the same machine, alternating them, with one CPU pinned for the measured"
+" child:"
+msgstr "成对基准在同一台机器上交替运行固定的 Python 参考实现与原生候选实现，并为被测子进程绑定一个 CPU："
+
+#: ../../site/performance.md:13
+msgid ""
+"Each measured run is a **child process** whose affinity is narrowed before "
+"`CreateProcess`/`fork` and verified after start, so the parent's scheduler "
+"choices cannot leak into the measurement."
+msgstr "每次测量都是一个**子进程**：在 `CreateProcess`/`fork` 之前收窄其亲和性，启动后校验，因此父进程的调度选择不会渗入测量。"
+
+#: ../../site/performance.md:16
+msgid ""
+"The wall interval starts immediately before the child is created and ends "
+"when it exits, so interpreter start-up and loader time are **inside** the "
+"measurement for both sides."
+msgstr "墙钟区间从创建子进程之前开始，到子进程退出结束，因此解释器启动与加载时间都**计入**两侧测量。"
+
+#: ../../site/performance.md:19
+msgid ""
+"Warm-up runs are excluded; the observer (digest capture, counters) runs "
+"after the stop clock, except the allocation counter, whose atomics fire "
+"inside the measured call."
+msgstr "预热运行被排除；观察者（摘要捕获、计数器）在停止时钟之后运行，唯一例外是分配计数器 —— 它的原子操作在测量调用内部触发。"
+
+#: ../../site/performance.md:22
+msgid ""
+"CPU time and peak working set come from the operating system's process "
+"accounting, not from a self-report."
+msgstr "CPU 时间与峰值工作集来自操作系统的进程记账，而不是自报。"
+
+#: ../../site/performance.md:24
+msgid ""
+"Correctness is a **gate**, not a separate report: the research tables "
+"produced during the run are compared by digest before the timing is "
+"accepted."
+msgstr "正确性是**门禁**，不是另一份报告：运行期间产出的研究表会先按摘要比对通过，计时才会被采纳。"
+
+#: ../../site/performance.md:27
+msgid ""
+"Pairs are alternated and summarised by the median, so a single slow run "
+"cannot become the headline. A campaign that cannot separate the noise is "
+"recorded as INCONCLUSIVE rather than rounded up into a speed-up."
+msgstr "配对交替进行并用中位数汇总，因此单次慢跑不会变成头条数字。无法与噪声区分开的评估记为 INCONCLUSIVE，而不是四舍五入成加速比。"
+
+#: ../../site/performance.md:31
+msgid "What the numbers mean"
+msgstr "这些数字怎么读"
+
+#: ../../site/performance.md
+msgid "Result"
+msgstr "结果"
+
+#: ../../site/performance.md
+msgid "Reading"
+msgstr "解读"
+
+#: ../../site/performance.md
+msgid "**41.20x** on the Alpha003 500-file development batch"
+msgstr "Alpha003 500 文件开发批的 **41.20x**"
+
+#: ../../site/performance.md
+msgid "Wall-clock ratio for that workload, five measured pairs, same CPU"
+msgstr "该负载的墙钟比，五次测量配对，同一 CPU"
+
+#: ../../site/performance.md
+msgid "**34.46x / 35.63x** on the 1,000 / 2,000-file diagnostic pairs"
+msgstr "1,000 / 2,000 文件诊断对的 **34.46x / 35.63x**"
+
+#: ../../site/performance.md
+msgid "The ratio moves with scale; these are separate diagnostic pairs, not a gate"
+msgstr "比值随规模变化；这是独立的诊断对，不是门禁"
+
+#: ../../site/performance.md
+msgid "Peak working set"
+msgstr "峰值工作集"
+
+#: ../../site/performance.md
+msgid ""
+"Reported separately; a faster run that uses much more memory is not a free "
+"win"
+msgstr "单独报告；更快但内存占用高得多的运行不是免费的胜利"
+
+#: ../../site/performance.md
+msgid "Digest equality"
+msgstr "摘要一致"
+
+#: ../../site/performance.md
+msgid "Every accepted timing run also reproduced the reference tables"
+msgstr "每个被采纳的计时运行同时也复现了参考表"
+
+#: ../../site/performance.md:40
+msgid ""
+"The x-factor is a ratio of wall-clock time for **one workload** on **one "
+"host**. It is not a claim about every API, about the full corpus, or about a"
+" different machine. The historical CSV-export benchmark and the current HTML"
+" research benchmark are different workloads and are not interchangeable."
+msgstr "x 倍数是**一个负载**在**一台主机**上的墙钟时间比。它不是对所有 API、对整个语料库或对另一台机器的结论。"
+
+#: ../../site/performance.md:45
+msgid "Reproducing a measurement"
+msgstr "复现一次测量"
+
+#: ../../site/performance.md:47
+msgid ""
+"cmake -S . -B build -DCMAKE_BUILD_TYPE=Release\n"
+"cmake --build build --parallel --target fincore_alpha003_research\n"
+"python benchmarks/alpha003_a_stocks/run_benchmark.py --help\n"
 msgstr ""
-"如需可复现的运行，请使用已提交的基准测试源码和文档中说明的数据准备步骤。大型"
-"生成结果不属于文档站点的一部分。"
+"cmake -S . -B build -DCMAKE_BUILD_TYPE=Release\n"
+"cmake --build build --parallel --target fincore_alpha003_research\n"
+"python benchmarks/alpha003_a_stocks/run_benchmark.py --help\n"
+
+#: ../../site/performance.md:53
+msgid ""
+"The benchmark sources and the data-preparation steps are committed; the "
+"generated HTML reports and CSV payloads are not. Read the driver's `--help` "
+"for the supported pair counts, tolerance ceiling and output locations, and "
+"keep the default `--tolerance` (it must be finite and at most `1e-6`)."
+msgstr ""
+"基准源码与数据准备步骤已提交；生成的 HTML 报告与 CSV 载荷不入库。驱动器的 `--help` 给出支持的配对数、容差上限与输出位置，并保持默认"
+" `--tolerance`（必须是有限值且不超过 `1e-6`）。"
+
+#: ../../site/performance.md:58
+msgid "Limits and honest gaps"
+msgstr "局限与诚实的空白"
+
+#: ../../site/performance.md:60
+msgid ""
+"Measurements were taken on a single desktop-class machine with one core "
+"pinned; no cloud or container claim is implied."
+msgstr "测量在单台桌面级机器上完成，只绑定一个核心；不暗示云或容器环境下的结论。"
+
+#: ../../site/performance.md:62
+msgid ""
+"A noisy environment produces INCONCLUSIVE campaigns. Those records stay in "
+"the repository; they are not summarised into a stable speed-up."
+msgstr "噪声环境会产出 INCONCLUSIVE 的评估记录。这些记录留在仓库里；它们不会被汇总成一个稳定的加速比。"
+
+#: ../../site/performance.md:64
+msgid ""
+"Memory is reported as peak working set, which is not the same as the "
+"allocator's live bytes; the native harness tracks both when the allocation "
+"hooks are built."
+msgstr "内存以峰值工作集报告，这与分配器的存活字节不是一回事；开启分配钩子时原生基准两者都记录。"
+
+#: ../../site/performance.md:66
+msgid ""
+"Comparing a workload that materialises every intermediate row against one "
+"that streams will always look dramatic; compare outputs before you compare "
+"times."
+msgstr "把物化每个中间行的负载与流式负载相比总会显得悬殊；请先比较输出，再比较时间。"
+
+#: ../../site/performance.md:69
+msgid ""
+"For the exact campaign records — pair counts, machine, dates and verdicts — "
+"see the iteration 9 closeout and the acceptance records linked from the "
+"repository root."
+msgstr "精确的评估记录 —— 配对数、机器、日期与结论 —— 见迭代 9 收尾记录与仓库根目录链接的验收记录。"
+
+#~ msgid ""
+#~ "Performance claims must state the workload,"
+#~ " data scale, CPU/thread settings, environment,"
+#~ " statistic and noise handling. The "
+#~ "native library and the Python reference "
+#~ "are different implementations; a throughput "
+#~ "comparison is not a claim of Python"
+#~ " API equivalence."
+#~ msgstr ""
+#~ "性能声明必须说明工作负载、数据规模、CPU/线程设置、运行环境、统计量和噪声处理方式。原生库与 Python "
+#~ "参考实现是两种不同的实现；吞吐量比较并不等同于声明 Python API 等价。"
+
+#~ msgid ""
+#~ "The repository's acceptance records contain "
+#~ "the raw benchmark method and dated "
+#~ "results. The Iteration 9 and alpha003 "
+#~ "records explicitly preserve INCONCLUSIVE "
+#~ "outcomes; do not summarize a noisy "
+#~ "run as a stable speedup. Historical "
+#~ "CSV and HTML benchmarks use different "
+#~ "workloads and are not interchangeable."
+#~ msgstr ""
+#~ "仓库的验收记录包含原始基准测试方法和带日期的结果。Iteration 9 和 alpha003 "
+#~ "记录明确保留了 INCONCLUSIVE（无定论）结果；不要将有噪声的运行总结为稳定的加速比。历史 CSV 和"
+#~ " HTML 基准使用不同的工作负载，不能互换。"
+
+#~ msgid ""
+#~ "For a reproducible run, use the "
+#~ "committed benchmark source and the "
+#~ "documented data preparation steps. Large "
+#~ "generated results are not part of the"
+#~ " docs site."
+#~ msgstr "如需可复现的运行，请使用已提交的基准测试源码和文档中说明的数据准备步骤。大型生成结果不属于文档站点的一部分。"
+
