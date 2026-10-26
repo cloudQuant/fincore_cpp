@@ -53,6 +53,9 @@ jobs:
           cp -r docs/_build/html/en/. site/en/latest/
           cp -r docs/_build/html/zh_CN/. site/zh-cn/latest/
           cp docs/site/root.html site/index.html
+          cp docs/site/404.html site/404.html
+          cp docs/site/robots.txt site/robots.txt
+          python docs/site/tools/write_sitemap.py site https://cloudquant.github.io/fincore_cpp/
           touch site/.nojekyll
       - name: Upload the deployable site
         uses: actions/upload-artifact@v4
