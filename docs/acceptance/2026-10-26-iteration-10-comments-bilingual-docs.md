@@ -105,9 +105,9 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 42 marked `reviewed_this_round` with a one-line note naming the
+(287 files: 43 marked `reviewed_this_round` with a one-line note naming the
 invariant recorded or why none was needed, 12 with several explanatory blocks
-but not yet audited, 14 sparse, 219 with no explanatory block). Auditing may
+but not yet audited, 13 sparse, 219 with no explanatory block). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
 because its validation clauses are the entire contract. This round audited and,
 where warranted, extended the following implementation files:
@@ -156,9 +156,10 @@ where warranted, extended the following implementation files:
 | `src/attribution/fama_french.cpp` | Singularity test reads the normal equations rather than the design; the variance shift is translation-invariant and kept for cancellation; beta is the MKT coefficient with the intercept at index zero; a negative idiosyncratic residual clamps to zero |
 | `src/factor/portfolio.cpp` | Period validated before any row is read; floored day normalization; Sunday-first weekday test where the trading calendar is Monday-first; a non-finite cell adds no growth; the first cumulative row is after one period |
 | `src/report/risk.cpp` | Non-finite metrics and cells carry no value instead of NaN text; the refit column set follows the fitted distribution, so headers rather than positions are the contract |
+| `src/viz/html_builder.cpp` | Escaping matches the reference down to the apostrophe form and covers every interpolating site; a value that will not fit the buffer prints as the NaN marker; only a finite non-zero figure earns a colour class |
 
 Every edit above was verified comment-only and is covered by the re-run below.
-The remaining 245 files are deliberately not claimed as audited, so **P131 is
+The remaining 244 files are deliberately not claimed as audited, so **P131 is
 PARTIAL**, not passed.
 
 One audit ended in a registered question rather than a comment: the

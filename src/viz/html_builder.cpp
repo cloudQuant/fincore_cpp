@@ -17,7 +17,10 @@ namespace fincore {
 namespace {
 
 std::string escape_html(const std::string_view text) {
-    // Mirrors Python's `html.escape(text)` with quote=True.
+    // Mirrors Python's `html.escape(text)` with quote=True, including the
+    // numeric apostrophe form rather than `&apos;`. Every interpolating call site
+    // in this file routes its text through here, which is what keeps metric
+    // labels and titles from being read as markup.
     std::string output;
     output.reserve(text.size());
     for (const char character : text) {
@@ -45,6 +48,10 @@ std::string escape_html(const std::string_view text) {
     return output;
 }
 
+// Non-finite figures print as the lowercase words the reference uses instead of
+// failing the build, and a formatting result that does not fit the buffer
+// degrades to the same marker as NaN, so the reader sees an unmeasurable value
+// rather than a truncated number.
 std::string fixed_number(const double value, const int precision) {
     if (std::isnan(value)) {
         return "nan";
@@ -62,6 +69,9 @@ std::string fixed_number(const double value, const int precision) {
     return std::string(buffer, result.ptr);
 }
 
+// Only a finite non-zero figure earns a colour class: an unavailable value gets
+// the neutral styling rather than being read as green or red, and zero is
+// deliberately uncoloured.
 std::string css_class_for(const double value) {
     if (!std::isfinite(value)) {
         return {};
