@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fincore_cpp 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-26 07:36+0800\n"
+"POT-Creation-Date: 2026-10-26 16:59+0800\n"
 "PO-Revision-Date: 2026-10-26 00:24+0800\n"
 "Last-Translator: fincore_cpp documentation maintainers\n"
 "Language: zh_CN\n"
@@ -30,63 +30,138 @@ msgid ""
 msgstr "本页记录部署状态，不能替代对线上站点的检查。"
 
 #: ../../site/publication.md:6
-msgid "GitHub Pages"
-msgstr "GitHub Pages"
+msgid "GitHub Pages — live"
+msgstr "GitHub Pages——已上线"
 
 #: ../../site/publication.md:8
+msgid "Verified on 2026-10-26 against `cloudQuant/fincore_cpp`:"
+msgstr "2026-10-26 针对 `cloudQuant/fincore_cpp` 的验证结果："
+
+#: ../../site/publication.md:10
 msgid ""
-"The repository has an admin-configured Pages site disabled at the start of "
-"iteration 10. Verified on 2026-10-26 against `cloudQuant/fincore_cpp`: "
-"`has_pages` is `false` and `GET /repos/.../pages` returns 404, so no Pages "
-"site exists yet. The [`docs` workflow](../../.github/workflows/docs.yml) "
-"builds both languages with strict Sphinx checks and uploads one Pages "
-"artifact:"
+"Pages is enabled with `\"build_type\": \"workflow\"`. A branch source "
+"(`legacy`) breaks `deploy-pages`, so the source must stay \"GitHub "
+"Actions\"; re-read `GET /repos/.../pages` after any UI change."
 msgstr ""
-"仓库在迭代 10 启动时没有启用管理配置的 Pages 站点。2026-10-26 对 `cloudQuant/fincore_cpp` "
-"的核验结果：`has_pages` 为 `false`，且 `GET /repos/.../pages` 返回 404，因此尚不存在 Pages "
-"站点。[`docs` 工作流](../../.github/workflows/docs.yml) 对两种语言执行严格 Sphinx 检查，并上传一个 "
-"Pages 产物："
+"Pages 已启用，源类型为 `\"build_type\": \"workflow\"`。分支源（`legacy`）会让 `deploy-pages`"
+" 失败，因此源必须保持为“GitHub Actions”；任何界面改动之后都要重新读取 `GET /repos/.../pages`。"
 
-#: ../../site/publication.md:14
-msgid "English: `/fincore_cpp/en/latest/`"
-msgstr "英文：`/fincore_cpp/en/latest/`"
-
-#: ../../site/publication.md:15
-msgid "Chinese: `/fincore_cpp/zh-cn/latest/`"
-msgstr "中文：`/fincore_cpp/zh-cn/latest/`"
+#: ../../site/publication.md:13
+msgid ""
+"The `github-pages` environment carries `custom_branch_policies: true` and "
+"allows `master` only. A deploy job on any other branch finishes **failed "
+"with zero steps and a 404 log**, which is the policy rejecting it rather "
+"than a build problem. The allow-list is UI-only with the token used here."
+msgstr ""
+"`github-pages` 环境带有 `custom_branch_policies: true`，只允许 "
+"`master`。在其他分支上，部署任务会**以零步骤失败、日志为 404** "
+"收场，这是策略拒绝了它，而不是构建出了问题。本处使用的令牌只能通过界面维护白名单。"
 
 #: ../../site/publication.md:17
 msgid ""
-"Deployment is enabled only after the Pages site is configured to use GitHub "
-"Actions and the workflow has run on `dev` or `master`. Enabling Pages is a "
-"repository-administrator action on shared infrastructure and is deliberately"
-" left to the owner; this documentation set does not claim it. The four "
-"checks still required are English/Chinese × Pages/RTD home, installation, "
-"one deep API page, language switch, version label, static assets and search."
+"`docs` workflow run "
+"[`40286395187`](https://github.com/cloudQuant/fincore_cpp/actions/runs/40286395187)"
+" was the first with `build`, `pages` and `deploy` all green; later runs on "
+"`master` repeated it. Publication therefore happens by merging into "
+"`master`."
 msgstr ""
-"只有在 Pages 站点配置为使用 GitHub Actions，且工作流已在 `dev` 或 `master` 上运行后，才会启用部署。启用 "
-"Pages 属于对共享基础设施的仓库管理员操作，本套文档有意不代为执行，也不声称已完成。仍需完成四项检查：英文/中文 × Pages/RTD "
-"的首页、安装页、一个深层 API 页面、语言切换、版本标识、静态资源和搜索。"
+"`docs` 工作流运行 "
+"[`40286395187`](https://github.com/cloudQuant/fincore_cpp/actions/runs/40286395187)"
+" 是第一次 `build`、`pages`、`deploy` 三步全绿；之后在 `master` 上的运行重复了这一结果。因此发布通过合并到 "
+"`master` 完成。"
+
+#: ../../site/publication.md:22
+msgid "Live URLs, each returning 200 on 2026-10-26:"
+msgstr "线上地址（2026-10-26 均返回 200）："
 
 #: ../../site/publication.md:24
-msgid "Read the Docs"
-msgstr "Read the Docs"
+msgid "Landing: `/fincore_cpp/`"
+msgstr "落地页：`/fincore_cpp/`"
+
+#: ../../site/publication.md:25
+msgid "English: `/fincore_cpp/en/latest/`"
+msgstr "英文：`/fincore_cpp/en/latest/`"
 
 #: ../../site/publication.md:26
+msgid "Chinese: `/fincore_cpp/zh-cn/latest/`"
+msgstr "中文：`/fincore_cpp/zh-cn/latest/`"
+
+#: ../../site/publication.md:27
 msgid ""
-"The versioned [`.readthedocs.yaml`](../../.readthedocs.yaml) is ready for "
-"two linked RTD projects (`en` and `zh_CN`). The repository does not have an "
-"RTD account/project configured in this environment, so RTD build and online "
-"checks are **platform-pending**, not PASS."
+"Deep pages checked in both languages: `installation.html`, "
+"`guides/metrics.html`, `api/metrics.html`, plus `conventions.html` in "
+"Chinese"
 msgstr ""
-"带版本的 [`.readthedocs.yaml`](../../.readthedocs.yaml) 已准备好供两个关联的 RTD 项目（`en` 与"
-" `zh_CN`）使用。本环境中的仓库未配置 RTD 账号/项目，因此 RTD 构建和线上检查属于**平台待完成**，而不是 PASS。"
+"两种语言都核对过的深页：`installation.html`、`guides/metrics.html`、`api/metrics.html`，中文侧另加"
+" `conventions.html`"
+
+#: ../../site/publication.md:29
+msgid "Static asset: `/fincore_cpp/en/latest/_static/css/theme.css`"
+msgstr "静态资源：`/fincore_cpp/en/latest/_static/css/theme.css`"
 
 #: ../../site/publication.md:31
+msgid ""
+"The language directories are `en/latest/` and `zh-cn/latest/` — probing "
+"`en/` or `zh_CN/` returns 404 and says nothing about the deployment. A Pages"
+" build keeps the version in the path segment (`latest`) and has no Read the "
+"Docs style version switcher."
+msgstr ""
+"语言目录是 `en/latest/` 与 `zh-cn/latest/`——访问 `en/` 或 `zh_CN/` 会返回 "
+"404，但这不能说明部署有问题。Pages 构建把版本放在路径段（`latest`）里，没有 Read the Docs 那样的版本切换器。"
+
+#: ../../site/publication.md:36
+msgid "Read the Docs — platform-pending"
+msgstr "Read the Docs——平台发布待完成"
+
+#: ../../site/publication.md:38
+msgid ""
+"The versioned [`.readthedocs.yaml`](../../.readthedocs.yaml) is ready. Two "
+"linked RTD projects do not exist yet, and creating them needs the owner's "
+"RTD account (the API answers 401 from this environment). Steps, once an "
+"account is available:"
+msgstr ""
+"带版本号的 [`.readthedocs.yaml`](../../.readthedocs.yaml) 已就绪。两个关联的 RTD "
+"项目尚未创建，创建它们需要仓库所有者的 RTD 账号（在本环境中相关 API 返回 401）。拿到账号后按以下步骤操作："
+
+#: ../../site/publication.md:42
+msgid ""
+"Sign in at readthedocs.org with the account that can see "
+"`cloudQuant/fincore_cpp`."
+msgstr "用能看到 `cloudQuant/fincore_cpp` 的账号登录 readthedocs.org。"
+
+#: ../../site/publication.md:44
+msgid ""
+"Add project `fincore_cpp-en`: repository URL "
+"`https://github.com/cloudQuant/fincore_cpp`, default branch `master`, "
+"language **English**, configuration file `.readthedocs.yaml` (the file pins "
+"Ubuntu 24.04, Python 3.13, Doxygen and the Sphinx requirements)."
+msgstr ""
+"新建项目 `fincore_cpp-en`：仓库地址 `https://github.com/cloudQuant/fincore_cpp`，默认分支 "
+"`master`，语言 **English**，配置文件 `.readthedocs.yaml`（该文件固定了 Ubuntu 24.04、Python "
+"3.13、Doxygen 与 Sphinx 依赖）。"
+
+#: ../../site/publication.md:48
+msgid ""
+"Add project `fincore_cpp-zh-cn`: same repository and branch, language "
+"**Chinese**, and set the translation relationship so it builds against the "
+"`zh_CN` catalog."
+msgstr "新建项目 `fincore_cpp-zh-cn`：相同的仓库与分支，语言 **Chinese**，并设置翻译关系，使其基于 `zh_CN` 目录构建。"
+
+#: ../../site/publication.md:51
+msgid ""
+"Trigger one build per project and check home, installation, one deep API "
+"page, language switch, version label and static assets on the generated URL."
+msgstr "两个项目各触发一次构建，并在生成的地址上核对首页、安装页、一个 API 深页、语言切换、版本标签与静态资源。"
+
+#: ../../site/publication.md:54
+msgid "Until those two builds answer 200, RTD is **platform-pending**, not PASS."
+msgstr "在这两个构建返回 200 之前，RTD 属于**平台发布待完成**，不能算通过。"
+
+#: ../../site/publication.md:56
 msgid "Rule"
 msgstr "规则"
 
-#: ../../site/publication.md:33
+#: ../../site/publication.md:58
 msgid ""
 "A local HTML build is \"deployable artifact\"; a platform build without a "
 "live page check is \"online check pending\"; neither is a publication PASS. "
@@ -95,4 +170,43 @@ msgid ""
 msgstr ""
 "本地 HTML 构建属于“可部署产物”；平台构建但未检查线上页面属于“线上检查待完成”；二者都不是发布 "
 "PASS。如果某个语言或平台失败，先前验证过的站点必须保持可用，并记录失败的组合。"
+
+#~ msgid ""
+#~ "The repository has an admin-configured "
+#~ "Pages site disabled at the start of"
+#~ " iteration 10. Verified on 2026-10-26 "
+#~ "against `cloudQuant/fincore_cpp`: `has_pages` is "
+#~ "`false` and `GET /repos/.../pages` returns "
+#~ "404, so no Pages site exists yet. "
+#~ "The [`docs` workflow](../../.github/workflows/docs.yml) "
+#~ "builds both languages with strict Sphinx"
+#~ " checks and uploads one Pages artifact:"
+#~ msgstr ""
+#~ "仓库在迭代 10 启动时没有启用管理配置的 Pages 站点。2026-10-26 对"
+#~ " `cloudQuant/fincore_cpp` 的核验结果：`has_pages` 为 "
+#~ "`false`，且 `GET /repos/.../pages` 返回 404，因此尚不存在"
+#~ " Pages 站点。[`docs` 工作流](../../.github/workflows/docs.yml)"
+#~ " 对两种语言执行严格 Sphinx 检查，并上传一个 Pages 产物："
+
+#~ msgid ""
+#~ "Deployment is enabled only after the "
+#~ "Pages site is configured to use "
+#~ "GitHub Actions and the workflow has "
+#~ "run on `dev` or `master`. Enabling "
+#~ "Pages is a repository-administrator action"
+#~ " on shared infrastructure and is "
+#~ "deliberately left to the owner; this "
+#~ "documentation set does not claim it. "
+#~ "The four checks still required are "
+#~ "English/Chinese × Pages/RTD home, installation,"
+#~ " one deep API page, language switch, "
+#~ "version label, static assets and search."
+#~ msgstr ""
+#~ "只有在 Pages 站点配置为使用 GitHub Actions，且工作流已在 "
+#~ "`dev` 或 `master` 上运行后，才会启用部署。启用 Pages "
+#~ "属于对共享基础设施的仓库管理员操作，本套文档有意不代为执行，也不声称已完成。仍需完成四项检查：英文/中文 × "
+#~ "Pages/RTD 的首页、安装页、一个深层 API 页面、语言切换、版本标识、静态资源和搜索。"
+
+#~ msgid "Read the Docs"
+#~ msgstr "Read the Docs"
 
