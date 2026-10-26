@@ -47,6 +47,10 @@ void expect_double_columns(
     }
 }
 
+// This fixture is deliberately broken in several different ways at once: an index
+// out of order, a NaN amount, an infinite price, a non-double column and a column
+// whose length does not match. Each case below expects a distinct diagnosis, so
+// "repairing" any one of them removes the coverage of the matching rejection.
 fincore::dataframe reference_transactions() {
     fincore::dataframe transactions;
     transactions.load_index(std::vector<fincore::timestamp>{

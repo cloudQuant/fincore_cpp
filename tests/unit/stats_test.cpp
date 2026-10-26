@@ -34,6 +34,9 @@ static_assert(std::is_same_v<
               decltype(static_cast<r_cubed_signature>(&fincore::r_cubed)),
               r_cubed_signature>);
 
+// The message is compared exactly, so rewording a diagnosis fails this file
+// rather than passing silently: matching only the exception type would let two
+// different rejections look identical to the test.
 template <typename callable>
 void expect_input_error_message(callable&& invoke, const char* message) {
   try {

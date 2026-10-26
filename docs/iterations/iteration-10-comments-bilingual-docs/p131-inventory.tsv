@@ -230,7 +230,7 @@ tests/unit/simulation_result_test.cpp	cpp	0	no_explanatory_block_not_audited
 tests/unit/simulation_result_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/simulation_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/stable_double_order_test.cpp	cpp	1	sparse_not_audited	
-tests/unit/stats_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/stats_test.cpp	cpp	0	reviewed_this_round	rejection messages are compared exactly, so the exception type alone cannot hide two different diagnoses
 tests/unit/stress_scenarios_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/style_analysis_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/style_performance_test.cpp	cpp	0	no_explanatory_block_not_audited	
@@ -238,7 +238,7 @@ tests/unit/style_regression_attribution_test.cpp	cpp	0	no_explanatory_block_not_
 tests/unit/style_tilts_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/timing_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/transaction_mapping_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/transactions_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/transactions_test.cpp	cpp	0	reviewed_this_round	the shared fixture carries several distinct defects at once, so repairing one removes the matching rejection's coverage
 tests/unit/viz_documents_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/viz_html_builder_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/viz_render_model_test.cpp	cpp	0	no_explanatory_block_not_audited	
