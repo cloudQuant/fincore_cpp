@@ -782,6 +782,11 @@ std::string artifact_manifest(const artifact_bundle& bundle) {
     return output;
 }
 
+// The two platforms cannot express the same open: only POSIX can make the open call
+// itself refuse a symlink, which is why the Windows branch checks the path
+// separately, and the no-inherit flag exists only there because a child process
+// would otherwise hold the handle. The chunk limit follows the narrowest write
+// signature, the Windows one taking an unsigned length.
 #if defined(_WIN32)
 constexpr int exclusive_write_flags =
     _O_WRONLY | _O_CREAT | _O_EXCL | _O_BINARY | _O_NOINHERIT;
