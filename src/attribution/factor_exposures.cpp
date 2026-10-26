@@ -21,6 +21,10 @@ struct validated_inputs {
     std::vector<std::span<const double>> factors;
 };
 
+// Every module in this family re-declares the same selector rules as a private
+// helper instead of sharing one, so a rule changed here has to be mirrored in the
+// regression, prediction and decomposition entry points or the three will accept
+// different inputs for the same coefficient table.
 std::vector<std::string> checked_factor_names(
     const std::span<const std::string_view> factor_column_names) {
     if (factor_column_names.empty()) {

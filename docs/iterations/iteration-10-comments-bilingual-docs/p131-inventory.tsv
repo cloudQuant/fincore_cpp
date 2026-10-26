@@ -1,8 +1,8 @@
 path	language	comment_blocks	status	note
 src/analysis_context.cpp	cpp	0	reviewed_this_round	mutable caches reached from const calls make the context single-threaded by construction; counts record computations not requests; one error covers an unknown key and an unservable metric
 src/attribution/brinson.cpp	cpp	0	reviewed_this_round	BHB allocation reading keeps the three terms summing to the excess; cumulative effects add while wealth compounds; sector returns average and sector weights add; omitted benchmark zeroes selection
-src/attribution/factor_attribution.cpp	cpp	0	no_explanatory_block_not_audited	
-src/attribution/factor_exposures.cpp	cpp	0	no_explanatory_block_not_audited	
+src/attribution/factor_attribution.cpp	cpp	0	reviewed_this_round	means re-check finiteness after each addition so an overflow names its statistic; decomposition frames are labelled by row position to allow concatenation
+src/attribution/factor_exposures.cpp	cpp	0	reviewed_this_round	selector rules are re-declared per module rather than shared, so a change must be mirrored across the regression, prediction and decomposition entry points
 src/attribution/factor_prediction.cpp	cpp	0	reviewed_this_round	coefficients are read positionally, so the regression frame's shape, ordering and labels are re-derived before prediction
 src/attribution/factor_regression.cpp	cpp	0	reviewed_this_round	alpha is a reserved factor name; Householder QR keeps the design's condition number unsquared against the normal-equation solvers elsewhere; an exactly constant series reports R-squared as zero
 src/attribution/fama_french.cpp	cpp	2	reviewed_this_round	pivot test reads X'X not X; the variance shift is translation-invariant and kept for cancellation; beta index one is MKT with the intercept at zero; negative idiosyncratic residual clamps to zero

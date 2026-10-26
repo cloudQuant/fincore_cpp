@@ -86,6 +86,9 @@ std::vector<std::string_view> make_factor_name_views(
     return views;
 }
 
+// Re-checked after every addition rather than at the end, so an accumulation that
+// leaves the finite range is reported with the context of the statistic it was
+// feeding instead of surfacing as a NaN the caller has to trace back.
 double checked_arithmetic_mean(const std::span<const double> values,
                                const std::string_view context) {
     double total = 0.0;
@@ -98,6 +101,9 @@ double checked_arithmetic_mean(const std::span<const double> values,
     return mean;
 }
 
+// The decomposition frames are labelled by row position rather than by the dates
+// they were computed from, which is what lets several per-date results be
+// concatenated into one frame without a duplicated index.
 void append_ordinal_index(std::vector<timestamp>& index,
                           const std::size_t row_count) {
     index.reserve(row_count);
