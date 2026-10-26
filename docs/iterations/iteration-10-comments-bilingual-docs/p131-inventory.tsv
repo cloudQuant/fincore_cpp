@@ -27,7 +27,7 @@ src/factor/data.cpp	cpp	6	reviewed_this_round	right-closed bins; outer edges wid
 src/factor/performance.cpp	cpp	5	reviewed_this_round	NaN-safe variance guard; rank-then-Pearson; membership ignores non-finite values
 src/factor/pit.cpp	cpp	4	reviewed_this_round	revision uniqueness key; effective_from>known_at>as_of tie-break
 src/factor/portfolio.cpp	cpp	2	reviewed_this_round	period validated before row filtering; floored day normalization; Sunday-first weekday test against trading_calendar's Monday-first mask; non-finite cells add no growth; first cumulative row is after one period
-src/factor/report.cpp	cpp	0	no_explanatory_block_not_audited	
+src/factor/report.cpp	cpp	0	reviewed_this_round	report moments drop infinities as well as NaN and divide by the usable count; skew and kurtosis are the biased population forms to match the reference call
 src/factor/research.cpp	cpp	17	multi_block_not_audited	
 src/factor/research_detailed.cpp	cpp	25	multi_block_not_audited	
 src/factor/research_detailed_export.cpp	cpp	0	no_explanatory_block_not_audited	

@@ -40,6 +40,10 @@ report_cell count_cell(const std::size_t value) {
     return report_cell::number_cell(static_cast<double>(value));
 }
 
+// Infinities are dropped along with NaN here, unlike the metric helpers that keep
+// an infinity as a sample, and the divisor is the count of usable values rather
+// than the column length, so a partly unusable column reports the mean of what is
+// left.
 double mean_of(const std::vector<double>& values) {
     double total = 0.0;
     std::size_t count = 0U;
@@ -70,6 +74,9 @@ double sample_std_of(const std::vector<double>& values) {
                : nan;
 }
 
+// Deliberately the biased, population form to match the reference call named above
+// the kurtosis helper: both moments divide by n rather than n-1, so the pair read
+// as one distribution's shape rather than as estimates of an unseen one.
 double population_skew(const std::vector<double>& values) {
     std::vector<double> finite;
     for (const double value : values) {
