@@ -53,6 +53,12 @@ finite_aligned_pairs align_finite_pairs(
   return pairs;
 }
 
+// The three models share the intercept and market columns and differ only in the
+// third: Treynor-Mazuy squares the excess, Henriksson-Merton writes an option
+// payoff of one when the market is below water, and Cornell splits the excess
+// into its up and down parts. Cornell's two columns are both zero on the same
+// side, so a sample whose market never crosses zero is collinear and the solve
+// below refuses it rather than inventing a coefficient.
 coefficients design_row(double excess_market, timing_model model) {
   switch (model) {
   case timing_model::treynor_mazuy:
@@ -85,6 +91,11 @@ std::optional<coefficients> solve_normal_equations(matrix normal,
     return std::nullopt;
   }
 
+  // Every rejection here is expressed against the largest entry seen in the
+  // matrix, so the same tolerance means the same thing for a covariance in daily
+  // returns and in annualized ones, and a matrix that is merely small is not
+  // mistaken for a singular one. Each elimination step re-checks finiteness, so a
+  // blow-up stops at the step that caused it instead of surfacing as a coefficient.
   for (std::size_t column = 0; column < coefficient_count; ++column) {
     std::size_t pivot_row = column;
     double pivot_magnitude = std::abs(normal[column][column]);
@@ -144,6 +155,11 @@ std::optional<coefficients> solve_normal_equations(matrix normal,
 std::optional<coefficients> fit_timing_model(const finite_aligned_pairs& pairs,
                                               double risk_free,
                                               timing_model model) {
+  // The fit is abandoned rather than repaired when any excess stops being
+  // finite: the pairs were already filtered to finite values, so this only fires
+  // when subtracting the risk-free rate itself overflows, and a truncated sum
+  // would silently change the normal equations the solve depends on. Ten
+  // observations is the floor below which no three-coefficient fit is reported.
   if (pairs.returns.size() < minimum_observations || !std::isfinite(risk_free)) {
     return std::nullopt;
   }
@@ -181,6 +197,10 @@ double coefficient_for_model(const dataframe& returns,
   if (!fitted.has_value()) {
     return nan;
   }
+  // Callers ask for index two, the curvature term that carries the timing
+  // premium; the intercept at index zero is fitted because the regression needs
+  // it rather than because it is reported, and a coefficient that is not finite
+  // comes back as NaN instead of as an unbounded number.
   const double result = (*fitted)[coefficient_index];
   return std::isfinite(result) ? result : nan;
 }

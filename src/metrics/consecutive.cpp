@@ -45,6 +45,10 @@ consecutive_summary scan_consecutive_returns(
     fincore::timestamp current_up_start{};
     fincore::timestamp current_down_start{};
 
+    // Records are kept by strict comparison, so a tie leaves the earliest dates
+    // attached to the longest or largest run, and the run accumulates simple
+    // returns across its days rather than compounding them, which is what makes
+    // a streak's gain comparable with its length.
     for (std::size_t position = 0U; position < values.size(); ++position) {
         const double value = values[position];
         const auto date = index[position];
@@ -110,6 +114,10 @@ consecutive_summary scan_consecutive_returns(
             continue;
         }
 
+        // Anything that is neither strictly above nor strictly below zero ends
+        // both runs, so a flat print and a NaN both break a streak rather than
+        // being stepped over; the counters only restart on the next strictly
+        // signed day.
         current_up_days = 0U;
         current_down_days = 0U;
     }

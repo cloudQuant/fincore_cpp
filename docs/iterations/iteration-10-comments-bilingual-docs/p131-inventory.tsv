@@ -40,7 +40,7 @@ src/factor/workflows.cpp	cpp	0	no_explanatory_block_not_audited
 src/metrics/alpha_beta.cpp	cpp	0	reviewed_this_round	zero benchmark belongs to the down side here, unlike the strict split in the ratio helpers; NaN-only and finite-only filters coexist deliberately
 src/metrics/basic.cpp	cpp	0	no_explanatory_block_not_audited	
 src/metrics/bayesian.cpp	cpp	0	no_explanatory_block_not_audited	
-src/metrics/consecutive.cpp	cpp	0	no_explanatory_block_not_audited	
+src/metrics/consecutive.cpp	cpp	0	reviewed_this_round	a flat or NaN day ends both runs; ties keep the earliest dates and run totals add simple returns instead of compounding
 src/metrics/drawdown.cpp	cpp	3	reviewed_this_round	NaN freezes wealth; equal peak closes episode and advances peak
 src/metrics/frequencies.cpp	cpp	0	no_explanatory_block_not_audited	
 src/metrics/helpers.cpp	cpp	1	reviewed_this_round	NaT sentinel rejected by both index validators; uniqueness judged on a sorted copy while the strict variant demands stored order; calendar labels land on month ends starting January 1970; column spans alias the frame; flatten is row-major
@@ -51,7 +51,7 @@ src/metrics/returns.cpp	cpp	2	reviewed_this_round	NaN compounds flat; wiped seri
 src/metrics/risk.cpp	cpp	0	no_explanatory_block_not_audited	
 src/metrics/rolling.cpp	cpp	3	reviewed_this_round	right-aligned labels; no padding; windows rebuilt per step
 src/metrics/stats.cpp	cpp	0	no_explanatory_block_not_audited	
-src/metrics/timing.cpp	cpp	0	no_explanatory_block_not_audited	
+src/metrics/timing.cpp	cpp	0	reviewed_this_round	the three timing models differ only in the third design column and Cornell goes collinear without a market crossing zero; pivot rejections are relative to the matrix scale; callers read coefficient index two
 src/metrics/yearly.cpp	cpp	0	no_explanatory_block_not_audited	
 src/operations.cpp	cpp	0	no_explanatory_block_not_audited	
 src/optimization/frontier.cpp	cpp	0	reviewed_this_round	PSD test is tolerance-scaled; max-return endpoint is a box corner not a solve; interior points warm-start; diagnostics mirror solved constraints

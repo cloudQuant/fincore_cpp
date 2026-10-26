@@ -105,7 +105,7 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 47 marked `reviewed_this_round` with a one-line note naming the
+(287 files: 49 marked `reviewed_this_round` with a one-line note naming the
 invariant recorded or why none was needed, 12 with several explanatory blocks
 but not yet audited, 13 sparse, 219 with no explanatory block). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
@@ -161,9 +161,11 @@ where warranted, extended the following implementation files:
 | `src/data/contracts.cpp` | Validation binds to construction, not to the public fields; remaining attempts clamps at zero so an overrun reads as "none left" |
 | `src/analysis_context.cpp` | Mutable caches reached from const calls make the context single-threaded by construction; counts record computations, not requests; one error covers an unknown key and an unservable metric |
 | `src/metrics/alpha_beta.cpp` | A zero benchmark is down-side here, pinned by `IncludesZeroBenchmarkInDownSelection`, where the ratio helpers exclude it from both halves; NaN-only and finite-only pairing filters coexist by intent |
+| `src/metrics/timing.cpp` | The three models differ only in the third design column and Cornell turns collinear without a market crossing zero; rejections are relative to the matrix scale; index two is the reported timing premium |
+| `src/metrics/consecutive.cpp` | A flat or NaN day ends both runs; ties keep the earliest dates; a run totals simple returns rather than compounding |
 
 Every edit above was verified comment-only and is covered by the re-run below.
-The remaining 240 files are deliberately not claimed as audited, so **P131 is
+The remaining 238 files are deliberately not claimed as audited, so **P131 is
 PARTIAL**, not passed.
 
 One audit ended in a registered question rather than a comment: the
