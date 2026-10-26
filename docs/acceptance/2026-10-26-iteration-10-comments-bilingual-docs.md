@@ -467,6 +467,36 @@ rather than inherited from iteration 8.
 Generated output (`docs/_build/`, `.mo`) stays out of Git; the `.po` catalogs,
 ledger and generated API pages are source artifacts and are committed.
 
+### Site structure and content depth (owner request, 2026-10-26, evening)
+
+The site now presents itself as one documentation site rather than two:
+
+- A fixed EN / 中文 pill in the top-right of every page switches to the **same
+  page** in the other language (search string and anchor preserved), probing both
+  `zh-cn` and `zh_CN` spellings and falling back to the language home only when a
+  sibling page is missing.
+- The landing page remembers the last choice and otherwise follows the browser
+  language, with both links present for no-JavaScript visitors.
+- The sidebar keeps a labelled list as the accessible fallback.
+
+Content was deepened in six pages, all bilingual: `quickstart` (frame → metrics →
+factor panel → report → error handling), `conventions` (timestamp range, index
+rules, NaN and ownership, digests, error model, label ordering), `guides/metrics`
+(annualization, ratio and drawdown families, degenerate cases, worked example),
+`guides/portfolio-risk` (estimates, backtest statuses, walk-forward invariant,
+optimization limits, simulation determinism), `guides/factor-research` (panel
+contract, configuration, table layouts, tears, point-in-time joins, exports) and
+`guides/reports-runtime` (document model, backends, artifact bundles, escaping,
+catalog, sessions, extension hook order). The README is now a project overview in
+English and Chinese with a language switch, instead of a development log.
+
+Site check after the expansion: `pages=60 broken_links=0 machine_path_pages=0
+catalogs=28 entries=3546 translated=3543 untranslated=3 fuzzy=0`. Two build
+lessons are recorded in `docs/site/README.md` and the tooling: a heading that
+starts with a number is parsed by MyST in a way that leaves it untranslated, and
+`check_built_site.py` now refuses to run when one language build is missing
+instead of reporting a single-language result as green.
+
 ## 5. P133 — publication: PLATFORM_PENDING
 
 Configuration is in the repository and is buildable, but no live site was
