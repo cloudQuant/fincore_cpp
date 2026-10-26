@@ -36,6 +36,10 @@ double sample_std(const std::vector<double>& values) {
     return std::sqrt(total / static_cast<double>(values.size() - 1));
 }
 
+// A flat series is reported as a zero Sharpe rather than an undefined one, which
+// is what lets the standard-error formula below read it as no risk adjustment; the
+// estimator itself is the small-sample form with (1 + S^2/2) over the observation
+// count as its only divisor.
 double sharpe_ratio_of(const std::vector<double>& clean) {
     double mean = 0.0;
     for (const double value : clean) {

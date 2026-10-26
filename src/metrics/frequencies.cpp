@@ -50,6 +50,9 @@ frequency pandas_frequency(const std::string_view period) {
     throw_unknown_frequency(period);
 }
 
+// The aliases are the current pandas spellings for period-END labels (ME, QE, YE)
+// rather than the deprecated M/Q/Y forms, so a frequency converted here can be
+// handed straight to a modern date_range call and mean the same boundary.
 std::string_view pandas_frequency_alias(const frequency period) {
     validate_frequency(period);
     switch (period) {

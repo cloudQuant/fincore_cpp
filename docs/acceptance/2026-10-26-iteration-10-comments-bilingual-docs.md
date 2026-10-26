@@ -105,7 +105,7 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 75 marked `reviewed_this_round` with a one-line note naming the
+(287 files: 80 marked `reviewed_this_round` with a one-line note naming the
 invariant recorded or why none was needed, 12 with several explanatory blocks
 but not yet audited, 13 sparse, 219 with no explanatory block). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
@@ -189,9 +189,14 @@ where warranted, extended the following implementation files:
 | `src/extensions/snapshot.cpp` | An extension identifier needs two dots so it cannot claim the namespace root; whitespace-only fields count as absent, and the two governance options must arrive together |
 | `src/risk/report.cpp` | Comparison is relative with an absolute floor so an expected zero is still decidable; counts, status and digests are identity-compared while only derived statistics get tolerance |
 | `src/errors.cpp` | Error payloads are UTF-8 JSON, escaping only control characters, unlike the ASCII-escaped snapshot form; reserved names overwrite free-form fields except an empty code |
+| `src/metrics/basic.cpp` | An explicit annualization is returned untouched, zero or negative included; validation is the caller's |
+| `src/metrics/frequencies.cpp` | Aliases use the period-end spellings ME/QE/YE so a converted frequency names the same boundary |
+| `src/performance/inference.cpp` | A flat series reports a zero Sharpe rather than an undefined one, which the standard-error form reads as no risk adjustment |
+| `src/detail/digest.cpp` | The rotation helper is never called with a zero distance, which would shift by the full width |
+| `src/performance/disclosures.cpp` | Every disclosure line is emitted, with `unspecified` for missing text and `none` for a missing benchmark |
 
 Every edit above was verified comment-only and is covered by the re-run below.
-The remaining 212 files are deliberately not claimed as audited, so **P131 is
+The remaining 207 files are deliberately not claimed as audited, so **P131 is
 PARTIAL**, not passed.
 
 One audit ended in a registered question rather than a comment: the

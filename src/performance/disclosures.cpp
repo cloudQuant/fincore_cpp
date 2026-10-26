@@ -11,6 +11,10 @@ const std::string& or_default(const std::string& value,
 
 }  // namespace
 
+// Every line is emitted whether or not the field was supplied, with text fields
+// falling back to "unspecified" and the benchmark to "none": the block is meant to
+// answer each question rather than to omit the ones it cannot, so a reader never
+// has to tell an absent line apart from a deliberately blank one.
 std::string render_disclosure(const disclosure_context& context) {
     static const std::string none{"none"};
     std::string result;

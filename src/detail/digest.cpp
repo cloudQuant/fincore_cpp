@@ -22,6 +22,9 @@ constexpr std::array<std::uint32_t, 64> constants{
     0x682e6ff3U, 0x748f82eeU, 0x78a5636fU, 0x84c87814U, 0x8cc70208U,
     0x90befffaU, 0xa4506cebU, 0xbef9a3f7U, 0xc67178f2U};
 
+// No caller passes a zero distance, which matters because the second term would
+// then shift by the full width; every distance used here comes from the standard
+// rotation set for this hash.
 std::uint32_t rotate_right(const std::uint32_t value, const int bits) {
     return (value >> bits) | (value << (32 - bits));
 }
