@@ -643,8 +643,8 @@ version in the path segment (`latest`) with no Read the Docs style version
 switcher — that switcher is an RTD feature, so on Pages the version requirement is
 met by the URL plus the landing page text.
 
-Result: **Pages × 2 languages verified live; RTD × 2 still not created**, so P133
-remains PARTIAL.
+Result: **Pages × 2 languages verified live; the single Read the Docs project does
+not exist yet**, so P133 remains PARTIAL.
 
 ### One end-to-end check through the published site (2026-10-26)
 
@@ -672,24 +672,33 @@ through a local build.
 This is the strongest publication evidence in the record so far: a source edit in
 English travelled through the translation catalog, the CI build and the deployment
 to a verified Chinese page, which is exactly what the four-combination rule asks
-for on the Pages side. Creating the `en` and `zh_CN` projects from `.readthedocs.yaml`
-needs the Read the Docs account, so the published state is "GitHub Pages live,
-Read the Docs release pending".
+for on the Pages side. Creating the single `fincore_cpp` project from
+`.readthedocs.yaml` needs the Read the Docs account; no translation projects are
+created, because the Chinese build is served by Pages and reached through the
+language switch. Until that project exists, the published state is
+"GitHub Pages live, Read the Docs release pending".
 
-Required runbook before P133 can be marked PASS (four combinations, each with
-home, installation, one deep API page, language switch, version label, static
-assets and search checked from the same commit):
+Required runbook before P133 can be marked PASS. The owner decided on
+2026-10-26 that Read the Docs hosts **one project, `fincore_cpp`** — English only —
+and that the Chinese documentation stays on GitHub Pages; no RTD translation
+projects are created. The combinations to check from the same commit are
+therefore Pages-en, Pages-zh-cn, RTD-en, and the cross-host switch that takes a
+reader from an RTD page to the same page on Pages in Chinese.
 
-1. Push this iteration to `dev`, confirm the `docs` workflow run succeeds.
-2. Repository owner enables Pages with "GitHub Actions" as the source (a
-   shared-settings change that needs owner action; it was not performed here).
-3. Create the two RTD projects (`en`, `zh_CN`) importing the same config and
-   activate translations.
-4. Record the four verified URLs and their commit; only then set P133 PASS.
+1. Merge the iteration into `master` and confirm the `docs` workflow run succeeds.
+2. Pages source stays "GitHub Actions"; the `github-pages` environment allows
+   `master` only, so publication happens by merging into `master`. (Done: runs
+   `40286395187`, `40288386188` and every later master run are green.)
+3. Create the single RTD project `fincore_cpp` (slug `fincore-cpp`) from this
+   repository, language English, configuration `.readthedocs.yaml`, no
+   translations. The host-aware switch already sends Chinese readers to Pages.
+4. Check home, installation, one deep API page, the language switch, the version
+   label, static assets and search on each of the four combinations, and record
+   the URLs with their commit; only then set P133 PASS.
 
-Enabling Pages and creating RTD projects are administrator actions on shared
-infrastructure, so they were deliberately left to the owner rather than
-executed from this session. The deliverable at this point is a verified
+Enabling Pages and creating the RTD project are administrator actions on shared
+infrastructure, so they were left to the owner rather than executed from this
+session. Pages is live and verified (the section above); RTD remains a verified
 **deployable artifact**, which is not a publication PASS.
 
 ## 6. Out-of-scope observation
@@ -764,7 +773,7 @@ checks, which belong to P133 and cannot be substituted by a local build.
 | ID | Item | Status |
 |---|---|---|
 | P131 | Per-file implementation/test/tool comment audit | PASS — 287/287 rows audited; two POSIX-only benchmarks reviewed but not compilable here |
-| P133 | RTD ×2 and Pages ×2 live checks | PARTIAL — Pages en + zh-cn live and checked; RTD projects not created |
+| P133 | Pages ×2 plus one RTD (English) live checks | PARTIAL — Pages en + zh-cn live and checked; RTD project not created yet |
 | P134 | Iteration close-out | PARTIAL — local gate complete, Pages close-out verified; RTD checks owed |
 | E-01 | 3 `Subclassed by` identifier lists left in English | reviewed exemption |
 | E-02 | 2 multi-line string constants not rendered as declarations | reviewed exemption |
