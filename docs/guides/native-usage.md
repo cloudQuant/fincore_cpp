@@ -81,7 +81,8 @@ renderers consume already computed values. Requested full-universe group
 snapshots differ from independent subgroup analyses.
 
 `builtin_catalog()` contains 270 registered native operation IDs in the
-iteration-8 candidate; the three live-provider IDs are deliberately excluded
+iteration-8 candidate, re-measured as `operations=270` on 2026-10-26 at the
+iteration-10 commit; the three live-provider IDs are deliberately excluded
 and remain `EXTERNAL_OPTIONAL` ([registration evidence](../evidence/iteration-8/p105/registered-operation-ids.txt)).
 `plan` is a flat ordered request list, not a dependency graph. `run`/`batch`
 use typed inputs; config is provenance and is not forwarded implicitly.

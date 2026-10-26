@@ -168,6 +168,12 @@ the script are present in both languages (`grep fc-language-switch` on
 The full suite was re-run on the final tree: `100% tests passed, 0 tests failed
 out of 1092`.
 
+Every count above comes from the pushed tree: the 2484 ledger symbols, 888
+generated directives, 60 built pages and 28 catalogs were measured after the
+last edit. `builtin_catalog()` was also re-measured on this commit
+(`operations=270`), so the native usage guide's registration claim is current
+rather than inherited from iteration 8.
+
 Generated output (`docs/_build/`, `.mo`) stays out of Git; the `.po` catalogs,
 ledger and generated API pages are source artifacts and are committed.
 
