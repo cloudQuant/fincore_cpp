@@ -1,0 +1,41 @@
+name: Bug report
+description: A reproducible defect in the library, the tooling or the documentation
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please do not report security issues here; see SECURITY.md.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: The observed result, and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Code, input data shape, or the exact commands and output.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      placeholder: commit hash, tag, or "master as of 2026-10-26"
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Platform and compiler
+      placeholder: Windows 11 / MSVC 19.4, Ubuntu 24.04 / GCC 13, macOS 15 / Clang 17
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: Logs, screenshots, or what you already ruled out.
