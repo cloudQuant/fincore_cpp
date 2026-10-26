@@ -8,7 +8,7 @@ src/attribution/factor_regression.cpp	cpp	0	reviewed_this_round	alpha is a reser
 src/attribution/fama_french.cpp	cpp	2	reviewed_this_round	pivot test reads X'X not X; the variance shift is translation-invariant and kept for cancellation; beta index one is MKT with the intercept at zero; negative idiosyncratic residual clamps to zero
 src/attribution/fama_french_patch.cpp	cpp	0	no_explanatory_block_not_audited	
 src/attribution/performance.cpp	cpp	0	reviewed_this_round	uniqueness compares adjacency so a sorted index is an unstated premise (F10-D11); an asset without loadings is dropped silently while a total absence errors
-src/attribution/style.cpp	cpp	0	no_explanatory_block_not_audited	
+src/attribution/style.cpp	cpp	0	reviewed_this_round	exposures clamp at zero before weighting; the volatility window grows until it hits the cap; Welford update with a population divisor; a zero contribution means nothing to attribute rather than no effect
 src/calendar.cpp	cpp	2	reviewed_this_round	boundary-day windows (epoch not whole days)
 src/data/contracts.cpp	cpp	0	reviewed_this_round	validation runs in the valued constructor and on explicit calls only, because the fields are public; remaining attempts clamps at zero
 src/data/providers.cpp	cpp	0	reviewed_this_round	unadorned UTC form only; failing symbols sorted before joining; lenient batch keys a failed symbol with an empty frame; to_returns drops unusable steps so it is not positionally aligned

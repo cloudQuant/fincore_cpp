@@ -124,6 +124,10 @@ validated_inputs validate_asset_returns(const dataframe& asset_returns,
     return {std::move(asset_names), std::move(values)};
 }
 
+// Exposures are clamped at zero before the weights are formed, so a negative
+// reading contributes nothing rather than subtracting, and a set that is all zero
+// or all negative keeps every weight at zero instead of being normalized into a
+// uniform tilt.
 std::vector<double> normalized_mask(std::vector<double> values) {
     double total{0.0};
     for (double& value : values) {
@@ -193,6 +197,10 @@ double compounded_return(const std::span<const double> returns,
     return result;
 }
 
+// Welford's running update rather than a sum of squared deviations: the mean is
+// corrected by each delta before the increment uses it, which keeps a long return
+// series from losing the spread to cancellation, and the divisor stays n because
+// the result feeds a ratio that is read as a population dispersion.
 double population_standard_deviation(const std::span<const double> values) {
     double mean{0.0};
     double sum_of_squares{0.0};
@@ -217,6 +225,10 @@ double population_standard_deviation(const std::span<const double> values) {
     return result;
 }
 
+// The window widens from the first observation up to the cap rather than sliding
+// at a fixed length: the earliest points are computed over the whole prefix once
+// it reaches twenty observations, so neighbouring values in that region are not
+// comparable with the capped-window points further along.
 std::vector<double> rolling_volatilities(const std::span<const double> returns) {
     std::vector<double> values;
     if (returns.size() < minimum_volatility_observations) {
@@ -1192,6 +1204,10 @@ void append_paired_moment(paired_moments& moments,
                    "style attribution covariance is not finite");
 }
 
+// Zero is the answer for "there is nothing to attribute" — too few pairs, or a leg
+// whose dispersion is under the floor — while a negative variance is an impossibility
+// and raises. A contribution of zero therefore cannot be read as proof that the
+// style had no effect.
 double contribution_from_moments(const paired_moments& moments) {
     if (moments.count < 3U) {
         return 0.0;
