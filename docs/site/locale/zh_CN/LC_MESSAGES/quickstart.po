@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fincore_cpp 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-26 17:32+0800\n"
+"POT-Creation-Date: 2026-10-26 17:44+0800\n"
 "PO-Revision-Date: 2026-10-25 22:20+0800\n"
 "Last-Translator: fincore_cpp documentation maintainers\n"
 "Language: zh_CN\n"
@@ -31,8 +31,8 @@ msgid ""
 msgstr "本演练从一个小型内存帧走到一份渲染好的报表。数值是合成的，不下载行情数据；其中任何内容都不构成投资结论。"
 
 #: ../../site/quickstart.md:7
-msgid "1. Build a return series and read a few numbers"
-msgstr "1. 构建收益序列并读取几个数字"
+msgid "Build a return series and read a few numbers"
+msgstr "构建收益序列并读取几个数字"
 
 #: ../../site/quickstart.md:9
 #, python-brace-format, python-format
@@ -114,8 +114,8 @@ msgid ""
 msgstr "指标函数需要列名。传入不存在的列，或不是 `double` 的列，都会抛 `input_error` —— 拼写错误不会静默通过。"
 
 #: ../../site/quickstart.md:45
-msgid "2. Prepare a factor panel"
-msgstr "2. 准备因子面板"
+msgid "Prepare a factor panel"
+msgstr "准备因子面板"
 
 #: ../../site/quickstart.md:47
 msgid ""
@@ -201,8 +201,8 @@ msgstr ""
 "`forward_returns` 按位置与 `forward_labels` 对齐，所以这里的两个列表描述的是同样顺序的同样列。"
 
 #: ../../site/quickstart.md:87
-msgid "3. Render a report"
-msgstr "3. 渲染报表"
+msgid "Render a report"
+msgstr "渲染报表"
 
 #: ../../site/quickstart.md:89
 #, python-brace-format
@@ -257,8 +257,8 @@ msgstr ""
 "`render_matplotlib` 是它的其他视图。对确定性后端来说，渲染两次得到的字节完全一致，这正是报表可以被哈希与比较的原因。"
 
 #: ../../site/quickstart.md:114
-msgid "4. Handle failures where they happen"
-msgstr "4. 在出错处处理失败"
+msgid "Handle failures where they happen"
+msgstr "在出错处处理失败"
 
 #: ../../site/quickstart.md:116
 #, python-brace-format, python-format
