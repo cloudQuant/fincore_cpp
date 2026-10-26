@@ -4,7 +4,7 @@ This walkthrough goes from a small in-memory frame to a rendered report. It uses
 synthetic values and does not download market data; nothing here is an investment
 result.
 
-## 1. Build a return series and read a few numbers
+## Build a return series and read a few numbers
 
 ```cpp
 #include <fincore/dataframe.hpp>
@@ -42,7 +42,7 @@ Three things are worth noticing:
 - Metrics take the column name. Passing a column that does not exist, or one that
   is not a `double` column, raises `input_error` — a typo fails loudly.
 
-## 2. Prepare a factor panel
+## Prepare a factor panel
 
 `analyze_factor` consumes `prepared_factor_data`: rows, forward labels and a
 cleaning-loss report. Each row's `forward_returns` vector must be aligned by
@@ -84,7 +84,7 @@ buckets you declare. `periods` must name prepared labels, and `forward_returns`
 is aligned with `forward_labels` by position, which is why the two lists here
 describe the same columns in the same order.
 
-## 3. Render a report
+## Render a report
 
 ```cpp
 #include <fincore/factor/report.hpp>
@@ -111,7 +111,7 @@ per language from the same model, and `render_xlsx`, `render_pdf_bytes`,
 Rendering twice produces byte-identical output for the deterministic backends,
 which is what makes reports safe to hash and diff.
 
-## 4. Handle failures where they happen
+## Handle failures where they happen
 
 ```cpp
 #include <fincore/error.hpp>

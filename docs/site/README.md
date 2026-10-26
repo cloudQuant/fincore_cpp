@@ -41,6 +41,9 @@ Doxygen 1.9.7 is the local baseline; CI installs the distribution package.
   Doxygen XML. Run the generator after changing public headers.
 - `tools/check_comment_only.py` verifies that a header diff changes only
   comments (token comparison against `HEAD`).
+- Do not start a section heading with a number (`## 1. Build ...`). MyST parses
+  that shape in a way that leaves the heading untranslated even when the catalog
+  entry exists; write `## Build ...` instead.
 - The English source and Chinese translations must keep the same page list.
   Update `.po` files when English prose changes; an empty, fuzzy or stale
   translation is not counted as bilingual coverage.
