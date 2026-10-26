@@ -19,6 +19,9 @@
 namespace fincore {
 namespace {
 
+// The NaT sentinel: the smallest representable timestamp stands for a missing
+// observation, so both index validators reject it instead of letting it sort to
+// the front of an index as if it were the earliest date.
 constexpr timestamp nat_sentinel = std::numeric_limits<timestamp>::min();
 constexpr std::int64_t nanoseconds_per_day = 86'400'000'000'000LL;
 
@@ -91,6 +94,9 @@ timestamp month_end_timestamp(const std::int64_t year_value,
     return timestamp_from_sys_days(std::chrono::sys_days{last_day});
 }
 
+// Uniqueness is judged on a sorted copy, so a frame stored out of order still
+// passes here and keeps its own ordering; the strict variant below is what a
+// caller uses when the stored order itself has to rise.
 void validate_unique_datetime_index(const std::vector<timestamp>& index,
                                     const char* const context) {
     std::vector<timestamp> sorted{index.begin(), index.end()};
@@ -173,6 +179,9 @@ std::vector<timestamp> synthetic_datetime_index(
         }
         return index;
     }
+    // Calendar frequencies are labels of month ends, and the year advances only
+    // every twelve, four or one positions, so the series always opens in
+    // January 1970 rather than at a date the caller supplies.
     case frequency::monthly:
         for (std::size_t position = 0U; position < count; ++position) {
             const std::int64_t year_value = synthetic_year(position, 12U);
@@ -204,6 +213,9 @@ struct frame_columns {
     std::vector<std::span<const double>> values;
 };
 
+// The values are spans into the frame's own storage, so the returned struct is
+// only valid while the frame it came from lives on; the length check against the
+// index happens here so the callers can index columns without re-checking.
 frame_columns double_columns_or_throw(const dataframe& frame,
                                       const char* const message) {
     const auto shape = frame.shape();
@@ -411,6 +423,9 @@ dataframe ensure_datetime_index_series(const std::span<const double> values,
                        std::vector<double>{values.begin(), values.end()});
 }
 
+// Row-major: the outer loop walks rows, so a frame flattens interleaved by
+// column rather than as one concatenated column per block, which is the layout
+// a matrix already uses and lets the two overloads agree on the same shape.
 std::vector<double> flatten(const dataframe& frame) {
     const auto shape = frame.shape();
     const auto columns = double_columns_or_throw(

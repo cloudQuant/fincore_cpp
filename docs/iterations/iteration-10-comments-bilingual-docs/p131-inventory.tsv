@@ -43,7 +43,7 @@ src/metrics/bayesian.cpp	cpp	0	no_explanatory_block_not_audited
 src/metrics/consecutive.cpp	cpp	0	no_explanatory_block_not_audited	
 src/metrics/drawdown.cpp	cpp	3	reviewed_this_round	NaN freezes wealth; equal peak closes episode and advances peak
 src/metrics/frequencies.cpp	cpp	0	no_explanatory_block_not_audited	
-src/metrics/helpers.cpp	cpp	1	sparse_not_audited	
+src/metrics/helpers.cpp	cpp	1	reviewed_this_round	NaT sentinel rejected by both index validators; uniqueness judged on a sorted copy while the strict variant demands stored order; calendar labels land on month ends starting January 1970; column spans alias the frame; flatten is row-major
 src/metrics/perf_attrib.cpp	cpp	0	no_explanatory_block_not_audited	
 src/metrics/perf_stats.cpp	cpp	0	no_explanatory_block_not_audited	
 src/metrics/ratios.cpp	cpp	0	reviewed_this_round	NaN-only and finite-only filters differ; flat-series guard scaled by magnitude; strict benchmark sign split excludes zero days; degenerate LPM3 reports infinity
