@@ -109,6 +109,8 @@ TEST(Timing, FiltersNanAndInfinityCommonPairsBeforeRegression) {
   const auto infinity_benchmark = fincore::make_series(
       twelve_indices(), "benchmark", std::move(infinity_benchmark_values));
 
+  // Removing the pair from either side has to give the same numbers, which is
+  // what makes this a pairwise filter rather than a per-column one.
   expect_timing_near(nan_returns, benchmark, 0.35000000000000175,
                      0.00033602950713341572, 0.00038579545454545648,
                      0.040857423359513145);
@@ -126,6 +128,9 @@ TEST(Timing, ReturnsNanForInsufficientOrRankDeficientDesigns) {
       twelve_indices(), "benchmark", std::vector<double>(12, 0.01));
 
   expect_nan_timing(returns, fewer_than_ten_common);
+  // Nine common dates sit one below the documented ten-pair floor, and the
+  // constant benchmark leaves the timing column collinear; both are the
+  // documented insufficiency/singularity paths rather than numeric accidents.
   expect_nan_timing(returns, constant_benchmark);
 }
 
@@ -186,6 +191,8 @@ TEST(Timing, ExtractsHistoricalCrisisRangesInPinnedOrder) {
     const auto ranges = fincore::extract_interesting_date_ranges(returns);
 
     ASSERT_EQ(ranges.size(), 3U);
+    // Sept08 sits inside the GFC crash window, so the order is a contract rather
+    // than an artefact of sorting or of non-overlapping ranges.
     EXPECT_EQ(ranges[0].name, "Lehman");
     EXPECT_EQ(ranges[1].name, "Sept08");
     EXPECT_EQ(ranges[2].name, "GFC Crash");

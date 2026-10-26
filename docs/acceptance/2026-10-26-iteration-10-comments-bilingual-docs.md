@@ -105,9 +105,9 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 233 marked `reviewed_this_round` with a one-line note naming the
+(287 files: 240 marked `reviewed_this_round` with a one-line note naming the
 invariant recorded or why none was needed, 2 with several explanatory blocks
-but not yet audited, 4 sparse, 48 with no explanatory block). Auditing may
+but not yet audited, 2 sparse, 43 with no explanatory block). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
 because its validation clauses are the entire contract. This round audited and,
 where warranted, extended the following implementation files:
@@ -270,10 +270,22 @@ comment-only checker and by review only, not by a build. Its claims about the
 vendored ImPlot were checked against `third_party/implot` — the tick-label
 array is copied during `SetupAxisTicks`, and the range overload asserts at least
 two ticks when labels are supplied, which is the reason for the `> 1U` guard.
+Seven further unit files were then read without assistance: `risk_evt_test.cpp`
+records why the embedded-NUL selector proves rejection rather than truncation and
+that GEV leaves the peak-over-threshold fields unset where GPD fills them;
+`timing_test.cpp` records the pairwise-filter proof, the nine-of-ten floor with
+the singular design, and the overlapping crisis windows whose order is therefore a
+contract; `report_xlsx_test.cpp` records that a second identical render is the
+reproducibility claim because a ZIP entry carries a modification time;
+`report_renderers_test.cpp` records per-axis ownership, the bare-CSS shape and the
+startxref offset check; `stable_double_order_test.cpp`,
+`simulation_base_test.cpp` and `portfolio_models_test.cpp` record scratch-buffer
+reuse, copy-on-validate and the omitted-versus-empty distinction.
+
 A third assisted batch covered 24 more entries, including the two consumer smoke
 programs, the point-in-time probe and the generated bootstrap fixture — the last
 three left untouched because their bytes are pinned or regenerated — bringing the
-assisted total to 71 files and leaving 54 (51 under `tests/`, three under
+assisted total to 71 files and leaving 47 (44 under `tests/`, three under
 `benchmarks/`). Among the claims re-derived in that batch: `perf_stats.cpp`
 passes the daily constant to both the Omega row and the alpha-beta pair, so the
 weekly and daily frames must compare exactly, and the first entry of the pinned

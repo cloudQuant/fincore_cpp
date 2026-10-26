@@ -126,6 +126,8 @@ TEST(StableDoubleOrderTest, ReusesScratchAcrossDifferentInputLengths) {
         std::numeric_limits<double>::infinity(),
     };
     const std::vector<std::size_t> counts{2048U, 1024U, 17U, 3073U};
+    // Shrinking before growing again is the point: a scratch buffer sized by an
+    // earlier, longer run has to be reused without leaking its old contents.
     std::vector<std::size_t> scratch;
     for (const auto count : counts) {
         std::vector<double> values;

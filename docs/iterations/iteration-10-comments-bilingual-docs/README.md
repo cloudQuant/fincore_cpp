@@ -49,8 +49,8 @@ comment-only 校验，没有编译证据。`benchmarks/` 中 6 个条目同轮�
 其后 71 个条目（`tests/unit`、两个 consumer 冒烟程序、point-in-time 探针与生成的
 bootstrap fixture）分三批完成，批内改动全部由 comment-only 校验复核
 （42 个改动源 `checked=42 failures=0`），每批之后重跑全量构建与 1092 项测试；其中
-算数类结论逐条重算，排序类结论保留在清单注记里等待人工复核。其余 54 个条目是
-`tests/` 的 51 个与 `benchmarks/` 的 3 个，尚未逐项确认。
+算数类结论逐条重算，排序类结论保留在清单注记里等待人工复核。其后 7 个条目（EVT、timing、XLSX、renderers、稳定排序、模拟基类、组合输入）由主会话
+直接审阅完成。其余 47 个条目是 `tests/` 的 44 个与 `benchmarks/` 的 3 个，尚未逐项确认。
 
 实施后的事实基线（2026-10-26）：`docs/site/api-ledger.tsv` 记录 2484 个公共
 符号（含重载逐项），全部有说明；117 个头文件中 97 个在本轮修改并通过

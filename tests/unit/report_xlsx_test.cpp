@@ -110,6 +110,9 @@ TEST(ReportXlsx, RendersDeterministicWorkbook) {
     const std::string workbook = fincore::render_xlsx(document);
     ASSERT_GT(workbook.size(), 4U);
     EXPECT_EQ(workbook.substr(0, 4), std::string("PK\x03\x04", 4));
+    // Rendering twice is the reproducibility claim: a ZIP entry records a
+    // modification time, so equal bytes mean the writer fixes that field instead
+    // of stamping the clock.
     EXPECT_EQ(workbook, fincore::render_xlsx(document));
     EXPECT_NE(workbook.find("xl/workbook.xml"), std::string::npos);
     EXPECT_NE(workbook.find("xl/worksheets/sheet1.xml"), std::string::npos);
