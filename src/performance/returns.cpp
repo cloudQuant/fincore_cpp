@@ -27,6 +27,10 @@ namespace {
 
 constexpr long long nanoseconds_per_day = 86'400'000'000'000LL;
 
+// Floor division, not truncation: timestamps before the epoch must land in
+// their own UTC day, and C++ integer division truncates toward zero, which
+// would advance any pre-epoch timestamp carrying a time-of-day onto the
+// following day.
 long long utc_day(const timestamp value) {
     long long quotient = value / nanoseconds_per_day;
     if (value % nanoseconds_per_day != 0 && value < 0) {
@@ -35,6 +39,11 @@ long long utc_day(const timestamp value) {
     return quotient;
 }
 
+// The bracket is expressed in log-gross space, so these are the two ends of
+// the rate range that still survives a logarithm: the largest representable
+// rate strictly above -1, and the largest finite rate. The singular rate of
+// exactly -1 is deliberately outside the interval rather than a boundary the
+// solver may evaluate.
 double log_gross_lower_bound() {
     return std::log1p(std::nextafter(-1.0, 0.0));
 }
@@ -43,6 +52,10 @@ double log_gross_upper_bound() {
     return std::log(std::numeric_limits<double>::max());
 }
 
+// Each term is discounted in log space and re-exponentiated relative to the
+// largest magnitude in the series, so no single present value can overflow.
+// Both outputs carry that shared factor, which means only their signs and
+// their ratio are meaningful here, never an absolute net present value.
 bool scaled_npv(const std::vector<double>& cashflows,
                 const std::vector<double>& periods,
                 const double log_gross_rate,
@@ -73,6 +86,10 @@ bool scaled_npv(const std::vector<double>& cashflows,
            absolute_total > 0.0;
 }
 
+// Exactly one transition, read from the sign bit: [-, +, -] has two and is
+// rejected as multi-root rather than resolved to one of its roots, and since a
+// plain zero reads as positive, [-, 0, -] also counts two instead of masking an
+// unknown sign.
 bool has_single_sign_change(const std::vector<double>& cashflows) {
     if (cashflows.size() < 2) {
         return false;
@@ -136,6 +153,9 @@ double solve_conventional_irr(const std::vector<double>& cashflows,
 
     double lower = lower_bound;
     double upper = upper_bound;
+    // The bracket contracts in log-gross space, the coordinate in which the
+    // discount exponent is linear, and the stop test is relative to the
+    // midpoint so a root far from zero still gets the same effective digits.
     for (int iteration = 0; iteration < 200; ++iteration) {
         const double middle = lower + (upper - lower) / 2.0;
         double middle_value = 0.0;
@@ -192,6 +212,11 @@ double xirr(const dataframe& cashflows, std::string_view amount_column) {
     std::vector<double> aggregated;
     std::vector<double> periods;
     const long long first_day = daily_totals.begin()->first;
+    // Days netting to zero are dropped rather than carried along, since
+    // whether a zero registers a sign transition depends on its neighbours and
+    // keeping one could make an otherwise conventional series look
+    // multi-rooted. Elapsed time is then counted in 365-day years from the
+    // first surviving day.
     for (const auto& entry : daily_totals) {
         if (entry.second != 0.0) {
             aggregated.push_back(entry.second);

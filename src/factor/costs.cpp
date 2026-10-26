@@ -66,6 +66,9 @@ weight_panel build_weight_panel(const std::vector<factor_weight_row>& weights) {
         }
     }
     panel.trades.assign(panel.positions.size(), 0.0);
+    // The first date has no previous row, so the opening book itself is
+    // charged as a trade. Costs are levied on absolute weight movement, which
+    // means a long-to-short rotation counts at twice its weight change.
     for (std::size_t asset = 0; asset < assets; ++asset) {
         panel.trades[asset] = std::abs(panel.positions[asset]);
     }
@@ -151,6 +154,8 @@ factor_capacity_result capacity_from_trades(const weight_panel& panel,
     std::vector<double> by_date(panel.dates.size(), 0.0);
     double maximum = std::numeric_limits<double>::infinity();
     bool any = false;
+    // A rebalance must execute every traded asset, so each date is capped by
+    // its tightest single-asset limit rather than by a sum of capacities.
     for (std::size_t date = 0; date < panel.dates.size(); ++date) {
         double best = std::numeric_limits<double>::infinity();
         for (std::size_t asset = 0; asset < assets; ++asset) {
@@ -175,6 +180,10 @@ factor_capacity_result capacity_from_trades(const weight_panel& panel,
     }
     result.maximum_portfolio_value = maximum;
     result.maximum_portfolio_value_by_date = by_date;
+    // Ties resolve deterministically: the first date whose limit equals the
+    // global maximum wins, and the asset scan uses strict less-than over the
+    // lexicographically ascending asset list. Dollar volume is validated
+    // strictly positive, so a binding date always scores at least one asset.
     bool found = false;
     for (std::size_t date = 0; date < panel.dates.size(); ++date) {
         if (!found && by_date[date] == maximum) {
@@ -270,6 +279,9 @@ factor_cost_result apply_factor_costs(
         }
     }
     std::vector<double> borrow(dates, 0.0);
+    // Borrow inputs are all-or-nothing: a book with short exposure must supply
+    // both series, and supplying either one for a long-only book is rejected
+    // rather than ignored. Availability is an exact 1.0 flag, not a fraction.
     if (has_short) {
         if (borrow_rates == nullptr || borrow_available == nullptr) {
             throw factor_data_error{
@@ -338,6 +350,10 @@ factor_cost_result apply_factor_costs(
             impact += trade * model.impact_coefficient *
                       std::pow(participation, model.impact_exponent);
         }
+        // Trade weights are two-sided, so turnover halves the gross notional
+        // to report the one-sided figure. Every component is a return-space
+        // drag: spread converts basis points by 1e-4 and the total is
+        // subtracted arithmetically from the period gross return.
         result.turnover[date] = 0.5 * trade_sum;
         result.spread_cost[date] =
             trade_sum * model.half_spread_bps * 1.0e-4;

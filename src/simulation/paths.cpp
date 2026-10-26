@@ -319,6 +319,9 @@ std::size_t rejection_mapped_index(std::mt19937_64& engine,
         }
     }
 
+    // Values below the threshold are the prefix of the 64-bit range whose
+    // residues repeat one extra time; discarding them leaves a range whose size
+    // is an exact multiple of the bound, which makes the modulo unbiased.
     const std::uint64_t bound = static_cast<std::uint64_t>(upper_bound);
     const std::uint64_t threshold = (std::uint64_t{0} - bound) % bound;
     for (;;) {
@@ -433,6 +436,11 @@ dataframe latin_hypercube_sampling(
                 latin_hypercube_permutation(sample_count, engine);
             std::vector<double> values;
             values.reserve(sample_count);
+            // The jittered point is redrawn until dividing back into the unit
+            // interval still lands inside the stratum it was assigned to:
+            // rounding can push a value drawn next to a stratum edge into its
+            // neighbour, which would leave one stratum empty and give another
+            // two samples.
             for (const std::size_t stratum : permutation) {
                 for (;;) {
                     const double numerator = static_cast<double>(stratum) +
@@ -559,6 +567,10 @@ dataframe gbm_from_returns(
         const double square_root_periods = std::sqrt(periods_as_double);
         require_finite(square_root_periods,
                        "GBM returns periods-per-year square root is not finite");
+        // Drift divides by the periods per year and volatility by their square
+        // root, undoing exactly how the estimator annualized the input series;
+        // the simulated duration is then stepped one period at a time, so the
+        // paths keep the cadence the returns were observed at.
         const double daily_drift = parameters.drift / periods_as_double;
         require_finite(daily_drift, "GBM returns daily drift is not finite");
         const double daily_volatility = parameters.volatility / square_root_periods;
@@ -578,6 +590,10 @@ dataframe gbm_from_returns(
             throw input_error{"GBM returns price paths must include an initial row"};
         }
 
+        // The seed row is dropped along with the deterministic price it holds:
+        // keeping it would report a zero return for a period in which nothing
+        // was simulated, and would shift every path against a horizon counted
+        // in return periods rather than price points.
         const std::size_t retained_count = price_index.size() - 1U;
         std::vector<timestamp> index;
         index.reserve(retained_count);

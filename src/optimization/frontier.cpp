@@ -17,6 +17,10 @@ using detail::portfolio_problem;
 using detail::solver_constraints;
 using detail::solver_objective;
 
+// Jacobi rotations drive the off-diagonals away; acceptance is deliberately
+// tolerant (relative asymmetry up to 1e-10, diagonals down to -1e-10) because
+// the question is whether the quadratic solver downstream can be trusted, not
+// whether the matrix is strictly positive definite.
 bool positive_semidefinite(std::vector<double> matrix,
                            const std::size_t assets) {
     for (std::size_t row = 0; row < assets; ++row) {
@@ -145,6 +149,10 @@ solver_objective sharpe_objective(const portfolio_problem& problem,
     solver_objective objective;
     objective.value = [&problem, risk_free_rate](
                           const std::vector<double>& weights) {
+        // Maximizing Sharpe means minimizing its negation. A vanishing
+        // denominator is scored as a large positive penalty so the search
+        // retreats from zero-volatility corners, and its gradient offers no
+        // direction there rather than an extrapolated one.
         const double volatility =
             detail::portfolio_volatility(problem, weights);
         if (volatility <= 1e-12) {
@@ -267,6 +275,10 @@ efficient_frontier_result efficient_frontier(
     result.max_sharpe_diagnostics = diagnostics_for(
         problem, constraints, ms, frontier_solver::projected_gradient);
 
+    // The maximum-return endpoint is a corner of the weight box rather than a
+    // quadratic solve: filling in descending-mean order up to the upper bound
+    // is exactly optimal for a linear objective, and equal means keep their
+    // original asset order because the sort is stable.
     std::vector<std::size_t> order(assets);
     std::iota(order.begin(), order.end(), 0U);
     std::stable_sort(order.begin(), order.end(),
@@ -294,6 +306,9 @@ efficient_frontier_result efficient_frontier(
     const double minimum_return = result.min_variance.expected_return;
     const double maximum_return =
         detail::portfolio_return(problem, maximum_weights);
+    // A span this small means every target asks the solver for the book it
+    // already returned, so the whole sweep collapses onto min-variance rather
+    // than emitting points that differ only by tolerance noise.
     const bool degenerate =
         std::abs(maximum_return - minimum_return) <= 1e-12;
 
@@ -312,6 +327,9 @@ efficient_frontier_result efficient_frontier(
             minimum_return + fraction * (maximum_return - minimum_return);
         std::vector<double> weights;
         frontier_solver solver = frontier_solver::projected_gradient;
+        // Only interior points pay for a solve, and each starts from the
+        // previous (lower-target) portfolio rather than equal weights, so the
+        // sweep walks the frontier instead of re-converging from scratch.
         if (degenerate) {
             weights = mv.parameters;
             solver = frontier_solver::min_variance_degenerate;
@@ -331,6 +349,9 @@ efficient_frontier_result efficient_frontier(
             detail::validate_weights(problem, target_constraints, weights,
                                      "frontier_point");
         }
+        // Diagnostics have to describe the constraint set the solver actually
+        // faced, so a target-return residual is recorded only for interior
+        // points, which are the only ones solved against a target.
         solver_constraints point_constraints = constraints;
         if (!degenerate && point != 0U &&
             point + 1U != config.n_points) {

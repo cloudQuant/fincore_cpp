@@ -23,6 +23,9 @@ struct finite_aligned_pairs {
     std::vector<double> benchmark;
 };
 
+// Drops NaN only. An infinity is kept so it propagates into whatever moment
+// consumes this, which is why the paired helpers below filter to finite
+// values separately; the two filters are not interchangeable.
 std::vector<double> valid_values(std::span<const double> values) {
     std::vector<double> result;
     result.reserve(values.size());
@@ -66,6 +69,11 @@ biased_moments nan_only_biased_moments(std::span<const double> raw_values) {
     const double second = second_total / count;
     const double third = third_total / count;
     const double fourth = fourth_total / count;
+    // Both returned moments divide by a power of the second moment, so this
+    // guard is scaled by the magnitude of the mean: an exactly flat series
+    // always trips it because the second moment is zero, and a series flat to
+    // the resolution of its values trips it as well, which stops a ratio from
+    // being reported off rounding noise.
     const double epsilon_mean =
         std::numeric_limits<double>::epsilon() * average;
     if (second <= epsilon_mean * epsilon_mean) {
@@ -125,6 +133,8 @@ double sample_standard_deviation(std::span<const double> values) {
     if (values.size() < 2) {
         return nan;
     }
+    // Written negated so a NaN variance takes the reject branch alongside a
+    // negative one; the separate finiteness check covers an overflow.
     const double variance = detail::sample_variance(values);
     if (!(variance >= 0.0) || !std::isfinite(variance)) {
         return nan;
@@ -133,6 +143,9 @@ double sample_standard_deviation(std::span<const double> values) {
     return std::isfinite(result) ? result : nan;
 }
 
+// The split is on a strict sign, so periods where the benchmark is exactly
+// zero leave both halves: up- and down-conditioned ratios are computed over
+// different, and together incomplete, date sets by design.
 finite_aligned_pairs select_benchmark_sign(const finite_aligned_pairs& pairs,
                                             bool positive) {
     finite_aligned_pairs selected;
@@ -382,6 +395,10 @@ double normal_cdf(double value) {
     return 0.5 * std::erfc(-value / std::sqrt(2.0));
 }
 
+// Acklam-style rational inverse normal CDF: one central polynomial branch and
+// two logarithmic tail branches switched at 0.02425, followed by a single
+// correction measured against normal_cdf because the rational form itself is
+// an approximation rather than a solved value.
 double normal_ppf(double probability) {
     constexpr double low = 0.02425;
     constexpr double high = 1.0 - low;
@@ -806,6 +823,11 @@ double kappa_three_ratio(const dataframe& returns,
     }
     const double lpm3 = lpm3_total / static_cast<double>(values.size());
     const double mu = mean(values);
+    // A series with no measurable third-moment downside is reported as an
+    // infinite ratio when it clears the required return, so an all-gain series
+    // outranks every finite one instead of dropping out of a comparison; the
+    // same degeneracy cannot say anything about a series that also fails the
+    // required return, and returns NaN there.
     if (lpm3 < 1.0e-30) {
         return mu > mar ? std::numeric_limits<double>::infinity() : nan;
     }
@@ -820,6 +842,9 @@ double excess_sharpe(const dataframe& returns,
                                           benchmark_column_name);
     const auto active = active_returns(pairs);
     const double tracking_error = sample_standard_deviation(active);
+    // Negated comparison again: a NaN tracking error from too few usable pairs
+    // fails here rather than reaching the quotient, and the floor rejects a
+    // pair series that differs from its benchmark only by rounding.
     if (!(tracking_error >= minimum_tracking_error)) {
         return nan;
     }

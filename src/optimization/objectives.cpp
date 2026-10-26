@@ -21,6 +21,9 @@ solver_constraints build_constraints(
     const portfolio_optimization_config& config,
     const std::vector<std::string>& asset_names) {
     solver_constraints constraints;
+    // An explicit min_weight is taken verbatim rather than combined with
+    // short_allowed, so it can raise the floor above zero for a short-allowed
+    // book or push it below zero for a long-only one.
     constraints.lower =
         config.min_weight.has_value()
             ? *config.min_weight
@@ -43,6 +46,10 @@ solver_constraints build_constraints(
                 bounds.indices.push_back(index);
             }
         }
+        // Assets missing from sector_map stay unconstrained, and a named
+        // sector holding none of them is dropped instead of failed: its bound
+        // would be vacuous, and rejecting it would tie a valid book to the
+        // vocabulary of the constraint list.
         if (bounds.indices.empty()) {
             continue;
         }
@@ -58,6 +65,10 @@ solver_objective make_objective(
     const portfolio_optimization_config& config) {
     const std::size_t assets = problem.mean.size();
     solver_objective objective;
+    // The enum names what the caller wants to reach, not what gets minimized:
+    // target_return sweeps variance with the return carried as a constraint,
+    // and target_risk sweeps negative return with the volatility ceiling as
+    // one, so the two pairs below repeat their unconstrained siblings.
     switch (config.objective) {
         case portfolio_objective::min_variance:
             objective.value = [&problem](const std::vector<double>& weights) {
@@ -190,6 +201,9 @@ portfolio_optimization_result optimize_portfolio(
                 "'min_variance', 'target_return', 'target_risk'"};
     }
 
+    // This entry point annualizes at a fixed 252 periods; frontier_config
+    // exposes the same factor as a parameter, so returns series on another
+    // cadence reach the two paths with different scales by design.
     const auto problem = detail::load_portfolio_problem(returns, 252.0);
     const auto constraints =
         build_constraints(config, problem.asset_names);
@@ -200,6 +214,10 @@ portfolio_optimization_result optimize_portfolio(
     }
 
     if (config.objective == portfolio_objective::target_risk) {
+        // Both probes drop the volatility ceiling that is being tested: leaving
+        // it applied would cap the highest-volatility portfolio at the target
+        // itself, so the reachability range could never contradict the bound it
+        // is meant to establish.
         solver_constraints equality = constraints;
         equality.has_target_volatility = false;
         const auto minimum = detail::minimize_projected(
@@ -235,6 +253,11 @@ portfolio_optimization_result optimize_portfolio(
                               1.0 / static_cast<double>(
                                         problem.mean.size()));
     std::vector<double> weights;
+    // A sector-free minimum-variance book is a quadratic over the unit simplex
+    // and uses the dedicated solver for that set; a single sector row breaks
+    // the shape and routes the same objective through the general solver. The
+    // trade-off is recorded as F10-D10: weights on this path cannot go below
+    // zero, so a lowered bound only reaches the general branch.
     if (config.objective == portfolio_objective::min_variance &&
         constraints.sectors.empty()) {
         std::vector<double> hessian(problem.covariance.size(), 0.0);

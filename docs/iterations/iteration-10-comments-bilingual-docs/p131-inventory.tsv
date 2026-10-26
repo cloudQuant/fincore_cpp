@@ -22,7 +22,7 @@ src/extensions/snapshot.cpp	cpp	0	no_explanatory_block_not_audited
 src/factor/analysis.cpp	cpp	2	sparse_not_audited	
 src/factor/artifacts.cpp	cpp	0	no_explanatory_block_not_audited	
 src/factor/calendar.cpp	cpp	1	sparse_not_audited	
-src/factor/costs.cpp	cpp	0	no_explanatory_block_not_audited	
+src/factor/costs.cpp	cpp	0	reviewed_this_round	opening book charged as a trade; capacity is the tightest single-asset limit; ties take earliest date then first asset
 src/factor/data.cpp	cpp	6	reviewed_this_round	right-closed bins; outer edges widened
 src/factor/performance.cpp	cpp	5	reviewed_this_round	NaN-safe variance guard; rank-then-Pearson; membership ignores non-finite values
 src/factor/pit.cpp	cpp	4	reviewed_this_round	revision uniqueness key; effective_from>known_at>as_of tie-break
@@ -46,7 +46,7 @@ src/metrics/frequencies.cpp	cpp	0	no_explanatory_block_not_audited
 src/metrics/helpers.cpp	cpp	1	sparse_not_audited	
 src/metrics/perf_attrib.cpp	cpp	0	no_explanatory_block_not_audited	
 src/metrics/perf_stats.cpp	cpp	0	no_explanatory_block_not_audited	
-src/metrics/ratios.cpp	cpp	0	no_explanatory_block_not_audited	
+src/metrics/ratios.cpp	cpp	0	reviewed_this_round	NaN-only and finite-only filters differ; flat-series guard scaled by magnitude; strict benchmark sign split excludes zero days; degenerate LPM3 reports infinity
 src/metrics/returns.cpp	cpp	2	reviewed_this_round	NaN compounds flat; wiped series returns -1.0
 src/metrics/risk.cpp	cpp	0	no_explanatory_block_not_audited	
 src/metrics/rolling.cpp	cpp	3	reviewed_this_round	right-aligned labels; no padding; windows rebuilt per step
@@ -54,16 +54,16 @@ src/metrics/stats.cpp	cpp	0	no_explanatory_block_not_audited
 src/metrics/timing.cpp	cpp	0	no_explanatory_block_not_audited	
 src/metrics/yearly.cpp	cpp	0	no_explanatory_block_not_audited	
 src/operations.cpp	cpp	0	no_explanatory_block_not_audited	
-src/optimization/frontier.cpp	cpp	0	no_explanatory_block_not_audited	
+src/optimization/frontier.cpp	cpp	0	reviewed_this_round	PSD test is tolerance-scaled; max-return endpoint is a box corner not a solve; interior points warm-start; diagnostics mirror solved constraints
 src/optimization/numerics.cpp	cpp	4	reviewed_this_round	corner cases bypassed; fixed-iteration bisection in long double
-src/optimization/objectives.cpp	cpp	0	no_explanatory_block_not_audited	
+src/optimization/objectives.cpp	cpp	0	reviewed_this_round	min_weight overrides short_allowed; unmapped sectors dropped; target probes drop the ceiling they test; simplex branch ignores a negative bound (F10-D10)
 src/optimization/portfolio_solver.cpp	cpp	4	reviewed_this_round	gradient scale normalization; projection restores feasibility; Armijo test
 src/optimization/portfolio_solver.hpp	hpp	0	no_explanatory_block_not_audited	
 src/optimization/risk_parity.cpp	cpp	3	reviewed_this_round	positive weight floor keeps shares defined; degenerate portfolios get finite penalty
 src/performance/cashflows.cpp	cpp	5	reviewed_this_round	flows bucketed by valuation date; -100% artifact rejected
 src/performance/disclosures.cpp	cpp	0	no_explanatory_block_not_audited	
 src/performance/inference.cpp	cpp	0	no_explanatory_block_not_audited	
-src/performance/returns.cpp	cpp	2	sparse_not_audited	
+src/performance/returns.cpp	cpp	2	reviewed_this_round	floor day division before the epoch; bracket ends exclude rate -1; scaled NPV carries an anchor factor; sign changes read the sign bit; zero-net days dropped
 src/portfolio/capacity.cpp	cpp	0	no_explanatory_block_not_audited	
 src/portfolio/positions.cpp	cpp	0	no_explanatory_block_not_audited	
 src/portfolio/round_trips.cpp	cpp	2	reviewed_this_round	signed-price FIFO; block may close and reopen
@@ -95,7 +95,7 @@ src/simulation/bootstrap.cpp	cpp	5	reviewed_this_round	rejection removes modulo 
 src/simulation/correlation.cpp	cpp	0	no_explanatory_block_not_audited	
 src/simulation/monte_carlo.cpp	cpp	2	reviewed_this_round	252 shared by calibration and horizon scaling
 src/simulation/parameters.cpp	cpp	0	no_explanatory_block_not_audited	
-src/simulation/paths.cpp	cpp	9	multi_block_not_audited	
+src/simulation/paths.cpp	cpp	9	reviewed_this_round	modulo-bias threshold draw; LHS resamples until the stratum survives rounding; seed price row dropped from the return frame
 src/simulation/result.cpp	cpp	0	no_explanatory_block_not_audited	
 src/simulation/scenarios.cpp	cpp	2	reviewed_this_round	crash/spike shock upper middle element; only NaN rejected
 src/version.cpp	cpp	0	no_explanatory_block_not_audited	
