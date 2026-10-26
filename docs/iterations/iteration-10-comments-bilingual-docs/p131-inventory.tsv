@@ -44,11 +44,11 @@ src/metrics/consecutive.cpp	cpp	0	reviewed_this_round	a flat or NaN day ends bot
 src/metrics/drawdown.cpp	cpp	3	reviewed_this_round	NaN freezes wealth; equal peak closes episode and advances peak
 src/metrics/frequencies.cpp	cpp	0	no_explanatory_block_not_audited	
 src/metrics/helpers.cpp	cpp	1	reviewed_this_round	NaT sentinel rejected by both index validators; uniqueness judged on a sorted copy while the strict variant demands stored order; calendar labels land on month ends starting January 1970; column spans alias the frame; flatten is row-major
-src/metrics/perf_attrib.cpp	cpp	0	no_explanatory_block_not_audited	
+src/metrics/perf_attrib.cpp	cpp	0	reviewed_this_round	the cash column is type-checked but excluded from attribution, and it may be absent entirely
 src/metrics/perf_stats.cpp	cpp	0	reviewed_this_round	bootstrap samples are labelled by draw position, so order-sensitive statistics measure the synthetic sequence; Omega's pinned annualization is a no-op only because its required return is zero
 src/metrics/ratios.cpp	cpp	0	reviewed_this_round	NaN-only and finite-only filters differ; flat-series guard scaled by magnitude; strict benchmark sign split excludes zero days; degenerate LPM3 reports infinity
 src/metrics/returns.cpp	cpp	2	reviewed_this_round	NaN compounds flat; wiped series returns -1.0
-src/metrics/risk.cpp	cpp	0	no_explanatory_block_not_audited	
+src/metrics/risk.cpp	cpp	0	reviewed_this_round	the quantile helper sorts a by-value copy so the caller's column survives; one non-finite observation makes the whole risk figure unavailable rather than being dropped
 src/metrics/rolling.cpp	cpp	3	reviewed_this_round	right-aligned labels; no padding; windows rebuilt per step
 src/metrics/stats.cpp	cpp	0	reviewed_this_round	a standard deviation under the floor is no dispersion, not a small one; central moments are population form in one pass; Hurst lags go logarithmic above thirty periods and deduplicate
 src/metrics/timing.cpp	cpp	0	reviewed_this_round	the three timing models differ only in the third design column and Cornell goes collinear without a market crossing zero; pivot rejections are relative to the matrix scale; callers read coefficient index two

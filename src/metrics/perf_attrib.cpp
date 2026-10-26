@@ -61,6 +61,9 @@ std::span<const std::string> require_string_column(const dataframe &frame,
   return values;
 }
 
+// The cash column is validated and then left out of the asset list on purpose: it
+// has no factor exposure to attribute, and it need not exist at all, so the check
+// is there only to reject a cash column of the wrong type.
 std::vector<double_column>
 position_assets(const dataframe &positions,
                 const std::string_view cash_column_name) {

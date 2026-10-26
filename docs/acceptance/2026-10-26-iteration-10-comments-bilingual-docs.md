@@ -105,7 +105,7 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 68 marked `reviewed_this_round` with a one-line note naming the
+(287 files: 70 marked `reviewed_this_round` with a one-line note naming the
 invariant recorded or why none was needed, 12 with several explanatory blocks
 but not yet audited, 13 sparse, 219 with no explanatory block). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
@@ -182,9 +182,11 @@ where warranted, extended the following implementation files:
 | `src/attribution/style.cpp` | Exposures clamp at zero before weighting; the volatility window grows until it reaches the cap; Welford's update keeps a population divisor; a zero contribution means nothing to attribute, not no effect |
 | `src/metrics/bayesian.cpp` | Cone percentiles are cross-sectional over the paths at each step; a zero starting value is read as excess rather than level; a bound name normalizes negative zero so one width cannot have two identities |
 | `src/metrics/stats.cpp` | A standard deviation below the floor means no dispersion rather than a small one; central moments are population form in one pass; Hurst lags turn logarithmic above thirty periods and deduplicate |
+| `src/metrics/risk.cpp` | The quantile sorts a by-value copy so the caller's column keeps its order; one non-finite observation withdraws the whole risk figure instead of being dropped |
+| `src/metrics/perf_attrib.cpp` | The cash column is type-checked yet excluded from attribution, and may be absent entirely |
 
 Every edit above was verified comment-only and is covered by the re-run below.
-The remaining 219 files are deliberately not claimed as audited, so **P131 is
+The remaining 217 files are deliberately not claimed as audited, so **P131 is
 PARTIAL**, not passed.
 
 One audit ended in a registered question rather than a comment: the

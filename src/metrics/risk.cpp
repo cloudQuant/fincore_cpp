@@ -14,6 +14,9 @@ namespace {
 
 constexpr double nan = std::numeric_limits<double>::quiet_NaN();
 
+// The parameter is taken by value precisely so the sort below cannot reorder the
+// caller's column, and the position lands on the interpolated point between the
+// two bracketing observations rather than on either of them.
 double percentile(std::vector<double> values, double cutoff) {
   std::sort(values.begin(), values.end());
   const double position = cutoff * static_cast<double>(values.size() - 1);
@@ -23,6 +26,10 @@ double percentile(std::vector<double> values, double cutoff) {
                              (values[upper] - values[lower]);
 }
 
+// Stricter than the ratio helpers, which drop NaN observations before measuring:
+// here a single non-finite value makes the whole risk number unavailable, because
+// a quantile over a partially missing sample would be reported as if it were over
+// the full one.
 bool valid_risk_input(std::span<const double> values, double cutoff) {
   return !values.empty() && std::isfinite(cutoff) && cutoff >= 0.0 &&
          cutoff <= 1.0 &&
