@@ -8,26 +8,26 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fincore_cpp 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-26 00:06+0800\n"
+"POT-Creation-Date: 2026-10-26 18:10+0800\n"
 "PO-Revision-Date: 2026-10-25 22:20+0800\n"
 "Last-Translator: fincore_cpp documentation maintainers\n"
-"Language-Team: zh_CN <LL@li.org>\n"
 "Language: zh_CN\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
+"Language-Team: zh_CN <LL@li.org>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: ../../site/index.md:7
+#: ../../site/index.md ../../site/index.md:52
 msgid "Start here"
 msgstr "从这里开始"
 
-#: ../../site/index.md:16
+#: ../../site/index.md:61
 msgid "Guides"
 msgstr "指南"
 
-#: ../../site/index.md:26
+#: ../../site/index.md:71
 msgid "Reference"
 msgstr "参考"
 
@@ -37,39 +37,273 @@ msgstr "fincore_cpp"
 
 #: ../../site/index.md:3
 msgid ""
-"`fincore_cpp` is a native C++23 library for portfolio, factor, performance "
-"and risk analytics. It is a native implementation with its own typed API; it "
-"does not promise Python object or pandas compatibility."
-msgstr ""
-"`fincore_cpp` 是一个原生 C++23 库，用于投资组合、因子、业绩与风险分析。它是具"
-"有自身类型化 API 的原生实现，不承诺兼容 Python 对象或 pandas。"
+"Native C++23 analytics for portfolios, factors, performance and risk — one "
+"typed API over a local `DataFrame`, with no Python dependency at run time."
+msgstr "用于投资组合、因子、业绩与风险分析的原生 C++23 库 —— 在本地 `DataFrame` 之上提供一套类型化 API，运行时不需要 Python。"
 
-#: ../../site/index.md:39
-msgid "Scope"
-msgstr "范围"
-
-#: ../../site/index.md:41
+#: ../../site/index.md:6
+#, python-brace-format
 msgid ""
-"The library consumes a local `DataFrame` type and returns owning typed "
-"results. The documentation distinguishes the stable public surface from "
-"internal `fincore::detail` helpers. Optional visualization and plotting "
-"adapters are built only when their CMake options and dependencies are "
-"enabled."
+"[Quickstart](quickstart.md){.fc-button .fc-primary} "
+"[Installation](installation.md){.fc-button} [API reference](api/index.md"
+"){.fc-button} [GitHub](https://github.com/cloudQuant/fincore_cpp){.fc-"
+"button}"
 msgstr ""
-"该库使用本地 `DataFrame` 类型，并返回拥有所有权的类型化结果。文档区分了稳定的"
-"公共接口与内部 `fincore::detail` 辅助实现。可选的可视化与绘图适配器仅在其 "
-"CMake 选项和依赖启用时才会构建。"
+"[快速开始](quickstart.md){.fc-button .fc-primary} [安装](installation.md){.fc-"
+"button} [API 参考](api/index.md){.fc-button} "
+"[GitHub](https://github.com/cloudQuant/fincore_cpp){.fc-button}"
 
-#: ../../site/index.md:46
-msgid "Status"
-msgstr "状态"
-
-#: ../../site/index.md:48
+#: ../../site/index.md:8
 msgid ""
-"This site is generated from the same source commit as the C++ library and "
-"its English/Chinese guides. It is validated locally with strict Sphinx and "
-"Doxygen checks; external hosting status is recorded separately in the "
-"publication notes."
+"git clone https://github.com/cloudQuant/fincore_cpp.git\n"
+"cd fincore_cpp && git submodule update --init --recursive\n"
+"cmake -S . -B build -DCMAKE_BUILD_TYPE=Release\n"
+"cmake --build build --parallel\n"
+"ctest --test-dir build --output-on-failure\n"
 msgstr ""
-"本站点与 C++ 库及其英文/中文指南由同一源提交生成。站点在本地通过严格的 "
-"Sphinx 和 Doxygen 检查进行验证；外部托管状态另行记录在发布说明中。"
+"git clone https://github.com/cloudQuant/fincore_cpp.git\n"
+"cd fincore_cpp && git submodule update --init --recursive\n"
+"cmake -S . -B build -DCMAKE_BUILD_TYPE=Release\n"
+"cmake --build build --parallel\n"
+"ctest --test-dir build --output-on-failure\n"
+
+#: ../../site/index.md:16
+msgid "Find your path"
+msgstr "选择你的路径"
+
+#: ../../site/index.md
+msgid "If you want to…"
+msgstr "如果你想……"
+
+#: ../../site/index.md
+msgid "Get something running"
+msgstr "先把东西跑起来"
+
+#: ../../site/index.md
+msgid ""
+"[Quickstart](quickstart.md) — build a frame, compute a metric, render a "
+"report"
+msgstr "[快速开始](quickstart.md) —— 建帧、算指标、出报表"
+
+#: ../../site/index.md
+msgid "Pick the right metric"
+msgstr "挑一个合适的指标"
+
+#: ../../site/index.md
+msgid ""
+"[Metrics and rolling windows](guides/metrics.md) — definitions, "
+"annualization and degenerate cases"
+msgstr "[指标与滚动窗口](guides/metrics.md) —— 定义、年化与退化情形"
+
+#: ../../site/index.md
+msgid "Produce risk numbers"
+msgstr "得到风险数字"
+
+#: ../../site/index.md
+msgid ""
+"[Portfolio, risk, optimization and simulation](guides/portfolio-risk.md) — "
+"estimators, backtests, statuses"
+msgstr "[组合、风险、优化与模拟](guides/portfolio-risk.md) —— 估计量、回测与状态"
+
+#: ../../site/index.md
+msgid "Study a factor panel"
+msgstr "研究因子面板"
+
+#: ../../site/index.md
+msgid ""
+"[Factor research](guides/factor-research.md) — IC, quantiles, tears and "
+"exports"
+msgstr "[因子研究](guides/factor-research.md) —— IC、分位、tears 与导出"
+
+#: ../../site/index.md
+msgid "Look up a symbol"
+msgstr "查某个符号"
+
+#: ../../site/index.md
+msgid ""
+"[API reference](api/index.md) — every public symbol, generated from the "
+"headers"
+msgstr "[API 参考](api/index.md) —— 每个公共符号，直接由头文件生成"
+
+#: ../../site/index.md
+msgid "Understand a design choice"
+msgstr "理解某个设计取舍"
+
+#: ../../site/index.md
+msgid ""
+"[Data and numerical conventions](conventions.md) — timestamps, NaN, "
+"ownership, digests"
+msgstr "[数据与数值约定](conventions.md) —— 时间戳、NaN、所有权、摘要"
+
+#: ../../site/index.md:27
+msgid "What is inside"
+msgstr "包含什么"
+
+#: ../../site/index.md
+msgid "Area"
+msgstr "领域"
+
+#: ../../site/index.md
+msgid "Highlights"
+msgstr "要点"
+
+#: ../../site/index.md
+msgid "Core data"
+msgstr "核心数据"
+
+#: ../../site/index.md
+msgid "`dataframe`, UTC nanosecond timestamps, calendar and frequency helpers"
+msgstr "`dataframe`、UTC 纳秒时间戳、日历与频率工具"
+
+#: ../../site/index.md
+msgid "Metrics"
+msgstr "指标"
+
+#: ../../site/index.md
+msgid "Returns, ratios, drawdowns, rolling windows, stability statistics"
+msgstr "收益、比率、回撤、滚动窗口、稳定性统计"
+
+#: ../../site/index.md
+msgid "Risk"
+msgstr "风险"
+
+#: ../../site/index.md
+msgid "Historical, EVT and GARCH VaR/ES, backtests, walk-forward, Bayesian cone"
+msgstr "历史法、EVT 与 GARCH 的 VaR/ES、回测、滚动前推、贝叶斯锥"
+
+#: ../../site/index.md
+msgid "Portfolio"
+msgstr "组合"
+
+#: ../../site/index.md
+msgid "Positions, transactions, round trips, turnover, capacity, cash flows"
+msgstr "持仓、交易、往返交易、换手、容量、现金流"
+
+#: ../../site/index.md
+msgid "Factor research"
+msgstr "因子研究"
+
+#: ../../site/index.md
+msgid "Analysis pipeline, IC and quantile tables, tears, point-in-time joins"
+msgstr "分析流水线、IC 与分位表、tears、时点连接"
+
+#: ../../site/index.md
+msgid "Attribution"
+msgstr "归因"
+
+#: ../../site/index.md
+msgid "Brinson, factor and style regression, exposures, prediction"
+msgstr "Brinson、因子与风格回归、暴露、预测"
+
+#: ../../site/index.md
+msgid "Optimization"
+msgstr "优化"
+
+#: ../../site/index.md
+msgid "Mean-variance, frontier, risk parity with box and sector constraints"
+msgstr "均值方差、前沿、带箱式与行业约束的风险平价"
+
+#: ../../site/index.md
+msgid "Reporting"
+msgstr "报表"
+
+#: ../../site/index.md
+msgid "One document rendered to HTML, XLSX, PDF, Plotly, Bokeh, axes, ImPlot"
+msgstr "同一文档渲染到 HTML、XLSX、PDF、Plotly、Bokeh、坐标轴与 ImPlot"
+
+#: ../../site/index.md
+msgid "Runtime"
+msgstr "运行时"
+
+#: ../../site/index.md
+msgid "Operation catalog, session caching, extensions, deterministic digests"
+msgstr "操作目录、会话缓存、扩展、确定性摘要"
+
+#: ../../site/index.md
+msgid "Simulation"
+msgstr "模拟"
+
+#: ../../site/index.md
+msgid "GBM, bootstrap, Latin hypercube, antithetic variates"
+msgstr "GBM、bootstrap、拉丁超立方、对偶变量"
+
+#: ../../site/index.md:42
+msgid "How this documentation is organised"
+msgstr "这套文档怎么组织"
+
+#: ../../site/index.md:44
+msgid "**Start here** — installation, quickstart, data and numerical conventions."
+msgstr "**入门** —— 安装、快速开始、数据与数值约定。"
+
+#: ../../site/index.md:45
+msgid ""
+"**Guides** — task-oriented explanations of each area, with the failure rules"
+" that matter in practice."
+msgstr "**指南** —— 按任务组织的说明，并给出实践中真正会遇到的失败规则。"
+
+#: ../../site/index.md:47
+msgid ""
+"**Reference** — one page per module, generated from the public headers; the "
+"text you read there is the text in the source."
+msgstr "**参考** —— 每个模块一页，由公共头文件生成；你读到的文字就是源码里的文字。"
+
+#: ../../site/index.md:49
+msgid ""
+"**Project** — migration notes, performance method, troubleshooting, "
+"publication state and contribution rules."
+msgstr "**项目** —— 迁移说明、性能方法、故障排查、发布状态与贡献规则。"
+
+#: ../../site/index.md:84
+msgid "Scope and status"
+msgstr "范围与状态"
+
+#: ../../site/index.md:86
+msgid ""
+"The library consumes its own `DataFrame` type and returns owning typed "
+"results. The stable public surface is documented separately from internal "
+"`fincore::detail` helpers, and optional visualization adapters are built "
+"only when their CMake options and GUI dependencies are enabled."
+msgstr ""
+"库消费自己的 `DataFrame` 类型，并返回拥有数据的类型化结果。稳定的公共接口与内部的 `fincore::detail` "
+"辅助函数分别记录；可选的绘图适配器只在相应 CMake 选项与界面依赖启用时才构建。"
+
+#: ../../site/index.md:91
+msgid ""
+"Every public symbol is documented and tracked in the API ledger; both "
+"language builds run strict Sphinx checks on every change, and the C++ test "
+"suite runs on each push. Published state, including which platforms are "
+"live, is recorded in [publication notes](publication.md) rather than "
+"asserted here."
+msgstr ""
+"每个公共符号都有说明并由 API 清单跟踪；两种语言的构建在每次改动上都执行严格 Sphinx 检查，C++ "
+"测试套件在每次推送时运行。发布状态（包括哪些平台已上线）记录在[发布说明](publication.md)中，而不是在这里断言。"
+
+#~ msgid ""
+#~ "`fincore_cpp` is a native C++23 library "
+#~ "for portfolio, factor, performance and risk"
+#~ " analytics. It is a native "
+#~ "implementation with its own typed API; "
+#~ "it does not promise Python object or"
+#~ " pandas compatibility."
+#~ msgstr ""
+#~ "`fincore_cpp` 是一个原生 C++23 库，用于投资组合、因子、业绩与风险分析。它是具有自身类型化"
+#~ " API 的原生实现，不承诺兼容 Python 对象或 pandas。"
+
+#~ msgid "Scope"
+#~ msgstr "范围"
+
+#~ msgid "Status"
+#~ msgstr "状态"
+
+#~ msgid ""
+#~ "This site is generated from the same"
+#~ " source commit as the C++ library "
+#~ "and its English/Chinese guides. It is "
+#~ "validated locally with strict Sphinx and"
+#~ " Doxygen checks; external hosting status "
+#~ "is recorded separately in the publication"
+#~ " notes."
+#~ msgstr ""
+#~ "本站点与 C++ 库及其英文/中文指南由同一源提交生成。站点在本地通过严格的 Sphinx 和"
+#~ " Doxygen 检查进行验证；外部托管状态另行记录在发布说明中。"
+

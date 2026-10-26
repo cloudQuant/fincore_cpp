@@ -103,11 +103,17 @@ html_short_title = "fincore_cpp"
 templates_path = ["_templates"]
 html_static_path = ["_static"]
 html_css_files = ["custom.css"]
-html_js_files = ["language_switch.js"]
+html_js_files = ["language_switch.js", "copy_code.js"]
 html_baseurl = (os.environ.get("FINCORE_DOCS_BASEURL") or
                 os.environ.get("READTHEDOCS_CANONICAL_URL") or
                 "https://docs.example.invalid/fincore_cpp/")
 html_context = {
+    "fc_meta_description": (
+        "fincore_cpp 文档：用于投资组合、因子、业绩与风险分析的原生 C++23 库。"
+        if language == "zh_CN" else
+        "fincore_cpp documentation: native C++23 analytics for portfolios, "
+        "factors, performance and risk."
+    ),
     "display_language_switch": True,
     "fc_docs_root": fc_docs_root,
     "languages": [("English", "/en/latest/"), ("简体中文", "/zh-cn/latest/")],

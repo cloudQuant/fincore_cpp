@@ -71,3 +71,94 @@
     font-size: 0.78rem;
   }
 }
+
+/* Landing page: action buttons and path cards. */
+.fc-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1.2rem 0 1.6rem;
+}
+.fc-button {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border: 1px solid #d6dce1;
+  border-radius: 0.5rem;
+  color: #1f4e79;
+  text-decoration: none;
+  font-weight: 600;
+  background: #f7fafc;
+}
+.fc-button:hover {
+  background: #eef4fa;
+  border-color: #b8c9d9;
+}
+.fc-button.fc-primary {
+  background: #2980b9;
+  border-color: #2980b9;
+  color: #ffffff;
+}
+.fc-button.fc-primary:hover {
+  background: #2471a3;
+  border-color: #2471a3;
+}
+.fc-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 0.8rem;
+  margin: 1rem 0 1.6rem;
+}
+.fc-card {
+  display: block;
+  padding: 0.9rem 1rem;
+  border: 1px solid #d6dce1;
+  border-radius: 0.6rem;
+  text-decoration: none;
+  color: #1f2d3d;
+  background: #fbfcfd;
+}
+.fc-card:hover {
+  border-color: #b8c9d9;
+  background: #f3f8fc;
+}
+.fc-card strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: #1f4e79;
+}
+.fc-card span {
+  color: #5a6b7b;
+  font-size: 0.92rem;
+}
+
+/* Copy-to-clipboard control added by copy_code.js. */
+.highlight {
+  position: relative;
+}
+.fc-copy {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.75rem;
+  border: 1px solid #cfd8df;
+  border-radius: 0.35rem;
+  background: #ffffff;
+  color: #5a6b7b;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease-in-out;
+}
+.highlight:hover .fc-copy,
+.fc-copy:focus {
+  opacity: 1;
+}
+.fc-copy.fc-copied {
+  color: #1f7a3f;
+  border-color: #9fd3b0;
+}
+@media (max-width: 768px) {
+  .fc-copy {
+    opacity: 1;
+  }
+}
