@@ -78,6 +78,8 @@ target_link_libraries(my_target PRIVATE fincore::fincore)
 
 - 在线站点：<https://cloudquant.github.io/fincore_cpp/en/latest/> ·
   <https://cloudquant.github.io/fincore_cpp/zh-cn/latest/>
+- 第一次使用：[教程](docs/site/tutorial.md) 用六步从价格走到渲染好的报表；
+  [配方集](docs/site/guides/cookbook.md) 回答单个具体任务。
 - 入门：安装、快速开始、数据与数值约定
 - 指南：指标、组合与风险、因子研究、报表与运行时
 - 参考：每个公共模块一页，直接由头文件生成

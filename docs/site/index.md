@@ -68,6 +68,7 @@ guides/portfolio-risk
 guides/factor-research
 guides/reports-runtime
 guides/cookbook
+examples
 ```
 
 ```{toctree}
@@ -80,6 +81,7 @@ performance
 troubleshooting
 contributing
 publication
+releases
 maintainer/README
 ```
 
