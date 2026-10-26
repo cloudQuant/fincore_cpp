@@ -105,7 +105,7 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 116 marked `reviewed_this_round` with a one-line note naming the
+(287 files: 118 marked `reviewed_this_round` with a one-line note naming the
 invariant recorded or why none was needed, 12 with several explanatory blocks
 but not yet audited, 13 sparse, 219 with no explanatory block). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
@@ -230,10 +230,11 @@ where warranted, extended the following implementation files:
 | `tests/unit/factor_research_detailed_export_test.cpp` | Each case gets its own temporary directory, because sharing one would report ordering as a product failure |
 | `tests/unit/monte_carlo_simulation_test.cpp` | Calls repeated with one more argument each time pin the optional-parameter chain, not just the types |
 | `tests/unit/perf_attrib_test.cpp` | The loading frame repeats each date once per symbol, so a join must key on the pair rather than the row |
+| `tests/unit/annual_alpha_beta_test.cpp` | An uneven three-year spread pins one row per touched year, labelled at its start, with gaps inside a year adding none |
 
 Every edit above was verified comment-only and is covered by the re-run below.
 Every one of the 106 files under `src/` is now audited and carries a note naming
-the invariant recorded or why none was needed. The remaining 171 files are under
+the invariant recorded or why none was needed. The remaining 169 files are under
 `tests/`, `tools/`, `examples/` and `benchmarks/`, and are deliberately not
 claimed as audited, so **P131 is PARTIAL**, not passed.
 

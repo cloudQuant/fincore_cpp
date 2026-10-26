@@ -111,7 +111,7 @@ tests/fixtures/bootstrap_fixed_indices.hpp	hpp	0	no_explanatory_block_not_audite
 tests/oracle/research_detailed_probe.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/alpha_beta_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/analysis_context_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/annual_alpha_beta_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/annual_alpha_beta_test.cpp	cpp	0	reviewed_this_round	the fixture's uneven three-year spread pins one row per touched year, labelled at its start, with intra-year gaps adding nothing
 tests/unit/antithetic_variates_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/attribution_facades_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/attribution_factor_attribution_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
@@ -209,7 +209,7 @@ tests/unit/rolling_engine_test.cpp	cpp	0	no_explanatory_block_not_audited
 tests/unit/rolling_metrics_test.cpp	cpp	0	reviewed_this_round	an over-long window must come back as an empty typed column rather than a missing one, and expected NaN asserts the marker
 tests/unit/round_trips_test.cpp	cpp	0	reviewed_this_round	an expected NaN or infinity asserts the marker exactly while only finite expectations get the tolerance
 tests/unit/runtime_lifecycle_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/runtime_operations_factor_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/runtime_operations_factor_test.cpp	cpp	0	reviewed_this_round	audited with no change: the shapes of the tiny prepared frames are already annotated where they matter
 tests/unit/runtime_operations_metrics_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/runtime_operations_portfolio_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/runtime_serialization_test.cpp	cpp	0	no_explanatory_block_not_audited	
