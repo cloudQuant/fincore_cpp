@@ -105,9 +105,9 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 35 marked `reviewed_this_round` with a one-line note naming the
+(287 files: 37 marked `reviewed_this_round` with a one-line note naming the
 invariant recorded or why none was needed, 12 with several explanatory blocks
-but not yet audited, 17 sparse, 223 with no explanatory block). Auditing may
+but not yet audited, 16 sparse, 223 with no explanatory block). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
 because its validation clauses are the entire contract. This round audited and,
 where warranted, extended the following implementation files:
@@ -149,9 +149,11 @@ where warranted, extended the following implementation files:
 | `src/factor/calendar.cpp` | Sorted disjoint digit ranges probed by their end; strict UTF-8 rejection; every digit run needs a unit; backshift counts levels rather than rows |
 | `src/factor/timedelta.cpp` | Monday-first weekday offset; an off-session roll consumes one step; half-open business count; a gap in the data becomes a holiday; sub-day remainder stays floored |
 | `src/metrics/helpers.cpp` | NaT sentinel rejected by both index validators; uniqueness on a sorted copy versus stored order; calendar labels land on month ends from January 1970; column spans alias the frame; flatten is row-major |
+| `src/rolling_engine.cpp` | Beta's two moments share one divisor so the ratio is scale-free; a flat or NaN benchmark is caught by a negated comparison |
+| `src/viz/chart_data.cpp` | Sorted means duplicates allowed; one non-finite print invalidates a month; the two year-row passes must match; histogram bins are half-open with the maximum folded in |
 
 Every edit above was verified comment-only and is covered by the re-run below.
-The remaining 252 files are deliberately not claimed as audited, so **P131 is
+The remaining 250 files are deliberately not claimed as audited, so **P131 is
 PARTIAL**, not passed.
 
 One audit ended in a registered question rather than a comment: the

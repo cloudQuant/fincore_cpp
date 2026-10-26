@@ -83,7 +83,7 @@ src/risk/models.cpp	cpp	3	reviewed_this_round	digest pairs timestamp+value; incl
 src/risk/report.cpp	cpp	1	sparse_not_audited	
 src/risk/specs.cpp	cpp	0	reviewed_this_round	audited: the validation rules are the whole contract, no hidden invariant to add
 src/risk/walk_forward.cpp	cpp	5	reviewed_this_round	Newton-refined inverse normal; type-6 quantile; NUL-terminated digest fields
-src/rolling_engine.cpp	cpp	2	sparse_not_audited	
+src/rolling_engine.cpp	cpp	2	reviewed_this_round	beta moments share one 1/count divisor so the ratio is scale-free; flat or NaN benchmark guarded by a negated comparison
 src/runtime/operations_factor.cpp	cpp	21	multi_block_not_audited	
 src/runtime/operations_metrics.cpp	cpp	33	multi_block_not_audited	
 src/runtime/operations_portfolio.cpp	cpp	0	no_explanatory_block_not_audited	
@@ -100,7 +100,7 @@ src/simulation/result.cpp	cpp	0	no_explanatory_block_not_audited
 src/simulation/scenarios.cpp	cpp	2	reviewed_this_round	crash/spike shock upper middle element; only NaN rejected
 src/version.cpp	cpp	0	no_explanatory_block_not_audited	
 src/viz/bokeh_document.cpp	cpp	0	no_explanatory_block_not_audited	
-src/viz/chart_data.cpp	cpp	0	no_explanatory_block_not_audited	
+src/viz/chart_data.cpp	cpp	0	reviewed_this_round	sorted allows duplicates; one non-finite print invalidates a whole month; two-pass year rows must match; half-open histogram bins fold the maximum into the last bin
 src/viz/html_builder.cpp	cpp	1	sparse_not_audited	
 src/viz/implot_backend.cpp	cpp	0	no_explanatory_block_not_audited	
 src/viz/plotly_document.cpp	cpp	1	sparse_not_audited	

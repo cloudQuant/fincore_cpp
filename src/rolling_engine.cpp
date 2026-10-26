@@ -150,6 +150,10 @@ double beta_window(const std::span<const double> returns,
         covariance += benchmark_residual * return_value;
         benchmark_variance += benchmark_residual * benchmark_residual;
     }
+    // Both moments take the same 1/count divisor, so the ratio is identical
+    // whether the pair is read as population or sample; the floor is compared
+    // negated so a flat or NaN benchmark reports no beta rather than dividing
+    // by the variance it just failed to reach.
     covariance /= static_cast<double>(count);
     benchmark_variance /= static_cast<double>(count);
     if (!(benchmark_variance >= minimum_variance)) {

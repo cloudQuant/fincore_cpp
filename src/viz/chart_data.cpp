@@ -19,6 +19,8 @@ namespace {
 
 constexpr double nan = std::numeric_limits<double>::quiet_NaN();
 
+// Ordered, not unique: a repeated timestamp is allowed and stays one row per
+// observation, which is what lets a frame of intraday prints reach here.
 void require_sorted_index(const dataframe& frame,
                           const std::string_view context) {
     const auto& index = frame.get_index();
@@ -56,6 +58,11 @@ heat_grid build_monthly_heatmap(const dataframe& returns,
         double product = 1.0;
         bool valid = true;
     };
+    // One non-finite observation invalidates the whole month rather than being
+    // skipped, since a partially compounded month would still print as a
+    // complete monthly figure. The two passes below must agree: the first counts
+    // year rows and the second assigns them by the same year-change rule over the
+    // same map order, so a cell index is only valid while both loops match.
     std::map<std::pair<int, unsigned>, month_accumulator> months;
     for (std::size_t position = 0U; position < values.size(); ++position) {
         const auto [year, month] = year_month(index[position]);
@@ -117,6 +124,10 @@ heat_grid build_monthly_heatmap(const dataframe& returns,
         any_value = true;
     }
 
+    // Three scales, each chosen so a renderer never divides by a zero range: an
+    // empty grid gets a fixed symmetric band, a flat one is widened by a unit on
+    // each side, and a range straddling zero is flagged so the palette can put
+    // its midpoint at zero rather than at the minimum.
     if (!any_value) {
         grid.color_min = -10.0;
         grid.color_max = 10.0;
@@ -256,6 +267,11 @@ histogram_bins build_histogram(const std::span<const double> values,
         throw input_error{
             "histogram requires at least one finite observation"};
     }
+    // Half-open bins with the maximum folded into the last one, so the top edge
+    // is the only closed edge; a constant series is widened by half a unit on
+    // each side because a zero bin width would leave nothing to divide the
+    // density by. Non-finite samples are dropped here, which shrinks the
+    // observation count rather than poisoning the distribution.
     const auto [minimum, maximum] =
         std::minmax_element(finite.begin(), finite.end());
     double low = *minimum;
