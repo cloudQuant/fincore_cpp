@@ -5,7 +5,7 @@ src/attribution/factor_attribution.cpp	cpp	0	no_explanatory_block_not_audited
 src/attribution/factor_exposures.cpp	cpp	0	no_explanatory_block_not_audited	
 src/attribution/factor_prediction.cpp	cpp	0	no_explanatory_block_not_audited	
 src/attribution/factor_regression.cpp	cpp	0	no_explanatory_block_not_audited	
-src/attribution/fama_french.cpp	cpp	2	sparse_not_audited	
+src/attribution/fama_french.cpp	cpp	2	reviewed_this_round	pivot test reads X'X not X; the variance shift is translation-invariant and kept for cancellation; beta index one is MKT with the intercept at zero; negative idiosyncratic residual clamps to zero
 src/attribution/fama_french_patch.cpp	cpp	0	no_explanatory_block_not_audited	
 src/attribution/performance.cpp	cpp	0	no_explanatory_block_not_audited	
 src/attribution/style.cpp	cpp	0	no_explanatory_block_not_audited	

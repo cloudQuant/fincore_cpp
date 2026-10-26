@@ -105,9 +105,9 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 39 marked `reviewed_this_round` with a one-line note naming the
+(287 files: 40 marked `reviewed_this_round` with a one-line note naming the
 invariant recorded or why none was needed, 12 with several explanatory blocks
-but not yet audited, 16 sparse, 221 with no explanatory block). Auditing may
+but not yet audited, 15 sparse, 221 with no explanatory block). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
 because its validation clauses are the entire contract. This round audited and,
 where warranted, extended the following implementation files:
@@ -153,9 +153,10 @@ where warranted, extended the following implementation files:
 | `src/viz/chart_data.cpp` | Sorted means duplicates allowed; one non-finite print invalidates a month; the two year-row passes must match; histogram bins are half-open with the maximum folded in |
 | `src/data/providers.cpp` | Only the unadorned UTC form parses; batch symbols sorted so map order cannot leak; a lenient batch still keys failures; `to_returns` drops steps and loses positional alignment |
 | `src/attribution/brinson.cpp` | BHB allocation keeps the three terms summing to the excess; cumulative effects add while wealth compounds; sector returns average while sector weights add; an omitted benchmark zeroes selection |
+| `src/attribution/fama_french.cpp` | Singularity test reads the normal equations rather than the design; the variance shift is translation-invariant and kept for cancellation; beta is the MKT coefficient with the intercept at index zero; a negative idiosyncratic residual clamps to zero |
 
 Every edit above was verified comment-only and is covered by the re-run below.
-The remaining 248 files are deliberately not claimed as audited, so **P131 is
+The remaining 247 files are deliberately not claimed as audited, so **P131 is
 PARTIAL**, not passed.
 
 One audit ended in a registered question rather than a comment: the

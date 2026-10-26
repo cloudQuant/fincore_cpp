@@ -29,6 +29,11 @@ std::vector<std::string> double_columns(const dataframe& frame) {
     return names;
 }
 
+// Gauss-Jordan on the normal equations with partial pivoting: the pivot row is
+// scaled to one first, so the elimination below is scale-free. The singularity
+// test reads the pivot's absolute magnitude, which is a statement about X'X
+// rather than about X, so a design matrix that is merely ill-conditioned can
+// still pass while a genuinely collinear one stops here.
 std::vector<double> solve(std::vector<std::vector<double>> matrix,
                           std::vector<double> rhs) {
     const std::size_t size = rhs.size();
@@ -67,6 +72,11 @@ std::vector<double> solve(std::vector<std::vector<double>> matrix,
     return rhs;
 }
 
+// The shift cannot change the result: variance is translation-invariant, so
+// centering (value - shift) gives the same spread as centering value. Carrying
+// the subtraction anyway keeps the deviations small when the level of the series
+// is large compared with its movement, which is where forming them directly
+// would lose digits. The divisor is n, the form the decomposition below assumes.
 double population_variance(const std::vector<double>& values,
                            const double shift) {
     if (values.empty()) {
@@ -127,6 +137,9 @@ double fit_market_beta(const dataframe& returns, const dataframe& factors,
             }
         }
     }
+    // Column zero of the design is the intercept, so position one is the MKT
+    // coefficient. The dependent series is the first double column the frame
+    // reports, which is a storage order rather than an asset the caller chose.
     return solve(std::move(normal), std::move(rhs))[1U];
 }
 
@@ -176,6 +189,11 @@ idiosyncratic_risk_result calculate_idiosyncratic_risk(
             std::vector<double>(values.begin(), values.end()), risk_free);
         const double idiosyncratic_variance =
             total_variance - beta * beta * market_variance;
+        // Clamped before the root: the beta may be caller-supplied or fitted
+        // from a different series than this asset, and then beta squared times
+        // the market variance can exceed the asset's own total variance, where a
+        // negative remainder means no measurable idiosyncratic part rather than
+        // an impossible number.
         result.specific_volatility.push_back(
             idiosyncratic_variance > 0.0 ? std::sqrt(idiosyncratic_variance)
                                          : 0.0);
