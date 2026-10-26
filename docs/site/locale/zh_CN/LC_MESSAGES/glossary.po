@@ -1,0 +1,216 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 19:12+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/glossary.md:1
+msgid "Glossary"
+msgstr "术语表"
+
+#: ../../site/glossary.md:3
+msgid ""
+"Terms used across the guides and the reference. Identifiers stay literal; "
+"the definitions describe what this library means by each term."
+msgstr "指南与参考中使用的术语。标识符保持原样；定义说明本库赋予每个术语的含义。"
+
+#: ../../site/glossary.md:6
+#, python-brace-format
+msgid ""
+"{glossary} Value at risk (VaR)   A loss threshold not expected to be "
+"exceeded at a given confidence level over a   horizon. Under the "
+"`losses_negative` convention the estimate is negative."
+msgstr ""
+"Value at risk (VaR)\n"
+"  给定置信水平与期限下，预期不会被超过的损失阈值。在 `losses_negative` 约定下估计值为负数。"
+
+#: ../../site/glossary.md:11
+msgid ""
+"Expected shortfall (ES)   The average loss beyond the VaR threshold, also "
+"called conditional VaR. It is   always at least as severe as the VaR for the"
+" same confidence level."
+msgstr ""
+"Expected shortfall (ES)\n"
+"  超过 VaR 阈值那部分损失的平均值，也称条件 VaR。在同一置信水平下，它总是不轻于 VaR。"
+
+#: ../../site/glossary.md:15
+msgid ""
+"Maximum drawdown   The largest peak-to-trough decline of a wealth path. "
+"`max_drawdown` returns it   as a negative fraction; `gen_drawdown_table` "
+"reports a positive percentage of   the prior peak."
+msgstr ""
+"Maximum drawdown\n"
+"  财富路径上最大的峰谷跌幅。`max_drawdown` 以负数小数返回；`gen_drawdown_table` 报告相对前高的正百分比。"
+
+#: ../../site/glossary.md:20
+msgid ""
+"Sharpe ratio   Mean excess return divided by its sample standard deviation, "
+"scaled by   `sqrt(annualization)`. Daily annualization is 252."
+msgstr ""
+"Sharpe ratio\n"
+"  平均超额收益除以其样本标准差，再乘以 `sqrt(annualization)`。日频年化为 252。"
+
+#: ../../site/glossary.md:24
+msgid ""
+"Sortino ratio   Mean excess return divided by downside deviation, where only"
+" negative excess   values contribute and squared deviations divide by the "
+"usable count."
+msgstr ""
+"Sortino ratio\n"
+"  平均超额收益除以下行偏差：只有负的超额值参与，平方偏差除以可用观测数。"
+
+#: ../../site/glossary.md:28
+msgid ""
+"Calmar ratio   Annualized return over the absolute maximum drawdown. It is "
+"undefined — `NaN` —   when the series never declines."
+msgstr ""
+"Calmar ratio\n"
+"  年化收益除以最大回撤的绝对值。序列从不下跌时无定义 —— 返回 `NaN`。"
+
+#: ../../site/glossary.md:32
+msgid ""
+"Information coefficient (IC)   The cross-sectional rank correlation between "
+"a factor value and its forward   return on the same date."
+msgstr ""
+"Information coefficient (IC)\n"
+"  同一日期上因子值与其前瞻收益的横截面秩相关。"
+
+#: ../../site/glossary.md:36
+msgid ""
+"Quantile   A bucket label supplied by the caller, not computed by the "
+"analysis. The study   describes the buckets you declare."
+msgstr ""
+"Quantile\n"
+"  由调用方给出的分桶标签，而不是分析算出的。研究描述的是你声明的分桶。"
+
+#: ../../site/glossary.md:40
+msgid ""
+"Turnover   How much of a book changes between observations, measured per "
+"date and optional   lag. The first day of a book with no previous state is "
+"halved."
+msgstr ""
+"Turnover\n"
+"  相邻观测之间账面变化的比例，按日期与可选滞后计算。没有前一日状态的第一天按一半计算。"
+
+#: ../../site/glossary.md:44
+msgid ""
+"Capacity   How many days it would take to liquidate a position given its "
+"size, rolling mean   volume and the tightest single-asset limit."
+msgstr ""
+"Capacity\n"
+"  给定持仓规模、滚动平均成交量与最紧的单资产限制，清仓需要多少天。"
+
+#: ../../site/glossary.md:48
+msgid ""
+"Round trip   A matched open-and-close of a position, matched FIFO against a "
+"signed price. One   block may close and reopen within the same direction."
+msgstr ""
+"Round trip\n"
+"  一次匹配的开仓与平仓，按带符号价格做 FIFO 匹配。同一方向下同一块可以平仓后重新开仓。"
+
+#: ../../site/glossary.md:52
+msgid ""
+"Point-in-time (PIT)   A join that only uses data that was both effective and"
+" known on the evaluation   date, so a revision cannot leak backwards into "
+"history."
+msgstr ""
+"Point-in-time (PIT)\n"
+"  只使用在评估日期既已生效又已可知的数据进行连接，因此修订不会倒灌进历史。"
+
+#: ../../site/glossary.md:56
+msgid ""
+"Brinson attribution   A decomposition of excess return into allocation, "
+"selection and interaction   terms. The BHB and Fachler variants place the "
+"interaction differently."
+msgstr ""
+"Brinson attribution\n"
+"  把超额收益分解为配置、选择与交互三项。BHB 与 Fachler 变体对交互项的处理不同。"
+
+#: ../../site/glossary.md:60
+msgid ""
+"Alpha and beta   The intercept and slope of a regression of excess returns "
+"on benchmark excess   returns, paired on shared timestamps."
+msgstr ""
+"Alpha and beta\n"
+"  用超额收益对基准超额收益回归得到的截距与斜率，按共有时间戳配对。"
+
+#: ../../site/glossary.md:64
+msgid ""
+"GARCH family   Conditional-variance models: GARCH(1,1), EGARCH(1,1) and GJR-"
+"GARCH(1,1) with an   asymmetric shock term. EGARCH recurses on the log "
+"variance."
+msgstr ""
+"GARCH family\n"
+"  条件方差模型：GARCH(1,1)、EGARCH(1,1) 以及带非对称冲击项的 GJR-GARCH(1,1)。EGARCH 在对数方差上递推。"
+
+#: ../../site/glossary.md:68
+msgid ""
+"Extreme value theory (EVT)   Tail modelling with a generalised Pareto "
+"distribution over threshold exceedances   (GPD) or a generalised extreme-"
+"value distribution over block maxima (GEV)."
+msgstr ""
+"Extreme value theory (EVT)\n"
+"  尾部建模：对超阈值部分使用广义帕累托分布（GPD），或对分块最大值使用广义极值分布（GEV）。"
+
+#: ../../site/glossary.md:72
+msgid ""
+"Efficient frontier   The set of portfolios with the lowest volatility for "
+"each level of expected   return, plus the minimum-variance and maximum-"
+"Sharpe points."
+msgstr ""
+"Efficient frontier\n"
+"  在每个预期收益水平上波动率最低的投资组合集合，外加最小方差与最大夏普两个点。"
+
+#: ../../site/glossary.md:76
+msgid ""
+"Risk parity   Weights whose risk-contribution shares match an equal or user-"
+"supplied budget,   solved with weights bounded to `[1e-6, 1]` and a fixed "
+"252-period year."
+msgstr ""
+"Risk parity\n"
+"  风险贡献份额匹配等权或用户给定预算的权重；求解时权重限制在 `[1e-6, 1]`，固定 252 期年。"
+
+#: ../../site/glossary.md:80
+msgid ""
+"Digest and fingerprint   A SHA-256 over a canonical serialization. A digest "
+"over inputs answers \"same   inputs?\"; the factor fingerprint hashes "
+"inputs, a report digest covers the   document."
+msgstr ""
+"Digest and fingerprint\n"
+"  对规范序列化结果的 SHA-256。覆盖输入的摘要回答“输入是否相同”；因子 fingerprint 哈希输入，报表摘要覆盖文档。"
+
+#: ../../site/glossary.md:85
+msgid ""
+"Artifact bundle   The named outputs a renderer returns: metadata with "
+"`backend` and   `report_digest`, plus artifacts such as `figure`, `file` or"
+"   `axis:<section>.<series>`."
+msgstr ""
+"Artifact bundle\n"
+"  渲染器返回的具名输出：包含 `backend` 与 `report_digest` 的元数据，以及 "
+"`figure`、`file`、`axis:<section>.<series>` 之类的 artifact。"
+
+#: ../../site/glossary.md:90
+msgid ""
+"Inconclusive   A backtest verdict meaning the sample is too small to decide:"
+" fewer than three   paired observations or fewer than five expected "
+"exceptions."
+msgstr ""
+"Inconclusive\n"
+"  回测结论之一，表示样本太小无法判定：配对观测少于三个，或期望例外少于五个。"
+

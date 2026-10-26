@@ -1,0 +1,326 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 19:12+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/architecture.md:1
+msgid "Architecture and design choices"
+msgstr "架构与设计取舍"
+
+#: ../../site/architecture.md:3
+msgid ""
+"This page explains how the library is put together and why the public "
+"surface looks the way it does. It is the \"why\" companion to the reference,"
+" which is the \"what\"."
+msgstr "本页说明库是如何组织的，以及公共接口为什么是现在这个样子。它是参考的“为什么”伴侣，参考回答的是“是什么”。"
+
+#: ../../site/architecture.md:7
+msgid "Layers"
+msgstr "分层"
+
+#: ../../site/architecture.md:9
+msgid ""
+"data            dataframe, calendar, UTC timestamps, frequency helpers\n"
+"metrics         returns, ratios, drawdowns, rolling windows, statistics\n"
+"domain          risk, portfolio, factor, attribution, optimization\n"
+"presentation    report documents, HTML/XLSX/PDF/Plotly/Bokeh/axes renderers\n"
+"runtime         operation catalog, sessions, serialization, extensions\n"
+msgstr ""
+"data            dataframe, calendar, UTC timestamps, frequency helpers\n"
+"metrics         returns, ratios, drawdowns, rolling windows, statistics\n"
+"domain          risk, portfolio, factor, attribution, optimization\n"
+"presentation    report documents, HTML/XLSX/PDF/Plotly/Bokeh/axes renderers\n"
+"runtime         operation catalog, sessions, serialization, extensions\n"
+
+#: ../../site/architecture.md:17
+msgid ""
+"Each layer may use the ones above it and never below it: a metric does not "
+"know about report documents, and a renderer never recomputes a statistic. "
+"That is why the report model carries values rather than frames — rendering "
+"cannot change a number, only present it."
+msgstr ""
+"每一层可以使用它上面的层，绝不使用下面的层：指标不知道报表文档的存在，渲染器也从不重算统计量。这就是报表模型携带数值而不是帧的原因 —— "
+"渲染不能改变数字，只能呈现它。"
+
+#: ../../site/architecture.md:22
+msgid "Ownership"
+msgstr "所有权"
+
+#: ../../site/architecture.md:24
+msgid ""
+"One rule explains most of the API shape: **inputs are copied at the "
+"boundary, and results own their data**."
+msgstr "一条规则解释了大部分 API 形状：**输入在边界处复制，结果拥有自己的数据**。"
+
+#: ../../site/architecture.md:27
+msgid ""
+"`portfolio_inputs`, `analysis_context` and `rolling_engine` take their "
+"frames by value and store their own copy, so a caller can mutate a source "
+"frame without changing a result already produced."
+msgstr ""
+"`portfolio_inputs`、`analysis_context` 与 `rolling_engine` "
+"以按值方式接收帧并保存自己的副本，因此调用方修改源帧不会改变已经产出的结果。"
+
+#: ../../site/architecture.md:30
+msgid ""
+"Functions that return a `dataframe` return a new frame. Accessors that "
+"return a span or `std::string_view` are views and are valid only while their"
+" owner is alive."
+msgstr "返回 `dataframe` 的函数返回新帧。返回 span 或 `std::string_view` 的访问器是视图，只在其所有者存活期间有效。"
+
+#: ../../site/architecture.md:33
+msgid ""
+"`materialize()` returns fresh frames on every call, which is why mutating "
+"its result cannot corrupt the next call."
+msgstr "`materialize()` 每次调用都返回新帧，这正是修改其结果不会破坏下一次调用的原因。"
+
+#: ../../site/architecture.md:36
+msgid ""
+"The trade-off is allocation against predictability. For the daily and "
+"monthly panel sizes this library targets, predictable ownership was judged "
+"worth the copy; the benchmark harness exists to keep that judgment honest at"
+" larger scales."
+msgstr "这里的取舍是分配与可预测性。对本库面向的日频与月频面板规模，可预测的所有权值得这份复制；基准框架的存在就是为了在更大规模上让这个判断保持诚实。"
+
+#: ../../site/architecture.md:40
+msgid "Determinism"
+msgstr "确定性"
+
+#: ../../site/architecture.md:42
+msgid "Anything that could be compared, stored or replayed is reduced to a digest:"
+msgstr "任何可能被比较、存储或重放的东西都被归约为摘要："
+
+#: ../../site/architecture.md:44
+msgid ""
+"Runtime serialization length-prefixes each field and tags its type, so two "
+"different payloads cannot collide through separators or a `bool`/`1` "
+"ambiguity."
+msgstr "运行时序列化给每个字段加长度前缀并标注类型，因此两份不同载荷不会因为分隔符或 `bool`/`1` 的歧义而碰撞。"
+
+#: ../../site/architecture.md:47
+msgid ""
+"The factor fingerprint hashes **inputs**; report digests cover the "
+"**document**, so two backends rendering one document agree by construction."
+msgstr "因子 fingerprint 哈希的是**输入**；报表摘要覆盖**文档**，因此渲染同一文档的两个后端在构造上一致。"
+
+#: ../../site/architecture.md:49
+msgid ""
+"Floating-point values are serialized as IEEE-754 bit patterns where the "
+"bytes matter, which preserves `NaN` payloads and signed zeros."
+msgstr "字节重要的场合，浮点值按 IEEE-754 位模式序列化，从而保留 `NaN` 载荷与带符号零。"
+
+#: ../../site/architecture.md:52
+msgid ""
+"Randomised methods take an explicit seed. A seed reproduces a stream inside "
+"this library; only functions that document a reference mapping promise "
+"NumPy-identical numbers."
+msgstr "随机方法接受显式种子。种子只在本库内复现一条流；只有文档写明参考映射的函数才承诺与 NumPy 相同的数值。"
+
+#: ../../site/architecture.md:56
+msgid "Errors and degenerate results"
+msgstr "错误与退化结果"
+
+#: ../../site/architecture.md:58
+msgid ""
+"The library distinguishes three outcomes, and the distinction is part of the"
+" contract rather than an implementation detail:"
+msgstr "库区分三种结果，而这种区分是契约的一部分，不是实现细节："
+
+#: ../../site/architecture.md
+msgid "Outcome"
+msgstr "结果"
+
+#: ../../site/architecture.md
+msgid "Meaning"
+msgstr "含义"
+
+#: ../../site/architecture.md
+msgid "Example"
+msgstr "例子"
+
+#: ../../site/architecture.md
+msgid "Exception (`input_error`, `factor_data_error`)"
+msgstr "异常（`input_error`、`factor_data_error`）"
+
+#: ../../site/architecture.md
+msgid "The request is structurally wrong"
+msgstr "请求在结构上是错的"
+
+#: ../../site/architecture.md
+msgid "Missing column, duplicated index, embedded NUL"
+msgstr "列缺失、索引重复、内嵌 NUL"
+
+#: ../../site/architecture.md
+msgid "`NaN`"
+msgstr "`NaN`"
+
+#: ../../site/architecture.md
+msgid "The request is well formed but the statistic is undefined"
+msgstr "请求本身合法，但统计量无定义"
+
+#: ../../site/architecture.md
+msgid "Too few observations, zero deviation, no drawdown"
+msgstr "观测太少、零偏差、无回撤"
+
+#: ../../site/architecture.md
+msgid "Status field"
+msgstr "状态字段"
+
+#: ../../site/architecture.md
+msgid "A fit or validation ran and reports its own verdict"
+msgstr "拟合或校验确实运行并给出自己的结论"
+
+#: ../../site/architecture.md
+msgid "`risk_estimate_status`, `walk_forward_status`, `risk_backtest_status`"
+msgstr "`risk_estimate_status`、`walk_forward_status`、`risk_backtest_status`"
+
+#: ../../site/architecture.md:67
+msgid ""
+"A status field exists precisely so callers do not have to infer failure from"
+" a plausible-looking number."
+msgstr "状态字段存在的意义，正是让调用方不必从一个看起来合理的数字里推断失败。"
+
+#: ../../site/architecture.md:70
+msgid "Concurrency"
+msgstr "并发"
+
+#: ../../site/architecture.md:72
+msgid ""
+"Free functions are stateless: the same arguments produce the same result, "
+"and two threads may call them concurrently on separate frames. Stateful "
+"objects are explicit:"
+msgstr "自由函数是无状态的：相同参数产生相同结果，两个线程可以在各自帧上并发调用。有状态对象是显式的："
+
+#: ../../site/architecture.md:76
+msgid ""
+"`analysis_context` caches results, so one instance is single-threaded by "
+"construction."
+msgstr "`analysis_context` 会缓存结果，因此单个实例在构造上就是单线程的。"
+
+#: ../../site/architecture.md:78
+msgid ""
+"`analysis_session` owns its inputs and outputs and refuses calls after "
+"`close()`."
+msgstr "`analysis_session` 拥有自己的输入与输出，并在 `close()` 之后拒绝调用。"
+
+#: ../../site/architecture.md:80
+msgid "`rolling_engine` owns copies and is safe to use from one thread at a time."
+msgstr "`rolling_engine` 拥有副本，一次只宜在一个线程中使用。"
+
+#: ../../site/architecture.md:82
+msgid ""
+"No hidden thread pools, no global caches, and no background work: a call "
+"does what it says before it returns."
+msgstr "没有隐藏的线程池、没有全局缓存、没有后台工作：一次调用在返回之前就完成了它承诺的事。"
+
+#: ../../site/architecture.md:85
+msgid "Extension points"
+msgstr "扩展点"
+
+#: ../../site/architecture.md
+msgid "Point"
+msgstr "扩展点"
+
+#: ../../site/architecture.md
+msgid "Contract"
+msgstr "契约"
+
+#: ../../site/architecture.md
+msgid "Data providers"
+msgstr "数据提供者"
+
+#: ../../site/architecture.md
+msgid "A callable that returns a frame; validation and digesting stay in the library"
+msgstr "返回帧的可调用对象；校验与摘要仍留在库内"
+
+#: ../../site/architecture.md
+msgid "Report backends"
+msgstr "报表后端"
+
+#: ../../site/architecture.md
+msgid "A renderer consumes `report_document` and returns an owning artifact bundle"
+msgstr "渲染器消费 `report_document` 并返回拥有的 artifact bundle"
+
+#: ../../site/architecture.md
+msgid "Extensions"
+msgstr "扩展"
+
+#: ../../site/architecture.md
+msgid ""
+"Native snapshot/hook ABI: hooks carry an event and a priority, ties break by"
+" fingerprint"
+msgstr "原生快照/hook ABI：hook 携带事件与优先级，并列时按 fingerprint 决定"
+
+#: ../../site/architecture.md
+msgid "Operations"
+msgstr "操作"
+
+#: ../../site/architecture.md
+msgid ""
+"Descriptors list inputs and outputs; execution returns a typed "
+"`runtime_value`"
+msgstr "描述符列出输入与输出；执行返回带类型的 `runtime_value`"
+
+#: ../../site/architecture.md:94
+msgid ""
+"Optional surfaces stay optional: the ImPlot adapter and its GUI dependencies"
+" are never on the core `fincore::fincore` path."
+msgstr "可选接口保持可选：ImPlot 适配器及其 GUI 依赖永远不会出现在核心 `fincore::fincore` 路径上。"
+
+#: ../../site/architecture.md:97
+msgid "What is deliberately not here"
+msgstr "刻意不提供的东西"
+
+#: ../../site/architecture.md:99
+msgid ""
+"**No Python object compatibility.** `fincore::dataframe` is its own type; "
+"the parity work is about numbers, not object identity."
+msgstr "**不承诺 Python 对象兼容。** `fincore::dataframe` 是自己的类型；parity 工作关注数值，而不是对象身份。"
+
+#: ../../site/architecture.md:101
+msgid ""
+"**No implicit data access.** Nothing downloads a price series or reads a "
+"file behind your back; I/O is the caller's decision."
+msgstr "**没有隐式数据访问。** 不会在你不知情时下载价格序列或读文件；I/O 是调用方的决定。"
+
+#: ../../site/architecture.md:103
+msgid ""
+"**No unit conversion.** Returns are decimal fractions, annualization is an "
+"argument, and weights carry their call-site meaning."
+msgstr "**不做单位换算。** 收益是小数分数，年化是参数，权重沿用调用处的含义。"
+
+#: ../../site/architecture.md:105
+msgid ""
+"**No silent repair.** A duplicated index is rejected, not deduplicated; a "
+"missing observation is `NaN`, not zero."
+msgstr "**不做静默修复。** 重复索引会被拒绝而不是去重；缺失观测是 `NaN`，不是 0。"
+
+#: ../../site/architecture.md:108
+msgid "How the documentation mirrors this"
+msgstr "文档如何映射这一点"
+
+#: ../../site/architecture.md:110
+msgid ""
+"The site follows the same split: the tutorial and cookbook show usage, the "
+"guides explain behaviour, the reference is generated from the headers, and "
+"this page explains the structure. Publication state lives in the repository "
+"and is never asserted on the home page."
+msgstr "站点遵循同样的划分：教程与配方集展示用法，指南解释行为，参考由头文件生成，本页解释结构。发布状态存放在仓库中，从不在首页上断言。"
+

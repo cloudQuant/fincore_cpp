@@ -57,6 +57,7 @@ installation
 quickstart
 tutorial
 conventions
+architecture
 ```
 
 ```{toctree}
@@ -82,6 +83,7 @@ troubleshooting
 contributing
 publication
 releases
+glossary
 maintainer/README
 ```
 
