@@ -80,7 +80,7 @@ src/risk/evt.cpp	cpp	7	reviewed_this_round	threshold one representable step belo
 src/risk/garch.cpp	cpp	7	reviewed_this_round	parameters reparameterized before unconstrained search
 src/risk/garch_internal.hpp	hpp	1	sparse_not_audited	
 src/risk/models.cpp	cpp	3	reviewed_this_round	digest pairs timestamp+value; inclusive ES tail with threshold fallback
-src/risk/report.cpp	cpp	1	sparse_not_audited	
+src/risk/report.cpp	cpp	1	reviewed_this_round	comparison is relative with an absolute floor so an expected zero still works; counts, status and digests are identity-compared while only derived statistics get tolerance
 src/risk/specs.cpp	cpp	0	reviewed_this_round	audited: the validation rules are the whole contract, no hidden invariant to add
 src/risk/walk_forward.cpp	cpp	5	reviewed_this_round	Newton-refined inverse normal; type-6 quantile; NUL-terminated digest fields
 src/rolling_engine.cpp	cpp	2	reviewed_this_round	beta moments share one 1/count divisor so the ratio is scale-free; flat or NaN benchmark guarded by a negated comparison

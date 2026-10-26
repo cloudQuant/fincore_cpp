@@ -39,6 +39,9 @@ bool is_sha256_hex(const std::string_view value) {
     return true;
 }
 
+// Relative with an absolute floor: a scale term alone cannot judge a difference
+// against an expected zero, and a fixed absolute alone would pass two very large
+// statistics that disagree by more than any real tolerance allows.
 bool close_enough(const double actual, const double expected) {
     if (!std::isfinite(actual) || !std::isfinite(expected)) {
         return false;
@@ -61,6 +64,10 @@ std::string_view backtest_method_name(const risk_backtest_method method) {
     return "var";
 }
 
+// Counts, status, method and digest are identity-compared while only the derived
+// statistics get the tolerance: two runs that disagree about how many exceptions
+// occurred are not approximately the same result, and a differing digest means a
+// different input regardless of how close the numbers look.
 bool backtest_matches(const risk_backtest_result& actual,
                       const risk_backtest_result& expected) {
     return actual.method == expected.method &&
