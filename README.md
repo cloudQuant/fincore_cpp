@@ -81,6 +81,9 @@ of every page and your choice remembered between visits.
 
 - Online: <https://cloudquant.github.io/fincore_cpp/en/latest/> ·
   <https://cloudquant.github.io/fincore_cpp/zh-cn/latest/>
+- New to the library: the [tutorial](docs/site/tutorial.md) goes from prices to a
+  rendered report in six steps; the [cookbook](docs/site/guides/cookbook.md)
+  answers single tasks.
 - Start here: installation, quickstart, conventions
 - Guides: metrics, portfolio and risk, factor research, reports and runtime
 - Reference: one page per public module, generated from the headers

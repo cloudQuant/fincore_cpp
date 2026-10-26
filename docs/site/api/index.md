@@ -32,6 +32,23 @@ viz
 extensions
 ```
 
+## How to read a reference page
+
+Every module page is generated from the public header, so the order you read is
+the order a maintainer writes:
+
+1. **Signature.** Types, defaults and template parameters are literal; a default
+   is part of the contract, not a convenience.
+2. **Contract prose.** What the function returns, in what units, and what it does
+   with missing or non-finite values.
+3. **Parameters, returns and throws.** The failure modes are enumerated; each one
+   is implemented, not aspirational.
+4. **Ownership.** Whether a returned frame or view owns its data, and how long a
+   view stays valid.
+
+Identifiers, commands, paths and formulas are not translated: the Chinese pages
+carry the same declarations with Chinese explanatory prose.
+
 ## Conventions used by every module
 
 - Timestamps are UTC nanoseconds; calendar helpers return UTC midnights.

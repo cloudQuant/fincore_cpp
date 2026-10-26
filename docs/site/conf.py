@@ -115,6 +115,13 @@ html_baseurl = (os.environ.get("FINCORE_DOCS_BASEURL") or
                 os.environ.get("READTHEDOCS_CANONICAL_URL") or
                 "https://docs.example.invalid/fincore_cpp/")
 html_context = {
+    # The Read the Docs theme reads these from the context, not from
+    # html_theme_options; they produce the "Edit on GitHub" link.
+    "display_github": True,
+    "github_user": "cloudQuant",
+    "github_repo": "fincore_cpp",
+    "github_version": "master",
+    "conf_py_path": "/docs/site/",
     "fc_meta_description": (
         "fincore_cpp 文档：用于投资组合、因子、业绩与风险分析的原生 C++23 库。"
         if language == "zh_CN" else

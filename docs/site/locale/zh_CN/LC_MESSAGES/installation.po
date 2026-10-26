@@ -8,15 +8,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fincore_cpp 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-25 22:15+0800\n"
+"POT-Creation-Date: 2026-10-26 18:54+0800\n"
 "PO-Revision-Date: 2026-10-25 22:20+0800\n"
 "Last-Translator: fincore_cpp documentation maintainers\n"
-"Language-Team: zh_CN <LL@li.org>\n"
 "Language: zh_CN\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
+"Language-Team: zh_CN <LL@li.org>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
 #: ../../site/installation.md:1
@@ -27,31 +27,78 @@ msgstr "安装"
 msgid "Requirements"
 msgstr "环境要求"
 
-#: ../../site/installation.md:5
-msgid "CMake 3.25 or newer."
-msgstr "CMake 3.25 或更高版本。"
+#: ../../site/installation.md
+msgid "Requirement"
+msgstr "要求"
 
-#: ../../site/installation.md:6
-msgid "A C++23 compiler: MSVC 19.4+, Clang 17+, or GCC 13+."
-msgstr "支持 C++23 的编译器：MSVC 19.4+、Clang 17+ 或 GCC 13+。"
+#: ../../site/installation.md
+msgid "Minimum"
+msgstr "最低版本"
 
-#: ../../site/installation.md:7
-msgid "Git submodules for the pinned DataFrame, ImGui and ImPlot sources."
-msgstr "用于固定版本 DataFrame、ImGui 和 ImPlot 源码的 Git 子模块。"
+#: ../../site/installation.md
+msgid "Notes"
+msgstr "说明"
 
-#: ../../site/installation.md:9
-msgid ""
-"The core library does not require Python, Doxygen or Sphinx at build time. "
-"Those tools are only needed to build this documentation."
-msgstr ""
-"核心库在构建时不需要 Python、Doxygen 或 Sphinx。只有在构建本文档时才需要这些"
-"工具。"
+#: ../../site/installation.md
+msgid "CMake"
+msgstr "CMake"
+
+#: ../../site/installation.md
+msgid "3.25"
+msgstr "3.25"
+
+#: ../../site/installation.md
+msgid "Modern target and install rules"
+msgstr "现代 target 与安装规则"
+
+#: ../../site/installation.md
+msgid "Compiler"
+msgstr "编译器"
+
+#: ../../site/installation.md
+msgid "MSVC 19.4, Clang 17, GCC 13"
+msgstr "MSVC 19.4、Clang 17、GCC 13"
+
+#: ../../site/installation.md
+msgid "C++23 is a hard requirement"
+msgstr "C++23 是硬性要求"
+
+#: ../../site/installation.md
+msgid "Git submodules"
+msgstr "Git 子模块"
+
+#: ../../site/installation.md
+msgid "pinned revisions"
+msgstr "固定修订"
+
+#: ../../site/installation.md
+msgid "DataFrame, ImGui and ImPlot sources"
+msgstr "DataFrame、ImGui 与 ImPlot 源码"
+
+#: ../../site/installation.md
+msgid "Python"
+msgstr "Python"
+
+#: ../../site/installation.md
+msgid "none"
+msgstr "不需要"
+
+#: ../../site/installation.md
+msgid "Only tooling, benchmarks and documentation use it"
+msgstr "只有工具、基准与文档使用它"
 
 #: ../../site/installation.md:12
+msgid ""
+"The core library needs no Python, Doxygen or Sphinx at build time. Those "
+"tools are only needed to build this documentation site or run the benchmark "
+"harness."
+msgstr "核心库在构建时不需要 Python、Doxygen 或 Sphinx。这些工具只在构建本站点或运行基准测试时才需要。"
+
+#: ../../site/installation.md:15
 msgid "Build from a checkout"
 msgstr "从检出的源码构建"
 
-#: ../../site/installation.md:14
+#: ../../site/installation.md:17
 msgid ""
 "git clone https://github.com/cloudQuant/fincore_cpp.git\n"
 "cd fincore_cpp\n"
@@ -67,67 +114,285 @@ msgstr ""
 "cmake --build build --parallel\n"
 "ctest --test-dir build --output-on-failure\n"
 
-#: ../../site/installation.md:23
+#: ../../site/installation.md:26
 msgid ""
-"On Windows, use a Visual Studio developer environment and a CMake generator "
-"supported by the installed MSVC toolchain. The pinned submodule sources are "
-"used by default; a consumer-provided DataFrame can be selected with "
-"`FINCORE_DATAFRAME_SOURCE_DIR` or `find_package(DataFrame CONFIG)`."
-msgstr ""
-"在 Windows 上，请使用 Visual Studio 开发人员环境以及已安装的 MSVC 工具链所支"
-"持的 CMake 生成器。默认使用固定版本的子模块源码；可以通过 "
-"`FINCORE_DATAFRAME_SOURCE_DIR` 或 `find_package(DataFrame CONFIG)` 选择使用方"
-"提供的 DataFrame。"
-
-#: ../../site/installation.md:28
-msgid "Install and consume"
-msgstr "安装与使用"
+"The suite is 1092 cases and takes under a minute on a desktop machine. If "
+"the configure step reports a missing `CMakeLists.txt`, the submodules were "
+"not initialised."
+msgstr "测试套件共 1092 个用例，在桌面机器上不到一分钟。如果 configure 报告缺少 `CMakeLists.txt`，说明子模块没有初始化。"
 
 #: ../../site/installation.md:30
-msgid "cmake --install build --prefix /path/to/prefix\n"
-msgstr "cmake --install build --prefix /path/to/prefix\n"
+msgid "Build options"
+msgstr "构建选项"
 
-#: ../../site/installation.md:34
-msgid "A downstream CMake project can then use:"
-msgstr "下游 CMake 项目随后可以使用："
+#: ../../site/installation.md
+msgid "Option"
+msgstr "选项"
 
-#: ../../site/installation.md:36
-msgid ""
-"find_package(fincore CONFIG REQUIRED COMPONENTS fincore)\n"
-"target_link_libraries(my_target PRIVATE fincore::fincore)\n"
-msgstr ""
-"find_package(fincore CONFIG REQUIRED COMPONENTS fincore)\n"
-"target_link_libraries(my_target PRIVATE fincore::fincore)\n"
+#: ../../site/installation.md
+msgid "Default"
+msgstr "默认值"
+
+#: ../../site/installation.md
+msgid "Effect"
+msgstr "作用"
+
+#: ../../site/installation.md
+msgid "`FINCORE_BUILD_TESTING`"
+msgstr "`FINCORE_BUILD_TESTING`"
+
+#: ../../site/installation.md
+msgid "`ON`"
+msgstr "`ON`"
+
+#: ../../site/installation.md
+msgid "Builds the test targets; turn off for a consumer build"
+msgstr "构建测试目标；消费者构建可关闭"
+
+#: ../../site/installation.md
+msgid "`FINCORE_ENABLE_ASAN`"
+msgstr "`FINCORE_ENABLE_ASAN`"
+
+#: ../../site/installation.md
+msgid "`OFF`"
+msgstr "`OFF`"
+
+#: ../../site/installation.md
+msgid "AddressSanitizer on fincore targets"
+msgstr "对 fincore 目标启用 AddressSanitizer"
+
+#: ../../site/installation.md
+msgid "`FINCORE_ENABLE_UBSAN`"
+msgstr "`FINCORE_ENABLE_UBSAN`"
+
+#: ../../site/installation.md
+msgid "UndefinedBehaviorSanitizer on fincore targets"
+msgstr "对 fincore 目标启用 UndefinedBehaviorSanitizer"
+
+#: ../../site/installation.md
+msgid "`FINCORE_BUILD_IMPLOT`"
+msgstr "`FINCORE_BUILD_IMPLOT`"
+
+#: ../../site/installation.md
+msgid "Builds the ImPlot adapter; needs GUI dependencies"
+msgstr "构建 ImPlot 适配器；需要图形依赖"
+
+#: ../../site/installation.md
+msgid "`FINCORE_BUILD_IMPLOT_DEMO`"
+msgstr "`FINCORE_BUILD_IMPLOT_DEMO`"
+
+#: ../../site/installation.md
+msgid "Builds the demo; requires `FINCORE_BUILD_IMPLOT=ON`"
+msgstr "构建示例；需要 `FINCORE_BUILD_IMPLOT=ON`"
+
+#: ../../site/installation.md
+msgid "`FINCORE_DATAFRAME_SOURCE_DIR`"
+msgstr "`FINCORE_DATAFRAME_SOURCE_DIR`"
+
+#: ../../site/installation.md
+msgid "empty"
+msgstr "空"
+
+#: ../../site/installation.md
+msgid "Uses a caller-provided DataFrame checkout instead of the submodule"
+msgstr "使用调用方提供的 DataFrame 检出而不是子模块"
 
 #: ../../site/installation.md:41
 msgid ""
-"The optional ImPlot component is available only when the library was built "
-"with `FINCORE_BUILD_IMPLOT=ON` and its GUI dependencies are installed."
+"A sanitizer build is a separate configuration; do not mix it into a release "
+"tree:"
+msgstr "消毒器构建是另一种配置；不要把它混进 release 树："
+
+#: ../../site/installation.md:43
+msgid ""
+"cmake -S . -B build-asan -DCMAKE_BUILD_TYPE=RelWithDebInfo "
+"-DFINCORE_ENABLE_ASAN=ON\n"
+"cmake --build build-asan --parallel\n"
+"ctest --test-dir build-asan --output-on-failure\n"
 msgstr ""
-"可选的 ImPlot 组件仅在库以 `FINCORE_BUILD_IMPLOT=ON` 构建且其 GUI 依赖已安装"
-"时可用。"
+"cmake -S . -B build-asan -DCMAKE_BUILD_TYPE=RelWithDebInfo "
+"-DFINCORE_ENABLE_ASAN=ON\n"
+"cmake --build build-asan --parallel\n"
+"ctest --test-dir build-asan --output-on-failure\n"
 
-#: ../../site/installation.md:44
-msgid "Optional documentation build"
-msgstr "可选的文档构建"
+#: ../../site/installation.md:49
+msgid "Install and consume"
+msgstr "安装与使用"
 
-#: ../../site/installation.md:46
+#: ../../site/installation.md:51
+msgid "cmake --install build --prefix /path/to/prefix\n"
+msgstr "cmake --install build --prefix /path/to/prefix\n"
+
+#: ../../site/installation.md:55
+msgid ""
+"That writes the headers under `<prefix>/include/fincore`, the library under "
+"`<prefix>/lib` (or `bin` on Windows) and the CMake package under "
+"`<prefix>/lib/cmake/fincore`, with `fincoreConfig.cmake`, "
+"`fincoreConfigVersion.cmake` (same-major compatibility) and the exported "
+"targets."
+msgstr ""
+"它把头文件写到 `<prefix>/include/fincore`、库写到 `<prefix>/lib`（Windows 上是 `bin`），并把 "
+"CMake 包写到 `<prefix>/lib/cmake/fincore`，其中包含 "
+"`fincoreConfig.cmake`、`fincoreConfigVersion.cmake`（同主版本兼容）与导出的 target。"
+
+#: ../../site/installation.md:60
+msgid ""
+"find_package(fincore CONFIG REQUIRED COMPONENTS fincore)\n"
+"target_link_libraries(my_target PRIVATE fincore::fincore)\n"
+msgstr ""
+"find_package(fincore CONFIG REQUIRED COMPONENTS fincore)\n"
+"target_link_libraries(my_target PRIVATE fincore::fincore)\n"
+
+#: ../../site/installation.md:65
+msgid ""
+"The installed package calls `find_dependency(DataFrame CONFIG REQUIRED)`, so"
+" the consumer environment must also be able to find the DataFrame package "
+"that the library was built against. Point `CMAKE_PREFIX_PATH` at both "
+"prefixes if they are not installed side by side."
+msgstr ""
+"安装后的包会调用 `find_dependency(DataFrame CONFIG REQUIRED)`，因此消费者环境也必须能找到构建该库时使用的 "
+"DataFrame 包。如果两者没有并排安装，请把两个前缀都加入 `CMAKE_PREFIX_PATH`。"
+
+#: ../../site/installation.md:70
+msgid ""
+"The optional ImPlot component is exported separately and only exists when "
+"the library was built with `FINCORE_BUILD_IMPLOT=ON`:"
+msgstr "可选的 ImPlot 组件单独导出，只有用 `FINCORE_BUILD_IMPLOT=ON` 构建时才存在："
+
+#: ../../site/installation.md:73
+msgid "find_package(fincore CONFIG REQUIRED COMPONENTS fincore implot)\n"
+msgstr "find_package(fincore CONFIG REQUIRED COMPONENTS fincore implot)\n"
+
+#: ../../site/installation.md:77
+msgid "Verify the install"
+msgstr "验证安装"
+
+#: ../../site/installation.md:79
+#, python-brace-format, python-format
+msgid ""
+"#include <fincore/metrics/basic.hpp>\n"
+"#include <cstdio>\n"
+"\n"
+"int main() {\n"
+"    std::printf(\"%.0f\\n\",\n"
+"                fincore::annualization_factor(fincore::frequency::daily));\n"
+"    return 0;\n"
+"}\n"
+msgstr ""
+"#include <fincore/metrics/basic.hpp>\n"
+"#include <cstdio>\n"
+"\n"
+"int main() {\n"
+"    std::printf(\"%.0f\\n\",\n"
+"                fincore::annualization_factor(fincore::frequency::daily));\n"
+"    return 0;\n"
+"}\n"
+
+#: ../../site/installation.md:90
+msgid ""
+"Compile and run it against the installed prefix. If it links, the headers, "
+"the library and the exported target line up; if it fails at configure time, "
+"the `fincore_DIR` or the DataFrame dependency is the thing to inspect."
+msgstr ""
+"针对安装前缀编译并运行它。如果能链接，说明头文件、库与导出 target 对齐；如果 configure 失败，要检查的是 `fincore_DIR` "
+"或 DataFrame 依赖。"
+
+#: ../../site/installation.md:94
+msgid "Platform notes"
+msgstr "平台说明"
+
+#: ../../site/installation.md:96
+msgid ""
+"**Windows.** Run CMake from a Visual Studio developer shell so `cl.exe` is "
+"on `PATH`. Multi-config generators place binaries under `Release/`; pass "
+"`--config Release` to `cmake --build` and `ctest -C Release`."
+msgstr ""
+"**Windows。** 从 Visual Studio 开发者命令行运行 CMake，使 `cl.exe` 在 `PATH` "
+"上。多配置生成器会把二进制放在 `Release/` 下；给 `cmake --build` 传 `--config Release`，给 "
+"`ctest` 传 `-C Release`。"
+
+#: ../../site/installation.md:99
+msgid ""
+"**macOS and Linux.** The pinned submodules build with the system compiler; "
+"no extra packages are required for the core library."
+msgstr "**macOS 与 Linux。** 固定子模块用系统编译器构建；核心库不需要额外软件包。"
+
+#: ../../site/installation.md:101
+msgid ""
+"**CI.** Windows and macOS are exercised on every push; the GCC 13 `ubuntu-"
+"latest` job has a known constexpr-limit failure recorded in the iteration "
+"notes."
+msgstr ""
+"**CI。** 每次推送都会覆盖 Windows 与 macOS；GCC 13 的 `ubuntu-latest` 任务存在已知的 constexpr "
+"限制失败，记录在迭代说明中。"
+
+#: ../../site/installation.md:105
+msgid "Documentation build"
+msgstr "文档构建"
+
+#: ../../site/installation.md:107
+msgid "The site is one Sphinx project built twice, once per language:"
+msgstr "站点是一个 Sphinx 项目，按语言构建两次："
+
+#: ../../site/installation.md:109
 msgid ""
 "python -m venv .venv-docs\n"
 ".venv-docs/bin/pip install -r docs/requirements-docs.txt\n"
 "cd docs/site\n"
 "doxygen Doxyfile\n"
+"python tools/normalize_doxygen_xml.py ../_build/doxygen/xml\n"
 "sphinx-build -b html -W -n --keep-going . ../_build/html/en\n"
+"FINCORE_DOCS_LANGUAGE=zh_CN sphinx-build -b html -W -n --keep-going . "
+"../_build/html/zh_CN\n"
+"cd ../..\n"
+"python docs/site/tools/check_built_site.py\n"
 msgstr ""
 "python -m venv .venv-docs\n"
 ".venv-docs/bin/pip install -r docs/requirements-docs.txt\n"
 "cd docs/site\n"
 "doxygen Doxyfile\n"
+"python tools/normalize_doxygen_xml.py ../_build/doxygen/xml\n"
 "sphinx-build -b html -W -n --keep-going . ../_build/html/en\n"
+"FINCORE_DOCS_LANGUAGE=zh_CN sphinx-build -b html -W -n --keep-going . "
+"../_build/html/zh_CN\n"
+"cd ../..\n"
+"python docs/site/tools/check_built_site.py\n"
 
-#: ../../site/installation.md:54
+#: ../../site/installation.md:121
 msgid ""
-"The exact commands for the supported platforms and the current validation "
-"status are recorded in the repository's iteration-10 acceptance record."
+"The checker exits non-zero on a broken internal link, a machine path in the "
+"built pages, or an untranslated/fuzzy catalog entry. `docs/site/README.md` "
+"records the maintenance rules, including why a heading must not start with a"
+" number."
 msgstr ""
-"受支持平台的确切命令以及当前验证状态记录在仓库的 iteration-10 验收记录中。"
+"检查器在内部链接断开、构建页面出现机器路径、或目录条目未翻译/为 fuzzy 时以非零退出。`docs/site/README.md` "
+"记录了维护规则，包括为什么标题不能以数字开头。"
+
+#~ msgid "CMake 3.25 or newer."
+#~ msgstr "CMake 3.25 或更高版本。"
+
+#~ msgid ""
+#~ "On Windows, use a Visual Studio "
+#~ "developer environment and a CMake generator"
+#~ " supported by the installed MSVC "
+#~ "toolchain. The pinned submodule sources are"
+#~ " used by default; a consumer-provided"
+#~ " DataFrame can be selected with "
+#~ "`FINCORE_DATAFRAME_SOURCE_DIR` or `find_package(DataFrame "
+#~ "CONFIG)`."
+#~ msgstr ""
+#~ "在 Windows 上，请使用 Visual Studio 开发人员环境以及已安装的"
+#~ " MSVC 工具链所支持的 CMake 生成器。默认使用固定版本的子模块源码；可以通过 "
+#~ "`FINCORE_DATAFRAME_SOURCE_DIR` 或 `find_package(DataFrame "
+#~ "CONFIG)` 选择使用方提供的 DataFrame。"
+
+#~ msgid "A downstream CMake project can then use:"
+#~ msgstr "下游 CMake 项目随后可以使用："
+
+#~ msgid ""
+#~ "The exact commands for the supported "
+#~ "platforms and the current validation status"
+#~ " are recorded in the repository's "
+#~ "iteration-10 acceptance record."
+#~ msgstr "受支持平台的确切命令以及当前验证状态记录在仓库的 iteration-10 验收记录中。"
+

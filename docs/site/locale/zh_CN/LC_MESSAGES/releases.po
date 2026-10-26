@@ -1,0 +1,257 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 18:57+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/releases.md:1
+msgid "Versions and release notes"
+msgstr "版本与发布说明"
+
+#: ../../site/releases.md:3
+msgid "What version you are reading"
+msgstr "你正在读的版本"
+
+#: ../../site/releases.md:5
+msgid "The project tracks three version domains, and they are deliberately separate:"
+msgstr "项目跟踪三个版本域，且它们刻意分开："
+
+#: ../../site/releases.md
+msgid "Domain"
+msgstr "域"
+
+#: ../../site/releases.md
+msgid "Where it lives"
+msgstr "所在位置"
+
+#: ../../site/releases.md
+msgid "Current value"
+msgstr "当前值"
+
+#: ../../site/releases.md
+msgid "Native library"
+msgstr "原生库"
+
+#: ../../site/releases.md
+msgid "`include/fincore/version.hpp` (`version_major`/`minor`/`patch`)"
+msgstr "`include/fincore/version.hpp`（`version_major`/`minor`/`patch`）"
+
+#: ../../site/releases.md
+msgid "`0.1.0`"
+msgstr "`0.1.0`"
+
+#: ../../site/releases.md
+msgid "Python reference pin"
+msgstr "Python 参考固定版本"
+
+#: ../../site/releases.md
+msgid "`include/fincore/version.hpp` (`pinned_version_*`)"
+msgstr "`include/fincore/version.hpp`（`pinned_version_*`）"
+
+#: ../../site/releases.md
+msgid "`0.5.2.dev0`"
+msgstr "`0.5.2.dev0`"
+
+#: ../../site/releases.md
+msgid "Documentation site"
+msgstr "文档站点"
+
+#: ../../site/releases.md
+msgid "`docs/site/conf.py` (`version`/`release`)"
+msgstr "`docs/site/conf.py`（`version`/`release`）"
+
+#: ../../site/releases.md:13
+msgid ""
+"`fincore::version_string` is the native version constant. Note that "
+"`fincore::version()` deliberately returns the **pinned Python** version, not"
+" the native one — it exists so consumer metadata checks can compare against "
+"the frozen oracle. If you want the library version at run time, read "
+"`fincore::version_string`."
+msgstr ""
+"`fincore::version_string` 是原生版本常量。注意 `fincore::version()` 刻意返回**固定的 Python**"
+" 版本，而不是原生版本 —— 它存在是为了让消费者元数据检查能对照冻结的 oracle。若要在运行时取库版本，请读 "
+"`fincore::version_string`。"
+
+#: ../../site/releases.md:19
+msgid "Current status"
+msgstr "当前状态"
+
+#: ../../site/releases.md:21
+msgid ""
+"`0.1.0` is in development and **no git tag has been cut yet**. `master` is "
+"the published branch, and every push to it rebuilds the documentation site. "
+"That means \"latest\" on the site and `master` in the repository are the "
+"same tree."
+msgstr ""
+"`0.1.0` 仍在开发中，**尚未打任何 git tag**。`master` 是发布分支，每次推送到它都会重建文档站点。也就是说站点上的 "
+"“latest” 与仓库的 `master` 是同一棵树。"
+
+#: ../../site/releases.md:25
+msgid "What is stable enough to build on:"
+msgstr "可以放心构建的部分："
+
+#: ../../site/releases.md:27
+msgid ""
+"The public headers under `include/fincore`, documented symbol by symbol in "
+"the API ledger."
+msgstr "`include/fincore` 下的公共头文件，在 API 清单中逐符号记录。"
+
+#: ../../site/releases.md:29
+msgid "The CMake package contract (`fincore::fincore`, optional `implot` component)."
+msgstr "CMake 包契约（`fincore::fincore`，可选 `implot` 组件）。"
+
+#: ../../site/releases.md:30
+msgid "The report document schema and the artifact bundle shape."
+msgstr "报表文档模式与 artifact bundle 形状。"
+
+#: ../../site/releases.md:31
+msgid "Error categories and their structured fields."
+msgstr "错误分类及其结构化字段。"
+
+#: ../../site/releases.md:33
+msgid ""
+"What may still move without a deprecation cycle, because `0.x` makes no "
+"compatibility promise:"
+msgstr "仍可能在没有弃用周期的情况下变化的部分，因为 `0.x` 不承诺兼容："
+
+#: ../../site/releases.md:36
+msgid "Internal `fincore::detail` helpers, which are outside the public surface."
+msgstr "内部的 `fincore::detail` 辅助函数，它们在公共接口之外。"
+
+#: ../../site/releases.md:37
+msgid "Optional extension and plotting adapters."
+msgstr "可选的扩展与绘图适配器。"
+
+#: ../../site/releases.md:38
+msgid "Diagnostic field names inside `diagnostics` maps."
+msgstr "`diagnostics` 映射里的诊断字段名。"
+
+#: ../../site/releases.md:40
+msgid "Change log for this cycle"
+msgstr "本周期的变更记录"
+
+#: ../../site/releases.md:42
+msgid ""
+"Recorded by area rather than by commit; the linked records carry the "
+"evidence."
+msgstr "按领域记录而不是按提交；链接的记录携带证据。"
+
+#: ../../site/releases.md:44
+msgid "**Library and correctness**"
+msgstr "**库与正确性**"
+
+#: ../../site/releases.md:46
+msgid ""
+"Native C++23 surface across core data, metrics, risk, portfolio, factor, "
+"attribution, optimization, reporting, runtime and simulation modules."
+msgstr "覆盖核心数据、指标、风险、组合、因子、归因、优化、报表、运行时与模拟模块的原生 C++23 接口。"
+
+#: ../../site/releases.md:48
+msgid "1092 C++ tests, including oracle comparisons and consumer build checks."
+msgstr "1092 个 C++ 测试，包括 oracle 对比与消费者构建检查。"
+
+#: ../../site/releases.md:49
+msgid ""
+"Documented failure model: structural problems throw, undefined statistics "
+"return `NaN`, and fits report status instead of a plausible number."
+msgstr "已记录的失败模型：结构性问题抛异常，无定义的统计量返回 `NaN`，拟合报告状态而不是一个看似合理的数字。"
+
+#: ../../site/releases.md:52
+msgid "**Documentation**"
+msgstr "**文档**"
+
+#: ../../site/releases.md:54
+msgid ""
+"One bilingual site (English and Simplified Chinese) with a language switch "
+"on every page; the Chinese build is a full translation, not a stub."
+msgstr "一套双语文档站点（英文与简体中文），每页都有语言切换；中文构建是完整翻译，不是占位。"
+
+#: ../../site/releases.md:56
+msgid ""
+"Every public symbol documented; the few reviewed exemptions (three "
+"`Subclassed by` lists, two multi-line string constants, functions without "
+"`@param` lists) are recorded in the iteration-10 exemptions file rather than"
+" hidden in the build."
+msgstr ""
+"每个公共符号都有说明；少数经审阅的豁免（三条 `Subclassed by` 列表、两个多行字符串常量、缺少 `@param` 的函数）记录在迭代 10"
+" 的豁免文件里，而不是藏在构建中。"
+
+#: ../../site/releases.md:60
+msgid ""
+"Tutorial, cookbook, task guides, migration mapping and troubleshooting built"
+" from the same headers the reference is generated from."
+msgstr "教程、配方集、任务指南、迁移映射与故障排查，都基于生成参考的同一批头文件。"
+
+#: ../../site/releases.md:63
+msgid "**Tooling and evidence**"
+msgstr "**工具与证据**"
+
+#: ../../site/releases.md:65
+msgid "`check_comment_only.py` proves comment rounds change only comments."
+msgstr "`check_comment_only.py` 证明注释轮只改了注释。"
+
+#: ../../site/releases.md:66
+msgid ""
+"`check_built_site.py` checks both language builds for broken links, machine "
+"paths and untranslated catalogs, and refuses to run when one build is "
+"missing."
+msgstr "`check_built_site.py` 检查两种语言构建的断链、机器路径与未翻译目录，并在缺少一种构建时拒绝运行。"
+
+#: ../../site/releases.md:68
+msgid "`write_sitemap.py` derives the sitemap from the deployed artefact."
+msgstr "`write_sitemap.py` 从部署的产物推导 sitemap。"
+
+#: ../../site/releases.md:69
+msgid ""
+"Paired benchmark harness with digest-gated correctness and recorded "
+"INCONCLUSIVE outcomes."
+msgstr "成对基准框架，正确性由摘要门控，并记录 INCONCLUSIVE 结果。"
+
+#: ../../site/releases.md:72
+msgid ""
+"See [publication](publication.md) for what is live, and the iteration "
+"records in `docs/iterations/` for dated acceptance evidence."
+msgstr "线上状态见[发布说明](publication.md)，有日期的验收证据见 `docs/iterations/` 下的迭代记录。"
+
+#: ../../site/releases.md:75
+msgid "How a release will be cut"
+msgstr "如何切一个发布"
+
+#: ../../site/releases.md:77
+msgid ""
+"Update `version.hpp` and `docs/site/conf.py` together, then run the full "
+"gate (`ctest`, both strict Sphinx builds, the site checker)."
+msgstr ""
+"同时更新 `version.hpp` 与 `docs/site/conf.py`，然后运行完整门禁（`ctest`、两种严格 Sphinx "
+"构建、站点检查器）。"
+
+#: ../../site/releases.md:79
+msgid "Tag `v<version>` on the commit that passed, and push the tag."
+msgstr "在通过的那个提交上打 `v<version>` 标签并推送标签。"
+
+#: ../../site/releases.md:80
+msgid ""
+"Confirm the documentation site rebuilt from the tag's tree, and record the "
+"deployed URLs in the publication page."
+msgstr "确认文档站点已从该标签的树重建，并把部署地址记录到发布页。"
+
+#: ../../site/releases.md:82
+msgid "Write the release notes from the iteration records, not from memory."
+msgstr "依据迭代记录撰写发布说明，而不是凭记忆。"
+
