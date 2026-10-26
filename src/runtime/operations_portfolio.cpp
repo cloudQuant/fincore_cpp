@@ -43,6 +43,10 @@ namespace {
 using runtime_callable = std::function<runtime_value(const runtime_inputs&)>;
 
 constexpr double nan = std::numeric_limits<double>::quiet_NaN();
+// The same eight-hour window the public default_round_trip_max_delta publishes,
+// spelled as a plain integer because the operation table below takes integer
+// nanoseconds; nothing checks the two against each other, so they have to move
+// together.
 constexpr std::int64_t eight_hours_ns = 8LL * 60LL * 60LL * 1'000'000'000LL;
 
 std::string lowercase(std::string value) {

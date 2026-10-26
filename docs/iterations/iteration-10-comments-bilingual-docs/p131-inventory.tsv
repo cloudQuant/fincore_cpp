@@ -85,8 +85,8 @@ src/risk/specs.cpp	cpp	0	reviewed_this_round	audited: the validation rules are t
 src/risk/walk_forward.cpp	cpp	5	reviewed_this_round	Newton-refined inverse normal; type-6 quantile; NUL-terminated digest fields
 src/rolling_engine.cpp	cpp	2	reviewed_this_round	beta moments share one 1/count divisor so the ratio is scale-free; flat or NaN benchmark guarded by a negated comparison
 src/runtime/operations_factor.cpp	cpp	21	multi_block_not_audited	
-src/runtime/operations_metrics.cpp	cpp	33	multi_block_not_audited	
-src/runtime/operations_portfolio.cpp	cpp	0	no_explanatory_block_not_audited	
+src/runtime/operations_metrics.cpp	cpp	33	reviewed_this_round	an absent optional input and a supplied-but-mis-typed one are different outcomes, so a wrong type is never defaulted
+src/runtime/operations_portfolio.cpp	cpp	0	reviewed_this_round	the eight-hour pairing window duplicates the public default as a raw integer, so the two must move together
 src/runtime/runtime.cpp	cpp	0	reviewed_this_round	runtime digests length-prefix every field and tag each value with its declared type, so neither separators nor a bool-vs-one collision can alias two payloads; the exclusive-open shims differ per platform because only POSIX can refuse a symlink at open time
 src/runtime/serialization.cpp	cpp	2	reviewed_this_round	floats ride as lowercase IEEE bit patterns so NaN payloads and signed zeros survive; the parser refuses any other hex spelling; integers are strings to stay beyond the 53-bit mantissa
 src/runtime/utilities.cpp	cpp	3	reviewed_this_round	the short-path accumulator starts at negative zero to keep signed-zero results; a zero shape dimension skips the overflow test because the product is already zero

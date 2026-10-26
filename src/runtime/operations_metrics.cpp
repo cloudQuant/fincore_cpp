@@ -59,6 +59,9 @@ const dataframe& require_frame(const runtime_inputs& inputs,
     return *frame;
 }
 
+// Absent and wrong-typed are different answers: only a missing key yields the null
+// pointer, so an optional input that was supplied but carries the wrong type fails
+// loudly instead of being read as "not given" and silently defaulted.
 const dataframe* optional_frame(const runtime_inputs& inputs,
                                 const std::string& name) {
     const auto found = inputs.find(name);

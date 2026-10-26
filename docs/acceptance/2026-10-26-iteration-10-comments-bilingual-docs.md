@@ -105,7 +105,7 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 92 marked `reviewed_this_round` with a one-line note naming the
+(287 files: 94 marked `reviewed_this_round` with a one-line note naming the
 invariant recorded or why none was needed, 12 with several explanatory blocks
 but not yet audited, 13 sparse, 219 with no explanatory block). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
@@ -206,9 +206,11 @@ where warranted, extended the following implementation files:
 | `src/factor/analysis.cpp` | The civil-date arithmetic shifts the year to March to avoid a month table; quantile statistics bucket finite values only and use a cross-quantile denominator |
 | `src/runtime/runtime.cpp` | Runtime digests length-prefix every field and tag each value with its declared type, so neither separators nor a bool-versus-one collision can alias two payloads |
 | `src/report/html.cpp` | Three escapers use three apostrophe spellings to match their own output format; both languages ride in one document and switch through a body class |
+| `src/runtime/operations_portfolio.cpp` | The eight-hour pairing window is a raw duplicate of the public default, so the two have to move together |
+| `src/runtime/operations_metrics.cpp` | Absent and mis-typed optional inputs are distinct outcomes, so a wrong type is never silently defaulted |
 
 Every edit above was verified comment-only and is covered by the re-run below.
-The remaining 195 files are deliberately not claimed as audited, so **P131 is
+The remaining 193 files are deliberately not claimed as audited, so **P131 is
 PARTIAL**, not passed.
 
 One audit ended in a registered question rather than a comment: the
