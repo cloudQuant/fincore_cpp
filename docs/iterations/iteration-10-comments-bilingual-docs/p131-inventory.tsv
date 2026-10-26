@@ -173,7 +173,7 @@ tests/unit/metrics_bayesian_cone_umbrella_test.cpp	cpp	0	no_explanatory_block_no
 tests/unit/metrics_bayesian_pure_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/metrics_frequencies_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/metrics_helpers_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/metrics_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/metrics_umbrella_test.cpp	cpp	0	reviewed_this_round	the block pins every exported signature through named pointer types so a parameter change stops the build
 tests/unit/monte_carlo_simulation_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/monte_carlo_simulation_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/numpy_mt19937_test.cpp	cpp	0	no_explanatory_block_not_audited	
@@ -206,7 +206,7 @@ tests/unit/risk_report_test.cpp	cpp	0	no_explanatory_block_not_audited
 tests/unit/risk_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/risk_walk_forward_test.cpp	cpp	1	sparse_not_audited	
 tests/unit/rolling_engine_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/rolling_metrics_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/rolling_metrics_test.cpp	cpp	0	reviewed_this_round	an over-long window must come back as an empty typed column rather than a missing one, and expected NaN asserts the marker
 tests/unit/round_trips_test.cpp	cpp	0	reviewed_this_round	an expected NaN or infinity asserts the marker exactly while only finite expectations get the tolerance
 tests/unit/runtime_lifecycle_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/runtime_operations_factor_test.cpp	cpp	0	no_explanatory_block_not_audited	

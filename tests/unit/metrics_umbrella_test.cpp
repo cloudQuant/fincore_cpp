@@ -53,6 +53,10 @@ using capture_return_signature =
     double (*)(const fincore::dataframe&, const fincore::dataframe&, double,
                std::string_view, std::string_view);
 
+// Each entry is taken through a named pointer type, so the whole block is a
+// compile-time check on the header's exported shapes: an added, dropped or
+// reordered parameter stops the build here even though nothing about the numbers
+// would have changed.
 static_assert(std::is_same_v<
               decltype(static_cast<var_excess_return_signature>(
                   &fincore::var_excess_return)),

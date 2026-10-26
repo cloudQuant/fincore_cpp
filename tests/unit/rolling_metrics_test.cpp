@@ -61,6 +61,9 @@ void expect_values(const fincore::dataframe& actual,
     }
 }
 
+// A window longer than the series is an empty result with its column still
+// present and typed, not a missing column: this distinguishes "measured nothing"
+// from "refused to run", which a size-only check would blur.
 void expect_empty_typed_series(const fincore::dataframe& actual,
                                std::string_view column) {
     EXPECT_TRUE(actual.get_index().empty());
