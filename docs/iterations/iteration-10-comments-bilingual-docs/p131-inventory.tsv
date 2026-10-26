@@ -32,7 +32,7 @@ src/factor/research.cpp	cpp	17	multi_block_not_audited
 src/factor/research_detailed.cpp	cpp	25	multi_block_not_audited	
 src/factor/research_detailed_export.cpp	cpp	0	no_explanatory_block_not_audited	
 src/factor/research_detailed_internal.hpp	hpp	4	multi_block_not_audited	
-src/factor/research_export_internal.hpp	hpp	0	no_explanatory_block_not_audited	
+src/factor/research_export_internal.hpp	hpp	0	reviewed_this_round	the writer seam exists so tests capture rows without touching the filesystem; the public export is the same path with the real writer
 src/factor/serialization.cpp	cpp	6	reviewed_this_round	length-prefixed big-endian; quiet-NaN; sorted map; versioned tag
 src/factor/tears.cpp	cpp	0	reviewed_this_round	chart series drop non-finite points rather than leaving holes; a mixed-lag turnover input renders as the first lag alone
 src/factor/timedelta.cpp	cpp	1	reviewed_this_round	Monday-first weekday offset; off-session roll consumes one step; half-open busday count; gap-in-data becomes a holiday; floor-decomposed sub-day remainder
@@ -72,7 +72,7 @@ src/report/html.cpp	cpp	0	reviewed_this_round	three escapers use three apostroph
 src/report/models.cpp	cpp	0	reviewed_this_round	metric kind is decided by number/boolean/text precedence rather than validated, and every branch emits the same five keys
 src/report/pdf.cpp	cpp	0	no_explanatory_block_not_audited	
 src/report/portfolio.cpp	cpp	0	reviewed_this_round	the cumulative curve treats a missing return as no growth while the drawdown curve lets NaN through; align_positions judges uniqueness by adjacency (F10-D11)
-src/report/renderers.cpp	cpp	0	no_explanatory_block_not_audited	
+src/report/renderers.cpp	cpp	0	reviewed_this_round	a non-finite axis coordinate is written as null in place to keep the arrays index-aligned, unlike the chart builders that drop the point
 src/report/risk.cpp	cpp	0	reviewed_this_round	non-finite metrics and cells carry no value instead of NaN text; the refit column set follows the fitted distribution, so headers not positions are the contract
 src/report/xlsx.cpp	cpp	0	reviewed_this_round	column names are bijective base 26; malformed bytes are replaced one byte at a time while a legal but XML-1.0-disallowed code point is replaced whole
 src/risk/backtesting.cpp	cpp	5	reviewed_this_round	log-space binomial mass; CDF summed outward from mode

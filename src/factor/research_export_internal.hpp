@@ -20,6 +20,9 @@ void write_table_rows(
     const std::vector<std::string>& header,
     const std::vector<std::vector<std::string>>& rows);
 
+// The table writer is a parameter rather than a fixed call so a test can capture
+// the rows a report would have produced without creating files; the public export
+// entry point is this function with the filesystem writer supplied.
 research_export_result export_factor_research_with_writer(
     const research_result& result, const std::string& directory,
     bool charts, const table_writer& writer);

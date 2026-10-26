@@ -25,6 +25,10 @@ std::string legend_name(const report_section& section,
     return section.title + ": " + series_key;
 }
 
+// A non-finite coordinate is written as null in place rather than dropped, so the
+// two arrays stay index-aligned and a renderer can tell a gap apart from a shifted
+// series; the chart builders, which flatten to a single line, remove such points
+// instead.
 std::string static_axis_content(const report_static_axes& axis) {
     std::string output;
     detail::json_writer writer(output);
