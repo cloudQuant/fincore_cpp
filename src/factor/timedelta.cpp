@@ -54,6 +54,10 @@ std::int64_t previous_trading_day(const trading_calendar& calendar,
     return day;
 }
 
+// Rolling from a day that is not a session spends that step on finding the
+// anchor, which is why the remaining count is one smaller in both directions
+// and why a zero shift snaps an off-session timestamp onto the next or previous
+// session rather than leaving it where it is.
 std::int64_t roll_day(const trading_calendar& calendar, const timestamp value,
                       const std::int64_t whole_days) {
     const std::int64_t day = day_number(value);
@@ -73,6 +77,8 @@ std::int64_t parse_signed_number(const std::string& text,
     while (position < text.size() &&
            std::isdigit(static_cast<unsigned char>(text[position])) != 0) {
         const int digit = text[position] - '0';
+        // Tested before the multiply and written as a divided bound, so the
+        // comparison itself never forms an overflowing intermediate.
         if (value > (std::numeric_limits<std::int64_t>::max() - digit) / 10) {
             throw factor_data_error{"timedelta component is too large"};
         }
@@ -109,6 +115,10 @@ std::int64_t unit_multiplier(const char unit) {
 }  // namespace
 
 bool trading_calendar::is_trading_day(const std::int64_t day) const noexcept {
+    // Day zero is a Thursday and the weekday array is Monday-first, hence the
+    // offset of three. The negative branch adds seven because C++ modulo keeps
+    // the sign of the dividend, so pre-epoch days would otherwise index the
+    // array out of order.
     if (day < 0) {
         const std::int64_t weekday = ((day % 7) + 7 + 3) % 7;
         if (!weekdays[static_cast<std::size_t>(weekday)]) {
@@ -127,6 +137,9 @@ bool trading_calendar::is_session(const timestamp value) const noexcept {
     return is_trading_day(day_number(value));
 }
 
+// Half-open on both sides: the end day is never counted, which is what makes
+// reversing the arguments negate the same set of days instead of shifting the
+// window by one, and what makes an empty range report zero rather than one.
 std::int64_t trading_calendar::busday_count(
     const std::int64_t start_day, const std::int64_t end_day) const noexcept {
     if (start_day == end_day) {
@@ -205,6 +218,11 @@ trading_calendar infer_trading_calendar(
         used_by_weekday[static_cast<std::size_t>(weekday)].insert(day);
         calendar.weekdays[static_cast<std::size_t>(weekday)] = true;
     }
+    // A weekday never present in the union stays closed, and inside an observed
+    // weekday every day number of the span that never appears becomes a holiday:
+    // the inference reads a gap in the data as a market closure, and only marks
+    // days whose weekday is open, which is what keeps the holiday list free of
+    // non-weekday entries.
     for (std::size_t weekday = 0U; weekday < 7U; ++weekday) {
         if (!calendar.weekdays[weekday]) {
             continue;
@@ -227,6 +245,9 @@ trading_calendar infer_trading_calendar(
 timestamp add_custom_calendar_timedelta(const timestamp input,
                                         const std::int64_t delta,
                                         const trading_calendar& calendar) {
+    // Whole days move through the calendar while the clock position is carried
+    // unchanged from the input, and the sub-day remainder is applied after the
+    // roll, so a timestamp keeps its time of day across closures.
     const std::int64_t whole_days = floor_div(delta, nanoseconds_per_day);
     const std::int64_t remainder = delta - whole_days * nanoseconds_per_day;
     const std::int64_t rolled = roll_day(calendar, input, whole_days);
@@ -253,6 +274,9 @@ std::vector<timestamp> add_custom_calendar_timedelta(
 std::int64_t diff_custom_calendar_timedeltas(
     const timestamp start, const timestamp end,
     const trading_calendar& calendar) {
+    // Only the whole-day part of the wall gap is replaced by the session count,
+    // so a partial final day stays in the nanosecond remainder instead of being
+    // rounded up into the number of trading days between the two timestamps.
     const std::int64_t start_day = day_number(start);
     const std::int64_t end_day = day_number(end);
     const std::int64_t actual_days = calendar.busday_count(start_day, end_day);

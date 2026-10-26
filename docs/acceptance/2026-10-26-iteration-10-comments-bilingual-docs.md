@@ -105,9 +105,9 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 32 marked `reviewed_this_round` with a one-line note naming the
+(287 files: 34 marked `reviewed_this_round` with a one-line note naming the
 invariant recorded or why none was needed, 12 with several explanatory blocks
-but not yet audited, 20 sparse, 223 with no explanatory block). Auditing may
+but not yet audited, 18 sparse, 223 with no explanatory block). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
 because its validation clauses are the entire contract. This round audited and,
 where warranted, extended the following implementation files:
@@ -146,9 +146,11 @@ where warranted, extended the following implementation files:
 | `src/metrics/ratios.cpp` | NaN-only and finite-only filters differ; flat-series guard scaled by magnitude; strict benchmark sign split excludes zero days; degenerate third-moment downside reports infinity |
 | `src/simulation/paths.cpp` | Modulo-bias rejection threshold; Latin-hypercube resamples until the stratum survives rounding; seed price row dropped from the return frame |
 | `src/performance/returns.cpp` | Floor day division before the epoch; bracket ends exclude the rate of -1; scaled NPV carries an anchor factor; sign changes read the sign bit; zero-net days dropped |
+| `src/factor/calendar.cpp` | Sorted disjoint digit ranges probed by their end; strict UTF-8 rejection; every digit run needs a unit; backshift counts levels rather than rows |
+| `src/factor/timedelta.cpp` | Monday-first weekday offset; an off-session roll consumes one step; half-open business count; a gap in the data becomes a holiday; sub-day remainder stays floored |
 
 Every edit above was verified comment-only and is covered by the re-run below.
-The remaining 255 files are deliberately not claimed as audited, so **P131 is
+The remaining 253 files are deliberately not claimed as audited, so **P131 is
 PARTIAL**, not passed.
 
 One audit ended in a registered question rather than a comment: the
@@ -258,7 +260,10 @@ exists. Run [`40246627229`](https://github.com/cloudQuant/fincore_cpp/actions/ru
 on the restructured workflow is **success** — `build` passed, `pages` reported
 the not-enabled notice, `deploy` was skipped. Until the owner enables Pages the
 deliverable stays a verified **deployable artifact**, which is not a
-publication PASS.
+publication PASS. Later comment rounds kept it green: run
+[`40251622323`](https://github.com/cloudQuant/fincore_cpp/actions/runs/40251622323),
+pushed with the `short_allowed` note and the enlarged 3233-entry catalog, is
+likewise **success**.
 
 - [`.readthedocs.yaml`](../../../.readthedocs.yaml) — v2 config, Ubuntu 24.04,
   Python 3.13, Doxygen apt package, `pre_build` creates the output directory,

@@ -42,6 +42,9 @@ constexpr std::array<code_point_range, 62> unicode_decimal_digits{{
     {0x1D7CE, 0x1D7FF}, {0x1E140, 0x1E149}, {0x1E2F0, 0x1E2F9},
     {0x1E950, 0x1E959}, {0x1FBF0, 0x1FBF9}}};
 
+// The binary search compares range ends, so the table above has to stay sorted
+// by last code point; the accepted candidate is then checked against its own
+// start, which is what makes the disjoint ranges testable in one probe.
 bool is_unicode_decimal_digit(const char32_t value) noexcept {
     const auto found = std::lower_bound(
         unicode_decimal_digits.begin(), unicode_decimal_digits.end(), value,
@@ -51,6 +54,11 @@ bool is_unicode_decimal_digit(const char32_t value) noexcept {
     return found != unicode_decimal_digits.end() && found->first <= value;
 }
 
+// Well-formedness is checked rather than assumed: the 0xC0 and 0xC1 leads are
+// excluded because their only encodings are overlong, and surrogates, values
+// above U+10FFFF and truncated sequences all fail. A label that does not decode
+// is therefore treated as not a forward-return column rather than as a match
+// with unknown characters.
 bool decode_utf8(const std::string& text,
                  std::vector<char32_t>& code_points) {
     std::size_t position = 0U;
@@ -110,6 +118,10 @@ bool is_s_case_variant(const char32_t value) noexcept {
     return ascii_lower(value) == 's' || value == 0x017FU;
 }
 
+// Every digit run has to be followed by a unit, so a bare number never counts.
+// Day, hour, minute and second stand alone, while the micro- and nanosecond
+// forms are recognized only together with their trailing s, which the long-s
+// code point also satisfies; exact-day mode narrows every run to d.
 bool matches_forward_return_label(const std::string& label,
                                   const bool exact_day_multiple) {
     std::vector<char32_t> code_points;
@@ -200,6 +212,11 @@ factor_series backshift_returns_series(
             static_cast<std::size_t>(found - date_levels.begin()));
     }
 
+    // Calendar levels, not rows, define the distance: a value at level five with
+    // N of two is relabeled to level three even when the input has no row at
+    // level three or four. Rows whose level lies inside the shift are dropped
+    // rather than padded, and a frame with fewer levels than the shift has
+    // nowhere left to land, so it returns empty.
     const auto shift = static_cast<std::size_t>(N);
     factor_series shifted;
     if (date_levels.size() <= shift) {
