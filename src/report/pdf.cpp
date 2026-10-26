@@ -16,6 +16,10 @@
 namespace fincore {
 namespace {
 
+// The four "margin" names are page coordinates rather than sizes: margin_right
+// and margin_bottom are the far edges of the text box, so the box is asymmetric —
+// 28 points from the left and 28 from the right on an A4 page — and the two
+// derived spans are what the layout arithmetic actually uses.
 constexpr double page_width = 595.0;
 constexpr double page_height = 842.0;
 constexpr double margin_left = 28.0;

@@ -31,7 +31,7 @@ src/factor/report.cpp	cpp	0	reviewed_this_round	report moments drop infinities a
 src/factor/research.cpp	cpp	17	multi_block_not_audited	
 src/factor/research_detailed.cpp	cpp	25	multi_block_not_audited	
 src/factor/research_detailed_export.cpp	cpp	0	no_explanatory_block_not_audited	
-src/factor/research_detailed_internal.hpp	hpp	4	multi_block_not_audited	
+src/factor/research_detailed_internal.hpp	hpp	4	reviewed_this_round	audited with no change: the sink seam, panel row order with NaN holes and the stability path are already stated
 src/factor/research_export_internal.hpp	hpp	0	reviewed_this_round	the writer seam exists so tests capture rows without touching the filesystem; the public export is the same path with the real writer
 src/factor/serialization.cpp	cpp	6	reviewed_this_round	length-prefixed big-endian; quiet-NaN; sorted map; versioned tag
 src/factor/tears.cpp	cpp	0	reviewed_this_round	chart series drop non-finite points rather than leaving holes; a mixed-lag turnover input renders as the first lag alone
@@ -70,7 +70,7 @@ src/portfolio/round_trips.cpp	cpp	2	reviewed_this_round	signed-price FIFO; block
 src/portfolio/transactions.cpp	cpp	1	reviewed_this_round	first-day gross book halved
 src/report/html.cpp	cpp	0	reviewed_this_round	three escapers use three apostrophe spellings to match their own output format; both languages ship in one document and switch through a body class
 src/report/models.cpp	cpp	0	reviewed_this_round	metric kind is decided by number/boolean/text precedence rather than validated, and every branch emits the same five keys
-src/report/pdf.cpp	cpp	0	no_explanatory_block_not_audited	
+src/report/pdf.cpp	cpp	0	reviewed_this_round	the margin constants are page edges rather than sizes, so the text box is placed asymmetrically; the WinAnsi variance from the reference font is already documented
 src/report/portfolio.cpp	cpp	0	reviewed_this_round	the cumulative curve treats a missing return as no growth while the drawdown curve lets NaN through; align_positions judges uniqueness by adjacency (F10-D11)
 src/report/renderers.cpp	cpp	0	reviewed_this_round	a non-finite axis coordinate is written as null in place to keep the arrays index-aligned, unlike the chart builders that drop the point
 src/report/risk.cpp	cpp	0	reviewed_this_round	non-finite metrics and cells carry no value instead of NaN text; the refit column set follows the fitted distribution, so headers not positions are the contract
