@@ -16,6 +16,8 @@ TEST(SimulationBase, ValidatesAndCopiesFiniteReturns) {
     auto validated = fincore::validate_returns(input);
     ASSERT_EQ(validated.size(), input.size());
     EXPECT_EQ(validated, input);
+    // Writing through the result is what proves it owns its values: a view over
+    // the caller's vector would leave `input` reading 9.0 here.
     validated[0] = 9.0;
     EXPECT_DOUBLE_EQ(input[0], .01);
 

@@ -88,6 +88,9 @@ TEST(RiskEvt, ValidatesTailThresholdMethodAndSelectors) {
 
     const std::array<char, 13> embedded_storage{
         'r', 'e', 't', 'u', 'r', 'n', 's', '\0', 'e', 'v', 'i', 'l', '!'};
+    // The prefix before the NUL is the column this frame actually has, so a
+    // selector that stopped at the terminator would succeed; the throw is what
+    // proves the embedded NUL is rejected rather than truncated away.
     const std::string_view embedded_selector{embedded_storage.data(),
                                              embedded_storage.size()};
     EXPECT_THROW(static_cast<void>(fincore::hill_estimator(
@@ -299,6 +302,8 @@ TEST(RiskEvt, GevExtremeRiskReportsLocationScaleAndBlocks) {
     EXPECT_NEAR(*result.location, 0.019478399594106605, 1e-14);
     EXPECT_NEAR(*result.scale, 0.003635672307968767, 1e-14);
     EXPECT_EQ(*result.n_blocks, 60U);
+    // GEV is a block-maxima model, so the peak-over-threshold fields stay unset
+    // (NaN threshold, zero exceedances) where the GPD cases above fill them in.
     EXPECT_TRUE(std::isnan(result.threshold));
     EXPECT_EQ(result.n_exceedances, 0U);
 

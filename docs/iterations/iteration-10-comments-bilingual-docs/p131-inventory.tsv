@@ -187,18 +187,18 @@ tests/unit/performance_cashflows_test.cpp	cpp	0	reviewed_this_round	comments add
 tests/unit/performance_disclosures_test.cpp	cpp	0	reviewed_this_round	comments added: the benchmark is the only field that renders as none when empty, and the notes line is appended without a terminator
 tests/unit/performance_inference_test.cpp	cpp	0	reviewed_this_round	comments added: NaN rows are dropped before the divisor, and a flat series reaches the zero-deviation branch and yields exactly one half
 tests/unit/performance_returns_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/portfolio_models_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/portfolio_models_test.cpp	cpp	0	reviewed_this_round	comments added: not supplied and supplied-but-empty are different states at materialization, and the fixture keeps a NaN return and a negative share count because ingestion copies rather than validates
 tests/unit/positions_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/ratios_test.cpp	cpp	0	reviewed_this_round	the static_asserts pin exported signatures through named function-pointer types; defaults and values are covered by the cases below
 tests/unit/report_html_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/report_models_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/report_portfolio_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/report_renderers_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/report_renderers_test.cpp	cpp	0	reviewed_this_round	comments added: only the axis key the caller supplied loses ownership, the default CSS is bare text with no style wrapper and no blank lines because the document is byte-compared, and reading the recorded startxref offset back proves structural validity rather than a well-shaped file
 tests/unit/report_risk_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/report_xlsx_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/report_xlsx_test.cpp	cpp	0	reviewed_this_round	comment added: rendering twice pins reproducibility, since a ZIP entry records a modification time and equal bytes mean that field is fixed rather than stamped from the clock
 tests/unit/returns_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/risk_backtesting_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/risk_evt_test.cpp	cpp	1	sparse_not_audited	
+tests/unit/risk_evt_test.cpp	cpp	1	reviewed_this_round	comments added: the selector's NUL-terminated prefix is a real column so the throw proves embedded NULs are rejected rather than truncated, and GEV leaves the peak-over-threshold fields unset (NaN threshold, zero exceedances) where the GPD cases fill them
 tests/unit/risk_garch_test.cpp	cpp	4	multi_block_not_audited	
 tests/unit/risk_models_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/risk_report_serialization_test.cpp	cpp	0	no_explanatory_block_not_audited	
@@ -216,7 +216,7 @@ tests/unit/runtime_serialization_test.cpp	cpp	0	no_explanatory_block_not_audited
 tests/unit/runtime_test.cpp	cpp	1	sparse_not_audited	
 tests/unit/runtime_utilities_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/simulation_antithetic_variates_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/simulation_base_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/simulation_base_test.cpp	cpp	0	reviewed_this_round	comment added: writing through the validated result is what proves it owns its values rather than viewing the caller's vector
 tests/unit/simulation_bootstrap_confidence_interval_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/simulation_bootstrap_summary_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/simulation_bootstrap_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
@@ -229,14 +229,14 @@ tests/unit/simulation_parameters_umbrella_test.cpp	cpp	0	no_explanatory_block_no
 tests/unit/simulation_result_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/simulation_result_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/simulation_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/stable_double_order_test.cpp	cpp	1	sparse_not_audited	
+tests/unit/stable_double_order_test.cpp	cpp	1	reviewed_this_round	comment added: the scratch buffer is exercised across shrinking then growing lengths, because a buffer sized by a longer earlier run must not leak its old contents
 tests/unit/stats_test.cpp	cpp	0	reviewed_this_round	rejection messages are compared exactly, so the exception type alone cannot hide two different diagnoses
 tests/unit/stress_scenarios_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/style_analysis_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/style_performance_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/style_regression_attribution_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/style_tilts_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/timing_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/timing_test.cpp	cpp	0	reviewed_this_round	comments added: dropping a non-finite pair from either side must give the same numbers, which is what makes the filter pairwise; nine common dates sit one below the documented ten-pair floor and a constant benchmark is the singular design; the crisis windows overlap so their order is a contract
 tests/unit/transaction_mapping_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/transactions_test.cpp	cpp	0	reviewed_this_round	the shared fixture carries several distinct defects at once, so repairing one removes the matching rejection's coverage
 tests/unit/viz_documents_test.cpp	cpp	0	no_explanatory_block_not_audited	

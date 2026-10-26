@@ -49,8 +49,8 @@ comment-only 校验，没有编译证据。`benchmarks/` 中 6 个条目同轮�
 其后 71 个条目（`tests/unit`、两个 consumer 冒烟程序、point-in-time 探针与生成的
 bootstrap fixture）分三批完成，批内改动全部由 comment-only 校验复核
 （42 个改动源 `checked=42 failures=0`），每批之后重跑全量构建与 1092 项测试；其中
-算数类结论逐条重算，排序类结论保留在清单注记里等待人工复核。其余 54 个条目是
-`tests/` 的 51 个与 `benchmarks/` 的 3 个，尚未逐项确认。
+算数类结论逐条重算，排序类结论保留在清单注记里等待人工复核。其后 7 个条目（EVT、timing、XLSX、renderers、稳定排序、模拟基类、组合输入）由主会话
+直接审阅完成。其余 47 个条目是 `tests/` 的 44 个与 `benchmarks/` 的 3 个，尚未逐项确认。
 
 实施后的事实基线（2026-10-26）：`docs/site/api-ledger.tsv` 记录 2484 个公共
 符号（含重载逐项），全部有说明；117 个头文件中 97 个在本轮修改并通过
@@ -99,6 +99,15 @@ P131 中不依赖模块改动的工具说明可提前进行。P127 的 API 翻�
 源码注释、文档工具配置、翻译/指南、部署配置分别组织提交。每轮记录范围、
 验收结果、仓库/分支和实际提交哈希，不新建大批临时证据或复制可再生产物。
 HTML、Doxygen XML、翻译中间文件和站点构建缓存不进入 Git 历史。
+
+当前发布状态（2026-10-26）：GitHub Pages 已从 `master`（合并提交 `1ea8025`，
+运行 `40286395187`）部署成功，`build`/`pages`/`deploy` 三个 job 全绿；英文站点
+https://cloudquant.github.io/fincore_cpp/en/latest/ 与中文站点
+https://cloudquant.github.io/fincore_cpp/zh-cn/latest/ 已逐页验证——首页、安装页、
+guides 页、metrics API 深页、语言切换与 CSS 资源均返回 200，中文页面的正文确实是
+中文。Read the Docs 的 `en`、`zh_CN` 两个项目仍需仓库所有者用 RTD 账号创建，
+因此 P133 保持 PARTIAL：Pages 的两个组合已线上验证，RTD 的两个组合属于
+“平台发布待完成”。
 
 计划完成不等于迭代实施完成。未来只有源代码说明、双语内容、构建检查和两个
 平台的实际发布均达到[验收要求](acceptance.md)，才能宣布整个迭代完成。

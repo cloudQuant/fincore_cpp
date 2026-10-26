@@ -105,9 +105,9 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 233 marked `reviewed_this_round` with a one-line note naming the
+(287 files: 240 marked `reviewed_this_round` with a one-line note naming the
 invariant recorded or why none was needed, 2 with several explanatory blocks
-but not yet audited, 4 sparse, 48 with no explanatory block). Auditing may
+but not yet audited, 2 sparse, 43 with no explanatory block). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
 because its validation clauses are the entire contract. This round audited and,
 where warranted, extended the following implementation files:
@@ -270,10 +270,22 @@ comment-only checker and by review only, not by a build. Its claims about the
 vendored ImPlot were checked against `third_party/implot` — the tick-label
 array is copied during `SetupAxisTicks`, and the range overload asserts at least
 two ticks when labels are supplied, which is the reason for the `> 1U` guard.
+Seven further unit files were then read without assistance: `risk_evt_test.cpp`
+records why the embedded-NUL selector proves rejection rather than truncation and
+that GEV leaves the peak-over-threshold fields unset where GPD fills them;
+`timing_test.cpp` records the pairwise-filter proof, the nine-of-ten floor with
+the singular design, and the overlapping crisis windows whose order is therefore a
+contract; `report_xlsx_test.cpp` records that a second identical render is the
+reproducibility claim because a ZIP entry carries a modification time;
+`report_renderers_test.cpp` records per-axis ownership, the bare-CSS shape and the
+startxref offset check; `stable_double_order_test.cpp`,
+`simulation_base_test.cpp` and `portfolio_models_test.cpp` record scratch-buffer
+reuse, copy-on-validate and the omitted-versus-empty distinction.
+
 A third assisted batch covered 24 more entries, including the two consumer smoke
 programs, the point-in-time probe and the generated bootstrap fixture — the last
 three left untouched because their bytes are pinned or regenerated — bringing the
-assisted total to 71 files and leaving 54 (51 under `tests/`, three under
+assisted total to 71 files and leaving 47 (44 under `tests/`, three under
 `benchmarks/`). Among the claims re-derived in that batch: `perf_stats.cpp`
 passes the daily constant to both the Omega row and the alpha-beta pair, so the
 weekly and daily frames must compare exactly, and the first entry of the pinned
@@ -531,6 +543,53 @@ Two consequences for the route the owner proposed (finish, then update `master`)
   once `dev` is merged. Until that merge, the deploy path cannot be exercised on
   `dev`, and P133 stays **PLATFORM_PENDING** with both URLs answering 404.
 
+### Live verification after the master merge (2026-10-26)
+
+The owner asked for publication to run from `master`. `dev` was merged into
+`master` locally with `--no-ff` (merge commit `1ea8025`) and pushed
+(`debd948..1ea8025`). The only master-side content that dev did not already carry
+was `.superpowers/sdd/2026-08-10-fincore-cpp-foundation/progress.md` (four added
+lines), so the merge had nothing to resolve and the resulting tree is the dev tree
+plus that file. The push triggered
+[`40286395187`](https://github.com/cloudQuant/fincore_cpp/actions/runs/40286395187),
+the first run in which **all three jobs succeeded**: `build` success, `pages`
+success, `deploy` success. The deploy job that had previously ended with zero
+steps actually ran, which confirms the environment allow-list holds `master`
+rather than `dev`.
+
+The live site was then checked page by page (HTTP status and bytes):
+
+| URL under `https://cloudquant.github.io/fincore_cpp/` | Status | Bytes |
+|---|---|---|
+| `/` | 200 | 604 (landing page carrying the two language links) |
+| `/en/latest/` | 200 | 17,845 |
+| `/zh-cn/latest/` | 200 | 17,538 |
+| `/en/latest/installation.html` | 200 | 15,541 |
+| `/zh-cn/latest/installation.html` | 200 | 15,382 |
+| `/en/latest/api/metrics.html` | 200 | 657,831 |
+| `/zh-cn/latest/api/metrics.html` | 200 | 616,635 |
+| `/en/latest/guides/metrics.html` | 200 | 12,904 |
+| `/zh-cn/latest/guides/metrics.html` | 200 | 12,742 |
+| `/zh-cn/latest/conventions.html` | 200 | 13,892 |
+| `/en/latest/_static/css/theme.css` | 200 | 137,285 |
+
+The language switch resolves in both directions (`en/latest/` links to
+`zh-cn/latest/` and back), and the served Chinese pages really are Chinese: the
+index contains 文档 / 安装 / 快速开始 / 简体中文, and the metrics API page contains
+参数 (3), 夏普比率 (11) and 年化 (65).
+
+Two corrections for anyone repeating this check. The language directories are
+`en/latest/` and `zh-cn/latest/`, not `en/` and `zh_CN/`; probing the latter
+returns 404 and says nothing about the deployment. And a Pages build carries the
+version in the path segment (`latest`) with no Read the Docs style version
+switcher — that switcher is an RTD feature, so on Pages the version requirement is
+met by the URL plus the landing page text.
+
+Result: **Pages × 2 languages verified live; RTD × 2 still not created**, so P133
+remains PARTIAL. Creating the `en` and `zh_CN` projects from `.readthedocs.yaml`
+needs the Read the Docs account, so the published state is "GitHub Pages live,
+Read the Docs release pending".
+
 Required runbook before P133 can be marked PASS (four combinations, each with
 home, installation, one deep API page, language switch, version label, static
 assets and search checked from the same commit):
@@ -603,8 +662,8 @@ checks, which belong to P133 and cannot be substituted by a local build.
 | ID | Item | Status |
 |---|---|---|
 | P131 | Per-file implementation/test/tool comment audit | PARTIAL |
-| P133 | RTD ×2 and Pages ×2 live checks | PLATFORM_PENDING |
-| P134 | Iteration close-out | PARTIAL — local gate complete, live checks owed by P133 |
+| P133 | RTD ×2 and Pages ×2 live checks | PARTIAL — Pages en + zh-cn live and checked; RTD projects not created |
+| P134 | Iteration close-out | PARTIAL — local gate complete, Pages close-out verified; RTD checks owed |
 | E-01 | 3 `Subclassed by` identifier lists left in English | reviewed exemption |
 | E-02 | 2 multi-line string constants not rendered as declarations | reviewed exemption |
 | E-03 | 296 functions without `@param` lists | reviewed exemption, per module |

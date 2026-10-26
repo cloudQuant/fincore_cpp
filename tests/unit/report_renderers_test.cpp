@@ -128,6 +128,8 @@ TEST(ReportRenderers, BokehConsumesPreparedSeries) {
 
 TEST(ReportRenderers, MatplotlibAxesKeepOwnershipAndValues) {
     const auto document = sample_document();
+    // Only the key the caller supplied loses ownership; the other axis is built
+    // by the renderer and stays owned, which is the whole difference here.
     const auto bundle = fincore::render_matplotlib(
         document, {"performance.benchmark"});
     EXPECT_EQ(bundle.metadata.at("backend"), "matplotlib");
@@ -152,6 +154,9 @@ TEST(ReportRenderers, MatplotlibAxesKeepOwnershipAndValues) {
 }
 
 TEST(ReportRenderers, DefaultHtmlCssIsStableNativeText) {
+    // Bare CSS rather than a style element: no <style> wrapper, no blank lines,
+    // and both ends trimmed (first byte 'b', last '}'), which is the shape the
+    // byte-compared document depends on.
     const std::string_view css = fincore::DEFAULT_HTML_CSS;
     ASSERT_FALSE(css.empty());
     EXPECT_EQ(css.front(), 'b');
@@ -181,6 +186,8 @@ TEST(ReportRenderers, PdfBytesAreDeterministicAndWellFormed) {
 
     const auto marker = bytes.rfind("startxref\n");
     ASSERT_NE(marker, std::string::npos);
+    // Reading the recorded offset back and finding "xref" there is what makes the
+    // file structurally valid rather than merely well-shaped at both ends.
     const auto offset_start = marker + std::string("startxref\n").size();
     const auto offset_end = bytes.find('\n', offset_start);
     ASSERT_NE(offset_end, std::string::npos);

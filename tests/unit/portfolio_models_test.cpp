@@ -55,6 +55,8 @@ fincore::dataframe benchmark_frame() {
 
 TEST(PortfolioInputs, PreservesOmittedAndEmptySuppliedFields) {
     const fincore::portfolio_inputs omitted;
+    // "Not supplied" and "supplied but empty" are different states: the first
+    // materializes to nothing, the second to one key holding an empty frame.
     EXPECT_TRUE(omitted.materialize().empty());
 
     fincore::dataframe empty;
@@ -76,6 +78,9 @@ TEST(PortfolioInputs, CopiesAtIngestionAndMaterializesIndependentNativeFrames) {
     const fincore::portfolio_inputs inputs(returns, positions, transactions,
                                            benchmark);
 
+    // The fixture keeps a NaN return and a negative share count on purpose:
+    // ingestion copies what it is given instead of validating it, so those values
+    // have to survive unchanged.
     returns.get_column<double>("return")[0] = 9.0;
     positions.get_column<double>("cash")[0] = 999.0;
     positions.get_column<std::string>("symbol")[0] = "changed";
