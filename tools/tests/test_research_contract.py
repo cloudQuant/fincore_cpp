@@ -1,3 +1,9 @@
+"""Tests for the research contract: table layout, CSV comparison and completeness.
+
+The contract module is the single source of the expected tables, so a drift shows up
+in both the native and Python-facing checks.
+"""
+
 from __future__ import annotations
 
 import csv

@@ -1,3 +1,9 @@
+"""Tests for the alpha003 benchmark runner: CLI wiring, result files and digests.
+
+The runner is exercised with temporary directories and patched subprocess calls, so
+no benchmark binary or network data is needed to run this module.
+"""
+
 from __future__ import annotations
 
 import argparse

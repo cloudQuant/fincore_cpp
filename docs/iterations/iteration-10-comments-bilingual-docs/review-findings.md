@@ -6,8 +6,8 @@
 
 **处理状态：** F10-D01–D04 与 F10-G01 已在 2026-10-26 实施轮处理（见下方新增
 条目与[验收记录](../../acceptance/2026-10-26-iteration-10-comments-bilingual-docs.md)）；
-本轮新登记的 F10-D05–D09 已随注释轮修正并记录依据；F10-D10、F10-D11 是注释轮
-发现的行为疑点，只登记不处理，等待审阅。审阅前不自动给疑点定性
+本轮新登记的 F10-D05–D09 已随注释轮修正并记录依据；F10-D10、F10-D11、F10-D12
+是注释轮发现的行为疑点或既有失败，只登记不处理，等待审阅。审阅前不自动给疑点定性
 为缺陷，记录不等于修复授权。
 
 本次只读查看接口、现有文档和构建入口，没有运行业务程序或性能基准。
@@ -185,3 +185,27 @@ P126/P127 处理清单和试点，不以批量添加空注释或生成英文菜�
   不同。
 - **建议：** 评审后统一为“排序且唯一”（或在校验前排序副本），并补一个乱序重复
   日期的对照用例，确认缺失覆盖与重复日期的报错路径。
+
+### F10-D12 `tools/tests` 存在三个先于本轮的失败，CI 不运行该套件
+
+- **分类：** 既有测试与实现口径漂移，本轮只登记，不改测试也不改实现。
+- **位置：** [test_capability_inventory.py](file:///D:/source_code/fincore_cpp/tools/tests/test_capability_inventory.py)
+  的 `test_pinned_catalog_and_summary_are_deterministic`、
+  `test_explicit_route_disposition_requires_pinned_source_and_historical_evidence`、
+  `test_class_acceptance_is_rejected_when_public_methods_are_not_accepted`。
+- **证据：** 用系统解释器（Python 3.14.2 / pytest 9.0.2）运行 `tools/tests` 得到
+  `3 failed, 90 passed, 23 subtests passed`。把同一文件的 HEAD 副本另存为临时
+  文件后单独运行，得到同样的三个失败，且断言位置从第 490 行移到第 496 行，
+  正好等于本轮新增 6 行模块 docstring 的位移，因此与注释轮无关。
+  `.github/workflows` 中没有任何 pytest 引用，该套件不在 CI 覆盖范围内。
+- **观察：** 两类口径漂移。（1）第一个用例把 `native_runtime_catalog_committed_unique_id_count`
+  写成字面量 44，仓库现状为 48；（2）`tools/capability_inventory.py` 第 2182–2190 行为
+  `ACCEPTED_EXISTING` 新增了“必须存在 `role` 为 `historical_acceptance` 的证据引用”的
+  校验，该检查先于用例期望的报错触发，于是 `pytest.raises(match=...)` 拿到的是
+  `ACCEPTED_EXISTING requires a named historical acceptance cite: ...` 而不是预期的
+  文案。
+- **证据边界：** 本轮没有判断哪一侧才是期望口径——实现收紧校验可能是有意治理变更，
+  也可能是漏改用例；需要作者确认后再定性。
+- **建议：** 评审后单独一轮处理：要么补上 `historical_acceptance` 角色的 fixture 并把
+  计数改为从清单派生，要么把 44 更新为当前 pin 值并在用例里注明它是需随目录增长
+  人工确认的 pin；同时考虑把 `tools/tests` 纳入某个 CI job，避免继续静默失败。

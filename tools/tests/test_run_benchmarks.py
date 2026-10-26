@@ -1,3 +1,8 @@
+"""Tests for the legacy single-run benchmark driver and its record assembly.
+
+The paired campaign has its own module; this one keeps the older mode covered.
+"""
+
 from __future__ import annotations
 
 import json

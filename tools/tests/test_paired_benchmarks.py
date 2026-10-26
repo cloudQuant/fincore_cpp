@@ -1,3 +1,9 @@
+"""Tests for the paired reference/candidate benchmark campaign driver.
+
+Child results are synthesised here; the module checks ordering, validation and
+reporting rather than measuring anything real.
+"""
+
 from __future__ import annotations
 
 import json

@@ -1,3 +1,9 @@
+"""Tests for the benchmark measurement helpers behind the campaign drivers.
+
+Timings are driven through temporary files and patched calls so the statistical
+expectations stay deterministic.
+"""
+
 from __future__ import annotations
 
 import math

@@ -1,3 +1,9 @@
+"""Tests for the alpha003 HTML research report: schema version, tables and payload.
+
+Expected structure comes from the contract module, so a report change that alters
+the table set has to update both sides.
+"""
+
 from __future__ import annotations
 
 import json

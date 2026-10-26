@@ -1,3 +1,9 @@
+"""Tests for the capability inventory tool, invoked as a real subprocess.
+
+Output paths and hashes are asserted from the generated files rather than from an
+in-process call, which keeps the CLI contract honest.
+"""
+
 from __future__ import annotations
 
 import sys

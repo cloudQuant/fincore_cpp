@@ -105,9 +105,9 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 142 marked `reviewed_this_round` with a one-line note naming the
-invariant recorded or why none was needed, 12 with several explanatory blocks
-but not yet audited, 13 sparse, 219 with no explanatory block). Auditing may
+(287 files: 149 marked `reviewed_this_round` with a one-line note naming the
+invariant recorded or why none was needed, 6 with several explanatory blocks
+but not yet audited, 8 sparse, 124 with no explanatory block). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
 because its validation clauses are the entire contract. This round audited and,
 where warranted, extended the following implementation files:
@@ -239,9 +239,20 @@ and eight more were left unchanged on purpose — five because their only usage 
 is a one-line docstring and adding `help=` strings would change command-line output,
 and three because files under `tools/oracles/` and the replay baseline are
 content-hashed evidence, so editing even their comments would move a pinned
-digest. Every one of the 106 files under `src/` is now audited and carries a note naming
-the invariant recorded or why none was needed. The remaining 145 files are under
-`tests/`, `tools/`, `examples/` and `benchmarks/`, and are deliberately not
+digest. The seven modules under `tools/tests/` had no usage text at all, so each
+received a module docstring naming what it tests and how its fixtures are
+synthesised; that closes out `tools/` (all 31 entries audited). The docstrings
+were verified by running the suite itself: `python -m pytest tools/tests -q`
+with the host interpreter (Python 3.14.2, pytest 9.0.2) reports
+`3 failed, 90 passed, 23 subtests passed`, and the same three failures reproduce
+on the committed copies of those files taken from `HEAD`, which differ only in
+line numbering (the assertion in `test_capability_inventory.py` moves from 490 to
+496, exactly the six inserted lines). Those three are pre-existing drift in the
+capability-inventory gate, not a consequence of this round, and are registered as
+**F10-D12**; no CI workflow runs `tools/tests`, so they stay red silently.
+Every one of the 106 files under `src/` is now audited and carries a note naming
+the invariant recorded or why none was needed. The remaining 138 files are under
+`tests/`, `examples/` and `benchmarks/`, and are deliberately not
 claimed as audited, so **P131 is PARTIAL**, not passed.
 
 One audit ended in a registered question rather than a comment: the
@@ -476,3 +487,6 @@ checks, which belong to P133 and cannot be substituted by a local build.
 | E-02 | 2 multi-line string constants not rendered as declarations | reviewed exemption |
 | E-03 | 296 functions without `@param` lists | reviewed exemption, per module |
 | E-04 | 17 precise `nitpick_ignore` entries | reviewed exemption |
+| F10-D10 | Sector-free `min_variance` cannot reach a negative weight bound | registered, awaiting review — no behaviour changed |
+| F10-D11 | Uniqueness by adjacency presumes a sorted index (two sites) | registered, awaiting review — no behaviour changed |
+| F10-D12 | Three pre-existing `tools/tests` failures, outside CI coverage | registered, awaiting review — no test or tool changed |

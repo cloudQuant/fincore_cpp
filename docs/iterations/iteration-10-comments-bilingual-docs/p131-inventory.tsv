@@ -265,13 +265,13 @@ tools/replay_historical_oracles.py	py	0	reviewed_this_round	module docstring alr
 tools/replay_oracle_baseline.py	py	0	reviewed_this_round	audited: the script hashes archived evidence and refuses to hash its own checksums file, so its own text is read-only to this round
 tools/run_benchmarks.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Run isolated fincore C++ and Python performance workloads....)
 tools/run_paired_benchmarks.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Run a paired, single-CPU C++ reference/candidate regression campaign....)
-tools/tests/test_alpha003_benchmark.py	py	0	no_explanatory_block_not_audited	
-tools/tests/test_alpha003_html_report.py	py	0	no_explanatory_block_not_audited	
-tools/tests/test_capability_inventory.py	py	0	no_explanatory_block_not_audited	
-tools/tests/test_measurement.py	py	0	no_explanatory_block_not_audited	
-tools/tests/test_paired_benchmarks.py	py	0	no_explanatory_block_not_audited	
-tools/tests/test_research_contract.py	py	0	no_explanatory_block_not_audited	
-tools/tests/test_run_benchmarks.py	py	0	no_explanatory_block_not_audited	
+tools/tests/test_alpha003_benchmark.py	py	0	reviewed_this_round	docstring added this round (module had none): CLI wiring, result files and digests are exercised with temp dirs and patched subprocess calls
+tools/tests/test_alpha003_html_report.py	py	0	reviewed_this_round	docstring added this round (module had none): expected report structure comes from the contract module, so a table change updates both sides
+tools/tests/test_capability_inventory.py	py	0	reviewed_this_round	docstring added this round (module had none): the tool runs as a real subprocess so output paths and hashes come from generated files
+tools/tests/test_measurement.py	py	0	reviewed_this_round	docstring added this round (module had none): timings are driven through temp files and patched calls so statistical expectations stay deterministic
+tools/tests/test_paired_benchmarks.py	py	0	reviewed_this_round	docstring added this round (module had none): child results are synthesised, so ordering, validation and reporting are checked without measuring
+tools/tests/test_research_contract.py	py	0	reviewed_this_round	docstring added this round (module had none): the contract module is the single source of the expected table layout
+tools/tests/test_run_benchmarks.py	py	0	reviewed_this_round	docstring added this round (module had none): covers the legacy single-run driver while the paired campaign has its own module
 tools/verify_installed_package.py	py	0	reviewed_this_round	audited: purpose in the docstring, behaviour documented by the checks it runs; options have no help text by design of the original script
 tools/verify_xlsx_structure.py	py	0	reviewed_this_round	audited: docstring plus two option help strings already state the job and the independent reader used
 examples/implot_dashboard.cpp	cpp	1	sparse_not_audited	
