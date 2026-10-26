@@ -56,6 +56,10 @@ std::map<int, paired_yearly_bucket> group_aligned_by_utc_year(
     return buckets;
 }
 
+// A year's row is labelled with January first of that year while the metric only
+// sees the observations inside it, so a partial final year is reported at its own
+// January with no mark for the shorter span, and a year with no observations is
+// absent rather than padded. The map orders the output by year.
 template <typename Metric>
 dataframe aggregate_by_year(const dataframe& returns,
                             std::string_view input_column,

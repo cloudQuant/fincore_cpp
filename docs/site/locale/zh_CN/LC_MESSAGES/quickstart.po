@@ -1,0 +1,102 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-25 22:15+0800\n"
+"PO-Revision-Date: 2026-10-25 22:20+0800\n"
+"Last-Translator: fincore_cpp documentation maintainers\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/quickstart.md:1
+msgid "Quickstart"
+msgstr "快速开始"
+
+#: ../../site/quickstart.md:3
+msgid ""
+"This example uses a small synthetic frame. It does not download market data "
+"and does not imply an investment result."
+msgstr ""
+"本示例使用一个小型合成数据帧。它不会下载市场数据，也不代表任何投资结果。"
+
+#: ../../site/quickstart.md:6
+msgid ""
+"#include <fincore/dataframe.hpp>\n"
+"#include <fincore/metrics/ratios.hpp>\n"
+"\n"
+"#include <vector>\n"
+"\n"
+"int main() {\n"
+"    const std::vector<fincore::timestamp> index{\n"
+"        fincore::utc_timestamp(2025, 1, 2),\n"
+"        fincore::utc_timestamp(2025, 1, 3),\n"
+"        fincore::utc_timestamp(2025, 1, 6)};\n"
+"    fincore::dataframe returns;\n"
+"    returns.load_index(std::vector<fincore::timestamp>(index));\n"
+"    returns.load_column<double>(\n"
+"        \"close\", {0.01, -0.02, 0.015},\n"
+"        hmdf::nan_policy::dont_pad_with_nans);\n"
+"    const double sharpe = fincore::sharpe_ratio(returns);\n"
+"    return sharpe == sharpe ? 0 : 1;\n"
+"}\n"
+msgstr ""
+"#include <fincore/dataframe.hpp>\n"
+"#include <fincore/metrics/ratios.hpp>\n"
+"\n"
+"#include <vector>\n"
+"\n"
+"int main() {\n"
+"    const std::vector<fincore::timestamp> index{\n"
+"        fincore::utc_timestamp(2025, 1, 2),\n"
+"        fincore::utc_timestamp(2025, 1, 3),\n"
+"        fincore::utc_timestamp(2025, 1, 6)};\n"
+"    fincore::dataframe returns;\n"
+"    returns.load_index(std::vector<fincore::timestamp>(index));\n"
+"    returns.load_column<double>(\n"
+"        \"close\", {0.01, -0.02, 0.015},\n"
+"        hmdf::nan_policy::dont_pad_with_nans);\n"
+"    const double sharpe = fincore::sharpe_ratio(returns);\n"
+"    return sharpe == sharpe ? 0 : 1;\n"
+"}\n"
+
+#: ../../site/quickstart.md:27
+msgid ""
+"Build the example as a downstream consumer of the installed package. The "
+"sample is intentionally small; it checks that headers, installation and the "
+"link interface are usable, not that a factor is profitable."
+msgstr ""
+"将示例作为已安装包的下游使用方进行构建。示例有意保持精简；它验证的是头文件、"
+"安装和链接接口可用，而不是某个因子能否盈利。"
+
+#: ../../site/quickstart.md:31
+msgid "Next steps"
+msgstr "后续步骤"
+
+#: ../../site/quickstart.md:33
+msgid ""
+"Read [data and numerical conventions](conventions.md) before preparing a "
+"real panel."
+msgstr "在准备真实面板数据之前，请阅读[数据与数值约定](conventions.md)。"
+
+#: ../../site/quickstart.md:35
+msgid ""
+"Use the [API reference](api/index.md) for the typed result and configuration "
+"structures."
+msgstr "类型化结果与配置结构请参阅 [API 参考](api/index.md)。"
+
+#: ../../site/quickstart.md:37
+msgid ""
+"Review the [performance notes](performance.md) before interpreting a "
+"benchmark or comparing workloads."
+msgstr "在解读基准测试或比较工作负载之前，请阅读[性能说明](performance.md)。"

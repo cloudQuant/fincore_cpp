@@ -15,6 +15,9 @@ TEST(Dataframe, MakesADataframeNativeSeries) {
 }
 
 TEST(Dataframe, RejectsMismatchedIndexAndValueLengths) {
+    // The size check has to fire first: a column longer than the index would
+    // otherwise escape as the frame library's own inconsistent-data error, which
+    // derives from std::runtime_error rather than input_error.
     EXPECT_THROW(fincore::make_series({10}, "returns", {0.01, -0.02}),
                  fincore::input_error);
 }
@@ -111,6 +114,8 @@ TEST(Dataframe, RejectsMissingAlignmentColumns) {
 }
 
 TEST(Dataframe, RetainsCommonTimestampsInLeftInputOrder) {
+    // The left index is deliberately unsorted, so an implementation that sorted the
+    // intersection would also find two common timestamps but present them as 2, 3.
     const auto left =
         fincore::make_series({3, 1, 2}, "returns", {0.03, 0.01, 0.02});
     const auto right =

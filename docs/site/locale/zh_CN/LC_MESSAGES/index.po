@@ -1,0 +1,75 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 00:06+0800\n"
+"PO-Revision-Date: 2026-10-25 22:20+0800\n"
+"Last-Translator: fincore_cpp documentation maintainers\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/index.md:7
+msgid "Start here"
+msgstr "从这里开始"
+
+#: ../../site/index.md:16
+msgid "Guides"
+msgstr "指南"
+
+#: ../../site/index.md:26
+msgid "Reference"
+msgstr "参考"
+
+#: ../../site/index.md:1
+msgid "fincore_cpp"
+msgstr "fincore_cpp"
+
+#: ../../site/index.md:3
+msgid ""
+"`fincore_cpp` is a native C++23 library for portfolio, factor, performance "
+"and risk analytics. It is a native implementation with its own typed API; it "
+"does not promise Python object or pandas compatibility."
+msgstr ""
+"`fincore_cpp` 是一个原生 C++23 库，用于投资组合、因子、业绩与风险分析。它是具"
+"有自身类型化 API 的原生实现，不承诺兼容 Python 对象或 pandas。"
+
+#: ../../site/index.md:39
+msgid "Scope"
+msgstr "范围"
+
+#: ../../site/index.md:41
+msgid ""
+"The library consumes a local `DataFrame` type and returns owning typed "
+"results. The documentation distinguishes the stable public surface from "
+"internal `fincore::detail` helpers. Optional visualization and plotting "
+"adapters are built only when their CMake options and dependencies are "
+"enabled."
+msgstr ""
+"该库使用本地 `DataFrame` 类型，并返回拥有所有权的类型化结果。文档区分了稳定的"
+"公共接口与内部 `fincore::detail` 辅助实现。可选的可视化与绘图适配器仅在其 "
+"CMake 选项和依赖启用时才会构建。"
+
+#: ../../site/index.md:46
+msgid "Status"
+msgstr "状态"
+
+#: ../../site/index.md:48
+msgid ""
+"This site is generated from the same source commit as the C++ library and "
+"its English/Chinese guides. It is validated locally with strict Sphinx and "
+"Doxygen checks; external hosting status is recorded separately in the "
+"publication notes."
+msgstr ""
+"本站点与 C++ 库及其英文/中文指南由同一源提交生成。站点在本地通过严格的 "
+"Sphinx 和 Doxygen 检查进行验证；外部托管状态另行记录在发布说明中。"

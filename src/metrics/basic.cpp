@@ -8,6 +8,9 @@
 
 namespace fincore {
 
+// An explicit value is returned untouched, including a zero or a negative one:
+// the callers validate their own annualization before using the result, so this
+// function stays the mapping table only and cannot silently repair an argument.
 double annualization_factor(frequency period,
                             std::optional<double> annualization) {
     if (annualization.has_value()) {

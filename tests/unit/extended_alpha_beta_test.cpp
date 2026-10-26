@@ -26,6 +26,8 @@ std::vector<double> factor_values() {
           0.01,  0.02,  0.03,  0.04,  0.05,  0.06};
 }
 
+// The squared term keeps the fitted slope away from the generating 1.1, so an
+// implementation that echoed the fixture's own coefficient would not pass.
 std::vector<double> strategy_values() {
   const auto factors = factor_values();
   std::vector<double> result;
@@ -63,6 +65,9 @@ TEST(ExtendedAlphaBeta, MatchesOverallUpAndDownPythonOracles) {
 }
 
 TEST(ExtendedAlphaBeta, AlignsAllPairsByTimestampInsteadOfPosition) {
+  // Shifting the benchmark labels drops the non-overlapping rows on the join,
+  // so pairing the two value arrays side by side would regress different
+  // observations than the ones these oracles were produced from.
   const auto returns =
       fincore::make_series(twelve_indices(), "returns", strategy_values());
   const auto benchmark =

@@ -29,6 +29,9 @@ TEST(BasicMetrics, AdjustReturnsPreservesIndexAndColumn) {
 }
 
 TEST(BasicMetrics, ZeroAdjustmentStillReturnsAnIndependentFrame) {
+    // The zero here is the point: an implementation that returns the input frame
+    // unchanged would pass every arithmetic expectation above and fail only on
+    // the mutation below.
     auto returns = fincore::make_series({10}, "returns", {0.03});
 
     const auto adjusted = fincore::adjust_returns(returns, 0.0);

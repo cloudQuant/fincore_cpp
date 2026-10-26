@@ -1,3 +1,4 @@
+#include <fincore/calendar.hpp>
 #include <fincore/metrics/drawdown.hpp>
 
 #include <gtest/gtest.h>
@@ -110,6 +111,8 @@ TEST(Drawdown, ReportsDetailedEpisodesInChronologicalFrameOrder) {
 }
 
 TEST(Drawdown, UsesEarliestTroughAndEpisodeWhenDrawdownsTie) {
+    // Labels are deliberately out of ascending order: the scan walks frame
+    // positions, so "earliest" here is the first row, not the smallest label.
     const auto returns = fincore::make_series(
         {30, 10, 20, 40, 50, 60}, "returns",
         {0.0, -0.20, 0.0, 0.25, -0.20, 0.25});
@@ -346,5 +349,147 @@ static_assert(std::is_same_v<decltype(fincore::drawdown_window::valley),
                              fincore::timestamp>);
 static_assert(std::is_same_v<decltype(fincore::drawdown_window::recovery),
                              std::optional<fincore::timestamp>>);
+
+std::vector<fincore::timestamp> business_day_index() {
+    return {
+        fincore::utc_timestamp(2021, 1, 4),  fincore::utc_timestamp(2021, 1, 5),
+        fincore::utc_timestamp(2021, 1, 6),  fincore::utc_timestamp(2021, 1, 7),
+        fincore::utc_timestamp(2021, 1, 8),  fincore::utc_timestamp(2021, 1, 11),
+        fincore::utc_timestamp(2021, 1, 12), fincore::utc_timestamp(2021, 1, 13),
+        fincore::utc_timestamp(2021, 1, 14), fincore::utc_timestamp(2021, 1, 15),
+        fincore::utc_timestamp(2021, 1, 18), fincore::utc_timestamp(2021, 1, 19),
+    };
+}
+
+fincore::dataframe drawdown_fixture() {
+    return fincore::make_series(
+        business_day_index(), "returns",
+        {0.02, -0.05, 0.01, 0.06, 0.01, -0.03, -0.04, 0.05, 0.02, 0.03, -0.02,
+         0.01});
+}
+
+TEST(Drawdown, TopDrawdownsMatchPythonOracleOrderAndRecovery) {
+    const auto windows = fincore::get_top_drawdowns(drawdown_fixture(), 3);
+
+    ASSERT_EQ(windows.size(), 3U);
+    EXPECT_EQ(windows[0].peak, fincore::utc_timestamp(2021, 1, 8));
+    EXPECT_EQ(windows[0].valley, fincore::utc_timestamp(2021, 1, 12));
+    ASSERT_TRUE(windows[0].recovery.has_value());
+    EXPECT_EQ(*windows[0].recovery, fincore::utc_timestamp(2021, 1, 15));
+    EXPECT_EQ(windows[1].peak, fincore::utc_timestamp(2021, 1, 4));
+    EXPECT_EQ(windows[1].valley, fincore::utc_timestamp(2021, 1, 5));
+    ASSERT_TRUE(windows[1].recovery.has_value());
+    EXPECT_EQ(*windows[1].recovery, fincore::utc_timestamp(2021, 1, 7));
+    EXPECT_EQ(windows[2].peak, fincore::utc_timestamp(2021, 1, 15));
+    EXPECT_EQ(windows[2].valley, fincore::utc_timestamp(2021, 1, 18));
+    EXPECT_FALSE(windows[2].recovery.has_value());
+
+    // Ten asked for but three found: this API stops at the episodes that
+    // exist, unlike gen_drawdown_table, which always returns the asked size.
+    EXPECT_EQ(fincore::get_top_drawdowns(drawdown_fixture(), 10).size(), 3U);
+}
+
+TEST(Drawdown, DrawdownTableMatchesPythonOracleAndPadsRows) {
+    const auto table = fincore::gen_drawdown_table(drawdown_fixture(), 3);
+
+    ASSERT_EQ(table.size(), 3U);
+    EXPECT_NEAR(table[0].net_drawdown_percent, 6.880000000000005, 1e-12);
+    EXPECT_EQ(table[0].peak, fincore::utc_timestamp(2021, 1, 8));
+    EXPECT_EQ(table[0].valley, fincore::utc_timestamp(2021, 1, 12));
+    ASSERT_TRUE(table[0].recovery.has_value());
+    ASSERT_TRUE(table[0].duration_business_days.has_value());
+    EXPECT_EQ(*table[0].duration_business_days, 6U);
+    EXPECT_NEAR(table[1].net_drawdown_percent, 5.000000000000004, 1e-12);
+    ASSERT_TRUE(table[1].duration_business_days.has_value());
+    EXPECT_EQ(*table[1].duration_business_days, 4U);
+    EXPECT_NEAR(table[2].net_drawdown_percent, 2.0000000000000093, 1e-12);
+    EXPECT_FALSE(table[2].recovery.has_value());
+    EXPECT_FALSE(table[2].duration_business_days.has_value());
+
+    const auto monotone = fincore::make_series(
+        std::vector<fincore::timestamp>{fincore::utc_timestamp(2021, 1, 4),
+                                        fincore::utc_timestamp(2021, 1, 5),
+                                        fincore::utc_timestamp(2021, 1, 6)},
+        "returns", {0.01, 0.02, 0.03});
+    const auto padded = fincore::gen_drawdown_table(monotone, 3);
+    ASSERT_EQ(padded.size(), 3U);
+    for (const auto& row : padded) {
+        EXPECT_TRUE(std::isnan(row.net_drawdown_percent));
+        EXPECT_FALSE(row.peak.has_value());
+        EXPECT_FALSE(row.valley.has_value());
+        EXPECT_FALSE(row.recovery.has_value());
+        EXPECT_FALSE(row.duration_business_days.has_value());
+    }
+
+    const auto unrecovered = fincore::make_series(
+        std::vector<fincore::timestamp>{
+            fincore::utc_timestamp(2021, 1, 4),
+            fincore::utc_timestamp(2021, 1, 5),
+            fincore::utc_timestamp(2021, 1, 6),
+            fincore::utc_timestamp(2021, 1, 7)},
+        "returns", {0.02, -0.10, 0.01, -0.02});
+    const auto unrecovered_table =
+        fincore::gen_drawdown_table(unrecovered, 2);
+    ASSERT_EQ(unrecovered_table.size(), 2U);
+    EXPECT_NEAR(unrecovered_table[0].net_drawdown_percent, 10.918, 1e-12);
+    EXPECT_FALSE(unrecovered_table[0].recovery.has_value());
+    EXPECT_FALSE(unrecovered_table[0].duration_business_days.has_value());
+    EXPECT_TRUE(std::isnan(unrecovered_table[1].net_drawdown_percent));
+}
+
+TEST(Drawdown, MaxDrawdownPeriodMatchesPythonOracle) {
+    const auto period = fincore::max_drawdown_period(drawdown_fixture());
+    ASSERT_TRUE(period.first.has_value());
+    ASSERT_TRUE(period.second.has_value());
+    EXPECT_EQ(*period.first, fincore::utc_timestamp(2021, 1, 8));
+    EXPECT_EQ(*period.second, fincore::utc_timestamp(2021, 1, 12));
+
+    const auto monotone = fincore::make_series(
+        std::vector<fincore::timestamp>{fincore::utc_timestamp(2021, 1, 4),
+                                        fincore::utc_timestamp(2021, 1, 5),
+                                        fincore::utc_timestamp(2021, 1, 6)},
+        "returns", {0.01, 0.02, 0.03});
+    const auto flat_period = fincore::max_drawdown_period(monotone);
+    ASSERT_TRUE(flat_period.first.has_value());
+    EXPECT_EQ(*flat_period.first, fincore::utc_timestamp(2021, 1, 4));
+    EXPECT_EQ(*flat_period.second, fincore::utc_timestamp(2021, 1, 4));
+
+    const auto empty = fincore::make_series({}, "returns", {});
+    const auto empty_period = fincore::max_drawdown_period(empty);
+    EXPECT_FALSE(empty_period.first.has_value());
+    EXPECT_FALSE(empty_period.second.has_value());
+}
+
+TEST(Drawdown, DrawdownRankApisValidateSelectorsAndOwnTheirResults) {
+    const auto strategy = fincore::make_series(
+        business_day_index(), "strategy",
+        {0.02, -0.05, 0.01, 0.06, 0.01, -0.03, -0.04, 0.05, 0.02, 0.03, -0.02,
+         0.01});
+    constexpr std::array<char, 8> bounded_name{
+        's', 't', 'r', 'a', 't', 'e', 'g', 'y'};
+    const std::string_view bounded_selector{bounded_name.data(),
+                                            bounded_name.size()};
+    const std::array<char, 13> embedded_storage{
+        'r', 'e', 't', 'u', 'r', 'n', 's', '\0', 'e', 'v', 'i', 'l', '!'};
+    const std::string_view embedded_selector{embedded_storage.data(),
+                                             embedded_storage.size()};
+
+    EXPECT_EQ(fincore::get_top_drawdowns(strategy, 3, bounded_selector).size(),
+              3U);
+    EXPECT_THROW(static_cast<void>(
+                     fincore::get_top_drawdowns(strategy, 3,
+                                                embedded_selector)),
+                 fincore::input_error);
+    EXPECT_THROW(
+        static_cast<void>(fincore::gen_drawdown_table(strategy, 3, "")),
+        fincore::input_error);
+
+    const auto owned = [] {
+        const auto frame = drawdown_fixture();
+        return fincore::get_top_drawdowns(frame, 3);
+    }();
+    ASSERT_EQ(owned.size(), 3U);
+    EXPECT_EQ(owned[0].valley, fincore::utc_timestamp(2021, 1, 12));
+}
 
 }  // namespace

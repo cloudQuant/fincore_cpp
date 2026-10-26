@@ -6,16 +6,19 @@
 
 #include <gtest/gtest.h>
 
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <limits>
 #include <optional>
+#include <string>
 #include <string_view>
 #include <vector>
 
 namespace {
 
 constexpr double tolerance = 1.0e-12;
+constexpr double nan = std::numeric_limits<double>::quiet_NaN();
 
 const std::vector<fincore::timestamp> reference_index{1, 2, 3, 4, 5, 6};
 const std::vector<double> reference_returns{.01, -.02, .03, 0.0, -.01, .02};
@@ -29,6 +32,19 @@ fincore::dataframe reference_series(std::string_view column = "returns") {
 fincore::dataframe reference_benchmark_series(
     std::string_view column = "benchmark") {
     return fincore::make_series(reference_index, column, reference_benchmark);
+}
+
+fincore::dataframe reference_factor_frame() {
+    fincore::dataframe factors;
+    factors.load_index(std::vector<fincore::timestamp>{reference_index});
+    factors.load_column<double>("market", reference_benchmark,
+                                hmdf::nan_policy::dont_pad_with_nans);
+    factors.load_column<double>("inverse",
+                                {-.005, .01, -.02, -.01, .02, -.01},
+                                hmdf::nan_policy::dont_pad_with_nans);
+    factors.load_column<int>("metadata", {1, 2, 3, 4, 5, 6},
+                             hmdf::nan_policy::dont_pad_with_nans);
+    return factors;
 }
 
 void expect_values(const fincore::dataframe& actual,
@@ -45,12 +61,26 @@ void expect_values(const fincore::dataframe& actual,
     }
 }
 
+// A window longer than the series is an empty result with its column still
+// present and typed, not a missing column: this distinguishes "measured nothing"
+// from "refused to run", which a size-only check would blur.
 void expect_empty_typed_series(const fincore::dataframe& actual,
                                std::string_view column) {
     EXPECT_TRUE(actual.get_index().empty());
     EXPECT_TRUE(actual.has_column(std::string{column}.c_str()));
     EXPECT_TRUE(actual.get_column<double>(std::string{column}.c_str()).empty());
     EXPECT_EQ(actual.get_columns_info<double>().size(), 1U);
+}
+
+void expect_double_column_names(
+    const fincore::dataframe& actual,
+    const std::vector<std::string_view>& expected_names) {
+    const auto columns = actual.get_columns_info<double>();
+    ASSERT_EQ(columns.size(), expected_names.size());
+    for (std::size_t position = 0U; position < expected_names.size(); ++position) {
+        EXPECT_STREQ(std::get<0>(columns[position]).c_str(),
+                     std::string{expected_names[position]}.c_str());
+    }
 }
 
 template <typename Function>
@@ -714,6 +744,317 @@ TEST(RollingMetrics, PairedEndpointsHandleOneWindowZeroWindowAndInputErrors) {
                                                  returns_column_name,
                                                  benchmark_column_name);
         });
+}
+
+TEST(RollingMetrics, AlphaBetaAndBetaFacadesMatchNativeRollingGoldens) {
+    const auto returns = reference_series();
+    const auto benchmark = reference_benchmark_series();
+    const auto factors = reference_factor_frame();
+    const std::array<std::string_view, 2U> factor_names{"market", "inverse"};
+    const auto expected_endpoints = std::vector<fincore::timestamp>{3, 4, 5, 6};
+    const std::vector<double> expected_alpha{
+        -.3431833620809164, -.8357653939371649, 1.6310200676280466,
+        1.313133510455331};
+    const std::vector<double> expected_beta{
+        1.6666666666666667, 1.5714285714285716, .846153846153846,
+        .6666666666666666};
+
+    const auto alpha_beta = fincore::roll_alpha_beta(returns, benchmark, 3U);
+    EXPECT_EQ(alpha_beta.get_index(), expected_endpoints);
+    expect_double_column_names(alpha_beta, {"alpha", "beta"});
+    expect_values(alpha_beta, "alpha", expected_alpha);
+    expect_values(alpha_beta, "beta", expected_beta);
+
+    const auto first_returns = fincore::make_series(
+        {1, 2, 3}, "returns", {.01, -.02, .03});
+    const auto first_benchmark = fincore::make_series(
+        {1, 2, 3}, "benchmark", {.005, -.01, .02});
+    const auto direct = fincore::alpha_beta(first_returns, first_benchmark);
+    EXPECT_NEAR(alpha_beta.get_column<double>("alpha")[0], direct.first,
+                tolerance);
+    EXPECT_NEAR(alpha_beta.get_column<double>("beta")[0], direct.second,
+                tolerance);
+
+    const auto single_beta = fincore::rolling_beta(returns, benchmark, 3U);
+    EXPECT_EQ(single_beta.get_index(), reference_index);
+    expect_values(single_beta, "returns",
+                  {std::numeric_limits<double>::quiet_NaN(),
+                   std::numeric_limits<double>::quiet_NaN(),
+                   1.6666666666666659, 1.571428571428571,
+                   .8461538461538458, .6666666666666666});
+
+    const auto multi_beta =
+        fincore::rolling_beta(returns, factors, factor_names, 3U);
+    EXPECT_EQ(multi_beta.get_index(), reference_index);
+    expect_double_column_names(multi_beta, {"market", "inverse"});
+    expect_values(multi_beta, "market",
+                  {std::numeric_limits<double>::quiet_NaN(),
+                   std::numeric_limits<double>::quiet_NaN(),
+                   1.6666666666666659, 1.571428571428571,
+                   .8461538461538458, .6666666666666666});
+    expect_values(multi_beta, "inverse",
+                  {std::numeric_limits<double>::quiet_NaN(),
+                   std::numeric_limits<double>::quiet_NaN(),
+                   -1.6666666666666659, -1.571428571428571,
+                   -.8461538461538458, -.6666666666666666});
+
+    const auto regression = fincore::rolling_regression(returns, benchmark, 3U);
+    EXPECT_EQ(regression.get_index(), expected_endpoints);
+    expect_double_column_names(regression, {"alpha", "beta"});
+    expect_values(regression, "alpha",
+                  {-.0016666666666666644, -.007142857142857138,
+                   .0038461538461538455, .0033333333333333322});
+    expect_values(regression, "beta",
+                  {1.6666666666666659, 1.571428571428571,
+                   .8461538461538458, .6666666666666666});
+}
+
+TEST(RollingMetrics,
+     RollAlphaBetaDelegatesEveryCustomParameterizedWindowToPublicAlphaBeta) {
+    const auto returns = reference_series("strategy");
+    const auto benchmark = reference_benchmark_series("market");
+    constexpr double risk_free = .001;
+    constexpr double requested_annualization = 7.0;
+    constexpr auto period = fincore::frequency::weekly;
+    constexpr std::size_t window = 3U;
+    const double factor = fincore::annualization_factor(period, requested_annualization);
+    const auto actual = fincore::roll_alpha_beta(
+        returns, benchmark, window, risk_free, period, requested_annualization,
+        "strategy", "market");
+    const auto [aligned_returns, aligned_benchmark] = fincore::align_on_common_index(
+        returns, "strategy", benchmark, "market");
+    const auto return_values =
+        fincore::require_double_column(aligned_returns, "strategy");
+    const auto benchmark_values =
+        fincore::require_double_column(aligned_benchmark, "market");
+
+    ASSERT_EQ(actual.get_index(),
+              (std::vector<fincore::timestamp>{3, 4, 5, 6}));
+    for (std::size_t start = 0U; start + window <= return_values.size(); ++start) {
+        const auto first = static_cast<std::ptrdiff_t>(start);
+        const auto last = static_cast<std::ptrdiff_t>(start + window);
+        const std::vector<fincore::timestamp> index(
+            aligned_returns.get_index().begin() + first,
+            aligned_returns.get_index().begin() + last);
+        const auto complete_returns = fincore::make_series(
+            index, "strategy",
+            {return_values.begin() + first, return_values.begin() + last});
+        const auto complete_benchmark = fincore::make_series(
+            index, "market",
+            {benchmark_values.begin() + first, benchmark_values.begin() + last});
+        const auto expected = fincore::alpha_beta(
+            complete_returns, complete_benchmark, risk_free, factor,
+            "strategy", "market");
+        EXPECT_NEAR(actual.get_column<double>("alpha")[start], expected.first,
+                    tolerance);
+        EXPECT_NEAR(actual.get_column<double>("beta")[start], expected.second,
+                    tolerance);
+
+        if (start == 0U) {
+            const auto without_risk_free = fincore::alpha_beta(
+                complete_returns, complete_benchmark, 0.0, factor,
+                "strategy", "market");
+            const auto with_daily_annualization = fincore::alpha_beta(
+                complete_returns, complete_benchmark, risk_free,
+                fincore::annualization_factor(fincore::frequency::daily,
+                                               std::nullopt),
+                "strategy", "market");
+            EXPECT_GT(std::abs(expected.first - without_risk_free.first), tolerance);
+            EXPECT_GT(std::abs(expected.first - with_daily_annualization.first),
+                      tolerance);
+        }
+    }
+}
+
+TEST(RollingMetrics, NewRollingFacadesAlignAndPreserveSpecifiedShapes) {
+    const auto returns = fincore::make_series(
+        {30, 10, 20, 5, 50}, "strategy", {.01, -.02, .03, -.01, .02});
+    const auto benchmark = fincore::make_series(
+        {20, 30, 5, 40, 10}, "market", {.02, .005, -.01, .03, -.01});
+    const auto alpha_beta = fincore::roll_alpha_beta(
+        returns, benchmark, 3U, 0.0, fincore::frequency::daily, std::nullopt,
+        "strategy", "market");
+    const auto beta = fincore::rolling_beta(returns, benchmark, 3U,
+                                             "strategy", "market");
+    const auto regression = fincore::rolling_regression(returns, benchmark, 3U,
+                                                         "strategy", "market");
+    EXPECT_EQ(alpha_beta.get_index(),
+              (std::vector<fincore::timestamp>{20, 5}));
+    EXPECT_EQ(beta.get_index(),
+              (std::vector<fincore::timestamp>{30, 10, 20, 5}));
+    EXPECT_EQ(regression.get_index(),
+              (std::vector<fincore::timestamp>{20, 5}));
+    EXPECT_TRUE(beta.has_column("strategy"));
+
+    const auto short_returns = fincore::make_series({1, 2}, "returns", {.01, -.02});
+    const auto short_benchmark =
+        fincore::make_series({1, 2}, "benchmark", {.005, -.01});
+    const auto short_alpha_beta =
+        fincore::roll_alpha_beta(short_returns, short_benchmark, 3U);
+    const auto short_regression =
+        fincore::rolling_regression(short_returns, short_benchmark, 3U);
+    for (const auto* output : {&short_alpha_beta, &short_regression}) {
+        EXPECT_TRUE(output->get_index().empty());
+        expect_double_column_names(*output, {"alpha", "beta"});
+    }
+    const auto no_common_beta = fincore::rolling_beta(
+        fincore::make_series({1, 2}, "returns", {.01, -.02}),
+        fincore::make_series({3, 4}, "benchmark", {.005, -.01}), 3U);
+    EXPECT_TRUE(no_common_beta.get_index().empty());
+    EXPECT_TRUE(no_common_beta.has_column("returns"));
+}
+
+TEST(RollingMetrics, NewRollingFacadesValidateInputsAndInvalidateFixedWindows) {
+    const auto returns = reference_series();
+    const auto benchmark = reference_benchmark_series();
+    const auto factors = reference_factor_frame();
+    const std::array<std::string_view, 2U> duplicate{"market", "market"};
+    const std::array<std::string_view, 1U> empty{""};
+    const std::array<std::string_view, 1U> missing{"absent"};
+    const std::array<std::string_view, 1U> wrong_type{"metadata"};
+    const std::array<std::string_view, 0U> none{};
+    EXPECT_THROW(fincore::roll_alpha_beta(returns, benchmark, 0U),
+                 fincore::input_error);
+    EXPECT_THROW(fincore::rolling_beta(returns, benchmark, 0U),
+                 fincore::input_error);
+    EXPECT_THROW(fincore::rolling_regression(returns, benchmark, 0U),
+                 fincore::input_error);
+    EXPECT_THROW(fincore::rolling_beta(returns, factors, duplicate, 3U),
+                 fincore::input_error);
+    EXPECT_THROW(fincore::rolling_beta(returns, factors, empty, 3U),
+                 fincore::input_error);
+    EXPECT_THROW(fincore::rolling_beta(returns, factors, missing, 3U),
+                 fincore::input_error);
+    EXPECT_THROW(fincore::rolling_beta(returns, factors, wrong_type, 3U),
+                 fincore::input_error);
+    EXPECT_THROW(fincore::rolling_beta(returns, factors, none, 3U),
+                 fincore::input_error);
+    fincore::dataframe malformed_factors;
+    malformed_factors.load_index(std::vector<fincore::timestamp>{1, 2});
+    malformed_factors.load_column<double>("market", std::vector<double>{.01},
+                                          hmdf::nan_policy::dont_pad_with_nans);
+    EXPECT_THROW(fincore::rolling_beta(returns, malformed_factors,
+                                       std::array<std::string_view, 1U>{"market"},
+                                       3U),
+                 fincore::input_error);
+    EXPECT_THROW(fincore::roll_alpha_beta(
+                     returns, benchmark, 3U, 0.0,
+                     static_cast<fincore::frequency>(999)),
+                 fincore::input_error);
+
+    const auto constant = fincore::make_series(
+        reference_index, "benchmark", {.01, .01, .01, .01, .01, .01});
+    const auto constant_beta = fincore::rolling_beta(returns, constant, 3U);
+    const auto constant_regression =
+        fincore::rolling_regression(returns, constant, 3U);
+    expect_values(constant_beta, "returns",
+                  {std::numeric_limits<double>::quiet_NaN(),
+                   std::numeric_limits<double>::quiet_NaN(),
+                   std::numeric_limits<double>::quiet_NaN(),
+                   std::numeric_limits<double>::quiet_NaN(),
+                   std::numeric_limits<double>::quiet_NaN(),
+                   std::numeric_limits<double>::quiet_NaN()});
+    EXPECT_TRUE(constant_regression.get_index().empty());
+
+    const auto nonfinite_returns = fincore::make_series(
+        reference_index, "returns",
+        {.01, std::numeric_limits<double>::quiet_NaN(), .03, 0.0, -.01, .02});
+    const auto nonfinite_benchmark = fincore::make_series(
+        reference_index, "benchmark",
+        {.005, -.01, std::numeric_limits<double>::infinity(), .01, -.02, .01});
+    const auto invalid_beta =
+        fincore::rolling_beta(nonfinite_returns, nonfinite_benchmark, 3U);
+    expect_values(invalid_beta, "returns",
+                  {std::numeric_limits<double>::quiet_NaN(),
+                   std::numeric_limits<double>::quiet_NaN(),
+                   std::numeric_limits<double>::quiet_NaN(),
+                   std::numeric_limits<double>::quiet_NaN(),
+                   std::numeric_limits<double>::quiet_NaN(),
+                   .6666666666666666});
+    EXPECT_EQ(fincore::rolling_regression(nonfinite_returns, nonfinite_benchmark,
+                                          3U)
+                  .get_index(),
+              (std::vector<fincore::timestamp>{6}));
+}
+
+void expect_special_values(const fincore::dataframe& actual,
+                           std::string_view column,
+                           const std::vector<double>& expected) {
+    const auto& values = actual.get_column<double>(std::string{column}.c_str());
+    ASSERT_EQ(values.size(), expected.size());
+    for (std::size_t position = 0; position < expected.size(); ++position) {
+        if (std::isnan(expected[position])) {
+            EXPECT_TRUE(std::isnan(values[position]));
+        } else if (std::isinf(expected[position])) {
+            EXPECT_TRUE(std::isinf(values[position]));
+            EXPECT_EQ(std::signbit(values[position]),
+                      std::signbit(expected[position]));
+        } else {
+            EXPECT_NEAR(values[position], expected[position], tolerance);
+        }
+    }
+}
+
+TEST(RollingMetrics, RollAnnualVolatilityAndSortinoMatchPythonOracle) {
+    const std::vector<fincore::timestamp> index{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    const std::vector<double> values{0.01, 0.02, -0.05, 0.03, 0.01,
+                                     -0.02, 0.04, 0.01, 0.02, -0.03};
+    const auto returns = fincore::make_series(index, "returns", values);
+
+    const auto volatility = fincore::roll_annual_volatility(returns, 3U);
+    EXPECT_EQ(volatility.get_index(),
+              (std::vector<fincore::timestamp>{3, 4, 5, 6, 7, 8, 9, 10}));
+    expect_special_values(
+        volatility, "returns",
+        {0.6009991680526688, 0.6919537556802478, 0.6609084656743323,
+         0.3994996871087636, 0.4762352359916263, 0.4762352359916263,
+         0.24248711305964282, 0.42});
+
+    const auto sortino = fincore::roll_sortino_ratio(returns, 3U);
+    EXPECT_EQ(sortino.get_index(),
+              (std::vector<fincore::timestamp>{3, 4, 5, 6, 7, 8, 9, 10}));
+    expect_special_values(
+        sortino, "returns",
+        {-3.6660605559646724, -6.359601310784501e-16, -1.8330302779823364,
+         9.16515138991168, 13.747727084867519, 13.747727084867519,
+         std::numeric_limits<double>::infinity(), 0.0});
+}
+
+TEST(RollingMetrics, RollingVolatilityAndSortinoPreserveNanAndAnnualization) {
+    const std::vector<fincore::timestamp> index{1, 2, 3, 4, 5, 6, 7};
+    const std::vector<double> values{0.01, nan, -0.05, 0.03, 0.01, -0.02, 0.04};
+    const auto returns = fincore::make_series(index, "returns", values);
+
+    const auto volatility = fincore::roll_annual_volatility(returns, 3U);
+    expect_special_values(volatility, "returns",
+                          {0.6734983296193096, 0.897997772825746,
+                           0.6609084656743323, 0.3994996871087636,
+                           0.4762352359916263});
+    const auto sortino = fincore::roll_sortino_ratio(returns, 3U);
+    expect_special_values(sortino, "returns",
+                          {-8.979977728257458, -4.48998886412873,
+                           -1.8330302779823364, 9.16515138991168,
+                           13.747727084867519});
+
+    const std::vector<double> clean_values{0.01, 0.02, -0.05, 0.03, 0.01,
+                                           -0.02, 0.04, 0.01, 0.02, -0.03};
+    const auto clean = fincore::make_series(
+        std::vector<fincore::timestamp>{1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
+        "returns", clean_values);
+    const auto annualized =
+        fincore::roll_annual_volatility(clean, 3U, fincore::frequency::daily,
+                                        52.0);
+    expect_special_values(
+        annualized, "returns",
+        {0.2730079363925769, 0.3143246729100342, 0.30022213997860536,
+         0.18147543451754933, 0.21633307652783934, 0.21633307652783934,
+         0.11015141094572203, 0.1907878402833891});
+
+    EXPECT_TRUE(
+        fincore::roll_annual_volatility(clean, 11U).get_index().empty());
+    EXPECT_THROW(
+        static_cast<void>(fincore::roll_sortino_ratio(clean, 0U)),
+        fincore::input_error);
 }
 
 }  // namespace

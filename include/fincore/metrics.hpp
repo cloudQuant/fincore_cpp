@@ -12,3 +12,6 @@
 #include <fincore/metrics/timing.hpp>
 #include <fincore/metrics/yearly.hpp>
 #include <fincore/metrics/rolling.hpp>
+#include <fincore/metrics/perf_stats.hpp>
+#include <fincore/metrics/perf_attrib.hpp>
+#include <fincore/metrics/bayesian.hpp>

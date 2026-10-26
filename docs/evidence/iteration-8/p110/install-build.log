@@ -1,0 +1,320 @@
+[1/104] Building CXX object CMakeFiles/fincore.dir/src/data/contracts.cpp.o
+[2/104] Building CXX object _deps/dataframe-build/CMakeFiles/DataFrame.dir/src/Utils/DateTime.cc.o
+[3/104] Building CXX object CMakeFiles/fincore.dir/src/errors.cpp.o
+[4/104] Building CXX object CMakeFiles/fincore.dir/src/calendar.cpp.o
+[5/104] Building CXX object CMakeFiles/fincore.dir/src/metrics/basic.cpp.o
+[6/104] Building CXX object CMakeFiles/fincore.dir/src/extensions/discovery.cpp.o
+[7/104] Building CXX object CMakeFiles/fincore.dir/src/metrics/frequencies.cpp.o
+[8/104] Building CXX object CMakeFiles/fincore.dir/src/data/providers.cpp.o
+[9/104] Building CXX object CMakeFiles/fincore.dir/src/dataframe.cpp.o
+[10/104] Building CXX object CMakeFiles/fincore.dir/src/extensions/snapshot.cpp.o
+[11/104] Building CXX object CMakeFiles/fincore.dir/src/metrics/helpers.cpp.o
+[12/104] Building CXX object CMakeFiles/fincore.dir/src/performance/disclosures.cpp.o
+[13/104] Building CXX object CMakeFiles/fincore.dir/src/metrics/bayesian.cpp.o
+[14/104] Building CXX object CMakeFiles/fincore.dir/src/metrics/drawdown.cpp.o
+[15/104] Building CXX object CMakeFiles/fincore.dir/src/metrics/consecutive.cpp.o
+/Users/yunjinqi/Documents/new_projects/fincore_cpp/src/metrics/consecutive.cpp:267:22: warning: null character(s) preserved in char literal [-Wnull-character]
+  267 |     if (column.find('<U+0000>') != std::string_view::npos) {
+      |                      ^
+/Users/yunjinqi/Documents/new_projects/fincore_cpp/src/metrics/consecutive.cpp:275:22: warning: null character(s) preserved in char literal [-Wnull-character]
+  275 |     if (column.find('<U+0000>') != std::string_view::npos) {
+      |                      ^
+/Users/yunjinqi/Documents/new_projects/fincore_cpp/src/metrics/consecutive.cpp:283:22: warning: null character(s) preserved in char literal [-Wnull-character]
+  283 |     if (column.find('<U+0000>') != std::string_view::npos) {
+      |                      ^
+/Users/yunjinqi/Documents/new_projects/fincore_cpp/src/metrics/consecutive.cpp:291:22: warning: null character(s) preserved in char literal [-Wnull-character]
+  291 |     if (column.find('<U+0000>') != std::string_view::npos) {
+      |                      ^
+/Users/yunjinqi/Documents/new_projects/fincore_cpp/src/metrics/consecutive.cpp:299:22: warning: null character(s) preserved in char literal [-Wnull-character]
+  299 |     if (column.find('<U+0000>') != std::string_view::npos) {
+      |                      ^
+5 warnings generated.
+[16/104] Building CXX object CMakeFiles/fincore.dir/src/performance/returns.cpp.o
+/Users/yunjinqi/Documents/new_projects/fincore_cpp/src/performance/returns.cpp:176:29: warning: null character(s) preserved in char literal [-Wnull-character]
+  176 |     if (amount_column.find('<U+0000>') != std::string_view::npos) {
+      |                             ^
+/Users/yunjinqi/Documents/new_projects/fincore_cpp/src/performance/returns.cpp:208:29: warning: null character(s) preserved in char literal [-Wnull-character]
+  208 |     if (amount_column.find('<U+0000>') != std::string_view::npos) {
+      |                             ^
+2 warnings generated.
+[17/104] Building CXX object CMakeFiles/fincore.dir/src/metrics/ratios.cpp.o
+[18/104] Building CXX object CMakeFiles/fincore.dir/src/metrics/returns.cpp.o
+[19/104] Building CXX object CMakeFiles/fincore.dir/src/performance/cashflows.cpp.o
+[20/104] Building CXX object CMakeFiles/fincore.dir/src/data/snapshots.cpp.o
+[21/104] Building CXX object CMakeFiles/fincore.dir/src/performance/inference.cpp.o
+[22/104] Building CXX object CMakeFiles/fincore.dir/src/portfolio/capacity.cpp.o
+[23/104] Building CXX object CMakeFiles/fincore.dir/src/factor/calendar.cpp.o
+[24/104] Building CXX object CMakeFiles/fincore.dir/src/factor/costs.cpp.o
+[25/104] Building CXX object CMakeFiles/fincore.dir/src/factor/data.cpp.o
+[26/104] Building CXX object CMakeFiles/fincore.dir/src/factor/pit.cpp.o
+[27/104] Building CXX object CMakeFiles/fincore.dir/src/factor/tears.cpp.o
+[28/104] Building CXX object CMakeFiles/fincore.dir/src/factor/report.cpp.o
+[29/104] Building CXX object CMakeFiles/fincore.dir/src/factor/portfolio.cpp.o
+[30/104] Building CXX object CMakeFiles/fincore.dir/src/factor/artifacts.cpp.o
+[31/104] Building CXX object CMakeFiles/fincore.dir/src/factor/analysis.cpp.o
+[32/104] Building CXX object CMakeFiles/fincore.dir/src/factor/performance.cpp.o
+[33/104] Building CXX object CMakeFiles/fincore.dir/src/factor/timedelta.cpp.o
+[34/104] Building CXX object CMakeFiles/fincore.dir/src/factor/workflows.cpp.o
+[35/104] Building CXX object CMakeFiles/fincore.dir/src/report/models.cpp.o
+[36/104] Building CXX object CMakeFiles/fincore.dir/src/report/risk.cpp.o
+[37/104] Building CXX object CMakeFiles/fincore.dir/src/report/html.cpp.o
+[38/104] Building CXX object CMakeFiles/fincore.dir/src/factor/research.cpp.o
+[39/104] Building CXX object CMakeFiles/fincore.dir/src/factor/serialization.cpp.o
+[40/104] Building CXX object CMakeFiles/fincore.dir/src/report/xlsx.cpp.o
+[41/104] Building CXX object CMakeFiles/fincore.dir/src/report/pdf.cpp.o
+[42/104] Building CXX object CMakeFiles/fincore.dir/src/report/renderers.cpp.o
+[43/104] Building CXX object CMakeFiles/fincore.dir/src/report/portfolio.cpp.o
+[44/104] Building CXX object CMakeFiles/fincore.dir/src/runtime/utilities.cpp.o
+[45/104] Building CXX object CMakeFiles/fincore.dir/src/viz/render_model.cpp.o
+[46/104] Building CXX object CMakeFiles/fincore.dir/src/viz/chart_data.cpp.o
+[47/104] Building CXX object CMakeFiles/fincore.dir/src/optimization/numerics.cpp.o
+[48/104] Building CXX object CMakeFiles/fincore.dir/src/viz/bokeh_document.cpp.o
+[49/104] Building CXX object CMakeFiles/fincore.dir/src/runtime/operations_metrics.cpp.o
+[50/104] Building CXX object CMakeFiles/fincore.dir/src/viz/plotly_document.cpp.o
+[51/104] Building CXX object CMakeFiles/fincore.dir/src/viz/html_builder.cpp.o
+[52/104] Building CXX object CMakeFiles/fincore.dir/src/detail/mt19937.cpp.o
+[53/104] Building CXX object CMakeFiles/fincore.dir/src/detail/digest.cpp.o
+[54/104] Building CXX object CMakeFiles/fincore.dir/src/version.cpp.o
+[55/104] Building CXX object CMakeFiles/fincore.dir/src/operations.cpp.o
+[56/104] Building CXX object CMakeFiles/fincore.dir/src/optimization/portfolio_solver.cpp.o
+[57/104] Building CXX object CMakeFiles/fincore.dir/src/optimization/objectives.cpp.o
+[58/104] Building CXX object CMakeFiles/fincore.dir/src/optimization/risk_parity.cpp.o
+[59/104] Building CXX object CMakeFiles/fincore.dir/src/optimization/frontier.cpp.o
+[60/104] Building CXX object CMakeFiles/fincore.dir/src/risk/specs.cpp.o
+[61/104] Building CXX object CMakeFiles/fincore.dir/src/risk/garch.cpp.o
+[62/104] Building CXX object CMakeFiles/fincore.dir/src/risk/evt.cpp.o
+[63/104] Building CXX object CMakeFiles/fincore.dir/src/risk/backtesting.cpp.o
+[64/104] Building CXX object CMakeFiles/fincore.dir/src/risk/walk_forward.cpp.o
+[65/104] Building CXX object CMakeFiles/fincore.dir/src/runtime/runtime.cpp.o
+[66/104] Building CXX object CMakeFiles/fincore.dir/src/runtime/operations_portfolio.cpp.o
+[67/104] Building CXX object CMakeFiles/fincore.dir/src/risk/models.cpp.o
+[68/104] Building CXX object CMakeFiles/fincore.dir/src/metrics/stats.cpp.o
+/Users/yunjinqi/Documents/new_projects/fincore_cpp/src/metrics/stats.cpp:509:22: warning: null character(s) preserved in char literal [-Wnull-character]
+  509 |     if (column.find('<U+0000>') != std::string_view::npos) {
+      |                      ^
+1 warning generated.
+[69/104] Building CXX object CMakeFiles/fincore.dir/src/runtime/serialization.cpp.o
+[70/104] Building CXX object CMakeFiles/fincore.dir/src/risk/report.cpp.o
+[71/104] Building CXX object CMakeFiles/fincore.dir/src/metrics/risk.cpp.o
+[72/104] Building CXX object CMakeFiles/fincore.dir/src/metrics/alpha_beta.cpp.o
+/Users/yunjinqi/Documents/new_projects/fincore_cpp/src/metrics/alpha_beta.cpp:339:35: warning: null character(s) preserved in char literal [-Wnull-character]
+  339 |     if (returns_column_name.find('<U+0000>') != std::string_view::npos ||
+      |                                   ^
+/Users/yunjinqi/Documents/new_projects/fincore_cpp/src/metrics/alpha_beta.cpp:340:37: warning: null character(s) preserved in char literal [-Wnull-character]
+  340 |         benchmark_column_name.find('<U+0000>') != std::string_view::npos) {
+      |                                     ^
+2 warnings generated.
+[73/104] Building CXX object CMakeFiles/fincore.dir/src/runtime/operations_factor.cpp.o
+[74/104] Building CXX object CMakeFiles/fincore.dir/src/metrics/timing.cpp.o
+/Users/yunjinqi/Documents/new_projects/fincore_cpp/src/metrics/timing.cpp:299:22: warning: null character(s) preserved in char literal [-Wnull-character]
+  299 |     if (column.find('<U+0000>') != std::string_view::npos) {
+      |                      ^
+1 warning generated.
+[75/104] Building CXX object CMakeFiles/fincore.dir/src/metrics/yearly.cpp.o
+[76/104] Building CXX object CMakeFiles/fincore.dir/src/metrics/perf_stats.cpp.o
+/Users/yunjinqi/Documents/new_projects/fincore_cpp/src/metrics/perf_stats.cpp:251:22: warning: null character(s) preserved in char literal [-Wnull-character]
+  251 |     if (column.find('<U+0000>') != std::string_view::npos) {
+      |                      ^
+1 warning generated.
+[77/104] Building CXX object CMakeFiles/fincore.dir/src/metrics/rolling.cpp.o
+[78/104] Building CXX object CMakeFiles/fincore.dir/src/portfolio/positions.cpp.o
+/Users/yunjinqi/Documents/new_projects/fincore_cpp/src/portfolio/positions.cpp:263:32: warning: null character(s) preserved in char literal [-Wnull-character]
+  263 |     if (cash_column_name.find('<U+0000>') != std::string_view::npos) {
+      |                                ^
+/Users/yunjinqi/Documents/new_projects/fincore_cpp/src/portfolio/positions.cpp:326:32: warning: null character(s) preserved in char literal [-Wnull-character]
+  326 |     if (cash_column_name.find('<U+0000>') != std::string_view::npos) {
+      |                                ^
+/Users/yunjinqi/Documents/new_projects/fincore_cpp/src/portfolio/positions.cpp:354:32: warning: null character(s) preserved in char literal [-Wnull-character]
+  354 |     if (cash_column_name.find('<U+0000>') != std::string_view::npos) {
+      |                                ^
+3 warnings generated.
+[79/104] Building CXX object CMakeFiles/fincore.dir/src/attribution/brinson.cpp.o
+[80/104] Building CXX object CMakeFiles/fincore.dir/src/portfolio/transactions.cpp.o
+/Users/yunjinqi/Documents/new_projects/fincore_cpp/src/portfolio/transactions.cpp:601:32: warning: null character(s) preserved in char literal [-Wnull-character]
+  601 |     if (cash_column_name.find('<U+0000>') != std::string_view::npos) {
+      |                                ^
+1 warning generated.
+[81/104] Building CXX object CMakeFiles/fincore.dir/src/attribution/factor_exposures.cpp.o
+[82/104] Building CXX object CMakeFiles/fincore.dir/src/metrics/perf_attrib.cpp.o
+[83/104] Building CXX object CMakeFiles/fincore.dir/src/attribution/factor_regression.cpp.o
+[84/104] Building CXX object CMakeFiles/fincore.dir/src/attribution/factor_attribution.cpp.o
+[85/104] Building CXX object CMakeFiles/fincore.dir/src/portfolio/round_trips.cpp.o
+/Users/yunjinqi/Documents/new_projects/fincore_cpp/src/portfolio/round_trips.cpp:503:31: warning: null character(s) preserved in char literal [-Wnull-character]
+  503 |     if (pnl_column_name.find('<U+0000>') != std::string_view::npos ||
+      |                               ^
+/Users/yunjinqi/Documents/new_projects/fincore_cpp/src/portfolio/round_trips.cpp:504:35: warning: null character(s) preserved in char literal [-Wnull-character]
+  504 |         returns_column_name.find('<U+0000>') != std::string_view::npos ||
+      |                                   ^
+/Users/yunjinqi/Documents/new_projects/fincore_cpp/src/portfolio/round_trips.cpp:505:32: warning: null character(s) preserved in char literal [-Wnull-character]
+  505 |         long_column_name.find('<U+0000>') != std::string_view::npos ||
+      |                                ^
+/Users/yunjinqi/Documents/new_projects/fincore_cpp/src/portfolio/round_trips.cpp:506:34: warning: null character(s) preserved in char literal [-Wnull-character]
+  506 |         symbol_column_name.find('<U+0000>') != std::string_view::npos ||
+      |                                  ^
+/Users/yunjinqi/Documents/new_projects/fincore_cpp/src/portfolio/round_trips.cpp:507:32: warning: null character(s) preserved in char literal [-Wnull-character]
+  507 |         open_column_name.find('<U+0000>') != std::string_view::npos ||
+      |                                ^
+/Users/yunjinqi/Documents/new_projects/fincore_cpp/src/portfolio/round_trips.cpp:508:33: warning: null character(s) preserved in char literal [-Wnull-character]
+  508 |         close_column_name.find('<U+0000>') != std::string_view::npos) {
+      |                                 ^
+6 warnings generated.
+[86/104] Building CXX object CMakeFiles/fincore.dir/src/attribution/factor_prediction.cpp.o
+[87/104] Building CXX object CMakeFiles/fincore.dir/src/attribution/fama_french_patch.cpp.o
+[88/104] Building CXX object CMakeFiles/fincore.dir/src/simulation/parameters.cpp.o
+[89/104] Building CXX object CMakeFiles/fincore.dir/src/simulation/base.cpp.o
+[90/104] Building CXX object CMakeFiles/fincore.dir/src/simulation/correlation.cpp.o
+[91/104] Building CXX object CMakeFiles/fincore.dir/src/attribution/style.cpp.o
+[92/104] Building CXX object CMakeFiles/fincore.dir/src/attribution/performance.cpp.o
+[93/104] Linking CXX static library _deps/dataframe-build/libDataFrame.a
+[94/104] Building CXX object CMakeFiles/fincore.dir/generated/fincore/report/echarts_asset.cpp.o
+[95/104] Building CXX object CMakeFiles/fincore.dir/src/attribution/fama_french.cpp.o
+[96/104] Building CXX object CMakeFiles/fincore.dir/src/simulation/result.cpp.o
+[97/104] Building CXX object CMakeFiles/fincore.dir/src/simulation/scenarios.cpp.o
+[98/104] Building CXX object CMakeFiles/fincore.dir/src/simulation/monte_carlo.cpp.o
+[99/104] Building CXX object CMakeFiles/fincore.dir/src/simulation/paths.cpp.o
+[100/104] Building CXX object CMakeFiles/fincore.dir/src/analysis_context.cpp.o
+[101/104] Building CXX object CMakeFiles/fincore.dir/src/rolling_engine.cpp.o
+[102/104] Building CXX object CMakeFiles/fincore.dir/src/simulation/bootstrap.cpp.o
+[103/104] Linking CXX static library libfincore.a
+[103/104] Install the project...
+-- Install configuration: "Release"
+-- Installing: /tmp/fincore-i8-install/share/fincore/report/assets/echarts.min.js
+-- Installing: /tmp/fincore-i8-install/share/licenses/fincore/echarts-5.5.0/LICENSE.txt
+-- Installing: /tmp/fincore-i8-install/share/licenses/fincore/echarts-5.5.0/NOTICE.txt
+-- Installing: /tmp/fincore-i8-install/share/licenses/fincore/echarts-5.5.0/manifest.json
+-- Installing: /tmp/fincore-i8-install/lib/libfincore.a
+-- Installing: /tmp/fincore-i8-install/include/fincore
+-- Installing: /tmp/fincore-i8-install/include/fincore/metrics
+-- Installing: /tmp/fincore-i8-install/include/fincore/metrics/perf_stats.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/metrics/frequencies.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/metrics/timing.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/metrics/returns.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/metrics/consecutive.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/metrics/alpha_beta.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/metrics/rolling.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/metrics/stats.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/metrics/bayesian.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/metrics/yearly.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/metrics/helpers.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/metrics/perf_attrib.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/metrics/ratios.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/metrics/basic.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/metrics/drawdown.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/metrics/risk.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/viz.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/errors.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/runtime.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/simulation.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/optimization
+-- Installing: /tmp/fincore-i8-install/include/fincore/optimization/objectives.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/optimization/risk_parity.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/optimization/frontier.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/runtime
+-- Installing: /tmp/fincore-i8-install/include/fincore/runtime/runtime.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/runtime/serialization.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/runtime/operations_portfolio.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/runtime/operations_metrics.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/runtime/operations_factor.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/runtime/utilities.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/simulation
+-- Installing: /tmp/fincore-i8-install/include/fincore/simulation/paths.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/simulation/monte_carlo.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/simulation/bootstrap.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/simulation/result.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/simulation/correlation.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/simulation/scenarios.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/simulation/base.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/simulation/parameters.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/attribution.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/factor
+-- Installing: /tmp/fincore-i8-install/include/fincore/factor/workflows.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/factor/timedelta.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/factor/research.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/factor/costs.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/factor/serialization.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/factor/portfolio.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/factor/tears.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/factor/calendar.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/factor/data.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/factor/exceptions.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/factor/pit.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/factor/performance.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/factor/analysis.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/factor/artifacts.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/factor/report.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/error.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/portfolio.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/extensions
+-- Installing: /tmp/fincore-i8-install/include/fincore/extensions/snapshot.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/extensions/discovery.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/version.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/detail
+-- Installing: /tmp/fincore-i8-install/include/fincore/detail/mt19937.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/detail/json.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/detail/factor_compute.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/detail/optimization.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/detail/stutzer.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/detail/numeric.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/detail/digest.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/viz
+-- Installing: /tmp/fincore-i8-install/include/fincore/viz/html_builder.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/viz/plotly_document.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/viz/interactive.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/viz/render_model.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/viz/bokeh_document.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/viz/chart_data.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/viz/implot_backend.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/metrics.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/attribution
+-- Installing: /tmp/fincore-i8-install/include/fincore/attribution/fama_french_patch.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/attribution/factor_exposures.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/attribution/factor_prediction.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/attribution/brinson.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/attribution/fama_french.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/attribution/factor_attribution.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/attribution/factor_regression.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/attribution/performance.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/attribution/style.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/operations.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/calendar.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/portfolio
+-- Installing: /tmp/fincore-i8-install/include/fincore/portfolio/models.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/portfolio/transactions.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/portfolio/capacity.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/portfolio/positions.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/portfolio/round_trips.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/data.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/dataframe.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/rolling_engine.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/report
+-- Installing: /tmp/fincore-i8-install/include/fincore/report/models.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/report/renderers.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/report/portfolio.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/report/html.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/report/xlsx.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/report/risk.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/performance
+-- Installing: /tmp/fincore-i8-install/include/fincore/performance/inference.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/performance/returns.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/performance/cashflows.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/performance/disclosures.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/data
+-- Installing: /tmp/fincore-i8-install/include/fincore/data/snapshots.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/data/providers.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/data/contracts.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/risk
+-- Installing: /tmp/fincore-i8-install/include/fincore/risk/models.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/risk/specs.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/risk/backtesting.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/risk/evt.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/risk/walk_forward.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/risk/garch.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/risk/report.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/extensions.hpp
+-- Installing: /tmp/fincore-i8-install/include/fincore/analysis_context.hpp
+-- Installing: /tmp/fincore-i8-install/lib/cmake/fincore/fincoreTargets.cmake
+-- Installing: /tmp/fincore-i8-install/lib/cmake/fincore/fincoreTargets-release.cmake
+-- Installing: /tmp/fincore-i8-install/lib/cmake/fincore/fincoreConfig.cmake
+-- Installing: /tmp/fincore-i8-install/lib/cmake/fincore/fincoreConfigVersion.cmake
+-- Installing: /tmp/fincore-i8-install/share/doc/fincore/README.md
+-- Installing: /tmp/fincore-i8-install/share/doc/fincore/LICENSE

@@ -1,0 +1,907 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 07:21+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/api/portfolio.md:1
+msgid "Portfolio"
+msgstr "组合"
+
+#: ../../site/api/portfolio.md:3
+msgid "Positions, capacity, exposure and portfolio model inputs."
+msgstr "持仓、容量、暴露以及组合模型输入。"
+
+#: ../../site/api/portfolio.md:5
+msgid ""
+"See the [usage guide](../guides/portfolio-risk.md) for task-oriented "
+"examples. Signatures below are generated from the public headers at the same"
+" commit as the rest of this site."
+msgstr "面向任务的示例参见[使用指南](../guides/portfolio-risk.md)。以下签名由与本站点其余内容同一提交的公共头文件生成。"
+
+#: ../../site/api/portfolio.md:7
+msgid "Detached optional input tables for portfolio-domain workflows."
+msgstr "组合领域工作流使用的独立可选输入表。"
+
+#: ../../site/api/portfolio.md:7
+msgid ""
+"Each supplied frame is owned by this object; materialize() returns another "
+"independent copy. Only supplied fields are returned, under returns, "
+"positions, transactions and benchmark_returns respectively. A supplied empty"
+" frame is retained."
+msgstr ""
+"每个提供的帧由本对象持有；materialize() 返回另一份独立副本。只返回已提供的字段，分别位于 "
+"returns、positions、transactions 与 benchmark_returns 之下。提供的空帧会被保留。"
+
+#: ../../site/api/portfolio.md:7
+msgid "Public Functions"
+msgstr "公共函数"
+
+#: ../../site/api/portfolio.md:7
+msgid "Constructs a container from optional input frames."
+msgstr "由可选输入帧构造容器。"
+
+#: ../../site/api/portfolio.md
+msgid "Parameters"
+msgstr "参数"
+
+#: ../../site/api/portfolio.md:7
+msgid "Returns an independent copy of each supplied input table."
+msgstr "返回每张已提供输入表的独立副本。"
+
+#: ../../site/api/portfolio.md:7
+msgid ""
+"Keys are added only for fields that were supplied; a supplied empty frame is"
+" retained. Repeated calls produce independent frames."
+msgstr "仅为已提供的字段添加键；提供的空帧会被保留。重复调用会产生彼此独立的帧。"
+
+#: ../../site/api/portfolio.md
+msgid "Returns"
+msgstr "返回"
+
+#: ../../site/api/portfolio.md:10
+msgid "Value-owned results of assess_liquidity()."
+msgstr "assess_liquidity() 的值语义结果。"
+
+#: ../../site/api/portfolio.md:10 ../../site/api/portfolio.md:13
+#: ../../site/api/portfolio.md:16 ../../site/api/portfolio.md:19
+#: ../../site/api/portfolio.md:22 ../../site/api/portfolio.md:25
+#: ../../site/api/portfolio.md:28 ../../site/api/portfolio.md:31
+#: ../../site/api/portfolio.md:34 ../../site/api/portfolio.md:37
+#: ../../site/api/portfolio.md:40 ../../site/api/portfolio.md:43
+#: ../../site/api/portfolio.md:46 ../../site/api/portfolio.md:49
+#: ../../site/api/portfolio.md:52 ../../site/api/portfolio.md:55
+#: ../../site/api/portfolio.md:58
+msgid "Public Members"
+msgstr "公共成员"
+
+#: ../../site/api/portfolio.md:10
+msgid ""
+"Days to liquidate per non-cash asset, indexed by position dates after the "
+"rolling-volume warm-up."
+msgstr "各非现金资产的清仓所需天数，索引为滚动成交量预热之后的持仓日期。"
+
+#: ../../site/api/portfolio.md:10
+msgid ""
+"Maximum days to liquidate and allocation percentage per symbol, sorted by "
+"symbol."
+msgstr "各标的的最大清仓天数与配置百分比，按标的排序。"
+
+#: ../../site/api/portfolio.md:10
+msgid ""
+"Maximum bar-consumption percentage per symbol in the scan window, sorted by "
+"symbol."
+msgstr "扫描窗口内各标的的最大 K 线消耗百分比，按标的排序。"
+
+#: ../../site/api/portfolio.md:13
+msgid "Parameters controlling assess_liquidity()."
+msgstr "控制 assess_liquidity() 的参数。"
+
+#: ../../site/api/portfolio.md:13
+msgid ""
+"Maximum fraction of a bar's dollar volume assumed executable per day; must "
+"be in (0, 1]."
+msgstr "每日假定可成交的单根 K 线金额占比上限；必须落在 (0, 1]。"
+
+#: ../../site/api/portfolio.md:13
+msgid ""
+"Capital in currency units used to scale position allocations; must be "
+"positive."
+msgstr "用于缩放持仓配置的货币金额资本；必须为正。"
+
+#: ../../site/api/portfolio.md:13
+msgid ""
+"Number of preceding bars in the rolling mean dollar volume; must be at least"
+" 1."
+msgstr "滚动平均成交额所用的前置 K 线数量；必须不小于 1。"
+
+#: ../../site/api/portfolio.md:13
+msgid "Optional trailing-day scan limit; when set, must be at least 1."
+msgstr "可选的末尾天数扫描上限；设置时必须不小于 1。"
+
+#: ../../site/api/portfolio.md:16
+msgid "One aggregated symbol/day trade bar."
+msgstr "一条按标的/日期聚合的交易 K 线。"
+
+#: ../../site/api/portfolio.md:16
+msgid "Trade date."
+msgstr "交易日期。"
+
+#: ../../site/api/portfolio.md:16 ../../site/api/portfolio.md:40
+#: ../../site/api/portfolio.md:55 ../../site/api/portfolio.md:58
+msgid "Traded symbol."
+msgstr "成交标的。"
+
+#: ../../site/api/portfolio.md:16
+msgid "Sum of absolute trade amounts for the day."
+msgstr "当日交易金额的绝对值之和。"
+
+#: ../../site/api/portfolio.md:16
+msgid "Bar price on that date."
+msgstr "该日期的 K 线价格。"
+
+#: ../../site/api/portfolio.md:16
+msgid "Bar share volume on that date."
+msgstr "该日期的 K 线股份成交量。"
+
+#: ../../site/api/portfolio.md:19
+msgid "Long, short, gross and net exposure frames sharing one index."
+msgstr "共享同一索引的多头、空头、总敞口与净敞口帧。"
+
+#: ../../site/api/portfolio.md:19
+msgid "Long exposure values; units follow the producing API."
+msgstr "多头暴露值；单位由产生它的接口决定。"
+
+#: ../../site/api/portfolio.md:19
+msgid "Short exposure values; sign and units follow the producing API."
+msgstr "空头暴露值；符号与单位由产生它的接口决定。"
+
+#: ../../site/api/portfolio.md:19
+msgid "Gross exposure values; units follow the producing API."
+msgstr "总暴露值；单位由产生它的接口决定。"
+
+#: ../../site/api/portfolio.md:19
+msgid "Net exposure (long minus short); empty for APIs that do not populate it."
+msgstr "净暴露（多头减空头）；未填充该值的接口为空。"
+
+#: ../../site/api/portfolio.md:22
+msgid "Per-statistic results for all, long and short round trips."
+msgstr "针对全部、多头与空头完整交易的逐统计量结果。"
+
+#: ../../site/api/portfolio.md:22
+msgid "Statistic names in input order."
+msgstr "统计量名称，按输入顺序排列。"
+
+#: ../../site/api/portfolio.md:22
+msgid "Statistic values over all round trips."
+msgstr "全部完整交易的统计量值。"
+
+#: ../../site/api/portfolio.md:22
+msgid "Statistic values over long round trips; NaN when none exist."
+msgstr "多头完整交易的统计量值；不存在时为 NaN。"
+
+#: ../../site/api/portfolio.md:22
+msgid "Statistic values over short round trips; NaN when none exist."
+msgstr "空头完整交易的统计量值；不存在时为 NaN。"
+
+#: ../../site/api/portfolio.md:25
+msgid "One stacked position observation."
+msgstr "一条堆叠形式的持仓观测。"
+
+#: ../../site/api/portfolio.md:25
+msgid "Position timestamp."
+msgstr "持仓时间戳。"
+
+#: ../../site/api/portfolio.md:25 ../../site/api/portfolio.md:28
+#: ../../site/api/portfolio.md:43 ../../site/api/portfolio.md:49
+msgid "Position column name."
+msgstr "持仓列名。"
+
+#: ../../site/api/portfolio.md:25
+msgid "Position value; may be NaN."
+msgstr "持仓值；可能为 NaN。"
+
+#: ../../site/api/portfolio.md:28
+msgid "Symbol and value pair ranked by get_top_long_short_abs()."
+msgstr "由 get_top_long_short_abs() 排序的标的与值配对。"
+
+#: ../../site/api/portfolio.md:28
+msgid "Extremum over the column's rows."
+msgstr "该列各行上的极值。"
+
+#: ../../site/api/portfolio.md:31
+msgid "Rectangular statistic table with row and column labels."
+msgstr "带行列标签的矩形统计表。"
+
+#: ../../site/api/portfolio.md:31
+msgid "Labels for the value rows."
+msgstr "数值行的标签。"
+
+#: ../../site/api/portfolio.md:31
+msgid "Labels for the value columns."
+msgstr "数值列的标签。"
+
+#: ../../site/api/portfolio.md:31
+msgid "Row-major statistic values."
+msgstr "行优先存储的统计量值。"
+
+#: ../../site/api/portfolio.md:34
+msgid "Named statistic applied by agg_all_long_short()."
+msgstr "agg_all_long_short() 应用的命名统计量。"
+
+#: ../../site/api/portfolio.md:34
+msgid "Output statistic name."
+msgstr "输出统计量名称。"
+
+#: ../../site/api/portfolio.md:34
+msgid "Callable statistic; must be set before aggregation."
+msgstr "可调用统计量；聚合之前必须设置。"
+
+#: ../../site/api/portfolio.md:37
+msgid "Round-trip tables and per-symbol return statistics."
+msgstr "完整交易表与各标的的收益统计。"
+
+#: ../../site/api/portfolio.md:37
+msgid ""
+"The first four tables contain rows for the non-empty All trades, short and "
+"long groups in that order."
+msgstr "前四个表按该顺序包含非空的 All trades、short 与 long 分组的行。"
+
+#: ../../site/api/portfolio.md:37
+msgid "Profit/loss statistics."
+msgstr "盈亏统计。"
+
+#: ../../site/api/portfolio.md:37
+msgid "Trade counts and profitability."
+msgstr "交易笔数与胜率。"
+
+#: ../../site/api/portfolio.md:37
+msgid "Holding-duration statistics in days, plus trades per day and month."
+msgstr "以天计的持仓时长统计，以及每日与每月交易数。"
+
+#: ../../site/api/portfolio.md:37
+msgid "Round-trip return statistics."
+msgstr "完整交易收益统计。"
+
+#: ../../site/api/portfolio.md:37
+msgid "Symbols in ascending order."
+msgstr "标的，按升序排列。"
+
+#: ../../site/api/portfolio.md:37
+msgid "Fixed labels for the eight per-symbol return statistics."
+msgstr "八项逐标的收益统计量的固定标签。"
+
+#: ../../site/api/portfolio.md:37
+msgid "One row per symbol statistic, one value per symbol in symbol_labels."
+msgstr "每个标的统计量一行，symbol_labels 中每个标的对应一个值。"
+
+#: ../../site/api/portfolio.md:40
+msgid "Transaction record used to build round-trip inputs and closing trades."
+msgstr "用于构造完整交易输入与平仓交易的交易记录。"
+
+#: ../../site/api/portfolio.md:40
+msgid "UTC nanosecond timestamp."
+msgstr "UTC 纳秒时间戳。"
+
+#: ../../site/api/portfolio.md:40
+msgid "Signed quantity."
+msgstr "带符号数量。"
+
+#: ../../site/api/portfolio.md:40
+msgid "Execution price per unit."
+msgstr "单位成交价。"
+
+#: ../../site/api/portfolio.md:43
+msgid "Symbol-to-sector assignment used by get_sector_exposures()."
+msgstr "get_sector_exposures() 使用的标的到行业指派。"
+
+#: ../../site/api/portfolio.md:43
+msgid "Output sector column name."
+msgstr "输出行业列名。"
+
+#: ../../site/api/portfolio.md:46
+msgid "Numeric identifier and output label for an exposure bucket."
+msgstr "暴露分桶的数值标识与输出标签。"
+
+#: ../../site/api/portfolio.md:46
+msgid "Numeric bucket identifier; sector exposures compare it with panel cells."
+msgstr "分桶数值标识；行业暴露将其与面板单元格比较。"
+
+#: ../../site/api/portfolio.md:46
+msgid "Output column label."
+msgstr "输出列标签。"
+
+#: ../../site/api/portfolio.md:49
+msgid "Per-symbol maximum liquidation time."
+msgstr "各标的的最大清仓时间。"
+
+#: ../../site/api/portfolio.md:49
+msgid "Maximum days in the scan; NaN if none."
+msgstr "扫描中的最大天数；无则为 NaN。"
+
+#: ../../site/api/portfolio.md:49
+msgid "Position allocation on that date as a percentage (100 * fraction)."
+msgstr "该日期的持仓配置百分比（100 * fraction）。"
+
+#: ../../site/api/portfolio.md:52
+msgid "Ranked long, short and absolute position lists."
+msgstr "排序后的多头、空头与绝对持仓列表。"
+
+#: ../../site/api/portfolio.md:52
+msgid "Largest positive column extrema, in descending order."
+msgstr "最大的正向列极值，按降序排列。"
+
+#: ../../site/api/portfolio.md:52
+msgid "Most negative column extrema, in ascending order."
+msgstr "最负的列极值，按升序排列。"
+
+#: ../../site/api/portfolio.md:52
+msgid "Largest absolute column extrema, in descending order."
+msgstr "绝对值最大的列极值，按降序排列。"
+
+#: ../../site/api/portfolio.md:55
+msgid "One trade used by the liquidity helpers."
+msgstr "流动性辅助函数使用的一笔交易。"
+
+#: ../../site/api/portfolio.md:55
+msgid "Trade timestamp; bar helpers match it exactly."
+msgstr "交易时间戳；K 线辅助函数按精确值匹配。"
+
+#: ../../site/api/portfolio.md:55
+msgid "Signed quantity; absolute value is used."
+msgstr "带符号数量；使用其绝对值。"
+
+#: ../../site/api/portfolio.md:58
+msgid "Per-symbol worst transaction bar consumption."
+msgstr "各标的最差的交易 K 线消耗。"
+
+#: ../../site/api/portfolio.md:58
+msgid "Date of maximum consumption."
+msgstr "消耗量最大的日期。"
+
+#: ../../site/api/portfolio.md:58
+msgid "Traded amount as a percentage of bar volume."
+msgstr "成交量占该 K 线成交量的百分比。"
+
+#: ../../site/api/portfolio.md:61
+msgid "Divisor convention used by get_turnover()."
+msgstr "get_turnover() 使用的除数约定。"
+
+#: ../../site/api/portfolio.md:61
+msgid "Values:"
+msgstr "取值："
+
+#: ../../site/api/portfolio.md:61
+msgid ""
+"Average of the previous and current gross book, excluding cash; the first "
+"row uses half of the current gross book."
+msgstr "上一行与当前行总规模（不含现金）的平均值；第一行使用当前总规模的一半。"
+
+#: ../../site/api/portfolio.md:61
+msgid "Row sum of all numeric position columns, including cash."
+msgstr "所有数值持仓列（含现金）的行和。"
+
+#: ../../site/api/portfolio.md:64
+msgid "Appends one closing transaction per still-open position."
+msgstr "为每个仍未平掉的持仓追加一笔平仓交易。"
+
+#: ../../site/api/portfolio.md:64
+msgid ""
+"The net amount per symbol is computed from transactions. For each non-cash "
+"double column of positions with an absolute net amount of at least 1e-6, a "
+"closing transaction is appended at the final position timestamp plus one "
+"second. Its amount is the opposite of the net amount and its price is the "
+"final position value divided by the net amount. Zero-amount transactions are"
+" then removed from the combined result."
+msgstr ""
+"各标的的净金额由交易记录计算。对于持仓中绝对净金额不小于 1e-6 的每个非现金 double "
+"列，在最后一个持仓时间戳加一秒处追加一笔平仓交易。其金额为净金额的相反数，其价格为最终持仓值除以净金额。随后从合并结果中移除金额为零的交易。"
+
+#: ../../site/api/portfolio.md
+msgid "Throws"
+msgstr "抛出"
+
+#: ../../site/api/portfolio.md:67
+msgid "Adjusts daily returns for slippage on traded notional."
+msgstr "按成交名义金额调整每日收益率以计入滑点。"
+
+#: ../../site/api/portfolio.md:67
+msgid ""
+"Every UTC day in the sorted union of return, position and transaction days "
+"is processed. A day with both a return and a portfolio value supplies pnl = "
+"return * portfolio_value; a cost of traded notional * slippage_bps / 10000 "
+"is subtracted from that PnL, and the day's return is rescaled by the "
+"adjusted-to-original PnL ratio. Days without a usable return/PnL pair and "
+"days with zero PnL yield 0.0."
+msgstr ""
+"对收益率、持仓与交易日期并集排序后的每个 UTC 日进行处理。同时具有收益率与组合价值的日期提供 pnl = return * "
+"portfolio_value；从该损益中扣除 成交名义金额 * slippage_bps / 10000 "
+"的成本，并按调整后与原始损益之比重新缩放当日收益率。没有可用收益率/损益配对的日子以及损益为零的日子得到 0.0。"
+
+#: ../../site/api/portfolio.md:70
+msgid "Applies caller-supplied statistics to all, long and short round trips."
+msgstr "对全部、多头与空头完整交易应用调用方提供的统计量。"
+
+#: ../../site/api/portfolio.md:70
+msgid ""
+"Each statistic is evaluated over every value of column in row order, then "
+"over the subset selected by the required long boolean column. A statistic "
+"whose subset is empty yields NaN for that subset."
+msgstr "每个统计量先按行序作用于 column 的所有值，再作用于由必需的 long 布尔列选出的子集。子集为空的统计量在该子集上返回 NaN。"
+
+#: ../../site/api/portfolio.md:73
+msgid "Copies round trips and adds a sector column from symbol mappings."
+msgstr "复制完整交易并依据标的映射添加行业列。"
+
+#: ../../site/api/portfolio.md:73
+msgid ""
+"The output keeps the input index, every double column, and every string "
+"column except an existing sector; columns of other types are not copied. "
+"When a string symbol column is present, a new sector column is appended "
+"using sector_mappings; symbols absent from the map get an empty string. "
+"Without a symbol column no sector column is added."
+msgstr ""
+"输出保留输入索引、所有 double 列，以及除已有 sector 之外的所有字符串列；其他类型的列不会被复制。存在字符串类型的 symbol "
+"列时，使用 sector_mappings 追加一个新的 sector 列；映射中不存在的标的得到空字符串。没有 symbol 列时不会添加行业列。"
+
+#: ../../site/api/portfolio.md:76
+msgid "Applies a quadratic market-impact penalty to daily returns."
+msgstr "对每日收益率应用二次市场冲击惩罚。"
+
+#: ../../site/api/portfolio.md:76
+msgid ""
+"Trades are rescaled from backtest to simulation capital by "
+"simulate_starting_capital / backtest_starting_capital. For each trade, "
+"shares = |scaled amount|, dollars = price * shares and the penalty is "
+"(shares / volume)^2 * impact * dollars; penalties are summed by UTC day. "
+"Return days are compounded into wealth, and each daily penalty is divided by"
+" the simulated portfolio value and subtracted from that day's return."
+msgstr ""
+"交易按 simulate_starting_capital / backtest_starting_capital "
+"从回测资本缩放为模拟资本。对每笔交易，shares = |scaled amount|，dollars = price * shares，惩罚为 "
+"(shares / volume)^2 * impact * dollars；惩罚按 UTC "
+"日汇总。收益日复合为财富，每日惩罚除以模拟组合价值后从当日收益中扣除。"
+
+#: ../../site/api/portfolio.md:79
+msgid "Assesses position and transaction liquidity."
+msgstr "评估持仓与交易流动性。"
+
+#: ../../site/api/portfolio.md:79
+msgid ""
+"Combines days_to_liquidate_positions(), "
+"get_max_days_to_liquidate_by_ticker() and get_low_liquidity_transactions() "
+"using one validated configuration."
+msgstr ""
+"使用同一份已校验配置组合 "
+"days_to_liquidate_positions()、get_max_days_to_liquidate_by_ticker() 与 "
+"get_low_liquidity_transactions()。"
+
+#: ../../site/api/portfolio.md:82
+msgid "Returns market-cap bucket exposure fractions."
+msgstr "返回市值分桶的暴露比例。"
+
+#: ../../site/api/portfolio.md:82
+msgid ""
+"Buckets use inclusive bounds in the units of the caps panel: Micro covers "
+"50M-300M, Small 300M-2B, Mid 2B-10B, Large 10B-200B and Mega 200B and above."
+" Values below 50M match no bucket, and a value on a shared boundary can "
+"match adjacent buckets. Exposure fractions are computed as in "
+"compute_sector_exposures()."
+msgstr ""
+"分桶使用市值面板单位下的闭区间：Micro 覆盖 50M-300M，Small 300M-2B，Mid 2B-10B，Large 10B-"
+"200B，Mega 为 200B 及以上。低于 50M 的值不匹配任何分桶，落在共享边界上的值可同时匹配相邻分桶。暴露比例的计算方式与 "
+"compute_sector_exposures() 相同。"
+
+#: ../../site/api/portfolio.md:85
+msgid "Returns sector long, short, gross and net exposure fractions."
+msgstr "返回行业的多头、空头、总暴露与净暴露比例。"
+
+#: ../../site/api/portfolio.md:85
+msgid ""
+"Assets are matched to definitions by comparing each sectors cell with "
+"sector_definition::id. For each row the bundle reports the sector's share of"
+" total long, total short (as a negative fraction) and total gross non-cash "
+"positions; net exposure is long minus short. A sector without matched "
+"positions contributes zero."
+msgstr ""
+"通过将 sectors 的每个单元格与 sector_definition::id "
+"比较来把资产匹配到定义。对每一行，结果包报告该行业占非现金持仓的多头总额、空头总额（以负比例表示）与总敞口总额的比例；净暴露为多头减空头。没有匹配持仓的行业贡献为零。"
+
+#: ../../site/api/portfolio.md:88
+msgid "Returns the weighted style-factor exposure per timestamp."
+msgstr "返回各时间戳的加权风格因子暴露。"
+
+#: ../../site/api/portfolio.md:88
+msgid ""
+"For each row the exposure is sum(position * factor) / sum(|position|) over "
+"non-cash asset columns. NaN positions are skipped entirely; a NaN factor "
+"contributes zero to the numerator while its position still counts in the "
+"denominator. A zero denominator or non-finite result yields 0.0."
+msgstr ""
+"对每一行，暴露为非现金资产列上的 sum(position * factor) / sum(|position|)。NaN 持仓完全跳过；NaN "
+"因子对分子贡献为零，但其持仓仍计入分母。分母为零或结果非有限时得到 0.0。"
+
+#: ../../site/api/portfolio.md:91
+msgid "Returns position-to-volume exposure percentages."
+msgstr "返回持仓与成交量的暴露百分比。"
+
+#: ../../site/api/portfolio.md:91
+msgid ""
+"For each row and common share/volume column, shares / volume is computed. "
+"Positive shares feed the long set, negative shares feed the short set as "
+"positive magnitudes, and absolute fractions feed the gross set. The reported"
+" value is 100 times the linearly interpolated quantile at percentile of each"
+" set, or 0.0 when the set is empty. Only common columns contribute to the "
+"quantiles; a nonzero share value in any share column requires a finite, "
+"positive matching volume."
+msgstr ""
+"对每一行以及共有的股份/成交量列计算 shares / "
+"volume。正股份计入多头集合，负股份以正幅值计入空头集合，绝对比例计入总敞口集合。报告值为各集合在 percentile 处线性插值分位数的 100"
+" 倍；集合为空时为 0.0。只有共有列参与分位数计算；任一股份列中的非零股份值都要求存在有限且为正 matching volume。"
+
+#: ../../site/api/portfolio.md:94
+msgid "Returns daily aggregated trade bars joined to price and volume panels."
+msgstr "返回与价格和成交量面板连接的按日聚合交易 K 线。"
+
+#: ../../site/api/portfolio.md:94
+msgid ""
+"Trades are summed by exact (symbol, date) using absolute amounts; dates are "
+"not normalized. Each transaction date must exist in the price index, and "
+"each traded symbol must have both price and volume columns. The result is "
+"sorted by symbol and then date."
+msgstr ""
+"交易按精确的 (symbol, date) "
+"以绝对金额汇总；日期不做归一化。每个交易日期都必须存在于价格索引中，且每个成交标的都必须同时具有价格列与成交量列。结果先按标的、再按日期排序。"
+
+#: ../../site/api/portfolio.md:97
+msgid "Returns days needed to liquidate each position asset."
+msgstr "返回清仓各持仓资产所需的天数。"
+
+#: ../../site/api/portfolio.md:97
+msgid ""
+"Position allocations use the row total of all double columns. Daily dollar "
+"volume is the mean of price * volume over the preceding mean_volume_window "
+"bars, so the first window rows are warm-up and are omitted. Each value is "
+"allocation * capital_base / (max_bar_consumption * mean dollar volume); a "
+"NaN or zero mean dollar volume yields NaN for that row. The named cash "
+"column is excluded when present but is not required."
+msgstr ""
+"持仓配置使用所有 double 列的行和。日成交额为前置 mean_volume_window 根 K 线上 price * volume "
+"的均值，因此窗口内的前若干行属于预热并被省略。每个值为 allocation * capital_base / (max_bar_consumption"
+" * 平均成交额)；平均成交额为 NaN 或零时该行返回 NaN。指定的现金列存在时被排除，但并非必需。"
+
+#: ../../site/api/portfolio.md:100
+msgid "Extracts FIFO round trips from transaction rows."
+msgstr "从交易行中提取先进先出完整交易。"
+
+#: ../../site/api/portfolio.md:100
+msgid ""
+"Transactions are first consolidated as in "
+"groupby_consecutive_transactions(). Each block is matched first-in, first-"
+"out against open lots of the opposite direction; a block may both close "
+"existing lots and open a remainder. Blocks with a negative price are "
+"skipped. The output index is the sequential round-trip number starting at 0."
+msgstr ""
+"先按 groupby_consecutive_transactions() "
+"的方式合并交易。每个块以先进先出方式与反向的未平仓批次匹配；一个块既可能平掉已有批次，也可能留下新的剩余持仓。价格为负的块会被跳过。输出索引为从 0 "
+"开始递增的完整交易序号。"
+
+#: ../../site/api/portfolio.md:100
+msgid ""
+"Output columns are pnl, open_dt, close_dt, long, rt_returns, symbol and "
+"duration (elapsed nanoseconds stored as a timestamp). long is true for a "
+"round trip closed by a sell; rt_returns is pnl divided by matched opening "
+"notional, or 0 when that notional is zero."
+msgstr ""
+"输出列为 pnl、open_dt、close_dt、long、rt_returns、symbol 与 "
+"duration（以时间戳存储的经过纳秒数）。由卖出平仓的完整交易其 long 为 true；rt_returns 为 pnl "
+"除以匹配的开仓名义金额，该名义金额为零时取 0。"
+
+#: ../../site/api/portfolio.md:103
+msgid "Computes round-trip performance tables and per-symbol statistics."
+msgstr "计算完整交易业绩表与逐标的统计。"
+
+#: ../../site/api/portfolio.md:103
+msgid ""
+"Durations are derived as close - open in days. Each table contains rows for "
+"the non-empty All trades, short and long groups in that order, with fixed "
+"English column labels. Per-symbol values use the statistics listed in "
+"symbol_stat_labels, one column per symbol. An empty frame yields default-"
+"constructed, empty statistics."
+msgstr ""
+"持仓时长按 close - open 以天计算。每个表按该顺序包含非空的 All trades、short 与 long "
+"分组的行，列标签为固定英文。逐标的值使用 symbol_stat_labels 列出的统计量，每个标的一列。空帧产生默认构造的空统计。"
+
+#: ../../site/api/portfolio.md:106
+msgid "Returns per-timestamp long and short notional values."
+msgstr "返回各时间戳的多头与空头名义金额。"
+
+#: ../../site/api/portfolio.md:106
+msgid ""
+"Each row sums positive non-cash position values into the first vector and "
+"absolute negative values into the second. NaN cells are skipped. The named "
+"cash column is excluded when present but is not required."
+msgstr "每一行把正的非现金持仓值累加到第一个向量，把负值的绝对值累加到第二个向量。跳过 NaN 单元格。指定的现金列存在时被排除，但并非必需。"
+
+#: ../../site/api/portfolio.md:109
+msgid "Returns gross long and short position values per timestamp."
+msgstr "返回各时间戳的多头与空头持仓总额。"
+
+#: ../../site/api/portfolio.md:109
+msgid ""
+"Positive non-cash position values are summed into long and negative values "
+"are summed into short as positive magnitudes. NaN cells are skipped. The "
+"named cash column is excluded when present but is not required."
+msgstr "正的非现金持仓值累加为多头，负值以正幅值累加为空头。跳过 NaN 单元格。指定的现金列存在时被排除，但并非必需。"
+
+#: ../../site/api/portfolio.md:112
+msgid "Returns the worst bar consumption per symbol for recent trades."
+msgstr "返回近期交易中各标的最差的 K 线消耗。"
+
+#: ../../site/api/portfolio.md:112
+msgid ""
+"Trades are summed by exact (symbol, date) using absolute amounts. When "
+"last_n_days is set, only dates strictly after newest - last_n_days days are "
+"scanned, where newest is the latest trade date. For each symbol the date "
+"with the largest amount / volume * 100 is retained, and results are sorted "
+"by symbol."
+msgstr ""
+"交易按精确的 (symbol, date) 以绝对金额汇总。设置 last_n_days 时，仅扫描严格晚于 newest - last_n_days "
+"天的日期，其中 newest 为最新交易日期。对每个标的保留 amount / volume * 100 最大的日期，结果按标的排序。"
+
+#: ../../site/api/portfolio.md:115
+msgid "Returns the maximum liquidation time per position symbol."
+msgstr "返回各持仓标的的最大清仓时间。"
+
+#: ../../site/api/portfolio.md:115
+msgid ""
+"Uses days_to_liquidate_positions() with the supplied parameters. When "
+"last_n_days is set, only metric rows at or after newest - last_n_days days "
+"are considered. Each record reports the maximum days value and the position "
+"allocation on that date as a percentage (100 * fraction). Symbols with no "
+"valid value keep NaN fields. Results are sorted by symbol."
+msgstr ""
+"使用给定参数调用 days_to_liquidate_positions()。设置 last_n_days 时，只考虑不早于 newest - "
+"last_n_days 天的指标行。每条记录报告最大天数值，以及该日期以百分比表示的持仓配置（100 * fraction）。没有有效值的标的其字段保持"
+" NaN。结果按标的排序。"
+
+#: ../../site/api/portfolio.md:118
+msgid "Returns row-wise long and short position concentration measures."
+msgstr "返回按行的多头与空头持仓集中度度量。"
+
+#: ../../site/api/portfolio.md:118
+msgid ""
+"Allocation fractions are computed as in get_percent_alloc() over all double "
+"columns. For each row, max_long is the largest positive non-cash allocation,"
+" median_long the median positive allocation, median_short the median "
+"negative allocation and max_short the most negative allocation. A side "
+"without allocations yields NaN."
+msgstr ""
+"配置比例按 get_percent_alloc() 的方式在所有 double 列上计算。对每一行，max_long "
+"为最大的正非现金配置，median_long 为正配置的中位数，median_short 为负配置的中位数，max_short "
+"为最负的配置。没有配置的一侧返回 NaN。"
+
+#: ../../site/api/portfolio.md:121
+msgid "Returns each numeric position column as a fraction of its row total."
+msgstr "将每个数值持仓列返回为其行和的比例。"
+
+#: ../../site/api/portfolio.md:121
+msgid ""
+"The output has the same index and one double column per input double column,"
+" in input order. NaN cells are excluded from the row total and remain NaN in"
+" the output; a zero row total yields NaN. Values are fractions, not "
+"percentages."
+msgstr ""
+"输出具有相同索引，并按输入顺序为每个输入 double 列生成一个 double 列。NaN 单元格不计入行和在输出中仍为 NaN；行和为零时返回 "
+"NaN。取值为比例而非百分比。"
+
+#: ../../site/api/portfolio.md:124
+msgid "Returns raw sector exposures by summing assigned positions."
+msgstr "通过汇总指派的持仓返回原始行业暴露。"
+
+#: ../../site/api/portfolio.md:124
+msgid ""
+"One column is produced per sector named in assignments, in lexicographic "
+"sector order, followed by the cash column copied from positions. Only "
+"assignments whose symbol names an existing non-cash double column "
+"contribute; unassigned assets are omitted. Values are summed raw positions, "
+"not fractions."
+msgstr ""
+"按 assignments 中命名的每个行业生成一列，按行业的字典序排列，随后是从持仓复制的现金列。只有标的名称对应已有非现金 double "
+"列的指派才参与；未指派的资产被忽略。取值为原始持仓之和，而不是比例。"
+
+#: ../../site/api/portfolio.md:127
+msgid "Returns the top long, short and absolute positions by symbol."
+msgstr "返回按标的排序的最大多头、空头与绝对持仓。"
+
+#: ../../site/api/portfolio.md:127
+msgid ""
+"Each non-cash double column contributes its maximum value to the long list "
+"when positive, its minimum value to the short list when negative, and its "
+"maximum absolute value to the absolute list. Lists are sorted by value "
+"(longs and absolutes descending, shorts ascending) and truncated to top "
+"entries. NaN rows are ignored; symbols without a qualifying value are "
+"omitted."
+msgstr ""
+"每个非现金 double "
+"列在其最大值为正时计入多头列表，其最小值为负时计入空头列表，其绝对值最大者计入绝对值列表。列表按值排序（多头与绝对值降序，空头升序）并截断为前 top "
+"项。忽略 NaN 行；没有合格值的标的被省略。"
+
+#: ../../site/api/portfolio.md:130
+msgid "Returns daily turnover using the selected denominator."
+msgstr "使用选定分母返回每日换手率。"
+
+#: ../../site/api/portfolio.md:130
+msgid ""
+"The output index is the sorted union of position days and transaction days, "
+"both normalized to UTC midnight. Transaction notional comes from "
+"get_txn_vol(), and position days must be strictly increasing and unique. "
+"actual_gross_book divides by the average of the previous and current gross "
+"book (excluding cash), using half the current gross book on the first row. "
+"portfolio_value divides by the row sum of all double position columns, "
+"including cash. Non-finite ratios are returned as 0.0, and values are ratios"
+" rather than percentages."
+msgstr ""
+"输出索引为持仓日与交易日并集的排序结果，两者都归一化到 UTC 零点。交易名义金额来自 "
+"get_txn_vol()，持仓日期必须严格递增且唯一。actual_gross_book "
+"除以上一行与当前行总规模（不含现金）的平均值，第一行使用当前总规模的一半。portfolio_value 除以所有 double "
+"持仓列（含现金）的行和。非有限的比例返回 0.0，且取值为比例而非百分比。"
+
+#: ../../site/api/portfolio.md:133
+msgid "Returns daily transaction notional and share totals."
+msgstr "返回每日交易名义金额与股份总量。"
+
+#: ../../site/api/portfolio.md:133
+msgid ""
+"Rows are grouped by UTC calendar day, normalized to midnight and sorted "
+"ascending. txn_volume sums |amount| * price and txn_shares sums |amount|; "
+"contributions that evaluate to NaN are skipped, and infinite values are "
+"preserved."
+msgstr ""
+"行按 UTC 日历日分组，归一化到零点并升序排序。txn_volume 汇总 |amount| * price，txn_shares 汇总 "
+"|amount|；计算结果为 NaN 的贡献被跳过，无穷值得到保留。"
+
+#: ../../site/api/portfolio.md:136
+msgid "Returns gross leverage per timestamp."
+msgstr "返回各时间戳的总杠杆。"
+
+#: ../../site/api/portfolio.md:136
+msgid ""
+"Gross leverage is the sum of absolute non-cash position values divided by "
+"the row total of all double columns, including cash. NaN cells are skipped; "
+"a zero denominator or a non-finite ratio yields NaN."
+msgstr "总杠杆为非现金持仓值绝对值之和除以所有 double 列（含现金）的行和。跳过 NaN 单元格；分母为零或比例非有限时返回 NaN。"
+
+#: ../../site/api/portfolio.md:139
+msgid "Groups consecutive same-direction transactions into price/amount blocks."
+msgstr "将连续同向交易分组成价格/金额块。"
+
+#: ../../site/api/portfolio.md:139
+msgid ""
+"Rows are ordered by symbol, timestamp and original position, then adjacent "
+"rows of the same symbol with amounts both positive or both non-positive are "
+"merged while the gap to the previous row does not exceed max_delta. A "
+"block's amount is the sum of its amounts, its price is the amount-weighted "
+"average price, and its timestamp is the first row's timestamp. A negative "
+"max_delta disables merging."
+msgstr ""
+"行按标的、时间戳与原始位置排序，随后对同一标的相邻且金额同为正或同为非正的行进行合并，直到与前一行的间隔超过 max_delta "
+"为止。块的金额为其金额之和，其价格为金额加权平均价，其时间戳为首行的时间戳。max_delta 为负时禁用合并。"
+
+#: ../../site/api/portfolio.md:142
+msgid "Builds an owning transaction frame from validated transactions."
+msgstr "由已校验的交易构造带所有权的交易帧。"
+
+#: ../../site/api/portfolio.md:142
+msgid ""
+"Each input is validated with map_transaction(). The frame index holds the "
+"transaction dates; columns are the string symbol and the double amount and "
+"price columns. Input order and duplicate dates are preserved."
+msgstr ""
+"每个输入都用 map_transaction() 校验。帧索引保存交易日期；列为字符串 symbol 以及 double 的 amount 与 "
+"price 列。保留输入顺序与重复日期。"
+
+#: ../../site/api/portfolio.md:145
+msgid "Validates and returns a copy of a portfolio transaction."
+msgstr "校验组合交易并返回其副本。"
+
+#: ../../site/api/portfolio.md:145
+msgid ""
+"A valid transaction has a non-empty symbol and finite amount and price; "
+"other fields are copied unchanged."
+msgstr "有效交易须具有非空 symbol 以及有限的 amount 与 price；其他字段原样复制。"
+
+#: ../../site/api/portfolio.md:148
+msgid "Returns positions in long form, one record per row and non-cash column."
+msgstr "以长表形式返回持仓，每行每个非现金列一条记录。"
+
+#: ../../site/api/portfolio.md:148
+msgid ""
+"Records follow input row order and then input column order. NaN values are "
+"retained, and the named cash column is excluded when present. The "
+"pos_in_dollars flag is accepted for API compatibility but does not transform"
+" values in this implementation."
+msgstr ""
+"记录先按输入行顺序、再按输入列顺序排列。保留 NaN 值，指定的现金列存在时被排除。pos_in_dollars "
+"标志为接口兼容性而接受，但本实现不据此转换数值。"
+
+#: ../../site/api/portfolio.md:151
+msgid "Default name of the cash column in wide position frames."
+msgstr "宽表持仓帧中现金列的默认名称。"
+
+#: ../../site/api/portfolio.md:154
+msgid "Default maximum gap (8 hours) between transactions merged into one block."
+msgstr "合并为同一块的相邻交易之间允许的最大间隔（8 小时）。"
+
+#: ../../site/api/portfolio.md:157
+msgid "Round-trip closing timestamp column."
+msgstr "完整交易的平仓时间戳列。"
+
+#: ../../site/api/portfolio.md:160
+msgid "Round-trip elapsed-nanoseconds column, stored as a timestamp."
+msgstr "完整交易的经过纳序列，以时间戳存储。"
+
+#: ../../site/api/portfolio.md:163
+msgid "Round-trip long/short flag column."
+msgstr "完整交易的多头/空头标志列。"
+
+#: ../../site/api/portfolio.md:166
+msgid "Round-trip opening timestamp column."
+msgstr "完整交易的开仓时间戳列。"
+
+#: ../../site/api/portfolio.md:169
+msgid "Round-trip profit/loss column."
+msgstr "完整交易的盈亏列。"
+
+#: ../../site/api/portfolio.md:172
+msgid "Round-trip return column."
+msgstr "完整交易的收益列。"
+
+#: ../../site/api/portfolio.md:175
+msgid "Default signed-quantity column in transaction frames."
+msgstr "交易帧中带符号数量列的默认名称。"
+
+#: ../../site/api/portfolio.md:178
+msgid "Default bar share-volume column used by apply_slippage_penalty()."
+msgstr "apply_slippage_penalty() 使用的默认 K 线股份成交量列。"
+
+#: ../../site/api/portfolio.md:181
+msgid "Default execution-price column in transaction frames."
+msgstr "交易帧中成交价的默认列。"
+
+#: ../../site/api/portfolio.md:184
+msgid "Default symbol column name in transaction and round-trip frames."
+msgstr "交易帧与完整交易帧中 symbol 列的默认名称。"
+
+#~ msgid "Default maximum gap between transactions merged into one block."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Uses days_to_liquidate_positions() with the "
+#~ "supplied parameters. When last_n_days is "
+#~ "set, only metric rows at or after "
+#~ "newest - last_n_days days are considered."
+#~ " Each record reports the maximum days"
+#~ " value and the position allocation "
+#~ "percentage on that date, multiplied "
+#~ "bySymbols with no valid value keep "
+#~ "NaN fields. Results are sorted by "
+#~ "symbol."
+#~ msgstr ""
+

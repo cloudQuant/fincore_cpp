@@ -1,0 +1,182 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 07:48+0800\n"
+"PO-Revision-Date: 2026-10-26 00:24+0800\n"
+"Last-Translator: fincore_cpp documentation maintainers\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/maintainer/README.md:1
+msgid "Maintainer notes"
+msgstr "维护者说明"
+
+#: ../../site/maintainer/README.md:3
+msgid "Comment rounds"
+msgstr "注释轮次"
+
+#: ../../site/maintainer/README.md:5
+msgid "Freeze the public symbol list with `tools/build_api_ledger.py`."
+msgstr "使用 `tools/build_api_ledger.py` 冻结公共符号清单。"
+
+#: ../../site/maintainer/README.md:6
+msgid ""
+"Edit one module's public headers; use `///` Google-style contracts and "
+"`///<` for concise fields/enum values. Do not change code or formatting."
+msgstr "一次只编辑一个模块的公共头文件；使用 `///` 编写 Google 风格契约，使用 `///<` 简要说明字段/枚举值。不要改变代码或格式。"
+
+#: ../../site/maintainer/README.md:8
+msgid "Run `tools/check_comment_only.py` on the touched headers."
+msgstr "对涉及的头文件运行 `tools/check_comment_only.py`。"
+
+#: ../../site/maintainer/README.md:9
+msgid "Regenerate Doxygen XML and the ledger; record documented/missing counts."
+msgstr "重新生成 Doxygen XML 和符号清单；记录已说明/缺失数量。"
+
+#: ../../site/maintainer/README.md:10
+msgid "Run related tests (and the full suite for a release candidate)."
+msgstr "运行相关测试（发布候选需运行完整测试套件）。"
+
+#: ../../site/maintainer/README.md:11
+msgid "Build both language sites with `-W -n --keep-going`."
+msgstr "使用 `-W -n --keep-going` 构建两种语言的站点。"
+
+#: ../../site/maintainer/README.md:12
+msgid ""
+"Update the English page, `.po` translation, page ledger and source links; "
+"commit only the reviewed round."
+msgstr "更新英文页面、`.po` 翻译、页面清单和源码链接；只提交已审阅的轮次。"
+
+#: ../../site/maintainer/README.md:15
+msgid "API pages"
+msgstr "API 页面"
+
+#: ../../site/maintainer/README.md:17
+msgid ""
+"`tools/generate_api_pages.py` rebuilds `docs/site/api/<module>.md` from the "
+"committed ledger: one Breathe directive per top-level declaration, "
+"overloaded functions emitted with their exact signature, template functions "
+"by name, and multi-line string constants listed in the script's "
+"`UNRENDERABLE` set. Edit the ledger inputs, not the generated pages; the "
+"script is deterministic, so a reviewed round shows up as a small diff."
+msgstr ""
+"`tools/generate_api_pages.py` 依据已提交的符号清单重建 "
+"`docs/site/api/<module>.md`：每个顶层声明一条 Breathe "
+"指令，重载函数按完整签名输出，模板函数按名称输出，多行字符串常量则列在脚本的 `UNRENDERABLE` "
+"集合中。请修改清单输入而不是生成的页面；脚本是确定性的，因此一轮已审阅的改动只会体现为很小的 diff。"
+
+#: ../../site/maintainer/README.md:24
+msgid ""
+"Doxygen emits C++14 digit separators inside `<argsstring>`, which the Sphinx"
+" C++ domain cannot parse, so `tools/normalize_doxygen_xml.py` must run "
+"between `doxygen` and `sphinx-build`. `.readthedocs.yaml` and the `docs` "
+"workflow do this; a local build is:"
+msgstr ""
+"Doxygen 会在 `<argsstring>` 中输出 C++14 数字分隔符，而 Sphinx C++ 域无法解析，因此必须在 `doxygen`"
+" 与 `sphinx-build` 之间运行 `tools/normalize_doxygen_xml.py`。`.readthedocs.yaml` "
+"与 `docs` 工作流都已如此做；本地构建步骤为："
+
+#: ../../site/maintainer/README.md:29
+msgid ""
+"cd docs/site\n"
+"mkdir -p ../_build/doxygen   # Doxygen creates one level only\n"
+"doxygen Doxyfile\n"
+"python tools/normalize_doxygen_xml.py ../_build/doxygen/xml\n"
+"python tools/build_api_ledger.py\n"
+"python tools/generate_api_pages.py\n"
+msgstr ""
+"cd docs/site\n"
+"mkdir -p ../_build/doxygen   # Doxygen creates one level only\n"
+"doxygen Doxyfile\n"
+"python tools/normalize_doxygen_xml.py ../_build/doxygen/xml\n"
+"python tools/build_api_ledger.py\n"
+"python tools/generate_api_pages.py\n"
+
+#: ../../site/maintainer/README.md:38
+msgid "Translation"
+msgstr "翻译"
+
+#: ../../site/maintainer/README.md:40
+msgid ""
+"cd docs/site\n"
+"sphinx-build -b gettext -W --keep-going . ../_build/gettext\n"
+"sphinx-intl update -p ../_build/gettext -l zh_CN\n"
+"# edit locale/zh_CN/LC_MESSAGES/*.po and clear fuzzy entries\n"
+"FINCORE_DOCS_LANGUAGE=zh_CN sphinx-build -b html -W -n --keep-going . "
+"../_build/html/zh_CN\n"
+msgstr ""
+"cd docs/site\n"
+"sphinx-build -b gettext -W --keep-going . ../_build/gettext\n"
+"sphinx-intl update -p ../_build/gettext -l zh_CN\n"
+"# edit locale/zh_CN/LC_MESSAGES/*.po and clear fuzzy entries\n"
+"FINCORE_DOCS_LANGUAGE=zh_CN sphinx-build -b html -W -n --keep-going . "
+"../_build/html/zh_CN\n"
+
+#: ../../site/maintainer/README.md:48
+msgid ""
+"`tools/apply_translations.py <catalog> <json>` fills a catalog from a msgid-"
+"to-msgstr JSON mapping, which keeps bulk translations reviewable and avoids "
+"hand-editing wrapping. Check the totals before committing:"
+msgstr ""
+"`tools/apply_translations.py <catalog> <json>` 按 msgid 到 msgstr 的 JSON "
+"映射填充目录，使批量翻译保持可审阅，并避免手工处理换行。提交前先核对总数："
+
+#: ../../site/maintainer/README.md:52
+msgid "msgfmt --statistics -o /dev/null locale/zh_CN/LC_MESSAGES/**/*.po\n"
+msgstr "msgfmt --statistics -o /dev/null locale/zh_CN/LC_MESSAGES/**/*.po\n"
+
+#: ../../site/maintainer/README.md:56
+msgid ""
+"The untranslated set must stay exactly the reviewed identifier exemptions in"
+" `docs/iterations/iteration-10-comments-bilingual-docs/exemptions.md`; any "
+"other untranslated entry blocks the bilingual release."
+msgstr ""
+"未翻译集合必须恰好等于 `docs/iterations/iteration-10-comments-bilingual-"
+"docs/exemptions.md` 中经审阅的标识符豁免；任何其它未翻译条目都会阻止双语发布。"
+
+#: ../../site/maintainer/README.md:60
+msgid ""
+"Keep identifiers, commands, paths, formulas and code blocks literal. The "
+"glossary uses returns=收益率, drawdown=回撤, volatility=波动率, horizon=预测期, "
+"turnover=换手率, exposure=暴露 and annualization=年化."
+msgstr ""
+"保留标识符、命令、路径、公式和代码块的字面形式。术语表使用 "
+"returns=收益率、drawdown=回撤、volatility=波动率、horizon=预测期、turnover=换手率、exposure=暴露、annualization=年化。"
+
+#: ../../site/maintainer/README.md:64
+msgid ""
+"Doxygen auto-links are disabled (`AUTOLINK_SUPPORT = NO`) because reference "
+"nodes cannot survive gettext: a translated paragraph that drops them fails "
+"the strict build. Write cross-references explicitly in narrative pages "
+"instead."
+msgstr ""
+"由于引用节点无法在 gettext 中保留（译文段落丢掉引用就会让严格构建失败），Doxygen 自动链接已被关闭（`AUTOLINK_SUPPORT "
+"= NO`）。请改为在叙述页面中显式书写交叉引用。"
+
+#: ../../site/maintainer/README.md:68
+msgid "Generated artifacts"
+msgstr "生成的产物"
+
+#: ../../site/maintainer/README.md:70
+#, python-brace-format
+msgid ""
+"`docs/_build/` (Doxygen XML, gettext templates, `.mo`, HTML) is ignored. "
+"`docs/site/locale/**/LC_MESSAGES/*.po` and `api-ledger*.{tsv,json}` are "
+"source artifacts and should be committed when they change."
+msgstr ""
+"`docs/_build/`（Doxygen XML、gettext "
+"模板、`.mo`、HTML）已被忽略。`docs/site/locale/**/LC_MESSAGES/*.po` 和 `api-"
+"ledger*.{tsv,json}` 是源产物，变更时应提交。"
+

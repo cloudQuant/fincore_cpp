@@ -1,6 +1,9 @@
+#include <fincore/calendar.hpp>
+#include <fincore/metrics/drawdown.hpp>
 #include <fincore/metrics/stats.hpp>
 
 #include <fincore/detail/numeric.hpp>
+#include <fincore/detail/stutzer.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -66,6 +69,9 @@ central_moments calculate_central_moments(std::span<const double> values) {
     third_total += squared * deviation;
     fourth_total += squared * squared;
   }
+  // One pass yields all three moments, each divided by n: the population form the
+  // skew and excess-kurtosis ratios below are built from, whereas the
+  // sample-adjusted estimators live with the ratio helpers.
   const double count = static_cast<double>(values.size());
   return {second_total / count, third_total / count, fourth_total / count};
 }
@@ -102,6 +108,9 @@ double safe_pearson_correlation(std::span<const double> first,
 
   const double first_standard_deviation = std::sqrt(first_variance);
   const double second_standard_deviation = std::sqrt(second_variance);
+  // A standard deviation under the floor is treated as no dispersion rather than
+  // as a tiny one: dividing by it would report a correlation near +/-1 for two
+  // series that only differ by rounding noise, so the honest answer is NaN.
   if (first_standard_deviation < minimum_standard_deviation ||
       second_standard_deviation < minimum_standard_deviation ||
       !std::isfinite(first_standard_deviation) ||
@@ -210,6 +219,25 @@ double safe_correlation(const dataframe& returns,
   return safe_pearson_correlation(pairs.returns, pairs.benchmark);
 }
 
+double r_cubed(const dataframe& returns,
+               const dataframe& benchmark,
+               std::string_view returns_column_name,
+               std::string_view benchmark_column_name) {
+  if (returns_column_name.find('\0') != std::string_view::npos) {
+    throw input_error{"returns column name must not contain an embedded NUL"};
+  }
+  if (benchmark_column_name.find('\0') != std::string_view::npos) {
+    throw input_error{
+        "benchmark column name must not contain an embedded NUL"};
+  }
+  const double correlation = safe_correlation(
+      returns, benchmark, returns_column_name, benchmark_column_name);
+  if (std::isnan(correlation)) {
+    return nan;
+  }
+  return correlation * correlation * correlation;
+}
+
 double relative_win_rate(const dataframe& returns,
                          const dataframe& benchmark,
                          std::string_view returns_column_name,
@@ -261,6 +289,328 @@ double tracking_difference(const dataframe& returns,
       cumulative_return(paired_benchmark, benchmark_column_name);
   const double result = strategy_return - benchmark_return;
   return std::isfinite(result) ? result : nan;
+}
+
+// Above thirty periods the lags are spaced logarithmically at thirty points with
+// the last pinned to the requested maximum; rounding can fold two positions onto
+// the same integer, which is why the list is sorted and deduplicated and can come
+// back shorter than thirty entries.
+std::vector<std::size_t> hurst_lags(std::size_t max_lag) {
+    std::vector<std::size_t> lags;
+    const std::size_t span = max_lag - 1;
+    if (span > 30) {
+        const double start_log = std::log10(2.0);
+        const double stop_log = std::log10(static_cast<double>(max_lag));
+        const double step = (stop_log - start_log) / 29.0;
+        for (std::size_t position = 0; position < 30; ++position) {
+            const double value =
+                std::pow(10.0, start_log + step * static_cast<double>(position));
+            lags.push_back(static_cast<std::size_t>(value));
+        }
+        lags.back() = max_lag;
+        std::sort(lags.begin(), lags.end());
+        lags.erase(std::unique(lags.begin(), lags.end()), lags.end());
+    } else {
+        for (std::size_t lag = 2; lag <= max_lag; ++lag) {
+            lags.push_back(lag);
+        }
+    }
+    return lags;
+}
+
+double hurst_exponent(const dataframe& returns, std::string_view column) {
+    constexpr std::size_t minimum_length = 8;
+    if (column.find('\0') != std::string_view::npos) {
+        throw input_error{"column name must not contain an embedded NUL"};
+    }
+    const auto raw_values = require_double_column(returns, column);
+    if (raw_values.size() < minimum_length) {
+        return nan;
+    }
+
+    std::vector<double> values;
+    values.reserve(raw_values.size());
+    for (const double value : raw_values) {
+        if (!std::isnan(value)) {
+            values.push_back(value);
+        }
+    }
+    if (values.size() < minimum_length) {
+        return nan;
+    }
+
+    const double count = static_cast<double>(values.size());
+    double average = 0.0;
+    for (const double value : values) {
+        average += value;
+    }
+    average /= count;
+
+    double running = 0.0;
+    double maximum = -std::numeric_limits<double>::infinity();
+    double minimum = std::numeric_limits<double>::infinity();
+    for (const double value : values) {
+        running += value - average;
+        maximum = std::max(maximum, running);
+        minimum = std::min(minimum, running);
+    }
+    const double range = maximum - minimum;
+
+    double squared_total = 0.0;
+    for (const double value : values) {
+        const double deviation = value - average;
+        squared_total += deviation * deviation;
+    }
+    const double deviation = std::sqrt(squared_total / (count - 1.0));
+    if (deviation == 0.0 || range == 0.0) {
+        return nan;
+    }
+
+    const std::size_t size = values.size();
+    const std::size_t max_lag = std::max<std::size_t>(size / 3, 3);
+    struct lag_ratio {
+        double lag;
+        double ratio;
+    };
+    std::vector<lag_ratio> ratios;
+    for (const std::size_t lag : hurst_lags(max_lag)) {
+        const std::size_t subseries_count = size / lag;
+        if (subseries_count < 1) {
+            continue;
+        }
+        double ratio_total = 0.0;
+        std::size_t valid_count = 0;
+        for (std::size_t row = 0; row < subseries_count; ++row) {
+            const std::size_t offset = row * lag;
+            double block_mean = 0.0;
+            for (std::size_t index = 0; index < lag; ++index) {
+                block_mean += values[offset + index];
+            }
+            block_mean /= static_cast<double>(lag);
+
+            double cumulative = 0.0;
+            double block_max = -std::numeric_limits<double>::infinity();
+            double block_min = std::numeric_limits<double>::infinity();
+            double block_squared = 0.0;
+            for (std::size_t index = 0; index < lag; ++index) {
+                const double block_deviation = values[offset + index] - block_mean;
+                cumulative += block_deviation;
+                block_max = std::max(block_max, cumulative);
+                block_min = std::min(block_min, cumulative);
+                block_squared += block_deviation * block_deviation;
+            }
+            const double block_range = block_max - block_min;
+            const double block_deviation =
+                std::sqrt(block_squared / static_cast<double>(lag - 1));
+            if (block_deviation > 0.0 && block_range > 0.0) {
+                ratio_total += block_range / block_deviation;
+                ++valid_count;
+            }
+        }
+        if (valid_count > 0) {
+            ratios.push_back({static_cast<double>(lag),
+                              ratio_total / static_cast<double>(valid_count)});
+        }
+    }
+
+    if (ratios.size() < 2) {
+        double fallback =
+            0.5 + std::log(range / deviation) / std::log(2.0 * count);
+        fallback = std::max(0.0, std::min(1.0, fallback));
+        return fallback;
+    }
+
+    double lag_mean = 0.0;
+    double ratio_mean = 0.0;
+    for (const auto& entry : ratios) {
+        lag_mean += std::log(entry.lag);
+        ratio_mean += std::log(entry.ratio);
+    }
+    lag_mean /= static_cast<double>(ratios.size());
+    ratio_mean /= static_cast<double>(ratios.size());
+
+    double covariance = 0.0;
+    double lag_variance = 0.0;
+    for (const auto& entry : ratios) {
+        const double lag_delta = std::log(entry.lag) - lag_mean;
+        const double ratio_delta = std::log(entry.ratio) - ratio_mean;
+        covariance += lag_delta * ratio_delta;
+        lag_variance += lag_delta * lag_delta;
+    }
+    if (lag_variance == 0.0) {
+        return nan;
+    }
+    double hurst = covariance / lag_variance;
+    hurst = std::max(0.0, std::min(1.0, hurst));
+    return hurst;
+}
+
+double stutzer_index(const dataframe& returns,
+                     double target_return,
+                     std::string_view column) {
+    if (column.find('\0') != std::string_view::npos) {
+        throw input_error{"column name must not contain an embedded NUL"};
+    }
+    const auto raw_values = require_double_column(returns, column);
+    if (raw_values.size() < 2) {
+        return nan;
+    }
+
+    std::vector<double> excess_returns;
+    excess_returns.reserve(raw_values.size());
+    for (const double value : raw_values) {
+        const double excess = value - target_return;
+        if (!std::isnan(excess)) {
+            excess_returns.push_back(excess);
+        }
+    }
+    if (excess_returns.size() < 2) {
+        return nan;
+    }
+
+    double total = 0.0;
+    for (const double value : excess_returns) {
+        total += value;
+    }
+    const double mean_excess =
+        total / static_cast<double>(excess_returns.size());
+    if (std::fabs(mean_excess) < 1e-15) {
+        return 0.0;
+    }
+
+    double lower = mean_excess > 0.0 ? -50.0 : 1e-10;
+    double upper = mean_excess > 0.0 ? -1e-10 : 50.0;
+    constexpr double inverse_golden = 0.6180339887498949;
+    double left = upper - inverse_golden * (upper - lower);
+    double right = lower + inverse_golden * (upper - lower);
+    double left_value = detail::stutzer_objective(left, excess_returns);
+    double right_value = detail::stutzer_objective(right, excess_returns);
+    for (int iteration = 0; iteration < 200; ++iteration) {
+        if (upper - lower <= 1e-12) {
+            break;
+        }
+        if (left_value < right_value) {
+            upper = right;
+            right = left;
+            right_value = left_value;
+            left = upper - inverse_golden * (upper - lower);
+            left_value = detail::stutzer_objective(left, excess_returns);
+        } else {
+            lower = left;
+            left = right;
+            left_value = right_value;
+            right = lower + inverse_golden * (upper - lower);
+            right_value = detail::stutzer_objective(right, excess_returns);
+        }
+    }
+
+    double index_of_precision =
+        -detail::stutzer_objective((lower + upper) / 2.0, excess_returns);
+    if (index_of_precision < 0.0) {
+        index_of_precision = 0.0;
+    }
+    const double sign = mean_excess > 0.0 ? 1.0 : -1.0;
+    return sign * std::sqrt(2.0 * index_of_precision);
+}
+
+double r_cubed_turtle(const dataframe& returns,
+                      double annualization,
+                      std::string_view column) {
+    if (column.find('\0') != std::string_view::npos) {
+        throw input_error{"column name must not contain an embedded NUL"};
+    }
+    const auto values = require_double_column(returns, column);
+    if (values.size() < 2) {
+        return nan;
+    }
+
+    std::vector<double> nav;
+    nav.reserve(values.size());
+    double wealth = 1.0;
+    for (const double value : values) {
+        if (std::isnan(value)) {
+            nav.push_back(nan);
+        } else {
+            wealth *= 1.0 + value;
+            nav.push_back(wealth);
+        }
+    }
+
+    double time_total = 0.0;
+    double nav_total = 0.0;
+    std::size_t count = 0;
+    for (std::size_t position = 0; position < nav.size(); ++position) {
+        if (!std::isnan(nav[position])) {
+            time_total += static_cast<double>(position);
+            nav_total += nav[position];
+            ++count;
+        }
+    }
+    if (count < 2) {
+        return nan;
+    }
+    const double time_mean = time_total / static_cast<double>(count);
+    const double nav_mean = nav_total / static_cast<double>(count);
+    double covariance = 0.0;
+    double time_variance = 0.0;
+    for (std::size_t position = 0; position < nav.size(); ++position) {
+        if (std::isnan(nav[position])) {
+            continue;
+        }
+        const double time_delta =
+            static_cast<double>(position) - time_mean;
+        covariance += time_delta * (nav[position] - nav_mean);
+        time_variance += time_delta * time_delta;
+    }
+    if (time_variance == 0.0) {
+        return nan;
+    }
+    const double rar = covariance / time_variance * annualization;
+
+    const auto& index = returns.get_index();
+    std::vector<int> years;
+    for (const timestamp point : index) {
+        const int year = utc_year(point);
+        if (std::find(years.begin(), years.end(), year) == years.end()) {
+            years.push_back(year);
+        }
+    }
+    if (years.empty()) {
+        return nan;
+    }
+
+    std::vector<double> maximum_drawdowns;
+    maximum_drawdowns.reserve(years.size());
+    for (const int year : years) {
+        std::vector<timestamp> year_index;
+        std::vector<double> year_values;
+        for (std::size_t position = 0; position < index.size(); ++position) {
+            if (utc_year(index[position]) == year) {
+                year_index.push_back(index[position]);
+                year_values.push_back(values[position]);
+            }
+        }
+        if (year_values.empty()) {
+            continue;
+        }
+        const auto year_frame =
+            make_series(std::move(year_index), column, std::move(year_values));
+        maximum_drawdowns.push_back(
+            std::fabs(max_drawdown(year_frame, column)));
+    }
+    if (maximum_drawdowns.empty()) {
+        return nan;
+    }
+    double total = 0.0;
+    for (const double drawdown : maximum_drawdowns) {
+        total += drawdown;
+    }
+    const double average =
+        total / static_cast<double>(maximum_drawdowns.size());
+    if (average < 1e-15) {
+        return rar > 0.0 ? std::numeric_limits<double>::infinity() : nan;
+    }
+    return rar / average;
 }
 
 }  // namespace fincore

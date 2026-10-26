@@ -1,0 +1,30 @@
+{
+  "fixture": "tests/fixtures/iteration8/simulate_paths_seed42.csv",
+  "indices": [
+    [
+      3,
+      4,
+      2,
+      4
+    ],
+    [
+      4,
+      1,
+      2,
+      2
+    ],
+    [
+      2,
+      4,
+      3,
+      2
+    ]
+  ],
+  "num_days": 4,
+  "num_samples": 3,
+  "numpy_version": "1.26.4",
+  "oracle": "numpy.random.RandomState",
+  "population": 5,
+  "seed": 42,
+  "sha256": "2987960995b94de02e25802634893aa87033b8c1480c25e9c1673808e80431b1"
+}

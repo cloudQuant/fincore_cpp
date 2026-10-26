@@ -1,0 +1,535 @@
+{
+  "round": "P114-R2",
+  "date": "2026-10-25",
+  "branch": "dev",
+  "base_commit": "e652a4dbc1ea1e6fc379270b5f9daf573eeb7429",
+  "acceptance": "EXPORT_FUNCTIONAL_AND_FULL_BYTE_PARITY_ACCEPTED_NATIVE_AB_DEVELOPMENT_ONLY",
+  "unit_passed": 11,
+  "python_oracle_cases_passed": 3,
+  "independent_review": "Static source/test review: no blocker; reviewer ran no tests. Per-writer state is established by member layout, not cache-hit instrumentation.",
+  "source_identity": [
+    {
+      "path": "src/factor/research_detailed_export.cpp",
+      "size_bytes": 25189,
+      "sha256": "08aad5e52e1325b28b65bc9f54fa351186cc4e76a272a5556f7f27930e914220"
+    },
+    {
+      "path": "tests/unit/factor_research_detailed_export_test.cpp",
+      "size_bytes": 23969,
+      "sha256": "74b96b5f4b948c2ff77cae0a861c07e6169d9a17715d8091b9ae1d0fcae165ab"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "build-win/p114-r2-build.log",
+      "size_bytes": 433,
+      "sha256": "e2a214e81b7ebd7eb4a6e9dfe58ab345e7454b6777fdb197eb4d2f2c195dc2b8"
+    },
+    {
+      "path": "build-win/p114-r2-unit.log",
+      "size_bytes": 2730,
+      "sha256": "b9ccd52471abf9325f8bf24a785bfe7d028870f4681c8fb3ff5a52bd198e85f9"
+    },
+    {
+      "path": "build-win/p114-r2-oracle.log",
+      "size_bytes": 1466,
+      "sha256": "fd3db39f6af6ac016a4e623e5a01a18c6405db3520cc78a7fb3f8d9eb79e4f07"
+    },
+    {
+      "path": "build-win/p114-r2-full-check-r1.json",
+      "size_bytes": 5262,
+      "sha256": "44a17054b8f6563ec0294e6b08628a7f0902877f47a8c33923c467365df6e247"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p114-r2-500/comparison.json",
+      "size_bytes": 129574,
+      "sha256": "a90977aa1078bd90efa0afbfa114f5031e7957d2536892e537f1fadc79065a56"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p114-r2-500/measurements.json",
+      "size_bytes": 71072,
+      "sha256": "11367be838e4512406ade40138378d4bdcf8058bb0d3b6267bc1b90e88be3443"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p114-r2-native-500-ab/results.json",
+      "size_bytes": 791074,
+      "sha256": "0e195769c0e2e275789619eb4d6edccdb19b944730306686e0f20af01f8fbb9f"
+    },
+    {
+      "path": "build-win/compare_alpha_source_builds.py",
+      "size_bytes": 12664,
+      "sha256": "cc486fb460cdc89124e261f1aec158fdb2a0fe9568d3bcfddadd4c31ded8619d"
+    }
+  ],
+  "development_500": {
+    "all_pairs_pass": true,
+    "performance": {
+      "repeats": 5,
+      "sampling": {
+        "cpp": {
+          "count": 5,
+          "iqr": 0.013770899968221784,
+          "iqr_over_median": 0.047625404389604636,
+          "max": 0.3285355000407435,
+          "median": 0.28915030002826825,
+          "min": 0.2414172000135295,
+          "noise_limit": 0.1,
+          "protocol": "iteration9-r1",
+          "q1": 0.28049580001970753,
+          "q3": 0.2942666999879293,
+          "samples": [
+            0.2414172000135295,
+            0.2942666999879293,
+            0.3285355000407435,
+            0.28915030002826825,
+            0.28049580001970753
+          ],
+          "status": "VALID"
+        },
+        "paired_speedups": [
+          39.55330978687758,
+          36.44389936204802,
+          32.66303945444931,
+          39.142462929945076,
+          37.20016520490443
+        ],
+        "pairs_at_least_100x": 0,
+        "pairs_at_least_30x": 5,
+        "python": {
+          "count": 5,
+          "iqr": 0.29647790000308305,
+          "iqr_over_median": 0.02764562216463282,
+          "max": 11.318054900038987,
+          "median": 10.724225999962073,
+          "min": 9.548849300015718,
+          "noise_limit": 0.1,
+          "protocol": "iteration9-r1",
+          "q1": 10.434490100014955,
+          "q3": 10.730968000018038,
+          "samples": [
+            9.548849300015718,
+            10.724225999962073,
+            10.730968000018038,
+            11.318054900038987,
+            10.434490100014955
+          ],
+          "status": "VALID"
+        }
+      },
+      "stages": {
+        "accounted_stage_seconds": {
+          "cpp_seconds": 0.2703574,
+          "python_seconds": 9.732838600000832,
+          "speedup": 35.9998971731524
+        },
+        "cpu_seconds": {
+          "cpp_seconds": 0.234375,
+          "python_seconds": 8.484375,
+          "speedup": 36.2
+        },
+        "export_seconds": {
+          "cpp_seconds": 0.08608,
+          "python_seconds": 3.332236499991268,
+          "speedup": 38.710925882798186
+        },
+        "factor_seconds": {
+          "cpp_seconds": 0.0259468,
+          "python_seconds": 0.09567529999185354,
+          "speedup": 3.6873641447829226
+        },
+        "internal_process_cpu_seconds": {
+          "cpp_seconds": 0.234375,
+          "python_seconds": 8.484375,
+          "speedup": 36.2
+        },
+        "internal_wall_seconds": {
+          "cpp_seconds": 0.2703574,
+          "python_seconds": 9.732838600000832,
+          "speedup": 35.9998971731524
+        },
+        "load_seconds": {
+          "cpp_seconds": 0.0602149,
+          "python_seconds": 1.431516400014516,
+          "speedup": 23.773458064607198
+        },
+        "materialization_seconds": {
+          "cpp_seconds": 0.0040094,
+          "python_seconds": 0.018874900008086115,
+          "speedup": 4.707661996330153
+        },
+        "other_seconds": {
+          "cpp_seconds": 1.5199999999992997e-05,
+          "python_seconds": 0.0003037999849766493,
+          "speedup": 19.98684111689403
+        },
+        "preparation_seconds": {
+          "cpp_seconds": 0.0001113,
+          "python_seconds": 0.051192899991292506,
+          "speedup": 459.9541778193397
+        },
+        "research_seconds": {
+          "cpp_seconds": 0.0947638,
+          "python_seconds": 4.74241050001001,
+          "speedup": 50.044537049063145
+        },
+        "total_seconds": {
+          "cpp_seconds": 0.2703574,
+          "python_seconds": 9.732838600000832,
+          "speedup": 35.9998971731524
+        }
+      },
+      "wall": {
+        "cpp_seconds": 0.28915030002826825,
+        "python_seconds": 10.724225999962073,
+        "speedup": 37.08875971739832
+      }
+    }
+  },
+  "full_native": {
+    "source_base": {
+      "head": "e652a4dbc1ea1e6fc379270b5f9daf573eeb7429",
+      "branch": "dev",
+      "tracked_status": "M src/factor/research_detailed_export.cpp\n M tests/unit/factor_research_detailed_export_test.cpp"
+    },
+    "source_sha256": {
+      "src/factor/research_detailed_export.cpp": "08aad5e52e1325b28b65bc9f54fa351186cc4e76a272a5556f7f27930e914220",
+      "tests/unit/factor_research_detailed_export_test.cpp": "74b96b5f4b948c2ff77cae0a861c07e6169d9a17715d8091b9ae1d0fcae165ab"
+    },
+    "native_binary": {
+      "path": "D:\\source_code\\fincore_cpp\\build-win\\fincore_alpha003_research.exe",
+      "size_bytes": 619008,
+      "sha256": "184cdc128865322eb4ae862189929c0b997d0da1f1aef4e2d497399dd7374c8b"
+    },
+    "inputs_unchanged": true,
+    "data_matches_baseline": true,
+    "measurement": {
+      "command": [
+        "D:\\source_code\\fincore_cpp\\build-win\\fincore_alpha003_research.exe",
+        "--data-dir",
+        "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\data\\a_stocks",
+        "--out",
+        "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p114-r2-full-check-r1",
+        "--max-symbols",
+        "0",
+        "--end-offset",
+        "22",
+        "--preprocess",
+        "cross_section_rank",
+        "--run-id",
+        "p114-r2-full-check-r1"
+      ],
+      "returncode": 0,
+      "wall_seconds": 3.235976599971764,
+      "cpu_seconds": 2.9375,
+      "peak_working_set_bytes": 748195840,
+      "affinity_mask": 1,
+      "cpu_index": 0,
+      "affinity_method": "inherited_parent_affinity_before_create_process",
+      "affinity_verified": true,
+      "thread_environment": {
+        "OMP_NUM_THREADS": "1",
+        "OMP_THREAD_LIMIT": "1",
+        "OMP_DYNAMIC": "FALSE",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "MKL_DYNAMIC": "FALSE",
+        "BLIS_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "NUMEXPR_MAX_THREADS": "1",
+        "TBB_NUM_THREADS": "1"
+      }
+    },
+    "timings": {
+      "preparation_seconds": 0.0001194,
+      "materialization_seconds": 0.0595185,
+      "load_seconds": 0.5921555,
+      "factor_seconds": 0.3912927,
+      "research_seconds": 1.2634686,
+      "export_seconds": 0.795577,
+      "other_seconds": 1.9999999999686935e-05,
+      "accounted_stage_seconds": 3.1021517,
+      "total_seconds": 3.1021517,
+      "internal_wall_seconds": 3.1021517,
+      "cpu_seconds": 2.828125,
+      "internal_process_cpu_seconds": 2.828125,
+      "cpu_measurement_source": "GetProcessTimes (kernel + user)",
+      "peak_memory_bytes": 748195840,
+      "peak_memory_source": "GetProcessMemoryInfo.PeakWorkingSetSize",
+      "peak_memory_status": "available"
+    },
+    "files": [
+      {
+        "path": "factor_values.csv",
+        "size_bytes": 62915890,
+        "sha256": "f790074ef9b2e7b883edd5789af7c5ecc50123185960715914e863095c31d0a7",
+        "equal": true
+      },
+      {
+        "path": "workload.json",
+        "size_bytes": 829,
+        "sha256": "effc8cf88056b4542a4009586afe77d5b10e3bbe892e255d84b18e531f22df78",
+        "equal": true
+      },
+      {
+        "path": "tables/coverage.csv",
+        "size_bytes": 135,
+        "sha256": "c9c6f8eb16fb0132d00d14f2e9bc6cae26dbdf1087233ba14700f9a3a2b75b45",
+        "equal": true
+      },
+      {
+        "path": "tables/diagnostics.csv",
+        "size_bytes": 35,
+        "sha256": "e62736d7fab038d715b74393c7897f25885319f982dbb539c0e1a848d3657b37",
+        "equal": true
+      },
+      {
+        "path": "tables/ic.csv",
+        "size_bytes": 50658,
+        "sha256": "16b00dcbade2294def8a7bd92ab302bf5a8845c52feb18e4be268b1437c1e2db",
+        "equal": true
+      },
+      {
+        "path": "tables/ic_summary.csv",
+        "size_bytes": 486,
+        "sha256": "74c6e2a0e64e588b8e6e116b6b70713743a1df86ddeda698b22b30f6dafe6442",
+        "equal": true
+      },
+      {
+        "path": "tables/labels.csv",
+        "size_bytes": 184024425,
+        "sha256": "e9c48832bc9e373758e9b3cbd34a2acbcf77a561696886719d2dac6efdfdfb37",
+        "equal": true
+      },
+      {
+        "path": "tables/manifest.json",
+        "size_bytes": 52524,
+        "sha256": "9fcc629546a7048fb54428bc4e094c920f1e83e135fd5e810572787e6702972b",
+        "equal": true
+      },
+      {
+        "path": "tables/quantile_returns.csv",
+        "size_bytes": 195280,
+        "sha256": "fa847b2b9dd57163c7bd24c11376cf35fff88e12323f786becb4e64e87b276e6",
+        "equal": true
+      },
+      {
+        "path": "tables/signals.csv",
+        "size_bytes": 122015997,
+        "sha256": "3153894202ddbff233952f8ad950d7923f3fb3ee7646c0bc4a0766d76ef2375c",
+        "equal": true
+      },
+      {
+        "path": "tables/spreads.csv",
+        "size_bytes": 37502,
+        "sha256": "af0ebe58aedbc26880f3167ad63e0fab12aea5a4f35c17da8eeee406a5817fa2",
+        "equal": true
+      },
+      {
+        "path": "tables/stability.csv",
+        "size_bytes": 237,
+        "sha256": "52dc34684f1b0c9632a9834b853bec00fb5877e443ba2556c920646e9fdb759d",
+        "equal": true
+      },
+      {
+        "path": "tables/turnover.csv",
+        "size_bytes": 165646,
+        "sha256": "76590fe87919af910474a92a322ff9f9cceb976a98fcb3560f66c9cc3b6583d4",
+        "equal": true
+      }
+    ],
+    "all_output_bytes_equal": true,
+    "evidence_level": "ONE_FULL_NATIVE_CORRECTNESS_RUN_TIMING_DIAGNOSTIC_ONLY"
+  },
+  "native_500_ab": {
+    "status": "NATIVE_SOURCE_AB_DEVELOPMENT_ONLY",
+    "runs": 14,
+    "all_output_bytes_equal": true,
+    "source_and_inputs_unchanged": true,
+    "metrics": {
+      "cpu": {
+        "candidate": {
+          "count": 5,
+          "iqr": 0.015625,
+          "iqr_over_median": 0.05555555555555555,
+          "max": 0.296875,
+          "median": 0.28125,
+          "min": 0.265625,
+          "noise_limit": 0.1,
+          "protocol": "iteration9-r1",
+          "q1": 0.28125,
+          "q3": 0.296875,
+          "samples": [
+            0.296875,
+            0.28125,
+            0.296875,
+            0.265625,
+            0.28125
+          ],
+          "status": "VALID"
+        },
+        "paired_reference_over_candidate": [
+          1.105263157894737,
+          1.0,
+          1.0526315789473684,
+          1.1176470588235294,
+          0.9444444444444444
+        ],
+        "ratio_of_medians_reference_over_candidate": 1.0555555555555556,
+        "reference": {
+          "count": 5,
+          "iqr": 0.03125,
+          "iqr_over_median": 0.10526315789473684,
+          "max": 0.328125,
+          "median": 0.296875,
+          "min": 0.265625,
+          "noise_limit": 0.1,
+          "protocol": "iteration9-r1",
+          "q1": 0.28125,
+          "q3": 0.3125,
+          "samples": [
+            0.328125,
+            0.28125,
+            0.3125,
+            0.296875,
+            0.265625
+          ],
+          "status": "INCONCLUSIVE"
+        }
+      },
+      "peak_working_set_bytes": {
+        "candidate": {
+          "count": 5,
+          "iqr": 143360.0,
+          "iqr_over_median": 0.0019242399252295344,
+          "max": 74653696.0,
+          "median": 74502144.0,
+          "min": 74416128.0,
+          "noise_limit": 0.1,
+          "protocol": "iteration9-r1",
+          "q1": 74489856.0,
+          "q3": 74633216.0,
+          "samples": [
+            74416128.0,
+            74502144.0,
+            74489856.0,
+            74633216.0,
+            74653696.0
+          ],
+          "status": "VALID"
+        },
+        "paired_reference_over_candidate": [
+          1.0020915896081022,
+          1.0009896091044037,
+          1.0018145826459914,
+          0.9990670105921738,
+          0.9986831998244267
+        ],
+        "ratio_of_medians_reference_over_candidate": 1.0009346308208258,
+        "reference": {
+          "count": 5,
+          "iqr": 12288.0,
+          "iqr_over_median": 0.0001647808414808305,
+          "max": 74625024.0,
+          "median": 74571776.0,
+          "min": 74555392.0,
+          "noise_limit": 0.1,
+          "protocol": "iteration9-r1",
+          "q1": 74563584.0,
+          "q3": 74575872.0,
+          "samples": [
+            74571776.0,
+            74575872.0,
+            74625024.0,
+            74563584.0,
+            74555392.0
+          ],
+          "status": "VALID"
+        }
+      },
+      "wall": {
+        "candidate": {
+          "count": 5,
+          "iqr": 0.010336700011976063,
+          "iqr_over_median": 0.03495450241229328,
+          "max": 0.3135972999734804,
+          "median": 0.2957186999847181,
+          "min": 0.28841139998985454,
+          "noise_limit": 0.1,
+          "protocol": "iteration9-r1",
+          "q1": 0.2896987000131048,
+          "q3": 0.3000354000250809,
+          "samples": [
+            0.2957186999847181,
+            0.28841139998985454,
+            0.2896987000131048,
+            0.3135972999734804,
+            0.3000354000250809
+          ],
+          "status": "VALID"
+        },
+        "paired_reference_over_candidate": [
+          1.0800635875077464,
+          1.0417923842319852,
+          1.079722483932222,
+          0.960332885648345,
+          1.159829473289982
+        ],
+        "ratio_of_medians_reference_over_candidate": 1.0577423747170858,
+        "reference": {
+          "count": 5,
+          "iqr": 0.01823719998355955,
+          "iqr_over_median": 0.05830415009390746,
+          "max": 0.34798989997943863,
+          "median": 0.3127941999700852,
+          "min": 0.30046480003511533,
+          "noise_limit": 0.1,
+          "protocol": "iteration9-r1",
+          "q1": 0.3011578000150621,
+          "q3": 0.31939499999862164,
+          "samples": [
+            0.31939499999862164,
+            0.30046480003511533,
+            0.3127941999700852,
+            0.3011578000150621,
+            0.34798989997943863
+          ],
+          "status": "VALID"
+        }
+      }
+    },
+    "stage_medians": {
+      "A": {
+        "load_seconds": 0.0617142,
+        "factor_seconds": 0.0269896,
+        "research_seconds": 0.1010879,
+        "export_seconds": 0.0905017
+      },
+      "B": {
+        "load_seconds": 0.0629297,
+        "factor_seconds": 0.0266193,
+        "research_seconds": 0.0965726,
+        "export_seconds": 0.0845383
+      }
+    },
+    "reference_provenance": {
+      "acceptance": "P117 R2 accepted full native AB candidate; frozen before P114 R2 build",
+      "accepted_source_provenance": "docs/iterations/iteration-9-performance-30x-100x/p117-round2.json",
+      "binary": {
+        "path": "D:\\source_code\\fincore_cpp\\build-win\\p117-r2-reference\\fincore_alpha003_research.exe",
+        "sha256": "bba47471cb8852d5edf48793c9d6a85af902445702efaa98db8a3f98f7baf632",
+        "size_bytes": 617472
+      },
+      "build": "Release MSVC 19.42.34435 IPO OFF same build-win cache",
+      "source_commit": "e652a4dbc1ea1e6fc379270b5f9daf573eeb7429"
+    }
+  },
+  "commands": [
+    "cmake --build build-win --target fincore_tests fincore_research_detailed_oracle fincore_alpha003_research -j 4",
+    "build-win/tests/fincore_tests.exe --gtest_filter=FactorResearchDetailedExport.*",
+    "C:/Python314/python.exe tools/check_research_detailed_oracle.py --probe build-win/fincore_research_detailed_oracle.exe",
+    "C:/Python314/python.exe benchmarks/alpha003_a_stocks/run_benchmark.py --max-symbols 500 --repeats 5 --cpu 0 --cpp-exe build-win/fincore_alpha003_research.exe --results-dir benchmarks/alpha003_a_stocks/results-i9-p114-r2-500 --fincore-root D:/source_code/fincore",
+    "C:/Python314/python.exe build-win/check_full_round.py p114-r2 --source src/factor/research_detailed_export.cpp --source tests/unit/factor_research_detailed_export_test.cpp",
+    "C:/Python314/python.exe build-win/compare_alpha_source_builds.py --reference-bin build-win/p117-r2-reference/fincore_alpha003_research.exe --candidate-bin build-win/fincore_alpha003_research.exe --max-symbols 500 --pairs 5 --cpu 0 --output-dir benchmarks/alpha003_a_stocks/results-i9-p114-r2-native-500-ab"
+  ]
+}

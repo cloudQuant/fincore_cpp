@@ -1,0 +1,344 @@
+{
+  "round": "P115-R3",
+  "date": "2026-10-25",
+  "branch": "dev",
+  "base_commit": "2a4b8ddb2f92c87afad1f6517878ff266224288f",
+  "acceptance": "FUNCTIONAL_AND_FULL_BYTE_PARITY_ACCEPTED_PERFORMANCE_DIAGNOSTIC_ONLY",
+  "unit_passed": 56,
+  "python_oracle_cases_passed": 3,
+  "initial_test_failure": "The new turnover fixture initially landed on NumPy-style floating qcut boundaries, making its expected membership wrong. One price was made finite to give non-boundary edges; source code unchanged, initial failed log preserved.",
+  "independent_review": "Static source/test review found no blocker after fixture correction; reviewer executed no tests.",
+  "source_sha256": {
+    "src/factor/research_detailed.cpp": "bee3abed85e95b1eed194bf09f25bab317c1858c50275f60ba826dfa456b3183",
+    "tests/unit/factor_research_detailed_test.cpp": "361f47cd3be3e1ef20518b5719da93cf598c9bf80256830ff197ad22592140c2"
+  },
+  "development_500": {
+    "all_pairs_pass": true,
+    "performance": {
+      "repeats": 5,
+      "sampling": {
+        "cpp": {
+          "count": 5,
+          "iqr": 0.010036199993919581,
+          "iqr_over_median": 0.03191731936521947,
+          "max": 0.32269020000239834,
+          "median": 0.31444369995733723,
+          "min": 0.30047560000093654,
+          "noise_limit": 0.1,
+          "protocol": "iteration9-r1",
+          "q1": 0.3055337000405416,
+          "q3": 0.31556990003446117,
+          "samples": [
+            0.31444369995733723,
+            0.3055337000405416,
+            0.31556990003446117,
+            0.30047560000093654,
+            0.32269020000239834
+          ],
+          "status": "VALID"
+        },
+        "paired_speedups": [
+          33.40914733375552,
+          34.40864362471941,
+          32.91145606372298,
+          32.950655227796766,
+          30.392036076530655
+        ],
+        "pairs_at_least_100x": 0,
+        "pairs_at_least_30x": 5,
+        "python": {
+          "count": 5,
+          "iqr": 0.6044280000496656,
+          "iqr_over_median": 0.058197175282786506,
+          "max": 10.513000200036913,
+          "median": 10.385864900017623,
+          "min": 9.807212200015783,
+          "noise_limit": 0.1,
+          "protocol": "iteration9-r1",
+          "q1": 9.900867899996229,
+          "q3": 10.505295900045894,
+          "samples": [
+            10.505295900045894,
+            10.513000200036913,
+            10.385864900017623,
+            9.900867899996229,
+            9.807212200015783
+          ],
+          "status": "VALID"
+        }
+      },
+      "stages": {
+        "accounted_stage_seconds": {
+          "cpp_seconds": 0.2957733,
+          "python_seconds": 9.412758599966764,
+          "speedup": 31.82423362746659
+        },
+        "cpu_seconds": {
+          "cpp_seconds": 0.28125,
+          "python_seconds": 8.5625,
+          "speedup": 30.444444444444443
+        },
+        "export_seconds": {
+          "cpp_seconds": 0.0930826,
+          "python_seconds": 3.204040300042834,
+          "speedup": 34.42147404609276
+        },
+        "factor_seconds": {
+          "cpp_seconds": 0.0266103,
+          "python_seconds": 0.09457919996930286,
+          "speedup": 3.5542327583418025
+        },
+        "internal_process_cpu_seconds": {
+          "cpp_seconds": 0.28125,
+          "python_seconds": 8.5625,
+          "speedup": 30.444444444444443
+        },
+        "internal_wall_seconds": {
+          "cpp_seconds": 0.2957733,
+          "python_seconds": 9.412758599966764,
+          "speedup": 31.82423362746659
+        },
+        "load_seconds": {
+          "cpp_seconds": 0.0690117,
+          "python_seconds": 1.41511589998845,
+          "speedup": 20.50544907585888
+        },
+        "materialization_seconds": {
+          "cpp_seconds": 0.0039965,
+          "python_seconds": 0.019135500013362616,
+          "speedup": 4.788064559830506
+        },
+        "other_seconds": {
+          "cpp_seconds": 1.689999999998637e-05,
+          "python_seconds": 0.0003193999291397631,
+          "speedup": 18.899404091125486
+        },
+        "preparation_seconds": {
+          "cpp_seconds": 0.0001161,
+          "python_seconds": 0.05039400001987815,
+          "speedup": 434.05684771643536
+        },
+        "research_seconds": {
+          "cpp_seconds": 0.1028233,
+          "python_seconds": 4.482031400024425,
+          "speedup": 43.58964748286064
+        },
+        "total_seconds": {
+          "cpp_seconds": 0.2957733,
+          "python_seconds": 9.412758599966764,
+          "speedup": 31.82423362746659
+        }
+      },
+      "wall": {
+        "cpp_seconds": 0.31444369995733723,
+        "python_seconds": 10.385864900017623,
+        "speedup": 33.02933053334109
+      }
+    }
+  },
+  "full_native": {
+    "source_base": {
+      "head": "2a4b8ddb2f92c87afad1f6517878ff266224288f",
+      "branch": "dev",
+      "tracked_status": "M src/factor/research_detailed.cpp\n M tests/unit/factor_research_detailed_test.cpp"
+    },
+    "source_sha256": {
+      "src/factor/research_detailed.cpp": "bee3abed85e95b1eed194bf09f25bab317c1858c50275f60ba826dfa456b3183",
+      "tests/unit/factor_research_detailed_test.cpp": "361f47cd3be3e1ef20518b5719da93cf598c9bf80256830ff197ad22592140c2"
+    },
+    "native_binary": {
+      "path": "D:\\source_code\\fincore_cpp\\build-win\\fincore_alpha003_research.exe",
+      "size_bytes": 614400,
+      "sha256": "9c447a3d918141614d12dba9ca2efbee63327ada8be19714d0dc62d14fe60aa1"
+    },
+    "inputs_unchanged": true,
+    "data_matches_baseline": true,
+    "measurement": {
+      "command": [
+        "D:\\source_code\\fincore_cpp\\build-win\\fincore_alpha003_research.exe",
+        "--data-dir",
+        "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\data\\a_stocks",
+        "--out",
+        "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p115-r3-full-check-r1",
+        "--max-symbols",
+        "0",
+        "--end-offset",
+        "22",
+        "--preprocess",
+        "cross_section_rank",
+        "--run-id",
+        "p115-r3-full-check-r1"
+      ],
+      "returncode": 0,
+      "wall_seconds": 3.472100099956151,
+      "cpu_seconds": 3.109375,
+      "peak_working_set_bytes": 748838912,
+      "affinity_mask": 1,
+      "cpu_index": 0,
+      "affinity_method": "inherited_parent_affinity_before_create_process",
+      "affinity_verified": true,
+      "thread_environment": {
+        "OMP_NUM_THREADS": "1",
+        "OMP_THREAD_LIMIT": "1",
+        "OMP_DYNAMIC": "FALSE",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "MKL_DYNAMIC": "FALSE",
+        "BLIS_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "NUMEXPR_MAX_THREADS": "1",
+        "TBB_NUM_THREADS": "1"
+      }
+    },
+    "timings": {
+      "preparation_seconds": 0.0001113,
+      "materialization_seconds": 0.0498875,
+      "load_seconds": 0.6991994,
+      "factor_seconds": 0.3465037,
+      "research_seconds": 1.4055792,
+      "export_seconds": 0.8796282,
+      "other_seconds": 1.8499999999921357e-05,
+      "accounted_stage_seconds": 3.3809278,
+      "total_seconds": 3.3809278,
+      "internal_wall_seconds": 3.3809278,
+      "cpu_seconds": 3.03125,
+      "internal_process_cpu_seconds": 3.03125,
+      "cpu_measurement_source": "GetProcessTimes (kernel + user)",
+      "peak_memory_bytes": 748838912,
+      "peak_memory_source": "GetProcessMemoryInfo.PeakWorkingSetSize",
+      "peak_memory_status": "available"
+    },
+    "files": [
+      {
+        "path": "factor_values.csv",
+        "size_bytes": 62915890,
+        "sha256": "f790074ef9b2e7b883edd5789af7c5ecc50123185960715914e863095c31d0a7",
+        "equal": true
+      },
+      {
+        "path": "workload.json",
+        "size_bytes": 829,
+        "sha256": "effc8cf88056b4542a4009586afe77d5b10e3bbe892e255d84b18e531f22df78",
+        "equal": true
+      },
+      {
+        "path": "tables/coverage.csv",
+        "size_bytes": 135,
+        "sha256": "c9c6f8eb16fb0132d00d14f2e9bc6cae26dbdf1087233ba14700f9a3a2b75b45",
+        "equal": true
+      },
+      {
+        "path": "tables/diagnostics.csv",
+        "size_bytes": 35,
+        "sha256": "e62736d7fab038d715b74393c7897f25885319f982dbb539c0e1a848d3657b37",
+        "equal": true
+      },
+      {
+        "path": "tables/ic.csv",
+        "size_bytes": 50658,
+        "sha256": "16b00dcbade2294def8a7bd92ab302bf5a8845c52feb18e4be268b1437c1e2db",
+        "equal": true
+      },
+      {
+        "path": "tables/ic_summary.csv",
+        "size_bytes": 486,
+        "sha256": "74c6e2a0e64e588b8e6e116b6b70713743a1df86ddeda698b22b30f6dafe6442",
+        "equal": true
+      },
+      {
+        "path": "tables/labels.csv",
+        "size_bytes": 184024425,
+        "sha256": "e9c48832bc9e373758e9b3cbd34a2acbcf77a561696886719d2dac6efdfdfb37",
+        "equal": true
+      },
+      {
+        "path": "tables/manifest.json",
+        "size_bytes": 52524,
+        "sha256": "9fcc629546a7048fb54428bc4e094c920f1e83e135fd5e810572787e6702972b",
+        "equal": true
+      },
+      {
+        "path": "tables/quantile_returns.csv",
+        "size_bytes": 195280,
+        "sha256": "fa847b2b9dd57163c7bd24c11376cf35fff88e12323f786becb4e64e87b276e6",
+        "equal": true
+      },
+      {
+        "path": "tables/signals.csv",
+        "size_bytes": 122015997,
+        "sha256": "3153894202ddbff233952f8ad950d7923f3fb3ee7646c0bc4a0766d76ef2375c",
+        "equal": true
+      },
+      {
+        "path": "tables/spreads.csv",
+        "size_bytes": 37502,
+        "sha256": "af0ebe58aedbc26880f3167ad63e0fab12aea5a4f35c17da8eeee406a5817fa2",
+        "equal": true
+      },
+      {
+        "path": "tables/stability.csv",
+        "size_bytes": 237,
+        "sha256": "52dc34684f1b0c9632a9834b853bec00fb5877e443ba2556c920646e9fdb759d",
+        "equal": true
+      },
+      {
+        "path": "tables/turnover.csv",
+        "size_bytes": 165646,
+        "sha256": "76590fe87919af910474a92a322ff9f9cceb976a98fcb3560f66c9cc3b6583d4",
+        "equal": true
+      }
+    ],
+    "all_output_bytes_equal": true,
+    "evidence_level": "ONE_FULL_NATIVE_CORRECTNESS_RUN_TIMING_DIAGNOSTIC_ONLY"
+  },
+  "evidence": [
+    {
+      "path": "build-win/p115-r3-build.log",
+      "size_bytes": 419,
+      "sha256": "fece5a43cc9f9abee9b67f5650b0dbd0b96ea8e1017af5f902e833aceecfd31f"
+    },
+    {
+      "path": "build-win/p115-r3-build-test-fix.log",
+      "size_bytes": 159,
+      "sha256": "1eeb0b79dcf49a2c27517d71e3616fe567282489cb96120084fb575b7471b812"
+    },
+    {
+      "path": "build-win/p115-r3-unit.log",
+      "size_bytes": 10191,
+      "sha256": "3815a8672fe76263b485017d996012fd2abed7c58bf76c588287c09905bf6c9a"
+    },
+    {
+      "path": "build-win/p115-r3-unit-fixed.log",
+      "size_bytes": 9505,
+      "sha256": "59d2ed951302e8b7da9f006d67499c0aeb777e521a55912e9dc82e1abb3be695"
+    },
+    {
+      "path": "build-win/p115-r3-oracle.log",
+      "size_bytes": 1466,
+      "sha256": "fd3db39f6af6ac016a4e623e5a01a18c6405db3520cc78a7fb3f8d9eb79e4f07"
+    },
+    {
+      "path": "build-win/p115-r3-full-check-r1.json",
+      "size_bytes": 5235,
+      "sha256": "afb603d265bcabb4975c50b78c0a19a607de34df2433bd318adb866098fd4370"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p115-r3-500/comparison.json",
+      "size_bytes": 129606,
+      "sha256": "71135441dcee333f374c228ff95f902f233a4a157c99876478e88d0d780ce33b"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p115-r3-500/measurements.json",
+      "size_bytes": 71073,
+      "sha256": "14b048267f04282878c10dc1e78dadfc402e47141b002ecce5d5bc3a4b060c61"
+    }
+  ],
+  "commands": [
+    "cmake --build build-win --target fincore_tests fincore_research_detailed_oracle fincore_alpha003_research -j 4",
+    "build-win/tests/fincore_tests.exe --gtest_filter=FactorResearch.*:FactorResearchDetailed.*",
+    "C:/Python314/python.exe tools/check_research_detailed_oracle.py --probe build-win/fincore_research_detailed_oracle.exe",
+    "C:/Python314/python.exe benchmarks/alpha003_a_stocks/run_benchmark.py --max-symbols 500 --repeats 5 --cpu 0 --cpp-exe build-win/fincore_alpha003_research.exe --results-dir benchmarks/alpha003_a_stocks/results-i9-p115-r3-500 --fincore-root D:/source_code/fincore",
+    "C:/Python314/python.exe build-win/check_full_round.py p115-r3 --source src/factor/research_detailed.cpp --source tests/unit/factor_research_detailed_test.cpp"
+  ]
+}

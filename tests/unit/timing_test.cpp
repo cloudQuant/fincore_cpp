@@ -1,10 +1,13 @@
+#include <fincore/calendar.hpp>
 #include <fincore/error.hpp>
 #include <fincore/metrics/timing.hpp>
 
 #include <gtest/gtest.h>
 
+#include <array>
 #include <cmath>
 #include <limits>
+#include <string>
 #include <string_view>
 #include <utility>
 #include <vector>
@@ -154,6 +157,127 @@ TEST(Timing, SupportsNamedColumnsAndRejectsStructuralErrors) {
                fincore::input_error);
   EXPECT_THROW(fincore::cornell_timing(returns, benchmark, 0.0, "strategy", "missing"),
                fincore::input_error);
+}
+
+std::vector<fincore::timestamp> daily_index(int year, int month, int day,
+                                            int count) {
+    constexpr std::int64_t nanoseconds_per_day = 86'400'000'000'000LL;
+    std::vector<fincore::timestamp> index;
+    index.reserve(static_cast<std::size_t>(count));
+    const fincore::timestamp start = fincore::utc_timestamp(year, month, day);
+    for (int position = 0; position < count; ++position) {
+        index.push_back(start + position * nanoseconds_per_day);
+    }
+    return index;
+}
+
+std::vector<double> graded_values(int count) {
+    std::vector<double> values;
+    values.reserve(static_cast<std::size_t>(count));
+    for (int position = 0; position < count; ++position) {
+        values.push_back(static_cast<double>(position) / 1000.0);
+    }
+    return values;
+}
+
+TEST(Timing, ExtractsHistoricalCrisisRangesInPinnedOrder) {
+    const auto returns = fincore::make_series(
+        daily_index(2008, 7, 25, 78), "returns", graded_values(78));
+    const auto ranges = fincore::extract_interesting_date_ranges(returns);
+
+    ASSERT_EQ(ranges.size(), 3U);
+    EXPECT_EQ(ranges[0].name, "Lehman");
+    EXPECT_EQ(ranges[1].name, "Sept08");
+    EXPECT_EQ(ranges[2].name, "GFC Crash");
+
+    const auto lehman =
+        fincore::require_double_column(ranges[0].returns, "returns");
+    ASSERT_EQ(lehman.size(), 62U);
+    EXPECT_DOUBLE_EQ(lehman.front(), 0.007);
+    EXPECT_DOUBLE_EQ(lehman.back(), 0.068);
+    EXPECT_EQ(ranges[0].returns.get_index().front(),
+              fincore::utc_timestamp(2008, 8, 1));
+    EXPECT_EQ(ranges[0].returns.get_index().back(),
+              fincore::utc_timestamp(2008, 10, 1));
+
+    const auto september =
+        fincore::require_double_column(ranges[1].returns, "returns");
+    ASSERT_EQ(september.size(), 31U);
+    EXPECT_DOUBLE_EQ(september.front(), 0.038);
+    EXPECT_DOUBLE_EQ(september.back(), 0.068);
+
+    const auto gfc =
+        fincore::require_double_column(ranges[2].returns, "returns");
+    ASSERT_EQ(gfc.size(), 78U);
+    EXPECT_DOUBLE_EQ(gfc.front(), 0.0);
+    EXPECT_DOUBLE_EQ(gfc.back(), 0.077);
+}
+
+TEST(Timing, ExtractsNewNormalWindowAndSkipsEmptyFrames) {
+    const auto short_series = fincore::make_series(
+        daily_index(2020, 1, 1, 2), "returns", {0.01, 0.02});
+    const auto ranges = fincore::extract_interesting_date_ranges(short_series);
+
+    ASSERT_EQ(ranges.size(), 1U);
+    EXPECT_EQ(ranges[0].name, "New Normal");
+    EXPECT_EQ(fincore::require_double_column(ranges[0].returns, "returns")
+                  .size(),
+              2U);
+
+    const auto empty = fincore::make_series({}, "returns", {});
+    EXPECT_TRUE(fincore::extract_interesting_date_ranges(empty).empty());
+}
+
+TEST(Timing, CrisisRangesSupportSelectorsAndRejectNul) {
+    const auto strategy = fincore::make_series(
+        daily_index(2008, 8, 1, 1), "strategy", {0.01});
+    constexpr std::array<char, 8> bounded_name{
+        's', 't', 'r', 'a', 't', 'e', 'g', 'y'};
+    const std::string_view bounded_selector{bounded_name.data(),
+                                            bounded_name.size()};
+    const std::array<char, 13> embedded_storage{
+        'r', 'e', 't', 'u', 'r', 'n', 's', '\0', 'e', 'v', 'i', 'l', '!'};
+    const std::string_view embedded_selector{embedded_storage.data(),
+                                             embedded_storage.size()};
+
+    const auto named =
+        fincore::extract_interesting_date_ranges(strategy, "strategy");
+    ASSERT_EQ(named.size(), 2U);
+    EXPECT_EQ(named[0].name, "Lehman");
+    EXPECT_EQ(named[1].name, "GFC Crash");
+    EXPECT_EQ(fincore::require_double_column(named[0].returns, "strategy")
+                  .size(),
+              1U);
+
+    const auto bounded =
+        fincore::extract_interesting_date_ranges(strategy, bounded_selector);
+    ASSERT_EQ(bounded.size(), 2U);
+    EXPECT_DOUBLE_EQ(
+        fincore::require_double_column(bounded[0].returns, "strategy")
+            .front(),
+        0.01);
+
+    EXPECT_THROW(
+        static_cast<void>(
+            fincore::extract_interesting_date_ranges(strategy,
+                                                      embedded_selector)),
+        fincore::input_error);
+    EXPECT_THROW(static_cast<void>(
+                     fincore::extract_interesting_date_ranges(strategy, "")),
+                 fincore::input_error);
+}
+
+TEST(Timing, CrisisRangesOwnTheirFramesAfterSourceLifetimeEnds) {
+    const auto ranges = [] {
+        const auto source = fincore::make_series(
+            daily_index(2008, 7, 25, 78), "returns", graded_values(78));
+        return fincore::extract_interesting_date_ranges(source);
+    }();
+
+    ASSERT_EQ(ranges.size(), 3U);
+    EXPECT_EQ(fincore::require_double_column(ranges[2].returns, "returns")
+                  .size(),
+              78U);
 }
 
 }  // namespace

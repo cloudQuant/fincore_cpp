@@ -1,0 +1,1081 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 01:10+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/api/core.md:1
+msgid "Core types and errors"
+msgstr "核心类型与错误"
+
+#: ../../site/api/core.md:3
+msgid ""
+"Frames, timestamps, calendars, operation descriptors, versions, rolling "
+"windows, data-provider contracts and structured errors."
+msgstr "帧、时间戳、日历、操作描述符、版本、滚动窗口、数据提供方约定和结构化错误。"
+
+#: ../../site/api/core.md:5
+msgid ""
+"See the [usage guide](../quickstart.md) for task-oriented examples. "
+"Signatures below are generated from the public headers at the same commit as"
+" the rest of this site."
+msgstr "面向任务的使用示例请参阅[使用指南](../quickstart.md)。以下签名与本站其余内容在同一提交中由公共头文件生成。"
+
+#: ../../site/api/core.md:7
+msgid "Lazy, value-owning container for first-phase performance analytics."
+msgstr "用于第一阶段绩效分析的惰性、持有数值的容器。"
+
+#: ../../site/api/core.md:7
+msgid ""
+"summary() returns these stable keys: Annual return, Cumulative returns, "
+"Annual volatility, Sharpe ratio, Sortino ratio, Calmar ratio, Max drawdown, "
+"Historical value at risk, Conditional value at risk, and, when supplied a "
+"benchmark, Alpha and Beta."
+msgstr ""
+"summary() 返回以下稳定键：Annual return、Cumulative returns、Annual volatility、Sharpe "
+"ratio、Sortino ratio、Calmar ratio、Max drawdown、Historical value at "
+"risk、Conditional value at risk，以及在提供基准时返回 Alpha 和 Beta。"
+
+#: ../../site/api/core.md:7 ../../site/api/core.md:10 ../../site/api/core.md:13
+#: ../../site/api/core.md:16 ../../site/api/core.md:19 ../../site/api/core.md:28
+#: ../../site/api/core.md:34 ../../site/api/core.md:37 ../../site/api/core.md:40
+msgid "Public Functions"
+msgstr "公共函数"
+
+#: ../../site/api/core.md:7
+msgid "Constructs a context from return and optional benchmark frames."
+msgstr "根据收益帧和可选的基准帧构造上下文。"
+
+#: ../../site/api/core.md:7
+msgid ""
+"The frames are stored as supplied; only the required double columns are "
+"validated, and no sorting or index alignment is performed here."
+msgstr "帧按传入原样存储；仅校验所需的 double 列，此处不进行排序或索引对齐。"
+
+#: ../../site/api/core.md
+msgid "Parameters"
+msgstr "参数"
+
+#: ../../site/api/core.md
+msgid "Throws"
+msgstr "抛出"
+
+#: ../../site/api/core.md:7
+msgid "Returns the cached performance summary."
+msgstr "返回缓存的绩效摘要。"
+
+#: ../../site/api/core.md:7
+msgid ""
+"Core keys are Annual return, Cumulative returns, Annual volatility, Sharpe "
+"ratio, Sortino ratio, Calmar ratio, Max drawdown, Historical value at risk "
+"and Conditional value at risk. With a benchmark the result also contains "
+"Alpha and Beta. Each metric is computed on first use and reused by later "
+"calls."
+msgstr ""
+"核心键包括 Annual return、Cumulative returns、Annual volatility、Sharpe "
+"ratio、Sortino ratio、Calmar ratio、Max drawdown、Historical value at risk 和 "
+"Conditional value at risk。提供基准时结果还包含 Alpha 和 Beta。每个指标在首次使用时计算，并由后续调用复用。"
+
+#: ../../site/api/core.md
+msgid "Returns"
+msgstr "返回"
+
+#: ../../site/api/core.md:7
+msgid "Returns how many times key has been computed and cached."
+msgstr "返回 key 已被计算并缓存的次数。"
+
+#: ../../site/api/core.md:10
+msgid "Error thrown when a strict batch fetch fails for one or more symbols."
+msgstr "当严格批量获取对一个或多个标的失败时抛出的错误。"
+
+#: ../../site/api/core.md:10
+msgid ""
+"The payload uses category BatchFetchError and code fincore.data.batch_fetch."
+" The message names the provider and the failed symbols in sorted order, and "
+"the flat fields hold provider, symbols and error_count."
+msgstr ""
+"负载使用类别 BatchFetchError 和代码 "
+"fincore.data.batch_fetch。消息按排序顺序列出提供方和失败的标的，扁平字段保存 provider、symbols 和 "
+"error_count。"
+
+#: ../../site/api/core.md:10
+msgid "Creates a batch fetch error."
+msgstr "创建批量获取错误。"
+
+#: ../../site/api/core.md:10
+msgid "Returns the provider that produced the failure."
+msgstr "返回产生该失败的提供方。"
+
+#: ../../site/api/core.md:10
+msgid "Returns the per-symbol error messages."
+msgstr "返回每个标的的错误消息。"
+
+#: ../../site/api/core.md:10
+msgid "Returns the frames that were fetched successfully."
+msgstr "返回成功获取的帧。"
+
+#: ../../site/api/core.md:13
+msgid "Native provider interface for price data."
+msgstr "价格数据的原生提供方接口。"
+
+#: ../../site/api/core.md:13
+msgid ""
+"Live SDK/network subclasses are EXTERNAL_OPTIONAL; the interface, batch "
+"orchestration, date validation and return conversion are native and offline-"
+"testable with an injected provider."
+msgstr "实时 SDK/网络子类为 EXTERNAL_OPTIONAL；接口、批量编排、日期校验和收益转换均为原生实现，并可在注入提供方的情况下离线测试。"
+
+#: ../../site/api/core.md:13
+msgid "Destroys the provider."
+msgstr "销毁提供方。"
+
+#: ../../site/api/core.md:13
+msgid "Returns the provider's stable name."
+msgstr "返回提供方的稳定名称。"
+
+#: ../../site/api/core.md:13
+msgid "Fetches price data for one symbol."
+msgstr "获取一个标的的价格数据。"
+
+#: ../../site/api/core.md:13
+msgid ""
+"Implementations define how start and end are interpreted; this interface "
+"does not validate them. Exceptions derived from std::exception are recorded "
+"per symbol by fetch_multiple()."
+msgstr ""
+"start 和 end 的解释方式由实现定义；此接口不校验它们。派生自 std::exception 的异常由 fetch_multiple() "
+"按标的记录。"
+
+#: ../../site/api/core.md:13
+msgid "Returns provider-specific metadata for one symbol."
+msgstr "返回一个标的的提供方特定元数据。"
+
+#: ../../site/api/core.md:13
+msgid "Returns the adjustment flag used when fetch_multiple() is not given one."
+msgstr "返回未向 fetch_multiple() 提供调整标志时所使用的调整标志。"
+
+#: ../../site/api/core.md:13
+msgid "Fetches several symbols through fetch()."
+msgstr "通过 fetch() 获取多个标的。"
+
+#: ../../site/api/core.md:13
+msgid ""
+"The adjustment flag is adjust when supplied, otherwise "
+"batch_adjust_default(). Every symbol is attempted. In non-strict mode a "
+"failed symbol is stored as an empty frame and its message is discarded; in "
+"strict mode the loop still attempts all symbols and then throws if any "
+"failed. start and end are passed to fetch() unchanged."
+msgstr ""
+"提供时调整标志为 adjust，否则使用 "
+"batch_adjust_default()。每个标的都会被尝试。非严格模式下失败的标的存为空帧并丢弃其消息；严格模式下循环仍会尝试所有标的，随后若任一失败则抛出。start"
+" 和 end 原样传给 fetch()。"
+
+#: ../../site/api/core.md:13
+msgid "Converts a price column to period-over-period simple returns."
+msgstr "将价格列转换为逐期简单收益率。"
+
+#: ../../site/api/core.md:13
+msgid ""
+"column is used when present; otherwise the method falls back to \"Close\". "
+"Consecutive pairs where either price is NaN are skipped. A zero previous "
+"price with a nonzero current price yields signed infinity; zero over zero "
+"yields NaN and is skipped. Fewer than two prices yield an empty result."
+msgstr ""
+"存在 column 时使用该列；否则方法回退到 \"Close\"。任一价格为 NaN "
+"的相邻价格对被跳过。前一价格为零而当前价格非零时得到带符号的无穷大；零除以零得到 NaN 并被跳过。价格少于两个时返回空结果。"
+
+#: ../../site/api/core.md:13 ../../site/api/core.md:16 ../../site/api/core.md:19
+#: ../../site/api/core.md:34
+msgid "Public Static Functions"
+msgstr "公共静态函数"
+
+#: ../../site/api/core.md:13
+msgid "Parses and validates an ISO-8601 UTC date range."
+msgstr "解析并校验 ISO-8601 UTC 日期范围。"
+
+#: ../../site/api/core.md:13
+msgid ""
+"Accepted forms are YYYY-MM-DD, optionally followed by T or a space and "
+"HH:MM:SS with an optional . fraction of up to nine digits. Omitted time "
+"components default to midnight. Values are interpreted as UTC; a trailing "
+"timezone designator is not accepted."
+msgstr ""
+"接受的形式为 YYYY-MM-DD，可选后接 T 或空格以及 HH:MM:SS，并可选带最多九位数字的 . 小数部分。省略的时间分量默认为午夜。值按 "
+"UTC 解释；不接受末尾的时区标识。"
+
+#: ../../site/api/core.md:16
+msgid "Immutable, content-addressed snapshot of fetched market data."
+msgstr "已获取市场数据的不可变、内容寻址快照。"
+
+#: ../../site/api/core.md:16
+msgid ""
+"The content digest is computed over a canonical native CSV (UTC-nanosecond "
+"index plus columns in insertion order); it is a deterministic native "
+"provenance digest, not a claim that Python/pandas CSV bytes are identical."
+msgstr ""
+"内容摘要基于规范的 native CSV（UTC 纳秒索引加上按插入顺序排列的列）计算；它是确定性的原生来源摘要，并不表示 Python/pandas "
+"的 CSV 字节完全相同。"
+
+#: ../../site/api/core.md:16
+msgid "Creates an empty snapshot."
+msgstr "创建空快照。"
+
+#: ../../site/api/core.md:16
+msgid ""
+"The timezone defaults to \"UTC\" and the price adjustment to \"raw\"; the "
+"remaining metadata and the frame are empty."
+msgstr "时区默认为 \"UTC\"，价格调整默认为 \"raw\"；其余元数据和帧为空。"
+
+#: ../../site/api/core.md:16
+msgid "Creates a snapshot from explicit metadata and data."
+msgstr "根据显式元数据和数据创建快照。"
+
+#: ../../site/api/core.md:16
+msgid ""
+"Values are stored as supplied; no digest is computed and no consistency "
+"check is performed."
+msgstr "值按传入原样存储；不计算摘要，也不进行一致性检查。"
+
+#: ../../site/api/core.md:16
+msgid "Returns a defensive copy of the snapshot frame."
+msgstr "返回快照帧的防御性副本。"
+
+#: ../../site/api/core.md:16
+msgid "Returns a reference to the stored frame without copying."
+msgstr "返回所存帧的引用，不进行复制。"
+
+#: ../../site/api/core.md:16
+msgid "Returns the identity metadata of the snapshot."
+msgstr "返回快照的身份元数据。"
+
+#: ../../site/api/core.md:16
+msgid ""
+"The map holds provider, requested_start, requested_end, as_of, timezone and "
+"price_adjustment; the digest and data are excluded."
+msgstr ""
+"该映射包含 provider、requested_start、requested_end、as_of、timezone 和 "
+"price_adjustment；不包含摘要和数据。"
+
+#: ../../site/api/core.md:16
+msgid "Returns a JSON manifest describing the snapshot."
+msgstr "返回描述快照的 JSON 清单。"
+
+#: ../../site/api/core.md:16
+msgid ""
+"The object contains schema_version, provider, requested_start, "
+"requested_end, as_of, timezone, price_adjustment and content_sha256; frame "
+"data is not included."
+msgstr ""
+"该对象包含 "
+"schema_version、provider、requested_start、requested_end、as_of、timezone、price_adjustment"
+" 和 content_sha256；不包含帧数据。"
+
+#: ../../site/api/core.md:16
+msgid "Returns the manifest as a flat string map."
+msgstr "以扁平字符串映射返回清单。"
+
+#: ../../site/api/core.md:16
+msgid ""
+"The same fields as to_manifest() are returned, with schema_version rendered "
+"as a decimal string."
+msgstr "返回与 to_manifest() 相同的字段，其中 schema_version 以十进制字符串表示。"
+
+#: ../../site/api/core.md:16
+msgid "Returns the provider name."
+msgstr "返回提供方名称。"
+
+#: ../../site/api/core.md:16
+msgid "Returns the requested start date text."
+msgstr "返回请求的开始日期文本。"
+
+#: ../../site/api/core.md:16
+msgid "Returns the requested end date text."
+msgstr "返回请求的结束日期文本。"
+
+#: ../../site/api/core.md:16
+msgid "Returns the capture time text."
+msgstr "返回采集时间文本。"
+
+#: ../../site/api/core.md:16
+msgid "Returns the timezone label."
+msgstr "返回时区标签。"
+
+#: ../../site/api/core.md:16
+msgid "Returns the price adjustment label."
+msgstr "返回价格调整标签。"
+
+#: ../../site/api/core.md:16
+msgid "Returns the content digest text."
+msgstr "返回内容摘要文本。"
+
+#: ../../site/api/core.md:16
+msgid "Returns the data snapshot schema version."
+msgstr "返回数据快照的 schema 版本。"
+
+#: ../../site/api/core.md:16
+msgid "Creates a snapshot and computes its content digest from frame."
+msgstr "创建快照并根据 frame 计算其内容摘要。"
+
+#: ../../site/api/core.md:16
+msgid ""
+"A defensive copy of frame is stored, and the digest is "
+"dataframe_content_sha256() of that copy."
+msgstr "存储 frame 的防御性副本，摘要为该副本的 dataframe_content_sha256()。"
+
+#: ../../site/api/core.md:19
+msgid "Exception type carrying a structured error_info payload."
+msgstr "携带结构化 error_info 负载的异常类型。"
+
+#: ../../site/api/core.md:19
+msgid ""
+"The std::runtime_error message is the error_info message, so what() returns "
+"the same text."
+msgstr "std::runtime_error 的消息即 error_info 的消息，因此 what() 返回相同文本。"
+
+#: ../../site/api/core.md:19
+msgid "Subclassed by fincore::batch_fetch_error, fincore::research_error"
+msgstr ""
+
+#: ../../site/api/core.md:19
+msgid "Creates an exception from a structured payload."
+msgstr "从结构化负载创建异常。"
+
+#: ../../site/api/core.md:19
+msgid ""
+"Creates an exception with the default FincoreError category and "
+"fincore.error code."
+msgstr "创建使用默认 FincoreError 类别和 fincore.error 代码的异常。"
+
+#: ../../site/api/core.md:19
+msgid "Returns the structured error payload."
+msgstr "返回结构化错误负载。"
+
+#: ../../site/api/core.md:19
+msgid "Returns the source exception class name."
+msgstr "返回源异常类名。"
+
+#: ../../site/api/core.md:19
+msgid "Returns the stable dotted error code."
+msgstr "返回稳定的点分错误代码。"
+
+#: ../../site/api/core.md:19
+msgid "Returns the flat error fields."
+msgstr "返回扁平错误字段。"
+
+#: ../../site/api/core.md:19
+msgid "Returns the diagnostic report entries."
+msgstr "返回诊断报告条目。"
+
+#: ../../site/api/core.md:19
+msgid "Creates an exception from the flat dictionary form."
+msgstr "从扁平字典形式创建异常。"
+
+#: ../../site/api/core.md:22
+msgid "Invalid caller input, derived from std::invalid_argument."
+msgstr "调用方输入无效，派生自 std::invalid_argument。"
+
+#: ../../site/api/core.md:22
+msgid ""
+"The type inherits the std::invalid_argument constructors. Calendar and "
+"dataframe helpers such as utc_timestamp() and make_series() throw it for "
+"rejected arguments."
+msgstr ""
+"该类型继承 std::invalid_argument 的构造函数。utc_timestamp() 和 make_series() 等日历与 "
+"dataframe 辅助函数在参数被拒绝时抛出该异常。"
+
+#: ../../site/api/core.md:25
+msgid "Optimization failure, derived from std::runtime_error."
+msgstr "优化失败，派生自 std::runtime_error。"
+
+#: ../../site/api/core.md:25
+msgid ""
+"The type inherits the std::runtime_error constructors. Optimization routines"
+" throw it for solver-level failures."
+msgstr "该类型继承 std::runtime_error 的构造函数。优化例程在求解器级失败时抛出该异常。"
+
+#: ../../site/api/core.md:28
+msgid "Computes trailing-window series for one or more rolling metrics."
+msgstr "为一个或多个滚动指标计算尾随窗口序列。"
+
+#: ../../site/api/core.md:28
+msgid ""
+"The engine owns copies of the return and optional benchmark frames. Each "
+"metric is evaluated over every complete window of window observations; rows "
+"before the first complete window are omitted from the output."
+msgstr "该引擎持有收益帧和可选基准帧的副本。每个指标在由 window 个观测构成的每个完整窗口上计算；首个完整窗口之前的行不会出现在输出中。"
+
+#: ../../site/api/core.md:28
+msgid "Constructs an engine over return and optional benchmark frames."
+msgstr "基于收益帧和可选基准帧构造引擎。"
+
+#: ../../site/api/core.md:28
+msgid "Returns one trailing-window series per requested metric."
+msgstr "为每个请求的指标返回一个尾随窗口序列。"
+
+#: ../../site/api/core.md:28
+msgid ""
+"The result maps each metric's enum name (mean_return, volatility, sharpe, "
+"max_drawdown, beta) to a frame whose single returns column holds the metric "
+"value at each complete window's final timestamp. Beta inputs are first "
+"aligned on their common index, so its series can be shorter. An empty metric"
+" list returns an empty map, and fewer than window available observations "
+"yield empty series."
+msgstr ""
+"结果将每个指标的枚举名（mean_return、volatility、sharpe、max_drawdown、beta）映射到一个帧，其单个 "
+"returns 列保存每个完整窗口最后时间戳处的指标值。Beta 输入先按其公共索引对齐，因此其序列可能更短。指标列表为空时返回空映射，可用观测少于 "
+"window 时得到空序列。"
+
+#: ../../site/api/core.md:31
+msgid "Availability record for one dependency."
+msgstr "一个依赖项的可用性记录。"
+
+#: ../../site/api/core.md:31 ../../site/api/core.md:34 ../../site/api/core.md:37
+#: ../../site/api/core.md:40
+msgid "Public Members"
+msgstr "公共成员"
+
+#: ../../site/api/core.md:31
+msgid "Dependency name used in error messages."
+msgstr "错误消息中使用的依赖项名称。"
+
+#: ../../site/api/core.md:31
+msgid "Whether the dependency is available."
+msgstr "依赖项是否可用。"
+
+#: ../../site/api/core.md:31
+msgid "Extra or feature label for the dependency."
+msgstr "依赖项的 extra 或功能标签。"
+
+#: ../../site/api/core.md:34
+msgid "Native structured error payload."
+msgstr "原生结构化错误负载。"
+
+#: ../../site/api/core.md:34
+msgid ""
+"Python exception inheritance is not reproduced; the source class name is "
+"preserved as category, with a stable code, message, flat fields and an "
+"optional diagnostic report."
+msgstr "不复制 Python 的异常继承关系；源类名保留为 category，并带有稳定的 code、message、扁平字段和可选的诊断报告。"
+
+#: ../../site/api/core.md:34
+msgid "Returns the flat dictionary form of this error."
+msgstr "返回此错误的扁平字典形式。"
+
+#: ../../site/api/core.md:34
+msgid ""
+"The result starts from fields and adds error_type, message, code when non-"
+"empty, and one report.-prefixed key per report entry."
+msgstr "结果以 fields 为基础，加上 error_type、message、非空的 code，以及每个报告条目对应的一个以 report. 为前缀的键。"
+
+#: ../../site/api/core.md:34
+msgid ""
+"Returns a compact JSON object with category, code, message, fields and "
+"report."
+msgstr "返回包含 category、code、message、fields 和 report 的紧凑 JSON 对象。"
+
+#: ../../site/api/core.md:34
+msgid "String values are JSON-escaped."
+msgstr "字符串值按 JSON 转义。"
+
+#: ../../site/api/core.md:34
+msgid "Source exception class name, such as ValidationError."
+msgstr "源异常类名，例如 ValidationError。"
+
+#: ../../site/api/core.md:34
+msgid "Stable dotted error code, such as fincore.validation."
+msgstr "稳定的点分错误代码，例如 fincore.validation。"
+
+#: ../../site/api/core.md:34
+msgid "Human-readable error message."
+msgstr "人类可读的错误消息。"
+
+#: ../../site/api/core.md:34
+msgid "Flat string fields such as param_name."
+msgstr "扁平字符串字段，例如 param_name。"
+
+#: ../../site/api/core.md:34
+msgid "Diagnostic report entries; flattened with a report."
+msgstr "诊断报告条目；扁平化时加上 report."
+
+#: ../../site/api/core.md:34
+msgid "prefix by to_dict()."
+msgstr "作为前缀，由 to_dict() 添加。"
+
+#: ../../site/api/core.md:34
+msgid "Builds an error payload from the flat dictionary form."
+msgstr "从扁平字典形式构建错误负载。"
+
+#: ../../site/api/core.md:34
+msgid ""
+"error_type is required and becomes category. A non-empty code entry "
+"overrides the default code formed by prefixing the category with fincore.; a"
+" message entry becomes the message; report.-prefixed entries become report "
+"entries and all other entries become flat fields."
+msgstr ""
+"error_type 为必需项，并成为 category。非空的 code 条目会覆盖通过给 category 加上 fincore. "
+"前缀而形成的默认代码；message 条目成为消息；以 report. 为前缀的条目成为报告条目，其余所有条目成为扁平字段。"
+
+#: ../../site/api/core.md:37
+msgid "Stable native operation descriptor."
+msgstr "稳定的原生操作描述符。"
+
+#: ../../site/api/core.md:37
+msgid ""
+"The pinned Python domains declare an OperationSpec with an operation id, the"
+" same capability id, a domain, determinism/RNG policy and provenance. Native"
+" consumers need the same stable identity without Python callables, adapters "
+"or placeholder implementations. This descriptor therefore carries "
+"identity/metadata only; the owning native kernel remains the implementation."
+msgstr ""
+"锁定版本的 Python 各领域声明了 OperationSpec，包含操作 id、相同的能力 id、领域、确定性/RNG "
+"策略和来源。原生使用方需要相同的稳定标识，但不使用 Python "
+"可调用对象、适配器或占位实现。因此该描述符只承载标识/元数据；实际实现仍由所属的原生内核负责。"
+
+#: ../../site/api/core.md:37
+msgid "Creates an empty descriptor."
+msgstr "创建空描述符。"
+
+#: ../../site/api/core.md:37
+msgid "All views are empty, deterministic is true and rng_policy is \"none\"."
+msgstr "所有视图为空，deterministic 为 true，rng_policy 为 \"none\"。"
+
+#: ../../site/api/core.md:37
+msgid "Creates a descriptor from an operation id."
+msgstr "根据操作 id 创建描述符。"
+
+#: ../../site/api/core.md:37
+msgid ""
+"capability_id is set to id. domain and provenance_owner are the text before "
+"the first dot, or the whole id when it has no dot; source_module is empty "
+"when id has no dot, the whole id when it has exactly one dot, and otherwise "
+"the text before the second dot."
+msgstr ""
+"capability_id 设为 id。domain 和 provenance_owner 为第一个点之前的文本，id 不含点时则为整个 "
+"id；source_module 在 id 不含点时为空，恰好含一个点时等于整个 id，否则为第二个点之前的文本。"
+
+#: ../../site/api/core.md:37
+msgid "Stable operation identifier."
+msgstr "稳定的操作标识符。"
+
+#: ../../site/api/core.md:37
+msgid "Capability identifier; defaults to the operation id."
+msgstr "能力标识符；默认为操作 id。"
+
+#: ../../site/api/core.md:37
+msgid "Domain portion of the operation id."
+msgstr "操作 id 的领域部分。"
+
+#: ../../site/api/core.md:37
+msgid "Module portion of the operation id."
+msgstr "操作 id 的模块部分。"
+
+#: ../../site/api/core.md:37
+msgid "Provenance owner; defaults to the domain."
+msgstr "来源所有者；默认为领域。"
+
+#: ../../site/api/core.md:37
+msgid "Whether the operation is deterministic."
+msgstr "操作是否具有确定性。"
+
+#: ../../site/api/core.md:37
+msgid "RNG policy label."
+msgstr "RNG 策略标签。"
+
+#: ../../site/api/core.md:40
+msgid "Bounded, deterministic retry policy for external data access."
+msgstr "用于外部数据访问的有界、确定性重试策略。"
+
+#: ../../site/api/core.md:40
+msgid ""
+"Mirrors the pinned fincore.data.contracts.RequestPolicy predicates without "
+"importing a network stack."
+msgstr "镜像锁定版本的 fincore.data.contracts.RequestPolicy 谓词，但不引入网络栈。"
+
+#: ../../site/api/core.md:40
+msgid "Creates a policy with the default values."
+msgstr "使用默认值创建策略。"
+
+#: ../../site/api/core.md:40
+msgid "Creates a policy and validates its values."
+msgstr "创建策略并校验其取值。"
+
+#: ../../site/api/core.md:40
+msgid "Validates the timeout and attempt values."
+msgstr "校验超时和尝试次数取值。"
+
+#: ../../site/api/core.md:40
+msgid "Returns whether failures of kind are retried."
+msgstr "返回 kind 类型的失败是否重试。"
+
+#: ../../site/api/core.md:40
+msgid ""
+"Connection, timeout and operating-system failures are retryable; validation,"
+" none and other are not."
+msgstr "连接、超时和操作系统失败可重试；validation、none 和其他失败不重试。"
+
+#: ../../site/api/core.md:40
+msgid "Returns the attempts left after attempt."
+msgstr "返回第 attempt 次尝试之后剩余的尝试次数。"
+
+#: ../../site/api/core.md:40
+msgid "The result is max_attempts - attempt, clamped to zero."
+msgstr "结果为 max_attempts - attempt，并截断为零。"
+
+#: ../../site/api/core.md:40
+msgid "Connect timeout; defaults to 10.0."
+msgstr "连接超时；默认为 10.0。"
+
+#: ../../site/api/core.md:40
+msgid "Read timeout; defaults to 30.0."
+msgstr "读取超时；默认为 30.0。"
+
+#: ../../site/api/core.md:40
+msgid "Total timeout; defaults to 60.0."
+msgstr "总超时；默认为 60.0。"
+
+#: ../../site/api/core.md:40
+msgid "Maximum attempt count; defaults to 3."
+msgstr "最大尝试次数；默认为 3。"
+
+#: ../../site/api/core.md:43
+msgid "Trailing-window metric computed by rolling_engine."
+msgstr "由 rolling_engine 计算的尾随窗口指标。"
+
+#: ../../site/api/core.md:43 ../../site/api/core.md:46
+msgid "Values:"
+msgstr "取值："
+
+#: ../../site/api/core.md:43
+msgid "Annualized arithmetic mean of the window."
+msgstr "窗口的年化算术平均值。"
+
+#: ../../site/api/core.md:43
+msgid "Annualized sample volatility of the window."
+msgstr "窗口的年化样本波动率。"
+
+#: ../../site/api/core.md:43
+msgid "Annualized Sharpe ratio with zero risk-free rate."
+msgstr "无风险利率为零时的年化夏普比率。"
+
+#: ../../site/api/core.md:43
+msgid "Worst peak-to-trough drawdown in the window."
+msgstr "窗口内最差的峰谷回撤。"
+
+#: ../../site/api/core.md:43
+msgid "Unannualized beta against the aligned benchmark window."
+msgstr "相对于已对齐基准窗口的未年化 beta。"
+
+#: ../../site/api/core.md:46
+msgid "Classification of a transport failure for retry decisions."
+msgstr "用于重试决策的传输失败分类。"
+
+#: ../../site/api/core.md:46
+msgid "No transport error."
+msgstr "无传输错误。"
+
+#: ../../site/api/core.md:46
+msgid "Connection-level failure; retryable."
+msgstr "连接级失败；可重试。"
+
+#: ../../site/api/core.md:46
+msgid "Request timeout; retryable."
+msgstr "请求超时；可重试。"
+
+#: ../../site/api/core.md:46
+msgid "Operating-system transport failure; retryable."
+msgstr "操作系统传输失败；可重试。"
+
+#: ../../site/api/core.md:46
+msgid "Request validation failure; not retried."
+msgstr "请求校验失败；不重试。"
+
+#: ../../site/api/core.md:46
+msgid "Any other failure; not retried."
+msgstr "任何其他失败；不重试。"
+
+#: ../../site/api/core.md:49
+msgid "Returns two single-column frames restricted to their common timestamps."
+msgstr "返回两个单列帧，仅保留它们共有的时间戳。"
+
+#: ../../site/api/core.md:49
+msgid ""
+"The result is an inner join on the timestamp index. Timestamps are taken "
+"from left in its existing order, and values are matched against right by "
+"timestamp; timestamps present in only one input are dropped."
+msgstr "结果是在时间戳索引上的内连接。时间戳按 left 的现有顺序取自 left，值按时间戳与 right 匹配；仅出现在一个输入中的时间戳会被丢弃。"
+
+#: ../../site/api/core.md:52
+msgid "Returns an AlignmentError payload via contextual_error()."
+msgstr "通过 contextual_error() 返回 AlignmentError 负载。"
+
+#: ../../site/api/core.md:55
+msgid "Returns all declared operations in domain order."
+msgstr "按领域顺序返回所有已声明的操作。"
+
+#: ../../site/api/core.md:58
+msgid "Returns the attribution operations in source order."
+msgstr "按源顺序返回归因操作。"
+
+#: ../../site/api/core.md:61
+msgid "Returns a canonical CSV rendering of frame."
+msgstr "返回 frame 的规范 CSV 呈现。"
+
+#: ../../site/api/core.md:61
+msgid ""
+"The first line is index followed by the column names in insertion order; "
+"each subsequent line holds the UTC-nanosecond index value and the column "
+"values. Doubles use Python-compatible float formatting, except that NaN is "
+"an empty field and infinities are inf or -inf; booleans are True or False; "
+"strings are quoted only when needed, with embedded quotes doubled. Integral "
+"columns are rendered as decimal integers. The output ends with a newline."
+msgstr ""
+"第一行为 index，后接按插入顺序排列的列名；其后每行保存 UTC 纳秒索引值和各列值。double 使用与 Python 兼容的浮点格式，但 NaN"
+" 为空字段，无穷大表示为 inf 或 -inf；布尔值为 True 或 "
+"False；字符串仅在需要时加引号，内嵌引号重复一次。整数列以十进制整数表示。输出以换行结尾。"
+
+#: ../../site/api/core.md:64
+msgid "Throws when any listed dependency is unavailable."
+msgstr "任一列出的依赖项不可用时抛出。"
+
+#: ../../site/api/core.md:64
+msgid ""
+"The error is a DependencyError whose dependency field lists every "
+"unavailable name in input order, joined with \", \". The extra field is the "
+"first non-empty extra label among the unavailable dependencies and is "
+"omitted when none supplies one. Its message is Missing required "
+"dependencies: followed by the names."
+msgstr ""
+"该错误为 DependencyError，其 dependency 字段按输入顺序列出所有不可用的名称，并以 \", \" 连接。extra "
+"字段为不可用依赖项中第一个非空的 extra 标签，若都未提供则省略。其消息为 Missing required dependencies: "
+"后接这些名称。"
+
+#: ../../site/api/core.md:67
+msgid "Returns an error payload with operation context and code fincore.contract."
+msgstr "返回带有操作上下文和代码 fincore.contract 的错误负载。"
+
+#: ../../site/api/core.md:67
+msgid ""
+"category is used verbatim. Optional context values are stored in fields "
+"under operation_id, parameter, path and profile only when non-empty."
+msgstr ""
+"category 原样使用。可选的上下文值仅在非空时存入 fields 的 operation_id、parameter、path 和 profile "
+"下。"
+
+#: ../../site/api/core.md:70
+msgid "Returns a DataAlignmentError payload with code fincore.data_alignment."
+msgstr "返回代码为 fincore.data_alignment 的 DataAlignmentError 负载。"
+
+#: ../../site/api/core.md:70
+msgid ""
+"Optional lengths are stored as decimal strings under returns_length and "
+"factor_length."
+msgstr "可选的长度以十进制字符串存入 returns_length 和 factor_length。"
+
+#: ../../site/api/core.md:73
+msgid "Returns the data operations in source order."
+msgstr "按源顺序返回数据操作。"
+
+#: ../../site/api/core.md:76
+msgid "Returns the lowercase hexadecimal SHA-256 of canonical_dataframe_csv()."
+msgstr "返回 canonical_dataframe_csv() 的小写十六进制 SHA-256。"
+
+#: ../../site/api/core.md:79
+msgid "Returns a DependencyError payload with code fincore.dependency."
+msgstr "返回代码为 fincore.dependency 的 DependencyError 负载。"
+
+#: ../../site/api/core.md:79
+msgid "dependency and extra are stored in fields only when non-empty."
+msgstr "dependency 和 extra 仅在非空时存入 fields。"
+
+#: ../../site/api/core.md:82
+msgid "Returns value, or replace_with when value is NaN."
+msgstr "返回 value；当 value 为 NaN 时返回 replace_with。"
+
+#: ../../site/api/core.md:85
+msgid "Returns the factor analysis operations in source order."
+msgstr "按源顺序返回因子分析操作。"
+
+#: ../../site/api/core.md:88
+msgid ""
+"Runs a numeric kernel and converts native numeric exceptions to "
+"NumericalError."
+msgstr "运行数值内核，并将原生数值异常转换为 NumericalError。"
+
+#: ../../site/api/core.md:88
+msgid ""
+"Existing fincore_error exceptions pass through unchanged. std::domain_error,"
+" std::overflow_error, std::underflow_error, std::invalid_argument and other "
+"std::runtime_error exceptions are rethrown as fincore_error payloads from "
+"numerical_error() with the supplied operation label. The kernel result is "
+"returned unchanged."
+msgstr ""
+"已有的 fincore_error "
+"异常原样透传。std::domain_error、std::overflow_error、std::underflow_error、std::invalid_argument"
+" 及其他 std::runtime_error 异常会以 numerical_error() 生成的 fincore_error "
+"负载重新抛出，并带上所提供的 operation 标签。内核结果原样返回。"
+
+#: ../../site/api/core.md
+msgid "Template Parameters"
+msgstr "模板参数"
+
+#: ../../site/api/core.md:91
+msgid "Returns an InputContractError payload via contextual_error()."
+msgstr "通过 contextual_error() 返回 InputContractError 负载。"
+
+#: ../../site/api/core.md:94
+msgid "Returns an InsufficientDataError payload with code fincore.insufficient_data."
+msgstr "返回代码为 fincore.insufficient_data 的 InsufficientDataError 负载。"
+
+#: ../../site/api/core.md:94
+msgid ""
+"Optional lengths are stored as decimal strings under required_length and "
+"actual_length."
+msgstr "可选的长度以十进制字符串存入 required_length 和 actual_length。"
+
+#: ../../site/api/core.md:97
+msgid "Returns an InvalidPeriodError payload for period."
+msgstr "返回针对 period 的 InvalidPeriodError 负载。"
+
+#: ../../site/api/core.md:97
+msgid ""
+"The payload uses code fincore.invalid_period, lists the accepted periods "
+"(daily, weekly, monthly, quarterly, yearly) and stores period and "
+"valid_periods in fields."
+msgstr ""
+"该负载使用代码 "
+"fincore.invalid_period，列出可接受的周期（daily、weekly、monthly、quarterly、yearly），并将 "
+"period 和 valid_periods 存入 fields。"
+
+#: ../../site/api/core.md:100
+msgid "Returns a structured error payload built from the supplied components."
+msgstr "返回由所提供的组成部分构建的结构化错误负载。"
+
+#: ../../site/api/core.md:100
+msgid ""
+"No validation or normalization is applied; fields and report are stored as "
+"given."
+msgstr "不进行任何校验或规范化；fields 和 report 按给定内容存储。"
+
+#: ../../site/api/core.md:103
+msgid "Returns a runtime diagnostic error for an unknown operation identifier."
+msgstr "返回针对未知操作标识符的运行时诊断错误。"
+
+#: ../../site/api/core.md:103
+msgid ""
+"The payload uses category RuntimeDiagnosticError, code "
+"fincore.runtime.operation_resolution, runtime category resolution_failure, "
+"an unknown operation_id: message followed by the identifier, and a "
+"remediation that points at the operation catalog."
+msgstr ""
+"该负载使用类别 RuntimeDiagnosticError、代码 fincore.runtime.operation_resolution、运行时类别"
+" resolution_failure、由 unknown operation_id: 后接标识符构成的消息，以及指向操作目录的修复建议。"
+
+#: ../../site/api/core.md:106
+msgid "Returns a single-column frame built from an index and double values."
+msgstr "返回由索引和 double 值构建的单列帧。"
+
+#: ../../site/api/core.md:106
+msgid ""
+"The column is loaded without NaN padding, so the index and column sizes "
+"remain equal to the input sizes."
+msgstr "列加载时不填充 NaN，因此索引和列大小保持与输入大小相等。"
+
+#: ../../site/api/core.md:109
+msgid "Returns the metrics operations in source order."
+msgstr "按源顺序返回指标操作。"
+
+#: ../../site/api/core.md:112
+msgid "Returns a MissingDataError payload with code fincore.missing_data."
+msgstr "返回代码为 fincore.missing_data 的 MissingDataError 负载。"
+
+#: ../../site/api/core.md:112
+msgid "missing_field is stored in fields only when non-empty."
+msgstr "missing_field 仅在非空时存入 fields。"
+
+#: ../../site/api/core.md:115
+msgid "Returns a NumericalConvergenceError payload via contextual_error()."
+msgstr "通过 contextual_error() 返回 NumericalConvergenceError 负载。"
+
+#: ../../site/api/core.md:118
+msgid "Returns a NumericalError payload with code fincore.numerical."
+msgstr "返回代码为 fincore.numerical 的 NumericalError 负载。"
+
+#: ../../site/api/core.md:118
+msgid "operation is stored in fields only when non-empty."
+msgstr "operation 仅在非空时存入 fields。"
+
+#: ../../site/api/core.md:121
+msgid "Returns the optimization operations in source order."
+msgstr "按源顺序返回优化操作。"
+
+#: ../../site/api/core.md:124
+msgid "Returns the performance operations in source order."
+msgstr "按源顺序返回绩效操作。"
+
+#: ../../site/api/core.md:127
+msgid "Returns the portfolio operations in source order."
+msgstr "按源顺序返回投资组合操作。"
+
+#: ../../site/api/core.md:130
+msgid "Returns the report operations in source order."
+msgstr "按源顺序返回报告操作。"
+
+#: ../../site/api/core.md:133
+msgid "Returns a view of the named double column in frame."
+msgstr "返回 frame 中指定名称的 double 列的视图。"
+
+#: ../../site/api/core.md:136
+msgid "Returns a ResourceLifecycleError payload via contextual_error()."
+msgstr "通过 contextual_error() 返回 ResourceLifecycleError 负载。"
+
+#: ../../site/api/core.md:139
+msgid "Returns a ResultContractError payload via contextual_error()."
+msgstr "通过 contextual_error() 返回 ResultContractError 负载。"
+
+#: ../../site/api/core.md:142
+msgid "Returns the risk operations in source order."
+msgstr "按源顺序返回风险操作。"
+
+#: ../../site/api/core.md:145
+msgid ""
+"Returns a RuntimeDiagnosticError payload with code "
+"fincore.runtime.diagnostic."
+msgstr "返回代码为 fincore.runtime.diagnostic 的 RuntimeDiagnosticError 负载。"
+
+#: ../../site/api/core.md:145
+msgid ""
+"runtime_category is always stored in fields; operation_id, capability_id and"
+" remediation are stored only when non-empty. details becomes the diagnostic "
+"report."
+msgstr ""
+"runtime_category 始终存入 fields；operation_id、capability_id 和 remediation "
+"仅在非空时存入。details 成为诊断报告。"
+
+#: ../../site/api/core.md:148
+msgid ""
+"Returns numerator / denominator, or default_value when the denominator is "
+"zero."
+msgstr "返回 numerator / denominator；当分母为零时返回 default_value。"
+
+#: ../../site/api/core.md:151
+msgid "Returns the square root of value, or default_value when value is negative."
+msgstr "返回 value 的平方根；当 value 为负时返回 default_value。"
+
+#: ../../site/api/core.md:154
+msgid "Returns the simulation operations in source order."
+msgstr "按源顺序返回模拟操作。"
+
+#: ../../site/api/core.md:157
+msgid ""
+"Returns an UnsupportedFormatError payload with code "
+"fincore.unsupported_format."
+msgstr "返回代码为 fincore.unsupported_format 的 UnsupportedFormatError 负载。"
+
+#: ../../site/api/core.md:157
+msgid "format is stored in fields only when non-empty."
+msgstr "format 仅在非空时存入 fields。"
+
+#: ../../site/api/core.md:160
+msgid "Returns the UTC Unix-epoch timestamp for a calendar date and time."
+msgstr "返回日历日期和时间的 UTC Unix 纪元时间戳。"
+
+#: ../../site/api/core.md:160
+msgid ""
+"Components are interpreted in UTC. The month and day default to January 1, "
+"and the time components default to midnight. Sub-second precision is carried"
+" in nanoseconds."
+msgstr "各分量按 UTC 解释。月和日默认为 1 月 1 日，时间分量默认为午夜。亚秒精度以纳秒承载。"
+
+#: ../../site/api/core.md:163
+msgid "Returns the UTC calendar year containing value."
+msgstr "返回包含 value 的 UTC 日历年。"
+
+#: ../../site/api/core.md:166
+msgid "Returns a ValidationError payload with code fincore.validation."
+msgstr "返回代码为 fincore.validation 的 ValidationError 负载。"
+
+#: ../../site/api/core.md:166
+msgid "param_name and value are stored in fields only when non-empty."
+msgstr "param_name 和 value 仅在非空时存入 fields。"
+
+#: ../../site/api/core.md:169
+msgid "Returns the pinned oracle version as an owning-friendly view."
+msgstr "以便于持有的视图返回锁定的 oracle 版本。"
+
+#: ../../site/api/core.md:172
+msgid "Columnar frame indexed by timestamp, backed by hmdf::StdDataFrame."
+msgstr "以时间戳为索引的列式帧，由 hmdf::StdDataFrame 支撑。"
+
+#: ../../site/api/core.md:175
+msgid "Signed timestamp in UTC nanoseconds since the Unix epoch."
+msgstr "自 Unix 纪元起以 UTC 纳秒表示的有符号时间戳。"
+
+#: ../../site/api/core.md:178
+msgid "Schema version written into data snapshot manifests."
+msgstr "写入数据快照清单的 schema 版本。"
+
+#: ../../site/api/core.md:181
+msgid ""
+"Pinned Python oracle identity (fincore.__version__ at "
+"3e9ef205ef2023f92e89fddd1052d46b16429c64)."
+msgstr ""
+"锁定的 Python oracle 身份（fincore.__version__，位于 "
+"3e9ef205ef2023f92e89fddd1052d46b16429c64）。"
+
+#: ../../site/api/core.md:181
+msgid "Pinned major version."
+msgstr "锁定的主版本号。"
+
+#: ../../site/api/core.md:184
+msgid "Pinned minor version."
+msgstr "锁定的次版本号。"
+
+#: ../../site/api/core.md:187
+msgid "Pinned patch version."
+msgstr "锁定的修订版本号。"
+
+#: ../../site/api/core.md:190
+msgid "Pinned oracle version text."
+msgstr "锁定的 oracle 版本文本。"
+
+#: ../../site/api/core.md:193
+msgid "Native library version retained from the current C4 base."
+msgstr "保留自当前 C4 基线的原生库版本。"
+
+#: ../../site/api/core.md:193
+msgid ""
+"The pinned Python oracle version is exposed separately below so installed-"
+"consumer metadata checks can compare against the frozen Python pin without "
+"pretending the native ABI version changed. Native major version."
+msgstr ""
+"锁定的 Python oracle 版本在下方单独暴露，以便已安装使用方的元数据检查可以与冻结的 Python 锁定版本比较，而无需假装原生 ABI "
+"版本发生了变化。原生主版本号。"
+
+#: ../../site/api/core.md:196
+msgid "Native minor version."
+msgstr "原生次版本号。"
+
+#: ../../site/api/core.md:199
+msgid "Native patch version."
+msgstr "原生修订版本号。"
+
+#: ../../site/api/core.md:202
+msgid "Native version."
+msgstr "原生版本。"
+

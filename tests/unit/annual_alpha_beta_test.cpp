@@ -18,6 +18,10 @@ namespace {
 
 constexpr double tolerance = 1.0e-10;
 
+// Ten observations across three years, with the first year holding most of them
+// and the last holding two: the expectation is exactly three rows, one per year
+// touched and labelled at its start, so a partial year produces a result and the
+// gaps inside a year never add one.
 struct fixture_data {
     std::vector<fincore::timestamp> index{
         fincore::utc_timestamp(2019, 12, 27),

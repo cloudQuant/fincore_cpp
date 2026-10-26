@@ -1,0 +1,38 @@
+P109 performance gate on Windows — baseline unavailable
+=======================================================
+
+Required baseline
+-----------------
+Iteration 7 C4 source archive:
+  archive sha256 168789ea6fabe1ed4baf636bbcda3e7e372dca53e18a5a7a9f08ef9b4906a7da
+  manifest sha256 245ae75336912e30bcf6f34016ed4451116ec4ed719771a02d4b6e46ab0516e3
+
+Searches performed on 2026-10-24 (Windows host)
+----------------------------------------------
+1. git ls-remote --tags origin
+   Result: no tags.
+2. gh release list -R cloudQuant/fincore_cpp --limit 20
+   Result: no releases.
+3. gh api "repos/cloudQuant/fincore_cpp/actions/artifacts?per_page=100"
+   Result: no downloadable artifacts.
+4. find D:/source_code/fincore_cpp D:/source_code/fincore -maxdepth 4 -iname "*c4*"
+   Result: no C4 source tree or archive (only unrelated git-pack/build paths).
+5. tar tzf docs/evidence/iteration-8/source.tar.gz | grep -i c4
+   Result: no C4 payload; this archive is the Iteration 8 candidate itself.
+6. docs/iterations/iteration-7-latest-fincore-alignment referenced by
+   docs/iterations/README.md is absent from the working tree.
+
+Conclusion
+----------
+The paired C4-vs-current harness (`tools/iteration8_performance_check.py`)
+cannot be executed because the Iteration 7 C4 source archive is not present
+locally, in git, or in the public remote. No substitute baseline was used and
+the 1.10 ratio ceiling was not relaxed.
+
+The recorded macOS result remains:
+  all five cases INCONCLUSIVE, dispersion 0.1139-0.2642, digests equal
+  (docs/evidence/iteration-8/p109/performance.json).
+Windows performance is NOT_RUN, not PASS. The benchmark sources still contain
+POSIX getrusage/fork usage; they were not ported because the gate cannot be
+evaluated without the C4 baseline. Porting remains a prerequisite for a future
+Windows performance claim.

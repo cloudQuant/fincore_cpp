@@ -1,0 +1,1390 @@
+{
+  "status": "CLOSED_BY_USER",
+  "formal_protocol_status": "PARTIAL",
+  "date": "2026-10-25",
+  "branch": "dev",
+  "performance_source_commit": "e4fed743aba20b2c0ebadecc0252f0f6d4df29c7",
+  "python_commit": "3e9ef205ef2023f92e89fddd1052d46b16429c64",
+  "results": {
+    "500_development": {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p124-r1-500/comparison.json",
+      "all_pairs_pass": true,
+      "warmup_pairs": 2,
+      "measured_pairs": 5,
+      "inputs_unchanged": true,
+      "config": {
+        "data_dir": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\data\\a_stocks",
+        "end_offset": 22,
+        "max_symbols": 500,
+        "periods": [
+          1,
+          5,
+          20
+        ],
+        "preprocess": "cross_section_rank",
+        "quantiles": 5,
+        "research_end": "2025-12-01T07:00:00Z",
+        "tolerance": 1e-06
+      },
+      "performance": {
+        "repeats": 5,
+        "sampling": {
+          "cpp": {
+            "count": 5,
+            "iqr": 0.012913200014736503,
+            "iqr_over_median": 0.04481541912459153,
+            "max": 0.3235343000269495,
+            "median": 0.2881418999750167,
+            "min": 0.281003599986434,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 0.28753939998568967,
+            "q3": 0.3004526000004262,
+            "samples": [
+              0.3004526000004262,
+              0.2881418999750167,
+              0.28753939998568967,
+              0.281003599986434,
+              0.3235343000269495
+            ],
+            "status": "VALID"
+          },
+          "paired_speedups": [
+            39.02172722085967,
+            41.19809024990357,
+            38.29430540837606,
+            43.69886827288057,
+            36.85523698403419
+          ],
+          "pairs_at_least_100x": 0,
+          "pairs_at_least_30x": 5,
+          "python": {
+            "count": 5,
+            "iqr": 0.1997538999421522,
+            "iqr_over_median": 0.016827196526951565,
+            "max": 12.279539300012402,
+            "median": 11.870895999949425,
+            "min": 11.011121599993203,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 11.724179400014691,
+            "q3": 11.923933299956843,
+            "samples": [
+              11.724179400014691,
+              11.870895999949425,
+              11.011121599993203,
+              12.279539300012402,
+              11.923933299956843
+            ],
+            "status": "VALID"
+          }
+        },
+        "stages": {
+          "accounted_stage_seconds": {
+            "cpp_seconds": 0.2749879,
+            "python_seconds": 10.639213900023606,
+            "speedup": 38.68975289466775
+          },
+          "cpu_seconds": {
+            "cpp_seconds": 0.21875,
+            "python_seconds": 8.828125,
+            "speedup": 40.357142857142854
+          },
+          "factor_seconds": {
+            "cpp_seconds": 0.0281283,
+            "python_seconds": 0.11268979997839779,
+            "speedup": 4.006278373680521
+          },
+          "internal_process_cpu_seconds": {
+            "cpp_seconds": 0.21875,
+            "python_seconds": 8.828125,
+            "speedup": 40.357142857142854
+          },
+          "internal_wall_seconds": {
+            "cpp_seconds": 0.2749879,
+            "python_seconds": 10.639213900023606,
+            "speedup": 38.68975289466775
+          },
+          "load_seconds": {
+            "cpp_seconds": 0.0637846,
+            "python_seconds": 1.6858151000342332,
+            "speedup": 26.429813780038337
+          },
+          "materialization_seconds": {
+            "cpp_seconds": 0.0043016,
+            "python_seconds": 0.02460479998262599,
+            "speedup": 5.719918165944297
+          },
+          "other_seconds": {
+            "cpp_seconds": 1.9199999999941486e-05,
+            "python_seconds": 0.0004408999811857939,
+            "speedup": 22.963540686830083
+          },
+          "preparation_seconds": {
+            "cpp_seconds": 0.0001164,
+            "python_seconds": 0.058827899978496134,
+            "speedup": 505.3943297121661
+          },
+          "total_seconds": {
+            "cpp_seconds": 0.2749879,
+            "python_seconds": 10.639213900023606,
+            "speedup": 38.68975289466775
+          }
+        },
+        "wall": {
+          "cpp_seconds": 0.2881418999750167,
+          "python_seconds": 11.870895999949425,
+          "speedup": 41.19809024990357
+        }
+      },
+      "primary_max_abs_diff": 4.0245584642661925e-16
+    },
+    "full_formal_attempt": {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p120-6417974-full-b1/comparison.json",
+      "all_pairs_pass": true,
+      "warmup_pairs": 2,
+      "measured_pairs": 10,
+      "inputs_unchanged": true,
+      "config": {
+        "data_dir": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\data\\a_stocks",
+        "end_offset": 22,
+        "max_symbols": 0,
+        "periods": [
+          1,
+          5,
+          20
+        ],
+        "preprocess": "cross_section_rank",
+        "quantiles": 5,
+        "research_end": "2025-12-01T07:00:00Z",
+        "tolerance": 1e-06
+      },
+      "performance": {
+        "repeats": 10,
+        "sampling": {
+          "cpp": {
+            "count": 10,
+            "iqr": 2.256440674944315,
+            "iqr_over_median": 0.5776043566592529,
+            "max": 7.855117900006007,
+            "median": 3.906550649990095,
+            "min": 2.838765799999237,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 2.9316637000156334,
+            "q3": 5.1881043749599485,
+            "samples": [
+              2.838765799999237,
+              2.997445000044536,
+              2.909736600005999,
+              5.302587099955417,
+              4.789281099976506,
+              7.7563392000156455,
+              4.844656199973542,
+              7.855117900006007,
+              2.8700957999681123,
+              3.0238202000036836
+            ],
+            "status": "INCONCLUSIVE"
+          },
+          "paired_speedups": [
+            31.507590235178803,
+            28.868260901782005,
+            29.653169431140665,
+            17.20456859647797,
+            18.286301904566205,
+            11.70653345070855,
+            19.685338249707044,
+            11.768455022164805,
+            30.18996456527333,
+            28.842393836731663
+          ],
+          "pairs_at_least_100x": 0,
+          "pairs_at_least_30x": 2,
+          "python": {
+            "count": 10,
+            "iqr": 4.331882550017326,
+            "iqr_over_median": 0.048942043709504966,
+            "max": 95.36869600001955,
+            "median": 88.51045485000941,
+            "min": 86.28291239996906,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 86.78962114997557,
+            "q3": 91.1215036999929,
+            "samples": [
+              89.4426696000155,
+              86.53102430002764,
+              86.28291239996906,
+              91.22872349998215,
+              87.57824010000331,
+              90.79984430002514,
+              95.36869600001955,
+              92.44260170002235,
+              86.64809049997712,
+              87.21421309997095
+            ],
+            "status": "VALID"
+          }
+        },
+        "stages": {
+          "accounted_stage_seconds": {
+            "cpp_seconds": 3.8766571499999998,
+            "python_seconds": 87.12186709998059,
+            "speedup": 22.473451669560358
+          },
+          "cpu_seconds": {
+            "cpp_seconds": 2.5703125,
+            "python_seconds": 71.8984375,
+            "speedup": 27.972644376899694
+          },
+          "factor_seconds": {
+            "cpp_seconds": 0.27421125,
+            "python_seconds": 1.3523046500049531,
+            "speedup": 4.931616226558732
+          },
+          "internal_process_cpu_seconds": {
+            "cpp_seconds": 2.5703125,
+            "python_seconds": 71.8984375,
+            "speedup": 27.972644376899694
+          },
+          "internal_wall_seconds": {
+            "cpp_seconds": 3.8766571499999998,
+            "python_seconds": 87.12186709998059,
+            "speedup": 22.473451669560358
+          },
+          "load_seconds": {
+            "cpp_seconds": 1.7043164499999999,
+            "python_seconds": 16.57264099997701,
+            "speedup": 9.72392245581917
+          },
+          "materialization_seconds": {
+            "cpp_seconds": 0.06267125,
+            "python_seconds": 0.19246130000101402,
+            "speedup": 3.070966352211166
+          },
+          "other_seconds": {
+            "cpp_seconds": 2.025000000016597e-05,
+            "python_seconds": 0.0004149499873165041,
+            "speedup": 20.491357398177936
+          },
+          "preparation_seconds": {
+            "cpp_seconds": 0.0005886999999999999,
+            "python_seconds": 0.06801540000014938,
+            "speedup": 115.53490742338948
+          },
+          "total_seconds": {
+            "cpp_seconds": 3.8766571499999998,
+            "python_seconds": 87.12186709998059,
+            "speedup": 22.473451669560358
+          }
+        },
+        "wall": {
+          "cpp_seconds": 3.906550649990095,
+          "python_seconds": 88.51045485000941,
+          "speedup": 22.656932619121125
+        }
+      },
+      "primary_max_abs_diff": 9.992007221626409e-16
+    },
+    "1000_diagnostic": {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p120-e4fed74-1000/comparison.json",
+      "all_pairs_pass": true,
+      "warmup_pairs": 2,
+      "measured_pairs": 1,
+      "inputs_unchanged": true,
+      "config": {
+        "data_dir": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\data\\a_stocks",
+        "end_offset": 22,
+        "max_symbols": 1000,
+        "periods": [
+          1,
+          5,
+          20
+        ],
+        "preprocess": "cross_section_rank",
+        "quantiles": 5,
+        "research_end": "2025-12-01T07:00:00Z",
+        "tolerance": 1e-06
+      },
+      "performance": {
+        "repeats": 1,
+        "sampling": {
+          "cpp": {
+            "count": 1,
+            "iqr": 0.0,
+            "iqr_over_median": 0.0,
+            "max": 0.5789818000048399,
+            "median": 0.5789818000048399,
+            "min": 0.5789818000048399,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 0.5789818000048399,
+            "q3": 0.5789818000048399,
+            "samples": [
+              0.5789818000048399
+            ],
+            "status": "VALID"
+          },
+          "paired_speedups": [
+            34.45820404000116
+          ],
+          "pairs_at_least_100x": 0,
+          "pairs_at_least_30x": 1,
+          "python": {
+            "count": 1,
+            "iqr": 0.0,
+            "iqr_over_median": 0.0,
+            "max": 19.95067300001392,
+            "median": 19.95067300001392,
+            "min": 19.95067300001392,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 19.95067300001392,
+            "q3": 19.95067300001392,
+            "samples": [
+              19.95067300001392
+            ],
+            "status": "VALID"
+          }
+        },
+        "stages": {
+          "accounted_stage_seconds": {
+            "cpp_seconds": 0.5623547,
+            "python_seconds": 18.749737999984063,
+            "speedup": 33.34148003027993
+          },
+          "cpu_seconds": {
+            "cpp_seconds": 0.484375,
+            "python_seconds": 15.34375,
+            "speedup": 31.677419354838708
+          },
+          "factor_seconds": {
+            "cpp_seconds": 0.0611242,
+            "python_seconds": 0.22806190000846982,
+            "speedup": 3.73112286146027
+          },
+          "internal_process_cpu_seconds": {
+            "cpp_seconds": 0.484375,
+            "python_seconds": 15.34375,
+            "speedup": 31.677419354838708
+          },
+          "internal_wall_seconds": {
+            "cpp_seconds": 0.5623547,
+            "python_seconds": 18.749737999984063,
+            "speedup": 33.34148003027993
+          },
+          "load_seconds": {
+            "cpp_seconds": 0.1546682,
+            "python_seconds": 3.368770900007803,
+            "speedup": 21.780630407593822
+          },
+          "materialization_seconds": {
+            "cpp_seconds": 0.0107989,
+            "python_seconds": 0.03985240001929924,
+            "speedup": 3.690412914213414
+          },
+          "other_seconds": {
+            "cpp_seconds": 1.4799999999981495e-05,
+            "python_seconds": 0.0003915998968295753,
+            "speedup": 26.4594524885179
+          },
+          "preparation_seconds": {
+            "cpp_seconds": 0.0001178,
+            "python_seconds": 0.06141550000756979,
+            "speedup": 521.3539898775025
+          },
+          "total_seconds": {
+            "cpp_seconds": 0.5623547,
+            "python_seconds": 18.749737999984063,
+            "speedup": 33.34148003027993
+          }
+        },
+        "wall": {
+          "cpp_seconds": 0.5789818000048399,
+          "python_seconds": 19.95067300001392,
+          "speedup": 34.45820404000116
+        }
+      },
+      "primary_max_abs_diff": 6.661338147750939e-16
+    },
+    "2000_diagnostic": {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p120-e4fed74-2000/comparison.json",
+      "all_pairs_pass": true,
+      "warmup_pairs": 2,
+      "measured_pairs": 1,
+      "inputs_unchanged": true,
+      "config": {
+        "data_dir": "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\data\\a_stocks",
+        "end_offset": 22,
+        "max_symbols": 2000,
+        "periods": [
+          1,
+          5,
+          20
+        ],
+        "preprocess": "cross_section_rank",
+        "quantiles": 5,
+        "research_end": "2025-12-01T07:00:00Z",
+        "tolerance": 1e-06
+      },
+      "performance": {
+        "repeats": 1,
+        "sampling": {
+          "cpp": {
+            "count": 1,
+            "iqr": 0.0,
+            "iqr_over_median": 0.0,
+            "max": 0.9849923999863677,
+            "median": 0.9849923999863677,
+            "min": 0.9849923999863677,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 0.9849923999863677,
+            "q3": 0.9849923999863677,
+            "samples": [
+              0.9849923999863677
+            ],
+            "status": "VALID"
+          },
+          "paired_speedups": [
+            35.63350367019587
+          ],
+          "pairs_at_least_100x": 0,
+          "pairs_at_least_30x": 1,
+          "python": {
+            "count": 1,
+            "iqr": 0.0,
+            "iqr_over_median": 0.0,
+            "max": 35.098730300029274,
+            "median": 35.098730300029274,
+            "min": 35.098730300029274,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 35.098730300029274,
+            "q3": 35.098730300029274,
+            "samples": [
+              35.098730300029274
+            ],
+            "status": "VALID"
+          }
+        },
+        "stages": {
+          "accounted_stage_seconds": {
+            "cpp_seconds": 0.9687375,
+            "python_seconds": 33.98160940001253,
+            "speedup": 35.078242970889974
+          },
+          "cpu_seconds": {
+            "cpp_seconds": 0.78125,
+            "python_seconds": 28.25,
+            "speedup": 36.16
+          },
+          "factor_seconds": {
+            "cpp_seconds": 0.0939151,
+            "python_seconds": 0.5801601000130177,
+            "speedup": 6.177495418873192
+          },
+          "internal_process_cpu_seconds": {
+            "cpp_seconds": 0.78125,
+            "python_seconds": 28.25,
+            "speedup": 36.16
+          },
+          "internal_wall_seconds": {
+            "cpp_seconds": 0.9687375,
+            "python_seconds": 33.98160940001253,
+            "speedup": 35.078242970889974
+          },
+          "load_seconds": {
+            "cpp_seconds": 0.2411398,
+            "python_seconds": 6.445395600050688,
+            "speedup": 26.728875117465837
+          },
+          "materialization_seconds": {
+            "cpp_seconds": 0.021196,
+            "python_seconds": 0.0641695000231266,
+            "speedup": 3.0274344226800625
+          },
+          "other_seconds": {
+            "cpp_seconds": 1.8100000000020877e-05,
+            "python_seconds": 0.0004264999879524112,
+            "speedup": 23.563535245962388
+          },
+          "preparation_seconds": {
+            "cpp_seconds": 0.0001112,
+            "python_seconds": 0.05779449996771291,
+            "speedup": 519.7347119398643
+          },
+          "total_seconds": {
+            "cpp_seconds": 0.9687375,
+            "python_seconds": 33.98160940001253,
+            "speedup": 35.078242970889974
+          }
+        },
+        "wall": {
+          "cpp_seconds": 0.9849923999863677,
+          "python_seconds": 35.098730300029274,
+          "speedup": 35.63350367019587
+        }
+      },
+      "primary_max_abs_diff": 8.881784197001252e-16
+    },
+    "missing_rows": {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p120-e4fed74-missing-rows/comparison.json",
+      "all_pairs_pass": true,
+      "warmup_pairs": 2,
+      "measured_pairs": 1,
+      "inputs_unchanged": true,
+      "config": {
+        "data_dir": "D:\\source_code\\fincore_cpp\\build-win\\p120-sparse-fixtures\\missing-rows",
+        "end_offset": 22,
+        "max_symbols": 0,
+        "periods": [
+          1,
+          5,
+          20
+        ],
+        "preprocess": "cross_section_rank",
+        "quantiles": 5,
+        "research_end": "2025-12-01T07:00:00Z",
+        "tolerance": 1e-06
+      },
+      "performance": {
+        "repeats": 1,
+        "sampling": {
+          "cpp": {
+            "count": 1,
+            "iqr": 0.0,
+            "iqr_over_median": 0.0,
+            "max": 0.05154340004082769,
+            "median": 0.05154340004082769,
+            "min": 0.05154340004082769,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 0.05154340004082769,
+            "q3": 0.05154340004082769,
+            "samples": [
+              0.05154340004082769
+            ],
+            "status": "VALID"
+          },
+          "paired_speedups": [
+            105.76349242893524
+          ],
+          "pairs_at_least_100x": 1,
+          "pairs_at_least_30x": 1,
+          "python": {
+            "count": 1,
+            "iqr": 0.0,
+            "iqr_over_median": 0.0,
+            "max": 5.45140999997966,
+            "median": 5.45140999997966,
+            "min": 5.45140999997966,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 5.45140999997966,
+            "q3": 5.45140999997966,
+            "samples": [
+              5.45140999997966
+            ],
+            "status": "VALID"
+          }
+        },
+        "stages": {
+          "accounted_stage_seconds": {
+            "cpp_seconds": 0.0376175,
+            "python_seconds": 4.3069284000084735,
+            "speedup": 114.49268026871732
+          },
+          "cpu_seconds": {
+            "cpp_seconds": 0.03125,
+            "python_seconds": 3.390625,
+            "speedup": 108.5
+          },
+          "factor_seconds": {
+            "cpp_seconds": 0.0027601,
+            "python_seconds": 0.025305399962235242,
+            "speedup": 9.168290990266744
+          },
+          "internal_process_cpu_seconds": {
+            "cpp_seconds": 0.03125,
+            "python_seconds": 3.390625,
+            "speedup": 108.5
+          },
+          "internal_wall_seconds": {
+            "cpp_seconds": 0.0376175,
+            "python_seconds": 4.3069284000084735,
+            "speedup": 114.49268026871732
+          },
+          "load_seconds": {
+            "cpp_seconds": 0.0084571,
+            "python_seconds": 0.4443336999975145,
+            "speedup": 52.53972401857782
+          },
+          "materialization_seconds": {
+            "cpp_seconds": 0.0004164,
+            "python_seconds": 0.003458700026385486,
+            "speedup": 8.306196028783589
+          },
+          "other_seconds": {
+            "cpp_seconds": 1.939999999999581e-05,
+            "python_seconds": 0.0003926000208593905,
+            "speedup": 20.23711447729254
+          },
+          "preparation_seconds": {
+            "cpp_seconds": 0.0001175,
+            "python_seconds": 0.057981999998446554,
+            "speedup": 493.4638297740132
+          },
+          "total_seconds": {
+            "cpp_seconds": 0.0376175,
+            "python_seconds": 4.3069284000084735,
+            "speedup": 114.49268026871732
+          }
+        },
+        "wall": {
+          "cpp_seconds": 0.05154340004082769,
+          "python_seconds": 5.45140999997966,
+          "speedup": 105.76349242893524
+        }
+      },
+      "primary_max_abs_diff": 2.220446049250313e-16
+    },
+    "missing_fields": {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p120-e4fed74-missing-fields/comparison.json",
+      "all_pairs_pass": true,
+      "warmup_pairs": 2,
+      "measured_pairs": 1,
+      "inputs_unchanged": true,
+      "config": {
+        "data_dir": "D:\\source_code\\fincore_cpp\\build-win\\p120-sparse-fixtures\\missing-fields",
+        "end_offset": 22,
+        "max_symbols": 0,
+        "periods": [
+          1,
+          5,
+          20
+        ],
+        "preprocess": "cross_section_rank",
+        "quantiles": 5,
+        "research_end": "2025-12-01T07:00:00Z",
+        "tolerance": 1e-06
+      },
+      "performance": {
+        "repeats": 1,
+        "sampling": {
+          "cpp": {
+            "count": 1,
+            "iqr": 0.0,
+            "iqr_over_median": 0.0,
+            "max": 0.04498849995434284,
+            "median": 0.04498849995434284,
+            "min": 0.04498849995434284,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 0.04498849995434284,
+            "q3": 0.04498849995434284,
+            "samples": [
+              0.04498849995434284
+            ],
+            "status": "VALID"
+          },
+          "paired_speedups": [
+            114.11718561779466
+          ],
+          "pairs_at_least_100x": 1,
+          "pairs_at_least_30x": 1,
+          "python": {
+            "count": 1,
+            "iqr": 0.0,
+            "iqr_over_median": 0.0,
+            "max": 5.133960999955889,
+            "median": 5.133960999955889,
+            "min": 5.133960999955889,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 5.133960999955889,
+            "q3": 5.133960999955889,
+            "samples": [
+              5.133960999955889
+            ],
+            "status": "VALID"
+          }
+        },
+        "stages": {
+          "accounted_stage_seconds": {
+            "cpp_seconds": 0.0334383,
+            "python_seconds": 4.08663279999746,
+            "speedup": 122.21413169920302
+          },
+          "cpu_seconds": {
+            "cpp_seconds": 0.03125,
+            "python_seconds": 3.390625,
+            "speedup": 108.5
+          },
+          "factor_seconds": {
+            "cpp_seconds": 0.0030799,
+            "python_seconds": 0.01234169997042045,
+            "speedup": 4.0071755480439135
+          },
+          "internal_process_cpu_seconds": {
+            "cpp_seconds": 0.03125,
+            "python_seconds": 3.390625,
+            "speedup": 108.5
+          },
+          "internal_wall_seconds": {
+            "cpp_seconds": 0.0334383,
+            "python_seconds": 4.08663279999746,
+            "speedup": 122.21413169920302
+          },
+          "load_seconds": {
+            "cpp_seconds": 0.0070681,
+            "python_seconds": 0.36465070000849664,
+            "speedup": 51.59104992975434
+          },
+          "materialization_seconds": {
+            "cpp_seconds": 0.0003771,
+            "python_seconds": 0.0029750000103376806,
+            "speedup": 7.88915409795195
+          },
+          "other_seconds": {
+            "cpp_seconds": 1.9999999999999185e-05,
+            "python_seconds": 0.0004905000096186996,
+            "speedup": 24.525000480935976
+          },
+          "preparation_seconds": {
+            "cpp_seconds": 0.0001113,
+            "python_seconds": 0.05512029997771606,
+            "speedup": 495.2407904556699
+          },
+          "total_seconds": {
+            "cpp_seconds": 0.0334383,
+            "python_seconds": 4.08663279999746,
+            "speedup": 122.21413169920302
+          }
+        },
+        "wall": {
+          "cpp_seconds": 0.04498849995434284,
+          "python_seconds": 5.133960999955889,
+          "speedup": 114.11718561779466
+        }
+      },
+      "primary_max_abs_diff": 4.440892098500626e-16
+    }
+  },
+  "artifact_pins": [
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p124-r1-500/comparison.json",
+      "size_bytes": 129580,
+      "sha256": "de4909ef33e0081b91ff69f482ddafe3f4ad06f904e28c9e32465f753ca92fb9"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p124-r1-500/measurements.json",
+      "size_bytes": 71072,
+      "sha256": "31681922baf9f3020adfce57337268be7f147cfa7ed28b5ffae0667be1b155e6"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p124-r1-500/inputs.json",
+      "size_bytes": 143146,
+      "sha256": "c6df6f81d0364ea12fa61a6fa05dd7544dc188db8425026b30b7b9d81e5c80a4"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p124-r1-500/environment.json",
+      "size_bytes": 3731,
+      "sha256": "b393fe359cad04601aadc884afe8dadd350724f6c8c3516329b6ce8896bc678e"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p120-6417974-full-b1/comparison.json",
+      "size_bytes": 218704,
+      "sha256": "386d708a2b140b084362f3075036b5d523dca136d5c3efd00884d0df8932e648"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p120-6417974-full-b1/measurements.json",
+      "size_bytes": 122047,
+      "sha256": "f90932257af61de9ff4155a5a1c5b9c59f021f11101ef654f24c80be1e4eaa6f"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p120-6417974-full-b1/inputs.json",
+      "size_bytes": 1286048,
+      "sha256": "eece69563d9aba19d73367cb70512b50b91726a1a759768ebfbc6cbbf00dfc8d"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p120-6417974-full-b1/environment.json",
+      "size_bytes": 3731,
+      "sha256": "b393fe359cad04601aadc884afe8dadd350724f6c8c3516329b6ce8896bc678e"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p120-e4fed74-1000/comparison.json",
+      "size_bytes": 58755,
+      "sha256": "6ae3b9653a888b2e871130e0caf4dd757687716da354f5d5a9824588aea33a9e"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p120-e4fed74-1000/measurements.json",
+      "size_bytes": 30649,
+      "sha256": "a6919cf15a60b9c4be9081076d0fcb99cc68cdeae9f748361da1d5b88c779008"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p120-e4fed74-1000/inputs.json",
+      "size_bytes": 257807,
+      "sha256": "00034a7e36c0d5551e7662957d3c75b0d7d92041f0d77d62a25f331426452149"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p120-e4fed74-1000/environment.json",
+      "size_bytes": 3731,
+      "sha256": "b393fe359cad04601aadc884afe8dadd350724f6c8c3516329b6ce8896bc678e"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p120-e4fed74-2000/comparison.json",
+      "size_bytes": 58731,
+      "sha256": "f428c9ba70509e9e70728f9db72b7c8ae603c31e89b809b430f90cc76cb8d9c6"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p120-e4fed74-2000/measurements.json",
+      "size_bytes": 30660,
+      "sha256": "dc7d8f8f68653bf985ed79ca634be0e0c54c2986b70dd6451aa8c74782c35b7c"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p120-e4fed74-2000/inputs.json",
+      "size_bytes": 487789,
+      "sha256": "501eb29899ccfd6b5dd230c11da54e2235d48a222fb75186c6b50594e8c7736e"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p120-e4fed74-2000/environment.json",
+      "size_bytes": 3731,
+      "sha256": "b393fe359cad04601aadc884afe8dadd350724f6c8c3516329b6ce8896bc678e"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p120-e4fed74-missing-rows/comparison.json",
+      "size_bytes": 58525,
+      "sha256": "b431abb63b033aa02d03a6ae8f4dc84594157a4b2c8184db8fa06d3e3ae7a90c"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p120-e4fed74-missing-rows/measurements.json",
+      "size_bytes": 30540,
+      "sha256": "63ae743c1fe74fb723ff9673630df41c6a6c42ca61e9e1a81a3001e1c951a394"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p120-e4fed74-missing-rows/inputs.json",
+      "size_bytes": 42543,
+      "sha256": "dd8db09993f2f840e2a9ea93fc10a8cdd4bd0db9c2747ed0dee65391ed9ad483"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p120-e4fed74-missing-rows/environment.json",
+      "size_bytes": 3731,
+      "sha256": "b393fe359cad04601aadc884afe8dadd350724f6c8c3516329b6ce8896bc678e"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p120-e4fed74-missing-fields/comparison.json",
+      "size_bytes": 58549,
+      "sha256": "d54d204097f49164658cd6643a1753900e3fb2a40cc4256a521ebffa2405203c"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p120-e4fed74-missing-fields/measurements.json",
+      "size_bytes": 30567,
+      "sha256": "528a522929adcfc62f31c1b17fe8878e777f848339b55fbe29d284f93a56775d"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p120-e4fed74-missing-fields/inputs.json",
+      "size_bytes": 42673,
+      "sha256": "d3c7c64c35a61fc5f11d86100a2ddc8495efdcc0a1ef9e75d716ad75d365d1a3"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p120-e4fed74-missing-fields/environment.json",
+      "size_bytes": 3731,
+      "sha256": "b393fe359cad04601aadc884afe8dadd350724f6c8c3516329b6ce8896bc678e"
+    },
+    {
+      "path": "build-win/p120-e4fed74-release-build.log",
+      "size_bytes": 59,
+      "sha256": "ec681241253bd0590e514fa64ae9b6fea934f5b70024c5aa45ddbaf89fd0823c"
+    },
+    {
+      "path": "build-win/p120-e4fed74-release-ctest-console.log",
+      "size_bytes": 242941,
+      "sha256": "3eae74f881e0054af611e170b6f7f1bde2999b2e5e0d43cc5273b2644f00a026"
+    },
+    {
+      "path": "build-win/p120-e4fed74-consumer-configure-corrected.log",
+      "size_bytes": 469,
+      "sha256": "fce513796f8fbd8398e93c1407a90b4eaf635bb23029d3728e49881ace185b52"
+    },
+    {
+      "path": "build-win/p120-e4fed74-consumer-build.log",
+      "size_bytes": 44536,
+      "sha256": "1910f9f02d140d04aec41f182a66e673c9c34d53f25132bcbde643e39bcf52c4"
+    },
+    {
+      "path": "build-win/p120-e4fed74-consumer-run.log",
+      "size_bytes": 31,
+      "sha256": "5322ce659c9ed0436470cf286f3b29298de9f839da36008ec017849584419d3b"
+    },
+    {
+      "path": "build-win/p120-sparse-fixtures-manifest.json",
+      "size_bytes": 61711,
+      "sha256": "637d6bf6e194c54488c2591fbf2129045c6334afe20679bd183bc8d8b5ba4aef"
+    },
+    {
+      "path": "build-win/p120_sparse_fixtures.py",
+      "size_bytes": 11046,
+      "sha256": "714956803f759c278be28b448a0c9100ae9693febb1fb035c7c88312b14f2b30"
+    },
+    {
+      "path": "build-win/p120_load_diagnostic.py",
+      "size_bytes": 2520,
+      "sha256": "277c058425a8be41b3fdfa37039d345084b54079ab5beb86e1be1396b97afe7b"
+    },
+    {
+      "path": "build-win/p120-load-profile-e4fed74/profile-inputs.json",
+      "size_bytes": 3705,
+      "sha256": "f7388e6f478511fc1a14580f7c6f7f11a09e808a1ae5178ab70c2542c8836c6a"
+    },
+    {
+      "path": "build-win/p120-load-profile-e4fed74/prepare_profile.py",
+      "size_bytes": 12976,
+      "sha256": "cfe21fe98b4df55148ae42d6df74e91d63f3b4b2055c87a472fbce4cca1f2778"
+    },
+    {
+      "path": "build-win/i9-history-compression-r6.json",
+      "size_bytes": 68406,
+      "sha256": "39cef26dd75bd35671e5731ee575d93151c6b1833f367caa6d91b29866905130"
+    },
+    {
+      "path": "build-win/i9-history-compression-r7.json",
+      "size_bytes": 676305,
+      "sha256": "3b9803ea48b9b0a2773e2205ab6d083d6c8d76320f45138f07ac2f2c758592ef"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p120-load-profile-full-b1/diagnostic.json",
+      "size_bytes": 14527,
+      "sha256": "88a201ca2fb1dcff2f9cda1d19aa3a0a5d25705ceae9a031a9c6c5de1fb8a3be"
+    },
+    {
+      "path": "docs/iterations/iteration-9-performance-30x-100x/p125-round1.json",
+      "size_bytes": 4466,
+      "checkout_sha256": "66413cb664fa01abf343b7efb38594788c34549c9cc28134d269303fb78e89aa"
+    }
+  ],
+  "deferred": [
+    "two valid independent batches of >=10 pairs for both 500 and full",
+    "generic eight and rolling-engine >=10-pair bootstrap regression",
+    "100x exploration and further optimization"
+  ],
+  "functional": {
+    "release_ctest": {
+      "passed": 1092,
+      "failed": 0,
+      "exit": 0,
+      "source_commit": "e4fed743aba20b2c0ebadecc0252f0f6d4df29c7"
+    },
+    "relocated_consumer": {
+      "exit": 0,
+      "output": "fincore_headless_consumer: ok"
+    },
+    "asan": {
+      "passed": 1092,
+      "failed": 0,
+      "exit_code": 0,
+      "seconds": 179.3,
+      "finding_count": 0,
+      "compile_command_coverage": {
+        "compile_commands": 239,
+        "asan_commands": 239,
+        "debug_info_commands": 239,
+        "link_inferasan": true,
+        "command_capture_sha256": "04a0498578eef6370c77be7a80ebfcdd923bc9c07d628c40db8f559fa56fef3b"
+      },
+      "instrumented_scope": [
+        "fincore",
+        "fincore_tests",
+        "source-built DataFrame",
+        "gtest",
+        "gtest_main"
+      ],
+      "ubsan": "NOT_SUPPORTED_BY_MSVC",
+      "compiler_warning": "one C4858 at existing tests/unit/runtime_test.cpp:295; no suppression or unrelated edit"
+    },
+    "oracle": "P122 R2 three actual Python oracle cases already passed; not rerun for closeout",
+    "final_release_ctest": {
+      "passed": 1092,
+      "failed": 0,
+      "exit_code": 0,
+      "seconds": 20.08
+    }
+  },
+  "load_profile": {
+    "status": "DIAGNOSTIC_ONLY",
+    "runs": [
+      {
+        "run": 1,
+        "profile": {
+          "symbol_files": 5471,
+          "symbol_file_bytes": 87081833,
+          "open_seek_read_seconds": 2.4091596,
+          "symbol_csv_parse_seconds": 0.4077851,
+          "load_total_seconds": 2.8751894,
+          "load_panel_seconds": 2.874902,
+          "unattributed_seconds": 0.0582447,
+          "single_file_open_read_max_seconds": 0.0290719,
+          "single_file_open_read_p95_seconds": 0.0009146,
+          "p95_method": "nearest_rank_95",
+          "timing_is_diagnostic_only": true
+        },
+        "measurement": {
+          "command": [
+            "D:\\source_code\\fincore_cpp\\build-win\\p120-load-profile-e4fed74\\generated\\fincore_alpha003_research_p120_load_profile.exe",
+            "--data-dir",
+            "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\data\\a_stocks",
+            "--out",
+            "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p120-load-profile-full-b1\\cpp\\run1",
+            "--max-symbols",
+            "0",
+            "--end-offset",
+            "22",
+            "--preprocess",
+            "cross_section_rank",
+            "--run-id",
+            "run1"
+          ],
+          "returncode": 0,
+          "wall_seconds": 5.220184099976905,
+          "cpu_seconds": 2.875,
+          "peak_working_set_bytes": 239452160,
+          "affinity_mask": 1,
+          "cpu_index": 0,
+          "affinity_method": "inherited_parent_affinity_before_create_process",
+          "affinity_verified": true,
+          "thread_environment": {
+            "OMP_NUM_THREADS": "1",
+            "OMP_THREAD_LIMIT": "1",
+            "OMP_DYNAMIC": "FALSE",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "MKL_DYNAMIC": "FALSE",
+            "BLIS_NUM_THREADS": "1",
+            "VECLIB_MAXIMUM_THREADS": "1",
+            "NUMEXPR_NUM_THREADS": "1",
+            "NUMEXPR_MAX_THREADS": "1",
+            "TBB_NUM_THREADS": "1"
+          }
+        },
+        "all_13_bytes_match": true,
+        "stages": {
+          "preparation_seconds": 0.0001527,
+          "materialization_seconds": 0.0646735,
+          "load_seconds": 2.8751894,
+          "factor_seconds": 0.2489119,
+          "research_and_table_export_seconds": 1.7228138,
+          "runner_export_seconds": 0.1076604,
+          "other_seconds": 0.00042639999999938283,
+          "accounted_stage_seconds": 5.0198281,
+          "total_seconds": 5.0198281,
+          "internal_wall_seconds": 5.0198281,
+          "cpu_seconds": 2.875,
+          "internal_process_cpu_seconds": 2.875,
+          "cpu_measurement_source": "GetProcessTimes (kernel + user)",
+          "peak_memory_bytes": 239452160,
+          "peak_memory_source": "GetProcessMemoryInfo.PeakWorkingSetSize",
+          "peak_memory_status": "available"
+        }
+      },
+      {
+        "run": 2,
+        "profile": {
+          "symbol_files": 5471,
+          "symbol_file_bytes": 87081833,
+          "open_seek_read_seconds": 0.2781095,
+          "symbol_csv_parse_seconds": 0.382943,
+          "load_total_seconds": 0.7078105,
+          "load_panel_seconds": 0.7075089,
+          "unattributed_seconds": 0.046758,
+          "single_file_open_read_max_seconds": 0.0062958,
+          "single_file_open_read_p95_seconds": 7.42e-05,
+          "p95_method": "nearest_rank_95",
+          "timing_is_diagnostic_only": true
+        },
+        "measurement": {
+          "command": [
+            "D:\\source_code\\fincore_cpp\\build-win\\p120-load-profile-e4fed74\\generated\\fincore_alpha003_research_p120_load_profile.exe",
+            "--data-dir",
+            "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\data\\a_stocks",
+            "--out",
+            "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p120-load-profile-full-b1\\cpp\\run2",
+            "--max-symbols",
+            "0",
+            "--end-offset",
+            "22",
+            "--preprocess",
+            "cross_section_rank",
+            "--run-id",
+            "run1"
+          ],
+          "returncode": 0,
+          "wall_seconds": 2.9970002999762073,
+          "cpu_seconds": 2.453125,
+          "peak_working_set_bytes": 239296512,
+          "affinity_mask": 1,
+          "cpu_index": 0,
+          "affinity_method": "inherited_parent_affinity_before_create_process",
+          "affinity_verified": true,
+          "thread_environment": {
+            "OMP_NUM_THREADS": "1",
+            "OMP_THREAD_LIMIT": "1",
+            "OMP_DYNAMIC": "FALSE",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "MKL_DYNAMIC": "FALSE",
+            "BLIS_NUM_THREADS": "1",
+            "VECLIB_MAXIMUM_THREADS": "1",
+            "NUMEXPR_NUM_THREADS": "1",
+            "NUMEXPR_MAX_THREADS": "1",
+            "TBB_NUM_THREADS": "1"
+          }
+        },
+        "all_13_bytes_match": true,
+        "stages": {
+          "preparation_seconds": 0.0001131,
+          "materialization_seconds": 0.0712535,
+          "load_seconds": 0.7078105,
+          "factor_seconds": 0.2847727,
+          "research_and_table_export_seconds": 1.7912549,
+          "runner_export_seconds": 0.1168225,
+          "other_seconds": 0.0003807000000000116,
+          "accounted_stage_seconds": 2.9724079,
+          "total_seconds": 2.9724079,
+          "internal_wall_seconds": 2.9724079,
+          "cpu_seconds": 2.4375,
+          "internal_process_cpu_seconds": 2.4375,
+          "cpu_measurement_source": "GetProcessTimes (kernel + user)",
+          "peak_memory_bytes": 239296512,
+          "peak_memory_source": "GetProcessMemoryInfo.PeakWorkingSetSize",
+          "peak_memory_status": "available"
+        }
+      },
+      {
+        "run": 3,
+        "profile": {
+          "symbol_files": 5471,
+          "symbol_file_bytes": 87081833,
+          "open_seek_read_seconds": 0.2276482,
+          "symbol_csv_parse_seconds": 0.3604,
+          "load_total_seconds": 0.6398198,
+          "load_panel_seconds": 0.639498,
+          "unattributed_seconds": 0.0517716,
+          "single_file_open_read_max_seconds": 0.0027459,
+          "single_file_open_read_p95_seconds": 5.97e-05,
+          "p95_method": "nearest_rank_95",
+          "timing_is_diagnostic_only": true
+        },
+        "measurement": {
+          "command": [
+            "D:\\source_code\\fincore_cpp\\build-win\\p120-load-profile-e4fed74\\generated\\fincore_alpha003_research_p120_load_profile.exe",
+            "--data-dir",
+            "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\data\\a_stocks",
+            "--out",
+            "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p120-load-profile-full-b1\\cpp\\run3",
+            "--max-symbols",
+            "0",
+            "--end-offset",
+            "22",
+            "--preprocess",
+            "cross_section_rank",
+            "--run-id",
+            "run1"
+          ],
+          "returncode": 0,
+          "wall_seconds": 2.8813846000120975,
+          "cpu_seconds": 2.4375,
+          "peak_working_set_bytes": 239173632,
+          "affinity_mask": 1,
+          "cpu_index": 0,
+          "affinity_method": "inherited_parent_affinity_before_create_process",
+          "affinity_verified": true,
+          "thread_environment": {
+            "OMP_NUM_THREADS": "1",
+            "OMP_THREAD_LIMIT": "1",
+            "OMP_DYNAMIC": "FALSE",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "MKL_DYNAMIC": "FALSE",
+            "BLIS_NUM_THREADS": "1",
+            "VECLIB_MAXIMUM_THREADS": "1",
+            "NUMEXPR_NUM_THREADS": "1",
+            "NUMEXPR_MAX_THREADS": "1",
+            "TBB_NUM_THREADS": "1"
+          }
+        },
+        "all_13_bytes_match": true,
+        "stages": {
+          "preparation_seconds": 0.0001182,
+          "materialization_seconds": 0.0785228,
+          "load_seconds": 0.6398198,
+          "factor_seconds": 0.2749047,
+          "research_and_table_export_seconds": 1.7537749,
+          "runner_export_seconds": 0.1023377,
+          "other_seconds": 0.0003363999999996814,
+          "accounted_stage_seconds": 2.8498145,
+          "total_seconds": 2.8498145,
+          "internal_wall_seconds": 2.8498145,
+          "cpu_seconds": 2.421875,
+          "internal_process_cpu_seconds": 2.421875,
+          "cpu_measurement_source": "GetProcessTimes (kernel + user)",
+          "peak_memory_bytes": 239173632,
+          "peak_memory_source": "GetProcessMemoryInfo.PeakWorkingSetSize",
+          "peak_memory_status": "available"
+        }
+      },
+      {
+        "run": 4,
+        "profile": {
+          "symbol_files": 5471,
+          "symbol_file_bytes": 87081833,
+          "open_seek_read_seconds": 0.227789,
+          "symbol_csv_parse_seconds": 0.3584819,
+          "load_total_seconds": 0.63876,
+          "load_panel_seconds": 0.6384404,
+          "unattributed_seconds": 0.0524891,
+          "single_file_open_read_max_seconds": 0.003207,
+          "single_file_open_read_p95_seconds": 6.81e-05,
+          "p95_method": "nearest_rank_95",
+          "timing_is_diagnostic_only": true
+        },
+        "measurement": {
+          "command": [
+            "D:\\source_code\\fincore_cpp\\build-win\\p120-load-profile-e4fed74\\generated\\fincore_alpha003_research_p120_load_profile.exe",
+            "--data-dir",
+            "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\data\\a_stocks",
+            "--out",
+            "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p120-load-profile-full-b1\\cpp\\run4",
+            "--max-symbols",
+            "0",
+            "--end-offset",
+            "22",
+            "--preprocess",
+            "cross_section_rank",
+            "--run-id",
+            "run1"
+          ],
+          "returncode": 0,
+          "wall_seconds": 2.703010900004301,
+          "cpu_seconds": 2.421875,
+          "peak_working_set_bytes": 239136768,
+          "affinity_mask": 1,
+          "cpu_index": 0,
+          "affinity_method": "inherited_parent_affinity_before_create_process",
+          "affinity_verified": true,
+          "thread_environment": {
+            "OMP_NUM_THREADS": "1",
+            "OMP_THREAD_LIMIT": "1",
+            "OMP_DYNAMIC": "FALSE",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "MKL_DYNAMIC": "FALSE",
+            "BLIS_NUM_THREADS": "1",
+            "VECLIB_MAXIMUM_THREADS": "1",
+            "NUMEXPR_NUM_THREADS": "1",
+            "NUMEXPR_MAX_THREADS": "1",
+            "TBB_NUM_THREADS": "1"
+          }
+        },
+        "all_13_bytes_match": true,
+        "stages": {
+          "preparation_seconds": 0.0001139,
+          "materialization_seconds": 0.0676886,
+          "load_seconds": 0.63876,
+          "factor_seconds": 0.3131815,
+          "research_and_table_export_seconds": 1.5465501,
+          "runner_export_seconds": 0.1098596,
+          "other_seconds": 0.0005228000000001565,
+          "accounted_stage_seconds": 2.6766765,
+          "total_seconds": 2.6766765,
+          "internal_wall_seconds": 2.6766765,
+          "cpu_seconds": 2.40625,
+          "internal_process_cpu_seconds": 2.40625,
+          "cpu_measurement_source": "GetProcessTimes (kernel + user)",
+          "peak_memory_bytes": 239136768,
+          "peak_memory_source": "GetProcessMemoryInfo.PeakWorkingSetSize",
+          "peak_memory_status": "available"
+        }
+      },
+      {
+        "run": 5,
+        "profile": {
+          "symbol_files": 5471,
+          "symbol_file_bytes": 87081833,
+          "open_seek_read_seconds": 0.2986905,
+          "symbol_csv_parse_seconds": 0.4017102,
+          "load_total_seconds": 0.7474551,
+          "load_panel_seconds": 0.7470783,
+          "unattributed_seconds": 0.0470544,
+          "single_file_open_read_max_seconds": 0.0067136,
+          "single_file_open_read_p95_seconds": 8.51e-05,
+          "p95_method": "nearest_rank_95",
+          "timing_is_diagnostic_only": true
+        },
+        "measurement": {
+          "command": [
+            "D:\\source_code\\fincore_cpp\\build-win\\p120-load-profile-e4fed74\\generated\\fincore_alpha003_research_p120_load_profile.exe",
+            "--data-dir",
+            "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\data\\a_stocks",
+            "--out",
+            "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p120-load-profile-full-b1\\cpp\\run5",
+            "--max-symbols",
+            "0",
+            "--end-offset",
+            "22",
+            "--preprocess",
+            "cross_section_rank",
+            "--run-id",
+            "run1"
+          ],
+          "returncode": 0,
+          "wall_seconds": 4.126476200006437,
+          "cpu_seconds": 2.453125,
+          "peak_working_set_bytes": 239255552,
+          "affinity_mask": 1,
+          "cpu_index": 0,
+          "affinity_method": "inherited_parent_affinity_before_create_process",
+          "affinity_verified": true,
+          "thread_environment": {
+            "OMP_NUM_THREADS": "1",
+            "OMP_THREAD_LIMIT": "1",
+            "OMP_DYNAMIC": "FALSE",
+            "OPENBLAS_NUM_THREADS": "1",
+            "MKL_NUM_THREADS": "1",
+            "MKL_DYNAMIC": "FALSE",
+            "BLIS_NUM_THREADS": "1",
+            "VECLIB_MAXIMUM_THREADS": "1",
+            "NUMEXPR_NUM_THREADS": "1",
+            "NUMEXPR_MAX_THREADS": "1",
+            "TBB_NUM_THREADS": "1"
+          }
+        },
+        "all_13_bytes_match": true,
+        "stages": {
+          "preparation_seconds": 0.0001107,
+          "materialization_seconds": 0.06966,
+          "load_seconds": 0.7474551,
+          "factor_seconds": 0.2792836,
+          "research_and_table_export_seconds": 2.8303627,
+          "runner_export_seconds": 0.1700621,
+          "other_seconds": 0.0003457999999998407,
+          "accounted_stage_seconds": 4.09728,
+          "total_seconds": 4.09728,
+          "internal_wall_seconds": 4.09728,
+          "cpu_seconds": 2.421875,
+          "internal_process_cpu_seconds": 2.421875,
+          "cpu_measurement_source": "GetProcessTimes (kernel + user)",
+          "peak_memory_bytes": 239255552,
+          "peak_memory_source": "GetProcessMemoryInfo.PeakWorkingSetSize",
+          "peak_memory_status": "available"
+        }
+      }
+    ],
+    "binary_and_library_pins": {
+      "D:\\source_code\\fincore_cpp\\build-win\\p120-load-profile-e4fed74\\generated\\fincore_alpha003_research_p120_load_profile.exe": "43b25ba91553aeed5e99949c5769d9608846cad645545b1fb1e8bd634370fa84",
+      "D:\\source_code\\fincore_cpp\\build-win\\fincore_alpha003_research.exe": "39d6afbed49eedb5bcfd893a77e4dc07ca28f1df00abb310088f13239d1f560e",
+      "D:\\source_code\\fincore_cpp\\build-win\\fincore.lib": "a75cea5924e7bae0e7406036ab910786f9bcc188a63665d7e5ace09be9ef8c47"
+    }
+  },
+  "final_build_fix_commit": "d9969e9b3af68871d19d4b14a9562d3775353fd8"
+}

@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title id="report-document-title" data-en="Iteration 8 Native Artifact Check" data-zh="Iteration 8 Native Artifact Check">Iteration 8 Native Artifact Check</title>
+<style>
+:root {
+  --bg:#f3f6fb; --surface:#fff; --ink:#0f172a; --muted:#64748b;
+  --line:#e2e8f0; --brand:#1d4ed8; --brand-2:#0891b2;
+  --pos:#047857; --neg:#b91c1c; --radius:18px;
+  --shadow:0 12px 34px rgba(15,23,42,.08);
+}
+* { box-sizing:border-box; }
+body {
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",
+    "Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+.hero {
+  background:radial-gradient(1200px 380px at 82% -12%,rgba(14,165,233,.38),transparent 62%),
+    linear-gradient(135deg,#0b1220 0%,#142a63 54%,#0e7490 100%);
+  color:#fff; padding:38px 28px 30px;
+}
+.hero-inner { max-width:1280px; margin:0 auto; display:flex; gap:24px;
+  align-items:flex-start; justify-content:space-between; flex-wrap:wrap; }
+.hero-copy { min-width:0; }
+.eyebrow { font-size:12px; letter-spacing:.16em; text-transform:uppercase;
+  color:#a5f3fc; font-weight:700; }
+h1 { margin:8px 0; font-size:34px; line-height:1.15; letter-spacing:-.01em; }
+.subtitle { margin:0 0 18px; color:#cbd5e1; font-size:14px; max-width:800px; }
+.chips { display:flex; flex-wrap:wrap; gap:10px; }
+.chip { display:inline-flex; gap:8px; align-items:baseline; padding:7px 12px;
+  border-radius:999px; background:rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.18); font-size:12.5px; color:#e2e8f0; }
+.chip b { color:#a5f3fc; font-weight:650; }
+.lang-switch { display:inline-flex; padding:4px; border-radius:999px;
+  background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); }
+.lang-switch button { border:0; background:transparent; color:#e2e8f0;
+  padding:8px 15px; border-radius:999px; cursor:pointer; font-weight:650; font-size:13px; }
+.lang-switch button.active { background:#fff; color:#0f172a; }
+.wrap { max-width:1280px; margin:0 auto; padding:30px 28px 54px; }
+.section { margin:26px 0; }
+.section-head { display:flex; align-items:baseline; justify-content:space-between; gap:12px; }
+h2 { font-size:19px; margin:0 0 14px; letter-spacing:-.01em; }
+h3 { font-size:15px; margin:0 0 10px; color:#1e293b; }
+.card { min-width:0; background:var(--surface); border:1px solid var(--line);
+  border-radius:var(--radius); box-shadow:var(--shadow); padding:20px 22px; }
+.panel-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+.kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:14px; }
+.kpi { background:var(--surface); border:1px solid var(--line); border-radius:15px;
+  padding:16px 17px; box-shadow:0 6px 18px rgba(15,23,42,.05); position:relative; overflow:hidden; }
+.kpi::before { content:""; position:absolute; inset:0 auto 0 0; width:4px; background:#0891b2; }
+.kpi-label { display:block; color:var(--muted); font-size:12.5px; font-weight:600; }
+.kpi-value { display:block; margin-top:6px; font-size:25px; font-weight:750;
+  letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
+.kpi-unit { display:block; margin-top:2px; color:var(--muted); font-size:11.5px; }
+.chart-card { overflow:hidden; }
+.echarts-chart { width:100%; height:360px; }
+.chart-card svg { display:block; max-width:100%; height:auto; }
+.table-card { padding:18px 20px; overflow:hidden; }
+.table-wrap { width:100%; overflow-x:auto; }
+.data-table { width:100%; min-width:640px; border-collapse:collapse; font-size:12.8px; font-variant-numeric:tabular-nums; }
+.data-table thead th { position:sticky; top:0; z-index:1; background:#f8fafc;
+  color:#334155; font-weight:700; text-align:right; white-space:nowrap; }
+.data-table th,.data-table td { border-bottom:1px solid #eef2f7; padding:8px 10px; text-align:right; }
+.data-table th:first-child,.data-table td:first-child { text-align:left; }
+.data-table tbody tr:nth-child(even) td { background:#fbfdff; }
+.data-table tbody tr:hover td { background:#f1f5f9; }
+td.numeric { font-variant-numeric:tabular-nums; }
+td.missing { color:#94a3b8; text-align:center; }
+.unit,.no-data { color:var(--muted); font-size:12px; margin:8px 0 0; }
+.notes { margin-top:18px; color:var(--muted); font-size:12.5px; }
+.notes ul { margin:8px 0 0; padding-left:20px; }
+.metadata-list { margin:0; display:grid; grid-template-columns:max-content minmax(0,1fr);
+  gap:8px 16px; font-size:13px; }
+.metadata-list dt { color:var(--muted); }
+.metadata-list dd { margin:0; overflow-wrap:anywhere; font-variant-numeric:tabular-nums; }
+footer { margin-top:30px; padding-top:18px; border-top:1px solid var(--line);
+  color:var(--muted); font-size:12.5px; }
+@media (max-width:980px) {
+  .panel-grid { grid-template-columns:minmax(0,1fr); }
+  h1 { font-size:27px; }
+  .hero { padding:30px 20px 24px; }
+  .wrap { padding:24px 18px 42px; }
+  .echarts-chart { height:320px; }
+}
+@media print {
+  body { background:#fff; }
+  .hero { background:#0f172a !important; -webkit-print-color-adjust:exact; }
+  .lang-switch { display:none; }
+  .card,.kpi { box-shadow:none; break-inside:avoid; }
+  .echarts-chart { height:300px; }
+}
+</style>
+</head>
+<body class="lang-en">
+<header class="hero"><div class="hero-inner"><div class="hero-copy"><div class="eyebrow"><span data-en="FACTOR RESEARCH" data-zh="因子研究">FACTOR RESEARCH</span></div><h1 data-en="Iteration 8 Native Artifact Check" data-zh="Iteration 8 Native Artifact Check">Iteration 8 Native Artifact Check</h1><p class="subtitle" data-en="Generated by the fincore factor analysis model" data-zh="基于 fincore 因子分析模型生成">Generated by the fincore factor analysis model</p><div class="chips"><span class="chip"><b><span data-en="Domain" data-zh="领域">Domain</span></b><span><span data-en="factor" data-zh="因子分析">factor</span></span></span><span class="chip"><b><span data-en="Schema" data-zh="模式版本">Schema</span></b><span>2</span></span></div></div><div class="lang-switch" aria-label="Language"><button type="button" data-lang="zh" aria-pressed="false">中文</button><button type="button" data-lang="en" class="active" aria-pressed="true">EN</button></div></div></header>
+<main class="wrap">
+<section class="section" id="section-factor_summary" data-key="factor_summary">
+<div class="section-head"><h2>Factor Summary</h2></div>
+<div class="kpi-grid">
+<article class="kpi"><span class="kpi-label">Mean IC</span><span class="kpi-value">0.041</span><span class="kpi-unit">correlation</span></article>
+<article class="kpi"><span class="kpi-label">Hit Rate</span><span class="kpi-value">0.53</span><span class="kpi-unit">percent</span></article>
+</div>
+<div class="panel-grid">
+<article class="card table-card"><h3>Mean Return by Quantile</h3><div class="table-wrap"><table class="data-table"><thead><tr><th>quantile</th><th>mean_return_bps</th></tr></thead><tbody>
+<tr><td class="numeric">1.0</td><td class="numeric">1.25</td></tr>
+<tr><td class="numeric">2.0</td><td class="numeric">2.5</td></tr>
+<tr><td class="numeric">3.0</td><td class="numeric">3.75</td></tr>
+</tbody></table></div></article>
+<article class="card chart-card"><h3>Cumulative Return</h3><svg role="img" viewBox="0 0 640 240" width="640" height="240" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="640" height="240" fill="#ffffff"/><polyline fill="none" stroke="#0e7490" stroke-width="2" points="32.00,208.00 176.00,172.80 320.00,102.40 464.00,137.60 608.00,32.00"/><text x="320" y="232" text-anchor="middle" font-size="12" fill="#475569" data-en="Day" data-zh="Day">Day</text><text x="12" y="120" text-anchor="middle" font-size="12" fill="#475569" transform="rotate(-90 12 120)" data-en="Growth" data-zh="Growth">Growth</text></svg><p class="unit">index</p></article>
+</div>
+<div class="notes"><strong><span data-en="Notes" data-zh="说明">Notes</span></strong><ul><li>Native artifact value check.</li></ul></div>
+</section>
+<section class="section" id="metadata"><div class="section-head"><h2><span data-en="Metadata" data-zh="元数据">Metadata</span></h2></div><article class="card table-card"><dl class="metadata-list"><dt>language</dt><dd>en</dd><dt>schema</dt><dd>2</dd><dt>source</dt><dd>iteration8</dd></dl></article></section>
+<footer class="report-footer"><span data-en="Generated by fincore" data-zh="由 fincore 生成">Generated by fincore</span> &middot; <span data-en="Schema" data-zh="模式版本">Schema</span> 2</footer>
+</main>
+<script>
+function setFincoreLanguage(language){var active=language==="en"?"en":"zh";document.documentElement.lang=active;document.body.classList.remove("lang-en","lang-zh");document.body.classList.add("lang-"+active);document.querySelectorAll("[data-en][data-zh]").forEach(function(element){element.textContent=element.dataset[active];});var title=document.getElementById("report-document-title");if(title){document.title=title.dataset[active];}document.querySelectorAll(".lang-switch button").forEach(function(button){var selected=button.dataset.lang===active;button.classList.toggle("active",selected);button.setAttribute("aria-pressed",selected?"true":"false");});(window.__fincoreReportCharts||[]).forEach(function(entry){entry.chart.setOption(entry.options[active],true);entry.element.setAttribute("aria-label",entry.element.getAttribute("data-chart-label-"+active));});}document.querySelectorAll(".lang-switch button").forEach(function(button){button.addEventListener("click",function(){setFincoreLanguage(button.dataset.lang);});});window.addEventListener("resize",function(){(window.__fincoreReportCharts||[]).forEach(function(entry){entry.chart.resize();});});setFincoreLanguage("en");
+</script>
+</body>
+</html>

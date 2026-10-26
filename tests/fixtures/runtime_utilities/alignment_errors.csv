@@ -1,0 +1,4 @@
+case,policy,exception,message
+duplicate_labels,inner,DataAlignmentError,duplicate time-series labels are ambiguous
+strict_order_mismatch,strict,DataAlignmentError,strict alignment requires identical indices
+outer_zero_columns_missing_label,outer_dropna,DataAlignmentError,aligned timestamp is absent from a frame

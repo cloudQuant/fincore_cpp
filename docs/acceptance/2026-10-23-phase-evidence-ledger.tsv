@@ -1,0 +1,70 @@
+phase	iteration	scope	evidence	status	notes
+38	1	metrics.ratios.adjusted_sharpe_ratio	phase-38-adjusted-sharpe-ratio	accepted	
+39	1	oracle re-pin and capability ledger	phase-39-oracle-repin	accepted	
+40	1	mar_ratio	phase-40-mar-ratio	accepted	
+41	1	conditional_sharpe_ratio	phase-41-conditional-sharpe-ratio	accepted	
+42	1	deflated_sharpe_ratio	phase-42-deflated-sharpe-ratio	accepted	
+43	1	burke_ratio	phase-43-burke-ratio	accepted	
+44	1	cal_treynor_ratio	phase-44-cal-treynor-ratio	accepted	
+45	1	m_squared	phase-45-m-squared	accepted	
+46	1	sterling_ratio	phase-46-sterling-ratio	accepted	
+47	1	capture returns	phase-47-capture-returns	accepted	
+48	1	hurst_exponent	phase-48-hurst-exponent	accepted	
+49	1	stutzer_index	phase-49-stutzer-index	accepted	
+50	1	drawdown tables	phase-50-drawdown-table	accepted	
+51	1	interesting date ranges	phase-51-interesting-date-ranges	accepted	
+52	1	perf-stats bootstrap	phase-52-perf-stats-bootstrap	accepted	
+52b	1	aggregate/percentile, consecutive weeks/months, turtle rolling	phase-52b-aggregate-percentile; phase-52b-consecutive-weeks-months; phase-52b-turtle-rolling-leaves	accepted	
+53	2	twr	phase-53-twr	accepted	
+54	2	mwr	phase-54-mwr	accepted	
+55	2	xirr	phase-55-xirr	accepted	
+56	2	cashflow-adjusted returns/TWR	phase-56-cashflow-adjusted	accepted	
+57	2	performance inference	phase-57-inference	accepted	
+57b	2	disclosures	phase-57b-disclosures	accepted	
+58	2	capacity assessment	phase-58-capacity-assessment	accepted	
+59	2	transaction liquidity, round trips, residuals, exposures	phase-59-transaction-liquidity; phase-59b-position-residuals; phase-59c-round-trip-stats; phase-59d-exposures; phase-59-round-trip-helpers	accepted	
+60	3	portfolio solver spike	phase-60-solver-spike	accepted	
+61	3	GARCH(1,1)	phase-61-garch11	accepted	
+62	3	GARCH family	phase-62-garch-family	accepted	
+62b	3	risk models	phase-62b-risk-models	accepted	
+63	3	GPD risk estimates	phase-63-gpd-risk-estimates	accepted	
+63b	3	EVT kernels	phase-63b-evt-kernels	accepted	
+63c	3	EVT VaR/CVaR	phase-63c-evt-var-cvar	accepted	
+63d	3	GEV	phase-63d-gev	accepted	
+64	3	beta fragility	phase-64-beta-fragility	accepted	
+65	3	risk backtesting	phase-65-risk-backtesting	accepted	
+66	3	walk-forward VaR	phase-66-walk-forward-var	accepted	
+67	3	risk report	phase-67-risk-report	accepted	
+68	3	efficient frontier/objectives	phases-68-71-portfolio-optimization	accepted	
+69	3	portfolio optimization	phases-68-71-portfolio-optimization	accepted	
+70	3	risk parity	phases-68-71-portfolio-optimization	accepted	
+71	3	frontier/risk-parity completion	phases-68-71-portfolio-optimization	accepted	
+72	4	viz contracts/backend	iteration-4-visualization; phase-75-implot-visual	accepted_bounded	offscreen visual; interactive NOT_RUN
+73	4	ImPlot adapter	iteration-4-visualization; phase-75-implot-visual	accepted_bounded	offscreen visual; interactive NOT_RUN
+74	4	chart data	iteration-4-visualization; phase-75-implot-visual	accepted_bounded	offscreen visual; interactive NOT_RUN
+75	4	demo	iteration-4-visualization; phase-75-implot-visual	accepted_bounded	demo built and rendered offscreen
+76	4	chart fidelity	iteration-4-visualization; phase-75-implot-visual	accepted_bounded	offscreen visual; interactive NOT_RUN
+77	5	panel schema/layout spike	iteration-5-factor-core	accepted	
+78	5	prepare/quantize/forward returns/PIT	iteration-5-factor-core; iteration-5-pit-portfolio	accepted	
+79	5	analysis model, event and group models	phase-79-analysis-model; phase-79-group-analysis	accepted	
+80	5	performance/inference/event windows	phase-80-inference; phase-80-event-windows	accepted	
+81	5	turnover/rank/stability	iteration-5-factor-core	accepted	
+82	5	portfolio constructor and costs	iteration-5-pit-portfolio; iteration-5-factor-costs-analysis	accepted	
+83	5	research evaluator and export	iteration-5-research-tears; phase-83-research-export; phase-83-research-correlations; phase-83-research-segments; phase-83-precomputed-labels; phase-83-research-universe; phase-83-next-open-labels; phase-83-research-signals; phase-83-multifactor-assembly; phase-83-research-combinations; phase-83-calendar-labels	accepted_bounded	intraday labels open
+84	5	factor report	phase-84-factor-report	accepted	
+85	5	tear chart data	iteration-5-research-tears; phase-85-group-tears	accepted_bounded	visual NOT_RUN
+86	5	factor HTML	iteration-5-research-tears; phase-86-html-visual	accepted_bounded	HTML headless visual; ImPlot NOT_RUN
+87	5	performance study	phase-87-factor-performance	accepted	
+88a	6	report schema/artifact boundary	phase-88a-report-schema	accepted	
+88b	6	factor/portfolio/risk integration, event/group models	phase-88b-event-model; phase-79-group-analysis; phase-84-factor-report; phase-91-portfolio-report-completion; phase-67-risk-report	accepted_bounded	group tear rendering open
+89	6	HTML renderer	iteration-6-html-risk-runtime	accepted_bounded	no pixel review
+90	6	XLSX renderer	iteration-6-xlsx-packaging	accepted_bounded	byte parity not claimed
+91	6	portfolio/risk builders	phase-91-portfolio-report; phase-91-portfolio-report-completion; phase-91-transactions	accepted	
+92	6	runtime core and catalog	phase-92-runtime-catalog	accepted_bounded	44 of 273 operations selected
+93	6	packaging/consumer/notes	phase-93-usage-packaging; phase-93-ubuntu-ci; iteration-6-xlsx-packaging	accepted_bounded	macOS and Ubuntu legs reproduced; Windows NOT_RUN
+94	7	base, oracle and benchmark freeze	iteration-7-latest-fincore-alignment; iteration-7 acceptance	accepted_bounded	B baseline reconstructed post-optimization
+95	7	research semantics and target lookup	iteration-7-latest-fincore-alignment; iteration-7 acceptance	accepted	processed-correlation parity
+96	7	compute-once analysis/research reuse	iteration-7 acceptance	accepted	counters and full-output parity
+97	7	streaming research export	iteration-7 acceptance	accepted	byte-identical collecting path
+98	7	incremental SHA and dense positions	iteration-7 acceptance	accepted	v2 digest stable; independent reducer
+99	7	integration audit and platform matrix	iteration-7 acceptance	accepted	all gates PASS; C4 865/865 on four platforms; owner accepted P94 variance

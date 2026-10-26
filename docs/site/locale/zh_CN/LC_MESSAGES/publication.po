@@ -1,0 +1,98 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 07:36+0800\n"
+"PO-Revision-Date: 2026-10-26 00:24+0800\n"
+"Last-Translator: fincore_cpp documentation maintainers\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/publication.md:1
+msgid "Publication and platform status"
+msgstr "发布与平台状态"
+
+#: ../../site/publication.md:3
+msgid ""
+"This page records the deployment state; it is not a substitute for checking "
+"a live site."
+msgstr "本页记录部署状态，不能替代对线上站点的检查。"
+
+#: ../../site/publication.md:6
+msgid "GitHub Pages"
+msgstr "GitHub Pages"
+
+#: ../../site/publication.md:8
+msgid ""
+"The repository has an admin-configured Pages site disabled at the start of "
+"iteration 10. Verified on 2026-10-26 against `cloudQuant/fincore_cpp`: "
+"`has_pages` is `false` and `GET /repos/.../pages` returns 404, so no Pages "
+"site exists yet. The [`docs` workflow](../../.github/workflows/docs.yml) "
+"builds both languages with strict Sphinx checks and uploads one Pages "
+"artifact:"
+msgstr ""
+"仓库在迭代 10 启动时没有启用管理配置的 Pages 站点。2026-10-26 对 `cloudQuant/fincore_cpp` "
+"的核验结果：`has_pages` 为 `false`，且 `GET /repos/.../pages` 返回 404，因此尚不存在 Pages "
+"站点。[`docs` 工作流](../../.github/workflows/docs.yml) 对两种语言执行严格 Sphinx 检查，并上传一个 "
+"Pages 产物："
+
+#: ../../site/publication.md:14
+msgid "English: `/fincore_cpp/en/latest/`"
+msgstr "英文：`/fincore_cpp/en/latest/`"
+
+#: ../../site/publication.md:15
+msgid "Chinese: `/fincore_cpp/zh-cn/latest/`"
+msgstr "中文：`/fincore_cpp/zh-cn/latest/`"
+
+#: ../../site/publication.md:17
+msgid ""
+"Deployment is enabled only after the Pages site is configured to use GitHub "
+"Actions and the workflow has run on `dev` or `master`. Enabling Pages is a "
+"repository-administrator action on shared infrastructure and is deliberately"
+" left to the owner; this documentation set does not claim it. The four "
+"checks still required are English/Chinese × Pages/RTD home, installation, "
+"one deep API page, language switch, version label, static assets and search."
+msgstr ""
+"只有在 Pages 站点配置为使用 GitHub Actions，且工作流已在 `dev` 或 `master` 上运行后，才会启用部署。启用 "
+"Pages 属于对共享基础设施的仓库管理员操作，本套文档有意不代为执行，也不声称已完成。仍需完成四项检查：英文/中文 × Pages/RTD "
+"的首页、安装页、一个深层 API 页面、语言切换、版本标识、静态资源和搜索。"
+
+#: ../../site/publication.md:24
+msgid "Read the Docs"
+msgstr "Read the Docs"
+
+#: ../../site/publication.md:26
+msgid ""
+"The versioned [`.readthedocs.yaml`](../../.readthedocs.yaml) is ready for "
+"two linked RTD projects (`en` and `zh_CN`). The repository does not have an "
+"RTD account/project configured in this environment, so RTD build and online "
+"checks are **platform-pending**, not PASS."
+msgstr ""
+"带版本的 [`.readthedocs.yaml`](../../.readthedocs.yaml) 已准备好供两个关联的 RTD 项目（`en` 与"
+" `zh_CN`）使用。本环境中的仓库未配置 RTD 账号/项目，因此 RTD 构建和线上检查属于**平台待完成**，而不是 PASS。"
+
+#: ../../site/publication.md:31
+msgid "Rule"
+msgstr "规则"
+
+#: ../../site/publication.md:33
+msgid ""
+"A local HTML build is \"deployable artifact\"; a platform build without a "
+"live page check is \"online check pending\"; neither is a publication PASS. "
+"If one language or platform fails, the previously verified site must remain "
+"available and the failed combination must be recorded."
+msgstr ""
+"本地 HTML 构建属于“可部署产物”；平台构建但未检查线上页面属于“线上检查待完成”；二者都不是发布 "
+"PASS。如果某个语言或平台失败，先前验证过的站点必须保持可用，并记录失败的组合。"
+

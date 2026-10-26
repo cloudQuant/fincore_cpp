@@ -14,6 +14,8 @@ TEST(AnalysisContext, CachesAndPublishesCoreSummary) {
     EXPECT_TRUE(summary.contains("Sharpe ratio"));
     EXPECT_NEAR(summary.at("Max drawdown"), -0.02, 1e-12);
     EXPECT_EQ(summary, repeated_summary);
+    // Equal maps would also follow from a second computation; this count is what
+    // proves the repeat call was served from the cache.
     EXPECT_EQ(context.computation_count("Max drawdown"), 1U);
 }
 

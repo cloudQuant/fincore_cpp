@@ -1,0 +1,1202 @@
+{
+  "round": "P119-R2",
+  "date": "2026-10-25",
+  "branch": "dev",
+  "source_commit": "d145354f1f16531bcd09e9074a0af66d9a91f9b8",
+  "decision": "NOT_ADOPTED_NO_STABLE_WHOLE_PROCESS_GAIN",
+  "acceptance_scope": "PGO_EXPERIMENT_COMPLETE_BYTE_PARITY_ONLY_NOT_FORMAL_30X",
+  "default_build_changed": false,
+  "compiler": "MSVC 19.42.34435/toolset 14.42.34433",
+  "options": [
+    "Release /O2 /Ob2 /DNDEBUG",
+    "/GL /LTCG",
+    "/GENPROFILE:EXACT,PGD=<fixed path>",
+    "/USEPROFILE:PGD=<same path>",
+    "no fast-math, no aggressive profile option"
+  ],
+  "training": {
+    "seed": 20261025,
+    "assets": 5471,
+    "weekdays": 243,
+    "missing_open": 1960,
+    "missing_volume": 1980,
+    "data": "build-win/p119-r2/training-r2/data",
+    "shapes": [
+      500,
+      5471
+    ],
+    "benchmark_data_used": false,
+    "result": {
+      "scope": "SYNTHETIC_PGO_TRAINING_ONLY_NOT_PERFORMANCE_ACCEPTANCE",
+      "source_commit": "d145354f1f16531bcd09e9074a0af66d9a91f9b8",
+      "binary_before": {
+        "size_bytes": 1318912,
+        "sha256": "95010585001d98ba2296b985e7e7eae621ef1400bca690379eb28f82f7ddeecc"
+      },
+      "initial_pgd": {
+        "size_bytes": 6819840,
+        "sha256": "e523d07bb324414090ff348edeeab03c5bfe4d002782d80ba89086aa275ae16a"
+      },
+      "objects_before": {
+        "_deps/dataframe-build/CMakeFiles/DataFrame.dir/src/Utils/DateTime.cc.obj": {
+          "size_bytes": 333259,
+          "sha256": "6591f54385c6c1b77884f320f43a9d76c9087e077cbead0248b614f843becba5"
+        },
+        "CMakeFiles/3.28.0-rc4/CompilerIdCXX/CMakeCXXCompilerId.obj": {
+          "size_bytes": 2022,
+          "sha256": "b19ec3210c55521f72293137490e05886cdfe51ba066b269fa443aa8abecaeca"
+        },
+        "CMakeFiles/fincore.dir/generated/fincore/report/echarts_asset.cpp.obj": {
+          "size_bytes": 2733993,
+          "sha256": "1521c50e0223f20bde978f7c369f7e79be315024b324f65372da25ad5472ac88"
+        },
+        "CMakeFiles/fincore.dir/src/analysis_context.cpp.obj": {
+          "size_bytes": 7803297,
+          "sha256": "59d4896ac0f3ddd09cf0cef0d77a52eb0cc744cb889688a75cccba97a0147b72"
+        },
+        "CMakeFiles/fincore.dir/src/attribution/brinson.cpp.obj": {
+          "size_bytes": 9055045,
+          "sha256": "350bcda9f099196341fce16d8394c0cdf86bafa9f654df1d07144b876c0736d5"
+        },
+        "CMakeFiles/fincore.dir/src/attribution/factor_attribution.cpp.obj": {
+          "size_bytes": 8778592,
+          "sha256": "7fe796d5b8790d488a13b4f932cd54d624f13c1e40f92b18a70a495a547d81be"
+        },
+        "CMakeFiles/fincore.dir/src/attribution/factor_exposures.cpp.obj": {
+          "size_bytes": 8591487,
+          "sha256": "387403693de02194b452efff4f29a3399e69411bd8415b73e0f8aa7129272d24"
+        },
+        "CMakeFiles/fincore.dir/src/attribution/factor_prediction.cpp.obj": {
+          "size_bytes": 8841877,
+          "sha256": "ad2f4dace6908d8c76b4daaaf84c9283001fa5b6baef608afa2eb4bfe471b9d8"
+        },
+        "CMakeFiles/fincore.dir/src/attribution/factor_regression.cpp.obj": {
+          "size_bytes": 8965744,
+          "sha256": "b7c8541272036ff7259f3bf2a8230281d65526293b7cb8f617d532b1a5efa6a2"
+        },
+        "CMakeFiles/fincore.dir/src/attribution/fama_french.cpp.obj": {
+          "size_bytes": 9280152,
+          "sha256": "66a8444e8f4cd15df33099a0012de7c43d8180a8bdfc736e530e8bb97f847df5"
+        },
+        "CMakeFiles/fincore.dir/src/attribution/fama_french_patch.cpp.obj": {
+          "size_bytes": 6964974,
+          "sha256": "d82624e374b8e50e590a8fee24aaaad2ecdf566a9a625fa9e7a58b2e37279e59"
+        },
+        "CMakeFiles/fincore.dir/src/attribution/performance.cpp.obj": {
+          "size_bytes": 8395779,
+          "sha256": "ac27ab05760bc2a8a6b7a0e1352d67bd5c658b8b0d59377baea9793083c2952c"
+        },
+        "CMakeFiles/fincore.dir/src/attribution/style.cpp.obj": {
+          "size_bytes": 10841496,
+          "sha256": "d8b7e7deb876790d6a18f146f31c00504ea8f9c752b9e0ce2e7e2b3aed125f37"
+        },
+        "CMakeFiles/fincore.dir/src/calendar.cpp.obj": {
+          "size_bytes": 6970724,
+          "sha256": "c18ca92542f77b8370fd564197fbd09dce623b11933c8f39359fdc1295a4a5dc"
+        },
+        "CMakeFiles/fincore.dir/src/data/contracts.cpp.obj": {
+          "size_bytes": 828382,
+          "sha256": "7af6303638356668d4e940ec2b1938bffb05e4cc0778d1097947e2fc6ae3a961"
+        },
+        "CMakeFiles/fincore.dir/src/data/providers.cpp.obj": {
+          "size_bytes": 8041666,
+          "sha256": "57138f2aefe88bf959ee5022b92172b122b2a370274f88036df0cd154f506444"
+        },
+        "CMakeFiles/fincore.dir/src/data/snapshots.cpp.obj": {
+          "size_bytes": 13331670,
+          "sha256": "9ba385ea0a43adbaa9256ef5532a28d250ebd7f04f513670f37dd0fd45ffb30d"
+        },
+        "CMakeFiles/fincore.dir/src/dataframe.cpp.obj": {
+          "size_bytes": 8325852,
+          "sha256": "0af9bd908017dcdeb7a216d851cb4266ab616f588216d77a71e70b949a551653"
+        },
+        "CMakeFiles/fincore.dir/src/detail/digest.cpp.obj": {
+          "size_bytes": 703118,
+          "sha256": "c180893a4ee48cd44ba8520fc9e365fad043dcce7ff6e5376b4dc3d225d303be"
+        },
+        "CMakeFiles/fincore.dir/src/detail/mt19937.cpp.obj": {
+          "size_bytes": 181911,
+          "sha256": "5d70258b8f623f12ba56645f6e0ebcbdc72bf518ee8b4f82e1091c2868457aca"
+        },
+        "CMakeFiles/fincore.dir/src/errors.cpp.obj": {
+          "size_bytes": 2967852,
+          "sha256": "ca63a9200995bdcfa940a122f12308415557f0ff0717dfb7a4bba8e016d50838"
+        },
+        "CMakeFiles/fincore.dir/src/extensions/discovery.cpp.obj": {
+          "size_bytes": 7753444,
+          "sha256": "b30e248557c171b01e0083f17993c8e5767da9ca2e79dfb412b3d7fd86872490"
+        },
+        "CMakeFiles/fincore.dir/src/extensions/snapshot.cpp.obj": {
+          "size_bytes": 8623401,
+          "sha256": "08fbea9bfa2a32064feb316987efdb3b4fc7b01b0c3e9e11683d3770b084bd9e"
+        },
+        "CMakeFiles/fincore.dir/src/factor/analysis.cpp.obj": {
+          "size_bytes": 10146117,
+          "sha256": "2769908329c8e3a7873ff4c05a584c1c95364ca5df81db39640f8ae9cac45eec"
+        },
+        "CMakeFiles/fincore.dir/src/factor/artifacts.cpp.obj": {
+          "size_bytes": 8454433,
+          "sha256": "08aa6f7ad4607b347d1f8a1675033bcaad6131da451bcd5ab469cc3f39da47f7"
+        },
+        "CMakeFiles/fincore.dir/src/factor/calendar.cpp.obj": {
+          "size_bytes": 7238616,
+          "sha256": "2d16fa83ac3e21c87db007ecf1a2b983ba23eb31517ba8a8f67dde6ae8b051e0"
+        },
+        "CMakeFiles/fincore.dir/src/factor/costs.cpp.obj": {
+          "size_bytes": 8363628,
+          "sha256": "64de146ffc657cbc3188dbe139cf45891bc388d960fa6a1deead42301f450dba"
+        },
+        "CMakeFiles/fincore.dir/src/factor/data.cpp.obj": {
+          "size_bytes": 9353471,
+          "sha256": "b06b12a62b85a6bfd51a118a9c6e9c82f728ee932016f81e6fee3162a2b789d1"
+        },
+        "CMakeFiles/fincore.dir/src/factor/performance.cpp.obj": {
+          "size_bytes": 12840940,
+          "sha256": "86265aefbaa4a72ae1093aa3b30a2efdb459779f89dcd96283e62d697195be02"
+        },
+        "CMakeFiles/fincore.dir/src/factor/pit.cpp.obj": {
+          "size_bytes": 7628549,
+          "sha256": "9a0ba29a61f649346b4a486f40f8bcbda608ef0a2740726fdaebd7415a872f50"
+        },
+        "CMakeFiles/fincore.dir/src/factor/portfolio.cpp.obj": {
+          "size_bytes": 8564117,
+          "sha256": "2eb852ac87847d0a69d90b7443a74c5f82f02b8795a5da3e683876faf7124730"
+        },
+        "CMakeFiles/fincore.dir/src/factor/report.cpp.obj": {
+          "size_bytes": 8395953,
+          "sha256": "db699bae9e1287f5d860b8479e4124580a7508ef4004fb619f4b853e18efb05c"
+        },
+        "CMakeFiles/fincore.dir/src/factor/research.cpp.obj": {
+          "size_bytes": 15572641,
+          "sha256": "ec04138439854af074d9f2ee50717b8150f90f3c2da03c0bede5d56dcef0bc40"
+        },
+        "CMakeFiles/fincore.dir/src/factor/research_detailed.cpp.obj": {
+          "size_bytes": 10903652,
+          "sha256": "b7475239967ca9b5bbc44cc07076ec2099685307a4740f1bb6ce7da8d56052cb"
+        },
+        "CMakeFiles/fincore.dir/src/factor/research_detailed_export.cpp.obj": {
+          "size_bytes": 9979647,
+          "sha256": "b7f2c7b84408090ca9bc429b9d5d22f9a2debef740eb2edfcc072764a85a93b0"
+        },
+        "CMakeFiles/fincore.dir/src/factor/serialization.cpp.obj": {
+          "size_bytes": 10335892,
+          "sha256": "ad814a3cd61aa775ea1a299a15e1a1ccbe0c0635dc6d7774102eecacbd5c95f6"
+        },
+        "CMakeFiles/fincore.dir/src/factor/tears.cpp.obj": {
+          "size_bytes": 7667284,
+          "sha256": "bf14e9078da21eb3cf97c0f06ff179d887edd7f9ca694c7e22378bd7a5423797"
+        },
+        "CMakeFiles/fincore.dir/src/factor/timedelta.cpp.obj": {
+          "size_bytes": 7450027,
+          "sha256": "e947689a99857eb4968d7ee880f8bb573151fb5c05820cd7939186b6ba36f343"
+        },
+        "CMakeFiles/fincore.dir/src/factor/workflows.cpp.obj": {
+          "size_bytes": 7962886,
+          "sha256": "9408bb2b7f586bde0a0ccc33b3d3c477e9836290d144c7b2a14a4af0eec0e6b2"
+        },
+        "CMakeFiles/fincore.dir/src/metrics/alpha_beta.cpp.obj": {
+          "size_bytes": 7476201,
+          "sha256": "7e2d0f07d768a8a269947b64ed309640c342e88effcd52ec11c420402342f133"
+        },
+        "CMakeFiles/fincore.dir/src/metrics/basic.cpp.obj": {
+          "size_bytes": 7305359,
+          "sha256": "939abc2d576dc5f4fb5d629f8888b9506b0e7e88670c7d8a3c398c8b0e8e2de1"
+        },
+        "CMakeFiles/fincore.dir/src/metrics/bayesian.cpp.obj": {
+          "size_bytes": 8327797,
+          "sha256": "620652eb7681dbcfb76a7af7604a5dd36456c0d656d51944bceb0e51628d469a"
+        },
+        "CMakeFiles/fincore.dir/src/metrics/consecutive.cpp.obj": {
+          "size_bytes": 7348219,
+          "sha256": "a3bb829405109ab3d48119f1deb3d7e8010517986a4a97789708047f87085313"
+        },
+        "CMakeFiles/fincore.dir/src/metrics/drawdown.cpp.obj": {
+          "size_bytes": 7737454,
+          "sha256": "52f0f5cd1f9d27048e84ea17b640836a2f3fe85f0aaf2c68bb0b74508e056feb"
+        },
+        "CMakeFiles/fincore.dir/src/metrics/frequencies.cpp.obj": {
+          "size_bytes": 6969244,
+          "sha256": "b06d9dcbfc1de6ecfe8ae04e046f0102fe84369c796c480f5044d653b47b20ea"
+        },
+        "CMakeFiles/fincore.dir/src/metrics/helpers.cpp.obj": {
+          "size_bytes": 8575235,
+          "sha256": "4dcb96153ffd01faaa9b9932f70a0cc4fe17827640dd0493f1957df74f93bf25"
+        },
+        "CMakeFiles/fincore.dir/src/metrics/perf_attrib.cpp.obj": {
+          "size_bytes": 9408283,
+          "sha256": "674fca80e8bd2d10f53e7f886496bfc79ba3ed61aac5f09d049e6fa14f7771b1"
+        },
+        "CMakeFiles/fincore.dir/src/metrics/perf_stats.cpp.obj": {
+          "size_bytes": 7596707,
+          "sha256": "3b6e73532cf9a05e5ec9a79ab966a310286abe31acfbd93d3c57311dfcdd4b2d"
+        },
+        "CMakeFiles/fincore.dir/src/metrics/ratios.cpp.obj": {
+          "size_bytes": 7430625,
+          "sha256": "edd1bcb807cba72126fad6fd6412b6dbdc15212f294319b0ba39934dc0030030"
+        },
+        "CMakeFiles/fincore.dir/src/metrics/returns.cpp.obj": {
+          "size_bytes": 8619816,
+          "sha256": "c86ea2d7bfbf8bfef19538eb7484e7eb6283ca4d03ee641c1f224c4dd2ed2399"
+        },
+        "CMakeFiles/fincore.dir/src/metrics/risk.cpp.obj": {
+          "size_bytes": 7594104,
+          "sha256": "0434a0b01a89b2f2c7fd234cb607b749375d4228e0c379488d10294e0d1555c7"
+        },
+        "CMakeFiles/fincore.dir/src/metrics/rolling.cpp.obj": {
+          "size_bytes": 8196042,
+          "sha256": "7c43e05166fd01c7a2f1e98e7ac0e4ce53bb1be557190585a99ac3658dfef0c3"
+        },
+        "CMakeFiles/fincore.dir/src/metrics/stats.cpp.obj": {
+          "size_bytes": 7572628,
+          "sha256": "886a2f51615da840b1fe21bd78459b554d152e8b791577cfe517f4514ccdd33f"
+        },
+        "CMakeFiles/fincore.dir/src/metrics/timing.cpp.obj": {
+          "size_bytes": 7749850,
+          "sha256": "58b2935df94645b88f63dab55ba22e736d451e6a290455d5e7ae6933dd2852a4"
+        },
+        "CMakeFiles/fincore.dir/src/metrics/yearly.cpp.obj": {
+          "size_bytes": 7563925,
+          "sha256": "c0e86ca092dc82b0256667e25c1d4bc513044c2b66dd124e543dbaf92ee856a4"
+        },
+        "CMakeFiles/fincore.dir/src/operations.cpp.obj": {
+          "size_bytes": 623063,
+          "sha256": "dd7e5380d22326220f1e4a0eb3c9d906c6663c7ac38d3a8fc2d717819116630b"
+        },
+        "CMakeFiles/fincore.dir/src/optimization/frontier.cpp.obj": {
+          "size_bytes": 7573299,
+          "sha256": "64a2c06b6338b7fdbaa30661926a341d46f84e33ba30ec484d33605764ac1384"
+        },
+        "CMakeFiles/fincore.dir/src/optimization/numerics.cpp.obj": {
+          "size_bytes": 1137226,
+          "sha256": "49a9f880fe8bd950d7a4c6a146467bab25501d36464f5874afcb829e8b85bfe7"
+        },
+        "CMakeFiles/fincore.dir/src/optimization/objectives.cpp.obj": {
+          "size_bytes": 7608675,
+          "sha256": "b852a20834afee25a8a85dc95f3c4eb6ab658cfa56040902fafebef5b0622c53"
+        },
+        "CMakeFiles/fincore.dir/src/optimization/portfolio_solver.cpp.obj": {
+          "size_bytes": 7835311,
+          "sha256": "f3221345f5475c04727ed123f4fcbfad93101cf425c6daa8163ad2e889dc5702"
+        },
+        "CMakeFiles/fincore.dir/src/optimization/risk_parity.cpp.obj": {
+          "size_bytes": 7314447,
+          "sha256": "dda2ef7cac59dece5b1da4535780a9ba536a37c4112d4eca4c513c346f0594e3"
+        },
+        "CMakeFiles/fincore.dir/src/performance/cashflows.cpp.obj": {
+          "size_bytes": 7405557,
+          "sha256": "40fa215b2113d564ff1af8477974f03614b37e27061355c01a29adc2a7825a4a"
+        },
+        "CMakeFiles/fincore.dir/src/performance/disclosures.cpp.obj": {
+          "size_bytes": 693029,
+          "sha256": "10f6a4f09d6ad5d3604dae9ebd5f4462cda6ad44f069e53b22445ef0f113959b"
+        },
+        "CMakeFiles/fincore.dir/src/performance/inference.cpp.obj": {
+          "size_bytes": 7125036,
+          "sha256": "383e072bae5a382fc01b35a49524bc7b22a91060b391a9f18a921ccf0601cb38"
+        },
+        "CMakeFiles/fincore.dir/src/performance/returns.cpp.obj": {
+          "size_bytes": 7257633,
+          "sha256": "702f4cbc71bff5ca01fa6fef303921e40e25e0c03981403264c379e4f01a6394"
+        },
+        "CMakeFiles/fincore.dir/src/portfolio/capacity.cpp.obj": {
+          "size_bytes": 7262247,
+          "sha256": "1beb443c2cc1343f439d29cd9af0255e17748b5bcb2a140529a9da4196ebb4d4"
+        },
+        "CMakeFiles/fincore.dir/src/portfolio/positions.cpp.obj": {
+          "size_bytes": 9084573,
+          "sha256": "8a355671e602f10f2d986986019c642d515094e6b19d77e5dbf81aa8f0dae712"
+        },
+        "CMakeFiles/fincore.dir/src/portfolio/round_trips.cpp.obj": {
+          "size_bytes": 10430753,
+          "sha256": "b4ab3cf2abf521fe6b5b259a1454766a9fd5bb261fc954236681d12c0479d613"
+        },
+        "CMakeFiles/fincore.dir/src/portfolio/transactions.cpp.obj": {
+          "size_bytes": 9975786,
+          "sha256": "67b2ee11e6b1bbb6fd41b8c3cc2a823d7eb891ef6ff0179a2ceb835122b32fac"
+        },
+        "CMakeFiles/fincore.dir/src/report/html.cpp.obj": {
+          "size_bytes": 7430405,
+          "sha256": "12e644cc266c3ce125f322fafab9594159e72eedf5142e232ebf9675c11965c0"
+        },
+        "CMakeFiles/fincore.dir/src/report/models.cpp.obj": {
+          "size_bytes": 7265307,
+          "sha256": "1fa02ff60806fb3c266fd79ab6b48250bc83ac09eb9f5ef7755303e42e6fdcdd"
+        },
+        "CMakeFiles/fincore.dir/src/report/pdf.cpp.obj": {
+          "size_bytes": 7279810,
+          "sha256": "53af1d74b5d0d0454a3393f0e3f4a41f73b0692d76b87f209fc5a73d3211f903"
+        },
+        "CMakeFiles/fincore.dir/src/report/portfolio.cpp.obj": {
+          "size_bytes": 9447751,
+          "sha256": "7a3d6d3c5ac91e394b818a428ea8f7cd6dbaef6b2eac525aeacfafa5c515f44c"
+        },
+        "CMakeFiles/fincore.dir/src/report/renderers.cpp.obj": {
+          "size_bytes": 8960678,
+          "sha256": "15605bb28982e1febac80eadb8b0e0cf48781ca90102da315d63bb0d7e279ca0"
+        },
+        "CMakeFiles/fincore.dir/src/report/risk.cpp.obj": {
+          "size_bytes": 8517936,
+          "sha256": "4f51beaa358fd902000d2f5b50605279601c3bbbeada485024e0e009d714dc6f"
+        },
+        "CMakeFiles/fincore.dir/src/report/xlsx.cpp.obj": {
+          "size_bytes": 7563368,
+          "sha256": "4dabec5659afaec5a8945e04036edf8b86692cbc798d5a23deff53cbc43d6b1d"
+        },
+        "CMakeFiles/fincore.dir/src/risk/backtesting.cpp.obj": {
+          "size_bytes": 7585411,
+          "sha256": "3f2b0ed70348d7b3698afb93d50a395d554533010975bd72c575a3f10d7fd2e8"
+        },
+        "CMakeFiles/fincore.dir/src/risk/evt.cpp.obj": {
+          "size_bytes": 7512675,
+          "sha256": "2973c123695629615ac6de0b46150d9b1b4fa37bfc3bbd25838993e51f688f88"
+        },
+        "CMakeFiles/fincore.dir/src/risk/garch.cpp.obj": {
+          "size_bytes": 7463768,
+          "sha256": "f03669fd3574766d34da195b6df16d519172e9c18a131bdb32adf0d3d929853a"
+        },
+        "CMakeFiles/fincore.dir/src/risk/models.cpp.obj": {
+          "size_bytes": 7520408,
+          "sha256": "7f09405f88779ed984a28a4918c526af70a07876eac9bf157551dec5e40bcff2"
+        },
+        "CMakeFiles/fincore.dir/src/risk/report.cpp.obj": {
+          "size_bytes": 8704300,
+          "sha256": "e94d52e024e6c89185446f33ab8d6007ea9c2af1c0af6cf0e629b6c50760fafc"
+        },
+        "CMakeFiles/fincore.dir/src/risk/specs.cpp.obj": {
+          "size_bytes": 780106,
+          "sha256": "e778bff24360213553121cfbb565913a5dc067adf5dd94ccf9686ee23619586b"
+        },
+        "CMakeFiles/fincore.dir/src/risk/walk_forward.cpp.obj": {
+          "size_bytes": 7498047,
+          "sha256": "c0a892cb0d337eaa0b0a44f27573320b6087c97cd7e2361a9f43cee70c161d32"
+        },
+        "CMakeFiles/fincore.dir/src/rolling_engine.cpp.obj": {
+          "size_bytes": 7603589,
+          "sha256": "6d40d39e29f54a9f7a12c4ef833642d91fc94521b740de8acc84d68eec1f1786"
+        },
+        "CMakeFiles/fincore.dir/src/runtime/operations_factor.cpp.obj": {
+          "size_bytes": 19028401,
+          "sha256": "6a82258266614bf41b91db4ed16a53805151063da496b4d778c92ff9aca2368e"
+        },
+        "CMakeFiles/fincore.dir/src/runtime/operations_metrics.cpp.obj": {
+          "size_bytes": 14725089,
+          "sha256": "26d75d38faa36cec886c6118b4b11d8e0ba436f9464619a1adca1db43f67efdc"
+        },
+        "CMakeFiles/fincore.dir/src/runtime/operations_portfolio.cpp.obj": {
+          "size_bytes": 15487259,
+          "sha256": "d4b40492f685b08989b68bd64ba41a159ce3ef7970dc06da8e6bb2aed912d130"
+        },
+        "CMakeFiles/fincore.dir/src/runtime/runtime.cpp.obj": {
+          "size_bytes": 19643769,
+          "sha256": "e1f0573d6a8c9867d2b4c1e8c7240fec32d19f3bfa0d32ab1030ac39b91ca5de"
+        },
+        "CMakeFiles/fincore.dir/src/runtime/serialization.cpp.obj": {
+          "size_bytes": 17656009,
+          "sha256": "26af394bef5e268114f50bee933d7ac247b677f64af76b6e0e00e1df71049074"
+        },
+        "CMakeFiles/fincore.dir/src/runtime/utilities.cpp.obj": {
+          "size_bytes": 8935332,
+          "sha256": "07f47539c2e9f10e123e3f98997cb22a3d503f88f58b014149ba26a8e2726b40"
+        },
+        "CMakeFiles/fincore.dir/src/simulation/base.cpp.obj": {
+          "size_bytes": 7833497,
+          "sha256": "6bf11e0135f6ded9afa975fedd0a15d441e3ce43d1b982ae565616d00cf60456"
+        },
+        "CMakeFiles/fincore.dir/src/simulation/bootstrap.cpp.obj": {
+          "size_bytes": 8176932,
+          "sha256": "4d26e8fda9079f833e7eb70f68b0060ee549ca3cb43b7d2f99d34b1f26375db3"
+        },
+        "CMakeFiles/fincore.dir/src/simulation/correlation.cpp.obj": {
+          "size_bytes": 8193196,
+          "sha256": "d3a3d1fc43631271180d9aaf241dfa58054b86f15b6947304461577fcaffa205"
+        },
+        "CMakeFiles/fincore.dir/src/simulation/monte_carlo.cpp.obj": {
+          "size_bytes": 7303293,
+          "sha256": "3c0e832ce602b00a22dfd48d94816ef9d5db205964a61dae39f3cdb158bfa1e5"
+        },
+        "CMakeFiles/fincore.dir/src/simulation/parameters.cpp.obj": {
+          "size_bytes": 7120038,
+          "sha256": "d807874e32d93e237341497e8369017cc34240775883530ff399230a4d511cc1"
+        },
+        "CMakeFiles/fincore.dir/src/simulation/paths.cpp.obj": {
+          "size_bytes": 8311096,
+          "sha256": "d2f9839cb0e303c888af749e9fcf38e18a7e39fe17a20629a2782224d51605d8"
+        },
+        "CMakeFiles/fincore.dir/src/simulation/result.cpp.obj": {
+          "size_bytes": 8147628,
+          "sha256": "94a954d9b5390db5c43d7c320bf94f5246c3872db45ea4ff94b98444a0a77a02"
+        },
+        "CMakeFiles/fincore.dir/src/simulation/scenarios.cpp.obj": {
+          "size_bytes": 8674417,
+          "sha256": "1fba7171920cf249143f9c69ef25f0e55ea391fb35656c3162ee5ecccbbd313d"
+        },
+        "CMakeFiles/fincore.dir/src/version.cpp.obj": {
+          "size_bytes": 218536,
+          "sha256": "51da35d396bb3cb6675a408761235abb469e078f3b15af024119de318106b64b"
+        },
+        "CMakeFiles/fincore.dir/src/viz/bokeh_document.cpp.obj": {
+          "size_bytes": 7800702,
+          "sha256": "7b251959f86da38f6e6f3b035a3a68feb932cb94453f4b18c306fca07f3d2a8a"
+        },
+        "CMakeFiles/fincore.dir/src/viz/chart_data.cpp.obj": {
+          "size_bytes": 8331522,
+          "sha256": "92bd0d935fd461010b98ee4721018b492b261ff607d7a7bb49600e4a755b77d3"
+        },
+        "CMakeFiles/fincore.dir/src/viz/html_builder.cpp.obj": {
+          "size_bytes": 7245917,
+          "sha256": "29f1d85f32e75c877f9ae0763a9271c8945fa4b8bdbacdb2ff9d8f5e7a0ad9f9"
+        },
+        "CMakeFiles/fincore.dir/src/viz/plotly_document.cpp.obj": {
+          "size_bytes": 7782875,
+          "sha256": "e522937203ef400ed7349710c50e68565b5971e7da511a5662e472faab7494f8"
+        },
+        "CMakeFiles/fincore.dir/src/viz/render_model.cpp.obj": {
+          "size_bytes": 7967398,
+          "sha256": "3c6ec321c7d5508274e5107f175316fdf83811274959cad49c8b3ab60d8d3845"
+        },
+        "CMakeFiles/fincore_alpha003_research.dir/benchmarks/alpha003_a_stocks/cpp/alpha003_research.cpp.obj": {
+          "size_bytes": 11095094,
+          "sha256": "432295acee157908614a1bb4da580abab0356e0c7eb6d95f39b8961c6d8b507f"
+        },
+        "CMakeFiles/ShowIncludes/main.obj": {
+          "size_bytes": 642,
+          "sha256": "ef369a97bd8784647effd15055db59d305052d1ff4d02a8e6d6aa1e27fc4e188"
+        }
+      },
+      "training_manifest": {
+        "size_bytes": 1314031,
+        "sha256": "eab6bba8695bdbd90e784c35bfd4f94860b50b73293d08063e746e2560459abf"
+      },
+      "driver": {
+        "size_bytes": 3607,
+        "sha256": "7855d3f4944cd207b28abf420f41fef6a20c145a40f7896aafdb0fee4bc19508"
+      },
+      "runs": [
+        {
+          "scale": "500",
+          "measurement_diagnostic_only": {
+            "command": [
+              "D:\\source_code\\fincore_cpp\\build-win-p119-r2\\fincore_alpha003_research.exe",
+              "--data-dir",
+              "D:\\source_code\\fincore_cpp\\build-win\\p119-r2\\training-r2\\data",
+              "--out",
+              "D:\\source_code\\fincore_cpp\\build-win\\p119-r2\\train-output-500",
+              "--max-symbols",
+              "500",
+              "--end-offset",
+              "22",
+              "--preprocess",
+              "cross_section_rank",
+              "--run-id",
+              "p119-r2-train-500"
+            ],
+            "returncode": 0,
+            "wall_seconds": 21.24795410002116,
+            "cpu_seconds": 20.328125,
+            "peak_working_set_bytes": 77844480,
+            "affinity_mask": 1,
+            "cpu_index": 0,
+            "affinity_method": "inherited_parent_affinity_before_create_process",
+            "affinity_verified": true,
+            "thread_environment": {
+              "OMP_NUM_THREADS": "1",
+              "OMP_THREAD_LIMIT": "1",
+              "OMP_DYNAMIC": "FALSE",
+              "OPENBLAS_NUM_THREADS": "1",
+              "MKL_NUM_THREADS": "1",
+              "MKL_DYNAMIC": "FALSE",
+              "BLIS_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "NUMEXPR_MAX_THREADS": "1",
+              "TBB_NUM_THREADS": "1"
+            }
+          },
+          "binary_after": {
+            "size_bytes": 1318912,
+            "sha256": "95010585001d98ba2296b985e7e7eae621ef1400bca690379eb28f82f7ddeecc"
+          },
+          "pgc_files": {},
+          "workload": {
+            "contract": "alpha003-complete-v2",
+            "factor": "alpha003",
+            "periods": [
+              "1D",
+              "5D",
+              "20D"
+            ],
+            "quantiles": 5,
+            "min_assets": 10,
+            "min_quantile_assets": 1,
+            "preprocess": "cross_section_rank",
+            "label": "next_open_to_open",
+            "direction": 1,
+            "stability_lags": [
+              1,
+              5,
+              20
+            ],
+            "start": "2025-01-02T07:00:00Z",
+            "research_end": "2025-11-06T07:00:00Z",
+            "grid_dates": 243,
+            "assets": 500,
+            "factor_cells": 113106,
+            "label_config": {
+              "snapshot_id": "a_stocks_2025",
+              "price_basis": "unadjusted_open",
+              "frequency": "1D",
+              "calendar_id": "observed_calendar",
+              "feed_time_kind": "close_time",
+              "source_timezone": "Asia/Shanghai"
+            },
+            "serialization": {
+              "encoding": "utf-8",
+              "line_ending": "LF",
+              "timestamp": "ISO8601-UTC-Z",
+              "float": "roundtrip-binary64",
+              "nan": "empty"
+            }
+          }
+        },
+        {
+          "scale": "full",
+          "measurement_diagnostic_only": {
+            "command": [
+              "D:\\source_code\\fincore_cpp\\build-win-p119-r2\\fincore_alpha003_research.exe",
+              "--data-dir",
+              "D:\\source_code\\fincore_cpp\\build-win\\p119-r2\\training-r2\\data",
+              "--out",
+              "D:\\source_code\\fincore_cpp\\build-win\\p119-r2\\train-output-full",
+              "--max-symbols",
+              "0",
+              "--end-offset",
+              "22",
+              "--preprocess",
+              "cross_section_rank",
+              "--run-id",
+              "p119-r2-train-full"
+            ],
+            "returncode": 0,
+            "wall_seconds": 236.89807150000706,
+            "cpu_seconds": 222.5,
+            "peak_working_set_bytes": 744726528,
+            "affinity_mask": 1,
+            "cpu_index": 0,
+            "affinity_method": "inherited_parent_affinity_before_create_process",
+            "affinity_verified": true,
+            "thread_environment": {
+              "OMP_NUM_THREADS": "1",
+              "OMP_THREAD_LIMIT": "1",
+              "OMP_DYNAMIC": "FALSE",
+              "OPENBLAS_NUM_THREADS": "1",
+              "MKL_NUM_THREADS": "1",
+              "MKL_DYNAMIC": "FALSE",
+              "BLIS_NUM_THREADS": "1",
+              "VECLIB_MAXIMUM_THREADS": "1",
+              "NUMEXPR_NUM_THREADS": "1",
+              "NUMEXPR_MAX_THREADS": "1",
+              "TBB_NUM_THREADS": "1"
+            }
+          },
+          "binary_after": {
+            "size_bytes": 1318912,
+            "sha256": "95010585001d98ba2296b985e7e7eae621ef1400bca690379eb28f82f7ddeecc"
+          },
+          "pgc_files": {},
+          "workload": {
+            "contract": "alpha003-complete-v2",
+            "factor": "alpha003",
+            "periods": [
+              "1D",
+              "5D",
+              "20D"
+            ],
+            "quantiles": 5,
+            "min_assets": 10,
+            "min_quantile_assets": 1,
+            "preprocess": "cross_section_rank",
+            "label": "next_open_to_open",
+            "direction": 1,
+            "stability_lags": [
+              1,
+              5,
+              20
+            ],
+            "start": "2025-01-02T07:00:00Z",
+            "research_end": "2025-11-06T07:00:00Z",
+            "grid_dates": 243,
+            "assets": 5471,
+            "factor_cells": 1242621,
+            "label_config": {
+              "snapshot_id": "a_stocks_2025",
+              "price_basis": "unadjusted_open",
+              "frequency": "1D",
+              "calendar_id": "observed_calendar",
+              "feed_time_kind": "close_time",
+              "source_timezone": "Asia/Shanghai"
+            },
+            "serialization": {
+              "encoding": "utf-8",
+              "line_ending": "LF",
+              "timestamp": "ISO8601-UTC-Z",
+              "float": "roundtrip-binary64",
+              "nan": "empty"
+            }
+          }
+        }
+      ],
+      "objects_unchanged": true,
+      "status": "SYNTHETIC_TRAINING_COMPLETED"
+    }
+  },
+  "build_provenance": {
+    "source_commit": "d145354f1f16531bcd09e9074a0af66d9a91f9b8",
+    "binary": {
+      "size_bytes": 544256,
+      "sha256": "51166867ad0e3b2383da7f3a8bb9ee81673e4892a030ced300389ca5fb47781c"
+    },
+    "objects_unchanged": true,
+    "object_count": 106,
+    "profile_files": {
+      "build-win/p119-r2/profile/alpha003.pgd": {
+        "size_bytes": 8957952,
+        "sha256": "7adc1e52bfa1da6b18cb67b2d06a7022dce8f49096f58e10b41b9166bb83421e"
+      },
+      "build-win-p119-r2/alpha003!1.pgc": {
+        "size_bytes": 989176,
+        "sha256": "58fcdc957e5dfdbbc9ade6c031ea06d5261b1eba8231b102229c1fd230dc23aa"
+      },
+      "build-win-p119-r2/alpha003!2.pgc": {
+        "size_bytes": 988680,
+        "sha256": "4bb5e57c65f8202561d25078fa95111a728abaacc61a8f9b197add41e7fbb6a8"
+      },
+      "build-win/p119-r2/profiles-before-merge/alpha003!1.pgc": {
+        "size_bytes": 989176,
+        "sha256": "58fcdc957e5dfdbbc9ade6c031ea06d5261b1eba8231b102229c1fd230dc23aa"
+      },
+      "build-win/p119-r2/profiles-before-merge/alpha003!2.pgc": {
+        "size_bytes": 988680,
+        "sha256": "4bb5e57c65f8202561d25078fa95111a728abaacc61a8f9b197add41e7fbb6a8"
+      },
+      "build-win/p119-r2/profiles-before-merge/alpha003-merged.pgd": {
+        "size_bytes": 8957952,
+        "sha256": "7d7a6f141c2cb41e5fc8cfbaa0dd4be91d020ee7303284e9f6be1e2c984226fb"
+      },
+      "build-win/p119-r2/profiles-before-merge/alpha003.pgd": {
+        "size_bytes": 6819840,
+        "sha256": "e523d07bb324414090ff348edeeab03c5bfe4d002782d80ba89086aa275ae16a"
+      }
+    },
+    "training_result": {
+      "size_bytes": 25951,
+      "sha256": "be04a326d492e82d6a1330eff7665e3e7d9bd51dac25259723c649a95b507311"
+    },
+    "link_command": {
+      "size_bytes": 916,
+      "sha256": "34095d8434d6bb4aeae583f163a6cf1bf878f4d5f831df58dd90e41412650afb"
+    },
+    "link_log": {
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "link_exit_code": 0,
+    "link_completion_evidence": "Root exec session 19661 exit0 and all original GL objects unchanged",
+    "selection": {
+      "reason": "Reconfigure rewrites byte-identical ECharts generated source and schedules its unnecessary compilation. Execute only the generated target link command to preserve every original GL object.",
+      "generated_source_sha256": "fc27288b053b1a42b2a35cbfe94c63e311a99167f997cdf6d9b15b91ecef72ff",
+      "equals_default_generated_source": true,
+      "objects_unchanged_before": true
+    },
+    "profile_note": "Linker updated PGD bytes during USEPROFILE. Exact input merged PGD is retained as profiles-before-merge/alpha003-merged.pgd; post-link PGD recorded separately. Initial equality assertion stopped before output writes; objects unchanged.",
+    "scope": "SYNTHETIC_PGO_BUILD_PROVENANCE_NOT_PERFORMANCE_ACCEPTANCE"
+  },
+  "campaigns": {
+    "500": {
+      "result_identity": {
+        "path": "benchmarks/alpha003_a_stocks/results-i9-p119-r2-native-500-ab/results.json",
+        "size_bytes": 856343,
+        "sha256": "fa0341ce148fcd86e640d2d83f84a05ba14e0536f895af2f694693d3f5bdadb6"
+      },
+      "metrics": {
+        "cpu": {
+          "candidate": {
+            "count": 5,
+            "iqr": 0.03125,
+            "iqr_over_median": 0.11764705882352941,
+            "max": 0.296875,
+            "median": 0.265625,
+            "min": 0.1875,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 0.25,
+            "q3": 0.28125,
+            "samples": [
+              0.296875,
+              0.265625,
+              0.1875,
+              0.25,
+              0.28125
+            ],
+            "status": "INCONCLUSIVE"
+          },
+          "paired_reference_over_candidate": [
+            1.0,
+            1.1764705882352942,
+            1.5833333333333333,
+            1.125,
+            1.0555555555555556
+          ],
+          "ratio_of_medians_reference_over_candidate": 1.1176470588235294,
+          "reference": {
+            "count": 5,
+            "iqr": 0.0,
+            "iqr_over_median": 0.0,
+            "max": 0.3125,
+            "median": 0.296875,
+            "min": 0.28125,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 0.296875,
+            "q3": 0.296875,
+            "samples": [
+              0.296875,
+              0.3125,
+              0.296875,
+              0.28125,
+              0.296875
+            ],
+            "status": "VALID"
+          }
+        },
+        "peak_working_set_bytes": {
+          "candidate": {
+            "count": 5,
+            "iqr": 53248.0,
+            "iqr_over_median": 0.000715150181538123,
+            "max": 74473472.0,
+            "median": 74457088.0,
+            "min": 74334208.0,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 74416128.0,
+            "q3": 74469376.0,
+            "samples": [
+              74473472.0,
+              74334208.0,
+              74416128.0,
+              74457088.0,
+              74469376.0
+            ],
+            "status": "VALID"
+          },
+          "paired_reference_over_candidate": [
+            1.0024749752502475,
+            1.0046286092131365,
+            1.0009907529722588,
+            1.0017053581252062,
+            1.0001100049502227
+          ],
+          "ratio_of_medians_reference_over_candidate": 1.0017053581252062,
+          "reference": {
+            "count": 5,
+            "iqr": 167936.0,
+            "iqr_over_median": 0.0022516338074578504,
+            "max": 74678272.0,
+            "median": 74584064.0,
+            "min": 74477568.0,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 74489856.0,
+            "q3": 74657792.0,
+            "samples": [
+              74657792.0,
+              74678272.0,
+              74489856.0,
+              74584064.0,
+              74477568.0
+            ],
+            "status": "VALID"
+          }
+        },
+        "wall": {
+          "candidate": {
+            "count": 5,
+            "iqr": 0.017065700027160347,
+            "iqr_over_median": 0.05890037367899413,
+            "max": 0.3083330999943428,
+            "median": 0.28973839996615425,
+            "min": 0.286242600006517,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 0.28662739996798337,
+            "q3": 0.3036930999951437,
+            "samples": [
+              0.3036930999951437,
+              0.286242600006517,
+              0.3083330999943428,
+              0.28662739996798337,
+              0.28973839996615425
+            ],
+            "status": "VALID"
+          },
+          "paired_reference_over_candidate": [
+            0.986986533444646,
+            1.0792830975744823,
+            1.1358540488814761,
+            1.0057129918928769,
+            1.5434440171176156
+          ],
+          "ratio_of_medians_reference_over_candidate": 1.066261151538407,
+          "reference": {
+            "count": 5,
+            "iqr": 0.050480400037486106,
+            "iqr_over_median": 0.1634004108240307,
+            "max": 0.4471949999569915,
+            "median": 0.3089367999928072,
+            "min": 0.2882648999802768,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 0.29974099999526516,
+            "q3": 0.35022140003275126,
+            "samples": [
+              0.29974099999526516,
+              0.3089367999928072,
+              0.35022140003275126,
+              0.2882648999802768,
+              0.4471949999569915
+            ],
+            "status": "INCONCLUSIVE"
+          }
+        }
+      },
+      "complete_byte_equal_runs": 14,
+      "unchanged_source_inputs_binary": true,
+      "faster_wall_pairs": 4,
+      "stage_medians": {
+        "A": {
+          "load_seconds": 0.0645621,
+          "factor_seconds": 0.0284473,
+          "materialization_seconds": 0.004296,
+          "research_seconds": 0.0981667,
+          "export_seconds": 0.0848169
+        },
+        "B": {
+          "load_seconds": 0.056341,
+          "factor_seconds": 0.0434907,
+          "materialization_seconds": 0.0032062,
+          "research_seconds": 0.0890411,
+          "export_seconds": 0.0778539
+        }
+      }
+    },
+    "full": {
+      "result_identity": {
+        "path": "benchmarks/alpha003_a_stocks/results-i9-p119-r2-native-full-ab/results.json",
+        "size_bytes": 6026233,
+        "sha256": "b9692720297202373024ccd19b81d5b6bd8a06756e766f9487ec305c4e61d011"
+      },
+      "metrics": {
+        "cpu": {
+          "candidate": {
+            "count": 5,
+            "iqr": 0.46875,
+            "iqr_over_median": 0.15789473684210525,
+            "max": 3.125,
+            "median": 2.96875,
+            "min": 2.46875,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 2.515625,
+            "q3": 2.984375,
+            "samples": [
+              2.46875,
+              2.515625,
+              2.96875,
+              2.984375,
+              3.125
+            ],
+            "status": "INCONCLUSIVE"
+          },
+          "paired_reference_over_candidate": [
+            1.1962025316455696,
+            1.0869565217391304,
+            0.9947368421052631,
+            0.9738219895287958,
+            0.95
+          ],
+          "ratio_of_medians_reference_over_candidate": 0.9947368421052631,
+          "reference": {
+            "count": 5,
+            "iqr": 0.046875,
+            "iqr_over_median": 0.015873015873015872,
+            "max": 2.96875,
+            "median": 2.953125,
+            "min": 2.734375,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 2.90625,
+            "q3": 2.953125,
+            "samples": [
+              2.953125,
+              2.734375,
+              2.953125,
+              2.90625,
+              2.96875
+            ],
+            "status": "VALID"
+          }
+        },
+        "peak_working_set_bytes": {
+          "candidate": {
+            "count": 5,
+            "iqr": 24576.0,
+            "iqr_over_median": 3.284989241660234e-05,
+            "max": 748158976.0,
+            "median": 748130304.0,
+            "min": 748085248.0,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 748109824.0,
+            "q3": 748134400.0,
+            "samples": [
+              748130304.0,
+              748085248.0,
+              748158976.0,
+              748109824.0,
+              748134400.0
+            ],
+            "status": "VALID"
+          },
+          "paired_reference_over_candidate": [
+            0.9998029006455004,
+            1.0001971112254844,
+            0.9999014540995095,
+            0.9998247957775782,
+            0.9997755269641391
+          ],
+          "ratio_of_medians_reference_over_candidate": 0.9998029006455004,
+          "reference": {
+            "count": 5,
+            "iqr": 106496.0,
+            "iqr_over_median": 0.00014237759633761013,
+            "max": 748232704.0,
+            "median": 747982848.0,
+            "min": 747966464.0,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 747978752.0,
+            "q3": 748085248.0,
+            "samples": [
+              747982848.0,
+              748232704.0,
+              748085248.0,
+              747978752.0,
+              747966464.0
+            ],
+            "status": "VALID"
+          }
+        },
+        "wall": {
+          "candidate": {
+            "count": 5,
+            "iqr": 0.5126756000099704,
+            "iqr_over_median": 0.14663185584165014,
+            "max": 3.555105800041929,
+            "median": 3.4963453000527807,
+            "min": 2.9337499999674037,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 3.0283320999587886,
+            "q3": 3.541007699968759,
+            "samples": [
+              3.541007699968759,
+              2.9337499999674037,
+              3.0283320999587886,
+              3.555105800041929,
+              3.4963453000527807
+            ],
+            "status": "INCONCLUSIVE"
+          },
+          "paired_reference_over_candidate": [
+            0.9483931650407561,
+            1.156089544105941,
+            1.0222373563406753,
+            0.922232947318131,
+            0.8839558266586328
+          ],
+          "ratio_of_medians_reference_over_candidate": 0.9377322371308566,
+          "reference": {
+            "count": 5,
+            "iqr": 0.26259330002358183,
+            "iqr_over_median": 0.08009224691341761,
+            "max": 3.39167769998312,
+            "median": 3.27863570000045,
+            "min": 3.0906147999921814,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 3.0956741999834776,
+            "q3": 3.3582675000070594,
+            "samples": [
+              3.3582675000070594,
+              3.39167769998312,
+              3.0956741999834776,
+              3.27863570000045,
+              3.0906147999921814
+            ],
+            "status": "VALID"
+          }
+        }
+      },
+      "complete_byte_equal_runs": 14,
+      "unchanged_source_inputs_binary": true,
+      "faster_wall_pairs": 2,
+      "stage_medians": {
+        "A": {
+          "load_seconds": 0.567611,
+          "factor_seconds": 0.3556887,
+          "materialization_seconds": 0.0549135,
+          "research_seconds": 1.2243152,
+          "export_seconds": 0.8287583
+        },
+        "B": {
+          "load_seconds": 0.5278201,
+          "factor_seconds": 0.5416052,
+          "materialization_seconds": 0.0508231,
+          "research_seconds": 1.2196255,
+          "export_seconds": 0.9695187
+        }
+      }
+    }
+  },
+  "evidence": [
+    {
+      "path": "build-win/p119-r2/bootstrap.cmake",
+      "size_bytes": 168,
+      "sha256": "f1063268fc997bae151e651443bb15ceb4e4ca412824e1083c40fc0640e20428"
+    },
+    {
+      "path": "build-win/p119-r2/target-options.cmake",
+      "size_bytes": 1180,
+      "sha256": "1f0da68a32b10ed0afc39cc978b9453e339c8c13b7f6818dc78405187b17d001"
+    },
+    {
+      "path": "build-win/p119-r2/generate_training.py",
+      "size_bytes": 5597,
+      "sha256": "54787e4a79715481065bd3310282a940401d0adf0ad9bb883539825bb0909bc9"
+    },
+    {
+      "path": "build-win/p119-r2/train.py",
+      "size_bytes": 3607,
+      "sha256": "7855d3f4944cd207b28abf420f41fef6a20c145a40f7896aafdb0fee4bc19508"
+    },
+    {
+      "path": "build-win/p119-r2/training-r2-generation.json",
+      "size_bytes": 292,
+      "sha256": "3cff39990c1ee56a32cfea68da5626ca29d4ea7e909ad12bf50e645e6c9c0387"
+    },
+    {
+      "path": "build-win/p119-r2/training-r2/manifest.json",
+      "size_bytes": 1314031,
+      "sha256": "eab6bba8695bdbd90e784c35bfd4f94860b50b73293d08063e746e2560459abf"
+    },
+    {
+      "path": "build-win/p119-r2/training-result.json",
+      "size_bytes": 25951,
+      "sha256": "be04a326d492e82d6a1330eff7665e3e7d9bd51dac25259723c649a95b507311"
+    },
+    {
+      "path": "build-win/p119-r2/profiles-before-merge/manifest.json",
+      "size_bytes": 1049,
+      "sha256": "a0251175367c4cdf399934498cdf19a817c66b4832975f80da6bec1941f24bdd"
+    },
+    {
+      "path": "build-win/p119-r2/merge.log",
+      "size_bytes": 601,
+      "sha256": "3b77570446eea84f3f8592a1e97aba64bb9d9eccfcceb802a61a145aeb18c761"
+    },
+    {
+      "path": "build-win/p119-r2/profile-summary.log",
+      "size_bytes": 6643968,
+      "sha256": "d7306b14abc41418a0cdeffbe6845b210795bb4d78e0bfd591b9a869d0a66e90"
+    },
+    {
+      "path": "build-win/p119-r2/configure-instrument.log",
+      "size_bytes": 892,
+      "sha256": "4e3c0069d53523138eba2d412a9a65f15260259910b24200ce6d27507e327d4c"
+    },
+    {
+      "path": "build-win/p119-r2/reconfigure-prefix.log",
+      "size_bytes": 138,
+      "sha256": "e3969e89a9243ac018f2398e7d81446557129185a3379a54fce624102b8924c3"
+    },
+    {
+      "path": "build-win/p119-r2/build-instrument.log",
+      "size_bytes": 8919,
+      "sha256": "fb088cf549683ec15d67f562402e288a061b831c7597bf29f158e57522e98c2e"
+    },
+    {
+      "path": "build-win/p119-r2/configure-optimize.log",
+      "size_bytes": 138,
+      "sha256": "e3969e89a9243ac018f2398e7d81446557129185a3379a54fce624102b8924c3"
+    },
+    {
+      "path": "build-win/p119-r2/optimize-dry-run.log",
+      "size_bytes": 250,
+      "sha256": "a90c6e5a1983071580ded6fade10165508973f6a9e0823d1c4bbc50e35608ffb"
+    },
+    {
+      "path": "build-win/p119-r2/relink-selection.json",
+      "size_bytes": 389,
+      "sha256": "f264df876cb87571c33fada2920dd38dec8949fffa41889b42273d4bc55c6556"
+    },
+    {
+      "path": "build-win/p119-r2/optimized-link-command.txt",
+      "size_bytes": 916,
+      "sha256": "34095d8434d6bb4aeae583f163a6cf1bf878f4d5f831df58dd90e41412650afb"
+    },
+    {
+      "path": "build-win/p119-r2/build-optimize-direct.log",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build-win/p119-r2/optimized-provenance.json",
+      "size_bytes": 2737,
+      "sha256": "fc1ddf1bf837770bf9b7fc2e94a391ef3c33ff28fca62ee59a4bc23e8c5725bc"
+    },
+    {
+      "path": "build-win/p119-r2/default-reference/reference.json",
+      "size_bytes": 692,
+      "sha256": "f76b6074d5759e8f4b835bbb257e2e9f4109a2e60cae3bf40964a51aede29ad5"
+    },
+    {
+      "path": "build-win/compare_alpha_pgo_r2.py",
+      "size_bytes": 17960,
+      "sha256": "2d124ee520841b5bf7e51a72021b98f649805d7ac279ef43cffdb91a5d6f0fdc"
+    }
+  ],
+  "review": "Independent read-only review: no build/provenance blocker after final provenance; exact 13-file P112 parity is meaningful for the two exercised configurations. No reviewer execution.",
+  "limitations": [
+    "No optimized whole-library test/oracle/install-consumer claim; only alpha executable was PGO linked.",
+    "500 reference wall and full candidate wall IQR/median exceed 10%; both gain comparisons inconclusive.",
+    "PGO call-count database is not a CPU-time profile; P111 sampling profile remains pending.",
+    "Full formal Python/C++ ratio, two independent 10-pair batches, resource and generic regression gates remain pending."
+  ],
+  "execution_notes": [
+    "Only Chinese MSVC resources available; VSLANG=1033 did not change showIncludes text. Fresh generated CMake compiler include prefix repaired using the exact working default-build prefix before all 107 build steps.",
+    "Training-r1 was generated during an author whitespace edit; preserved but not used. Training-r2 pins final generator pre/post.",
+    "PGCs emitted next to executable, not the PGD directory expected by training-result listings. Both exact PGCs separately archived and explicitly merged, 0.0% counts lost.",
+    "Reconfigure rewrote byte-identical ECharts source. Root used the exact generated Ninja link command directly, preserving all 106 objects, not a new compile.",
+    "USEPROFILE linker changed PGD bytes; exact merged input and post-link PGD both preserved. Initial unchanged-PGD assertion failed before any provenance write."
+  ],
+  "commands": [
+    "cmake -S . -B build-win-p119-r2 -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PROJECT_INCLUDE:FILEPATH=D:/source_code/fincore_cpp/build-win/p119-r2/bootstrap.cmake -DFINCORE_I9_PGO_MODE=INSTRUMENT -DFINCORE_BUILD_TESTING=OFF -DFINCORE_ENABLE_ASAN=OFF -DFINCORE_ENABLE_UBSAN=OFF -DFINCORE_DATAFRAME_SOURCE_DIR:PATH=D:/source_code/fincore_cpp/third_party/DataFrame",
+    "cmake --build build-win-p119-r2 --target fincore_alpha003_research -j 4",
+    "C:/Python314/python.exe build-win/p119-r2/train.py",
+    "pgomgr /merge build-win-p119-r2/alpha003!1.pgc build-win-p119-r2/alpha003!2.pgc build-win/p119-r2/profile/alpha003.pgd",
+    "cmake -S . -B build-win-p119-r2 -DFINCORE_I9_PGO_MODE=OPTIMIZE",
+    "Exact generated target link command: build-win/p119-r2/optimized-link-command.txt; session19661 exited0",
+    "C:/Python314/python.exe build-win/compare_alpha_pgo_r2.py --max-symbols 500 --output-dir benchmarks/alpha003_a_stocks/results-i9-p119-r2-native-500-ab",
+    "C:/Python314/python.exe build-win/compare_alpha_pgo_r2.py --max-symbols 0 --output-dir benchmarks/alpha003_a_stocks/results-i9-p119-r2-native-full-ab"
+  ]
+}

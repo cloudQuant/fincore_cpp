@@ -1,0 +1,4825 @@
+{
+  "oracle_id": "fincore-research-detailed-python-public-oracle-r1",
+  "oracle_scope": "P112 single-factor detailed result parity; generated only by the pinned public Python API",
+  "reference": {
+    "repository": "D:/source_code/fincore",
+    "commit": "3e9ef205ef2023f92e89fddd1052d46b16429c64",
+    "api": "fincore.factor_analysis.research.evaluate_factor_research",
+    "api_file": "fincore/factor_analysis/research.py",
+    "api_file_sha256": "7ebe07d9307f13ed6ee49b918013efdb50cda3f0405e9a4a84ba28b09d07632b",
+    "python": "C:/Python314/python.exe",
+    "generated_from_runtime": true,
+    "fingerprints_omitted": "Python DataFrame fingerprints are not a cross-language parity key; compare canonical table rows and structural manifest fields."
+  },
+  "input": {
+    "assets": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F"
+    ],
+    "factor_columns": [
+      "tie_signal",
+      "constant",
+      "near_constant"
+    ],
+    "factor_rows": [
+      {
+        "time": "2024-01-08T16:00:00Z",
+        "asset": "A",
+        "values": {
+          "tie_signal": 1.0,
+          "constant": 7.0,
+          "near_constant": 0.0
+        }
+      },
+      {
+        "time": "2024-01-08T16:00:00Z",
+        "asset": "B",
+        "values": {
+          "tie_signal": 1.0,
+          "constant": 7.0,
+          "near_constant": 1e-12
+        }
+      },
+      {
+        "time": "2024-01-08T16:00:00Z",
+        "asset": "C",
+        "values": {
+          "tie_signal": 2.0,
+          "constant": 7.0,
+          "near_constant": 2e-12
+        }
+      },
+      {
+        "time": "2024-01-08T16:00:00Z",
+        "asset": "D",
+        "values": {
+          "tie_signal": 3.0,
+          "constant": 7.0,
+          "near_constant": 3e-12
+        }
+      },
+      {
+        "time": "2024-01-08T16:00:00Z",
+        "asset": "E",
+        "values": {
+          "tie_signal": 4.0,
+          "constant": 7.0,
+          "near_constant": 4e-12
+        }
+      },
+      {
+        "time": "2024-01-08T16:00:00Z",
+        "asset": "F",
+        "values": {
+          "tie_signal": 4.0,
+          "constant": 7.0,
+          "near_constant": 5e-12
+        }
+      },
+      {
+        "time": "2024-01-09T16:00:00Z",
+        "asset": "A",
+        "values": {
+          "tie_signal": 1.0,
+          "constant": 7.0,
+          "near_constant": 1e-14
+        }
+      },
+      {
+        "time": "2024-01-09T16:00:00Z",
+        "asset": "B",
+        "values": {
+          "tie_signal": null,
+          "constant": 7.0,
+          "near_constant": 1.01e-12
+        }
+      },
+      {
+        "time": "2024-01-09T16:00:00Z",
+        "asset": "C",
+        "values": {
+          "tie_signal": 2.0,
+          "constant": 7.0,
+          "near_constant": 2.01e-12
+        }
+      },
+      {
+        "time": "2024-01-09T16:00:00Z",
+        "asset": "D",
+        "values": {
+          "tie_signal": 3.0,
+          "constant": 7.0,
+          "near_constant": 3.0100000000000003e-12
+        }
+      },
+      {
+        "time": "2024-01-09T16:00:00Z",
+        "asset": "E",
+        "values": {
+          "tie_signal": 3.0,
+          "constant": 7.0,
+          "near_constant": 4.01e-12
+        }
+      },
+      {
+        "time": "2024-01-09T16:00:00Z",
+        "asset": "F",
+        "values": {
+          "tie_signal": 5.0,
+          "constant": 7.0,
+          "near_constant": 5.01e-12
+        }
+      },
+      {
+        "time": "2024-01-10T16:00:00Z",
+        "asset": "A",
+        "values": {
+          "tie_signal": 1.0,
+          "constant": 7.0,
+          "near_constant": 2e-14
+        }
+      },
+      {
+        "time": "2024-01-10T16:00:00Z",
+        "asset": "B",
+        "values": {
+          "tie_signal": 1.0,
+          "constant": 7.0,
+          "near_constant": 1.0199999999999999e-12
+        }
+      },
+      {
+        "time": "2024-01-10T16:00:00Z",
+        "asset": "C",
+        "values": {
+          "tie_signal": 2.0,
+          "constant": 7.0,
+          "near_constant": 2.02e-12
+        }
+      },
+      {
+        "time": "2024-01-10T16:00:00Z",
+        "asset": "D",
+        "values": {
+          "tie_signal": 4.0,
+          "constant": 7.0,
+          "near_constant": 3.02e-12
+        }
+      },
+      {
+        "time": "2024-01-10T16:00:00Z",
+        "asset": "E",
+        "values": {
+          "tie_signal": 5.0,
+          "constant": 7.0,
+          "near_constant": 4.02e-12
+        }
+      },
+      {
+        "time": "2024-01-10T16:00:00Z",
+        "asset": "F",
+        "values": {
+          "tie_signal": 5.0,
+          "constant": 7.0,
+          "near_constant": 5.02e-12
+        }
+      },
+      {
+        "time": "2024-01-11T16:00:00Z",
+        "asset": "A",
+        "values": {
+          "tie_signal": 1.0,
+          "constant": 7.0,
+          "near_constant": 3e-14
+        }
+      },
+      {
+        "time": "2024-01-11T16:00:00Z",
+        "asset": "B",
+        "values": {
+          "tie_signal": 2.0,
+          "constant": 7.0,
+          "near_constant": 1.03e-12
+        }
+      },
+      {
+        "time": "2024-01-11T16:00:00Z",
+        "asset": "C",
+        "values": {
+          "tie_signal": 3.0,
+          "constant": 7.0,
+          "near_constant": 2.03e-12
+        }
+      },
+      {
+        "time": "2024-01-11T16:00:00Z",
+        "asset": "D",
+        "values": {
+          "tie_signal": 4.0,
+          "constant": 7.0,
+          "near_constant": 3.0300000000000002e-12
+        }
+      },
+      {
+        "time": "2024-01-11T16:00:00Z",
+        "asset": "E",
+        "values": {
+          "tie_signal": 5.0,
+          "constant": 7.0,
+          "near_constant": 4.0299999999999996e-12
+        }
+      },
+      {
+        "time": "2024-01-11T16:00:00Z",
+        "asset": "F",
+        "values": {
+          "tie_signal": 6.0,
+          "constant": 7.0,
+          "near_constant": 5.029999999999999e-12
+        }
+      },
+      {
+        "time": "2024-01-12T16:00:00Z",
+        "asset": "A",
+        "values": {
+          "tie_signal": 1.0,
+          "constant": 7.0,
+          "near_constant": 4e-14
+        }
+      },
+      {
+        "time": "2024-01-12T16:00:00Z",
+        "asset": "B",
+        "values": {
+          "tie_signal": 1.0,
+          "constant": 7.0,
+          "near_constant": 1.04e-12
+        }
+      },
+      {
+        "time": "2024-01-12T16:00:00Z",
+        "asset": "C",
+        "values": {
+          "tie_signal": 2.0,
+          "constant": 7.0,
+          "near_constant": 2.0399999999999998e-12
+        }
+      },
+      {
+        "time": "2024-01-15T16:00:00Z",
+        "asset": "A",
+        "values": {
+          "tie_signal": 1.0,
+          "constant": 7.0,
+          "near_constant": 5e-14
+        }
+      },
+      {
+        "time": "2024-01-15T16:00:00Z",
+        "asset": "B",
+        "values": {
+          "tie_signal": 2.0,
+          "constant": 7.0,
+          "near_constant": 1.05e-12
+        }
+      },
+      {
+        "time": "2024-01-15T16:00:00Z",
+        "asset": "C",
+        "values": {
+          "tie_signal": 3.0,
+          "constant": 7.0,
+          "near_constant": 2.05e-12
+        }
+      },
+      {
+        "time": "2024-01-15T16:00:00Z",
+        "asset": "D",
+        "values": {
+          "tie_signal": 4.0,
+          "constant": 7.0,
+          "near_constant": 3.05e-12
+        }
+      },
+      {
+        "time": "2024-01-15T16:00:00Z",
+        "asset": "E",
+        "values": {
+          "tie_signal": 5.0,
+          "constant": 7.0,
+          "near_constant": 4.05e-12
+        }
+      },
+      {
+        "time": "2024-01-15T16:00:00Z",
+        "asset": "F",
+        "values": {
+          "tie_signal": 6.0,
+          "constant": 7.0,
+          "near_constant": 5.05e-12
+        }
+      }
+    ],
+    "grid": [
+      {
+        "time": "2024-01-08T16:00:00Z",
+        "open_time": "2024-01-08T10:00:00Z"
+      },
+      {
+        "time": "2024-01-09T16:00:00Z",
+        "open_time": "2024-01-09T10:00:00Z"
+      },
+      {
+        "time": "2024-01-10T16:00:00Z",
+        "open_time": "2024-01-10T10:00:00Z"
+      },
+      {
+        "time": "2024-01-11T16:00:00Z",
+        "open_time": "2024-01-11T10:00:00Z"
+      },
+      {
+        "time": "2024-01-12T16:00:00Z",
+        "open_time": "2024-01-12T10:00:00Z"
+      },
+      {
+        "time": "2024-01-15T16:00:00Z",
+        "open_time": "2024-01-15T10:00:00Z"
+      },
+      {
+        "time": "2024-01-16T16:00:00Z",
+        "open_time": "2024-01-16T10:00:00Z"
+      },
+      {
+        "time": "2024-01-17T16:00:00Z",
+        "open_time": "2024-01-17T10:00:00Z"
+      }
+    ],
+    "prices": {
+      "open": [
+        {
+          "time": "2024-01-08T16:00:00Z",
+          "values": {
+            "A": 10.0,
+            "B": 12.0,
+            "C": 15.0,
+            "D": 20.0,
+            "E": 30.0,
+            "F": 45.0
+          }
+        },
+        {
+          "time": "2024-01-09T16:00:00Z",
+          "values": {
+            "A": 9.8,
+            "B": 11.879999999999999,
+            "C": 15.0,
+            "D": 20.2,
+            "E": 30.6,
+            "F": 46.35
+          }
+        },
+        {
+          "time": "2024-01-10T16:00:00Z",
+          "values": {
+            "A": 9.604,
+            "B": 11.761199999999999,
+            "C": 15.0,
+            "D": 20.402,
+            "E": 31.212,
+            "F": 47.7405
+          }
+        },
+        {
+          "time": "2024-01-11T16:00:00Z",
+          "values": {
+            "A": 9.411919999999999,
+            "B": null,
+            "C": 15.0,
+            "D": 20.60602,
+            "E": 31.836240000000004,
+            "F": 49.172715
+          }
+        },
+        {
+          "time": "2024-01-12T16:00:00Z",
+          "values": {
+            "A": 9.223681599999999,
+            "B": 11.52715212,
+            "C": 15.0,
+            "D": null,
+            "E": 32.4729648,
+            "F": 50.647896450000005
+          }
+        },
+        {
+          "time": "2024-01-15T16:00:00Z",
+          "values": {
+            "A": 9.039207968,
+            "B": 11.4118805988,
+            "C": null,
+            "D": 21.020201002000004,
+            "E": 33.122424096,
+            "F": 52.167333343500005
+          }
+        },
+        {
+          "time": "2024-01-16T16:00:00Z",
+          "values": {
+            "A": 8.85842380864,
+            "B": 11.297761792812,
+            "C": 15.0,
+            "D": 21.230403012020002,
+            "E": 33.784872577920005,
+            "F": 53.73235334380501
+          }
+        },
+        {
+          "time": "2024-01-17T16:00:00Z",
+          "values": {
+            "A": 8.681255332467199,
+            "B": 11.184784174883879,
+            "C": 15.0,
+            "D": 21.4427070421402,
+            "E": 34.460570029478404,
+            "F": 55.34432394411916
+          }
+        }
+      ],
+      "close": [
+        {
+          "time": "2024-01-08T16:00:00Z",
+          "values": {
+            "A": 10.069999999999999,
+            "B": 12.084,
+            "C": 15.104999999999999,
+            "D": 20.139999999999997,
+            "E": 30.209999999999997,
+            "F": 45.315
+          }
+        },
+        {
+          "time": "2024-01-09T16:00:00Z",
+          "values": {
+            "A": 9.868599999999999,
+            "B": 11.963159999999998,
+            "C": 15.104999999999999,
+            "D": 20.341399999999997,
+            "E": 30.8142,
+            "F": 46.67444999999999
+          }
+        },
+        {
+          "time": "2024-01-10T16:00:00Z",
+          "values": {
+            "A": 9.671227999999997,
+            "B": 11.843528399999997,
+            "C": 15.104999999999999,
+            "D": 20.544814,
+            "E": 31.430483999999996,
+            "F": 48.07468349999999
+          }
+        },
+        {
+          "time": "2024-01-11T16:00:00Z",
+          "values": {
+            "A": 9.477803439999997,
+            "B": null,
+            "C": 15.104999999999999,
+            "D": 20.75026214,
+            "E": 32.059093680000004,
+            "F": 49.51692400499999
+          }
+        },
+        {
+          "time": "2024-01-12T16:00:00Z",
+          "values": {
+            "A": 9.288247371199999,
+            "B": 11.607842184839999,
+            "C": 15.104999999999999,
+            "D": null,
+            "E": 32.700275553599994,
+            "F": 51.00243172515
+          }
+        },
+        {
+          "time": "2024-01-15T16:00:00Z",
+          "values": {
+            "A": 9.102482423776,
+            "B": 11.4917637629916,
+            "C": null,
+            "D": 21.167342409014,
+            "E": 33.354281064672,
+            "F": 52.5325046769045
+          }
+        },
+        {
+          "time": "2024-01-16T16:00:00Z",
+          "values": {
+            "A": 8.920432775300478,
+            "B": 11.376846125361682,
+            "C": 15.104999999999999,
+            "D": 21.37901583310414,
+            "E": 34.02136668596544,
+            "F": 54.10847981721164
+          }
+        },
+        {
+          "time": "2024-01-17T16:00:00Z",
+          "values": {
+            "A": 8.742024119794468,
+            "B": 11.263077664108064,
+            "C": 15.104999999999999,
+            "D": 21.592805991435178,
+            "E": 34.70179401968475,
+            "F": 55.73173421172799
+          }
+        }
+      ]
+    },
+    "price_construction": {
+      "open_formula": "base_price[asset] * (1 + daily_rate[asset]) ** grid_index",
+      "base_price": {
+        "A": 10.0,
+        "B": 12.0,
+        "C": 15.0,
+        "D": 20.0,
+        "E": 30.0,
+        "F": 45.0
+      },
+      "daily_rate": {
+        "A": -0.02,
+        "B": -0.01,
+        "C": 0.0,
+        "D": 0.01,
+        "E": 0.02,
+        "F": 0.03
+      },
+      "holes": [
+        {
+          "basis": "open",
+          "time": "2024-01-11T16:00:00Z",
+          "asset": "B",
+          "effect": "Jan 9 1D label missing; 2D remains finite"
+        },
+        {
+          "basis": "open",
+          "time": "2024-01-15T16:00:00Z",
+          "asset": "C",
+          "effect": "Jan 10 2D label missing; 1D remains finite"
+        },
+        {
+          "basis": "open",
+          "time": "2024-01-12T16:00:00Z",
+          "asset": "D",
+          "effect": "Jan 11 entry price missing; both labels missing"
+        },
+        {
+          "basis": "open",
+          "time": "2024-01-17T16:00:00Z",
+          "asset": "all",
+          "effect": "Jan 15 2D study-tail label has no grid endpoint"
+        }
+      ],
+      "close_basis": "open * 1.007; included to exercise both accepted wide price frames, not selected by next_open_to_open"
+    },
+    "sparsity": {
+      "omitted_panel_keys": [
+        {
+          "time": "2024-01-12T16:00:00Z",
+          "asset": "D"
+        },
+        {
+          "time": "2024-01-12T16:00:00Z",
+          "asset": "E"
+        },
+        {
+          "time": "2024-01-12T16:00:00Z",
+          "asset": "F"
+        }
+      ],
+      "explicit_nan_factor_cell": {
+        "time": "2024-01-09T16:00:00Z",
+        "asset": "B",
+        "factor": "tie_signal"
+      },
+      "meaning": "omitted panel key produces no signal/label rows; explicit NaN is retained in signal/label rows but excluded from finite/evaluable factor counts"
+    }
+  },
+  "spec": {
+    "targets": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F"
+    ],
+    "start": "2024-01-08T16:00:00Z",
+    "end": "2024-01-15T16:00:00Z",
+    "snapshot_id": "p112-detailed-oracle-r1",
+    "price_basis": "open",
+    "calendar_id": "business-day",
+    "frequency": "1D",
+    "source_timezone": "Asia/Shanghai",
+    "feed_time_kind": "close_time",
+    "periods": [
+      1,
+      2
+    ],
+    "label": "next_open_to_open",
+    "precomputed_entry": "next_open",
+    "quantiles": 3,
+    "min_assets": 4,
+    "min_quantile_assets": 2,
+    "preprocess": "none",
+    "max_loss": 1.0,
+    "stability_lags": [
+      1,
+      7
+    ],
+    "direction_overrides_by_case": {
+      "tie_signal": {},
+      "constant": {},
+      "near_constant": {
+        "near_constant": -1
+      }
+    }
+  },
+  "contract": {
+    "period_labels": "Derived by pinned Python calendar helper from the supplied grid; the concrete oracle labels are in each manifest.",
+    "utc": "All accepted factor/grid/price timestamps are timezone-aware UTC. source_timezone is descriptive metadata, not a request to localize timestamps. Non-UTC factor index is rejected before evaluation.",
+    "duplicate_keys": "Factor MultiIndex keys, grid timestamps, and each prices index must be unique; errors retain Python exception class and machine code.",
+    "missing_values": "Non-finite float values serialize as JSON null. Compare null-to-null, never coerce null to zero or drop a row unless that table mask says so.",
+    "numeric_tolerance": {
+      "absolute": 1e-10,
+      "relative": 1e-09,
+      "non_finite": "both sides must be null"
+    },
+    "orders": "The table_rules below define public append order; table row order is part of this oracle.",
+    "diagnostics": "Compare factor/stage/severity/code/message and multiplicity; the list order is significant.",
+    "factor_series_mapping": "For C++ evaluate_factor_research_detailed, select the named factor column from factor_rows; each case is one exact public Python factor call.",
+    "cross_factor_scope": "Python correlation/comparisons tables are present with canonical columns and empty rows for these single-factor calls. Pairwise non-empty parity belongs to the separate multi-factor panel API, not this fixture."
+  },
+  "table_rules": {
+    "signals": {
+      "key": [
+        "factor",
+        "time",
+        "asset"
+      ],
+      "order": "factor-major, then time, asset ascending",
+      "mask": "all present factor-panel keys; NaN factor values remain rows; value is direction-adjusted raw value"
+    },
+    "labels": {
+      "key": [
+        "time",
+        "asset",
+        "period"
+      ],
+      "order": "period-major, then panel time, asset ascending",
+      "mask": "every present panel key × every requested period; factor NaN, return NaN, and end-tail labels remain as null-valued rows"
+    },
+    "ic": {
+      "key": [
+        "time",
+        "factor",
+        "period"
+      ],
+      "order": "factor-major, period-major, time ascending",
+      "mask": "one row when finite factor/label pairs meet min_assets; degenerate Pearson or Spearman metric is null, not a dropped row"
+    },
+    "ic_summary": {
+      "key": [
+        "factor",
+        "period"
+      ],
+      "order": "factor-major, period-major",
+      "mask": "one row for every factor × period, including unevaluable cases; n_dates counts finite Pearson IC observations"
+    },
+    "quantile_returns": {
+      "key": [
+        "time",
+        "factor",
+        "period",
+        "quantile"
+      ],
+      "order": "factor-major, period-major, quantile ascending, time ascending",
+      "mask": "only successfully populated buckets with n_assets >= min_quantile_assets; n_assets is the cleaned bucket count"
+    },
+    "turnover": {
+      "key": [
+        "time",
+        "factor",
+        "period",
+        "quantile"
+      ],
+      "order": "factor-major, period-major, quantile ascending, time ascending",
+      "mask": "quantile membership turnover with lag parsed from period label (1D→1, 2D→2); rows without predecessor/finite turnover are omitted"
+    },
+    "spreads": {
+      "key": [
+        "time",
+        "factor",
+        "period"
+      ],
+      "order": "factor-major, period-major, time ascending",
+      "mask": "finite top-minus-bottom return spread when at least two bins exist; uses extreme populated bins before min_quantile_assets output filtering"
+    },
+    "stability": {
+      "key": [
+        "factor",
+        "lag"
+      ],
+      "order": "factor-major, stability_lags input order",
+      "mask": "rank autocorrelation summary over the full processed panel, independent of label availability; one row per requested lag, null metrics when n_dates=0"
+    },
+    "correlation": {
+      "key": [
+        "factor_left",
+        "factor_right"
+      ],
+      "order": "factor-pair order",
+      "mask": "pairwise-only output; empty for this single-factor detailed API case"
+    },
+    "comparisons": {
+      "key": [
+        "comparison",
+        "period"
+      ],
+      "order": "comparison order, then period order",
+      "mask": "explicit cross-factor comparisons only; empty because this single-factor spec requests none"
+    },
+    "coverage": {
+      "key": [
+        "factor",
+        "kind"
+      ],
+      "order": "factor input order, then combination input order",
+      "mask": "input_cells counts present panel keys; finite_cells counts finite factor values; label_cells counts keys with any finite horizon; evaluable_cells is factor-finite ∩ any-label-finite"
+    },
+    "diagnostics": {
+      "key": "implicit append ordinal; diagnostic field tuples may repeat",
+      "order": "Python diagnostic append order; duplicates are retained",
+      "mask": "all emitted diagnostics; code/stage/severity are categorical, message is the exact public diagnostic text"
+    }
+  },
+  "table_order": [
+    "signals",
+    "labels",
+    "ic",
+    "ic_summary",
+    "quantile_returns",
+    "turnover",
+    "spreads",
+    "stability",
+    "correlation",
+    "comparisons",
+    "coverage",
+    "diagnostics"
+  ],
+  "factor_local_tables": [
+    "signals",
+    "labels",
+    "ic",
+    "ic_summary",
+    "quantile_returns",
+    "turnover",
+    "spreads",
+    "stability",
+    "coverage",
+    "diagnostics"
+  ],
+  "common_tables": {
+    "labels": {
+      "columns": [
+        "time",
+        "asset",
+        "period",
+        "value"
+      ],
+      "row_count": 66,
+      "null_counts": {
+        "time": 0,
+        "asset": 0,
+        "period": 0,
+        "value": 18
+      },
+      "category_counts": {
+        "period": {
+          "1D": 33,
+          "2D": 33
+        }
+      },
+      "rows": [
+        {
+          "time": "2024-01-08T16:00:00Z",
+          "asset": "A",
+          "period": "1D",
+          "value": -0.02000000000000013
+        },
+        {
+          "time": "2024-01-08T16:00:00Z",
+          "asset": "B",
+          "period": "1D",
+          "value": -0.010000000000000009
+        },
+        {
+          "time": "2024-01-08T16:00:00Z",
+          "asset": "C",
+          "period": "1D",
+          "value": 0.0
+        },
+        {
+          "time": "2024-01-08T16:00:00Z",
+          "asset": "D",
+          "period": "1D",
+          "value": 0.010000000000000009
+        },
+        {
+          "time": "2024-01-08T16:00:00Z",
+          "asset": "E",
+          "period": "1D",
+          "value": 0.020000000000000018
+        },
+        {
+          "time": "2024-01-08T16:00:00Z",
+          "asset": "F",
+          "period": "1D",
+          "value": 0.029999999999999805
+        },
+        {
+          "time": "2024-01-09T16:00:00Z",
+          "asset": "A",
+          "period": "1D",
+          "value": -0.02000000000000013
+        },
+        {
+          "time": "2024-01-09T16:00:00Z",
+          "asset": "B",
+          "period": "1D",
+          "value": null
+        },
+        {
+          "time": "2024-01-09T16:00:00Z",
+          "asset": "C",
+          "period": "1D",
+          "value": 0.0
+        },
+        {
+          "time": "2024-01-09T16:00:00Z",
+          "asset": "D",
+          "period": "1D",
+          "value": 0.010000000000000009
+        },
+        {
+          "time": "2024-01-09T16:00:00Z",
+          "asset": "E",
+          "period": "1D",
+          "value": 0.020000000000000018
+        },
+        {
+          "time": "2024-01-09T16:00:00Z",
+          "asset": "F",
+          "period": "1D",
+          "value": 0.030000000000000027
+        },
+        {
+          "time": "2024-01-10T16:00:00Z",
+          "asset": "A",
+          "period": "1D",
+          "value": -0.019999999999999907
+        },
+        {
+          "time": "2024-01-10T16:00:00Z",
+          "asset": "B",
+          "period": "1D",
+          "value": null
+        },
+        {
+          "time": "2024-01-10T16:00:00Z",
+          "asset": "C",
+          "period": "1D",
+          "value": 0.0
+        },
+        {
+          "time": "2024-01-10T16:00:00Z",
+          "asset": "D",
+          "period": "1D",
+          "value": null
+        },
+        {
+          "time": "2024-01-10T16:00:00Z",
+          "asset": "E",
+          "period": "1D",
+          "value": 0.019999999999999796
+        },
+        {
+          "time": "2024-01-10T16:00:00Z",
+          "asset": "F",
+          "period": "1D",
+          "value": 0.03000000000000025
+        },
+        {
+          "time": "2024-01-11T16:00:00Z",
+          "asset": "A",
+          "period": "1D",
+          "value": -0.019999999999999907
+        },
+        {
+          "time": "2024-01-11T16:00:00Z",
+          "asset": "B",
+          "period": "1D",
+          "value": -0.010000000000000009
+        },
+        {
+          "time": "2024-01-11T16:00:00Z",
+          "asset": "C",
+          "period": "1D",
+          "value": null
+        },
+        {
+          "time": "2024-01-11T16:00:00Z",
+          "asset": "D",
+          "period": "1D",
+          "value": null
+        },
+        {
+          "time": "2024-01-11T16:00:00Z",
+          "asset": "E",
+          "period": "1D",
+          "value": 0.020000000000000018
+        },
+        {
+          "time": "2024-01-11T16:00:00Z",
+          "asset": "F",
+          "period": "1D",
+          "value": 0.030000000000000027
+        },
+        {
+          "time": "2024-01-12T16:00:00Z",
+          "asset": "A",
+          "period": "1D",
+          "value": -0.020000000000000018
+        },
+        {
+          "time": "2024-01-12T16:00:00Z",
+          "asset": "B",
+          "period": "1D",
+          "value": -0.009999999999999898
+        },
+        {
+          "time": "2024-01-12T16:00:00Z",
+          "asset": "C",
+          "period": "1D",
+          "value": null
+        },
+        {
+          "time": "2024-01-15T16:00:00Z",
+          "asset": "A",
+          "period": "1D",
+          "value": -0.02000000000000013
+        },
+        {
+          "time": "2024-01-15T16:00:00Z",
+          "asset": "B",
+          "period": "1D",
+          "value": -0.01000000000000012
+        },
+        {
+          "time": "2024-01-15T16:00:00Z",
+          "asset": "C",
+          "period": "1D",
+          "value": 0.0
+        },
+        {
+          "time": "2024-01-15T16:00:00Z",
+          "asset": "D",
+          "period": "1D",
+          "value": 0.009999999999999787
+        },
+        {
+          "time": "2024-01-15T16:00:00Z",
+          "asset": "E",
+          "period": "1D",
+          "value": 0.020000000000000018
+        },
+        {
+          "time": "2024-01-15T16:00:00Z",
+          "asset": "F",
+          "period": "1D",
+          "value": 0.030000000000000027
+        },
+        {
+          "time": "2024-01-08T16:00:00Z",
+          "asset": "A",
+          "period": "2D",
+          "value": -0.03960000000000019
+        },
+        {
+          "time": "2024-01-08T16:00:00Z",
+          "asset": "B",
+          "period": "2D",
+          "value": null
+        },
+        {
+          "time": "2024-01-08T16:00:00Z",
+          "asset": "C",
+          "period": "2D",
+          "value": 0.0
+        },
+        {
+          "time": "2024-01-08T16:00:00Z",
+          "asset": "D",
+          "period": "2D",
+          "value": 0.020100000000000007
+        },
+        {
+          "time": "2024-01-08T16:00:00Z",
+          "asset": "E",
+          "period": "2D",
+          "value": 0.04039999999999999
+        },
+        {
+          "time": "2024-01-08T16:00:00Z",
+          "asset": "F",
+          "period": "2D",
+          "value": 0.060899999999999954
+        },
+        {
+          "time": "2024-01-09T16:00:00Z",
+          "asset": "A",
+          "period": "2D",
+          "value": -0.03959999999999997
+        },
+        {
+          "time": "2024-01-09T16:00:00Z",
+          "asset": "B",
+          "period": "2D",
+          "value": -0.019899999999999918
+        },
+        {
+          "time": "2024-01-09T16:00:00Z",
+          "asset": "C",
+          "period": "2D",
+          "value": 0.0
+        },
+        {
+          "time": "2024-01-09T16:00:00Z",
+          "asset": "D",
+          "period": "2D",
+          "value": null
+        },
+        {
+          "time": "2024-01-09T16:00:00Z",
+          "asset": "E",
+          "period": "2D",
+          "value": 0.04039999999999999
+        },
+        {
+          "time": "2024-01-09T16:00:00Z",
+          "asset": "F",
+          "period": "2D",
+          "value": 0.060900000000000176
+        },
+        {
+          "time": "2024-01-10T16:00:00Z",
+          "asset": "A",
+          "period": "2D",
+          "value": -0.03959999999999986
+        },
+        {
+          "time": "2024-01-10T16:00:00Z",
+          "asset": "B",
+          "period": "2D",
+          "value": null
+        },
+        {
+          "time": "2024-01-10T16:00:00Z",
+          "asset": "C",
+          "period": "2D",
+          "value": null
+        },
+        {
+          "time": "2024-01-10T16:00:00Z",
+          "asset": "D",
+          "period": "2D",
+          "value": 0.02010000000000023
+        },
+        {
+          "time": "2024-01-10T16:00:00Z",
+          "asset": "E",
+          "period": "2D",
+          "value": 0.04039999999999999
+        },
+        {
+          "time": "2024-01-10T16:00:00Z",
+          "asset": "F",
+          "period": "2D",
+          "value": 0.060900000000000176
+        },
+        {
+          "time": "2024-01-11T16:00:00Z",
+          "asset": "A",
+          "period": "2D",
+          "value": -0.03959999999999997
+        },
+        {
+          "time": "2024-01-11T16:00:00Z",
+          "asset": "B",
+          "period": "2D",
+          "value": -0.01990000000000003
+        },
+        {
+          "time": "2024-01-11T16:00:00Z",
+          "asset": "C",
+          "period": "2D",
+          "value": 0.0
+        },
+        {
+          "time": "2024-01-11T16:00:00Z",
+          "asset": "D",
+          "period": "2D",
+          "value": null
+        },
+        {
+          "time": "2024-01-11T16:00:00Z",
+          "asset": "E",
+          "period": "2D",
+          "value": 0.040400000000000214
+        },
+        {
+          "time": "2024-01-11T16:00:00Z",
+          "asset": "F",
+          "period": "2D",
+          "value": 0.060900000000000176
+        },
+        {
+          "time": "2024-01-12T16:00:00Z",
+          "asset": "A",
+          "period": "2D",
+          "value": -0.03960000000000008
+        },
+        {
+          "time": "2024-01-12T16:00:00Z",
+          "asset": "B",
+          "period": "2D",
+          "value": -0.01990000000000014
+        },
+        {
+          "time": "2024-01-12T16:00:00Z",
+          "asset": "C",
+          "period": "2D",
+          "value": null
+        },
+        {
+          "time": "2024-01-15T16:00:00Z",
+          "asset": "A",
+          "period": "2D",
+          "value": null
+        },
+        {
+          "time": "2024-01-15T16:00:00Z",
+          "asset": "B",
+          "period": "2D",
+          "value": null
+        },
+        {
+          "time": "2024-01-15T16:00:00Z",
+          "asset": "C",
+          "period": "2D",
+          "value": null
+        },
+        {
+          "time": "2024-01-15T16:00:00Z",
+          "asset": "D",
+          "period": "2D",
+          "value": null
+        },
+        {
+          "time": "2024-01-15T16:00:00Z",
+          "asset": "E",
+          "period": "2D",
+          "value": null
+        },
+        {
+          "time": "2024-01-15T16:00:00Z",
+          "asset": "F",
+          "period": "2D",
+          "value": null
+        }
+      ],
+      "masks_by_period": {
+        "1D": {
+          "rows": 33,
+          "finite_value_rows": 27,
+          "missing_value_rows": 6
+        },
+        "2D": {
+          "rows": 33,
+          "finite_value_rows": 21,
+          "missing_value_rows": 12
+        }
+      }
+    }
+  },
+  "cases": [
+    {
+      "factor": "tie_signal",
+      "direction_overrides": {},
+      "status": "OK",
+      "manifest": {
+        "api_version": "1.0",
+        "result_schema_version": 1,
+        "evaluation_config_schema_version": 1,
+        "label_mode": "next_open_to_open",
+        "labels": [
+          "1D",
+          "2D"
+        ],
+        "counts": {
+          "factors": 1,
+          "combinations": 0,
+          "targets": 6,
+          "study_dates": 6,
+          "panel_cells": 33,
+          "label_rows": 66,
+          "signal_rows": 33,
+          "ic_rows": 8,
+          "ic_observations": 8,
+          "evaluable_factor_periods": 2,
+          "diagnostics": 3
+        },
+        "tables": {
+          "signals": {
+            "rows": 33,
+            "columns": [
+              "time",
+              "asset",
+              "factor",
+              "direction",
+              "value",
+              "processed_value",
+              "preprocess",
+              "group"
+            ]
+          },
+          "labels": {
+            "rows": 66,
+            "columns": [
+              "time",
+              "asset",
+              "period",
+              "value"
+            ]
+          },
+          "ic": {
+            "rows": 8,
+            "columns": [
+              "time",
+              "factor",
+              "period",
+              "ic",
+              "rank_ic",
+              "n_assets"
+            ]
+          },
+          "ic_summary": {
+            "rows": 2,
+            "columns": [
+              "factor",
+              "period",
+              "mean_ic",
+              "std_ic",
+              "icir",
+              "mean_rank_ic",
+              "std_rank_ic",
+              "rank_icir",
+              "n_dates"
+            ]
+          },
+          "quantile_returns": {
+            "rows": 15,
+            "columns": [
+              "time",
+              "factor",
+              "period",
+              "quantile",
+              "mean_return",
+              "n_assets"
+            ]
+          },
+          "turnover": {
+            "rows": 15,
+            "columns": [
+              "time",
+              "factor",
+              "period",
+              "quantile",
+              "turnover"
+            ]
+          },
+          "spreads": {
+            "rows": 8,
+            "columns": [
+              "time",
+              "factor",
+              "period",
+              "spread",
+              "top_quantile",
+              "bottom_quantile"
+            ]
+          },
+          "stability": {
+            "rows": 2,
+            "columns": [
+              "factor",
+              "lag",
+              "mean_rank_autocorrelation",
+              "std_rank_autocorrelation",
+              "n_dates"
+            ]
+          },
+          "correlation": {
+            "rows": 0,
+            "columns": [
+              "factor_left",
+              "factor_right",
+              "mean_correlation",
+              "std_correlation",
+              "n_dates"
+            ]
+          },
+          "comparisons": {
+            "rows": 0,
+            "columns": [
+              "comparison",
+              "left",
+              "right",
+              "period",
+              "mean_ic",
+              "icir",
+              "mean_ic_left",
+              "mean_ic_right",
+              "icir_left",
+              "icir_right",
+              "n_dates_left",
+              "n_dates_right"
+            ]
+          },
+          "coverage": {
+            "rows": 1,
+            "columns": [
+              "factor",
+              "kind",
+              "direction",
+              "input_cells",
+              "finite_cells",
+              "label_cells",
+              "evaluable_cells",
+              "status"
+            ]
+          },
+          "diagnostics": {
+            "rows": 3,
+            "columns": [
+              "factor",
+              "stage",
+              "severity",
+              "code",
+              "message"
+            ]
+          }
+        }
+      },
+      "diagnostic_code_counts": {
+        "min_quantile_assets": 2,
+        "stability_lag_unavailable": 1
+      },
+      "tables": {
+        "signals": {
+          "columns": [
+            "time",
+            "asset",
+            "factor",
+            "direction",
+            "value",
+            "processed_value",
+            "preprocess",
+            "group"
+          ],
+          "row_count": 33,
+          "null_counts": {
+            "time": 0,
+            "asset": 0,
+            "factor": 0,
+            "direction": 0,
+            "value": 1,
+            "processed_value": 1,
+            "preprocess": 0,
+            "group": 0
+          },
+          "category_counts": {
+            "factor": {
+              "tie_signal": 33
+            }
+          },
+          "rows": [
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "asset": "A",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 1.0,
+              "processed_value": 1.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "asset": "B",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 1.0,
+              "processed_value": 1.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "asset": "C",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 2.0,
+              "processed_value": 2.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "asset": "D",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 3.0,
+              "processed_value": 3.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "asset": "E",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 4.0,
+              "processed_value": 4.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "asset": "F",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 4.0,
+              "processed_value": 4.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "asset": "A",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 1.0,
+              "processed_value": 1.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "asset": "B",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": null,
+              "processed_value": null,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "asset": "C",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 2.0,
+              "processed_value": 2.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "asset": "D",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 3.0,
+              "processed_value": 3.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "asset": "E",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 3.0,
+              "processed_value": 3.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "asset": "F",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 5.0,
+              "processed_value": 5.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "asset": "A",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 1.0,
+              "processed_value": 1.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "asset": "B",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 1.0,
+              "processed_value": 1.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "asset": "C",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 2.0,
+              "processed_value": 2.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "asset": "D",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 4.0,
+              "processed_value": 4.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "asset": "E",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 5.0,
+              "processed_value": 5.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "asset": "F",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 5.0,
+              "processed_value": 5.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "asset": "A",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 1.0,
+              "processed_value": 1.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "asset": "B",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 2.0,
+              "processed_value": 2.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "asset": "C",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 3.0,
+              "processed_value": 3.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "asset": "D",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 4.0,
+              "processed_value": 4.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "asset": "E",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 5.0,
+              "processed_value": 5.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "asset": "F",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 6.0,
+              "processed_value": 6.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-12T16:00:00Z",
+              "asset": "A",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 1.0,
+              "processed_value": 1.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-12T16:00:00Z",
+              "asset": "B",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 1.0,
+              "processed_value": 1.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-12T16:00:00Z",
+              "asset": "C",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 2.0,
+              "processed_value": 2.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "asset": "A",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 1.0,
+              "processed_value": 1.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "asset": "B",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 2.0,
+              "processed_value": 2.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "asset": "C",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 3.0,
+              "processed_value": 3.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "asset": "D",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 4.0,
+              "processed_value": 4.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "asset": "E",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 5.0,
+              "processed_value": 5.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "asset": "F",
+              "factor": "tie_signal",
+              "direction": 1,
+              "value": 6.0,
+              "processed_value": 6.0,
+              "preprocess": "none",
+              "group": "default"
+            }
+          ]
+        },
+        "labels": {
+          "values_from": "common_tables.labels"
+        },
+        "ic": {
+          "columns": [
+            "time",
+            "factor",
+            "period",
+            "ic",
+            "rank_ic",
+            "n_assets"
+          ],
+          "row_count": 8,
+          "null_counts": {
+            "time": 0,
+            "factor": 0,
+            "period": 0,
+            "ic": 0,
+            "rank_ic": 0,
+            "n_assets": 0
+          },
+          "category_counts": {
+            "factor": {
+              "tie_signal": 8
+            },
+            "period": {
+              "1D": 5,
+              "2D": 3
+            }
+          },
+          "rows": [
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "ic": 0.9694584179118518,
+              "rank_ic": 0.9710083124552246,
+              "n_assets": 6
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "ic": 0.9463495102642548,
+              "rank_ic": 0.9746794344808963,
+              "n_assets": 5
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "ic": 0.9661949778010372,
+              "rank_ic": 0.9486832980505139,
+              "n_assets": 4
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "ic": 1.0,
+              "rank_ic": 1.0,
+              "n_assets": 4
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "ic": 1.0,
+              "rank_ic": 1.0,
+              "n_assets": 6
+            },
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "2D",
+              "ic": 0.9766478416839379,
+              "rank_ic": 0.9746794344808963,
+              "n_assets": 5
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "2D",
+              "ic": 0.9479266774450872,
+              "rank_ic": 1.0,
+              "n_assets": 4
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "2D",
+              "ic": 0.999979404308127,
+              "rank_ic": 0.9999999999999999,
+              "n_assets": 5
+            }
+          ]
+        },
+        "ic_summary": {
+          "columns": [
+            "factor",
+            "period",
+            "mean_ic",
+            "std_ic",
+            "icir",
+            "mean_rank_ic",
+            "std_rank_ic",
+            "rank_icir",
+            "n_dates"
+          ],
+          "row_count": 2,
+          "null_counts": {
+            "factor": 0,
+            "period": 0,
+            "mean_ic": 0,
+            "std_ic": 0,
+            "icir": 0,
+            "mean_rank_ic": 0,
+            "std_rank_ic": 0,
+            "rank_icir": 0,
+            "n_dates": 0
+          },
+          "category_counts": {
+            "factor": {
+              "tie_signal": 2
+            },
+            "period": {
+              "1D": 1,
+              "2D": 1
+            }
+          },
+          "rows": [
+            {
+              "factor": "tie_signal",
+              "period": "1D",
+              "mean_ic": 0.9764005811954288,
+              "std_ic": 0.02328776487577225,
+              "icir": 41.927621066427065,
+              "mean_rank_ic": 0.9788742089973269,
+              "std_rank_ic": 0.021699986500170885,
+              "rank_icir": 45.109438615992616,
+              "n_dates": 5
+            },
+            {
+              "factor": "tie_signal",
+              "period": "2D",
+              "mean_ic": 0.974851307812384,
+              "std_ic": 0.026072825775762934,
+              "icir": 37.38955325351029,
+              "mean_rank_ic": 0.991559811493632,
+              "std_rank_ic": 0.014618835318488024,
+              "rank_icir": 67.82755191445618,
+              "n_dates": 3
+            }
+          ]
+        },
+        "quantile_returns": {
+          "columns": [
+            "time",
+            "factor",
+            "period",
+            "quantile",
+            "mean_return",
+            "n_assets"
+          ],
+          "row_count": 15,
+          "null_counts": {
+            "time": 0,
+            "factor": 0,
+            "period": 0,
+            "quantile": 0,
+            "mean_return": 0,
+            "n_assets": 0
+          },
+          "category_counts": {
+            "factor": {
+              "tie_signal": 15
+            },
+            "period": {
+              "1D": 10,
+              "2D": 5
+            },
+            "quantile": {
+              "1": 5,
+              "2": 3,
+              "3": 7
+            }
+          },
+          "rows": [
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "quantile": 1,
+              "mean_return": -0.015000000000000069,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "quantile": 1,
+              "mean_return": -0.010000000000000064,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "quantile": 1,
+              "mean_return": -0.015000000000000124,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "quantile": 2,
+              "mean_return": 0.0050000000000000044,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "quantile": 2,
+              "mean_return": 0.015000000000000013,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "quantile": 2,
+              "mean_return": 0.004999999999999893,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "quantile": 3,
+              "mean_return": 0.02499999999999991,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "quantile": 3,
+              "mean_return": 0.025000000000000022,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "quantile": 3,
+              "mean_return": 0.025000000000000022,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "quantile": 3,
+              "mean_return": 0.025000000000000022,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "2D",
+              "quantile": 1,
+              "mean_return": -0.019800000000000095,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "2D",
+              "quantile": 1,
+              "mean_return": -0.02975,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "2D",
+              "quantile": 3,
+              "mean_return": 0.05064999999999997,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "2D",
+              "quantile": 3,
+              "mean_return": 0.050650000000000084,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "2D",
+              "quantile": 3,
+              "mean_return": 0.050650000000000195,
+              "n_assets": 2
+            }
+          ]
+        },
+        "turnover": {
+          "columns": [
+            "time",
+            "factor",
+            "period",
+            "quantile",
+            "turnover"
+          ],
+          "row_count": 15,
+          "null_counts": {
+            "time": 0,
+            "factor": 0,
+            "period": 0,
+            "quantile": 0,
+            "turnover": 0
+          },
+          "category_counts": {
+            "factor": {
+              "tie_signal": 15
+            },
+            "period": {
+              "1D": 12,
+              "2D": 3
+            },
+            "quantile": {
+              "1": 5,
+              "2": 5,
+              "3": 5
+            }
+          },
+          "rows": [
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "quantile": 1,
+              "turnover": 0.5
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "quantile": 1,
+              "turnover": 0.0
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "quantile": 1,
+              "turnover": 0.0
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "quantile": 1,
+              "turnover": 0.5
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "quantile": 2,
+              "turnover": 0.5
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "quantile": 2,
+              "turnover": 1.0
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "quantile": 2,
+              "turnover": 1.0
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "quantile": 2,
+              "turnover": 1.0
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "quantile": 3,
+              "turnover": 0.0
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "quantile": 3,
+              "turnover": 0.5
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "quantile": 3,
+              "turnover": 0.0
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "quantile": 3,
+              "turnover": 0.0
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "2D",
+              "quantile": 1,
+              "turnover": 0.5
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "2D",
+              "quantile": 2,
+              "turnover": 1.0
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "2D",
+              "quantile": 3,
+              "turnover": 0.0
+            }
+          ]
+        },
+        "spreads": {
+          "columns": [
+            "time",
+            "factor",
+            "period",
+            "spread",
+            "top_quantile",
+            "bottom_quantile"
+          ],
+          "row_count": 8,
+          "null_counts": {
+            "time": 0,
+            "factor": 0,
+            "period": 0,
+            "spread": 0,
+            "top_quantile": 0,
+            "bottom_quantile": 0
+          },
+          "category_counts": {
+            "factor": {
+              "tie_signal": 8
+            },
+            "period": {
+              "1D": 5,
+              "2D": 3
+            }
+          },
+          "rows": [
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "spread": 0.03999999999999998,
+              "top_quantile": 3,
+              "bottom_quantile": 1
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "spread": 0.04000000000000009,
+              "top_quantile": 3,
+              "bottom_quantile": 1
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "spread": 0.04499999999999993,
+              "top_quantile": 3,
+              "bottom_quantile": 1
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "spread": 0.04499999999999993,
+              "top_quantile": 3,
+              "bottom_quantile": 1
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "1D",
+              "spread": 0.04000000000000015,
+              "top_quantile": 3,
+              "bottom_quantile": 1
+            },
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "2D",
+              "spread": 0.07045000000000007,
+              "top_quantile": 3,
+              "bottom_quantile": 1
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "2D",
+              "spread": 0.09025000000000005,
+              "top_quantile": 3,
+              "bottom_quantile": 1
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "factor": "tie_signal",
+              "period": "2D",
+              "spread": 0.0804000000000002,
+              "top_quantile": 3,
+              "bottom_quantile": 1
+            }
+          ]
+        },
+        "stability": {
+          "columns": [
+            "factor",
+            "lag",
+            "mean_rank_autocorrelation",
+            "std_rank_autocorrelation",
+            "n_dates"
+          ],
+          "row_count": 2,
+          "null_counts": {
+            "factor": 0,
+            "lag": 0,
+            "mean_rank_autocorrelation": 1,
+            "std_rank_autocorrelation": 1,
+            "n_dates": 0
+          },
+          "category_counts": {
+            "factor": {
+              "tie_signal": 2
+            },
+            "lag": {
+              "1": 1,
+              "7": 1
+            }
+          },
+          "rows": [
+            {
+              "factor": "tie_signal",
+              "lag": 1,
+              "mean_rank_autocorrelation": 0.9105335796007272,
+              "std_rank_autocorrelation": 0.04479525852154092,
+              "n_dates": 5
+            },
+            {
+              "factor": "tie_signal",
+              "lag": 7,
+              "mean_rank_autocorrelation": null,
+              "std_rank_autocorrelation": null,
+              "n_dates": 0
+            }
+          ]
+        },
+        "correlation": {
+          "columns": [
+            "factor_left",
+            "factor_right",
+            "mean_correlation",
+            "std_correlation",
+            "n_dates"
+          ],
+          "row_count": 0,
+          "null_counts": {
+            "factor_left": 0,
+            "factor_right": 0,
+            "mean_correlation": 0,
+            "std_correlation": 0,
+            "n_dates": 0
+          },
+          "category_counts": {},
+          "rows": []
+        },
+        "comparisons": {
+          "columns": [
+            "comparison",
+            "left",
+            "right",
+            "period",
+            "mean_ic",
+            "icir",
+            "mean_ic_left",
+            "mean_ic_right",
+            "icir_left",
+            "icir_right",
+            "n_dates_left",
+            "n_dates_right"
+          ],
+          "row_count": 0,
+          "null_counts": {
+            "comparison": 0,
+            "left": 0,
+            "right": 0,
+            "period": 0,
+            "mean_ic": 0,
+            "icir": 0,
+            "mean_ic_left": 0,
+            "mean_ic_right": 0,
+            "icir_left": 0,
+            "icir_right": 0,
+            "n_dates_left": 0,
+            "n_dates_right": 0
+          },
+          "category_counts": {
+            "period": {}
+          },
+          "rows": []
+        },
+        "coverage": {
+          "columns": [
+            "factor",
+            "kind",
+            "direction",
+            "input_cells",
+            "finite_cells",
+            "label_cells",
+            "evaluable_cells",
+            "status"
+          ],
+          "row_count": 1,
+          "null_counts": {
+            "factor": 0,
+            "kind": 0,
+            "direction": 0,
+            "input_cells": 0,
+            "finite_cells": 0,
+            "label_cells": 0,
+            "evaluable_cells": 0,
+            "status": 0
+          },
+          "category_counts": {
+            "factor": {
+              "tie_signal": 1
+            },
+            "kind": {
+              "factor": 1
+            },
+            "status": {
+              "OK": 1
+            }
+          },
+          "rows": [
+            {
+              "factor": "tie_signal",
+              "kind": "factor",
+              "direction": 1,
+              "input_cells": 33,
+              "finite_cells": 32,
+              "label_cells": 30,
+              "evaluable_cells": 29,
+              "status": "OK"
+            }
+          ]
+        },
+        "diagnostics": {
+          "columns": [
+            "factor",
+            "stage",
+            "severity",
+            "code",
+            "message"
+          ],
+          "row_count": 3,
+          "null_counts": {
+            "factor": 0,
+            "stage": 0,
+            "severity": 0,
+            "code": 0,
+            "message": 0
+          },
+          "category_counts": {
+            "factor": {
+              "tie_signal": 3
+            },
+            "stage": {
+              "quantile": 2,
+              "stability": 1
+            },
+            "severity": {
+              "warning": 3
+            },
+            "code": {
+              "min_quantile_assets": 2,
+              "stability_lag_unavailable": 1
+            }
+          },
+          "rows": [
+            {
+              "factor": "tie_signal",
+              "stage": "quantile",
+              "severity": "warning",
+              "code": "min_quantile_assets",
+              "message": "period 1D, factor 'tie_signal': dropped 5 quantile observations below min_quantile_assets=2"
+            },
+            {
+              "factor": "tie_signal",
+              "stage": "quantile",
+              "severity": "warning",
+              "code": "min_quantile_assets",
+              "message": "period 2D, factor 'tie_signal': dropped 4 quantile observations below min_quantile_assets=2"
+            },
+            {
+              "factor": "tie_signal",
+              "stage": "stability",
+              "severity": "warning",
+              "code": "stability_lag_unavailable",
+              "message": "factor 'tie_signal' has no rank autocorrelation at lag 7"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "factor": "constant",
+      "direction_overrides": {},
+      "status": "UNEVALUABLE",
+      "manifest": {
+        "api_version": "1.0",
+        "result_schema_version": 1,
+        "evaluation_config_schema_version": 1,
+        "label_mode": "next_open_to_open",
+        "labels": [
+          "1D",
+          "2D"
+        ],
+        "counts": {
+          "factors": 1,
+          "combinations": 0,
+          "targets": 6,
+          "study_dates": 6,
+          "panel_cells": 33,
+          "label_rows": 66,
+          "signal_rows": 33,
+          "ic_rows": 0,
+          "ic_observations": 0,
+          "evaluable_factor_periods": 0,
+          "diagnostics": 4
+        },
+        "tables": {
+          "signals": {
+            "rows": 33,
+            "columns": [
+              "time",
+              "asset",
+              "factor",
+              "direction",
+              "value",
+              "processed_value",
+              "preprocess",
+              "group"
+            ]
+          },
+          "labels": {
+            "rows": 66,
+            "columns": [
+              "time",
+              "asset",
+              "period",
+              "value"
+            ]
+          },
+          "ic": {
+            "rows": 0,
+            "columns": [
+              "time",
+              "factor",
+              "period",
+              "ic",
+              "rank_ic",
+              "n_assets"
+            ]
+          },
+          "ic_summary": {
+            "rows": 2,
+            "columns": [
+              "factor",
+              "period",
+              "mean_ic",
+              "std_ic",
+              "icir",
+              "mean_rank_ic",
+              "std_rank_ic",
+              "rank_icir",
+              "n_dates"
+            ]
+          },
+          "quantile_returns": {
+            "rows": 0,
+            "columns": [
+              "time",
+              "factor",
+              "period",
+              "quantile",
+              "mean_return",
+              "n_assets"
+            ]
+          },
+          "turnover": {
+            "rows": 0,
+            "columns": [
+              "time",
+              "factor",
+              "period",
+              "quantile",
+              "turnover"
+            ]
+          },
+          "spreads": {
+            "rows": 0,
+            "columns": [
+              "time",
+              "factor",
+              "period",
+              "spread",
+              "top_quantile",
+              "bottom_quantile"
+            ]
+          },
+          "stability": {
+            "rows": 2,
+            "columns": [
+              "factor",
+              "lag",
+              "mean_rank_autocorrelation",
+              "std_rank_autocorrelation",
+              "n_dates"
+            ]
+          },
+          "correlation": {
+            "rows": 0,
+            "columns": [
+              "factor_left",
+              "factor_right",
+              "mean_correlation",
+              "std_correlation",
+              "n_dates"
+            ]
+          },
+          "comparisons": {
+            "rows": 0,
+            "columns": [
+              "comparison",
+              "left",
+              "right",
+              "period",
+              "mean_ic",
+              "icir",
+              "mean_ic_left",
+              "mean_ic_right",
+              "icir_left",
+              "icir_right",
+              "n_dates_left",
+              "n_dates_right"
+            ]
+          },
+          "coverage": {
+            "rows": 1,
+            "columns": [
+              "factor",
+              "kind",
+              "direction",
+              "input_cells",
+              "finite_cells",
+              "label_cells",
+              "evaluable_cells",
+              "status"
+            ]
+          },
+          "diagnostics": {
+            "rows": 4,
+            "columns": [
+              "factor",
+              "stage",
+              "severity",
+              "code",
+              "message"
+            ]
+          }
+        }
+      },
+      "diagnostic_code_counts": {
+        "no_evaluable_cells": 2,
+        "stability_lag_unavailable": 2
+      },
+      "tables": {
+        "signals": {
+          "columns": [
+            "time",
+            "asset",
+            "factor",
+            "direction",
+            "value",
+            "processed_value",
+            "preprocess",
+            "group"
+          ],
+          "row_count": 33,
+          "null_counts": {
+            "time": 0,
+            "asset": 0,
+            "factor": 0,
+            "direction": 0,
+            "value": 0,
+            "processed_value": 0,
+            "preprocess": 0,
+            "group": 0
+          },
+          "category_counts": {
+            "factor": {
+              "constant": 33
+            }
+          },
+          "rows": [
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "asset": "A",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "asset": "B",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "asset": "C",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "asset": "D",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "asset": "E",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "asset": "F",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "asset": "A",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "asset": "B",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "asset": "C",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "asset": "D",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "asset": "E",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "asset": "F",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "asset": "A",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "asset": "B",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "asset": "C",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "asset": "D",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "asset": "E",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "asset": "F",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "asset": "A",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "asset": "B",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "asset": "C",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "asset": "D",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "asset": "E",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "asset": "F",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-12T16:00:00Z",
+              "asset": "A",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-12T16:00:00Z",
+              "asset": "B",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-12T16:00:00Z",
+              "asset": "C",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "asset": "A",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "asset": "B",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "asset": "C",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "asset": "D",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "asset": "E",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "asset": "F",
+              "factor": "constant",
+              "direction": 1,
+              "value": 7.0,
+              "processed_value": 7.0,
+              "preprocess": "none",
+              "group": "default"
+            }
+          ]
+        },
+        "labels": {
+          "values_from": "common_tables.labels"
+        },
+        "ic": {
+          "columns": [
+            "time",
+            "factor",
+            "period",
+            "ic",
+            "rank_ic",
+            "n_assets"
+          ],
+          "row_count": 0,
+          "null_counts": {
+            "time": 0,
+            "factor": 0,
+            "period": 0,
+            "ic": 0,
+            "rank_ic": 0,
+            "n_assets": 0
+          },
+          "category_counts": {
+            "factor": {},
+            "period": {}
+          },
+          "rows": []
+        },
+        "ic_summary": {
+          "columns": [
+            "factor",
+            "period",
+            "mean_ic",
+            "std_ic",
+            "icir",
+            "mean_rank_ic",
+            "std_rank_ic",
+            "rank_icir",
+            "n_dates"
+          ],
+          "row_count": 2,
+          "null_counts": {
+            "factor": 0,
+            "period": 0,
+            "mean_ic": 2,
+            "std_ic": 2,
+            "icir": 2,
+            "mean_rank_ic": 2,
+            "std_rank_ic": 2,
+            "rank_icir": 2,
+            "n_dates": 0
+          },
+          "category_counts": {
+            "factor": {
+              "constant": 2
+            },
+            "period": {
+              "1D": 1,
+              "2D": 1
+            }
+          },
+          "rows": [
+            {
+              "factor": "constant",
+              "period": "1D",
+              "mean_ic": null,
+              "std_ic": null,
+              "icir": null,
+              "mean_rank_ic": null,
+              "std_rank_ic": null,
+              "rank_icir": null,
+              "n_dates": 0
+            },
+            {
+              "factor": "constant",
+              "period": "2D",
+              "mean_ic": null,
+              "std_ic": null,
+              "icir": null,
+              "mean_rank_ic": null,
+              "std_rank_ic": null,
+              "rank_icir": null,
+              "n_dates": 0
+            }
+          ]
+        },
+        "quantile_returns": {
+          "columns": [
+            "time",
+            "factor",
+            "period",
+            "quantile",
+            "mean_return",
+            "n_assets"
+          ],
+          "row_count": 0,
+          "null_counts": {
+            "time": 0,
+            "factor": 0,
+            "period": 0,
+            "quantile": 0,
+            "mean_return": 0,
+            "n_assets": 0
+          },
+          "category_counts": {
+            "factor": {},
+            "period": {},
+            "quantile": {}
+          },
+          "rows": []
+        },
+        "turnover": {
+          "columns": [
+            "time",
+            "factor",
+            "period",
+            "quantile",
+            "turnover"
+          ],
+          "row_count": 0,
+          "null_counts": {
+            "time": 0,
+            "factor": 0,
+            "period": 0,
+            "quantile": 0,
+            "turnover": 0
+          },
+          "category_counts": {
+            "factor": {},
+            "period": {},
+            "quantile": {}
+          },
+          "rows": []
+        },
+        "spreads": {
+          "columns": [
+            "time",
+            "factor",
+            "period",
+            "spread",
+            "top_quantile",
+            "bottom_quantile"
+          ],
+          "row_count": 0,
+          "null_counts": {
+            "time": 0,
+            "factor": 0,
+            "period": 0,
+            "spread": 0,
+            "top_quantile": 0,
+            "bottom_quantile": 0
+          },
+          "category_counts": {
+            "factor": {},
+            "period": {}
+          },
+          "rows": []
+        },
+        "stability": {
+          "columns": [
+            "factor",
+            "lag",
+            "mean_rank_autocorrelation",
+            "std_rank_autocorrelation",
+            "n_dates"
+          ],
+          "row_count": 2,
+          "null_counts": {
+            "factor": 0,
+            "lag": 0,
+            "mean_rank_autocorrelation": 2,
+            "std_rank_autocorrelation": 2,
+            "n_dates": 0
+          },
+          "category_counts": {
+            "factor": {
+              "constant": 2
+            },
+            "lag": {
+              "1": 1,
+              "7": 1
+            }
+          },
+          "rows": [
+            {
+              "factor": "constant",
+              "lag": 1,
+              "mean_rank_autocorrelation": null,
+              "std_rank_autocorrelation": null,
+              "n_dates": 0
+            },
+            {
+              "factor": "constant",
+              "lag": 7,
+              "mean_rank_autocorrelation": null,
+              "std_rank_autocorrelation": null,
+              "n_dates": 0
+            }
+          ]
+        },
+        "correlation": {
+          "columns": [
+            "factor_left",
+            "factor_right",
+            "mean_correlation",
+            "std_correlation",
+            "n_dates"
+          ],
+          "row_count": 0,
+          "null_counts": {
+            "factor_left": 0,
+            "factor_right": 0,
+            "mean_correlation": 0,
+            "std_correlation": 0,
+            "n_dates": 0
+          },
+          "category_counts": {},
+          "rows": []
+        },
+        "comparisons": {
+          "columns": [
+            "comparison",
+            "left",
+            "right",
+            "period",
+            "mean_ic",
+            "icir",
+            "mean_ic_left",
+            "mean_ic_right",
+            "icir_left",
+            "icir_right",
+            "n_dates_left",
+            "n_dates_right"
+          ],
+          "row_count": 0,
+          "null_counts": {
+            "comparison": 0,
+            "left": 0,
+            "right": 0,
+            "period": 0,
+            "mean_ic": 0,
+            "icir": 0,
+            "mean_ic_left": 0,
+            "mean_ic_right": 0,
+            "icir_left": 0,
+            "icir_right": 0,
+            "n_dates_left": 0,
+            "n_dates_right": 0
+          },
+          "category_counts": {
+            "period": {}
+          },
+          "rows": []
+        },
+        "coverage": {
+          "columns": [
+            "factor",
+            "kind",
+            "direction",
+            "input_cells",
+            "finite_cells",
+            "label_cells",
+            "evaluable_cells",
+            "status"
+          ],
+          "row_count": 1,
+          "null_counts": {
+            "factor": 0,
+            "kind": 0,
+            "direction": 0,
+            "input_cells": 0,
+            "finite_cells": 0,
+            "label_cells": 0,
+            "evaluable_cells": 0,
+            "status": 0
+          },
+          "category_counts": {
+            "factor": {
+              "constant": 1
+            },
+            "kind": {
+              "factor": 1
+            },
+            "status": {
+              "UNEVALUABLE": 1
+            }
+          },
+          "rows": [
+            {
+              "factor": "constant",
+              "kind": "factor",
+              "direction": 1,
+              "input_cells": 33,
+              "finite_cells": 33,
+              "label_cells": 30,
+              "evaluable_cells": 30,
+              "status": "UNEVALUABLE"
+            }
+          ]
+        },
+        "diagnostics": {
+          "columns": [
+            "factor",
+            "stage",
+            "severity",
+            "code",
+            "message"
+          ],
+          "row_count": 4,
+          "null_counts": {
+            "factor": 0,
+            "stage": 0,
+            "severity": 0,
+            "code": 0,
+            "message": 0
+          },
+          "category_counts": {
+            "factor": {
+              "constant": 4
+            },
+            "stage": {
+              "prepare": 2,
+              "stability": 2
+            },
+            "severity": {
+              "warning": 4
+            },
+            "code": {
+              "no_evaluable_cells": 2,
+              "stability_lag_unavailable": 2
+            }
+          },
+          "rows": [
+            {
+              "factor": "constant",
+              "stage": "prepare",
+              "severity": "warning",
+              "code": "no_evaluable_cells",
+              "message": "period 1D, factor 'constant' has no rows after cleaning and binning"
+            },
+            {
+              "factor": "constant",
+              "stage": "prepare",
+              "severity": "warning",
+              "code": "no_evaluable_cells",
+              "message": "period 2D, factor 'constant' has no rows after cleaning and binning"
+            },
+            {
+              "factor": "constant",
+              "stage": "stability",
+              "severity": "warning",
+              "code": "stability_lag_unavailable",
+              "message": "factor 'constant' has no rank autocorrelation at lag 1"
+            },
+            {
+              "factor": "constant",
+              "stage": "stability",
+              "severity": "warning",
+              "code": "stability_lag_unavailable",
+              "message": "factor 'constant' has no rank autocorrelation at lag 7"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "factor": "near_constant",
+      "direction_overrides": {
+        "near_constant": -1
+      },
+      "status": "OK",
+      "manifest": {
+        "api_version": "1.0",
+        "result_schema_version": 1,
+        "evaluation_config_schema_version": 1,
+        "label_mode": "next_open_to_open",
+        "labels": [
+          "1D",
+          "2D"
+        ],
+        "counts": {
+          "factors": 1,
+          "combinations": 0,
+          "targets": 6,
+          "study_dates": 6,
+          "panel_cells": 33,
+          "label_rows": 66,
+          "signal_rows": 33,
+          "ic_rows": 9,
+          "ic_observations": 9,
+          "evaluable_factor_periods": 2,
+          "diagnostics": 5
+        },
+        "tables": {
+          "signals": {
+            "rows": 33,
+            "columns": [
+              "time",
+              "asset",
+              "factor",
+              "direction",
+              "value",
+              "processed_value",
+              "preprocess",
+              "group"
+            ]
+          },
+          "labels": {
+            "rows": 66,
+            "columns": [
+              "time",
+              "asset",
+              "period",
+              "value"
+            ]
+          },
+          "ic": {
+            "rows": 9,
+            "columns": [
+              "time",
+              "factor",
+              "period",
+              "ic",
+              "rank_ic",
+              "n_assets"
+            ]
+          },
+          "ic_summary": {
+            "rows": 2,
+            "columns": [
+              "factor",
+              "period",
+              "mean_ic",
+              "std_ic",
+              "icir",
+              "mean_rank_ic",
+              "std_rank_ic",
+              "rank_icir",
+              "n_dates"
+            ]
+          },
+          "quantile_returns": {
+            "rows": 20,
+            "columns": [
+              "time",
+              "factor",
+              "period",
+              "quantile",
+              "mean_return",
+              "n_assets"
+            ]
+          },
+          "turnover": {
+            "rows": 19,
+            "columns": [
+              "time",
+              "factor",
+              "period",
+              "quantile",
+              "turnover"
+            ]
+          },
+          "spreads": {
+            "rows": 11,
+            "columns": [
+              "time",
+              "factor",
+              "period",
+              "spread",
+              "top_quantile",
+              "bottom_quantile"
+            ]
+          },
+          "stability": {
+            "rows": 2,
+            "columns": [
+              "factor",
+              "lag",
+              "mean_rank_autocorrelation",
+              "std_rank_autocorrelation",
+              "n_dates"
+            ]
+          },
+          "correlation": {
+            "rows": 0,
+            "columns": [
+              "factor_left",
+              "factor_right",
+              "mean_correlation",
+              "std_correlation",
+              "n_dates"
+            ]
+          },
+          "comparisons": {
+            "rows": 0,
+            "columns": [
+              "comparison",
+              "left",
+              "right",
+              "period",
+              "mean_ic",
+              "icir",
+              "mean_ic_left",
+              "mean_ic_right",
+              "icir_left",
+              "icir_right",
+              "n_dates_left",
+              "n_dates_right"
+            ]
+          },
+          "coverage": {
+            "rows": 1,
+            "columns": [
+              "factor",
+              "kind",
+              "direction",
+              "input_cells",
+              "finite_cells",
+              "label_cells",
+              "evaluable_cells",
+              "status"
+            ]
+          },
+          "diagnostics": {
+            "rows": 5,
+            "columns": [
+              "factor",
+              "stage",
+              "severity",
+              "code",
+              "message"
+            ]
+          }
+        }
+      },
+      "diagnostic_code_counts": {
+        "insufficient_assets": 2,
+        "min_quantile_assets": 2,
+        "stability_lag_unavailable": 1
+      },
+      "tables": {
+        "signals": {
+          "columns": [
+            "time",
+            "asset",
+            "factor",
+            "direction",
+            "value",
+            "processed_value",
+            "preprocess",
+            "group"
+          ],
+          "row_count": 33,
+          "null_counts": {
+            "time": 0,
+            "asset": 0,
+            "factor": 0,
+            "direction": 0,
+            "value": 0,
+            "processed_value": 0,
+            "preprocess": 0,
+            "group": 0
+          },
+          "category_counts": {
+            "factor": {
+              "near_constant": 33
+            }
+          },
+          "rows": [
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "asset": "A",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -0.0,
+              "processed_value": -0.0,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "asset": "B",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -1e-12,
+              "processed_value": -1e-12,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "asset": "C",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -2e-12,
+              "processed_value": -2e-12,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "asset": "D",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -3e-12,
+              "processed_value": -3e-12,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "asset": "E",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -4e-12,
+              "processed_value": -4e-12,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "asset": "F",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -5e-12,
+              "processed_value": -5e-12,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "asset": "A",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -1e-14,
+              "processed_value": -1e-14,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "asset": "B",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -1.01e-12,
+              "processed_value": -1.01e-12,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "asset": "C",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -2.01e-12,
+              "processed_value": -2.01e-12,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "asset": "D",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -3.0100000000000003e-12,
+              "processed_value": -3.0100000000000003e-12,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "asset": "E",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -4.01e-12,
+              "processed_value": -4.01e-12,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "asset": "F",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -5.01e-12,
+              "processed_value": -5.01e-12,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "asset": "A",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -2e-14,
+              "processed_value": -2e-14,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "asset": "B",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -1.0199999999999999e-12,
+              "processed_value": -1.0199999999999999e-12,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "asset": "C",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -2.02e-12,
+              "processed_value": -2.02e-12,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "asset": "D",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -3.02e-12,
+              "processed_value": -3.02e-12,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "asset": "E",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -4.02e-12,
+              "processed_value": -4.02e-12,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "asset": "F",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -5.02e-12,
+              "processed_value": -5.02e-12,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "asset": "A",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -3e-14,
+              "processed_value": -3e-14,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "asset": "B",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -1.03e-12,
+              "processed_value": -1.03e-12,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "asset": "C",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -2.03e-12,
+              "processed_value": -2.03e-12,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "asset": "D",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -3.0300000000000002e-12,
+              "processed_value": -3.0300000000000002e-12,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "asset": "E",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -4.0299999999999996e-12,
+              "processed_value": -4.0299999999999996e-12,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "asset": "F",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -5.029999999999999e-12,
+              "processed_value": -5.029999999999999e-12,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-12T16:00:00Z",
+              "asset": "A",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -4e-14,
+              "processed_value": -4e-14,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-12T16:00:00Z",
+              "asset": "B",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -1.04e-12,
+              "processed_value": -1.04e-12,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-12T16:00:00Z",
+              "asset": "C",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -2.0399999999999998e-12,
+              "processed_value": -2.0399999999999998e-12,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "asset": "A",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -5e-14,
+              "processed_value": -5e-14,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "asset": "B",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -1.05e-12,
+              "processed_value": -1.05e-12,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "asset": "C",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -2.05e-12,
+              "processed_value": -2.05e-12,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "asset": "D",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -3.05e-12,
+              "processed_value": -3.05e-12,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "asset": "E",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -4.05e-12,
+              "processed_value": -4.05e-12,
+              "preprocess": "none",
+              "group": "default"
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "asset": "F",
+              "factor": "near_constant",
+              "direction": -1,
+              "value": -5.05e-12,
+              "processed_value": -5.05e-12,
+              "preprocess": "none",
+              "group": "default"
+            }
+          ]
+        },
+        "labels": {
+          "values_from": "common_tables.labels"
+        },
+        "ic": {
+          "columns": [
+            "time",
+            "factor",
+            "period",
+            "ic",
+            "rank_ic",
+            "n_assets"
+          ],
+          "row_count": 9,
+          "null_counts": {
+            "time": 0,
+            "factor": 0,
+            "period": 0,
+            "ic": 0,
+            "rank_ic": 0,
+            "n_assets": 0
+          },
+          "category_counts": {
+            "factor": {
+              "near_constant": 9
+            },
+            "period": {
+              "1D": 5,
+              "2D": 4
+            }
+          },
+          "rows": [
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "ic": -1.0,
+              "rank_ic": -1.0,
+              "n_assets": 6
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "ic": -1.0,
+              "rank_ic": -0.9999999999999999,
+              "n_assets": 5
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "ic": -0.9999999999999999,
+              "rank_ic": -1.0,
+              "n_assets": 4
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "ic": -1.0,
+              "rank_ic": -1.0,
+              "n_assets": 4
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "ic": -1.0,
+              "rank_ic": -1.0,
+              "n_assets": 6
+            },
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "factor": "near_constant",
+              "period": "2D",
+              "ic": -0.9999692854143927,
+              "rank_ic": -0.9999999999999999,
+              "n_assets": 5
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "factor": "near_constant",
+              "period": "2D",
+              "ic": -0.999979404308127,
+              "rank_ic": -0.9999999999999999,
+              "n_assets": 5
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "factor": "near_constant",
+              "period": "2D",
+              "ic": -0.9999770780794668,
+              "rank_ic": -1.0,
+              "n_assets": 4
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "factor": "near_constant",
+              "period": "2D",
+              "ic": -0.9999794043081269,
+              "rank_ic": -0.9999999999999999,
+              "n_assets": 5
+            }
+          ]
+        },
+        "ic_summary": {
+          "columns": [
+            "factor",
+            "period",
+            "mean_ic",
+            "std_ic",
+            "icir",
+            "mean_rank_ic",
+            "std_rank_ic",
+            "rank_icir",
+            "n_dates"
+          ],
+          "row_count": 2,
+          "null_counts": {
+            "factor": 0,
+            "period": 0,
+            "mean_ic": 0,
+            "std_ic": 0,
+            "icir": 0,
+            "mean_rank_ic": 0,
+            "std_rank_ic": 0,
+            "rank_icir": 0,
+            "n_dates": 0
+          },
+          "category_counts": {
+            "factor": {
+              "near_constant": 2
+            },
+            "period": {
+              "1D": 1,
+              "2D": 1
+            }
+          },
+          "rows": [
+            {
+              "factor": "near_constant",
+              "period": "1D",
+              "mean_ic": -1.0,
+              "std_ic": 5.551115123125783e-17,
+              "icir": -1.8014398509481984e+16,
+              "mean_rank_ic": -1.0,
+              "std_rank_ic": 5.551115123125783e-17,
+              "rank_icir": -1.8014398509481984e+16,
+              "n_dates": 5
+            },
+            {
+              "factor": "near_constant",
+              "period": "2D",
+              "mean_ic": -0.9999762930275284,
+              "std_ic": 4.7987179653265364e-06,
+              "icir": -208384.05179319254,
+              "mean_rank_ic": -1.0,
+              "std_rank_ic": 1.1102230246251565e-16,
+              "rank_icir": -9007199254740992.0,
+              "n_dates": 4
+            }
+          ]
+        },
+        "quantile_returns": {
+          "columns": [
+            "time",
+            "factor",
+            "period",
+            "quantile",
+            "mean_return",
+            "n_assets"
+          ],
+          "row_count": 20,
+          "null_counts": {
+            "time": 0,
+            "factor": 0,
+            "period": 0,
+            "quantile": 0,
+            "mean_return": 0,
+            "n_assets": 0
+          },
+          "category_counts": {
+            "factor": {
+              "near_constant": 20
+            },
+            "period": {
+              "1D": 12,
+              "2D": 8
+            },
+            "quantile": {
+              "1": 9,
+              "2": 2,
+              "3": 9
+            }
+          },
+          "rows": [
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "quantile": 1,
+              "mean_return": 0.02499999999999991,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "quantile": 1,
+              "mean_return": 0.025000000000000022,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "quantile": 1,
+              "mean_return": 0.025000000000000022,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "quantile": 1,
+              "mean_return": 0.025000000000000022,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "quantile": 1,
+              "mean_return": 0.025000000000000022,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "quantile": 2,
+              "mean_return": 0.0050000000000000044,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "quantile": 2,
+              "mean_return": 0.004999999999999893,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "quantile": 3,
+              "mean_return": -0.015000000000000069,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "quantile": 3,
+              "mean_return": -0.010000000000000064,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "quantile": 3,
+              "mean_return": -0.009999999999999953,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "quantile": 3,
+              "mean_return": -0.014999999999999958,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "quantile": 3,
+              "mean_return": -0.015000000000000124,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "factor": "near_constant",
+              "period": "2D",
+              "quantile": 1,
+              "mean_return": 0.05064999999999997,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "factor": "near_constant",
+              "period": "2D",
+              "quantile": 1,
+              "mean_return": 0.050650000000000084,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "factor": "near_constant",
+              "period": "2D",
+              "quantile": 1,
+              "mean_return": 0.050650000000000084,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "factor": "near_constant",
+              "period": "2D",
+              "quantile": 1,
+              "mean_return": 0.050650000000000195,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "factor": "near_constant",
+              "period": "2D",
+              "quantile": 3,
+              "mean_return": -0.019800000000000095,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "factor": "near_constant",
+              "period": "2D",
+              "quantile": 3,
+              "mean_return": -0.029749999999999943,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "factor": "near_constant",
+              "period": "2D",
+              "quantile": 3,
+              "mean_return": -0.009749999999999814,
+              "n_assets": 2
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "factor": "near_constant",
+              "period": "2D",
+              "quantile": 3,
+              "mean_return": -0.02975,
+              "n_assets": 2
+            }
+          ]
+        },
+        "turnover": {
+          "columns": [
+            "time",
+            "factor",
+            "period",
+            "quantile",
+            "turnover"
+          ],
+          "row_count": 19,
+          "null_counts": {
+            "time": 0,
+            "factor": 0,
+            "period": 0,
+            "quantile": 0,
+            "turnover": 0
+          },
+          "category_counts": {
+            "factor": {
+              "near_constant": 19
+            },
+            "period": {
+              "1D": 12,
+              "2D": 7
+            },
+            "quantile": {
+              "1": 8,
+              "2": 3,
+              "3": 8
+            }
+          },
+          "rows": [
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "quantile": 1,
+              "turnover": 0.0
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "quantile": 1,
+              "turnover": 0.0
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "quantile": 1,
+              "turnover": 0.0
+            },
+            {
+              "time": "2024-01-12T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "quantile": 1,
+              "turnover": 1.0
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "quantile": 1,
+              "turnover": 1.0
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "quantile": 2,
+              "turnover": 0.0
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "quantile": 2,
+              "turnover": 0.5
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "quantile": 3,
+              "turnover": 0.5
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "quantile": 3,
+              "turnover": 0.0
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "quantile": 3,
+              "turnover": 0.5
+            },
+            {
+              "time": "2024-01-12T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "quantile": 3,
+              "turnover": 0.0
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "quantile": 3,
+              "turnover": 0.5
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "factor": "near_constant",
+              "period": "2D",
+              "quantile": 1,
+              "turnover": 0.0
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "factor": "near_constant",
+              "period": "2D",
+              "quantile": 1,
+              "turnover": 0.0
+            },
+            {
+              "time": "2024-01-12T16:00:00Z",
+              "factor": "near_constant",
+              "period": "2D",
+              "quantile": 1,
+              "turnover": 1.0
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "factor": "near_constant",
+              "period": "2D",
+              "quantile": 2,
+              "turnover": 1.0
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "factor": "near_constant",
+              "period": "2D",
+              "quantile": 3,
+              "turnover": 0.5
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "factor": "near_constant",
+              "period": "2D",
+              "quantile": 3,
+              "turnover": 0.0
+            },
+            {
+              "time": "2024-01-12T16:00:00Z",
+              "factor": "near_constant",
+              "period": "2D",
+              "quantile": 3,
+              "turnover": 0.0
+            }
+          ]
+        },
+        "spreads": {
+          "columns": [
+            "time",
+            "factor",
+            "period",
+            "spread",
+            "top_quantile",
+            "bottom_quantile"
+          ],
+          "row_count": 11,
+          "null_counts": {
+            "time": 0,
+            "factor": 0,
+            "period": 0,
+            "spread": 0,
+            "top_quantile": 0,
+            "bottom_quantile": 0
+          },
+          "category_counts": {
+            "factor": {
+              "near_constant": 11
+            },
+            "period": {
+              "1D": 6,
+              "2D": 5
+            }
+          },
+          "rows": [
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "spread": -0.03999999999999998,
+              "top_quantile": 3,
+              "bottom_quantile": 1
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "spread": -0.03500000000000009,
+              "top_quantile": 3,
+              "bottom_quantile": 1
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "spread": -0.034999999999999976,
+              "top_quantile": 3,
+              "bottom_quantile": 1
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "spread": -0.03999999999999998,
+              "top_quantile": 3,
+              "bottom_quantile": 1
+            },
+            {
+              "time": "2024-01-12T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "spread": -0.01000000000000012,
+              "top_quantile": 3,
+              "bottom_quantile": 1
+            },
+            {
+              "time": "2024-01-15T16:00:00Z",
+              "factor": "near_constant",
+              "period": "1D",
+              "spread": -0.04000000000000015,
+              "top_quantile": 3,
+              "bottom_quantile": 1
+            },
+            {
+              "time": "2024-01-08T16:00:00Z",
+              "factor": "near_constant",
+              "period": "2D",
+              "spread": -0.07045000000000007,
+              "top_quantile": 3,
+              "bottom_quantile": 1
+            },
+            {
+              "time": "2024-01-09T16:00:00Z",
+              "factor": "near_constant",
+              "period": "2D",
+              "spread": -0.08040000000000003,
+              "top_quantile": 3,
+              "bottom_quantile": 1
+            },
+            {
+              "time": "2024-01-10T16:00:00Z",
+              "factor": "near_constant",
+              "period": "2D",
+              "spread": -0.0603999999999999,
+              "top_quantile": 3,
+              "bottom_quantile": 1
+            },
+            {
+              "time": "2024-01-11T16:00:00Z",
+              "factor": "near_constant",
+              "period": "2D",
+              "spread": -0.0804000000000002,
+              "top_quantile": 3,
+              "bottom_quantile": 1
+            },
+            {
+              "time": "2024-01-12T16:00:00Z",
+              "factor": "near_constant",
+              "period": "2D",
+              "spread": -0.01969999999999994,
+              "top_quantile": 3,
+              "bottom_quantile": 1
+            }
+          ]
+        },
+        "stability": {
+          "columns": [
+            "factor",
+            "lag",
+            "mean_rank_autocorrelation",
+            "std_rank_autocorrelation",
+            "n_dates"
+          ],
+          "row_count": 2,
+          "null_counts": {
+            "factor": 0,
+            "lag": 0,
+            "mean_rank_autocorrelation": 1,
+            "std_rank_autocorrelation": 1,
+            "n_dates": 0
+          },
+          "category_counts": {
+            "factor": {
+              "near_constant": 2
+            },
+            "lag": {
+              "1": 1,
+              "7": 1
+            }
+          },
+          "rows": [
+            {
+              "factor": "near_constant",
+              "lag": 1,
+              "mean_rank_autocorrelation": 1.0,
+              "std_rank_autocorrelation": 0.0,
+              "n_dates": 5
+            },
+            {
+              "factor": "near_constant",
+              "lag": 7,
+              "mean_rank_autocorrelation": null,
+              "std_rank_autocorrelation": null,
+              "n_dates": 0
+            }
+          ]
+        },
+        "correlation": {
+          "columns": [
+            "factor_left",
+            "factor_right",
+            "mean_correlation",
+            "std_correlation",
+            "n_dates"
+          ],
+          "row_count": 0,
+          "null_counts": {
+            "factor_left": 0,
+            "factor_right": 0,
+            "mean_correlation": 0,
+            "std_correlation": 0,
+            "n_dates": 0
+          },
+          "category_counts": {},
+          "rows": []
+        },
+        "comparisons": {
+          "columns": [
+            "comparison",
+            "left",
+            "right",
+            "period",
+            "mean_ic",
+            "icir",
+            "mean_ic_left",
+            "mean_ic_right",
+            "icir_left",
+            "icir_right",
+            "n_dates_left",
+            "n_dates_right"
+          ],
+          "row_count": 0,
+          "null_counts": {
+            "comparison": 0,
+            "left": 0,
+            "right": 0,
+            "period": 0,
+            "mean_ic": 0,
+            "icir": 0,
+            "mean_ic_left": 0,
+            "mean_ic_right": 0,
+            "icir_left": 0,
+            "icir_right": 0,
+            "n_dates_left": 0,
+            "n_dates_right": 0
+          },
+          "category_counts": {
+            "period": {}
+          },
+          "rows": []
+        },
+        "coverage": {
+          "columns": [
+            "factor",
+            "kind",
+            "direction",
+            "input_cells",
+            "finite_cells",
+            "label_cells",
+            "evaluable_cells",
+            "status"
+          ],
+          "row_count": 1,
+          "null_counts": {
+            "factor": 0,
+            "kind": 0,
+            "direction": 0,
+            "input_cells": 0,
+            "finite_cells": 0,
+            "label_cells": 0,
+            "evaluable_cells": 0,
+            "status": 0
+          },
+          "category_counts": {
+            "factor": {
+              "near_constant": 1
+            },
+            "kind": {
+              "factor": 1
+            },
+            "status": {
+              "OK": 1
+            }
+          },
+          "rows": [
+            {
+              "factor": "near_constant",
+              "kind": "factor",
+              "direction": -1,
+              "input_cells": 33,
+              "finite_cells": 33,
+              "label_cells": 30,
+              "evaluable_cells": 30,
+              "status": "OK"
+            }
+          ]
+        },
+        "diagnostics": {
+          "columns": [
+            "factor",
+            "stage",
+            "severity",
+            "code",
+            "message"
+          ],
+          "row_count": 5,
+          "null_counts": {
+            "factor": 0,
+            "stage": 0,
+            "severity": 0,
+            "code": 0,
+            "message": 0
+          },
+          "category_counts": {
+            "factor": {
+              "near_constant": 5
+            },
+            "stage": {
+              "ic": 2,
+              "quantile": 2,
+              "stability": 1
+            },
+            "severity": {
+              "warning": 5
+            },
+            "code": {
+              "insufficient_assets": 2,
+              "min_quantile_assets": 2,
+              "stability_lag_unavailable": 1
+            }
+          },
+          "rows": [
+            {
+              "factor": "near_constant",
+              "stage": "ic",
+              "severity": "warning",
+              "code": "insufficient_assets",
+              "message": "period 1D, factor 'near_constant': 1 dates had fewer than min_assets=4 evaluable assets"
+            },
+            {
+              "factor": "near_constant",
+              "stage": "quantile",
+              "severity": "warning",
+              "code": "min_quantile_assets",
+              "message": "period 1D, factor 'near_constant': dropped 3 quantile observations below min_quantile_assets=2"
+            },
+            {
+              "factor": "near_constant",
+              "stage": "ic",
+              "severity": "warning",
+              "code": "insufficient_assets",
+              "message": "period 2D, factor 'near_constant': 1 dates had fewer than min_assets=4 evaluable assets"
+            },
+            {
+              "factor": "near_constant",
+              "stage": "quantile",
+              "severity": "warning",
+              "code": "min_quantile_assets",
+              "message": "period 2D, factor 'near_constant': dropped 5 quantile observations below min_quantile_assets=2"
+            },
+            {
+              "factor": "near_constant",
+              "stage": "stability",
+              "severity": "warning",
+              "code": "stability_lag_unavailable",
+              "message": "factor 'near_constant' has no rank autocorrelation at lag 7"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "error_cases": [
+    {
+      "id": "duplicate_factor_key",
+      "exception": "DataQualityError",
+      "code": "factors_duplicate_keys",
+      "report": null,
+      "message": "factor index keys must be unique"
+    },
+    {
+      "id": "non_utc_factor_index",
+      "exception": "DataQualityError",
+      "code": "factors_timezone",
+      "report": {
+        "field": "factors",
+        "timezone": "Asia/Shanghai"
+      },
+      "message": "factors index must be timezone-aware UTC"
+    },
+    {
+      "id": "duplicate_grid_timestamp",
+      "exception": "DataQualityError",
+      "code": "grid_duplicate_index",
+      "report": {
+        "field": "grid"
+      },
+      "message": "grid index must be unique"
+    }
+  ]
+}

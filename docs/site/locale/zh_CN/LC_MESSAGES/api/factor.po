@@ -1,0 +1,4153 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 07:15+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/api/factor.md:1
+msgid "Factor research"
+msgstr "因子研究"
+
+#: ../../site/api/factor.md:3
+msgid ""
+"Factor data preparation, PIT alignment, forward returns, costs, research "
+"evaluation, detailed research, tears and serialization."
+msgstr "因子数据准备、PIT 对齐、前向收益率、成本、研究评估、详细研究、tear sheet 与序列化。"
+
+#: ../../site/api/factor.md:5
+msgid ""
+"See the [usage guide](../guides/factor-research.md) for task-oriented "
+"examples. Signatures below are generated from the public headers at the same"
+" commit as the rest of this site."
+msgstr "面向任务的示例参见[使用指南](../guides/factor-research.md)。以下签名由公共头文件生成，与本网站其余部分取自同一提交。"
+
+#: ../../site/api/factor.md:7
+msgid "Owned native dataframe snapshot (replacing the pandas pickle snapshot)."
+msgstr "自有原生 DataFrame 快照（替代 pandas pickle 快照）。"
+
+#: ../../site/api/factor.md:7 ../../site/api/factor.md:10
+#: ../../site/api/factor.md:16 ../../site/api/factor.md:19
+#: ../../site/api/factor.md:22 ../../site/api/factor.md:25
+#: ../../site/api/factor.md:28 ../../site/api/factor.md:31
+#: ../../site/api/factor.md:34 ../../site/api/factor.md:37
+#: ../../site/api/factor.md:40 ../../site/api/factor.md:43
+#: ../../site/api/factor.md:46 ../../site/api/factor.md:49
+#: ../../site/api/factor.md:61 ../../site/api/factor.md:70
+#: ../../site/api/factor.md:187 ../../site/api/factor.md:214
+#: ../../site/api/factor.md:220 ../../site/api/factor.md:298
+#: ../../site/api/factor.md:310 ../../site/api/factor.md:316
+#: ../../site/api/factor.md:319
+msgid "Public Functions"
+msgstr "公共函数"
+
+#: ../../site/api/factor.md:7
+msgid "Constructs an empty snapshot with an empty digest."
+msgstr "构造一个摘要为空的空快照。"
+
+#: ../../site/api/factor.md:7
+msgid "Snapshots value and computes its content digest."
+msgstr "对 value 建立快照并计算其内容摘要。"
+
+#: ../../site/api/factor.md
+msgid "Parameters"
+msgstr "参数"
+
+#: ../../site/api/factor.md
+msgid "Throws"
+msgstr "抛出"
+
+#: ../../site/api/factor.md:7
+msgid "Returns the owned dataframe."
+msgstr "返回自有的 DataFrame。"
+
+#: ../../site/api/factor.md:7
+msgid "Returns a copy of the owned dataframe."
+msgstr "返回自有 DataFrame 的副本。"
+
+#: ../../site/api/factor.md:7
+msgid ""
+"Returns the lowercase hexadecimal content digest; empty for a default-"
+"constructed snapshot."
+msgstr "返回小写十六进制内容摘要；对默认构造的快照为空。"
+
+#: ../../site/api/factor.md:10
+msgid "Enhanced-kernel timezone validation error (Python subclasses ValueError)."
+msgstr "增强内核时区校验错误（Python 中继承自 ValueError）。"
+
+#: ../../site/api/factor.md:10
+msgid "Constructs the enhanced error with the supplied message."
+msgstr "用给定的消息构造该增强错误。"
+
+#: ../../site/api/factor.md:13
+msgid "Reports invalid factor data or operation input."
+msgstr "报告无效的因子数据或操作输入。"
+
+#: ../../site/api/factor.md:13
+msgid ""
+"Subclassed by fincore::enhanced_non_matching_timezone_error, "
+"fincore::factor_loss_exceeded"
+msgstr ""
+
+#: ../../site/api/factor.md:16
+msgid "Reports factor cleaning loss that exceeds the configured budget."
+msgstr "报告超出配置预算的因子清洗损失。"
+
+#: ../../site/api/factor.md:16
+msgid "Constructs the error with a message and loss report."
+msgstr "用消息和损失报告构造该错误。"
+
+#: ../../site/api/factor.md:16 ../../site/api/factor.md:28
+#: ../../site/api/factor.md:52 ../../site/api/factor.md:55
+#: ../../site/api/factor.md:58 ../../site/api/factor.md:61
+#: ../../site/api/factor.md:64 ../../site/api/factor.md:67
+#: ../../site/api/factor.md:70 ../../site/api/factor.md:73
+#: ../../site/api/factor.md:76 ../../site/api/factor.md:79
+#: ../../site/api/factor.md:82 ../../site/api/factor.md:85
+#: ../../site/api/factor.md:88 ../../site/api/factor.md:91
+#: ../../site/api/factor.md:94 ../../site/api/factor.md:97
+#: ../../site/api/factor.md:100 ../../site/api/factor.md:103
+#: ../../site/api/factor.md:106 ../../site/api/factor.md:109
+#: ../../site/api/factor.md:112 ../../site/api/factor.md:115
+#: ../../site/api/factor.md:118 ../../site/api/factor.md:121
+#: ../../site/api/factor.md:124 ../../site/api/factor.md:127
+#: ../../site/api/factor.md:130 ../../site/api/factor.md:133
+#: ../../site/api/factor.md:136 ../../site/api/factor.md:139
+#: ../../site/api/factor.md:142 ../../site/api/factor.md:145
+#: ../../site/api/factor.md:148 ../../site/api/factor.md:151
+#: ../../site/api/factor.md:154 ../../site/api/factor.md:157
+#: ../../site/api/factor.md:160 ../../site/api/factor.md:163
+#: ../../site/api/factor.md:166 ../../site/api/factor.md:169
+#: ../../site/api/factor.md:172 ../../site/api/factor.md:175
+#: ../../site/api/factor.md:178 ../../site/api/factor.md:181
+#: ../../site/api/factor.md:184 ../../site/api/factor.md:187
+#: ../../site/api/factor.md:190 ../../site/api/factor.md:193
+#: ../../site/api/factor.md:196 ../../site/api/factor.md:199
+#: ../../site/api/factor.md:202 ../../site/api/factor.md:205
+#: ../../site/api/factor.md:208 ../../site/api/factor.md:211
+#: ../../site/api/factor.md:214 ../../site/api/factor.md:217
+#: ../../site/api/factor.md:220 ../../site/api/factor.md:223
+#: ../../site/api/factor.md:226 ../../site/api/factor.md:229
+#: ../../site/api/factor.md:232 ../../site/api/factor.md:235
+#: ../../site/api/factor.md:238 ../../site/api/factor.md:241
+#: ../../site/api/factor.md:244 ../../site/api/factor.md:247
+#: ../../site/api/factor.md:250 ../../site/api/factor.md:253
+#: ../../site/api/factor.md:256 ../../site/api/factor.md:259
+#: ../../site/api/factor.md:262 ../../site/api/factor.md:265
+#: ../../site/api/factor.md:268 ../../site/api/factor.md:271
+#: ../../site/api/factor.md:274 ../../site/api/factor.md:277
+#: ../../site/api/factor.md:280 ../../site/api/factor.md:283
+#: ../../site/api/factor.md:286 ../../site/api/factor.md:289
+#: ../../site/api/factor.md:292 ../../site/api/factor.md:295
+#: ../../site/api/factor.md:298 ../../site/api/factor.md:301
+#: ../../site/api/factor.md:304 ../../site/api/factor.md:307
+#: ../../site/api/factor.md:310 ../../site/api/factor.md:313
+#: ../../site/api/factor.md:316 ../../site/api/factor.md:319
+#: ../../site/api/factor.md:322
+msgid "Public Members"
+msgstr "公共成员"
+
+#: ../../site/api/factor.md:16
+msgid "Cleaning-loss breakdown."
+msgstr "清洗损失明细。"
+
+#: ../../site/api/factor.md:19
+msgid "Deterministic native value model used by factor serialization."
+msgstr "因子序列化使用的确定性原生值模型。"
+
+#: ../../site/api/factor.md:19
+msgid ""
+"Objects are ordered maps, so both JSON output and fingerprints are stable "
+"regardless of insertion order. Doubles keep their IEEE-754 bit pattern in "
+"the canonical encoding; NaN payloads are canonicalized to one quiet NaN."
+msgstr ""
+"对象为有序映射，因此无论插入顺序如何，JSON 输出与指纹都保持稳定。双精度数在规范编码中保留其 IEEE-754 位模式；NaN "
+"载荷会被规范化为同一个静默 NaN。"
+
+#: ../../site/api/factor.md:19 ../../site/api/factor.md:22
+msgid "Public Types"
+msgstr "公共类型"
+
+#: ../../site/api/factor.md:19
+msgid "Ordered array of values."
+msgstr "值的有序数组。"
+
+#: ../../site/api/factor.md:19
+msgid "Ordered map from string key to value."
+msgstr "从字符串键到值的有序映射。"
+
+#: ../../site/api/factor.md:19
+msgid "Constructs a null value."
+msgstr "构造空值（null）。"
+
+#: ../../site/api/factor.md:19
+msgid "Constructs a null value from nullptr."
+msgstr "由 nullptr 构造空值。"
+
+#: ../../site/api/factor.md:19
+msgid "Constructs a boolean value."
+msgstr "构造布尔值。"
+
+#: ../../site/api/factor.md:19
+msgid "Constructs a 64-bit integer value from int."
+msgstr "由 int 构造 64 位整数值。"
+
+#: ../../site/api/factor.md:19
+msgid "Constructs a 64-bit integer value."
+msgstr "构造 64 位整数值。"
+
+#: ../../site/api/factor.md:19
+msgid "Constructs a floating-point number value."
+msgstr "构造浮点数值。"
+
+#: ../../site/api/factor.md:19
+msgid "Constructs a string value, taking ownership of value."
+msgstr "构造字符串值，并取得 value 的所有权。"
+
+#: ../../site/api/factor.md:19
+msgid "Constructs a string value by copying value."
+msgstr "通过复制 value 构造字符串值。"
+
+#: ../../site/api/factor.md:19
+msgid "Constructs an array value, taking ownership of value."
+msgstr "构造数组值，并取得 value 的所有权。"
+
+#: ../../site/api/factor.md:19
+msgid "Constructs an object value, taking ownership of value."
+msgstr "构造对象值，并取得 value 的所有权。"
+
+#: ../../site/api/factor.md:19
+msgid "Returns whether the value is null."
+msgstr "返回值是否为 null。"
+
+#: ../../site/api/factor.md:19
+msgid "Returns whether the value holds a boolean."
+msgstr "返回值是否持有布尔值。"
+
+#: ../../site/api/factor.md:19
+msgid "Returns whether the value holds a 64-bit integer."
+msgstr "返回值是否持有 64 位整数。"
+
+#: ../../site/api/factor.md:19
+msgid ""
+"Returns whether the value holds a floating-point number; integers are a "
+"separate alternative."
+msgstr "返回值是否持有浮点数；整数是单独的另一种取值。"
+
+#: ../../site/api/factor.md:19
+msgid "Returns whether the value holds a string."
+msgstr "返回值是否持有字符串。"
+
+#: ../../site/api/factor.md:19
+msgid "Returns whether the value holds an array."
+msgstr "返回值是否持有数组。"
+
+#: ../../site/api/factor.md:19
+msgid "Returns whether the value holds an object."
+msgstr "返回值是否持有对象。"
+
+#: ../../site/api/factor.md:19
+msgid "Returns the stored boolean."
+msgstr "返回存储的布尔值。"
+
+#: ../../site/api/factor.md:19
+msgid "Returns the stored 64-bit integer."
+msgstr "返回存储的 64 位整数。"
+
+#: ../../site/api/factor.md:19
+msgid "Returns the stored floating-point number."
+msgstr "返回存储的浮点数。"
+
+#: ../../site/api/factor.md:19
+msgid "Returns the stored string."
+msgstr "返回存储的字符串。"
+
+#: ../../site/api/factor.md:19
+msgid "Returns the stored array."
+msgstr "返回存储的数组。"
+
+#: ../../site/api/factor.md:19
+msgid "Returns the stored object."
+msgstr "返回存储的对象。"
+
+#: ../../site/api/factor.md:19
+msgid "Returns the stored array for mutation."
+msgstr "返回存储的数组以便修改。"
+
+#: ../../site/api/factor.md:19
+msgid "Returns the stored object for mutation."
+msgstr "返回存储的对象以便修改。"
+
+#: ../../site/api/factor.md:19 ../../site/api/factor.md:22
+msgid "Returns the value stored under key."
+msgstr "返回存储在 key 下的值。"
+
+#: ../../site/api/factor.md
+msgid "Returns"
+msgstr "返回"
+
+#: ../../site/api/factor.md:19 ../../site/api/factor.md:22
+msgid "Finds the value stored under key."
+msgstr "查找存储在 key 下的值。"
+
+#: ../../site/api/factor.md:19 ../../site/api/factor.md:22
+msgid "Friends"
+msgstr "友元"
+
+#: ../../site/api/factor.md:22
+msgid "Immutable ordered map."
+msgstr "不可变有序映射。"
+
+#: ../../site/api/factor.md:22
+msgid ""
+"Construction snapshots the supplied map; callers cannot mutate the stored "
+"entries and mutation of the source has no effect."
+msgstr "构造时对给定的映射建立快照；调用方无法修改已存储的条目，修改源对象也不产生影响。"
+
+#: ../../site/api/factor.md:22
+msgid "Ordered map type used to store the entries."
+msgstr "用于存储条目的有序映射类型。"
+
+#: ../../site/api/factor.md:22
+msgid "Read-only iterator over the stored entries."
+msgstr "对已存储条目的只读迭代器。"
+
+#: ../../site/api/factor.md:22
+msgid "Constructs an empty mapping."
+msgstr "构造空映射。"
+
+#: ../../site/api/factor.md:22
+msgid "Constructs a mapping that takes ownership of values."
+msgstr "构造取得 values 所有权的映射。"
+
+#: ../../site/api/factor.md:22
+msgid "Constructs a mapping from an initializer list."
+msgstr "由初始化列表构造映射。"
+
+#: ../../site/api/factor.md:22
+msgid "Returns whether key is present."
+msgstr "返回 key 是否存在。"
+
+#: ../../site/api/factor.md:22
+msgid "Returns the number of entries."
+msgstr "返回条目数量。"
+
+#: ../../site/api/factor.md:22
+msgid "Returns whether the mapping has no entries."
+msgstr "返回映射是否没有任何条目。"
+
+#: ../../site/api/factor.md:22
+msgid "Returns an iterator to the first entry in key order."
+msgstr "返回指向按键顺序排列的首个条目的迭代器。"
+
+#: ../../site/api/factor.md:22
+msgid "Returns the past-the-end iterator."
+msgstr "返回尾后迭代器。"
+
+#: ../../site/api/factor.md:22
+msgid "Returns a mutable copy of the stored map."
+msgstr "返回所存储映射的可变副本。"
+
+#: ../../site/api/factor.md:25
+msgid "Native layout model replacing the Matplotlib-backed GridFigure."
+msgstr "替代基于 Matplotlib 的 GridFigure 的原生布局模型。"
+
+#: ../../site/api/factor.md:25
+msgid ""
+"It owns only geometry (figure size, spacing and allocated cells); Python "
+"figure object identity is not claimed. close is idempotent and any later "
+"allocation fails, matching the source lifecycle."
+msgstr "它只拥有几何信息（图尺寸、间距和已分配单元格）；不声明 Python 图对象标识。close 是幂等的，之后的任何分配都会失败，与源实现的生命周期一致。"
+
+#: ../../site/api/factor.md:25
+msgid "Creates a grid with rows rows and cols columns."
+msgstr "创建具有 rows 行、cols 列的网格。"
+
+#: ../../site/api/factor.md:25
+msgid "Returns the configured row count."
+msgstr "返回配置的行数。"
+
+#: ../../site/api/factor.md:25
+msgid "Returns the configured column count."
+msgstr "返回配置的列数。"
+
+#: ../../site/api/factor.md:25
+msgid "Returns the current cursor row."
+msgstr "返回当前游标行。"
+
+#: ../../site/api/factor.md:25
+msgid "Returns the current cursor column."
+msgstr "返回当前游标列。"
+
+#: ../../site/api/factor.md:25
+msgid "Returns whether close() has been called."
+msgstr "返回是否已调用 close()。"
+
+#: ../../site/api/factor.md:25
+msgid "Returns the fixed figure width of 14."
+msgstr "返回固定的图宽度 14。"
+
+#: ../../site/api/factor.md:25
+msgid "Returns the figure height, seven units per row."
+msgstr "返回图高度，每行七个单位。"
+
+#: ../../site/api/factor.md:25
+msgid "Returns the fixed horizontal spacing of 0.4."
+msgstr "返回固定的水平间距 0.4。"
+
+#: ../../site/api/factor.md:25
+msgid "Returns the fixed vertical spacing of 0.3."
+msgstr "返回固定的垂直间距 0.3。"
+
+#: ../../site/api/factor.md:25
+msgid "Returns the allocated cells in allocation order; empty after close()."
+msgstr "按分配顺序返回已分配的单元格；close() 之后为空。"
+
+#: ../../site/api/factor.md:25
+msgid "Returns the owned figure identifier (1 for every native grid)."
+msgstr "返回自有的图标识符（每个原生网格均为 1）。"
+
+#: ../../site/api/factor.md:25
+msgid "Allocates the next full-width row."
+msgstr "分配下一个整行。"
+
+#: ../../site/api/factor.md:25
+msgid "Allocates the next cell, advancing to a new row when necessary."
+msgstr "分配下一个单元格，必要时推进到新的一行。"
+
+#: ../../site/api/factor.md:25
+msgid "Closes this grid's figure and releases layout state."
+msgstr "关闭此网格的图并释放布局状态。"
+
+#: ../../site/api/factor.md:25
+msgid "The call is idempotent."
+msgstr "该调用是幂等的。"
+
+#: ../../site/api/factor.md:28
+msgid "Pinned strict identity for a rejected cleaning-loss budget."
+msgstr "用于清洗损失预算被拒绝的固定严格标识。"
+
+#: ../../site/api/factor.md:28
+msgid "Constructs the error with an optional message and loss report."
+msgstr "用可选的消息和损失报告构造该错误。"
+
+#: ../../site/api/factor.md:28
+msgid "Cleaning-loss breakdown for the error."
+msgstr "该错误的清洗损失明细。"
+
+#: ../../site/api/factor.md:31
+msgid "Pinned strict identity for a factor/prices timezone mismatch."
+msgstr "用于因子与价格时区不匹配的固定严格标识。"
+
+#: ../../site/api/factor.md:31
+msgid "Constructs the error with the supplied message."
+msgstr "用给定的消息构造该错误。"
+
+#: ../../site/api/factor.md:34
+msgid "Research error with the ConfigError category."
+msgstr "类别为 ConfigError 的研究错误。"
+
+#: ../../site/api/factor.md:34
+msgid "Constructs a configuration error."
+msgstr "构造配置错误。"
+
+#: ../../site/api/factor.md:34 ../../site/api/factor.md:37
+#: ../../site/api/factor.md:40 ../../site/api/factor.md:43
+#: ../../site/api/factor.md:49
+msgid "Public Static Attributes"
+msgstr "公共静态属性"
+
+#: ../../site/api/factor.md:34
+msgid "Category name reported for configuration failures."
+msgstr "配置失败时报告的类别名。"
+
+#: ../../site/api/factor.md:34
+msgid "Default machine-readable code for invalid configuration."
+msgstr "无效配置的默认机器可读代码。"
+
+#: ../../site/api/factor.md:37
+msgid "Research error with the DataQualityError category."
+msgstr "类别为 DataQualityError 的研究错误。"
+
+#: ../../site/api/factor.md:37
+msgid "Constructs a data-quality error."
+msgstr "构造数据质量错误。"
+
+#: ../../site/api/factor.md:37
+msgid "Category name reported for data-quality failures."
+msgstr "数据质量失败时报告的类别名。"
+
+#: ../../site/api/factor.md:37
+msgid "Default machine-readable code for data-quality failures."
+msgstr "数据质量失败的默认机器可读代码。"
+
+#: ../../site/api/factor.md:40
+msgid "Research error with the DatasetError category."
+msgstr "类别为 DatasetError 的研究错误。"
+
+#: ../../site/api/factor.md:40
+msgid "Constructs a dataset error."
+msgstr "构造数据集错误。"
+
+#: ../../site/api/factor.md:40
+msgid "Category name reported for dataset failures."
+msgstr "数据集失败时报告的类别名。"
+
+#: ../../site/api/factor.md:40
+msgid "Default machine-readable code for invalid datasets."
+msgstr "无效数据集的默认机器可读代码。"
+
+#: ../../site/api/factor.md:43
+msgid "Research error with the DependencyError category."
+msgstr "类别为 DependencyError 的研究错误。"
+
+#: ../../site/api/factor.md:43
+msgid "Constructs a dependency error."
+msgstr "构造依赖错误。"
+
+#: ../../site/api/factor.md:43
+msgid "Category name reported for missing dependencies."
+msgstr "依赖缺失时报告的类别名。"
+
+#: ../../site/api/factor.md:43
+msgid "Default machine-readable code for a missing dependency."
+msgstr "依赖缺失的默认机器可读代码。"
+
+#: ../../site/api/factor.md:46
+msgid "Native structured research errors."
+msgstr "原生结构化研究错误。"
+
+#: ../../site/api/factor.md:46
+msgid ""
+"Python exception inheritance is not reproduced; category preserves the "
+"source class name and code carries the stable machine-readable identifier."
+msgstr "不复制 Python 的异常继承关系；category 保留源类名，code 携带稳定的机器可读标识符。"
+
+#: ../../site/api/factor.md:46
+msgid ""
+"Subclassed by fincore::research_config_error, "
+"fincore::research_data_quality_error, fincore::research_dataset_error, "
+"fincore::research_dependency_error, "
+"fincore::research_factor_computation_error"
+msgstr ""
+
+#: ../../site/api/factor.md:46
+msgid "Constructs a structured research error."
+msgstr "构造结构化研究错误。"
+
+#: ../../site/api/factor.md:49
+msgid "Research error with the FactorComputationError category."
+msgstr "类别为 FactorComputationError 的研究错误。"
+
+#: ../../site/api/factor.md:49
+msgid "Constructs a factor-computation error."
+msgstr "构造因子计算错误。"
+
+#: ../../site/api/factor.md:49
+msgid "Category name reported for factor-computation failures."
+msgstr "因子计算失败时报告的类别名。"
+
+#: ../../site/api/factor.md:49
+msgid "Default machine-readable code for a computation failure."
+msgstr "计算失败的默认机器可读代码。"
+
+#: ../../site/api/factor.md:52
+msgid "Cumulative growth of one quantile across a chart's dates."
+msgstr "单个分位在图表各日期上的累计增长。"
+
+#: ../../site/api/factor.md:52 ../../site/api/factor.md:322
+msgid "Quantile bucket label."
+msgstr "分位桶标签。"
+
+#: ../../site/api/factor.md:52
+msgid "Dates aligned with values; sorted and unique in builder output."
+msgstr "与 values 对齐的日期；在构建器输出中已排序且唯一。"
+
+#: ../../site/api/factor.md:52
+msgid ""
+"Cumulative growth from 1.0; a date without a finite mean keeps the previous "
+"value."
+msgstr "从 1.0 开始的累计增长；没有有限均值的日期沿用前一个值。"
+
+#: ../../site/api/factor.md:55
+msgid "One finite event-window value for an offset, event date and asset."
+msgstr "针对某个偏移、事件日期和资产的单个有限事件窗口值。"
+
+#: ../../site/api/factor.md:55
+msgid "Row offset from the event date; negative is before."
+msgstr "相对事件日期的行偏移；负值表示之前。"
+
+#: ../../site/api/factor.md:55
+msgid "Event date."
+msgstr "事件日期。"
+
+#: ../../site/api/factor.md:55
+msgid "Asset label; empty for date-mean output."
+msgstr "资产标签；日期均值输出时为空。"
+
+#: ../../site/api/factor.md:55
+msgid "Window value, compounded or raw as requested."
+msgstr "窗口值，按请求为复利值或原始值。"
+
+#: ../../site/api/factor.md:58
+msgid "Event-aligned window extraction."
+msgstr "事件对齐的窗口提取。"
+
+#: ../../site/api/factor.md:58
+msgid "Requested rows before each event date."
+msgstr "每个事件日期之前请求的行数。"
+
+#: ../../site/api/factor.md:58
+msgid "Requested rows after each event date."
+msgstr "每个事件日期之后请求的行数。"
+
+#: ../../site/api/factor.md:58
+msgid "Observed offsets, ascending and clipped."
+msgstr "实际观测到的偏移，升序并已裁剪。"
+
+#: ../../site/api/factor.md:58
+msgid "Event dates found in the ledger."
+msgstr "在账本中找到的事件日期。"
+
+#: ../../site/api/factor.md:58
+msgid "Assets seen at event dates, sorted."
+msgstr "在事件日期出现的资产，已排序。"
+
+#: ../../site/api/factor.md:58
+msgid "Cells; non-finite ledger values skipped."
+msgstr "单元格；跳过非有限的账本值。"
+
+#: ../../site/api/factor.md:61
+msgid "Event counts per equal-width time bucket."
+msgstr "每个等宽时间桶的事件数。"
+
+#: ../../site/api/factor.md:61
+msgid "Renders the bucket counts as a deterministic native SVG bar chart."
+msgstr "将各桶计数渲染为确定性的原生 SVG 柱状图。"
+
+#: ../../site/api/factor.md:61
+msgid "A chart without counts still carries the title and axis labels."
+msgstr "没有计数的图表仍带有标题和坐标轴标签。"
+
+#: ../../site/api/factor.md:61
+msgid "Whether the chart is drawable; the builders leave it true."
+msgstr "图表是否可绘制；构建器将其保留为 true。"
+
+#: ../../site/api/factor.md:61 ../../site/api/factor.md:187
+#: ../../site/api/factor.md:220 ../../site/api/factor.md:310
+#: ../../site/api/factor.md:319
+msgid "Chart title."
+msgstr "图表标题。"
+
+#: ../../site/api/factor.md:61 ../../site/api/factor.md:214
+msgid "X-axis label."
+msgstr "X 轴标签。"
+
+#: ../../site/api/factor.md:61 ../../site/api/factor.md:214
+#: ../../site/api/factor.md:220 ../../site/api/factor.md:310
+#: ../../site/api/factor.md:319
+msgid "Y-axis label."
+msgstr "Y 轴标签。"
+
+#: ../../site/api/factor.md:61
+msgid "Requested number of equal-width buckets, stored as supplied."
+msgstr "请求的等宽桶数量，按传入值存储。"
+
+#: ../../site/api/factor.md:61
+msgid "Bucket start timestamps, aligned with counts."
+msgstr "桶起始时间戳，与 counts 对齐。"
+
+#: ../../site/api/factor.md:61
+msgid "Event counts aligned with bucket_starts."
+msgstr "与 bucket_starts 对齐的事件计数。"
+
+#: ../../site/api/factor.md:64
+msgid "Annualized alpha and market beta for one forward-return label."
+msgstr "单个前向收益率标签的年化 alpha 与市场 beta。"
+
+#: ../../site/api/factor.md:64 ../../site/api/factor.md:82
+#: ../../site/api/factor.md:103 ../../site/api/factor.md:124
+#: ../../site/api/factor.md:127 ../../site/api/factor.md:148
+msgid "Forward-return label."
+msgstr "前向收益率标签。"
+
+#: ../../site/api/factor.md:64
+msgid "Annualized intercept; NaN when undefined."
+msgstr "年化截距；未定义时为 NaN。"
+
+#: ../../site/api/factor.md:64
+msgid "Slope on the universe mean; NaN when undefined."
+msgstr "对股票池均值的斜率；未定义时为 NaN。"
+
+#: ../../site/api/factor.md:67
+msgid "Options that select the labels and result views of one analysis run."
+msgstr "选择单次分析运行的标签与结果视图的选项。"
+
+#: ../../site/api/factor.md:67
+msgid ""
+"periods narrows the analysed forward-return labels; the remaining flags "
+"choose the weight construction and which per-group or portfolio members are "
+"populated."
+msgstr "periods 缩小所分析的前向收益率标签范围；其余标志选择权重构建方式，以及填充哪些按分组或按组合的成员。"
+
+#: ../../site/api/factor.md:67
+msgid "Demeans weights and returns; false keeps raw values."
+msgstr "对权重和收益率去均值；false 保留原始值。"
+
+#: ../../site/api/factor.md:67
+msgid "Demeans within date and group; needs groups."
+msgstr "在日期与分组内去均值；需要分组。"
+
+#: ../../site/api/factor.md:67
+msgid "Equal-weights the positive and negative sides."
+msgstr "对正负两侧等权。"
+
+#: ../../site/api/factor.md:67
+msgid "Adds per-group views; needs a group column."
+msgstr "增加按分组的视图；需要分组列。"
+
+#: ../../site/api/factor.md:67
+msgid "Empty selects every forward-return label."
+msgstr "为空时选择所有前向收益率标签。"
+
+#: ../../site/api/factor.md:67
+msgid "Positive, unique lag values."
+msgstr "正的、唯一的滞后值。"
+
+#: ../../site/api/factor.md:67
+msgid "Only monthly \"M\"/\"ME\" aggregation is implemented natively."
+msgstr "原生仅实现按月 \"M\"/\"ME\" 聚合。"
+
+#: ../../site/api/factor.md:67
+msgid "Builds inputs for the first selected period."
+msgstr "为第一个选中的周期构建输入。"
+
+#: ../../site/api/factor.md:67
+msgid "Non-empty label recorded in the fingerprint."
+msgstr "记录在指纹中的非空标签。"
+
+#: ../../site/api/factor.md:70
+msgid "Complete result of one analyze_factor run."
+msgstr "单次 analyze_factor 运行的完整结果。"
+
+#: ../../site/api/factor.md:70
+msgid ""
+"Aggregate members are built for every run; per-group members appear only "
+"when config.by_group is true, and the event members only for the overload "
+"that receives an event-return ledger."
+msgstr "每次运行都会构建聚合成员；仅当 config.by_group 为 true 时才出现按分组成员，而事件成员仅出现在接收事件收益率账本的重载中。"
+
+#: ../../site/api/factor.md:70
+msgid "Returns the deterministic JSON serialization envelope."
+msgstr "返回确定性的 JSON 序列化信封。"
+
+#: ../../site/api/factor.md:70
+msgid ""
+"Implemented in factor/serialization.cpp; declared here so the model keeps "
+"the source's to_serializable member route."
+msgstr "在 factor/serialization.cpp 中实现；在此声明，以便该模型保留源实现的 to_serializable 成员路径。"
+
+#: ../../site/api/factor.md:70
+msgid "Owning copy of the analysed input."
+msgstr "所分析输入的自有副本。"
+
+#: ../../site/api/factor.md:70
+msgid "Selected labels, in request order."
+msgstr "选中的标签，按请求顺序。"
+
+#: ../../site/api/factor.md:70
+msgid "Per-quantile factor distribution."
+msgstr "各分位的因子分布。"
+
+#: ../../site/api/factor.md:70
+msgid "Aggregate rank IC per date and label; never filled with group rows."
+msgstr "按日期和标签的聚合秩 IC；从不用分组行填充。"
+
+#: ../../site/api/factor.md:70
+msgid "Mean of the finite aggregate IC values per label."
+msgstr "每个标签的有限聚合 IC 值的均值。"
+
+#: ../../site/api/factor.md:70
+msgid "Portfolio returns per date and label."
+msgstr "按日期和标签的组合收益率。"
+
+#: ../../site/api/factor.md:70
+msgid "Per-observation weights."
+msgstr "逐观测权重。"
+
+#: ../../site/api/factor.md:70
+msgid "Aggregate quantile means."
+msgstr "聚合分位均值。"
+
+#: ../../site/api/factor.md:70
+msgid "Per-date quantile means."
+msgstr "按日期的分位均值。"
+
+#: ../../site/api/factor.md:70
+msgid "Spreads per label; empty below two observed quantiles."
+msgstr "每个标签的多空收益差；观测到的分位少于两个时为空。"
+
+#: ../../site/api/factor.md:70
+msgid "Annualized alpha and beta per label."
+msgstr "每个标签的年化 alpha 与 beta。"
+
+#: ../../site/api/factor.md:70
+msgid "Turnover per requested lag and observed quantile."
+msgstr "按请求滞后与观测分位的换手率。"
+
+#: ../../site/api/factor.md:70
+msgid "Rank autocorrelation per requested lag."
+msgstr "按请求滞后的秩自相关。"
+
+#: ../../site/api/factor.md:70
+msgid "Compounded factor return curve per selected period."
+msgstr "每个选中周期的复利因子收益曲线。"
+
+#: ../../site/api/factor.md:70
+msgid "Compounded quantile growth curves per selected period."
+msgstr "每个选中周期的复利分位增长曲线。"
+
+#: ../../site/api/factor.md:70
+msgid "Overlapping positions per selected period."
+msgstr "每个选中周期的重叠持仓。"
+
+#: ../../site/api/factor.md:70
+msgid "Monthly mean IC, one table per requested frequency."
+msgstr "月度平均 IC，每个请求频率一张表。"
+
+#: ../../site/api/factor.md:70
+msgid "Independent subgroup reruns when by_group is true."
+msgstr "by_group 为 true 时独立重跑的各子组。"
+
+#: ../../site/api/factor.md:70
+msgid "Present only for a call that supplies an event-return ledger."
+msgstr "仅当调用提供事件收益率账本时才存在。"
+
+#: ../../site/api/factor.md:70
+msgid "Owning copy of the event ledger that was analysed."
+msgstr "所分析事件账本的自有副本。"
+
+#: ../../site/api/factor.md:70
+msgid "Daily inputs from the first selected period when requested."
+msgstr "请求时来自第一个选中周期的每日输入。"
+
+#: ../../site/api/factor.md:70
+msgid "SHA-256 hex digest of the options, input and event ledger."
+msgstr "选项、输入与事件账本的 SHA-256 十六进制摘要。"
+
+#: ../../site/api/factor.md:70
+msgid ""
+"Present only when group_neutral makes the legacy summary IC differ from "
+"information_coefficient; otherwise that field is the same view."
+msgstr "仅当 group_neutral 使旧版汇总 IC 与 information_coefficient 不同时才存在；否则该字段是同一视图。"
+
+#: ../../site/api/factor.md:70
+msgid "Per-group primary views, filled only when config.by_group is true."
+msgstr "按分组的主要视图，仅当 config.by_group 为 true 时填充。"
+
+#: ../../site/api/factor.md:70
+msgid "Owning copy of the requested options, including the original periods."
+msgstr "所请求选项的自有副本，包括原始 periods。"
+
+#: ../../site/api/factor.md:70
+msgid "Fingerprint encoding version recorded with this result."
+msgstr "随该结果记录的指纹编码版本。"
+
+#: ../../site/api/factor.md:73
+msgid "Capacity estimate for a weight panel against dollar volume."
+msgstr "权重面板相对美元成交额的容量估计。"
+
+#: ../../site/api/factor.md:73
+msgid "Smallest finite per-date capacity."
+msgstr "各日期容量中最小的有限值。"
+
+#: ../../site/api/factor.md:73 ../../site/api/factor.md:79
+msgid "Panel dates in ascending order."
+msgstr "升序排列的面板日期。"
+
+#: ../../site/api/factor.md:73
+msgid "Capacity per date; infinity when the date has no trade."
+msgstr "每个日期的容量；该日期没有交易时为正无穷。"
+
+#: ../../site/api/factor.md:73 ../../site/api/factor.md:79
+msgid "Panel assets in ascending order."
+msgstr "升序排列的面板资产。"
+
+#: ../../site/api/factor.md:73 ../../site/api/factor.md:79
+msgid "Dates x assets absolute traded weights."
+msgstr "日期 × 资产的绝对交易权重。"
+
+#: ../../site/api/factor.md:73
+msgid "Participation cap used by the estimate."
+msgstr "估计所使用的参与率上限。"
+
+#: ../../site/api/factor.md:73
+msgid "First date attaining the smallest capacity."
+msgstr "达到最小容量的首个日期。"
+
+#: ../../site/api/factor.md:73
+msgid "Asset limiting capacity on the binding date."
+msgstr "在约束日期上限制容量的资产。"
+
+#: ../../site/api/factor.md:76
+msgid "Spread, market-impact and participation settings for trading costs."
+msgstr "交易成本的价差、市场冲击与参与率设置。"
+
+#: ../../site/api/factor.md:76
+msgid "Half-spread in basis points per traded weight."
+msgstr "每单位交易权重的半价差（基点）。"
+
+#: ../../site/api/factor.md:76
+msgid "Scale of the impact term."
+msgstr "冲击项的尺度。"
+
+#: ../../site/api/factor.md:76
+msgid "Participation cap in (0, 1]."
+msgstr "参与率上限，取值在 (0, 1] 内。"
+
+#: ../../site/api/factor.md:76
+msgid "Participation exponent; must be positive."
+msgstr "参与率指数；必须为正。"
+
+#: ../../site/api/factor.md:79
+msgid "Per-date cost ledger produced by applying a cost model to gross returns."
+msgstr "将成本模型应用于毛收益后产生的按日期成本账本。"
+
+#: ../../site/api/factor.md:79
+msgid "Cost model used for the ledger."
+msgstr "账本所使用的成本模型。"
+
+#: ../../site/api/factor.md:79
+msgid "Portfolio value the ledger was computed for."
+msgstr "计算该账本时所用的组合市值。"
+
+#: ../../site/api/factor.md:79
+msgid "Gross return per date, copied from the input."
+msgstr "每个日期的毛收益，从输入复制。"
+
+#: ../../site/api/factor.md:79
+msgid "Gross return less total cost per date."
+msgstr "每个日期的毛收益减总成本。"
+
+#: ../../site/api/factor.md:79
+msgid "One-way turnover per date."
+msgstr "每个日期的单边换手率。"
+
+#: ../../site/api/factor.md:79
+msgid "Spread cost per date as a return fraction."
+msgstr "每个日期的价差成本，以收益率占比表示。"
+
+#: ../../site/api/factor.md:79
+msgid "Market-impact cost per date as a return fraction."
+msgstr "每个日期的市场冲击成本，以收益率占比表示。"
+
+#: ../../site/api/factor.md:79
+msgid "Borrow cost per date as a return fraction."
+msgstr "每个日期的融券成本，以收益率占比表示。"
+
+#: ../../site/api/factor.md:79
+msgid "Sum of spread, impact and borrow costs per date."
+msgstr "每个日期的价差、冲击与融券成本之和。"
+
+#: ../../site/api/factor.md:79
+msgid "Dates x assets traded value over dollar volume."
+msgstr "日期 × 资产的成交额与美元成交额之比。"
+
+#: ../../site/api/factor.md:79
+msgid "Capacity estimate at the model participation cap."
+msgstr "在模型参与率上限下的容量估计。"
+
+#: ../../site/api/factor.md:82
+msgid "Compounded factor return curve for one forward-return label."
+msgstr "单个前向收益率标签的复利因子收益曲线。"
+
+#: ../../site/api/factor.md:82
+msgid "Dated growth compounded from one."
+msgstr "从 1 开始复利计算的按日期增长。"
+
+#: ../../site/api/factor.md:85
+msgid "Event-window summary built from the optional event-return ledger."
+msgstr "由可选的事件收益率账本构建的事件窗口汇总。"
+
+#: ../../site/api/factor.md:85
+msgid "Window offsets, ascending."
+msgstr "窗口偏移，升序。"
+
+#: ../../site/api/factor.md:85
+msgid "Event dates found in both inputs."
+msgstr "在两个输入中都出现的事件日期。"
+
+#: ../../site/api/factor.md:85
+msgid "Mean per offset; NaN when empty."
+msgstr "每个偏移的均值；为空时为 NaN。"
+
+#: ../../site/api/factor.md:85
+msgid "Window cells, ordered by offset and then event date."
+msgstr "窗口单元格，先按偏移再按事件日期排序。"
+
+#: ../../site/api/factor.md:85
+msgid "Per-quantile event averages, ascending by quantile."
+msgstr "各分位的事件均值，按分位升序。"
+
+#: ../../site/api/factor.md:88
+msgid "Chart data for an optional event study."
+msgstr "可选事件研究的图表数据。"
+
+#: ../../site/api/factor.md:88
+msgid "Event offsets in observations."
+msgstr "以观测数表示的事件偏移。"
+
+#: ../../site/api/factor.md:88
+msgid "Mean return over the offsets."
+msgstr "跨偏移的平均收益率。"
+
+#: ../../site/api/factor.md:88
+msgid "Histogram of event-window returns."
+msgstr "事件窗口收益率的直方图。"
+
+#: ../../site/api/factor.md:88
+msgid "Mean return by quantile over the offsets."
+msgstr "跨偏移的各分位平均收益率。"
+
+#: ../../site/api/factor.md:91
+msgid "Rerun of the analysis on one subgroup's rows."
+msgstr "在单个子组的行上重跑分析。"
+
+#: ../../site/api/factor.md:91 ../../site/api/factor.md:94
+msgid "Group label that selected the rows."
+msgstr "选出这些行的分组标签。"
+
+#: ../../site/api/factor.md:91
+msgid "Factor-value distribution inside the subgroup."
+msgstr "子组内的因子值分布。"
+
+#: ../../site/api/factor.md:91
+msgid "Subgroup weights; group adjustment is off for this rerun."
+msgstr "子组权重；本次重跑关闭分组调整。"
+
+#: ../../site/api/factor.md:91
+msgid "Portfolio returns of the subgroup."
+msgstr "子组的组合收益率。"
+
+#: ../../site/api/factor.md:91
+msgid "Subgroup quantile means and standard errors."
+msgstr "子组的分位均值与标准误。"
+
+#: ../../site/api/factor.md:91
+msgid "Subgroup rank IC per date."
+msgstr "子组按日期的秩 IC。"
+
+#: ../../site/api/factor.md:91
+msgid "Subgroup mean IC per forward-return label."
+msgstr "子组每个前向收益率标签的平均 IC。"
+
+#: ../../site/api/factor.md:91
+msgid "Subgroup turnover per requested lag and quantile."
+msgstr "子组按请求滞后与分位的换手率。"
+
+#: ../../site/api/factor.md:91
+msgid "Subgroup rank autocorrelation per requested lag."
+msgstr "子组按请求滞后的秩自相关。"
+
+#: ../../site/api/factor.md:94
+msgid "Python's primary by_group result views, kept separate from grouped_results."
+msgstr "Python 中主要的 by_group 结果视图，与 grouped_results 分开保存。"
+
+#: ../../site/api/factor.md:94
+msgid ""
+"These tables were computed from the full analysis universe before their "
+"group rows were selected, so long_short demeaning can span groups."
+msgstr "这些表是在选出分组行之前基于完整分析股票池计算的，因此 long_short 去均值可能跨越分组。"
+
+#: ../../site/api/factor.md:94
+msgid "Group rows of the aggregate quantile means."
+msgstr "聚合分位均值的分组行。"
+
+#: ../../site/api/factor.md:94
+msgid "Group rows of the per-date quantile means."
+msgstr "按日期分位均值的分组行。"
+
+#: ../../site/api/factor.md:94
+msgid "Spread rows for this group."
+msgstr "该分组的多空收益差行。"
+
+#: ../../site/api/factor.md:94
+msgid "Group rows of the rank IC table."
+msgstr "秩 IC 表的分组行。"
+
+#: ../../site/api/factor.md:94
+msgid "This group's mean IC row."
+msgstr "该分组的平均 IC 行。"
+
+#: ../../site/api/factor.md:94
+msgid "Monthly IC tables restricted to this group."
+msgstr "限于该分组的月度 IC 表。"
+
+#: ../../site/api/factor.md:97
+msgid "Chart data for one factor group."
+msgstr "单个因子分组的图表数据。"
+
+#: ../../site/api/factor.md:97
+msgid "Group label."
+msgstr "分组标签。"
+
+#: ../../site/api/factor.md:97 ../../site/api/factor.md:151
+msgid "Information coefficient by forward label."
+msgstr "按前向标签的信息系数。"
+
+#: ../../site/api/factor.md:97 ../../site/api/factor.md:151
+msgid "Mean return by quantile per forward label."
+msgstr "每个前向标签的各分位平均收益率。"
+
+#: ../../site/api/factor.md:97 ../../site/api/factor.md:151
+msgid "Quantile turnover at the primary lag."
+msgstr "主滞后下的分位换手率。"
+
+#: ../../site/api/factor.md:97
+msgid "Top-minus-bottom quantile spread by period."
+msgstr "按周期的最高分位减最低分位多空收益差。"
+
+#: ../../site/api/factor.md:97 ../../site/api/factor.md:151
+msgid "Rank autocorrelation by lag."
+msgstr "按滞后的秩自相关。"
+
+#: ../../site/api/factor.md:100
+msgid "Asset-to-group mapping used for grouped quantization and preparation."
+msgstr "用于分组分位化与准备工作的资产到分组映射。"
+
+#: ../../site/api/factor.md:100
+msgid "An empty group_by_asset map disables grouping."
+msgstr "空的 group_by_asset 映射会禁用分组。"
+
+#: ../../site/api/factor.md:100
+msgid "Asset to group name."
+msgstr "资产到分组名称。"
+
+#: ../../site/api/factor.md:100
+msgid "Optional group label remapping."
+msgstr "可选的分组标签重映射。"
+
+#: ../../site/api/factor.md:103
+msgid "Inference outcome for one information-coefficient label."
+msgstr "单个信息系数标签的推断结果。"
+
+#: ../../site/api/factor.md:103
+msgid "Finite IC observations used."
+msgstr "使用的有限 IC 观测数。"
+
+#: ../../site/api/factor.md:103
+msgid "Mean of those observations."
+msgstr "这些观测的均值。"
+
+#: ../../site/api/factor.md:103
+msgid "t statistic; NaN for an untestable label."
+msgstr "t 统计量；无法检验的标签为 NaN。"
+
+#: ../../site/api/factor.md:103
+msgid "Two-sided p value; NaN when untestable."
+msgstr "双侧 p 值；无法检验时为 NaN。"
+
+#: ../../site/api/factor.md:103
+msgid "Benjamini-Hochberg value; NaN when untestable."
+msgstr "Benjamini-Hochberg 值；无法检验时为 NaN。"
+
+#: ../../site/api/factor.md:103
+msgid "True when the adjusted test rejects at alpha."
+msgstr "当调整后的检验在 alpha 水平上拒绝时为 true。"
+
+#: ../../site/api/factor.md:103
+msgid "True with at least two finite observations."
+msgstr "至少有两个有限观测时为 true。"
+
+#: ../../site/api/factor.md:106
+msgid "Mean information coefficient per label or per group."
+msgstr "每个标签或每个分组的平均信息系数。"
+
+#: ../../site/api/factor.md:106 ../../site/api/factor.md:109
+#: ../../site/api/factor.md:136 ../../site/api/factor.md:154
+#: ../../site/api/factor.md:223 ../../site/api/factor.md:229
+msgid "Forward-return labels."
+msgstr "前向收益率标签。"
+
+#: ../../site/api/factor.md:106
+msgid "Labels or groups x labels."
+msgstr "标签或分组 × 标签。"
+
+#: ../../site/api/factor.md:106
+msgid "Empty for aggregate output; otherwise one entry per group row in means."
+msgstr "聚合输出时为空；否则 means 中每个分组行对应一个条目。"
+
+#: ../../site/api/factor.md:109
+msgid "Spearman rank information coefficient per date and forward-return label."
+msgstr "按日期和前向收益率标签的 Spearman 秩信息系数。"
+
+#: ../../site/api/factor.md:109
+msgid ""
+"values is a rectangular cube: one row per entry of dates and one column per "
+"entry of labels; a cell with fewer than two usable observations stays NaN."
+msgstr "values 是矩形立方体：dates 的每个条目对应一行，labels 的每个条目对应一列；可用观测少于两个的单元格保持 NaN。"
+
+#: ../../site/api/factor.md:109
+msgid "Row dates; repeats per observed group."
+msgstr "行日期；按观测到的分组重复。"
+
+#: ../../site/api/factor.md:109
+msgid "(date[, group]) rows x labels, NaN missing."
+msgstr "(date[, group]) 行 × 标签，缺失为 NaN。"
+
+#: ../../site/api/factor.md:109
+msgid ""
+"Empty for aggregate output; otherwise parallel to dates, where dates repeats"
+" once per observed (date, group) row in date/group order."
+msgstr "聚合输出时为空；否则与 dates 平行，其中 dates 按日期/分组顺序为每个观测到的 (date, group) 行重复一次。"
+
+#: ../../site/api/factor.md:112
+msgid "Cleaning-loss accounting for one factor preparation."
+msgstr "单次因子准备的清洗损失核算。"
+
+#: ../../site/api/factor.md:112
+msgid ""
+"Each loss member is the share of input_count dropped at that stage, so the "
+"three stage losses sum to total_loss."
+msgstr "每个 loss 成员是在该阶段丢弃的 input_count 占比，因此三个阶段损失之和等于 total_loss。"
+
+#: ../../site/api/factor.md:112
+msgid "Rows in the input factor panel."
+msgstr "输入因子面板中的行数。"
+
+#: ../../site/api/factor.md:112
+msgid "Rows with a finite factor value."
+msgstr "因子值为有限值的行数。"
+
+#: ../../site/api/factor.md:112
+msgid "Rows with all forward labels finite."
+msgstr "所有前向标签均为有限值的行数。"
+
+#: ../../site/api/factor.md:112
+msgid "Rows retained after quantization."
+msgstr "分位化后保留的行数。"
+
+#: ../../site/api/factor.md:112
+msgid "Share lost to a non-finite factor."
+msgstr "因因子值非有限而损失的比例。"
+
+#: ../../site/api/factor.md:112
+msgid "Share lost to missing forward returns."
+msgstr "因前向收益率缺失而损失的比例。"
+
+#: ../../site/api/factor.md:112
+msgid "Share dropped when assigning quantiles."
+msgstr "分配分位时丢弃的比例。"
+
+#: ../../site/api/factor.md:112
+msgid "Sum of the three staged losses."
+msgstr "三个阶段损失之和。"
+
+#: ../../site/api/factor.md:115
+msgid "The subset of a serialized model that the native envelope can restore."
+msgstr "原生信封能够恢复的序列化模型子集。"
+
+#: ../../site/api/factor.md:115
+msgid ""
+"Serialization schema identifier; the value written and accepted by this "
+"library is fincore-factor-analysis-native-v1."
+msgstr "序列化 schema 标识符；本库写出并接受的值为 fincore-factor-analysis-native-v1。"
+
+#: ../../site/api/factor.md:115
+msgid "Result-fingerprint format version stored in the envelope."
+msgstr "信封中存储的结果指纹格式版本。"
+
+#: ../../site/api/factor.md:115
+msgid "Result fingerprint restored from the envelope."
+msgstr "从信封恢复的结果指纹。"
+
+#: ../../site/api/factor.md:115
+msgid "Factor-analysis configuration restored from the envelope."
+msgstr "从信封恢复的因子分析配置。"
+
+#: ../../site/api/factor.md:115
+msgid "Forward-return period labels restored from the envelope."
+msgstr "从信封恢复的前向收益率周期标签。"
+
+#: ../../site/api/factor.md:115
+msgid "Data loss report restored from the envelope."
+msgstr "从信封恢复的数据损失报告。"
+
+#: ../../site/api/factor.md:118
+msgid "Stable operation descriptors for the factor runtime catalog."
+msgstr "因子运行时目录的稳定操作描述符。"
+
+#: ../../site/api/factor.md:118
+msgid "Stable operation identifier."
+msgstr "稳定的操作标识符。"
+
+#: ../../site/api/factor.md:118
+msgid "Equals operation_id when generated."
+msgstr "生成时等于 operation_id。"
+
+#: ../../site/api/factor.md:118
+msgid "Equals \"factor_analysis\" when generated."
+msgstr "生成时等于 \"factor_analysis\"。"
+
+#: ../../site/api/factor.md:118
+msgid "Owner and kernel keys."
+msgstr "所有者与内核键。"
+
+#: ../../site/api/factor.md:121
+msgid "Daily portfolio inputs built from one factor period."
+msgstr "由单个因子周期构建的每日组合输入。"
+
+#: ../../site/api/factor.md:121
+msgid "Daily simple returns generated from the compounded period curve."
+msgstr "由复利周期曲线生成的每日简单收益率。"
+
+#: ../../site/api/factor.md:121
+msgid ""
+"Daily gross-normalized asset weights plus one explicit cash row per "
+"timestamp."
+msgstr "每日总敞口归一化资产权重，外加每个时间戳一条显式现金行。"
+
+#: ../../site/api/factor.md:121
+msgid "Cash makes every row's signed total exactly one."
+msgstr "现金使每一行的带符号合计恰好为 1。"
+
+#: ../../site/api/factor.md:121
+msgid ""
+"Daily long-only equal-weight benchmark returns when the requested period "
+"labels a forward-return column; absent otherwise."
+msgstr "当请求的周期对应某个前向收益率列时，为每日纯多头等权基准收益率；否则不存在。"
+
+#: ../../site/api/factor.md:124
+msgid "Overlapping portfolio positions for one forward-return label."
+msgstr "单个前向收益率标签的重叠组合持仓。"
+
+#: ../../site/api/factor.md:124
+msgid "Positions for this label."
+msgstr "该标签的持仓。"
+
+#: ../../site/api/factor.md:127
+msgid "Compounded quantile growth curves for one forward-return label."
+msgstr "单个前向收益率标签的复利分位增长曲线。"
+
+#: ../../site/api/factor.md:127
+msgid "Curve dates, ascending."
+msgstr "曲线日期，升序。"
+
+#: ../../site/api/factor.md:127
+msgid "Descending, matching the source renderer."
+msgstr "降序，与源渲染器一致。"
+
+#: ../../site/api/factor.md:127
+msgid "Dates x quantiles, compounded growth."
+msgstr "日期 × 分位的复利增长。"
+
+#: ../../site/api/factor.md:130
+msgid "Factor-value distribution inside one quantile bucket."
+msgstr "单个分位桶内的因子值分布。"
+
+#: ../../site/api/factor.md:130
+msgid ""
+"Only finite factor values are counted, so the moments describe the values "
+"that survive preparation."
+msgstr "只统计有限因子值，因此各矩描述的是通过准备阶段保留下来的值。"
+
+#: ../../site/api/factor.md:130 ../../site/api/factor.md:157
+#: ../../site/api/factor.md:226
+msgid "Quantile label."
+msgstr "分位标签。"
+
+#: ../../site/api/factor.md:130
+msgid "Smallest finite factor value."
+msgstr "最小的有限因子值。"
+
+#: ../../site/api/factor.md:130
+msgid "Largest finite factor value."
+msgstr "最大的有限因子值。"
+
+#: ../../site/api/factor.md:130
+msgid "Arithmetic mean of the finite values."
+msgstr "有限值的算术平均。"
+
+#: ../../site/api/factor.md:130
+msgid "Sample standard deviation, NaN below two values."
+msgstr "样本标准差，少于两个值时为 NaN。"
+
+#: ../../site/api/factor.md:130
+msgid "Finite factor observations in the bucket."
+msgstr "桶内的有限因子观测数。"
+
+#: ../../site/api/factor.md:130
+msgid "Share of all finite values, in percent."
+msgstr "占全部有限值的比例，以百分比表示。"
+
+#: ../../site/api/factor.md:133
+msgid "Rank-autocorrelation series for one lag."
+msgstr "单个滞后的秩自相关序列。"
+
+#: ../../site/api/factor.md:133 ../../site/api/factor.md:157
+msgid "Date lag in observations."
+msgstr "以观测数表示的日期滞后。"
+
+#: ../../site/api/factor.md:133
+msgid "Rank correlation per date; NaN in warm-up."
+msgstr "按日期的秩相关；预热期内为 NaN。"
+
+#: ../../site/api/factor.md:136
+msgid "Portfolio returns per date and forward-return label."
+msgstr "按日期与前向收益率标签的组合收益率。"
+
+#: ../../site/api/factor.md:136
+msgid "Sorted unique dates."
+msgstr "已排序的唯一日期。"
+
+#: ../../site/api/factor.md:136
+msgid "Dates x labels; zero when no pair is usable."
+msgstr "日期 × 标签；没有可用配对时为 0。"
+
+#: ../../site/api/factor.md:139
+msgid "One prepared factor observation."
+msgstr "一条准备好的因子观测。"
+
+#: ../../site/api/factor.md:139 ../../site/api/factor.md:160
+msgid "Observation date."
+msgstr "观测日期。"
+
+#: ../../site/api/factor.md:139 ../../site/api/factor.md:160
+#: ../../site/api/factor.md:292 ../../site/api/factor.md:301
+msgid "Asset identifier."
+msgstr "资产标识符。"
+
+#: ../../site/api/factor.md:139
+msgid "Finite factor value."
+msgstr "有限的因子值。"
+
+#: ../../site/api/factor.md:139 ../../site/api/factor.md:265
+#: ../../site/api/factor.md:277
+msgid "One-based quantile label."
+msgstr "从 1 开始计数的分位标签。"
+
+#: ../../site/api/factor.md:139
+msgid "Whether a group label was resolved."
+msgstr "是否解析出分组标签。"
+
+#: ../../site/api/factor.md:139
+msgid "Group label, empty when ungrouped."
+msgstr "分组标签，未分组时为空。"
+
+#: ../../site/api/factor.md:139
+msgid "Returns aligned with forward_labels."
+msgstr "与 forward_labels 对齐的收益率。"
+
+#: ../../site/api/factor.md:142
+msgid "Long-form factor panel with row-aligned dates, assets and values."
+msgstr "长表形式的因子面板，日期、资产与值按行对齐。"
+
+#: ../../site/api/factor.md:142
+msgid ""
+"Each index is one observation. Preparation and quantization require the "
+"three vectors to have equal lengths and (date, asset) pairs to be unique."
+msgstr "每个索引是一条观测。准备与分位化要求三个向量长度相等，且 (date, asset) 对唯一。"
+
+#: ../../site/api/factor.md:142
+msgid "Observation dates."
+msgstr "观测日期。"
+
+#: ../../site/api/factor.md:142
+msgid "Asset identifiers."
+msgstr "资产标识符。"
+
+#: ../../site/api/factor.md:142
+msgid "Factor values, one per row."
+msgstr "因子值，每行一个。"
+
+#: ../../site/api/factor.md:145
+msgid "Dated scalar series."
+msgstr "带日期的标量序列。"
+
+#: ../../site/api/factor.md:145
+msgid "Series dates, parallel to values."
+msgstr "序列日期，与 values 平行。"
+
+#: ../../site/api/factor.md:145
+msgid "Values; NaN marks a missing point."
+msgstr "值；NaN 表示缺失点。"
+
+#: ../../site/api/factor.md:148
+msgid "Top-minus-bottom quantile return spread for one label."
+msgstr "单个标签的最高分位减最低分位收益率多空收益差。"
+
+#: ../../site/api/factor.md:148
+msgid "Upper quantile mean minus lower quantile mean."
+msgstr "上分位均值减下分位均值。"
+
+#: ../../site/api/factor.md:148 ../../site/api/factor.md:232
+msgid "Combined error; NaN when either leg is."
+msgstr "合成误差；任一侧为 NaN 时即为 NaN。"
+
+#: ../../site/api/factor.md:148
+msgid "Empty for aggregate rows; set for a by-group spread row."
+msgstr "聚合行为空；按分组的多空收益差行有值。"
+
+#: ../../site/api/factor.md:151
+msgid "Chart bundle for one factor analysis."
+msgstr "单次因子分析的图表集合。"
+
+#: ../../site/api/factor.md:151
+msgid ""
+"grouped entries carry every panel, while group_snapshots entries carry only "
+"their information coefficient, quantile returns and spread panels."
+msgstr "grouped 条目携带全部面板，而 group_snapshots 条目只携带其信息系数、分位收益率与多空收益差面板。"
+
+#: ../../site/api/factor.md:151
+msgid "Top-minus-bottom spread per forward period."
+msgstr "每个前向周期的最高分位减最低分位多空收益差。"
+
+#: ../../site/api/factor.md:151
+msgid "Per-group charts with every panel."
+msgstr "包含全部面板的按分组图表。"
+
+#: ../../site/api/factor.md:151
+msgid "Per-group snapshot charts."
+msgstr "按分组的快照图表。"
+
+#: ../../site/api/factor.md:151
+msgid "Event-study charts when present."
+msgstr "存在时的事件研究图表。"
+
+#: ../../site/api/factor.md:154
+msgid "Monthly aggregation of the information coefficient."
+msgstr "信息系数的月度聚合。"
+
+#: ../../site/api/factor.md:154
+msgid "Requested aggregation label."
+msgstr "请求的聚合标签。"
+
+#: ../../site/api/factor.md:154
+msgid "Month rows; repeats once per group."
+msgstr "月份行；每个分组重复一次。"
+
+#: ../../site/api/factor.md:154
+msgid "(date[, group]) rows x labels; NaN if empty."
+msgstr "(date[, group]) 行 × 标签；为空时为 NaN。"
+
+#: ../../site/api/factor.md:154 ../../site/api/factor.md:223
+msgid "Empty for aggregate output; otherwise parallel to dates."
+msgstr "聚合输出时为空；否则与 dates 平行。"
+
+#: ../../site/api/factor.md:157
+msgid "Turnover series for one quantile and lag."
+msgstr "单个分位与滞后的换手率序列。"
+
+#: ../../site/api/factor.md:157
+msgid "Turnover per date; NaN during warm-up."
+msgstr "按日期的换手率；预热期内为 NaN。"
+
+#: ../../site/api/factor.md:160
+msgid "One asset weight on one date."
+msgstr "某个日期上单个资产的权重。"
+
+#: ../../site/api/factor.md:160
+msgid "Gross-normalized weight; NaN for a zero gross bucket."
+msgstr "总敞口归一化权重；总敞口为零的桶为 NaN。"
+
+#: ../../site/api/factor.md:163
+msgid "One named, renderer-independent factor workflow."
+msgstr "一个具名的、与渲染器无关的因子工作流。"
+
+#: ../../site/api/factor.md:163
+msgid ""
+"build is the canonical analysis builder; it never re-runs a workflow "
+"specific kernel. renderer stays empty because native workflows return "
+"prepared models and chart data rather than Matplotlib figures."
+msgstr ""
+"build 是规范的分析构建器；它从不重跑特定工作流的内核。renderer 保持为空，因为原生工作流返回准备好的模型与图表数据，而不是 "
+"Matplotlib 图。"
+
+#: ../../site/api/factor.md:163
+msgid "Workflow identifier such as \"summary\"."
+msgstr "工作流标识符，例如 \"summary\"。"
+
+#: ../../site/api/factor.md:163
+msgid "Analysis-kernel operation identifier."
+msgstr "分析内核的操作标识符。"
+
+#: ../../site/api/factor.md:163
+msgid "Ordered analysis section names."
+msgstr "有序的分析小节名称。"
+
+#: ../../site/api/factor.md:163
+msgid "Optional renderer ID; empty here."
+msgstr "可选的渲染器 ID；此处为空。"
+
+#: ../../site/api/factor.md:163
+msgid "Builds the analysis model from prepared data and configuration."
+msgstr "由准备好的数据和配置构建分析模型。"
+
+#: ../../site/api/factor.md:166
+msgid "One estimated Fama-MacBeth coefficient series."
+msgstr "一条估计出的 Fama-MacBeth 系数序列。"
+
+#: ../../site/api/factor.md:166
+msgid "Mean of the per-date estimates."
+msgstr "各日期估计值的均值。"
+
+#: ../../site/api/factor.md:166
+msgid "Standard error of that mean."
+msgstr "该均值的标准误。"
+
+#: ../../site/api/factor.md:166
+msgid "Ratio of the mean to the standard error."
+msgstr "均值与标准误之比。"
+
+#: ../../site/api/factor.md:169
+msgid "Fama-MacBeth cross-sectional regression result."
+msgstr "Fama-MacBeth 横截面回归结果。"
+
+#: ../../site/api/factor.md:169
+msgid "Intercept across cross-sections."
+msgstr "跨横截面的截距。"
+
+#: ../../site/api/factor.md:169
+msgid "Exposure slope across cross-sections."
+msgstr "跨横截面的暴露斜率。"
+
+#: ../../site/api/factor.md:169
+msgid "Fitted cross-sections."
+msgstr "拟合后的横截面。"
+
+#: ../../site/api/factor.md:169
+msgid "Requested estimator."
+msgstr "请求的估计量。"
+
+#: ../../site/api/factor.md:169
+msgid "Requested lags; recorded even for i.i.d."
+msgstr "请求的滞后阶数；即使为 i.i.d. 也会记录。"
+
+#: ../../site/api/factor.md:172
+msgid "Benjamini-Hochberg step-up adjustment output."
+msgstr "Benjamini-Hochberg 逐步上升校正的输出。"
+
+#: ../../site/api/factor.md:172
+msgid "Input p values, in input order."
+msgstr "输入的 p 值，按输入顺序。"
+
+#: ../../site/api/factor.md:172
+msgid "Adjusted values, in input order."
+msgstr "调整后的值，按输入顺序。"
+
+#: ../../site/api/factor.md:172
+msgid "Rejection flag per input, in input order."
+msgstr "每个输入的拒绝标志，按输入顺序。"
+
+#: ../../site/api/factor.md:172 ../../site/api/factor.md:181
+msgid "Requested false-discovery rate."
+msgstr "请求的错误发现率。"
+
+#: ../../site/api/factor.md:175
+msgid "Forward returns for factor observations, stored label by label."
+msgstr "因子观测的前向收益率，按标签分别存储。"
+
+#: ../../site/api/factor.md:175
+msgid ""
+"dates and assets form the row keys; values holds one vector per entry of "
+"labels, each aligned with those rows."
+msgstr "dates 与 assets 构成行键；values 为 labels 的每个条目保存一个向量，均与这些行对齐。"
+
+#: ../../site/api/factor.md:175
+msgid "Horizon labels such as \"1D\"."
+msgstr "预测期标签，例如 \"1D\"。"
+
+#: ../../site/api/factor.md:175
+msgid "Row dates, parallel to assets."
+msgstr "行日期，与 assets 平行。"
+
+#: ../../site/api/factor.md:175
+msgid "Row assets, parallel to dates."
+msgstr "行资产，与 dates 平行。"
+
+#: ../../site/api/factor.md:175
+msgid "Labels x rows, NaN missing."
+msgstr "标签 × 行，缺失为 NaN。"
+
+#: ../../site/api/factor.md:178
+msgid "Zero-based position of one allocated grid cell."
+msgstr "某个已分配网格单元格的从 0 开始的位置。"
+
+#: ../../site/api/factor.md:178
+msgid "Zero-based row."
+msgstr "从 0 开始的行号。"
+
+#: ../../site/api/factor.md:178
+msgid "Zero-based column; 0 for a full-row cell."
+msgstr "从 0 开始的列号；整行单元格为 0。"
+
+#: ../../site/api/factor.md:178
+msgid "Whether the cell spans the full row."
+msgstr "单元格是否跨越整行。"
+
+#: ../../site/api/factor.md:178
+msgid "Allocation order within cells()."
+msgstr "在 cells() 中的分配顺序。"
+
+#: ../../site/api/factor.md:181
+msgid "Per-label IC inference with a false-discovery-rate adjustment."
+msgstr "带错误发现率调整的各标签 IC 推断。"
+
+#: ../../site/api/factor.md:181
+msgid "One entry per label."
+msgstr "每个标签一个条目。"
+
+#: ../../site/api/factor.md:184
+msgid "Symmetric confidence interval for a mean IC."
+msgstr "平均 IC 的对称置信区间。"
+
+#: ../../site/api/factor.md:184
+msgid "Lower bound; NaN when undefined."
+msgstr "下界；未定义时为 NaN。"
+
+#: ../../site/api/factor.md:184
+msgid "Upper bound; NaN when undefined."
+msgstr "上界；未定义时为 NaN。"
+
+#: ../../site/api/factor.md:187
+msgid "Monthly information-coefficient heatmap for one period and group."
+msgstr "单个周期与分组的月度信息系数热力图。"
+
+#: ../../site/api/factor.md:187
+msgid "Renders one rectangle per present heatmap cell as native SVG."
+msgstr "为每个存在的热力图单元格渲染一个矩形为原生 SVG。"
+
+#: ../../site/api/factor.md:187
+msgid ""
+"Cell colors use a red/blue diverging scale normalized by the largest "
+"absolute value. Year and month labels are not drawn."
+msgstr "单元格颜色使用按最大绝对值归一化的红蓝发散色阶。不绘制年份与月份标签。"
+
+#: ../../site/api/factor.md:187 ../../site/api/factor.md:217
+#: ../../site/api/factor.md:244 ../../site/api/factor.md:259
+#: ../../site/api/factor.md:262 ../../site/api/factor.md:265
+#: ../../site/api/factor.md:271 ../../site/api/factor.md:277
+#: ../../site/api/factor.md:322
+msgid "Forward-return period label."
+msgstr "前向收益率周期标签。"
+
+#: ../../site/api/factor.md:187
+msgid "Group label; empty for aggregate output."
+msgstr "分组标签；聚合输出时为空。"
+
+#: ../../site/api/factor.md:187
+msgid "Row year labels, ascending."
+msgstr "行年份标签，升序。"
+
+#: ../../site/api/factor.md:187
+msgid "Twelve month labels, January first."
+msgstr "十二个月份标签，一月在首。"
+
+#: ../../site/api/factor.md:187
+msgid "Years x 12 values in row-major order; NaN for an absent month."
+msgstr "年份 × 12 的值，按行优先顺序；缺失月份为 NaN。"
+
+#: ../../site/api/factor.md:187
+msgid "Cell presence flags aligned with values."
+msgstr "与 values 对齐的单元格存在标志。"
+
+#: ../../site/api/factor.md:190
+msgid "Prepared factor panels, one per forward-return horizon."
+msgstr "准备好的因子面板，每个前向收益率预测期一个。"
+
+#: ../../site/api/factor.md:190
+msgid "Label and panel pairs in the order of the requested periods."
+msgstr "标签与面板配对，按请求周期的顺序。"
+
+#: ../../site/api/factor.md:193
+msgid "Named factor panel accepted by the multi-factor evaluator."
+msgstr "多因子评估器接受的具名因子面板。"
+
+#: ../../site/api/factor.md:193 ../../site/api/factor.md:289
+msgid "Factor name; must be non-empty and unique."
+msgstr "因子名称；必须非空且唯一。"
+
+#: ../../site/api/factor.md:193 ../../site/api/factor.md:289
+msgid "Factor values by (date, asset)."
+msgstr "按 (date, asset) 的因子值。"
+
+#: ../../site/api/factor.md:196
+msgid "Named single-factor result used by comparison diagnostics."
+msgstr "用于对比诊断的具名单因子结果。"
+
+#: ../../site/api/factor.md:196
+msgid "Factor or combination name; must be non-empty and unique."
+msgstr "因子或组合名称；必须非空且唯一。"
+
+#: ../../site/api/factor.md:196
+msgid "Stored evaluation result."
+msgstr "存储的评估结果。"
+
+#: ../../site/api/factor.md:199
+msgid "Caller-owned figure identifiers returned by a tear-sheet workflow."
+msgstr "由 tear sheet 工作流返回的、归调用方所有的图标识符。"
+
+#: ../../site/api/factor.md:199
+msgid "Figure identifiers in display order."
+msgstr "按显示顺序的图标识符。"
+
+#: ../../site/api/factor.md:199
+msgid "Closed flags aligned with figures; filled by close_owned_figures."
+msgstr "与 figures 对齐的关闭标志；由 close_owned_figures 填充。"
+
+#: ../../site/api/factor.md:202
+msgid "Asset-scoped point-in-time observation used to materialize a panel."
+msgstr "用于物化面板的、以资产为范围的时点观测。"
+
+#: ../../site/api/factor.md:202
+msgid "Non-empty asset identifier."
+msgstr "非空的资产标识符。"
+
+#: ../../site/api/factor.md:202
+msgid "Revision of the asset's factor value."
+msgstr "该资产因子值的修订。"
+
+#: ../../site/api/factor.md:202
+msgid "Whether the asset enters the materialized panel."
+msgstr "该资产是否进入物化后的面板。"
+
+#: ../../site/api/factor.md:205
+msgid "One point-in-time revision of an asset's factor value."
+msgstr "资产因子值的一次时点修订。"
+
+#: ../../site/api/factor.md:205
+msgid "The dates must satisfy as_of <= known_at <= effective_from."
+msgstr "日期必须满足 as_of <= known_at <= effective_from。"
+
+#: ../../site/api/factor.md:205
+msgid "Date the value describes."
+msgstr "该值所描述的日期。"
+
+#: ../../site/api/factor.md:205
+msgid "Date the value became known; at least as_of."
+msgstr "该值被获知的日期；不早于 as_of。"
+
+#: ../../site/api/factor.md:205
+msgid "First effective date; at least known_at."
+msgstr "首个生效日期；不早于 known_at。"
+
+#: ../../site/api/factor.md:205
+msgid "Factor value; must be finite."
+msgstr "因子值；必须为有限值。"
+
+#: ../../site/api/factor.md:208
+msgid "Full configuration for factor preparation."
+msgstr "因子准备的完整配置。"
+
+#: ../../site/api/factor.md:208
+msgid "Quantile bucket count."
+msgstr "分位桶数量。"
+
+#: ../../site/api/factor.md:208 ../../site/api/factor.md:235
+msgid "Uses equal-width bins instead of quantiles."
+msgstr "使用等宽分箱而非分位数。"
+
+#: ../../site/api/factor.md:208 ../../site/api/factor.md:235
+msgid "Explicit bin edges; empty derives them."
+msgstr "显式分箱边界；为空时自动推导。"
+
+#: ../../site/api/factor.md:208
+msgid "Forward horizons in observations."
+msgstr "以观测数表示的前向预测期。"
+
+#: ../../site/api/factor.md:208
+msgid "Maximum tolerated total cleaning loss in [0, 1]."
+msgstr "在 [0, 1] 内可容忍的最大总清洗损失。"
+
+#: ../../site/api/factor.md:208
+msgid "Quantizes within each (date, group) cross-section."
+msgstr "在每个 (date, group) 横截面内做分位化。"
+
+#: ../../site/api/factor.md:208
+msgid "Per-asset forward-return z-score cutoff."
+msgstr "各资产前向收益率的 z 分数截断值。"
+
+#: ../../site/api/factor.md:208 ../../site/api/factor.md:235
+msgid "Separates negative and non-negative values."
+msgstr "区分负值与非负值。"
+
+#: ../../site/api/factor.md:208
+msgid "Compounds returns over the horizon when true."
+msgstr "为 true 时在预测期内复利计算收益率。"
+
+#: ../../site/api/factor.md:208
+msgid "Asset-to-group mapping; empty disables grouping."
+msgstr "资产到分组的映射；为空则禁用分组。"
+
+#: ../../site/api/factor.md:211
+msgid "Prepared factor rows with their labels and cleaning-loss report."
+msgstr "准备好的因子行及其标签与清洗损失报告。"
+
+#: ../../site/api/factor.md:211
+msgid "Retained observations."
+msgstr "保留的观测。"
+
+#: ../../site/api/factor.md:211
+msgid "Labels aligned with row returns."
+msgstr "与行收益率对齐的标签。"
+
+#: ../../site/api/factor.md:211
+msgid "Cleaning-loss accounting."
+msgstr "清洗损失核算。"
+
+#: ../../site/api/factor.md:214
+msgid "Q-Q chart data for one or more periods."
+msgstr "一个或多个周期的 Q-Q 图数据。"
+
+#: ../../site/api/factor.md:214
+msgid "Renders the Q-Q scatter and a diagonal reference line as native SVG."
+msgstr "将 Q-Q 散点与对角参考线渲染为原生 SVG。"
+
+#: ../../site/api/factor.md:214
+msgid "reference_slope and reference_intercept are not used by this renderer."
+msgstr "此渲染器不使用 reference_slope 与 reference_intercept。"
+
+#: ../../site/api/factor.md:214
+msgid "Series in draw order."
+msgstr "按绘制顺序的序列。"
+
+#: ../../site/api/factor.md:217
+msgid "Normal Q-Q series for the information coefficient of one period."
+msgstr "单个周期信息系数的正态 Q-Q 序列。"
+
+#: ../../site/api/factor.md:217
+msgid "Standard-normal quantiles at (i + 1) / (n + 1)."
+msgstr "位于 (i + 1) / (n + 1) 处的标准正态分位数。"
+
+#: ../../site/api/factor.md:217
+msgid ""
+"Sorted IC observations aligned with theoretical_quantiles; values are "
+"standardized only when mean is nonzero and scale is positive and not 1."
+msgstr "与 theoretical_quantiles 对齐的已排序 IC 观测；仅当均值为非零、尺度为正且不为 1 时才标准化。"
+
+#: ../../site/api/factor.md:217
+msgid "Mean of the observations; non-finite IC values count as zero."
+msgstr "观测的均值；非有限 IC 值按零计入。"
+
+#: ../../site/api/factor.md:217
+msgid "Population standard deviation of the observations."
+msgstr "观测的总体标准差。"
+
+#: ../../site/api/factor.md:217
+msgid "Slope of the reference line drawn by the interactive backend."
+msgstr "交互式后端绘制的参考线斜率。"
+
+#: ../../site/api/factor.md:217
+msgid "Intercept of the reference line drawn by the interactive backend."
+msgstr "交互式后端绘制的参考线截距。"
+
+#: ../../site/api/factor.md:220
+msgid "Cumulative-return chart data for every quantile of one forward period."
+msgstr "单个前向周期每个分位的累计收益率图表数据。"
+
+#: ../../site/api/factor.md:220
+msgid "Renders the chart as a deterministic native SVG document."
+msgstr "将图表渲染为确定性的原生 SVG 文档。"
+
+#: ../../site/api/factor.md:220 ../../site/api/factor.md:310
+msgid "Forward-return period label used in the title."
+msgstr "标题中使用的前向收益率周期标签。"
+
+#: ../../site/api/factor.md:220
+msgid "Quantiles descending."
+msgstr "分位，降序。"
+
+#: ../../site/api/factor.md:220
+msgid "Lower bound of the cumulative-growth axis."
+msgstr "累计增长轴的下界。"
+
+#: ../../site/api/factor.md:220
+msgid "Upper bound of the cumulative-growth axis."
+msgstr "累计增长轴的上界。"
+
+#: ../../site/api/factor.md:220
+msgid "Log-scale flag; the native SVG renderer maps cumulative values linearly."
+msgstr "对数刻度标志；原生 SVG 渲染器以线性方式映射累计值。"
+
+#: ../../site/api/factor.md:220
+msgid "Horizontal reference value, drawn by to_svg() when inside the bounds."
+msgstr "水平参考值，位于边界内时由 to_svg() 绘制。"
+
+#: ../../site/api/factor.md:223
+msgid "Per-date quantile mean returns and standard errors."
+msgstr "按日期的分位平均收益率与标准误。"
+
+#: ../../site/api/factor.md:223
+msgid "Row keys; repeats for each observed group."
+msgstr "行键；每个观测到的分组重复。"
+
+#: ../../site/api/factor.md:223
+msgid "Quantile keys."
+msgstr "分位键。"
+
+#: ../../site/api/factor.md:223
+msgid "(date[, group]) x quantiles x labels."
+msgstr "(date[, group]) × 分位 × 标签。"
+
+#: ../../site/api/factor.md:226
+msgid "Event-window averages for one quantile."
+msgstr "单个分位的事件窗口均值。"
+
+#: ../../site/api/factor.md:226
+msgid "Contiguous offsets, first through last."
+msgstr "连续的偏移，从首个到最后一个。"
+
+#: ../../site/api/factor.md:226
+msgid "Mean value per offset; NaN when empty."
+msgstr "每个偏移的均值；为空时为 NaN。"
+
+#: ../../site/api/factor.md:226
+msgid "Sample deviation; NaN below two values."
+msgstr "样本偏差；少于两个值时为 NaN。"
+
+#: ../../site/api/factor.md:229
+msgid "Quantile mean returns and standard errors."
+msgstr "分位平均收益率与标准误。"
+
+#: ../../site/api/factor.md:229
+msgid "Row keys; repeats when multiple groups exist."
+msgstr "行键；存在多个分组时重复。"
+
+#: ../../site/api/factor.md:229
+msgid "(quantile[, group]) rows x labels."
+msgstr "(quantile[, group]) 行 × 标签。"
+
+#: ../../site/api/factor.md:229
+msgid "Empty for aggregate output; otherwise parallel to quantiles."
+msgstr "聚合输出时为空；否则与 quantiles 平行。"
+
+#: ../../site/api/factor.md:232
+msgid "Top-minus-bottom quantile spreads."
+msgstr "最高分位减最低分位的多空收益差。"
+
+#: ../../site/api/factor.md:232
+msgid "Periods; repeats for each group."
+msgstr "周期；每个分组重复。"
+
+#: ../../site/api/factor.md:232
+msgid "Upper mean minus lower mean."
+msgstr "上均值减下均值。"
+
+#: ../../site/api/factor.md:232
+msgid "Empty for aggregate output; otherwise parallel to labels."
+msgstr "聚合输出时为空；否则与 labels 平行。"
+
+#: ../../site/api/factor.md:235
+msgid "Bucket assignment settings for a factor cross-section."
+msgstr "因子横截面的分桶设置。"
+
+#: ../../site/api/factor.md:235
+msgid "Bucket count when use_bins is false."
+msgstr "use_bins 为 false 时的桶数量。"
+
+#: ../../site/api/factor.md:235
+msgid "Buckets within each (date, group) cross-section."
+msgstr "在每个 (date, group) 横截面内分桶。"
+
+#: ../../site/api/factor.md:235
+msgid "Labels failed buckets empty instead of throwing."
+msgstr "失败的桶留空而非抛出异常。"
+
+#: ../../site/api/factor.md:238
+msgid ""
+"Native replacement for the customize decorator: the context a renderer "
+"applies around a chart call."
+msgstr "customize 装饰器的原生替代：渲染器在图表调用前后应用的上下文。"
+
+#: ../../site/api/factor.md:238
+msgid "It carries no callable identity."
+msgstr "它不携带任何可调用对象身份。"
+
+#: ../../site/api/factor.md:238
+msgid "Whether context is applied around the call."
+msgstr "是否在调用前后应用 context。"
+
+#: ../../site/api/factor.md:238
+msgid "Whether a colorblind palette is used."
+msgstr "是否使用色盲友好配色。"
+
+#: ../../site/api/factor.md:238
+msgid "Whether the left spine is removed."
+msgstr "是否移除左侧边框。"
+
+#: ../../site/api/factor.md:238
+msgid "Context applied around the chart call when set_context is true."
+msgstr "当 set_context 为 true 时在图表调用前后应用的上下文。"
+
+#: ../../site/api/factor.md:238
+msgid "Axes style applied around the chart call."
+msgstr "在图表调用前后应用的坐标轴样式。"
+
+#: ../../site/api/factor.md:238
+msgid "Colorblind-safe color cycle used when colorblind_palette is true."
+msgstr "colorblind_palette 为 true 时使用的色盲安全颜色循环。"
+
+#: ../../site/api/factor.md:241
+msgid "Pinned capability declaration for the native research surface."
+msgstr "固定版本的原生研究接口能力声明。"
+
+#: ../../site/api/factor.md:241
+msgid "Research API version string."
+msgstr "研究 API 版本字符串。"
+
+#: ../../site/api/factor.md:241 ../../site/api/factor.md:298
+msgid "Result schema version."
+msgstr "结果模式版本。"
+
+#: ../../site/api/factor.md:241
+msgid "Supported label bases."
+msgstr "支持的标签基准。"
+
+#: ../../site/api/factor.md:241
+msgid "Preprocessing methods."
+msgstr "预处理方法。"
+
+#: ../../site/api/factor.md:241
+msgid "Advertised metric identifiers."
+msgstr "对外声明的指标标识符。"
+
+#: ../../site/api/factor.md:241
+msgid "Names accepted by research_result::table()."
+msgstr "research_result::table() 接受的名称。"
+
+#: ../../site/api/factor.md:241
+msgid "Advertised export formats."
+msgstr "对外声明的导出格式。"
+
+#: ../../site/api/factor.md:241
+msgid "Evaluation statuses."
+msgstr "评估状态。"
+
+#: ../../site/api/factor.md:244
+msgid "Mean-IC and ICIR comparison for one factor pair and period."
+msgstr "单个因子对在单一周期上的平均 IC 与 ICIR 比较。"
+
+#: ../../site/api/factor.md:244
+msgid "Comparison name from the requested map."
+msgstr "来自请求映射的比较名称。"
+
+#: ../../site/api/factor.md:244 ../../site/api/factor.md:247
+msgid "Left factor name."
+msgstr "左侧因子名称。"
+
+#: ../../site/api/factor.md:244 ../../site/api/factor.md:247
+msgid "Right factor name."
+msgstr "右侧因子名称。"
+
+#: ../../site/api/factor.md:244
+msgid "Left-minus-right mean IC; NaN when either side is unavailable."
+msgstr "左减右的平均 IC；任一侧不可用时为 NaN。"
+
+#: ../../site/api/factor.md:244
+msgid "Left-minus-right ICIR; NaN when either side is unavailable."
+msgstr "左减右的 ICIR；任一侧不可用时为 NaN。"
+
+#: ../../site/api/factor.md:244
+msgid "Mean IC of the left factor; NaN when unavailable."
+msgstr "左侧因子的平均 IC；不可用时为 NaN。"
+
+#: ../../site/api/factor.md:244
+msgid "Mean IC of the right factor; NaN when unavailable."
+msgstr "右侧因子的平均 IC；不可用时为 NaN。"
+
+#: ../../site/api/factor.md:244
+msgid "Left ICIR; NaN with too few dates or zero deviation."
+msgstr "左侧 ICIR；日期过少或偏差为零时为 NaN。"
+
+#: ../../site/api/factor.md:244
+msgid "Right ICIR; NaN with too few dates or zero deviation."
+msgstr "右侧 ICIR；日期过少或偏差为零时为 NaN。"
+
+#: ../../site/api/factor.md:244
+msgid "Finite IC dates used for the left factor."
+msgstr "左侧因子使用的有限 IC 日期数。"
+
+#: ../../site/api/factor.md:244
+msgid "Finite IC dates used for the right factor."
+msgstr "右侧因子使用的有限 IC 日期数。"
+
+#: ../../site/api/factor.md:247
+msgid "Correlation summary for one ordered factor pair."
+msgstr "一个有序因子对的相关性摘要。"
+
+#: ../../site/api/factor.md:247
+msgid "Mean Pearson correlation; NaN if none."
+msgstr "Pearson 相关系数均值；无有效值时为 NaN。"
+
+#: ../../site/api/factor.md:247
+msgid "Sample standard deviation; NaN with fewer than two dates."
+msgstr "样本标准差；日期少于两个时为 NaN。"
+
+#: ../../site/api/factor.md:247
+msgid "Number of dates with a finite correlation."
+msgstr "相关性为有限的日期数量。"
+
+#: ../../site/api/factor.md:250
+msgid "Coverage counts for the single factor evaluated by this API."
+msgstr "本 API 所评估的单一因子的覆盖计数。"
+
+#: ../../site/api/factor.md:250 ../../site/api/factor.md:259
+#: ../../site/api/factor.md:262 ../../site/api/factor.md:265
+#: ../../site/api/factor.md:271 ../../site/api/factor.md:274
+#: ../../site/api/factor.md:277
+msgid "Factor name."
+msgstr "因子名称。"
+
+#: ../../site/api/factor.md:250
+msgid "Coverage row kind; \"factor\" here."
+msgstr "覆盖行种类；此处为 \"factor\"。"
+
+#: ../../site/api/factor.md:250
+msgid "Applied direction, +1 or -1."
+msgstr "应用的方向，+1 或 -1。"
+
+#: ../../site/api/factor.md:250
+msgid "Cells after window/target selection."
+msgstr "窗口/目标筛选之后的单元数量。"
+
+#: ../../site/api/factor.md:250
+msgid "Cells with a finite processed factor."
+msgstr "处理后因子为有限的单元数量。"
+
+#: ../../site/api/factor.md:250
+msgid "Cells with at least one finite label."
+msgstr "至少有一个有限标签的单元数量。"
+
+#: ../../site/api/factor.md:250
+msgid "Cells with finite factor and label."
+msgstr "因子与标签均为有限的单元数量。"
+
+#: ../../site/api/factor.md:250
+msgid "\"OK\", \"PARTIAL\" or \"UNEVALUABLE\"."
+msgstr "\"OK\"、\"PARTIAL\" 或 \"UNEVALUABLE\"。"
+
+#: ../../site/api/factor.md:253
+msgid "Structured, source-compatible diagnostic row."
+msgstr "结构化、与源实现兼容的诊断行。"
+
+#: ../../site/api/factor.md:253
+msgid "factor is empty when the Python table's nullable factor value is absent."
+msgstr "当 Python 表中可空的 factor 值缺失时，factor 为空。"
+
+#: ../../site/api/factor.md:253
+msgid "Factor name; empty when absent."
+msgstr "因子名称；缺失时为空。"
+
+#: ../../site/api/factor.md:253
+msgid "Evaluation stage that emitted the diagnostic."
+msgstr "发出该诊断的评估阶段。"
+
+#: ../../site/api/factor.md:253
+msgid "Severity such as \"warning\" or \"error\"."
+msgstr "严重程度，例如 \"warning\" 或 \"error\"。"
+
+#: ../../site/api/factor.md:253
+msgid "Stable machine-readable diagnostic code."
+msgstr "稳定的机器可读诊断代码。"
+
+#: ../../site/api/factor.md:253
+msgid "Human-readable diagnostic text."
+msgstr "人类可读的诊断文本。"
+
+#: ../../site/api/factor.md:256
+msgid "Owning metadata returned by the combined detailed evaluation and export."
+msgstr "组合的详细评估与导出返回的带所有权元数据。"
+
+#: ../../site/api/factor.md:256
+msgid ""
+"Signal and label rows are streamed to the CSV files and are not retained in "
+"this outcome; their row counts remain available here and in the manifest."
+msgstr "信号行与标签行以流式方式写入 CSV 文件，不会保留在该结果中；其行数仍可在本结果与 manifest 中获取。"
+
+#: ../../site/api/factor.md:256
+msgid "Evaluation status copied from the result."
+msgstr "从结果复制的评估状态。"
+
+#: ../../site/api/factor.md:256
+msgid "Evaluation manifest."
+msgstr "评估 manifest。"
+
+#: ../../site/api/factor.md:256
+msgid "Evaluation diagnostics."
+msgstr "评估诊断。"
+
+#: ../../site/api/factor.md:256
+msgid "Signal rows written to signals.csv."
+msgstr "写入 signals.csv 的信号行数。"
+
+#: ../../site/api/factor.md:256
+msgid "Label rows written to labels.csv."
+msgstr "写入 labels.csv 的标签行数。"
+
+#: ../../site/api/factor.md:256
+msgid "Directory and exported file names."
+msgstr "目录与导出文件名。"
+
+#: ../../site/api/factor.md:259
+msgid "One date/factor/period observation from the Python research ic table."
+msgstr "来自 Python 研究 ic 表的一条日期/因子/周期观测。"
+
+#: ../../site/api/factor.md:259 ../../site/api/factor.md:265
+#: ../../site/api/factor.md:271 ../../site/api/factor.md:277
+#: ../../site/api/factor.md:292 ../../site/api/factor.md:301
+msgid "Observation date in UTC nanoseconds."
+msgstr "以 UTC 纳秒表示的观测日期。"
+
+#: ../../site/api/factor.md:259
+msgid "Pearson IC for the date; NaN when undefined."
+msgstr "该日期的 Pearson IC；未定义时为 NaN。"
+
+#: ../../site/api/factor.md:259
+msgid "Spearman rank IC; NaN when undefined."
+msgstr "Spearman 秩 IC；未定义时为 NaN。"
+
+#: ../../site/api/factor.md:259
+msgid "Paired assets contributing to the IC."
+msgstr "对该 IC 有贡献的配对资产数量。"
+
+#: ../../site/api/factor.md:262
+msgid "Finite-observation summaries for Pearson and Spearman (rank) IC."
+msgstr "Pearson 与 Spearman（秩）IC 的有限观测摘要。"
+
+#: ../../site/api/factor.md:262
+msgid "Mean of finite Pearson IC values."
+msgstr "有限 Pearson IC 值的均值。"
+
+#: ../../site/api/factor.md:262
+msgid "Sample standard deviation of Pearson ICs."
+msgstr "Pearson IC 的样本标准差。"
+
+#: ../../site/api/factor.md:262
+msgid "Mean IC divided by its sample deviation."
+msgstr "平均 IC 除以其样本标准差。"
+
+#: ../../site/api/factor.md:262
+msgid "Mean of finite rank IC values."
+msgstr "有限秩 IC 值的均值。"
+
+#: ../../site/api/factor.md:262
+msgid "Sample standard deviation of rank ICs."
+msgstr "秩 IC 的样本标准差。"
+
+#: ../../site/api/factor.md:262
+msgid "Mean rank IC divided by its sample deviation."
+msgstr "平均秩 IC 除以其样本标准差。"
+
+#: ../../site/api/factor.md:262
+msgid "Number of finite Pearson IC observations."
+msgstr "有限 Pearson IC 观测数量。"
+
+#: ../../site/api/factor.md:265
+msgid "One date/factor/period/quantile raw-return mean and its contributing count."
+msgstr "一条日期/因子/周期/分位的原始收益均值及其参与计数。"
+
+#: ../../site/api/factor.md:265
+msgid "Mean raw forward return in the quantile."
+msgstr "该分位内原始前瞻收益的均值。"
+
+#: ../../site/api/factor.md:265
+msgid "Label cells contributing to the mean."
+msgstr "对该均值有贡献的标签单元数量。"
+
+#: ../../site/api/factor.md:268
+msgid "Version 2 owns typed rows for the factor-local detailed research tables."
+msgstr "版本 2 为因子级详细研究表持有带类型的行。"
+
+#: ../../site/api/factor.md:268
+msgid ""
+"Rows follow the pinned Python 1.0 evaluator's append order; all numeric "
+"missing values are quiet NaNs. The single-factor entry represents the Python"
+" correlation and comparisons tables as empty vectors."
+msgstr "行序遵循固定版本 Python 1.0 评估器的追加顺序；所有数值缺失值都是静默 NaN。单因子入口以空向量表示 Python 的相关性与比较表。"
+
+#: ../../site/api/factor.md:268
+msgid "Overall status: \"OK\" or \"UNEVALUABLE\"."
+msgstr "总体状态：\"OK\" 或 \"UNEVALUABLE\"。"
+
+#: ../../site/api/factor.md:268
+msgid "Signal rows per panel cell."
+msgstr "每个面板单元的信号行。"
+
+#: ../../site/api/factor.md:268
+msgid "Complete panel × period grid, including NaN values for missing labels."
+msgstr "完整的 面板 × 周期 网格，缺失标签的取值为 NaN。"
+
+#: ../../site/api/factor.md:268
+msgid "Per-date Pearson/rank IC."
+msgstr "逐日 Pearson/秩 IC。"
+
+#: ../../site/api/factor.md:268
+msgid "One per period."
+msgstr "每个周期一条。"
+
+#: ../../site/api/factor.md:268
+msgid "Quantile means."
+msgstr "分位均值。"
+
+#: ../../site/api/factor.md:268
+msgid "Quantile turnover."
+msgstr "分位换手率。"
+
+#: ../../site/api/factor.md:268
+msgid "Daily spreads."
+msgstr "逐日多空收益差。"
+
+#: ../../site/api/factor.md:268
+msgid "Rank stability."
+msgstr "秩稳定性。"
+
+#: ../../site/api/factor.md:268
+msgid "Empty for this API."
+msgstr "本 API 下为空。"
+
+#: ../../site/api/factor.md:268
+msgid "Factor coverage."
+msgstr "因子覆盖。"
+
+#: ../../site/api/factor.md:268
+msgid "Warnings and errors."
+msgstr "警告与错误。"
+
+#: ../../site/api/factor.md:268
+msgid "Metadata and row counts."
+msgstr "元数据与行数。"
+
+#: ../../site/api/factor.md:268
+msgid "Schema version."
+msgstr "模式版本。"
+
+#: ../../site/api/factor.md:271
+msgid "Daily top-minus-bottom quantile spread and the quantiles used."
+msgstr "逐日最高减最低分位的多空收益差及其使用的分位。"
+
+#: ../../site/api/factor.md:271
+msgid "Top-quantile mean minus bottom-quantile mean."
+msgstr "最高分位均值减最低分位均值。"
+
+#: ../../site/api/factor.md:271
+msgid "Highest populated quantile label."
+msgstr "已填充的最高分位标签。"
+
+#: ../../site/api/factor.md:271
+msgid "Lowest populated quantile label."
+msgstr "已填充的最低分位标签。"
+
+#: ../../site/api/factor.md:274
+msgid "Whole processed-panel stability summary for one requested lag."
+msgstr "针对一个请求滞后的、覆盖整个处理后面板的稳定性摘要。"
+
+#: ../../site/api/factor.md:274
+msgid "Lag in observation dates."
+msgstr "以观测日期计的滞后阶数。"
+
+#: ../../site/api/factor.md:274
+msgid "Mean rank autocorrelation."
+msgstr "秩自相关均值。"
+
+#: ../../site/api/factor.md:274
+msgid "Sample standard deviation."
+msgstr "样本标准差。"
+
+#: ../../site/api/factor.md:274
+msgid "Number of finite autocorrelation values."
+msgstr "自相关值为有限的数量。"
+
+#: ../../site/api/factor.md:277
+msgid "Quantile turnover with the period-specific lag used by the Python API."
+msgstr "使用 Python API 的周期专属滞后的分位换手率。"
+
+#: ../../site/api/factor.md:277
+msgid "Share of members absent at the lagged date."
+msgstr "在滞后日期缺席的成分占比。"
+
+#: ../../site/api/factor.md:280
+msgid "Caller-supplied values before defaulting."
+msgstr "填充默认值之前由调用方提供的取值。"
+
+#: ../../site/api/factor.md:280
+msgid ""
+"Unset optionals take the pinned defaults; unknown_fields mirrors the "
+"source's unknown-key rejection."
+msgstr "未设置的可选项采用固定版本的默认值；unknown_fields 对应源实现对未知键的拒绝。"
+
+#: ../../site/api/factor.md:280
+msgid "Optional target list; normalization requires it."
+msgstr "可选的目标列表；归一化要求提供。"
+
+#: ../../site/api/factor.md:280
+msgid "Optional window start; normalization requires it."
+msgstr "可选的窗口起点；归一化要求提供。"
+
+#: ../../site/api/factor.md:280
+msgid "Optional window end; normalization requires it."
+msgstr "可选的窗口终点；归一化要求提供。"
+
+#: ../../site/api/factor.md:280
+msgid "Optional snapshot id; unset uses unspecified."
+msgstr "可选的快照 id；未设置时使用 unspecified。"
+
+#: ../../site/api/factor.md:280
+msgid "Optional price basis; unset uses unspecified."
+msgstr "可选的价格基准；未设置时使用 unspecified。"
+
+#: ../../site/api/factor.md:280
+msgid "Optional calendar id; unset uses unspecified."
+msgstr "可选的日历 id；未设置时使用 unspecified。"
+
+#: ../../site/api/factor.md:280
+msgid "Optional frequency; unset uses unspecified."
+msgstr "可选的频率；未设置时使用 unspecified。"
+
+#: ../../site/api/factor.md:280
+msgid "Optional timezone metadata; unset uses UTC."
+msgstr "可选的时区元数据；未设置时使用 UTC。"
+
+#: ../../site/api/factor.md:280
+msgid "Optional feed kind; unset uses close_time."
+msgstr "可选的数据推送类型；未设置时使用 close_time。"
+
+#: ../../site/api/factor.md:280
+#, python-brace-format
+msgid "Optional horizons; unset uses {1, 5, 20}."
+msgstr "可选的预测期；未设置时使用 {1, 5, 20}。"
+
+#: ../../site/api/factor.md:280
+msgid "Optional label basis; unset uses next_open_to_open."
+msgstr "可选的标签基准；未设置时使用 next_open_to_open。"
+
+#: ../../site/api/factor.md:280
+msgid "Optional entry convention; unset uses next_open."
+msgstr "可选的入场约定；未设置时使用 next_open。"
+
+#: ../../site/api/factor.md:280
+msgid "Optional quantile count; unset uses 5."
+msgstr "可选的分位数量；未设置时使用 5。"
+
+#: ../../site/api/factor.md:280
+msgid "Optional minimum assets; unset uses 10."
+msgstr "可选的最少资产数；未设置时使用 10。"
+
+#: ../../site/api/factor.md:280
+msgid "Optional minimum quantile observations; unset uses 1."
+msgstr "可选的分位最少观测数；未设置时使用 1。"
+
+#: ../../site/api/factor.md:280
+msgid "Optional method; unset uses cross_section_rank."
+msgstr "可选的方法；未设置时使用 cross_section_rank。"
+
+#: ../../site/api/factor.md:280
+msgid "Optional loss fraction; unset uses 1.0."
+msgstr "可选的损失比例；未设置时使用 1.0。"
+
+#: ../../site/api/factor.md:280
+#, python-brace-format
+msgid "Optional lags; unset uses {1, 5, 20}."
+msgstr "可选的滞后阶；未设置时使用 {1, 5, 20}。"
+
+#: ../../site/api/factor.md:280 ../../site/api/factor.md:304
+msgid "Optional per-asset signs (+1 or -1)."
+msgstr "可选的逐资产符号（+1 或 -1）。"
+
+#: ../../site/api/factor.md:280
+msgid "Optional weighted blends; unset leaves the map empty."
+msgstr "可选的加权混合；未设置时映射保持为空。"
+
+#: ../../site/api/factor.md:280
+msgid "Optional factor pairs; unset leaves the map empty."
+msgstr "可选的因子对；未设置时映射保持为空。"
+
+#: ../../site/api/factor.md:280
+msgid "Optional provenance ranges; unset leaves the map empty."
+msgstr "可选的来源区间；未设置时映射保持为空。"
+
+#: ../../site/api/factor.md:280
+msgid "Unknown keys rejected by normalization."
+msgstr "被归一化拒绝的未知键。"
+
+#: ../../site/api/factor.md:283
+msgid "Validated, default-filled research evaluation specification."
+msgstr "已校验并填充默认值的研究评估设定。"
+
+#: ../../site/api/factor.md:283
+msgid ""
+"Mirrors the pinned Python ResearchEvaluationSpec field set, including the "
+"native UTC-nanosecond window endpoints."
+msgstr "与固定版本 Python ResearchEvaluationSpec 的字段集合对应，包含原生的 UTC 纳秒窗口端点。"
+
+#: ../../site/api/factor.md:283
+msgid "Target assets; non-empty and duplicate-free."
+msgstr "目标资产；非空且无重复。"
+
+#: ../../site/api/factor.md:283
+msgid "Inclusive window start; must not exceed end."
+msgstr "闭区间窗口起点；不得晚于 end。"
+
+#: ../../site/api/factor.md:283
+msgid "Inclusive window end."
+msgstr "闭区间窗口终点。"
+
+#: ../../site/api/factor.md:283 ../../site/api/factor.md:304
+msgid "Provenance snapshot identifier."
+msgstr "来源快照标识符。"
+
+#: ../../site/api/factor.md:283 ../../site/api/factor.md:304
+msgid "Provenance price basis."
+msgstr "来源价格基准。"
+
+#: ../../site/api/factor.md:283 ../../site/api/factor.md:304
+msgid "Provenance calendar identifier."
+msgstr "来源日历标识符。"
+
+#: ../../site/api/factor.md:283 ../../site/api/factor.md:304
+msgid "Provenance data frequency."
+msgstr "来源数据频率。"
+
+#: ../../site/api/factor.md:283
+msgid "Descriptive source timezone; timestamps remain UTC."
+msgstr "描述性的源时区；时间戳仍以 UTC 存储。"
+
+#: ../../site/api/factor.md:283
+msgid "Descriptive feed timestamp convention."
+msgstr "描述性的推送时间戳约定。"
+
+#: ../../site/api/factor.md:283
+msgid "Non-empty, positive, unique price-row horizons."
+msgstr "非空、为正且唯一的价行预测期。"
+
+#: ../../site/api/factor.md:283 ../../site/api/factor.md:304
+msgid "Forward-return basis."
+msgstr "前瞻收益基准。"
+
+#: ../../site/api/factor.md:283
+msgid "Precomputed-label entry convention."
+msgstr "预计算标签的入场约定。"
+
+#: ../../site/api/factor.md:283
+msgid "Quantile bucket count; normalization requires at least one."
+msgstr "分位桶数量；归一化要求至少一个。"
+
+#: ../../site/api/factor.md:283
+msgid "Minimum asset count threshold."
+msgstr "最少资产数阈值。"
+
+#: ../../site/api/factor.md:283
+msgid "Minimum observations per quantile."
+msgstr "每个分位的最少观测数。"
+
+#: ../../site/api/factor.md:283 ../../site/api/factor.md:304
+msgid "Cross-sectional preprocessing method."
+msgstr "截面预处理方法。"
+
+#: ../../site/api/factor.md:283
+msgid "Tolerated data-loss fraction in [0, 1]."
+msgstr "可容忍的数据损失比例，位于 [0, 1]。"
+
+#: ../../site/api/factor.md:283 ../../site/api/factor.md:304
+msgid "Positive rank-autocorrelation lags."
+msgstr "为正的秩自相关滞后阶。"
+
+#: ../../site/api/factor.md:283
+msgid "Per-asset signs; values must be +1 or -1."
+msgstr "逐资产符号；取值必须为 +1 或 -1。"
+
+#: ../../site/api/factor.md:283 ../../site/api/factor.md:304
+msgid "Weighted factor blends."
+msgstr "加权因子混合。"
+
+#: ../../site/api/factor.md:283
+msgid "Named factor pairs; sides distinct."
+msgstr "命名的因子对；两侧必须不同。"
+
+#: ../../site/api/factor.md:283 ../../site/api/factor.md:304
+msgid "Named provenance ranges."
+msgstr "命名的来源区间。"
+
+#: ../../site/api/factor.md:286
+msgid "Files written by export_factor_research()."
+msgstr "export_factor_research() 写入的文件。"
+
+#: ../../site/api/factor.md:286
+msgid "Requested output directory as supplied."
+msgstr "按传入原样记录的请求输出目录。"
+
+#: ../../site/api/factor.md:286
+msgid "Relative names of written files, in write order."
+msgstr "已写入文件的相对名称，按写入顺序排列。"
+
+#: ../../site/api/factor.md:289
+msgid "Named factor panel used as correlation input."
+msgstr "用作相关性输入的命名因子面板。"
+
+#: ../../site/api/factor.md:292
+msgid "One forward-return label row."
+msgstr "一行前瞻收益标签记录。"
+
+#: ../../site/api/factor.md:292
+msgid "Forward-return period label, such as 1D."
+msgstr "前瞻收益周期标签，例如 1D。"
+
+#: ../../site/api/factor.md:292
+msgid "Forward return for the period; NaN when missing."
+msgstr "该周期的前瞻收益；缺失时为 NaN。"
+
+#: ../../site/api/factor.md:295
+msgid "Aggregated multi-factor evaluation result."
+msgstr "聚合后的多因子评估结果。"
+
+#: ../../site/api/factor.md:295
+msgid ""
+"status is OK when every named result is OK, UNEVALUABLE when all are, and "
+"PARTIAL otherwise."
+msgstr "当每个命名结果都为 OK 时 status 为 OK，全部为 UNEVALUABLE 时为 UNEVALUABLE，其余情况为 PARTIAL。"
+
+#: ../../site/api/factor.md:295
+msgid "Aggregated evaluation status."
+msgstr "聚合后的评估状态。"
+
+#: ../../site/api/factor.md:295
+msgid "Input factors first, then combinations."
+msgstr "先为输入因子，其后为组合。"
+
+#: ../../site/api/factor.md:295
+msgid "Pairwise processed-panel correlations."
+msgstr "成对的已处理面板相关性。"
+
+#: ../../site/api/factor.md:295
+msgid "Comparison rows; empty if not requested."
+msgstr "比较行；未请求时为空。"
+
+#: ../../site/api/factor.md:295
+msgid "Concatenated signals tagged with factor names."
+msgstr "拼接后的信号，并标注因子名称。"
+
+#: ../../site/api/factor.md:295
+msgid "Counts and API/schema version metadata."
+msgstr "计数以及 API/模式版本元数据。"
+
+#: ../../site/api/factor.md:298
+msgid "Aggregated single-factor research result."
+msgstr "聚合后的单因子研究结果。"
+
+#: ../../site/api/factor.md:298
+msgid ""
+"status is OK when every requested horizon has prepared rows, PARTIAL when at"
+" least one horizon has none, and UNEVALUABLE when no horizon was prepared at"
+" all."
+msgstr "当所有请求的预测期都有准备好的行时 status 为 OK；至少一个预测期没有行时为 PARTIAL；没有任何预测期被准备时为 UNEVALUABLE。"
+
+#: ../../site/api/factor.md:298
+msgid "Returns one named result table."
+msgstr "返回一个命名的结果表。"
+
+#: ../../site/api/factor.md:298
+msgid ""
+"Unknown names raise a structured DatasetError (unknown_result_table). The "
+"correlation and comparisons tables expose canonical columns with no rows in "
+"this single-factor result."
+msgstr "未知名称会抛出结构化的 DatasetError（unknown_result_table）。在该单因子结果中，相关性与比较表暴露规范的列但没有行。"
+
+#: ../../site/api/factor.md:298
+msgid "Returns the JSON-compatible status/manifest/tables/columns payload."
+msgstr "返回与 JSON 兼容的 status/manifest/tables/columns 载荷。"
+
+#: ../../site/api/factor.md:298
+msgid "OK, PARTIAL or UNEVALUABLE."
+msgstr "OK、PARTIAL 或 UNEVALUABLE。"
+
+#: ../../site/api/factor.md:298
+msgid "Forward-return rows for prepared cells."
+msgstr "已准备单元的前瞻收益行。"
+
+#: ../../site/api/factor.md:298
+msgid "Signal rows for evaluated cells."
+msgstr "已评估单元的信号行。"
+
+#: ../../site/api/factor.md:298
+msgid "Per-date Spearman rank IC by period; NaN missing."
+msgstr "按周期组织的逐日 Spearman 秩 IC；缺失为 NaN。"
+
+#: ../../site/api/factor.md:298
+msgid "Mean rank IC per period."
+msgstr "每个周期的平均秩 IC。"
+
+#: ../../site/api/factor.md:298
+msgid "Raw quantile return means and standard errors."
+msgstr "原始分位收益均值与标准误。"
+
+#: ../../site/api/factor.md:298
+msgid "Turnover series per quantile, first horizon."
+msgstr "每个分位的换手率序列，取第一个预测期。"
+
+#: ../../site/api/factor.md:298
+msgid "Rank autocorrelation per lag, first horizon."
+msgstr "每个滞后阶的秩自相关，取第一个预测期。"
+
+#: ../../site/api/factor.md:298
+msgid "Lags used for the stability series."
+msgstr "稳定性序列所使用的滞后阶。"
+
+#: ../../site/api/factor.md:298
+msgid "Top-minus-bottom quantile return per period; NaN if absent."
+msgstr "每个周期的最高减最低分位收益；缺失时为 NaN。"
+
+#: ../../site/api/factor.md:298
+msgid "Prepared observation count per period."
+msgstr "每个周期已准备的观测数量。"
+
+#: ../../site/api/factor.md:298
+msgid "Human-readable status notes."
+msgstr "人类可读的状态说明。"
+
+#: ../../site/api/factor.md:298
+msgid "Provenance key/value metadata."
+msgstr "来源的键值元数据。"
+
+#: ../../site/api/factor.md:301
+msgid "One signal row: a factor observation for a date and asset."
+msgstr "一行信号：某个日期与资产的因子观测。"
+
+#: ../../site/api/factor.md:301
+msgid "Factor name; factor for single-factor evaluations."
+msgstr "因子名称；单因子评估时为 factor。"
+
+#: ../../site/api/factor.md:301
+msgid "Direction sign applied to the factor value."
+msgstr "应用于因子取值的方向符号。"
+
+#: ../../site/api/factor.md:301
+msgid "Direction-adjusted raw factor value."
+msgstr "经方向调整后的原始因子取值。"
+
+#: ../../site/api/factor.md:301
+msgid "Value after direction adjustment and preprocessing."
+msgstr "方向调整与预处理之后的取值。"
+
+#: ../../site/api/factor.md:301
+msgid "Preprocessing method used for the panel."
+msgstr "该面板使用的预处理方法。"
+
+#: ../../site/api/factor.md:301
+msgid "Configured group name, or default when groups are unset."
+msgstr "配置的分组名称；未设置 groups 时为 default。"
+
+#: ../../site/api/factor.md:304
+msgid "Execution specification consumed by the research evaluators."
+msgstr "研究评估器消费的强制执行设定。"
+
+#: ../../site/api/factor.md:304
+msgid "Requested targets; empty selects all observed assets."
+msgstr "请求的目标；为空时选择所有观测到的资产。"
+
+#: ../../site/api/factor.md:304
+msgid "Inclusive UTC-nanosecond window start."
+msgstr "闭区间的 UTC 纳秒窗口起点。"
+
+#: ../../site/api/factor.md:304
+msgid "Inclusive UTC-nanosecond window end."
+msgstr "闭区间的 UTC 纳秒窗口终点。"
+
+#: ../../site/api/factor.md:304
+msgid "Forward price-row horizons; non-empty, positive."
+msgstr "前瞻价格行预测期；非空且为正。"
+
+#: ../../site/api/factor.md:304
+msgid "Quantile bucket count; must be at least two."
+msgstr "分位桶数量；必须至少为二。"
+
+#: ../../site/api/factor.md:304
+msgid "Minimum asset count for correlation and detailed thresholds."
+msgstr "相关性与详细阈值所用最少资产数。"
+
+#: ../../site/api/factor.md:304
+msgid "Minimum observations per quantile for detailed thresholds."
+msgstr "详细阈值所用每分位最少观测数。"
+
+#: ../../site/api/factor.md:304
+msgid "Tolerated binning data-loss fraction in [0, 1]."
+msgstr "可容忍的分桶数据损失比例，位于 [0, 1]。"
+
+#: ../../site/api/factor.md:304
+msgid "Panel-evaluator factor pairs."
+msgstr "面板评估器的因子对。"
+
+#: ../../site/api/factor.md:304
+msgid "Asset-to-group map covering evaluated assets."
+msgstr "覆盖被评估资产的资产到分组映射。"
+
+#: ../../site/api/factor.md:307
+msgid "One named research result table in native column form."
+msgstr "以原生列形式表示的一个命名研究结果表。"
+
+#: ../../site/api/factor.md:307
+msgid "Table name."
+msgstr "表名。"
+
+#: ../../site/api/factor.md:307
+msgid "Column names in row-cell order."
+msgstr "按行单元顺序排列的列名。"
+
+#: ../../site/api/factor.md:307
+msgid "Row-major cells aligned with columns."
+msgstr "与列对齐的行优先单元。"
+
+#: ../../site/api/factor.md:310
+msgid "Spread chart data for one forward period."
+msgstr "单一前瞻周期的多空差图数据。"
+
+#: ../../site/api/factor.md:310
+msgid "Renders spreads, the rolling mean and the optional band as native SVG."
+msgstr "将多空差、滚动均值与可选带宽渲染为原生 SVG。"
+
+#: ../../site/api/factor.md:310
+msgid ""
+"A zero line is added when dates are present; the band polygon is skipped "
+"when band_lower is empty."
+msgstr "存在日期时添加零线；band_lower 为空时跳过量带多边形。"
+
+#: ../../site/api/factor.md:310
+msgid "Observation timestamps."
+msgstr "观测时间戳。"
+
+#: ../../site/api/factor.md:310
+msgid "Spreads in basis points; non-finite inputs become NaN."
+msgstr "以基点表示的多空差；非有限输入变为 NaN。"
+
+#: ../../site/api/factor.md:310
+msgid ""
+"Trailing 22-observation mean in basis points; NaN until 22 consecutive "
+"finite spreads are available."
+msgstr "以基点表示的 22 观测尾部均值；在出现 22 个连续有限多空差之前为 NaN。"
+
+#: ../../site/api/factor.md:310
+msgid ""
+"Lower band in basis points; empty when no standard errors are supplied and "
+"NaN where an input is non-finite."
+msgstr "以基点表示的下带宽；未提供标准误时为空，输入非有限处为 NaN。"
+
+#: ../../site/api/factor.md:310
+msgid "Upper band in basis points, aligned with band_lower."
+msgstr "以基点表示的上带宽，与 band_lower 对齐。"
+
+#: ../../site/api/factor.md:310
+msgid ""
+"Symmetric y-axis limit: the 95th percentile of finite absolute spreads, "
+"falling back to 1.0 when no positive value exists."
+msgstr "对称的 y 轴范围：有限绝对多空差的第 95 百分位，没有正值时回退为 1.0。"
+
+#: ../../site/api/factor.md:310
+msgid "Standard-error multiplier used to build the band."
+msgstr "构建带宽所使用的标准误倍数。"
+
+#: ../../site/api/factor.md:313
+msgid "Renderer style contexts (seaborn plotting_context / axes_style)."
+msgstr "渲染器样式上下文（seaborn 的 plotting_context / axes_style）。"
+
+#: ../../site/api/factor.md:313
+msgid "Context or style name, such as \"notebook\"."
+msgstr "上下文或样式名称，例如 \"notebook\"。"
+
+#: ../../site/api/factor.md:313
+msgid "Font scaling factor carried by the context."
+msgstr "上下文携带的字体缩放因子。"
+
+#: ../../site/api/factor.md:313
+msgid "rc parameter overrides by name."
+msgstr "按名称给出的 rc 参数覆盖。"
+
+#: ../../site/api/factor.md:316
+msgid "Deterministic trading-day set used by the factor calendar helpers."
+msgstr "因子日历辅助函数使用的确定性交易日集合。"
+
+#: ../../site/api/factor.md:316
+msgid ""
+"A calendar is defined by local wall dates: seven weekday flags plus a set of"
+" holiday day numbers (days since 1970-01-01 in UTC). It intentionally has no"
+" timezone object; timestamps are UTC nanoseconds."
+msgstr "日历由本地日历日期定义：七个工作日标志加上一组节假日日序号（自 1970-01-01 起的 UTC 天数）。它有意不含时区对象；时间戳为 UTC 纳秒。"
+
+#: ../../site/api/factor.md:316
+msgid "Checks whether a day number is a trading day."
+msgstr "检查某个日序号是否为交易日。"
+
+#: ../../site/api/factor.md:316
+msgid "Checks whether a timestamp falls on a trading day."
+msgstr "检查某个时间戳是否落在交易日。"
+
+#: ../../site/api/factor.md:316
+msgid ""
+"Counts trading sessions in [start_day, end_day) when start_day <= end_day; "
+"otherwise returns the negation of the count in (end_day, start_day] (NumPy "
+"busday_count half-open semantics)."
+msgstr ""
+"当 start_day <= end_day 时统计 [start_day, end_day) 内的交易场次；否则返回 (end_day, "
+"start_day] 计数的相反数（NumPy busday_count 的半开区间语义）。"
+
+#: ../../site/api/factor.md:316
+msgid "Monday-first weekday mask. true marks a trading weekday."
+msgstr "以周一为首位的工作日掩码。true 表示该工作日为交易日。"
+
+#: ../../site/api/factor.md:316
+msgid "Sorted, unique holiday day numbers. Never contains a non-weekday."
+msgstr "已排序且唯一的节假日日序号。绝不包含非工作日。"
+
+#: ../../site/api/factor.md:319
+msgid "Quantile-return violin chart data for one forward period."
+msgstr "单一前瞻周期的分位收益小提琴图数据。"
+
+#: ../../site/api/factor.md:319
+msgid "Renders one violin polygon per group as native SVG."
+msgstr "为每个组渲染一个小提琴多边形，输出为原生 SVG。"
+
+#: ../../site/api/factor.md:319
+msgid "Groups without density points or with zero density are skipped."
+msgstr "没有密度点或密度为零的组被跳过。"
+
+#: ../../site/api/factor.md:319
+msgid "Groups, ascending by quantile."
+msgstr "各组，按分位升序排列。"
+
+#: ../../site/api/factor.md:322
+msgid "Violin samples and quartiles for one quantile of a forward period."
+msgstr "某一前瞻周期某个分位的小提琴样本与四分位数。"
+
+#: ../../site/api/factor.md:322
+msgid "Finite period returns in basis points."
+msgstr "以基点表示的有限周期收益。"
+
+#: ../../site/api/factor.md:322
+msgid "First quartile of samples in bps."
+msgstr "样本的第一四分位（基点）。"
+
+#: ../../site/api/factor.md:322
+msgid "Median of samples in bps."
+msgstr "样本的中位数（基点）。"
+
+#: ../../site/api/factor.md:322
+msgid "Third quartile of samples in bps."
+msgstr "样本的第三四分位（基点）。"
+
+#: ../../site/api/factor.md:322
+msgid "Support points for the kernel-density estimate."
+msgstr "核密度估计的支撑点。"
+
+#: ../../site/api/factor.md:322
+msgid "Density values aligned with density_x; empty when no density was computed."
+msgstr "与 density_x 对齐的密度值；未计算密度时为空。"
+
+#: ../../site/api/factor.md:325
+msgid "Covariance estimator for the Fama-MacBeth standard errors."
+msgstr "Fama-MacBeth 标准误的协方差估计器。"
+
+#: ../../site/api/factor.md:325
+msgid "Values:"
+msgstr "取值："
+
+#: ../../site/api/factor.md:325
+msgid "I.i.d. sample standard errors."
+msgstr "i.i.d. 样本标准误。"
+
+#: ../../site/api/factor.md:325
+msgid "Bartlett-kernel HAC standard errors at newey_west_lags."
+msgstr "在 newey_west_lags 阶下的 Bartlett 核 HAC 标准误。"
+
+#: ../../site/api/factor.md:328
+msgid "Adds delta nanoseconds, counting whole days through calendar."
+msgstr "加上 delta 纳秒，其中整日部分按 calendar 计数。"
+
+#: ../../site/api/factor.md:328
+msgid ""
+"The timedelta is normalized to a floor whole-day component plus a non-"
+"negative remainder; the day component is rolled by the calendar and the "
+"remainder is added afterwards. This matches pandas' Timestamp + "
+"CalendarOffset(days) + remainder behaviour."
+msgstr ""
+"时长被归一化为向下取整的整日分量加上非负余数；整日分量按日历滚动，之后再加上余数。这与 pandas 的 Timestamp + "
+"CalendarOffset(days) + remainder 行为一致。"
+
+#: ../../site/api/factor.md:331
+msgid "Adds delta nanoseconds to each timestamp using calendar."
+msgstr "使用 calendar 为每个时间戳加上 delta 纳秒。"
+
+#: ../../site/api/factor.md:331
+msgid ""
+"Applies the same normalization and whole-day roll rules as the scalar "
+"overload and preserves the input order."
+msgstr "应用与标量重载相同的归一化与整日滚动规则，并保持输入顺序。"
+
+#: ../../site/api/factor.md:334
+msgid ""
+"Returns a calendar with every day marked as a trading day, matching pandas' "
+"default Day offset."
+msgstr "返回把每一天都标记为交易日的日历，与 pandas 默认的 Day 偏移一致。"
+
+#: ../../site/api/factor.md:337
+msgid "Computes the complete factor analysis model for one prepared panel."
+msgstr "针对一个已准备的面板计算完整的因子分析模型。"
+
+#: ../../site/api/factor.md:337
+msgid ""
+"Runs the information-coefficient, weight, return, quantile, spread, "
+"turnover, rank-autocorrelation, cumulative, position and monthly aggregation"
+" kernels over the selected labels. The returned model owns copies of the "
+"input and of the requested options."
+msgstr "在所选标签上运行信息系数、权重、收益、分位、多空差、换手、秩自相关、累积、持仓与月度汇总内核。返回的模型持有输入与所请求选项的副本。"
+
+#: ../../site/api/factor.md:340
+msgid "Computes the analysis model together with an event-return study."
+msgstr "同时计算分析模型与事件收益研究。"
+
+#: ../../site/api/factor.md:340
+msgid ""
+"Event dates are the factor dates present in event_returns. Each window spans"
+" event_before ledger rows before the event through event_after rows after "
+"it, clipped to the ledger bounds; ledger values are used as given and are "
+"demeaned across the universe when config.long_short is true."
+msgstr ""
+"事件日期为 event_returns 中存在的因子日期。每个窗口从事件之前的 event_before 条账行延伸到事件之后的 event_after"
+" 行，并按账簿边界裁剪；账簿值按原样使用，当 config.long_short 为 true 时在整个股票池内做去均值处理。"
+
+#: ../../site/api/factor.md:343
+msgid "Applies spread, market-impact and borrow costs to gross returns."
+msgstr "对毛收益应用点差、市场冲击与借券成本。"
+
+#: ../../site/api/factor.md:343
+msgid ""
+"Turnover is half the summed absolute weight change on each date. Spread cost"
+" charges half_spread_bps on traded weight, impact cost charges "
+"impact_coefficient * participation^impact_exponent per asset, and borrow "
+"cost accrues on short positions from the supplied borrow panels."
+msgstr ""
+"换手率为每个日期权重绝对变化之和的一半。点差成本按成交权重收取 half_spread_bps，冲击成本按每个资产收取 "
+"impact_coefficient * participation^impact_exponent，借券成本依据提供的借券面板在空头持仓上累积。"
+
+#: ../../site/api/factor.md:346
+msgid "Averages cumulative event-window returns per quantile."
+msgstr "按分位对累积事件窗口收益求平均。"
+
+#: ../../site/api/factor.md:346
+msgid ""
+"Builds one event panel per observed quantile and calls common_start_returns "
+"with cumulative and date-mean output; each offset reports the mean and the "
+"sample standard deviation of its cells, an offset with no cell has NaN mean "
+"and deviation, and an offset with a single cell has a NaN deviation."
+msgstr ""
+"为每个观测到的分位构造一个事件面板，并以累积与日期均值输出调用 "
+"common_start_returns；每个偏移报告其单元的均值与样本标准差，没有单元的偏移均值与标准差为 NaN，仅含一个单元的偏移标准差为 "
+"NaN。"
+
+#: ../../site/api/factor.md:349
+msgid "Creates a renderer axes style with a fixed font scale of 1.5."
+msgstr "创建字体缩放固定为 1.5 的渲染器坐标轴样式。"
+
+#: ../../site/api/factor.md:352
+msgid "Move a backward-looking return series N date-level positions earlier."
+msgstr "将回溯型收益率序列沿日期层级前移 N 个位置。"
+
+#: ../../site/api/factor.md:352
+msgid ""
+"date_levels is the complete, sorted, unique date level from the source "
+"MultiIndex, including unused dates. Rows with level positions below N are "
+"discarded. Remaining rows retain their order, assets and values (including "
+"NaNs) while their dates move to the level N positions earlier. A result is "
+"empty when date_levels.size() <= N."
+msgstr ""
+"date_levels 为来自源 MultiIndex 的完整、已排序、唯一的日期层级，包含未被使用的日期。层级位置小于 N "
+"的行被丢弃。其余行保持其顺序、资产与取值（包括 NaN），但日期移动到层级中前 N 个位置。当 date_levels.size() <= N "
+"时结果为空。"
+
+#: ../../site/api/factor.md:355
+msgid "Applies the Benjamini-Hochberg step-up correction."
+msgstr "应用 Benjamini-Hochberg 逐步提升校正。"
+
+#: ../../site/api/factor.md:355
+msgid ""
+"Adjusted values are the monotone running minimum of n * p / rank, clamped to"
+" [0, 1]. A hypothesis is rejected when its sorted p value is at or below "
+"alpha * rank / n, which rejects the leading block up to the largest passing "
+"rank. Empty input yields empty output."
+msgstr ""
+"调整后的取值为 n * p / rank 的单调滑动最小值，并截断到 [0, 1]。当某假设排序后的 p 值不高于 alpha * rank / n "
+"时该假设被拒绝，从而拒绝直到最大通过秩的前缀块。空输入产生空输出。"
+
+#: ../../site/api/factor.md:358
+msgid "Builds cumulative-growth chart data for each quantile of one period."
+msgstr "为单一周期的每个分位构造累积增长图表数据。"
+
+#: ../../site/api/factor.md:358
+msgid ""
+"Means are averaged per date for the requested quantile and label, then "
+"compounded from 1.0 in date order. Dates without a finite mean keep the "
+"previous growth value. Quantiles are emitted in descending order, and the y "
+"bounds cover every emitted growth value."
+msgstr ""
+"先按日期对所请求的分位与标签求均值，再按日期顺序从 1.0 起复利累积。没有有限均值的日期沿用前一个增长值。分位按降序输出，y "
+"轴范围覆盖所有输出的增长值。"
+
+#: ../../site/api/factor.md:361
+msgid "Builds event counts per equal-width time bucket."
+msgstr "按等宽时间桶构造事件计数。"
+
+#: ../../site/api/factor.md:361
+msgid ""
+"values follows dates; non-finite values are skipped, and an empty values "
+"counts every event. Buckets are half-open except the final bucket, which "
+"also covers the latest date. A single distinct date produces one bucket."
+msgstr ""
+"values 与 dates 对应；非有限值被跳过，values "
+"为空时统计所有事件。除最后一个桶外各桶均为左闭右开，最后一个桶还覆盖最新日期。只有一个不同日期时产生一个桶。"
+
+#: ../../site/api/factor.md:364
+msgid ""
+"Resamples the compounded period curve and overlapping positions to a daily "
+"grid, adds an explicit cash overlay, and derives the optional benchmark."
+msgstr "将复利的周期曲线与重叠持仓重采样为日频网格，加入显式的现金叠加层，并派生出可选的基准。"
+
+#: ../../site/api/factor.md:364
+msgid ""
+"Intraday holding remainders, capital-scaled dollar positions, and custom "
+"trading calendars are not represented by this kernel."
+msgstr "该内核不表示日内持仓剩余、按资本缩放的名义持仓以及自定义交易日历。"
+
+#: ../../site/api/factor.md:367
+msgid "Builds a renderer-independent factor analysis report from a computed model."
+msgstr "由已计算的模型构造与渲染器无关的因子分析报告。"
+
+#: ../../site/api/factor.md:367
+msgid ""
+"The document carries summary, information-coefficient, returns and turnover "
+"sections in that order."
+msgstr "文档按该顺序包含 summary、information-coefficient、returns 与 turnover 各节。"
+
+#: ../../site/api/factor.md:370
+msgid "Builds owning chart data for a factor tear sheet."
+msgstr "为因子一览图构造带所有权的图表数据。"
+
+#: ../../site/api/factor.md:370
+msgid ""
+"Time-series charts omit non-finite points, bar charts keep the panel "
+"ordering of model, and the event histogram is rebuilt from the model's "
+"finite return distribution."
+msgstr "时序图省略非有限点，柱状图保持 model 的面板顺序，事件直方图由模型的有限收益分布重建。"
+
+#: ../../site/api/factor.md:373
+msgid "Builds normal Q-Q chart data from information coefficients."
+msgstr "由信息系数构造正态 Q-Q 图数据。"
+
+#: ../../site/api/factor.md:373
+msgid ""
+"One chart is returned per label, each holding one series whose observations "
+"are the IC values for that label; non-finite values are treated as zero. "
+"Theoretical quantiles use the standard-normal inverse CDF."
+msgstr "每个标签返回一个图，每个图包含一个序列，其观测值为该标签的 IC 值；非有限值按零处理。理论分位数使用标准正态分布的逆累积分布函数。"
+
+#: ../../site/api/factor.md:376
+msgid "Builds spread time-series chart data for one forward period."
+msgstr "为单一前瞻周期构造多空差时序图数据。"
+
+#: ../../site/api/factor.md:376
+msgid ""
+"Spreads and standard errors are converted from decimal returns to basis "
+"points. The rolling mean is a trailing 22-observation mean and stays NaN "
+"until 22 consecutive finite spreads exist. Bands are built as spread +/- "
+"standard_error * 10000 * bandwidth when standard errors are supplied."
+msgstr ""
+"多空差与标准误由小数收益转换为基点。滚动均值为 22 个观测的尾部窗口均值，在出现 22 个连续有限多空差之前保持 NaN；提供标准误时，带宽按 "
+"spread +/- standard_error * 10000 * bandwidth 构造。"
+
+#: ../../site/api/factor.md:379
+msgid ""
+"Builds one heatmap per forward period (and per group when the table is "
+"grouped)."
+msgstr "为每个前瞻周期构造一个热力图（表已分组时还按分组构造）。"
+
+#: ../../site/api/factor.md:379
+msgid ""
+"Years are the distinct calendar years observed for the selected group and "
+"are emitted in ascending order. Months without a finite mean stay NaN with "
+"present == false. No charts are returned when monthly.labels or "
+"monthly.dates is empty."
+msgstr ""
+"年份为所选分组中观测到的不同日历年，并按升序输出。没有有限均值的月份保持 NaN 且 present == false。当 monthly.labels"
+" 或 monthly.dates 为空时不返回任何图。"
+
+#: ../../site/api/factor.md:382
+msgid "Builds quantile-return violin data for one forward period."
+msgstr "为单一前瞻周期构造分位收益的小提琴图数据。"
+
+#: ../../site/api/factor.md:382
+msgid ""
+"Each group collects finite mean returns for one quantile, converted from "
+"decimal returns to basis points. Quartiles use linear interpolation over the"
+" sorted samples, and the density is a Gaussian kernel estimate on 64 support"
+" points when there are at least two samples and their deviation is positive."
+" Quantiles are emitted in ascending order, and quantiles without finite "
+"samples are omitted."
+msgstr ""
+"每组收集某一空头的有限平均收益，并由小数收益转换为基点。四分位数在排序样本上使用线性插值；当样本数至少为二且其偏差为正时，密度为 64 "
+"个支撑点上的高斯核估计。分位按升序输出，没有有限样本的分位被省略。"
+
+#: ../../site/api/factor.md:385
+msgid "Returns a Monday-Friday calendar with no holidays."
+msgstr "返回一个周一至周五、不含节假日的日历。"
+
+#: ../../site/api/factor.md:388
+msgid "Marks every owned figure as closed."
+msgstr "将所有自有图形标记为已关闭。"
+
+#: ../../site/api/factor.md:388
+msgid "The identifier list is left unchanged, so the call is idempotent."
+msgstr "标识符列表保持不变，因此该调用是幂等的。"
+
+#: ../../site/api/factor.md:391
+msgid "Extracts event-aligned return windows for a factor panel."
+msgstr "为因子面板抽取与事件对齐的收益窗口。"
+
+#: ../../site/api/factor.md:391
+msgid ""
+"Event dates are the factor dates present in the returns index. Each window "
+"spans before ledger rows before the event through after rows after it, "
+"clipped to the ledger bounds, so offsets near the edges are absent. Non-"
+"finite ledger values are skipped. With cumulative the ledger is read as "
+"already cumulative, otherwise each column is compounded into a wealth index "
+"from one. demean_by subtracts the same-date cross-sectional mean of its "
+"assets, and mean_by_date emits one averaged cell per offset and date."
+msgstr ""
+"事件日期为收益索引中存在的因子日期。每个窗口从事件之前的 before 账行延伸到事件之后的 after "
+"行，并按账簿边界裁剪，因此靠近边缘的偏移缺失。非有限的账簿值被跳过。cumulative 为真时账簿按已是累积值读取，否则将每列从 1 "
+"起复利为财富指数。demean_by 减去其资产在同一日期的截面均值，mean_by_date 为每个偏移与日期输出一个平均单元。"
+
+#: ../../site/api/factor.md:394
+msgid "Computes forward returns for every factor observation from a price panel."
+msgstr "由价格面板为每个因子观测计算前瞻收益。"
+
+#: ../../site/api/factor.md:394
+msgid ""
+"Labels are the requested periods rendered as \"<period>D\". A value is NaN "
+"when the factor date is absent from prices, the horizon runs past the panel,"
+" or the base price is zero. When filter_zscore is set, forward returns "
+"further than that many standard deviations from the per-asset mean are "
+"removed independently for each label."
+msgstr ""
+"标签为按 \"<period>D\" 形式渲染的请求周期。当因子日期不在价格中、预测期超出面板或基准价格为零时取值为 NaN。设置 "
+"filter_zscore 时，相对各资产均值偏离超过该标准差倍数的前瞻收益会按标签独立剔除。"
+
+#: ../../site/api/factor.md:397
+msgid "Creates the native render customization used around chart calls."
+msgstr "创建图表调用前后使用的原生渲染定制对象。"
+
+#: ../../site/api/factor.md:397
+msgid ""
+"The returned value uses the default plotting_context() and axes_style() "
+"values and keeps the built-in eight-color palette."
+msgstr "返回值使用默认的 plotting_context() 与 axes_style() 取值，并保留内置的八色配色。"
+
+#: ../../site/api/factor.md:400
+msgid "Restores the supported model envelope from serialized JSON text."
+msgstr "从序列化的 JSON 文本恢复受支持的模型信封。"
+
+#: ../../site/api/factor.md:400
+msgid ""
+"The root must be an object carrying schema, fingerprint_version, "
+"result_fingerprint, config, forward_periods and loss_report. The schema must"
+" equal the supported version, and the fingerprint version must fit in 32 "
+"bits. Additional keys are ignored."
+msgstr ""
+"根节点必须是包含 "
+"schema、fingerprint_version、result_fingerprint、config、forward_periods 与 "
+"loss_report 的对象。schema 必须等于受支持的版本，指纹版本必须能用 32 位表示。多余的键会被忽略。"
+
+#: ../../site/api/factor.md:403
+msgid "Parses serialized model text into a native value."
+msgstr "将序列化的模型文本解析为原生值。"
+
+#: ../../site/api/factor.md:403
+msgid ""
+"The text is parsed without checking the envelope schema; use "
+"deserialize_factor_model to validate and restore the supported subset."
+msgstr "解析文本时不校验信封 schema；需要校验并恢复受支持子集时应使用 deserialize_factor_model。"
+
+#: ../../site/api/factor.md:406
+msgid "Returns end - start with whole-day components measured by calendar."
+msgstr "返回 end - start，其中整日部分按日历计量。"
+
+#: ../../site/api/factor.md:406
+msgid ""
+"The wall-clock remainder is preserved; only the whole-day part is replaced "
+"by the busday count. Both endpoints use local wall dates, as in the pinned "
+"source."
+msgstr "保留钟表时间余数；仅将整日部分替换为工作日计数。两端都使用本地日历日期，与固定版本源实现一致。"
+
+#: ../../site/api/factor.md:409
+msgid "Estimates the largest portfolio value a weight panel can trade."
+msgstr "估计权重面板可交易的最大组合价值。"
+
+#: ../../site/api/factor.md:409
+msgid ""
+"Each date is limited by the tightest asset-level max_participation * "
+"dollar_volume / |trade|; the panel capacity is the smallest finite date "
+"limit. The first date that attains the limit and the asset limiting it are "
+"reported as the binding pair."
+msgstr ""
+"每个日期受最紧的资产级约束 max_participation * dollar_volume / |trade| "
+"限制；面板容量为最小的有限日期上限。首个达到该上限的日期以及造成限制的资产作为绑定对报告。"
+
+#: ../../site/api/factor.md:412
+msgid ""
+"Evaluates one factor and exports its detailed result without materializing "
+"owning signal and label row vectors."
+msgstr "评估单个因子并导出其详细结果，而不构造带所有权的信号与标签行向量。"
+
+#: ../../site/api/factor.md:412
+msgid ""
+"Large tables are synchronously written from the evaluator's live columns; no"
+" borrowed view escapes the call. If evaluation or export fails, files "
+"created by the call are removed, and a newly created destination is removed "
+"only when it is empty. Existing empty destinations are retained and non-"
+"empty destinations are rejected. Evaluation and writing may interleave: the "
+"first encountered failure is propagated, rather than imposing the error "
+"order of two separate calls."
+msgstr "大表由评估器的实时列同步写出；不存在逃逸出本次调用的借用视图。若评估或导出失败，本次调用创建的文件会被删除，而新建的目标目录仅在其为空时被删除。已存在的空目标会被保留，非空目标会被拒绝。评估与写入可能交错：传播最先遇到的失败，而不是套用两次独立调用的错误顺序。"
+
+#: ../../site/api/factor.md:415
+msgid "Evaluates one factor against forward returns derived from prices."
+msgstr "针对由价格派生的前瞻收益评估单个因子。"
+
+#: ../../site/api/factor.md:415
+msgid ""
+"spec.label must be close_to_close or next_open_to_open; the precomputed "
+"basis is served by the forward-return-table overload. Period labels are "
+"derived from the price grid. close_to_close labels span period price rows "
+"from each factor date; next_open_to_open labels enter one row later and span"
+" period rows from that entry."
+msgstr ""
+"spec.label 必须为 close_to_close 或 "
+"next_open_to_open；预计算基准由前瞻收益表重载提供。周期标签由价格网格派生。close_to_close 标签从每个因子日期起跨越 "
+"period 个价格行；next_open_to_open 标签晚一行入场，并从该入场点起跨越 period 行。"
+
+#: ../../site/api/factor.md:418
+msgid "Evaluates one factor against price-derived returns under a wide mask."
+msgstr "在宽掩码约束下针对价格派生收益评估单个因子。"
+
+#: ../../site/api/factor.md:418
+msgid ""
+"The boolean mask keeps only cells whose (date, asset) entry is true, and the"
+" returned result records universe=applied in its manifest."
+msgstr "布尔掩码只保留 (date, asset) 项为 true 的单元，返回结果在其 manifest 中记录 universe=applied。"
+
+#: ../../site/api/factor.md:421
+msgid "Evaluates one factor against caller-supplied forward returns."
+msgstr "针对调用方提供的前瞻收益评估单个因子。"
+
+#: ../../site/api/factor.md:421
+msgid ""
+"spec.label must not be next_open_to_open; the result manifest records the "
+"precomputed label."
+msgstr "spec.label 不得为 next_open_to_open；结果 manifest 记录预计算标签。"
+
+#: ../../site/api/factor.md:424
+msgid "Evaluates one named factor against price-derived forward labels."
+msgstr "针对价格派生的前瞻标签评估一个命名因子。"
+
+#: ../../site/api/factor.md:424
+msgid ""
+"factor_name supplies the Python DataFrame column name used for direction "
+"overrides and output rows. spec.start/end and all input timestamps are UTC "
+"nanoseconds. Only close_to_close and next_open_to_open are supported by this"
+" price-based overload; precomputed labels and multi-factor combinations are "
+"rejected explicitly."
+msgstr ""
+"factor_name 提供用于方向覆盖与输出行的 Python DataFrame 列名。spec.start/end 及所有输入时间戳均为 UTC "
+"纳秒。该基于价格的重载仅支持 close_to_close 与 next_open_to_open；预计算标签与多因子组合会被显式拒绝。"
+
+#: ../../site/api/factor.md:427
+msgid "Evaluates multiple named factor panels and derives correlations/comparisons."
+msgstr "评估多个命名因子面板并派生相关性/比较结果。"
+
+#: ../../site/api/factor.md:427
+msgid ""
+"Each panel is evaluated independently; spec.combinations are then blended "
+"from the processed panels with preprocessing disabled and direction "
+"overrides cleared, and the named comparisons are appended."
+msgstr "每个面板独立评估；随后在禁用预处理并清除方向覆盖的条件下，由已处理的面板混合出 spec.combinations，并追加命名的比较项。"
+
+#: ../../site/api/factor.md:430
+msgid "Writes deterministic CSV tables and a JSON manifest without overwriting."
+msgstr "写入确定性的 CSV 表与 JSON manifest，且不覆盖已有内容。"
+
+#: ../../site/api/factor.md:430
+msgid ""
+"A preexisting destination is rejected and left untouched. A directory "
+"created by this call is removed if a later write fails. charts=true requests"
+" raster chart export, which the native library does not provide; it fails "
+"closed instead of silently skipping charts."
+msgstr ""
+"已存在的目标目录会被拒绝并保持不动。若后续写入失败，本次调用创建的目录会被删除。charts=true "
+"请求导出栅格图，而原生库不提供该能力；因此以失败关闭的方式处理，而不是静默跳过图表。"
+
+#: ../../site/api/factor.md:433
+msgid ""
+"Exports the ten factor-local detailed research tables as UTF-8/LF CSV files "
+"with a versioned JSON manifest."
+msgstr "将十张因子级详细研究表导出为 UTF-8/LF 的 CSV 文件，并附带带版本的 JSON manifest。"
+
+#: ../../site/api/factor.md:433
+msgid ""
+"Rows retain the order in result. The single-factor result must have empty "
+"correlation and comparison tables; their omission is identified in the "
+"manifest's engine metadata."
+msgstr "行保持 result 中的顺序。单因子结果的相关性与比较表必须为空；其缺失在 manifest 的 engine 元数据中标识。"
+
+#: ../../site/api/factor.md:433
+msgid ""
+"A non-empty destination is never overwritten. If an export fails, only files"
+" created by this call are removed; a newly created destination is removed "
+"only when it is empty. An existing empty destination is retained."
+msgstr "非空目标目录绝不会被覆盖。若导出失败，只删除本次调用创建的文件；新建的目标目录仅在其为空时删除。已存在的空目标目录会被保留。"
+
+#: ../../site/api/factor.md:436
+msgid "Regresses portfolio returns on the same-date universe mean return."
+msgstr "将组合收益对同日期的股票池平均收益做回归。"
+
+#: ../../site/api/factor.md:436
+msgid ""
+"The slope is the OLS beta against the equal-weighted universe mean of each "
+"label; the intercept is annualized with 252 / N periods, where N is the "
+"leading whole-day count of the label. Fewer than two usable dates or a zero "
+"market variance leaves the estimates NaN, and a label without a leading day "
+"count leaves only annual_alpha NaN."
+msgstr ""
+"斜率为对每个标签的等权股票池均值做 OLS 得到的 beta；截距按 252 / N 个周期年化，其中 N "
+"为该标签前导的整日数。可用日期少于两个或市场方差为零时估计值为 NaN；没有前导日数的标签仅使 annual_alpha 为 NaN。"
+
+#: ../../site/api/factor.md:439
+msgid "Compounds the selected period returns from one."
+msgstr "将所选周期的收益从 1 起复利累积。"
+
+#: ../../site/api/factor.md:442
+msgid "Computes the Spearman rank information coefficient per date and label."
+msgstr "按日期与标签计算 Spearman 秩信息系数。"
+
+#: ../../site/api/factor.md:442
+msgid ""
+"Each cell correlates the finite factor values with the matching forward "
+"returns across the assets of one date bucket; fewer than two usable pairs "
+"leave the cell as NaN. group_adjust demeans forward returns within each "
+"(date, group) bucket first and therefore requires groups, while by_group "
+"emits one row per (date, group) pair instead of one row per date."
+msgstr ""
+"每个单元在一个日期桶的资产范围内将有限因子值与对应的前瞻收益做相关；可用配对少于两个时该单元为 NaN。group_adjust 先在每个 (date,"
+" group) 桶内对前瞻收益去均值，因此必须提供 groups；by_group 为每个 (date, group) 对输出一行，而不是每个日期一行。"
+
+#: ../../site/api/factor.md:445
+msgid "Runs IC inference and false-discovery-rate correction on the model."
+msgstr "对模型执行 IC 推断与错误发现率校正。"
+
+#: ../../site/api/factor.md:445
+msgid ""
+"Forwards model.information_coefficient to information_coefficient_inference;"
+" per-group tables are not consulted."
+msgstr "将 model.information_coefficient 传给 information_coefficient_inference；不读取分组表。"
+
+#: ../../site/api/factor.md:448
+msgid "Returns stable operation descriptors for the factor runtime catalog."
+msgstr "返回因子运行时目录的稳定操作描述符。"
+
+#: ../../site/api/factor.md:451
+msgid "Computes SHA-256 over the canonical descriptor listing (identifier order)."
+msgstr "在规范化的描述符列表（按标识符排序）上计算 SHA-256。"
+
+#: ../../site/api/factor.md:454
+msgid "Builds overlapping gross-normalized trade positions for one factor period."
+msgstr "为单个因子周期构造重叠且按毛额归一化的交易持仓。"
+
+#: ../../site/api/factor.md:454
+msgid ""
+"period_label counts whole business days (for example \"3D\" or \"1D2D\"); a "
+"holding expires on the corresponding Monday-Friday weekday calendar without "
+"exchange-holiday knowledge, matching pandas' default BusinessDay offset. The"
+" result spans every trade and expiry timestamp, including a zero row after "
+"the final holding expires."
+msgstr ""
+"period_label 以整工作日计数（例如 \"3D\" 或 \"1D2D\"）；持仓在对应的周一至周五工作日历上到期，不考虑交易所节假日，与 "
+"pandas 默认的 BusinessDay 偏移一致。结果覆盖每一笔交易与到期时间戳，并在最后一个持仓到期之后包含一行为零的行。"
+
+#: ../../site/api/factor.md:457
+msgid "Computes the rank autocorrelation of the factor at a fixed lag."
+msgstr "计算因子在固定滞后阶上的秩自相关。"
+
+#: ../../site/api/factor.md:457
+msgid ""
+"Factor values are average-ranked within each date and then correlated with "
+"the lagged ranks over the assets present on both dates. Non-finite factor "
+"values are excluded; the first period dates, fewer than two shared assets "
+"and a constant rank vector yield NaN."
+msgstr ""
+"因子值在每个日期内取平均秩，然后在两个日期都存在的资产上与滞后秩做相关。非有限的因子值被排除；前 period "
+"个日期、共有资产少于两个以及秩向量为常数都得到 NaN。"
+
+#: ../../site/api/factor.md:460
+msgid "Computes portfolio returns from factor weights."
+msgstr "由因子权重计算组合收益。"
+
+#: ../../site/api/factor.md:460
+msgid ""
+"Calls factor_weights with the same options and accumulates weight times "
+"forward return per date and label, skipping any pair with a non-finite "
+"value."
+msgstr "以相同选项调用 factor_weights，并按日期与标签累加权重乘以前瞻收益，跳过任一取值非有限的配对。"
+
+#: ../../site/api/factor.md:463
+msgid "Computes per-observation factor weights."
+msgstr "计算逐观测的因子权重。"
+
+#: ../../site/api/factor.md:463
+msgid ""
+"Weights form inside each (date[, group]) bucket: demeaned centers the bucket"
+" values, equal_weight gives each side of zero an equal share, and the bucket"
+" is divided by its gross absolute exposure. group_adjust then renormalizes "
+"across the groups of each date. A bucket whose gross exposure is zero or "
+"non-finite yields NaN weights."
+msgstr ""
+"权重在每个 (date[, group]) 桶内形成：demeaned 对桶内值做中心化，equal_weight "
+"让零的两侧各占相等份额，然后桶除以其绝对毛暴露。group_adjust 随后在每个日期的各组之间重新归一化。毛暴露为零或非有限的桶产生 NaN 权重。"
+
+#: ../../site/api/factor.md:466
+msgid "Returns the built-in named factor workflows."
+msgstr "返回内置的命名因子工作流。"
+
+#: ../../site/api/factor.md:466
+msgid ""
+"The list covers the summary, returns, information, turnover, full, "
+"event_returns and event_study workflows."
+msgstr ""
+"列表涵盖 summary、returns、information、turnover、full、event_returns 与 event_study "
+"工作流。"
+
+#: ../../site/api/factor.md:469
+msgid "Runs Fama-MacBeth cross-sectional regressions."
+msgstr "运行 Fama-MacBeth 截面回归。"
+
+#: ../../site/api/factor.md:469
+msgid ""
+"Each return date with a matching exposure row, or the single exposure row "
+"that is broadcast across dates, is regressed cross-sectionally across the "
+"shared asset columns. A cross-section is skipped when fewer than two assets "
+"are finite or the exposures do not vary. The coefficient series are then "
+"summarized with i.i.d. or Bartlett Newey-West standard errors; a standard "
+"error at or below 1e-15 yields an infinite t statistic, or zero when the "
+"mean is zero."
+msgstr ""
+"对每个存在匹配暴露行的收益日期，或在各日期上广播的唯一个暴露行，在共有资产列上做截面回归。当有限资产少于两个或暴露没有变化时跳过该截面。随后用 "
+"i.i.d. 或 Bartlett Newey-West 标准误汇总系数序列；标准差不高于 1e-15 时 t 统计量为无穷，均值为零时取零。"
+
+#: ../../site/api/factor.md:472
+msgid "Looks up a workflow by identifier and returns nullptr when absent."
+msgstr "按标识符查找工作流，不存在时返回 nullptr。"
+
+#: ../../site/api/factor.md:475
+msgid "Returns a stable SHA-256 digest over the canonical native encoding."
+msgstr "返回在规范原生编码上的稳定 SHA-256 摘要。"
+
+#: ../../site/api/factor.md:475
+msgid ""
+"The digest covers detail::canonical_factor_value(value), is 64 lowercase "
+"hexadecimal characters, and is independent of object insertion order and NaN"
+" payloads."
+msgstr ""
+"摘要基于 detail::canonical_factor_value(value) 计算，为 64 个小写十六进制字符，且不受对象插入顺序与 NaN "
+"载荷影响。"
+
+#: ../../site/api/factor.md:478
+msgid "Returns the fingerprint of serializable_value(model)."
+msgstr "返回 serializable_value(model) 的指纹。"
+
+#: ../../site/api/factor.md:481
+msgid "Returns the fingerprint of serializable_value(report)."
+msgstr "返回 serializable_value(report) 的指纹。"
+
+#: ../../site/api/factor.md:484
+msgid "Returns the fingerprint of the serialized research result."
+msgstr "返回序列化研究结果的指纹。"
+
+#: ../../site/api/factor.md:487
+msgid "Select labels matching the pinned factor forward-return grammar."
+msgstr "选取符合固定版本因子前瞻收益语法的标签。"
+
+#: ../../site/api/factor.md:487
+msgid ""
+"Results keep the input order and duplicates. Invalid labels are skipped. "
+"With require_exact_day_multiple, only repeated day components are kept; "
+"unlike the Python implementation, the native helper skips silently instead "
+"of emitting a warning."
+msgstr ""
+"结果保持输入顺序与重复项。非法标签被跳过。require_exact_day_multiple 为真时只保留重复的日成分；与 Python "
+"实现不同，原生辅助函数静默跳过而不发出警告。"
+
+#: ../../site/api/factor.md:490
+msgid "Computes a normal confidence interval for the mean IC."
+msgstr "计算平均 IC 的正态置信区间。"
+
+#: ../../site/api/factor.md:490
+msgid ""
+"The half-width is z times the sample standard error of the non-NaN values. "
+"Fewer than two usable values yield NaN bounds."
+msgstr "半宽为 z 乘以非 NaN 取值的样本标准误。可用取值少于两个时区间边界为 NaN。"
+
+#: ../../site/api/factor.md:493
+msgid "Computes the mean of a sample of IC values."
+msgstr "计算 IC 取值样本的均值。"
+
+#: ../../site/api/factor.md:493
+msgid "NaN entries are skipped; an empty or all-NaN sample yields NaN."
+msgstr "跳过 NaN 项；空样本或全 NaN 样本返回 NaN。"
+
+#: ../../site/api/factor.md:496
+msgid "Computes the t statistic of a sample of IC values."
+msgstr "计算 IC 取值样本的 t 统计量。"
+
+#: ../../site/api/factor.md:496
+msgid ""
+"The statistic is the mean divided by the sample standard error computed from"
+" the one-degree-of-freedom deviation. NaN entries are skipped; fewer than "
+"two usable values yield NaN, and a standard error below 1e-15 yields an "
+"infinity or zero that follows the sign of the mean."
+msgstr ""
+"统计量为均值除以由一阶自由度偏差计算的样本标准误。跳过 NaN 项；可用取值少于两个时返回 NaN；标准差低于 1e-15 "
+"时返回无穷或零，其符号跟随均值的符号。"
+
+#: ../../site/api/factor.md:499
+msgid ""
+"Infers trading weekdays and missing-session holidays from factor and price "
+"dates."
+msgstr "由因子与价格日期推断交易日的工作日与缺失交易日对应的节假日。"
+
+#: ../../site/api/factor.md:499
+msgid "The union is normalized to days; an empty union is rejected."
+msgstr "并集被归一化到日；空并集会被拒绝。"
+
+#: ../../site/api/factor.md:502
+msgid "Tests each IC label for a zero mean with an FDR adjustment."
+msgstr "对每个 IC 标签检验均值为零，并做 FDR 校正。"
+
+#: ../../site/api/factor.md:502
+msgid ""
+"Per label, the finite entries of the IC table are pooled and tested with a "
+"two-sided Student-t test on n - 1 degrees of freedom. Labels with fewer than"
+" two finite entries are reported as untestable, with NaN t and p values. "
+"Only the testable labels enter the Benjamini-Hochberg correction, which sets"
+" rejected and adjusted_p_value."
+msgstr ""
+"对每个标签，汇总 IC 表中的有限项，并在 n - 1 自由度上做双侧 Student-t 检验。有限项少于两个的标签报告为不可检验，其 t 与 p "
+"值为 NaN。只有可检验的标签进入 Benjamini-Hochberg 校正，该校正设置 rejected 与 adjusted_p_value。"
+
+#: ../../site/api/factor.md:505
+msgid "Loss wording used by the pinned strict facade's stdout projection."
+msgstr "固定版本严格门面的 stdout 输出所使用的损失措辞。"
+
+#: ../../site/api/factor.md:505
+msgid ""
+"Returns (input_count - forward_returns_count) / input_count and 0 for an "
+"empty input."
+msgstr "返回 (input_count - forward_returns_count) / input_count，空输入返回 0。"
+
+#: ../../site/api/factor.md:508
+msgid "Materializes a factor panel from point-in-time observations."
+msgstr "由时点观测物化出因子面板。"
+
+#: ../../site/api/factor.md:508
+msgid ""
+"For each evaluation date, an asset contributes the revision with the largest"
+" (effective_from, known_at, as_of) among revisions that are already known "
+"and effective on that date. Assets flagged outside the universe are skipped,"
+" and assets without an eligible revision are absent from that date."
+msgstr ""
+"对每个评估日期，资产取自在该日期已知且已生效、(effective_from, known_at, as_of) "
+"最大的修订版本。被标记为股票池之外的资产被跳过，没有合格修订版本的资产在该日期缺失。"
+
+#: ../../site/api/factor.md:511
+msgid "Computes the mean information coefficient per label or per group."
+msgstr "按标签或按分组计算平均信息系数。"
+
+#: ../../site/api/factor.md:511
+msgid ""
+"Averages the finite IC values across dates for aggregate output, or across "
+"the rows of each group when by_group is true. A label or group with no "
+"finite value yields NaN."
+msgstr "汇总输出在各日期之间对有限 IC 取值求平均；by_group 为 true 时改为在每个分组的各行之间求平均。没有有限取值的标签或分组返回 NaN。"
+
+#: ../../site/api/factor.md:514
+msgid "Computes mean forward returns per quantile."
+msgstr "按分位计算前瞻收益均值。"
+
+#: ../../site/api/factor.md:514
+msgid ""
+"Each date's quantile mean is the equal-weighted mean of its finite forward "
+"returns; the reported mean averages those date means, and the standard error"
+" is their sample deviation divided by the square root of the usable date "
+"count. A quantile with no usable date keeps NaN."
+msgstr ""
+"每个日期的分位均值为该分位有限前瞻收益的等权均值；报告的均值是对这些日期均值再求平均，标准误是它们的样本标准差除以可用日期数的平方根。没有可用日期的分位保持"
+" NaN。"
+
+#: ../../site/api/factor.md:517
+msgid "Computes per-date quantile mean forward returns."
+msgstr "计算逐日期的分位前瞻收益均值。"
+
+#: ../../site/api/factor.md:517
+msgid ""
+"Each (date, quantile, label) cell averages the finite forward returns of the"
+" assets in that bucket; the standard error is their sample deviation divided"
+" by the square root of their count and stays NaN below two values."
+msgstr ""
+"每个 (date, quantile, label) "
+"单元对该桶内资产的前瞻收益有限值求平均；标准误为它们的样本标准差除以其数量的平方根，取值少于两个时保持 NaN。"
+
+#: ../../site/api/factor.md:520
+msgid "Computes the upper-minus-lower quantile return spread."
+msgstr "计算 upper 分位减 lower 分位的收益差。"
+
+#: ../../site/api/factor.md:520
+msgid ""
+"The spread subtracts the lower quantile mean from the upper quantile mean "
+"and combines their standard errors in quadrature when both are finite."
+msgstr "多空差为 upper 分位均值减去 lower 分位均值，并在两者标准误都有限时按平方和开根的方式合并标准误。"
+
+#: ../../site/api/factor.md:523
+msgid "Validates caller values and fills every documented default."
+msgstr "校验调用方提供的取值并填充所有有文档记录的默认值。"
+
+#: ../../site/api/factor.md:526
+msgid "Parses strict JSON into a native value."
+msgstr "将严格的 JSON 解析为原生值。"
+
+#: ../../site/api/factor.md:526
+msgid ""
+"Integers are returned as 64-bit integer values where they fit, and other "
+"numbers as doubles. Object keys must be strings."
+msgstr "能容纳的整数返回为 64 位整数值，其他数值返回为 double。对象的键必须为字符串。"
+
+#: ../../site/api/factor.md:529
+msgid "Parses a forward-return duration label into nanoseconds."
+msgstr "将前瞻收益的时长标签解析为纳秒。"
+
+#: ../../site/api/factor.md:529
+msgid ""
+"Accepts an optional leading sign followed by one or more <digits><unit> "
+"components, where unit is one of D, h, m, s, ms, us, ns (case-insensitive). "
+"Malformed labels are rejected."
+msgstr ""
+"接受可选的前导符号，其后为一个或多个 <digits><unit> 成分，其中 unit 为 D、h、m、s、ms、us、ns "
+"之一（不区分大小写）。格式非法的标签会被拒绝。"
+
+#: ../../site/api/factor.md:532
+msgid "Builds cumulative-growth chart data via build_cumulative_returns_by_quantile."
+msgstr "通过 build_cumulative_returns_by_quantile 构造累积增长图表数据。"
+
+#: ../../site/api/factor.md:532
+msgid "Arguments and validation are forwarded unchanged."
+msgstr "参数与校验原样转发。"
+
+#: ../../site/api/factor.md:535
+msgid "Builds event-bucket chart data via build_events_distribution."
+msgstr "通过 build_events_distribution 构造事件分桶图表数据。"
+
+#: ../../site/api/factor.md:538
+msgid "Builds Q-Q chart data via build_ic_qq."
+msgstr "通过 build_ic_qq 构造 Q-Q 图数据。"
+
+#: ../../site/api/factor.md:541
+msgid "Builds spread chart data via build_mean_quantile_returns_spread_time_series."
+msgstr "通过 build_mean_quantile_returns_spread_time_series 构造多空差图数据。"
+
+#: ../../site/api/factor.md:544
+msgid "Builds monthly IC heatmap data via build_monthly_ic_heatmap."
+msgstr "通过 build_monthly_ic_heatmap 构造月度 IC 热力图数据。"
+
+#: ../../site/api/factor.md:547
+msgid "Builds quantile-return violin data via build_quantile_returns_violin."
+msgstr "通过 build_quantile_returns_violin 构造分位收益小提琴图数据。"
+
+#: ../../site/api/factor.md:550
+msgid "Creates a renderer style context with an explicit font scale."
+msgstr "创建带显式字体缩放的渲染器样式上下文。"
+
+#: ../../site/api/factor.md:550
+msgid ""
+"The returned context uses context as its name and keeps rc unchanged except "
+"for adding lines.linewidth=1.5 when that key is absent."
+msgstr "返回的上下文以 context 作为名称，除在该键缺失时添加 lines.linewidth=1.5 之外保持 rc 不变。"
+
+#: ../../site/api/factor.md:553
+msgid "Prepares a quantified factor panel from raw factor values and prices."
+msgstr "由原始因子值与价格准备量化的因子面板。"
+
+#: ../../site/api/factor.md:553
+msgid ""
+"Forward returns are computed with config.periods, observations without a "
+"finite value for every label are dropped, and the remainder is quantified "
+"within the configured cross-sections."
+msgstr "前瞻收益按 config.periods 计算，任一标签都没有有限值的观测被丢弃，其余观测在配置的截面内进行量化。"
+
+#: ../../site/api/factor.md:556
+msgid "Prepares one quantified panel per forward-return horizon."
+msgstr "为每个前瞻收益预测期准备一个量化面板。"
+
+#: ../../site/api/factor.md:556
+msgid ""
+"Each horizon is bucketed against the cross-section with a finite return for "
+"that horizon and checked against config.max_loss separately."
+msgstr "每个预测期都针对该期收益为有限的截面分桶，并各自与 config.max_loss 校验。"
+
+#: ../../site/api/factor.md:559
+msgid "Prepares a quantified factor panel from a supplied forward-return table."
+msgstr "由提供的前瞻收益表准备量化的因子面板。"
+
+#: ../../site/api/factor.md:559
+msgid ""
+"The table must carry unique labels and unique (date, asset) rows, with one "
+"value per row for every label. Observations whose pair is absent or whose "
+"value is not finite are dropped and charged to the loss report."
+msgstr "表必须具有唯一的标签以及唯一的 (date, asset) 行，并且每行对每个标签都有一个值。配对不存在或取值非有限的观测被丢弃，并计入损失报告。"
+
+#: ../../site/api/factor.md:562
+msgid "Prepares a quantified factor panel from point-in-time observations."
+msgstr "由时点观测准备量化的因子面板。"
+
+#: ../../site/api/factor.md:562
+msgid ""
+"The observations are first materialized into a factor panel and then "
+"prepared against prices, so only information known and effective on each "
+"evaluation date reaches the output."
+msgstr "观测先被物化为因子面板，再针对价格准备，因此只有在每个评估日期已知且生效的信息才会进入输出。"
+
+#: ../../site/api/factor.md:565
+msgid "Computes quantile turnover at a fixed lag."
+msgstr "计算固定滞后阶下的分位换手率。"
+
+#: ../../site/api/factor.md:565
+msgid ""
+"Turnover on a date is the share of the quantile's assets that were absent "
+"period dates earlier; membership follows the supplied rows even when a "
+"factor value is non-finite. The first period dates and dates whose quantile "
+"is empty are NaN."
+msgstr ""
+"某日的换手率为该分位资产中在前 period 个日期里缺席的比例；成员关系依据提供的行判定，即使因子值非有限也是如此。前 period "
+"个日期以及该分期为空的日期为 NaN。"
+
+#: ../../site/api/factor.md:568
+msgid "Assigns one-based bucket labels to factor observations."
+msgstr "为因子观测分配从 1 开始的桶标签。"
+
+#: ../../site/api/factor.md:568
+msgid ""
+"Buckets are built per date, or per (date, group) pair when config.by_group "
+"is true. Non-finite factor values receive no label."
+msgstr "桶按日期构造；当 config.by_group 为 true 时按 (date, group) 对构造。非有限的因子值不获得标签。"
+
+#: ../../site/api/factor.md:571
+msgid "Returns the pinned native research capability declaration."
+msgstr "返回固定版本的原生研究能力声明。"
+
+#: ../../site/api/factor.md:574
+msgid "Computes mean-IC and ICIR differences for named factor pairs, per period."
+msgstr "按周期计算命名因子对的平均 IC 与 ICIR 之差。"
+
+#: ../../site/api/factor.md:574
+msgid ""
+"Period labels are the union of both stored IC label sets. Statistics use "
+"finite IC values only; a difference is NaN when either side is unavailable."
+msgstr "周期标签为两侧已存储 IC 标签集合的并集。统计量只使用有限的 IC 取值；任一侧不可用时差值为 NaN。"
+
+#: ../../site/api/factor.md:577
+msgid ""
+"Computes per-date Pearson correlations across common assets for every factor"
+" pair."
+msgstr "对每个因子对按日期在共有资产上计算 Pearson 相关系数。"
+
+#: ../../site/api/factor.md:577
+msgid ""
+"Dates with fewer than min_assets common finite assets and dates with zero "
+"dispersion on either side are skipped. Pairs follow input order, and each "
+"row summarizes the contributing dates."
+msgstr "共有有限资产少于 min_assets 的日期以及任一侧离散度为零的日期被跳过。因子对遵循输入顺序，每行汇总有贡献的日期。"
+
+#: ../../site/api/factor.md:580
+msgid "Returns the native value form used by fingerprints and JSON envelopes."
+msgstr "返回指纹与 JSON 信封使用的原生值形式。"
+
+#: ../../site/api/factor.md:583
+msgid "Converts a factor-analysis model into its native envelope value."
+msgstr "将因子分析模型转换为其原生信封值。"
+
+#: ../../site/api/factor.md:583
+msgid ""
+"The envelope carries the schema identifier, fingerprint version, result "
+"fingerprint, configuration, forward periods, loss report, quantile "
+"statistics and tables, IC tables, mean-return spread, turnover and rank-"
+"autocorrelation series, and optional event analysis. Non-finite entries in "
+"the IC, quantile, turnover, rank-autocorrelation and event arrays are "
+"encoded as null."
+msgstr ""
+"信封包含模式标识符、指纹版本、结果指纹、配置、前瞻周期、损失报告、分位统计与表、IC "
+"表、平均收益多空差、换手率与秩自相关序列，以及可选的事件分析。IC、分位、换手率、秩自相关与事件数组中的非有限项编码为 null。"
+
+#: ../../site/api/factor.md:586
+msgid "Converts a loss report into a native object value."
+msgstr "将损失报告转换为原生对象值。"
+
+#: ../../site/api/factor.md:589
+msgid "Returns the figure identifiers in display order without opening a window."
+msgstr "按显示顺序返回图形标识符，且不打开窗口。"
+
+#: ../../site/api/factor.md:592
+msgid "Snapshots a native dataframe and computes its deterministic content digest."
+msgstr "对原生 DataFrame 做快照并计算其确定性的内容摘要。"
+
+#: ../../site/api/factor.md:595
+msgid "Snapshots a native dataframe by taking ownership of its storage."
+msgstr "通过接管存储的方式对原生 DataFrame 做快照。"
+
+#: ../../site/api/factor.md:598
+msgid "Returns the two-sided Student-t tail probability."
+msgstr "返回双侧 Student-t 尾部概率。"
+
+#: ../../site/api/factor.md:598
+msgid ""
+"Uses the regularized incomplete beta function for df degrees of freedom. A "
+"NaN statistic or a non-positive or NaN df yields NaN; an infinite statistic "
+"yields zero."
+msgstr "使用 df 自由度的正则化不完全贝塔函数。统计量为 NaN，或 df 为非正/NaN 时返回 NaN；统计量为无穷时返回零。"
+
+#: ../../site/api/factor.md:601
+msgid "Returns the whole-day component of each pandas-style duration string."
+msgstr "返回每个 pandas 风格时长字符串的整日部分。"
+
+#: ../../site/api/factor.md:604
+msgid "Formats a duration using the pinned forward-return label grammar."
+msgstr "使用固定版本的前瞻收益标签语法格式化时长。"
+
+#: ../../site/api/factor.md:604
+msgid ""
+"Components follow pandas' normalized representation (floor days and a non-"
+"negative remainder), for example -1h becomes \"-1D23h\" and a zero duration "
+"becomes \"\"."
+msgstr "成分遵循 pandas 的归一化表示（向下取整的天数加非负余数），例如 -1h 变为 \"-1D23h\"，零时长变为 \"\"。"
+
+#: ../../site/api/factor.md:607
+msgid "Serializes a native value as deterministic, standards-compliant JSON text."
+msgstr "将原生值序列化为确定性、符合标准的 JSON 文本。"
+
+#: ../../site/api/factor.md:607
+msgid ""
+"Object keys are emitted in sorted order, so the text is stable for a given "
+"value."
+msgstr "对象按键的排序顺序输出，因此同一取值产生的文本是稳定的。"
+
+#: ../../site/api/factor.md:610
+msgid "Projects a normalized evaluation spec onto the execution spec."
+msgstr "将已归一化的评估设定投影为执行设定。"
+
+#: ../../site/api/factor.md:613
+msgid "Returns the JSON text form of serializable_value(model)."
+msgstr "返回 serializable_value(model) 的 JSON 文本形式。"
+
+#: ../../site/api/factor.md:613
+msgid "This is the native equivalent of the Python to_serializable method."
+msgstr "这是 Python to_serializable 方法的原生等价实现。"
+
+#: ../../site/api/factor.md:616
+msgid "Validates point-in-time ordering and finiteness."
+msgstr "校验时点顺序与有限性。"
+
+#: ../../site/api/factor.md:616
+msgid ""
+"Each point must carry a finite value, with known_at not before as_of and "
+"effective_from not before known_at."
+msgstr "每个点必须携带有限取值，且 known_at 不早于 as_of、effective_from 不早于 known_at。"
+
+#: ../../site/api/factor.md:619
+msgid "Source-name alias for factor_data_error."
+msgstr "factor_data_error 的源名称别名。"
+
+#: ../../site/api/factor.md:622
+msgid "Source-name aliases preserving the enhanced/strict split."
+msgstr "保留 enhanced/strict 区分的源名称别名。"
+
+#: ../../site/api/factor.md:625
+msgid "Alphalens-compatible decimal-to-basis-points scale."
+msgstr "与 Alphalens 兼容的小数转基点比例。"
+
+#: ../../site/api/factor.md:628
+msgid "Schema version of the normalized research evaluation configuration."
+msgstr "归一化后的研究评估配置的模式版本。"
+
+#: ../../site/api/factor.md:631
+msgid "Alias for DECIMAL_TO_BPS."
+msgstr "DECIMAL_TO_BPS 的别名。"
+
+#: ../../site/api/factor.md:634
+msgid "Lower-case alias of EVALUATION_CONFIG_SCHEMA_VERSION."
+msgstr "EVALUATION_CONFIG_SCHEMA_VERSION 的小写别名。"
+
+#: ../../site/api/factor.md:637
+msgid "Version of the native result-fingerprint encoding."
+msgstr "原生结果指纹编码的版本。"
+
+#: ../../site/api/factor.md:637
+msgid ""
+"Mixed into every result fingerprint and echoed by "
+"factor_analysis_model::result_fingerprint_version."
+msgstr "混入每个结果指纹，并由 factor_analysis_model::result_fingerprint_version 回显。"
+
+#: ../../site/api/factor.md:640
+msgid "Operation identifier of the shared factor analysis kernel."
+msgstr "共享因子分析内核的操作标识符。"
+
+#: ../../site/api/factor.md:643
+msgid "Nanoseconds in one calendar day."
+msgstr "一个日历日包含的纳秒数。"
+
+#: ../../site/api/factor.md:646
+msgid "Research API version reported by capability and result manifests."
+msgstr "能力声明与结果 manifest 报告的研究 API 版本。"
+
+#: ../../site/api/factor.md:649
+msgid "Detailed research API version recorded in result and export manifests."
+msgstr "记录在结果与导出 manifest 中的详细研究 API 版本。"
+
+#: ../../site/api/factor.md:652
+msgid "Schema identifier written to the detailed export manifest."
+msgstr "写入详细导出 manifest 的模式标识符。"
+
+#: ../../site/api/factor.md:655
+msgid "Schema version written to the detailed export manifest."
+msgstr "写入详细导出 manifest 的模式版本。"
+
+#: ../../site/api/factor.md:658
+msgid "Schema version of research_detailed_result."
+msgstr "research_detailed_result 的模式版本。"
+
+#: ../../site/api/factor.md:661
+msgid "Schema version of research result envelopes and their manifests."
+msgstr "研究结果信封及其 manifest 的模式版本。"
+

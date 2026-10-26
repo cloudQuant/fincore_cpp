@@ -1,0 +1,315 @@
+{
+  "round": "P117-R1",
+  "date": "2026-10-25",
+  "branch": "dev",
+  "base_commit": "4be9ddfab8d086fef72da9307172cfd3b6b6cbb0",
+  "acceptance": "FUNCTIONAL_AND_FULL_BYTE_PARITY_ACCEPTED_PERFORMANCE_DIAGNOSTIC_ONLY",
+  "scope": "Delete only four dead close-storage/conversion lines in alpha003 native runner; retain header/width validation",
+  "unit_tests": "Not repeated: no library or parser validation path change; actual complete-output campaigns provide functional acceptance",
+  "development_500": {
+    "all_pairs_pass": true,
+    "performance": {
+      "repeats": 5,
+      "sampling": {
+        "cpp": {
+          "count": 5,
+          "iqr": 0.019269000040367246,
+          "iqr_over_median": 0.05667002932098298,
+          "max": 0.3595985000138171,
+          "median": 0.34002100001089275,
+          "min": 0.25333839998347685,
+          "noise_limit": 0.1,
+          "protocol": "iteration9-r1",
+          "q1": 0.3381322000059299,
+          "q3": 0.35740120004629716,
+          "samples": [
+            0.34002100001089275,
+            0.3595985000138171,
+            0.3381322000059299,
+            0.35740120004629716,
+            0.25333839998347685
+          ],
+          "status": "VALID"
+        },
+        "paired_speedups": [
+          28.484610655456017,
+          27.2999614837686,
+          30.36513825017169,
+          29.219664339849185,
+          40.36615254804952
+        ],
+        "pairs_at_least_100x": 0,
+        "pairs_at_least_30x": 2,
+        "python": {
+          "count": 5,
+          "iqr": 0.4504058000165969,
+          "iqr_over_median": 0.044043882359178284,
+          "max": 10.443143100012094,
+          "median": 10.226296500011813,
+          "min": 9.685365799989086,
+          "noise_limit": 0.1,
+          "protocol": "iteration9-r1",
+          "q1": 9.81702519999817,
+          "q3": 10.267431000014767,
+          "samples": [
+            9.685365799989086,
+            9.81702519999817,
+            10.267431000014767,
+            10.443143100012094,
+            10.226296500011813
+          ],
+          "status": "VALID"
+        }
+      },
+      "stages": {
+        "accounted_stage_seconds": {
+          "cpp_seconds": 0.3217905,
+          "python_seconds": 9.147128999989945,
+          "speedup": 28.42572729769818
+        },
+        "cpu_seconds": {
+          "cpp_seconds": 0.328125,
+          "python_seconds": 8.21875,
+          "speedup": 25.047619047619047
+        },
+        "export_seconds": {
+          "cpp_seconds": 0.0864342,
+          "python_seconds": 3.0672477000043727,
+          "speedup": 35.48650534168619
+        },
+        "factor_seconds": {
+          "cpp_seconds": 0.0260144,
+          "python_seconds": 0.09881619998486713,
+          "speedup": 3.798519281046925
+        },
+        "internal_process_cpu_seconds": {
+          "cpp_seconds": 0.328125,
+          "python_seconds": 8.21875,
+          "speedup": 25.047619047619047
+        },
+        "internal_wall_seconds": {
+          "cpp_seconds": 0.3217905,
+          "python_seconds": 9.147128999989945,
+          "speedup": 28.42572729769818
+        },
+        "load_seconds": {
+          "cpp_seconds": 0.0699343,
+          "python_seconds": 1.4318853999720886,
+          "speedup": 20.474722703624522
+        },
+        "materialization_seconds": {
+          "cpp_seconds": 0.0039168,
+          "python_seconds": 0.01917510002385825,
+          "speedup": 4.895603560012829
+        },
+        "other_seconds": {
+          "cpp_seconds": 1.8900000000016126e-05,
+          "python_seconds": 0.0003489000373519957,
+          "speedup": 18.46031943659778
+        },
+        "preparation_seconds": {
+          "cpp_seconds": 0.0001134,
+          "python_seconds": 0.050000599992927164,
+          "speedup": 440.92239852669456
+        },
+        "research_seconds": {
+          "cpp_seconds": 0.1360118,
+          "python_seconds": 4.351673800032586,
+          "speedup": 31.994825449207983
+        },
+        "total_seconds": {
+          "cpp_seconds": 0.3217905,
+          "python_seconds": 9.147128999989945,
+          "speedup": 28.42572729769818
+        }
+      },
+      "wall": {
+        "cpp_seconds": 0.34002100001089275,
+        "python_seconds": 10.226296500011813,
+        "speedup": 30.075485042642097
+      }
+    }
+  },
+  "full_native": {
+    "source_base": {
+      "head": "4be9ddfab8d086fef72da9307172cfd3b6b6cbb0",
+      "branch": "dev",
+      "tracked_status": "M benchmarks/alpha003_a_stocks/cpp/alpha003_research.cpp"
+    },
+    "source_sha256": {
+      "benchmarks/alpha003_a_stocks/cpp/alpha003_research.cpp": "f4f12177b48ce0e88e130052bca38a7620fdef7f78af463573168589b4a4e3f2"
+    },
+    "native_binary": {
+      "path": "D:\\source_code\\fincore_cpp\\build-win\\fincore_alpha003_research.exe",
+      "size_bytes": 616448,
+      "sha256": "97db2cb51a1a51f58fedb67865bab62f6268d15931ab6f7711b15be369d50b6a"
+    },
+    "inputs_unchanged": true,
+    "data_matches_baseline": true,
+    "measurement": {
+      "command": [
+        "D:\\source_code\\fincore_cpp\\build-win\\fincore_alpha003_research.exe",
+        "--data-dir",
+        "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\data\\a_stocks",
+        "--out",
+        "D:\\source_code\\fincore_cpp\\benchmarks\\alpha003_a_stocks\\results-i9-p117-r1-full-check-r1",
+        "--max-symbols",
+        "0",
+        "--end-offset",
+        "22",
+        "--preprocess",
+        "cross_section_rank",
+        "--run-id",
+        "p117-r1-full-check-r1"
+      ],
+      "returncode": 0,
+      "wall_seconds": 4.144081200007349,
+      "cpu_seconds": 3.625,
+      "peak_working_set_bytes": 784650240,
+      "affinity_mask": 1,
+      "cpu_index": 0,
+      "affinity_method": "inherited_parent_affinity_before_create_process",
+      "affinity_verified": true,
+      "thread_environment": {
+        "OMP_NUM_THREADS": "1",
+        "OMP_THREAD_LIMIT": "1",
+        "OMP_DYNAMIC": "FALSE",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "MKL_DYNAMIC": "FALSE",
+        "BLIS_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "NUMEXPR_MAX_THREADS": "1",
+        "TBB_NUM_THREADS": "1"
+      }
+    },
+    "timings": {
+      "preparation_seconds": 0.0001135,
+      "materialization_seconds": 0.0929887,
+      "load_seconds": 0.5783549,
+      "factor_seconds": 0.361631,
+      "research_seconds": 2.0603623,
+      "export_seconds": 0.9530598,
+      "other_seconds": 1.8199999999524152e-05,
+      "accounted_stage_seconds": 4.0465284,
+      "total_seconds": 4.0465284,
+      "internal_wall_seconds": 4.0465284,
+      "cpu_seconds": 3.546875,
+      "internal_process_cpu_seconds": 3.546875,
+      "cpu_measurement_source": "GetProcessTimes (kernel + user)",
+      "peak_memory_bytes": 784650240,
+      "peak_memory_source": "GetProcessMemoryInfo.PeakWorkingSetSize",
+      "peak_memory_status": "available"
+    },
+    "files": [
+      {
+        "path": "factor_values.csv",
+        "size_bytes": 62915890,
+        "sha256": "f790074ef9b2e7b883edd5789af7c5ecc50123185960715914e863095c31d0a7",
+        "equal": true
+      },
+      {
+        "path": "workload.json",
+        "size_bytes": 829,
+        "sha256": "effc8cf88056b4542a4009586afe77d5b10e3bbe892e255d84b18e531f22df78",
+        "equal": true
+      },
+      {
+        "path": "tables/coverage.csv",
+        "size_bytes": 135,
+        "sha256": "c9c6f8eb16fb0132d00d14f2e9bc6cae26dbdf1087233ba14700f9a3a2b75b45",
+        "equal": true
+      },
+      {
+        "path": "tables/diagnostics.csv",
+        "size_bytes": 35,
+        "sha256": "e62736d7fab038d715b74393c7897f25885319f982dbb539c0e1a848d3657b37",
+        "equal": true
+      },
+      {
+        "path": "tables/ic.csv",
+        "size_bytes": 50658,
+        "sha256": "16b00dcbade2294def8a7bd92ab302bf5a8845c52feb18e4be268b1437c1e2db",
+        "equal": true
+      },
+      {
+        "path": "tables/ic_summary.csv",
+        "size_bytes": 486,
+        "sha256": "74c6e2a0e64e588b8e6e116b6b70713743a1df86ddeda698b22b30f6dafe6442",
+        "equal": true
+      },
+      {
+        "path": "tables/labels.csv",
+        "size_bytes": 184024425,
+        "sha256": "e9c48832bc9e373758e9b3cbd34a2acbcf77a561696886719d2dac6efdfdfb37",
+        "equal": true
+      },
+      {
+        "path": "tables/manifest.json",
+        "size_bytes": 52524,
+        "sha256": "9fcc629546a7048fb54428bc4e094c920f1e83e135fd5e810572787e6702972b",
+        "equal": true
+      },
+      {
+        "path": "tables/quantile_returns.csv",
+        "size_bytes": 195280,
+        "sha256": "fa847b2b9dd57163c7bd24c11376cf35fff88e12323f786becb4e64e87b276e6",
+        "equal": true
+      },
+      {
+        "path": "tables/signals.csv",
+        "size_bytes": 122015997,
+        "sha256": "3153894202ddbff233952f8ad950d7923f3fb3ee7646c0bc4a0766d76ef2375c",
+        "equal": true
+      },
+      {
+        "path": "tables/spreads.csv",
+        "size_bytes": 37502,
+        "sha256": "af0ebe58aedbc26880f3167ad63e0fab12aea5a4f35c17da8eeee406a5817fa2",
+        "equal": true
+      },
+      {
+        "path": "tables/stability.csv",
+        "size_bytes": 237,
+        "sha256": "52dc34684f1b0c9632a9834b853bec00fb5877e443ba2556c920646e9fdb759d",
+        "equal": true
+      },
+      {
+        "path": "tables/turnover.csv",
+        "size_bytes": 165646,
+        "sha256": "76590fe87919af910474a92a322ff9f9cceb976a98fcb3560f66c9cc3b6583d4",
+        "equal": true
+      }
+    ],
+    "all_output_bytes_equal": true,
+    "evidence_level": "ONE_FULL_NATIVE_CORRECTNESS_RUN_TIMING_DIAGNOSTIC_ONLY"
+  },
+  "evidence": [
+    {
+      "path": "build-win/p117-r1-build.log",
+      "size_bytes": 187,
+      "sha256": "f7e8a798025ca6e6330d17b4aac78f815ea7ca1c32202225343dae49cbd371bb"
+    },
+    {
+      "path": "build-win/p117-r1-full-check-r1.json",
+      "size_bytes": 5107,
+      "sha256": "377d244d717ed381ebff3f65d290313b0c37bbdbb89e47816f5e078ee376f92e"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p117-r1-500/comparison.json",
+      "size_bytes": 129600,
+      "sha256": "4f5bd43f03f8a028d04411eb8e601020e71fd269cde808b9092c9eeaaf2f455f"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p117-r1-500/measurements.json",
+      "size_bytes": 71063,
+      "sha256": "23f16dbf526b6f7b91f87c400c8be1c84c3664a46cb66b8120b64df96216a1e8"
+    }
+  ],
+  "commands": [
+    "cmake --build build-win --target fincore_alpha003_research -j 4",
+    "C:/Python314/python.exe benchmarks/alpha003_a_stocks/run_benchmark.py --max-symbols 500 --repeats 5 --cpu 0 --cpp-exe build-win/fincore_alpha003_research.exe --results-dir benchmarks/alpha003_a_stocks/results-i9-p117-r1-500 --fincore-root D:/source_code/fincore",
+    "C:/Python314/python.exe build-win/check_full_round.py p117-r1 --source benchmarks/alpha003_a_stocks/cpp/alpha003_research.cpp"
+  ]
+}

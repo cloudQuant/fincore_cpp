@@ -1,0 +1,11 @@
+case,frame,utc_nanoseconds,columns
+strict_same_order,left,30;10;20,close;aux
+strict_same_order,right,30;10;20,benchmark;weight
+inner_unsorted,left,20;30,close
+inner_unsorted,right,20;30,benchmark
+outer_dropna_nan_and_inf,left,50,close;aux
+outer_dropna_nan_and_inf,right,50,benchmark;quality
+all_empty,left,,close;aux
+all_empty,right,,benchmark
+outer_zero_columns_same,left,1;3,
+outer_zero_columns_same,right,1;3,

@@ -1,0 +1,1018 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 07:21+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/api/attribution.md:1
+msgid "Attribution"
+msgstr "归因"
+
+#: ../../site/api/attribution.md:3
+msgid "Brinson-Fachler, Brinson-Hood-Beebower, Fama-French and style attribution."
+msgstr "Brinson-Fachler、Brinson-Hood-Beebower、Fama-French 与风格归因。"
+
+#: ../../site/api/attribution.md:5
+msgid ""
+"See the [usage guide](../guides/metrics.md) for task-oriented examples. "
+"Signatures below are generated from the public headers at the same commit as"
+" the rest of this site."
+msgstr "面向任务的示例参见[使用指南](../guides/metrics.md)。以下签名由与本站点其余内容同一提交的公共头文件生成。"
+
+#: ../../site/api/attribution.md:7
+msgid ""
+"Native owning facade corresponding to the source's stateful "
+"BrinsonAttribution calculator."
+msgstr "与源实现中有状态的 BrinsonAttribution 计算器相对应的原生所有权门面。"
+
+#: ../../site/api/attribution.md:7
+msgid ""
+"The facade stores an optional sector mapping and applies it to returns "
+"(mean), benchmark returns (mean) and weights (sum) before delegating to the "
+"canonical brinson_results kernel. Missing benchmark returns default to the "
+"portfolio returns; missing weights default to equal weights. The native "
+"result keeps the kernel's timestamp index and full effect columns (the "
+"source's integer period column and RangeIndex are Python identity, not a "
+"native claim)."
+msgstr ""
+"该门面存储一个可选的行业映射，并在委托给规范的 brinson_results "
+"内核之前，将其应用于收益率（均值）、基准收益率（均值）与权重（求和）。缺失的基准收益率默认取组合收益率；缺失的权重默认取等权重。原生结果保留内核的时间戳索引与完整效应列（源实现中的整数周期列和"
+" RangeIndex 属于 Python 侧的身份标识，并非原生声明）。"
+
+#: ../../site/api/attribution.md:7 ../../site/api/attribution.md:10
+#: ../../site/api/attribution.md:13
+msgid "Public Functions"
+msgstr "公共函数"
+
+#: ../../site/api/attribution.md:7
+msgid "Constructs the facade with an optional sector mapping."
+msgstr "使用可选的行业映射构造门面。"
+
+#: ../../site/api/attribution.md:7
+msgid "The mapping is stored as supplied and validated when calculate runs."
+msgstr "映射按传入原样存储，并在 calculate 运行时校验。"
+
+#: ../../site/api/attribution.md
+msgid "Parameters"
+msgstr "参数"
+
+#: ../../site/api/attribution.md:7
+msgid "Returns the stored sector-to-asset mapping."
+msgstr "返回存储的行业到资产映射。"
+
+#: ../../site/api/attribution.md
+msgid "Returns"
+msgstr "返回"
+
+#: ../../site/api/attribution.md:7
+msgid "Computes native Brinson attribution for the supplied returns."
+msgstr "针对给定的收益率计算原生 Brinson 归因。"
+
+#: ../../site/api/attribution.md:7
+msgid ""
+"The method argument accepts brinson and the historical brinson_hood alias, "
+"both selecting the BHB arithmetic decomposition. When a sector mapping is "
+"present, returns and benchmark returns are averaged across each sector's "
+"assets and weights are summed before attribution. Missing benchmark returns "
+"default to the portfolio returns, missing weights default to equal weights, "
+"and benchmark weights are always equal weights."
+msgstr ""
+"method 参数接受 brinson 以及历史别名 brinson_hood，两者都选择 BHB "
+"算术分解。存在行业映射时，先对各行业的资产求收益率与基准收益率的均值、并对权重求和，再进行归因。缺失的基准收益率默认取组合收益率，缺失的权重默认取等权重，而基准权重始终为等权重。"
+
+#: ../../site/api/attribution.md
+msgid "Throws"
+msgstr "抛出"
+
+#: ../../site/api/attribution.md:10
+msgid "Native owning Fama-French model facade."
+msgstr "原生带所有权的 Fama-French 模型门面。"
+
+#: ../../site/api/attribution.md:10
+msgid ""
+"The model stores its specification (3factor, 5factor or 4factor_mom), risk-"
+"free rate, fitted alpha and betas. Estimation delegates to the existing "
+"native factor-regression kernel. All returned frames own their data."
+msgstr ""
+"该模型存储其设定（3factor、5factor 或 4factor_mom）、无风险利率以及拟合的 alpha 与 "
+"beta。估计过程委托给既有的原生因子回归内核。所有返回的帧都自行持有数据。"
+
+#: ../../site/api/attribution.md:10
+msgid "Constructs a Fama-French model for a supported specification."
+msgstr "为受支持的设定构造 Fama-French 模型。"
+
+#: ../../site/api/attribution.md:10
+msgid "Returns the configured model type."
+msgstr "返回配置的模型类型。"
+
+#: ../../site/api/attribution.md:10
+msgid "Returns the configured risk-free rate."
+msgstr "返回配置的无风险利率。"
+
+#: ../../site/api/attribution.md:10
+msgid "Returns the factor names selected by the model type."
+msgstr "返回由模型类型选定的因子名称。"
+
+#: ../../site/api/attribution.md:10
+msgid "Returns the fitted factor betas."
+msgstr "返回拟合的因子 beta。"
+
+#: ../../site/api/attribution.md:10
+msgid "Returns the fitted intercept."
+msgstr "返回拟合的截距。"
+
+#: ../../site/api/attribution.md:10
+msgid "Fits the configured model and stores its alpha and betas."
+msgstr "拟合配置的模型并存储其 alpha 与 beta。"
+
+#: ../../site/api/attribution.md:10
+msgid ""
+"An empty returns_column selects the first double column, matching the "
+"source's single-asset DataFrame behaviour. The fit delegates to the native "
+"least-squares factor regression."
+msgstr "returns_column 为空时选择第一个 double 列，与源实现的单资产 DataFrame 行为一致。拟合过程委托给原生最小二乘因子回归。"
+
+#: ../../site/api/attribution.md:10
+msgid "Predicts fitted returns from factor data using the stored model."
+msgstr "使用存储的模型由因子数据预测拟合收益。"
+
+#: ../../site/api/attribution.md:10
+msgid ""
+"The result is alpha + sum(beta_i * factor_i) for every input row and is "
+"stored under the fitted_returns column."
+msgstr "结果为每个输入行的 alpha + sum(beta_i * factor_i)，并存入 fitted_returns 列。"
+
+#: ../../site/api/attribution.md:10
+msgid "Computes alpha and factor betas over expanding or trailing windows."
+msgstr "在扩展窗口或滚动窗口上计算 alpha 与因子 beta。"
+
+#: ../../site/api/attribution.md:10
+msgid ""
+"rolling_window selects a trailing window; std::nullopt or zero uses an "
+"expanding window from the first row. Rows with at most K observations for K "
+"factors are NaN. This method does not update the model's stored alpha or "
+"betas."
+msgstr ""
+"rolling_window 选择滚动窗口；std::nullopt 或零表示从首行开始的扩展窗口。对 K 个因子而言观测数不超过 K 的行为 "
+"NaN。该方法不会更新模型存储的 alpha 或 beta。"
+
+#: ../../site/api/attribution.md:10
+msgid "Fits the model and decomposes its mean return."
+msgstr "拟合模型并分解其平均收益。"
+
+#: ../../site/api/attribution.md:10
+msgid ""
+"The returned map contains alpha, one <factor>_attribution entry per "
+"configured factor (beta * mean(factor)), specific_return (the sum of those "
+"contributions), common_return (the mean dependent return minus the "
+"configured risk-free rate) and unexplained (common_return - alpha - "
+"specific_return). The fit updates the model's stored alpha and betas."
+msgstr ""
+"返回的映射包含 alpha、每个配置因子一条 <factor>_attribution 记录（beta * "
+"mean(factor)）、specific_return（这些贡献之和）、common_return（因变量平均收益减去配置的无风险利率）以及 "
+"unexplained（common_return - alpha - specific_return）。拟合过程会更新模型存储的 alpha 与 "
+"beta。"
+
+#: ../../site/api/attribution.md:13
+msgid "Native owning facade for StyleResult."
+msgstr "StyleResult 的原生所有权门面。"
+
+#: ../../site/api/attribution.md:13
+msgid ""
+"The source container exposes exposures, returns_by_style and overall_returns"
+" plus deterministic summary/dictionary projections. The native class owns "
+"copies of all three frames."
+msgstr ""
+"源容器暴露 exposures、returns_by_style 与 "
+"overall_returns，以及确定性的摘要/字典投影。原生类持有这三张帧的副本。"
+
+#: ../../site/api/attribution.md:13
+msgid "Constructs a result from three existing frames."
+msgstr "由三张已有的帧构造结果。"
+
+#: ../../site/api/attribution.md:13
+msgid "The frames are moved into the result and are not validated here."
+msgstr "帧被移动进结果对象，此处不做校验。"
+
+#: ../../site/api/attribution.md:13
+msgid "Constructs a result by consuming a style analysis result."
+msgstr "通过消耗一个风格分析结果来构造结果。"
+
+#: ../../site/api/attribution.md:13
+msgid "Returns the owned exposure frame."
+msgstr "返回所持有的暴露帧。"
+
+#: ../../site/api/attribution.md:13
+msgid "Returns the owned style/return summary frame."
+msgstr "返回所持有的风格/收益摘要帧。"
+
+#: ../../site/api/attribution.md:13
+msgid "Returns the owned portfolio return frame."
+msgstr "返回所持有的组合收益帧。"
+
+#: ../../site/api/attribution.md:13
+msgid "Returns a style -> average return mapping in deterministic key order."
+msgstr "返回按确定性键序排列的风格到平均收益映射。"
+
+#: ../../site/api/attribution.md:13
+msgid ""
+"The style and return columns of returns_by_style are used when present; a "
+"missing return column falls back to the first double column, and a missing "
+"style column labels values by timestamp. Later duplicate style labels "
+"replace earlier values."
+msgstr ""
+"存在时使用 returns_by_style 的 style 列与 return 列；缺少 return 列时回退到第一个 double 列，缺少 "
+"style 列时以时间戳作为标签。后出现的重复风格标签会覆盖先前的值。"
+
+#: ../../site/api/attribution.md:13
+msgid "Returns a dictionary of the three owned frames."
+msgstr "返回三张所持帧的字典。"
+
+#: ../../site/api/attribution.md:13
+msgid ""
+"Keys are exposures, returns_by_style and overall_returns; each value is a "
+"detached copy."
+msgstr "键为 exposures、returns_by_style 与 overall_returns；每个值都是独立副本。"
+
+#: ../../site/api/attribution.md:16
+msgid "Attribution inputs after asset and date alignment."
+msgstr "资产与日期对齐之后的归因输入。"
+
+#: ../../site/api/attribution.md:16 ../../site/api/attribution.md:19
+#: ../../site/api/attribution.md:22 ../../site/api/attribution.md:25
+#: ../../site/api/attribution.md:28 ../../site/api/attribution.md:31
+#: ../../site/api/attribution.md:34 ../../site/api/attribution.md:37
+#: ../../site/api/attribution.md:40
+msgid "Public Members"
+msgstr "公共成员"
+
+#: ../../site/api/attribution.md:16
+msgid "Returns restricted to aligned dates."
+msgstr "限定为对齐日期的收益率。"
+
+#: ../../site/api/attribution.md:16
+msgid "Positions with unloaded non-cash assets and unaligned dates removed."
+msgstr "剔除未载入的非现金资产与未对齐日期后的持仓。"
+
+#: ../../site/api/attribution.md:16
+msgid "Factor returns restricted to aligned dates."
+msgstr "限定为对齐日期的因子收益率。"
+
+#: ../../site/api/attribution.md:16
+msgid "Loadings copied unchanged from the input table."
+msgstr "从输入表原样复制的载荷。"
+
+#: ../../site/api/attribution.md:16
+msgid "Alignment warnings, with the missing-asset warning first."
+msgstr "对齐警告，缺失资产警告排在最前。"
+
+#: ../../site/api/attribution.md:19
+msgid "Summed Brinson effects and compounded returns across all periods."
+msgstr "跨所有周期的 Brinson 效应求和与复利收益。"
+
+#: ../../site/api/attribution.md:19
+msgid "Sum of the period allocation effects."
+msgstr "各期配置效应之和。"
+
+#: ../../site/api/attribution.md:19
+msgid "Sum of the period selection effects."
+msgstr "各期选择效应之和。"
+
+#: ../../site/api/attribution.md:19
+msgid "Sum of the period interaction effects."
+msgstr "各期交互效应之和。"
+
+#: ../../site/api/attribution.md:19
+msgid "Sum of the period total effects."
+msgstr "各期总效应之和。"
+
+#: ../../site/api/attribution.md:19
+msgid "Compounded portfolio return, wealth - 1."
+msgstr "复利组合收益，即 wealth - 1。"
+
+#: ../../site/api/attribution.md:19
+msgid "Compounded benchmark return, wealth - 1."
+msgstr "复利基准收益，即 wealth - 1。"
+
+#: ../../site/api/attribution.md:22
+msgid "Brinson-Hood-Beebower effects for one period."
+msgstr "单期的 Brinson-Hood-Beebower 效应。"
+
+#: ../../site/api/attribution.md:22
+msgid ""
+"Each effect is the direct arithmetic contribution for that period; no "
+"normalization or compounding is applied."
+msgstr "每个效应都是该期的直接算术贡献；不做归一化或复利处理。"
+
+#: ../../site/api/attribution.md:22
+msgid "Allocation effect for the period."
+msgstr "该期的配置效应。"
+
+#: ../../site/api/attribution.md:22
+msgid "Selection effect for the period."
+msgstr "该期的选择效应。"
+
+#: ../../site/api/attribution.md:22
+msgid "Interaction effect for the period."
+msgstr "该期的交互效应。"
+
+#: ../../site/api/attribution.md:22
+msgid "Sum of allocation, selection and interaction."
+msgstr "配置、选择与交互之和。"
+
+#: ../../site/api/attribution.md:22
+msgid "Weighted portfolio return for the period."
+msgstr "该期的加权组合收益。"
+
+#: ../../site/api/attribution.md:22
+msgid "Weighted benchmark return for the period."
+msgstr "该期的加权基准收益。"
+
+#: ../../site/api/attribution.md:25
+msgid "Factor-loading table aligned by date, asset and factor labels."
+msgstr "按日期、资产与因子标签对齐的因子载荷表。"
+
+#: ../../site/api/attribution.md:25
+msgid ""
+"values is a flattened dates x assets x factors buffer; NaN marks a missing "
+"loading. align_and_warn requires its length to match the label dimensions "
+"and uses the date and asset labels for alignment."
+msgstr ""
+"values 是展平的 dates x assets x factors 缓冲区；NaN 标记缺失的载荷。align_and_warn "
+"要求其长度与标签维度匹配，并使用日期与资产标签进行对齐。"
+
+#: ../../site/api/attribution.md:25
+msgid "Dates with available loadings."
+msgstr "存在可用载荷的日期。"
+
+#: ../../site/api/attribution.md:25
+msgid "Asset identifiers with loadings."
+msgstr "具有载荷的资产标识。"
+
+#: ../../site/api/attribution.md:25
+msgid "Factor identifiers."
+msgstr "因子标识。"
+
+#: ../../site/api/attribution.md:25
+msgid "Flat loading values, NaN if missing."
+msgstr "展平的载荷值，缺失时为 NaN。"
+
+#: ../../site/api/attribution.md:28
+msgid "Result of an ordinary least-squares factor regression."
+msgstr "普通最小二乘因子回归的结果。"
+
+#: ../../site/api/attribution.md:28
+msgid ""
+"All frames own their data. coefficients has an ordinal index and the columns"
+" factor and coefficient, with alpha first followed by the requested factor "
+"names in request order."
+msgstr ""
+"所有帧都自行持有数据。coefficients 具有序号索引以及 factor 与 coefficient 列，alpha "
+"在前，其后是按请求顺序排列的因子名称。"
+
+#: ../../site/api/attribution.md:28 ../../site/api/attribution.md:31
+msgid "Estimated intercept."
+msgstr "估计的截距。"
+
+#: ../../site/api/attribution.md:28
+msgid "1 - SSE/SST; 0 for exactly constant returns."
+msgstr "1 - SSE/SST；收益完全恒定时为 0。"
+
+#: ../../site/api/attribution.md:28
+msgid "Alpha and factor coefficient table."
+msgstr "alpha 与因子系数表。"
+
+#: ../../site/api/attribution.md:28 ../../site/api/attribution.md:31
+msgid "Fitted values on the returns index."
+msgstr "在收益率索引上的拟合值。"
+
+#: ../../site/api/attribution.md:28
+msgid "Observed minus fitted values on the returns index."
+msgstr "在收益率索引上的观测值减拟合值。"
+
+#: ../../site/api/attribution.md:31
+msgid "Result of the native OLS Fama-French fit."
+msgstr "原生 OLS Fama-French 拟合的结果。"
+
+#: ../../site/api/attribution.md:31
+msgid ""
+"The native kernel is the canonical least-squares factor regression. The "
+"Python Newey-West/WLS covariance options are not part of that kernel, so "
+"std_errors/p_values are deliberately absent rather than fabricated."
+msgstr ""
+"原生内核即规范的最小二乘因子回归。Python 的 Newey-West/WLS 协方差选项不属于该内核，因此有意不提供 "
+"std_errors/p_values，而不是伪造它们。"
+
+#: ../../site/api/attribution.md:31
+msgid "Factor name to fitted beta."
+msgstr "因子名称到拟合 beta。"
+
+#: ../../site/api/attribution.md:31
+msgid "Regression R-squared from the native fit."
+msgstr "原生拟合得到的回归 R 方。"
+
+#: ../../site/api/attribution.md:31
+msgid "Observed minus fitted values."
+msgstr "观测值减拟合值。"
+
+#: ../../site/api/attribution.md:34
+msgid "Result of the idiosyncratic-risk calculation."
+msgstr "特异性风险计算的结果。"
+
+#: ../../site/api/attribution.md:34
+msgid "Asset names in column order."
+msgstr "按列顺序排列的资产名称。"
+
+#: ../../site/api/attribution.md:34
+msgid "Specific volatility per asset."
+msgstr "各资产的特异性波动率。"
+
+#: ../../site/api/attribution.md:34
+msgid "Beta applied to every asset."
+msgstr "应用于所有资产的 beta。"
+
+#: ../../site/api/attribution.md:37
+msgid "Inputs controlling style exposure construction."
+msgstr "控制风格暴露构造的输入。"
+
+#: ../../site/api/attribution.md:37
+msgid ""
+"Optional per-asset vectors must either be empty or contain one finite value "
+"per asset column. When market_caps is empty the size styles are replaced by "
+"equal_weight. value_scores takes precedence over book_to_price when both are"
+" supplied."
+msgstr ""
+"可选的逐资产向量必须为空，或为每个资产列包含一个有限值。当 market_caps 为空时，规模风格由 equal_weight 替代。同时提供时 "
+"value_scores 优先于 book_to_price。"
+
+#: ../../site/api/attribution.md:37
+msgid "Per-asset market caps."
+msgstr "逐资产市值。"
+
+#: ../../site/api/attribution.md:37
+msgid "Per-asset book-to-price values."
+msgstr "逐资产的账面市值比。"
+
+#: ../../site/api/attribution.md:37
+msgid "Per-asset value scores."
+msgstr "逐资产的价值得分。"
+
+#: ../../site/api/attribution.md:37
+msgid "Trailing momentum observations."
+msgstr "回溯动量观测值。"
+
+#: ../../site/api/attribution.md:37
+msgid "Lower and upper size cutoffs in [0, 1]."
+msgstr "落在 [0, 1] 内的规模上下分界。"
+
+#: ../../site/api/attribution.md:40
+msgid "Frames produced by style_analysis."
+msgstr "style_analysis 产生的帧。"
+
+#: ../../site/api/attribution.md:40
+msgid "Asset rows with one column per style."
+msgstr "资产为行、每个风格一列。"
+
+#: ../../site/api/attribution.md:40
+msgid "Style names and average style returns."
+msgstr "风格名称与风格平均收益。"
+
+#: ../../site/api/attribution.md:40
+msgid "Equal-weighted returns on the input index."
+msgstr "在输入索引上的等权重收益。"
+
+#: ../../site/api/attribution.md:43
+msgid "Aligns attribution inputs to the positions' assets and loading dates."
+msgstr "将归因输入对齐到持仓的资产与载荷日期。"
+
+#: ../../site/api/attribution.md:43
+msgid ""
+"Position assets without loadings are dropped (except cash) and dates without"
+" loadings are removed from returns, positions and factor returns. Warnings "
+"are returned in warnings instead of being emitted. Transaction turnover "
+"checks and stacked Series positions are not represented by this typed "
+"surface."
+msgstr ""
+"没有载荷的持仓资产会被丢弃（现金除外），没有载荷的日期会从收益率、持仓与因子收益率中移除。警告通过 warnings "
+"返回而不是直接发出。成交换手检查与堆叠 Series 形式的持仓不在这个带类型的接口面之中。"
+
+#: ../../site/api/attribution.md:46
+msgid "Computes per-style return series using default style analysis."
+msgstr "使用默认风格分析计算逐风格收益序列。"
+
+#: ../../site/api/attribution.md:46
+msgid ""
+"Runs style_analysis with default options and passes its exposures to the "
+"two-frame overload. Empty-shaped input yields an empty frame."
+msgstr "以默认选项运行 style_analysis，并将其暴露传入双帧重载。空形状的输入产生空帧。"
+
+#: ../../site/api/attribution.md:49
+msgid "Computes per-style return series from explicit style exposures."
+msgstr "由显式风格暴露计算逐风格收益序列。"
+
+#: ../../site/api/attribution.md:49
+msgid ""
+"The exposure frame must have an ordinal index, exactly one string asset "
+"column named asset and at least one double style column. Rows are aligned to"
+" return columns by asset identity; missing assets contribute zero and extra "
+"exposure assets are ignored. A style with a positive aligned weight total is"
+" normalized to sum to one; a style with a non-positive total produces an "
+"all-zero return series. Empty-shaped inputs, or an exposure frame with no "
+"double style columns, yield an empty frame."
+msgstr ""
+"暴露帧必须具有序号索引、恰好一个名为 asset 的字符串列，以及至少一个 double "
+"风格列。行按资产身份与收益列对齐；缺失的资产贡献为零，多余的暴露资产被忽略。对齐权重之和为正的风格会被归一化使其和为 "
+"1；总和为非正的风格产生全零的收益序列。空形状输入，或没有 double 风格列的暴露帧，产生空帧。"
+
+#: ../../site/api/attribution.md:52
+msgid "Computes single-period Brinson-Hood-Beebower attribution."
+msgstr "计算单期 Brinson-Hood-Beebower 归因。"
+
+#: ../../site/api/attribution.md:52
+msgid ""
+"Every input frame must contain a double column for each sector in "
+"sector_column_names and all four frames must share the same unique index. "
+"The supplied weights are used as given, without normalization."
+msgstr ""
+"每个输入帧都必须为 sector_column_names 中的每个行业包含一个 double "
+"列，且四个帧必须共享同一唯一索引。给定的权重按原样使用，不做归一化。"
+
+#: ../../site/api/attribution.md:55
+msgid "Computes summed effects and compounded returns across all periods."
+msgstr "计算跨所有周期的效应之和与复利收益。"
+
+#: ../../site/api/attribution.md:55
+msgid ""
+"The four effect fields are arithmetic sums of the per-period brinson_results"
+" columns, while portfolio_cumulative and benchmark_cumulative compound the "
+"per-period portfolio and benchmark returns as wealth - 1."
+msgstr ""
+"四个效应字段是逐期 brinson_results 列的算术求和，而 portfolio_cumulative 与 "
+"benchmark_cumulative 将逐期组合与基准收益按 wealth - 1 复利累积。"
+
+#: ../../site/api/attribution.md:58
+msgid "Computes one row of Brinson-Hood-Beebower effects per input period."
+msgstr "为每个输入周期计算一行 Brinson-Hood-Beebower 效应。"
+
+#: ../../site/api/attribution.md:58
+msgid ""
+"Each input frame must contain a double column for every sector in "
+"sector_column_names, and all four frames must share the same unique index. "
+"The result keeps that index and holds the allocation, selection, "
+"interaction, total, portfolio_return and benchmark_return columns."
+msgstr ""
+"每个输入帧都必须为 sector_column_names 中的每个行业包含一个 double 列，且四个帧必须共享同一唯一索引。结果保留该索引，并包含"
+" allocation、selection、interaction、total、portfolio_return 与 benchmark_return "
+"列。"
+
+#: ../../site/api/attribution.md:61
+msgid "Calculates asset-specific volatility from factor data."
+msgstr "由因子数据计算资产的特异性波动率。"
+
+#: ../../site/api/attribution.md:61
+msgid ""
+"When market_beta is absent, the beta is fitted by ordinary least squares of "
+"the first asset's excess returns on the five Fama-French columns (MKT, SMB, "
+"HML, RMW, CMA) and then applied to every asset, matching the pinned routine."
+" Specific volatility is the square root of total variance minus beta^2 times"
+" market variance, using risk-free-shifted population variances; a non-"
+"positive residual variance yields zero."
+msgstr ""
+"未提供 market_beta 时，先用普通最小二乘将第一个资产的超额收益对五个 Fama-French "
+"列（MKT、SMB、HML、RMW、CMA）回归得到 beta，然后将其应用于所有资产，与固定版本的例程一致。特异性波动率为总方差减去 beta^2 "
+"倍市场方差后的平方根，方差使用剔除无风险利率后的总体方差计算；残差方差为非正时取零。"
+
+#: ../../site/api/attribution.md:64
+msgid "Computes automatic style attribution from a default style analysis."
+msgstr "基于默认风格分析计算自动风格归因。"
+
+#: ../../site/api/attribution.md:64
+msgid ""
+"Runs style_analysis with default options, builds style return series with "
+"analyze_performance_by_style, and assigns each style its centered Pearson "
+"correlation with the equal-weighted portfolio return multiplied by the "
+"style's mean return. The residual is the portfolio mean minus the sum of "
+"contributions. A style with fewer than three paired observations or near-"
+"zero paired deviation contributes zero. Empty-shaped input yields an empty "
+"frame."
+msgstr ""
+"以默认选项运行 style_analysis，使用 analyze_performance_by_style "
+"构造风格收益序列，并为每个风格赋予其与等权组合收益的中心化 Pearson "
+"相关系数乘以该风格的平均收益。残量为组合均值减去各贡献之和。配对观测少于三个或配对偏差接近零的风格贡献为零。空形状的输入产生空帧。"
+
+#: ../../site/api/attribution.md:67
+msgid "Computes style attribution for explicit portfolio and style returns."
+msgstr "针对显式给出的组合与风格收益计算风格归因。"
+
+#: ../../site/api/attribution.md:67
+msgid ""
+"The portfolio series is the row-wise mean of all double columns in "
+"portfolio_returns. Selected style columns are aligned by timestamp; a style "
+"contributes its centered Pearson correlation with the portfolio series "
+"multiplied by its mean on the aligned timestamps. Styles are emitted in "
+"style_returns column order, followed by the residual row, which uses the "
+"full portfolio mean. Unmatched selectors are ignored. A style with fewer "
+"than three paired timestamps or near-zero aligned deviation contributes "
+"zero. An empty-shaped portfolio yields an empty frame."
+msgstr ""
+"组合序列为 portfolio_returns 中所有 double 列的行均值。所选风格列按时间戳对齐；每个风格的贡献是其与组合序列的中心化 "
+"Pearson 相关系数乘以在对齐时间戳上的均值。风格按 style_returns "
+"的列顺序输出，其后是使用完整组合均值的残量行。未匹配的选取项被忽略。配对时间戳少于三个或对齐偏差接近零的风格贡献为零。空形状的组合产生空帧。"
+
+#: ../../site/api/attribution.md:70
+msgid "Computes rolling cross-sectional style tilt indicators."
+msgstr "计算滚动截面的风格倾斜指标。"
+
+#: ../../site/api/attribution.md:70
+msgid ""
+"Each output row uses the trailing window observations ending before that "
+"row. Size splits the average rank of the latest return at the one-third and "
+"two-thirds cutoffs (lower third _large, upper third _small); winner/loser "
+"splits the compounded trailing return at zero; value/growth splits its "
+"average rank at the median; high/low volatility splits the sample deviation "
+"of at most the last 60 observations at the median, with ties assigned to "
+"high volatility. Output columns are phase-major: all <asset>_large columns, "
+"then all <asset>_small columns, then <asset>_winner, <asset>_loser, "
+"<asset>_value, <asset>_growth, <asset>_high_vol and <asset>_low_vol, with "
+"assets in input column order within each phase."
+msgstr ""
+"每个输出行使用在该行之前结束的滚动窗口观测。规模按最新收益的平均秩在三分之一与三分之二分界处划分（下三分之一为 _large，上三分之一为 "
+"_small）；winner/loser 以零为界划分复利滚动收益；value/growth 以中位数为界划分其平均秩；high/low "
+"volatility 以中位数为界划分至多最近 60 个观测的样本标准差，并列归入 high volatility。输出列按阶段为主序：先是所有 "
+"<asset>_large 列，然后所有 <asset>_small 列，随后是 "
+"<asset>_winner、<asset>_loser、<asset>_value、<asset>_growth、<asset>_high_vol 与"
+" <asset>_low_vol，每个阶段内资产按输入列顺序排列。"
+
+#: ../../site/api/attribution.md:73
+msgid ""
+"Decomposes mean returns into alpha, factor, specific, common and unexplained"
+" components."
+msgstr "将平均收益分解为 alpha、因子、特异、共同与未解释部分。"
+
+#: ../../site/api/attribution.md:73
+msgid ""
+"The factors are fitted by ordinary least squares, each factor contributes "
+"beta * mean(factor), and specific_return is the sum of those contributions. "
+"common_return is mean(returns) - risk_free_rate and unexplained is "
+"common_return - alpha - specific_return. The output index is ordinal and "
+"rows follow this order: alpha, each <factor>_attribution in request order, "
+"specific_return, common_return and unexplained."
+msgstr ""
+"因子通过普通最小二乘拟合，每个因子贡献 beta * mean(factor)，specific_return "
+"为这些贡献之和。common_return 为 mean(returns) - risk_free_rate，unexplained 为 "
+"common_return - alpha - specific_return。输出索引为序号，行按此顺序排列：alpha、按请求顺序的每个 "
+"<factor>_attribution、specific_return、common_return 与 unexplained。"
+
+#: ../../site/api/attribution.md:76
+msgid "Predicts returns from a fitted factor regression."
+msgstr "由已拟合的因子回归预测收益。"
+
+#: ../../site/api/attribution.md:76
+msgid ""
+"The coefficient table in regression must be structurally valid: an ordinal "
+"index of length K + 1 and the factor/coefficient columns, with alpha first "
+"and the remaining labels matching factor_column_names in order. Predictions "
+"are alpha + sum(beta_i * factor_i) for each input row."
+msgstr ""
+"回归中的系数表必须在结构上有效：长度为 K + 1 的序号索引以及 factor/coefficient 列，alpha 在前，其余标签按顺序与 "
+"factor_column_names 匹配。预测值为每个输入行的 alpha + sum(beta_i * factor_i)。"
+
+#: ../../site/api/attribution.md:79
+msgid "Fetches Fama-French factors through an explicit provider."
+msgstr "通过显式的数据提供方获取 Fama-French 因子。"
+
+#: ../../site/api/attribution.md:79
+msgid ""
+"copy is retained for source-signature compatibility. Native results always "
+"own their buffers; a provider cannot hand ownership of cached data to the "
+"caller, so both values of copy return a detached value."
+msgstr "保留 copy 参数是为了与源签名兼容。原生结果始终自行持有缓冲区；提供方不能把缓存数据的所有权交给调用方，因此 copy 的两个取值都返回独立副本。"
+
+#: ../../site/api/attribution.md:82
+msgid "Fetches Fama-French factors with the library defaulting to french."
+msgstr "获取 Fama-French 因子，库默认取 french。"
+
+#: ../../site/api/attribution.md:85
+msgid "Fetches style factors through an injected provider."
+msgstr "通过注入的提供方获取风格因子。"
+
+#: ../../site/api/attribution.md:88
+msgid "Fetches style factors with the library defaulting to us."
+msgstr "获取风格因子，库默认取 us。"
+
+#: ../../site/api/attribution.md:91
+msgid "Fits an ordinary least-squares factor regression with an intercept."
+msgstr "拟合带截距的普通最小二乘因子回归。"
+
+#: ../../site/api/attribution.md:91
+msgid ""
+"The dependent column is regressed on the named factor columns. Both frames "
+"must share the same unique index, selected values must be finite, and at "
+"least K + 1 observations are required for K factors. The fit uses a "
+"Householder QR solve and rejects rank-deficient designs."
+msgstr ""
+"将因变量列对指定的因子列做回归。两个帧必须共享同一唯一索引，选取的值必须有限，且 K 个因子至少需要 K + 1 个观测。拟合使用 "
+"Householder QR 求解，并拒绝秩亏的设计矩阵。"
+
+#: ../../site/api/attribution.md:94
+msgid "Computes rolling or expanding factor exposures by least squares."
+msgstr "用最小二乘计算滚动或扩展的因子暴露。"
+
+#: ../../site/api/attribution.md:94
+msgid ""
+"Each output row fits the requested factors on the window ending at that row."
+" A supplied rolling_window limits the window to that many trailing "
+"observations; std::nullopt uses an expanding window from the first row. Rows"
+" with at most K observations for K factors are NaN."
+msgstr ""
+"每个输出行在截至该行的窗口上拟合所请求的因子。给定 rolling_window 时窗口限制为该数量的末尾观测；std::nullopt "
+"表示从首行开始的扩展窗口。对 K 个因子而言观测数不超过 K 的行为 NaN。"
+
+#: ../../site/api/attribution.md:97
+msgid "Computes style exposures and style return summaries."
+msgstr "计算风格暴露与风格收益摘要。"
+
+#: ../../site/api/attribution.md:97
+msgid ""
+"Every asset column must be double, have a distinct non-empty name and "
+"contain finite values. The exposure table has one row per asset and one "
+"column per constructed style; returns_by_style reports each style's "
+"arithmetic mean return; overall_returns reports the equal-weighted portfolio"
+" return on the input timestamps. A style with no eligible assets receives "
+"zero weights and a NaN summary return."
+msgstr ""
+"每个资产列都必须为 double、名称互不相同且非空，并包含有限值。暴露表每个资产一行、每个构造出的风格一列；returns_by_style "
+"报告每个风格的算术平均收益；overall_returns 在输入时间戳上报告等权组合收益。没有合格资产的风格得到零权重和 NaN 摘要收益。"
+
+#: ../../site/api/attribution.md:100
+msgid ""
+"Source-compatible compatibility facade for "
+"fincore.attribution.fama_french_patch.FamaFrenchModelPatch."
+msgstr "与源实现兼容的 fincore.attribution.fama_french_patch.FamaFrenchModelPatch 兼容门面。"
+
+#: ../../site/api/attribution.md:100
+msgid ""
+"The patch module documented the same model specification fields as the "
+"canonical Fama-French model (model_type, risk_free_rate, selected factors "
+"and fitted betas). It adds no independent computation in the pinned source, "
+"so the native alias deliberately maps to the owning FamaFrenchModel rather "
+"than duplicating estimation state."
+msgstr ""
+"该补丁模块记录了与规范 Fama-French 模型相同的模型设定字段（model_type、risk_free_rate、所选因子与拟合 "
+"beta）。在固定版本的源实现中它不引入独立计算，因此原生别名有意映射到带所有权的 FamaFrenchModel，而不是复制估计状态。"
+
+#: ../../site/api/attribution.md:103
+msgid "Injected provider boundary for Fama-French data."
+msgstr "Fama-French 数据的注入式提供方边界。"
+
+#: ../../site/api/attribution.md:103
+msgid ""
+"The provider is supplied explicitly on every call; there is no process-"
+"global provider or cache state. The returned frame is validated and detached"
+" (deep-copied) by fetch_ff_factors."
+msgstr "每次调用都显式提供提供方；不存在进程全局的提供方或缓存状态。返回的帧由 fetch_ff_factors 校验并复制为独立副本（深拷贝）。"
+
+#: ../../site/api/attribution.md:106
+msgid "Injected style-factor provider boundary."
+msgstr "注入式的风格因子提供方边界。"
+
+#: ../../site/api/attribution.md:106
+msgid ""
+"The provider receives an explicit factors option (nullopt mirrors the "
+"source's None) and returns a validated, detached frame."
+msgstr "提供方接收一个显式的 factors 选项（nullopt 对应源实现中的 None），并返回经过校验的独立帧。"
+
+#: ../../site/api/attribution.md:109
+msgid "Standard three-factor Fama-French definitions, matching the pinned source."
+msgstr "标准三因子 Fama-French 定义，与固定版本源实现一致。"
+
+#: ../../site/api/attribution.md:112
+msgid "Four-factor Fama-French definitions with the momentum factor."
+msgstr "包含动量因子的四因子 Fama-French 定义。"
+
+#: ../../site/api/attribution.md:115
+msgid "Standard five-factor Fama-French definitions, matching the pinned source."
+msgstr "标准五因子 Fama-French 定义，与固定版本源实现一致。"
+
+#: ../../site/api/attribution.md:118
+msgid "Name of the Brinson allocation-effect column."
+msgstr "Brinson 配置效应列的名称。"
+
+#: ../../site/api/attribution.md:121
+msgid "Name of the Brinson benchmark-return column."
+msgstr "Brinson 基准收益列的名称。"
+
+#: ../../site/api/attribution.md:124
+msgid "Name of the Brinson interaction-effect column."
+msgstr "Brinson 交互效应列的名称。"
+
+#: ../../site/api/attribution.md:127
+msgid "Name of the Brinson portfolio-return column."
+msgstr "Brinson 组合收益列的名称。"
+
+#: ../../site/api/attribution.md:130
+msgid "Name of the Brinson selection-effect column."
+msgstr "Brinson 选择效应列的名称。"
+
+#: ../../site/api/attribution.md:133
+msgid "Name of the Brinson total-effect column."
+msgstr "Brinson 总效应列的名称。"
+
+#: ../../site/api/attribution.md:136
+msgid "Name of the component-label column in an attribution summary."
+msgstr "归因摘要中成分标签列的名称。"
+
+#: ../../site/api/attribution.md:139
+msgid "Name of the contribution-value column in an attribution summary."
+msgstr "归因摘要中贡献值列的名称。"
+
+#: ../../site/api/attribution.md:142
+msgid "Name of the predicted-return column."
+msgstr "预测收益列的名称。"
+
+#: ../../site/api/attribution.md:145
+msgid "Label used for the regression intercept."
+msgstr "用于回归截距的标签。"
+
+#: ../../site/api/attribution.md:148
+msgid "Name of the coefficient-value column in a coefficient frame."
+msgstr "系数帧中系数值列的名称。"
+
+#: ../../site/api/attribution.md:151
+msgid "Name of the factor-label column in a coefficient frame."
+msgstr "系数帧中因子标签列的名称。"
+
+#: ../../site/api/attribution.md:154
+msgid "Name of the fitted-return column."
+msgstr "拟合收益列的名称。"
+
+#: ../../site/api/attribution.md:157
+msgid "Name of the residual column."
+msgstr "残差列的名称。"
+
+#: ../../site/api/attribution.md:160
+msgid "Name of the string column holding asset identifiers in exposures."
+msgstr "暴露表中存放资产标识的字符串列名称。"
+
+#: ../../site/api/attribution.md:163
+msgid "Name of the double column holding style attribution contributions."
+msgstr "存放风格归因贡献的 double 列名称。"
+
+#: ../../site/api/attribution.md:166
+msgid "Name of the residual row in style attribution results."
+msgstr "风格归因结果中残量行的名称。"
+
+#: ../../site/api/attribution.md:169
+msgid "Name of the equal-weight style column."
+msgstr "等权风格列的名称。"
+
+#: ../../site/api/attribution.md:172
+msgid "Name of the growth style column."
+msgstr "成长风格列的名称。"
+
+#: ../../site/api/attribution.md:175
+msgid "Name of the high-volatility style column."
+msgstr "高波动风格列的名称。"
+
+#: ../../site/api/attribution.md:178
+msgid "Name of the large-cap size style column."
+msgstr "大盘规模风格列的名称。"
+
+#: ../../site/api/attribution.md:181
+msgid "Name of the momentum-loser style column."
+msgstr "动量输家风格列的名称。"
+
+#: ../../site/api/attribution.md:184
+msgid "Name of the low-volatility style column."
+msgstr "低波动风格列的名称。"
+
+#: ../../site/api/attribution.md:187
+msgid "Name of the mid-cap size style column."
+msgstr "中盘规模风格列的名称。"
+
+#: ../../site/api/attribution.md:190
+msgid "Name of the string column holding style names."
+msgstr "存放风格名称的字符串列名称。"
+
+#: ../../site/api/attribution.md:193
+msgid "Name of the double column holding style or portfolio returns."
+msgstr "存放风格或组合收益的 double 列名称。"
+
+#: ../../site/api/attribution.md:196
+msgid "Name of the small-cap size style column."
+msgstr "小盘规模风格列的名称。"
+
+#: ../../site/api/attribution.md:199
+msgid "Name of the value style column."
+msgstr "价值风格列的名称。"
+
+#: ../../site/api/attribution.md:202
+msgid "Name of the momentum-winner style column."
+msgstr "动量赢家风格列的名称。"
+
+#~ msgid ""
+#~ "The style and return columns of "
+#~ "returns_by_style are used when present; "
+#~ "otherwise the first double column is "
+#~ "labelled by its timestamp. Later duplicate"
+#~ " style labels replace earlier values."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The exposure frame must have an "
+#~ "ordinal index, exactly one string asset "
+#~ "column named asset and at least one"
+#~ " double style column. Rows are aligned"
+#~ " to return columns by asset identity;"
+#~ " missing assets contribute zero and "
+#~ "extra exposure assets are ignored. A "
+#~ "style with a positive aligned weight "
+#~ "total is normalized to sum to one;"
+#~ " a style with a non-positive total"
+#~ " produces an all-zero return series. "
+#~ "Empty-shaped inputs yield an empty "
+#~ "frame."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Runs style_analysis with default options, "
+#~ "builds style return series with "
+#~ "analyze_performance_by_style, and assigns each "
+#~ "style its centered Pearson correlation with"
+#~ " the equal-weighted portfolio return "
+#~ "multiplied by the style's mean return. "
+#~ "The residual is the portfolio mean "
+#~ "minus the sum of contributions. A "
+#~ "style with fewer than three paired "
+#~ "observations or near-zero paired deviation"
+#~ " contributes zero."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The portfolio series is the row-wise"
+#~ " mean of all double columns in "
+#~ "portfolio_returns. Selected style columns are "
+#~ "aligned by timestamp; a style contributes"
+#~ " its centered Pearson correlation with "
+#~ "the portfolio series multiplied by its "
+#~ "mean on the aligned timestamps. Styles "
+#~ "are emitted in style_returns column order,"
+#~ " followed by the residual row, which "
+#~ "uses the full portfolio mean. Unmatched "
+#~ "selectors are ignored. A style with "
+#~ "fewer than three paired timestamps or "
+#~ "near-zero aligned deviation contributes "
+#~ "zero."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The facade stores an optional sector "
+#~ "mapping and applies it to returns "
+#~ "(mean), benchmark returns (mean) and "
+#~ "weights (sum) before delegating to the "
+#~ "canonical :func:brinson_results kernel. Missing "
+#~ "benchmark returns default to the portfolio"
+#~ " returns; missing weights default to "
+#~ "equal weights. The native result keeps "
+#~ "the kernel's timestamp index and full "
+#~ "effect columns (the source's integer period"
+#~ " column and RangeIndex are Python "
+#~ "identity, not a native claim)."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The patch module documented the same "
+#~ "model specification fields as the canonical"
+#~ " Fama-French model (model_type, "
+#~ "risk_free_rate, selected factors and fitted "
+#~ "betas). It adds no independent computation"
+#~ " in the pinned source, so the "
+#~ "native alias deliberately maps to the "
+#~ "owning :class:FamaFrenchModel rather than "
+#~ "duplicating estimation state."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The provider is supplied explicitly on "
+#~ "every call; there is no process-"
+#~ "global provider or cache state. The "
+#~ "returned frame is validated and detached"
+#~ " (deep-copied) by :func:fetch_ff_factors."
+#~ msgstr ""
+

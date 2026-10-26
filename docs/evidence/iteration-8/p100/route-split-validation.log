@@ -1,0 +1,12 @@
+wrote docs/iterations/iteration-8-full-python-parity/route-split.tsv (952 rows)
+wrote docs/iterations/iteration-8-full-python-parity/route-split-summary.json
+{"EXTERNAL_OPTIONAL": 24, "NATIVE_TARGET": 928}
+optional rows: ['fincore.data.providers.AkShareProvider', 'fincore.data.providers.AkShareProvider.fetch', 'fincore.data.providers.AkShareProvider.get_info', 'fincore.data.providers.AlphaVantageProvider', 'fincore.data.providers.AlphaVantageProvider.fetch', 'fincore.data.providers.AlphaVantageProvider.get_info', 'fincore.data.providers.TushareProvider', 'fincore.data.providers.TushareProvider.fetch', 'fincore.data.providers.TushareProvider.get_info', 'fincore.data.providers.YahooFinanceProvider', 'fincore.data.providers.YahooFinanceProvider.fetch', 'fincore.data.providers.YahooFinanceProvider.get_info', 'fincore.data.providers.fetch_multiple_prices', 'fincore.data.providers.fetch_price_data', 'fincore.data.providers.get_provider', 'fincore.metrics.bayesian.model_best', 'fincore.metrics.bayesian.model_returns_normal', 'fincore.metrics.bayesian.model_returns_t', 'fincore.metrics.bayesian.model_returns_t_alpha_beta', 'fincore.metrics.bayesian.model_stoch_vol', 'fincore.metrics.bayesian.run_model', 'data.providers.fetch_multiple_prices', 'data.providers.fetch_price_data', 'data.providers.get_provider']
+validator self-test:
+  duplicate row id: FAILS AS EXPECTED
+  non-approved split: FAILS AS EXPECTED
+  unresolved operation canonical: FAILS AS EXPECTED
+  optional without prerequisite: FAILS AS EXPECTED
+  missing consumer scenario: FAILS AS EXPECTED
+  class-level partial acceptance: FAILS AS EXPECTED
+  unexpected optional row: FAILS AS EXPECTED

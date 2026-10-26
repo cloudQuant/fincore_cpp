@@ -1,0 +1,299 @@
+{
+  "round": "P118-R1",
+  "date": "2026-10-25",
+  "branch": "dev",
+  "base_commit": "39d5897f1cceb41e9c302f33efc8a33b0c6cd3a4",
+  "acceptance": "FUNCTIONAL_ACCEPTED_DEVELOPMENT_PERFORMANCE_ONLY",
+  "unit_passed": 6,
+  "independent_review": "Static review found no blocker; no reviewer execution",
+  "scope": [
+    "src/rolling_engine.cpp",
+    "tests/unit/rolling_engine_test.cpp"
+  ],
+  "source_state": {
+    "sources": {
+      "src/rolling_engine.cpp": {
+        "bytes": 9375,
+        "sha256": "0a6f6159b9274ba75f3c281b30bb6b050179dc99fed02f9b0ce47b992333db42"
+      },
+      "tests/unit/rolling_engine_test.cpp": {
+        "bytes": 16329,
+        "sha256": "743cd7aa7b1ca1a8cc1edd341e18bb5f6ff09a1f0dd9d8b98ab5a7fa723b6d87"
+      },
+      "tools/run_paired_benchmarks.py": {
+        "bytes": 49197,
+        "sha256": "650b2a0221f406499cb867910b9a8e271e73ad9a5c22d166c01e62b160f5faf3"
+      },
+      "benchmarks/alpha003_a_stocks/measurement.py": {
+        "bytes": 19278,
+        "sha256": "0f1f229e1dc928eb1ac630afb7028452e72e67f3fec3c22d259b7d9f5735ec31"
+      }
+    },
+    "head": "39d5897f1cceb41e9c302f33efc8a33b0c6cd3a4\n",
+    "status": " M src/rolling_engine.cpp\n M tests/unit/rolling_engine_test.cpp\n",
+    "diff": "f5fabe2dd460f71d91474c31ee9ce46f45de65fd1d3f594b3c220e13eae64ec4",
+    "cached": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_state_unchanged": true,
+  "binary_identities": {
+    "reference": {
+      "path": "D:\\source_code\\fincore_cpp\\build-win\\i9-p112-reference\\fincore_factor_benchmark.exe",
+      "archive_path": "D:\\source_code\\fincore_cpp\\build-win\\p118-r1-paired\\binaries\\reference.exe",
+      "commit": "eb71df208c86103bbf5d1a62a95c955a30854713",
+      "sha256_before": "1e5668766ba76821bb132e849bb8833872ba1aed8e0463e0bf3fdc55a5f84f64",
+      "archive_sha256_before": "1e5668766ba76821bb132e849bb8833872ba1aed8e0463e0bf3fdc55a5f84f64",
+      "sha256_after": "1e5668766ba76821bb132e849bb8833872ba1aed8e0463e0bf3fdc55a5f84f64",
+      "archive_sha256_after": "1e5668766ba76821bb132e849bb8833872ba1aed8e0463e0bf3fdc55a5f84f64"
+    },
+    "candidate": {
+      "path": "D:\\source_code\\fincore_cpp\\build-win\\fincore_factor_benchmark.exe",
+      "archive_path": "D:\\source_code\\fincore_cpp\\build-win\\p118-r1-paired\\binaries\\candidate.exe",
+      "commit": "39d5897f1cceb41e9c302f33efc8a33b0c6cd3a4",
+      "sha256_before": "3e1c995adf907a0d535b990afee663b513e81f28f26329dd3d036cf6867cf73b",
+      "archive_sha256_before": "3e1c995adf907a0d535b990afee663b513e81f28f26329dd3d036cf6867cf73b",
+      "sha256_after": "3e1c995adf907a0d535b990afee663b513e81f28f26329dd3d036cf6867cf73b",
+      "archive_sha256_after": "3e1c995adf907a0d535b990afee663b513e81f28f26329dd3d036cf6867cf73b",
+      "commit_role": "base commit plus source overlay pinned in source_state_before"
+    }
+  },
+  "campaign": {
+    "path": "build-win\\p118-r1-paired\\campaign.json",
+    "bytes": 101346,
+    "sha256": "5e62be383e9c9faa07e0632635c9dec284b671bc993faacd0c29e18f11bbb530",
+    "pairs": 5,
+    "warmup_pairs": 2,
+    "cpu_index": 0,
+    "inner_repeats": 7,
+    "all_14_run_outputs_verified": true,
+    "summary": {
+      "scoring_scope": "child_compute_stage",
+      "scoring_timing_field": "benchmark_timing_summaries_ms.compute.median_ms",
+      "reference_scoring_samples": {
+        "samples": [
+          1942.6217,
+          1856.1374,
+          1847.2631,
+          1834.335,
+          1954.9447
+        ],
+        "count": 5,
+        "median": 1856.1374,
+        "q1": 1847.2631,
+        "q3": 1942.6217,
+        "iqr": 95.35860000000002,
+        "min": 1834.335,
+        "max": 1954.9447,
+        "iqr_over_median": 0.051374752752678776,
+        "noise_limit": 0.1,
+        "protocol": "iteration9-r1",
+        "status": "VALID"
+      },
+      "candidate_scoring_samples": {
+        "samples": [
+          182.7464,
+          169.7931,
+          175.4252,
+          176.333,
+          180.6801
+        ],
+        "count": 5,
+        "median": 176.333,
+        "q1": 175.4252,
+        "q3": 180.6801,
+        "iqr": 5.2549000000000206,
+        "min": 169.7931,
+        "max": 182.7464,
+        "iqr_over_median": 0.029801001514180674,
+        "noise_limit": 0.1,
+        "protocol": "iteration9-r1",
+        "status": "VALID"
+      },
+      "paired_scoring_ratios_candidate_over_reference": {
+        "samples": [
+          0.09407204706917462,
+          0.09147657926616855,
+          0.09496492405440243,
+          0.09612911491085326,
+          0.09242210278377695
+        ],
+        "count": 5,
+        "median": 0.09407204706917462,
+        "q1": 0.09242210278377695,
+        "q3": 0.09496492405440243,
+        "iqr": 0.002542821270625481,
+        "min": 0.09147657926616855,
+        "max": 0.09612911491085326,
+        "iqr_over_median": 0.027030572309706957,
+        "noise_limit": 0.1,
+        "protocol": "iteration9-r1",
+        "status": "VALID"
+      },
+      "reference_wall_seconds": {
+        "samples": [
+          17.566989099956118,
+          17.152757700008806,
+          17.14017159998184,
+          16.892702000041027,
+          17.774081699957605
+        ],
+        "count": 5,
+        "median": 17.152757700008806,
+        "q1": 17.14017159998184,
+        "q3": 17.566989099956118,
+        "iqr": 0.42681749997427687,
+        "min": 16.892702000041027,
+        "max": 17.774081699957605,
+        "iqr_over_median": 0.024883316574457165,
+        "noise_limit": 0.1,
+        "protocol": "iteration9-r1",
+        "status": "VALID"
+      },
+      "candidate_wall_seconds": {
+        "samples": [
+          5.21415309997974,
+          5.149524400010705,
+          5.132831400027499,
+          5.179936500033364,
+          5.414271399960853
+        ],
+        "count": 5,
+        "median": 5.179936500033364,
+        "q1": 5.149524400010705,
+        "q3": 5.21415309997974,
+        "iqr": 0.06462869996903464,
+        "min": 5.132831400027499,
+        "max": 5.414271399960853,
+        "iqr_over_median": 0.01247673595392885,
+        "noise_limit": 0.1,
+        "protocol": "iteration9-r1",
+        "status": "VALID"
+      },
+      "reference_cpu_seconds": {
+        "samples": [
+          15.109375,
+          14.75,
+          15.21875,
+          15.171875,
+          14.9375
+        ],
+        "count": 5,
+        "median": 15.109375,
+        "q1": 14.9375,
+        "q3": 15.171875,
+        "iqr": 0.234375,
+        "min": 14.75,
+        "max": 15.21875,
+        "iqr_over_median": 0.015511892450879007,
+        "noise_limit": 0.1,
+        "protocol": "iteration9-r1",
+        "status": "VALID"
+      },
+      "candidate_cpu_seconds": {
+        "samples": [
+          4.671875,
+          4.578125,
+          4.640625,
+          4.296875,
+          4.4375
+        ],
+        "count": 5,
+        "median": 4.578125,
+        "q1": 4.4375,
+        "q3": 4.640625,
+        "iqr": 0.203125,
+        "min": 4.296875,
+        "max": 4.671875,
+        "iqr_over_median": 0.04436860068259386,
+        "noise_limit": 0.1,
+        "protocol": "iteration9-r1",
+        "status": "VALID"
+      },
+      "reference_peak_working_set_bytes": {
+        "samples": [
+          64835584,
+          64917504,
+          64913408,
+          64917504,
+          64847872
+        ],
+        "count": 5,
+        "median": 64913408.0,
+        "q1": 64847872.0,
+        "q3": 64917504.0,
+        "iqr": 69632.0,
+        "min": 64835584.0,
+        "max": 64917504.0,
+        "iqr_over_median": 0.0010726905603230693,
+        "noise_limit": 0.1,
+        "protocol": "iteration9-r1",
+        "status": "VALID"
+      },
+      "candidate_peak_working_set_bytes": {
+        "samples": [
+          63713280,
+          63750144,
+          63684608,
+          64172032,
+          63647744
+        ],
+        "count": 5,
+        "median": 63713280.0,
+        "q1": 63684608.0,
+        "q3": 63750144.0,
+        "iqr": 65536.0,
+        "min": 63647744.0,
+        "max": 64172032.0,
+        "iqr_over_median": 0.0010286081645773063,
+        "noise_limit": 0.1,
+        "protocol": "iteration9-r1",
+        "status": "VALID"
+      },
+      "paired_wall_ratios_candidate_over_reference": {
+        "samples": [
+          0.29681541158312463,
+          0.3002155391029666,
+          0.299462077732812,
+          0.306637534955674,
+          0.30461609726784183
+        ],
+        "count": 5,
+        "median": 0.3002155391029666,
+        "q1": 0.299462077732812,
+        "q3": 0.30461609726784183,
+        "iqr": 0.005154019535029808,
+        "min": 0.29681541158312463,
+        "max": 0.306637534955674,
+        "iqr_over_median": 0.017167730725830634,
+        "noise_limit": 0.1,
+        "protocol": "iteration9-r1",
+        "status": "VALID"
+      },
+      "point_ratio_candidate_median_over_reference_median": 0.09499997144607937,
+      "noise_status": "VALID",
+      "regression": {
+        "status": "DEVELOPMENT_ONLY",
+        "reason": "five pairs are diagnostic only; the 5% formal gate requires at least ten",
+        "resamples": 10000,
+        "seed": 92026
+      }
+    }
+  },
+  "logs": {
+    "build-win/p118-r1-build.log": {
+      "bytes": 585,
+      "sha256": "1f72359b0fbf70a7799c4d55eec947285a89fef3278ce5b41d9a35c816fd46ed"
+    },
+    "build-win/p118-r1-unit.log": {
+      "bytes": 1430,
+      "sha256": "51fb23487e234de9f129defeaab799856fb5edaa81f79e1656fedd5a22c12608"
+    },
+    "build-win/p118-r1-paired.log": {
+      "bytes": 6337,
+      "sha256": "d0eeff964e911302bb1792dfb9864fbf731f5b96fd88063c2cdf6beedf406264"
+    },
+    "build-win/run_p118_r1.py": {
+      "bytes": 2152,
+      "sha256": "be11ac8f144da6dced13df67fc053fb49cbe27afc2f0992ba3ec43ec61a56c33"
+    }
+  }
+}

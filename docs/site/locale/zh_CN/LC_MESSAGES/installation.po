@@ -1,0 +1,133 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-25 22:15+0800\n"
+"PO-Revision-Date: 2026-10-25 22:20+0800\n"
+"Last-Translator: fincore_cpp documentation maintainers\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/installation.md:1
+msgid "Installation"
+msgstr "安装"
+
+#: ../../site/installation.md:3
+msgid "Requirements"
+msgstr "环境要求"
+
+#: ../../site/installation.md:5
+msgid "CMake 3.25 or newer."
+msgstr "CMake 3.25 或更高版本。"
+
+#: ../../site/installation.md:6
+msgid "A C++23 compiler: MSVC 19.4+, Clang 17+, or GCC 13+."
+msgstr "支持 C++23 的编译器：MSVC 19.4+、Clang 17+ 或 GCC 13+。"
+
+#: ../../site/installation.md:7
+msgid "Git submodules for the pinned DataFrame, ImGui and ImPlot sources."
+msgstr "用于固定版本 DataFrame、ImGui 和 ImPlot 源码的 Git 子模块。"
+
+#: ../../site/installation.md:9
+msgid ""
+"The core library does not require Python, Doxygen or Sphinx at build time. "
+"Those tools are only needed to build this documentation."
+msgstr ""
+"核心库在构建时不需要 Python、Doxygen 或 Sphinx。只有在构建本文档时才需要这些"
+"工具。"
+
+#: ../../site/installation.md:12
+msgid "Build from a checkout"
+msgstr "从检出的源码构建"
+
+#: ../../site/installation.md:14
+msgid ""
+"git clone https://github.com/cloudQuant/fincore_cpp.git\n"
+"cd fincore_cpp\n"
+"git submodule update --init --recursive\n"
+"cmake -S . -B build -DCMAKE_BUILD_TYPE=Release\n"
+"cmake --build build --parallel\n"
+"ctest --test-dir build --output-on-failure\n"
+msgstr ""
+"git clone https://github.com/cloudQuant/fincore_cpp.git\n"
+"cd fincore_cpp\n"
+"git submodule update --init --recursive\n"
+"cmake -S . -B build -DCMAKE_BUILD_TYPE=Release\n"
+"cmake --build build --parallel\n"
+"ctest --test-dir build --output-on-failure\n"
+
+#: ../../site/installation.md:23
+msgid ""
+"On Windows, use a Visual Studio developer environment and a CMake generator "
+"supported by the installed MSVC toolchain. The pinned submodule sources are "
+"used by default; a consumer-provided DataFrame can be selected with "
+"`FINCORE_DATAFRAME_SOURCE_DIR` or `find_package(DataFrame CONFIG)`."
+msgstr ""
+"在 Windows 上，请使用 Visual Studio 开发人员环境以及已安装的 MSVC 工具链所支"
+"持的 CMake 生成器。默认使用固定版本的子模块源码；可以通过 "
+"`FINCORE_DATAFRAME_SOURCE_DIR` 或 `find_package(DataFrame CONFIG)` 选择使用方"
+"提供的 DataFrame。"
+
+#: ../../site/installation.md:28
+msgid "Install and consume"
+msgstr "安装与使用"
+
+#: ../../site/installation.md:30
+msgid "cmake --install build --prefix /path/to/prefix\n"
+msgstr "cmake --install build --prefix /path/to/prefix\n"
+
+#: ../../site/installation.md:34
+msgid "A downstream CMake project can then use:"
+msgstr "下游 CMake 项目随后可以使用："
+
+#: ../../site/installation.md:36
+msgid ""
+"find_package(fincore CONFIG REQUIRED COMPONENTS fincore)\n"
+"target_link_libraries(my_target PRIVATE fincore::fincore)\n"
+msgstr ""
+"find_package(fincore CONFIG REQUIRED COMPONENTS fincore)\n"
+"target_link_libraries(my_target PRIVATE fincore::fincore)\n"
+
+#: ../../site/installation.md:41
+msgid ""
+"The optional ImPlot component is available only when the library was built "
+"with `FINCORE_BUILD_IMPLOT=ON` and its GUI dependencies are installed."
+msgstr ""
+"可选的 ImPlot 组件仅在库以 `FINCORE_BUILD_IMPLOT=ON` 构建且其 GUI 依赖已安装"
+"时可用。"
+
+#: ../../site/installation.md:44
+msgid "Optional documentation build"
+msgstr "可选的文档构建"
+
+#: ../../site/installation.md:46
+msgid ""
+"python -m venv .venv-docs\n"
+".venv-docs/bin/pip install -r docs/requirements-docs.txt\n"
+"cd docs/site\n"
+"doxygen Doxyfile\n"
+"sphinx-build -b html -W -n --keep-going . ../_build/html/en\n"
+msgstr ""
+"python -m venv .venv-docs\n"
+".venv-docs/bin/pip install -r docs/requirements-docs.txt\n"
+"cd docs/site\n"
+"doxygen Doxyfile\n"
+"sphinx-build -b html -W -n --keep-going . ../_build/html/en\n"
+
+#: ../../site/installation.md:54
+msgid ""
+"The exact commands for the supported platforms and the current validation "
+"status are recorded in the repository's iteration-10 acceptance record."
+msgstr ""
+"受支持平台的确切命令以及当前验证状态记录在仓库的 iteration-10 验收记录中。"

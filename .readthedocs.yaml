@@ -1,0 +1,21 @@
+version: 2
+
+build:
+  os: ubuntu-24.04
+  tools:
+    python: "3.13"
+  apt_packages:
+    - doxygen
+  jobs:
+    pre_build:
+      - mkdir -p docs/_build/doxygen
+      - cd docs/site && doxygen Doxyfile
+      - python docs/site/tools/normalize_doxygen_xml.py docs/_build/doxygen/xml
+
+sphinx:
+  configuration: docs/site/conf.py
+  fail_on_warning: true
+
+python:
+  install:
+    - requirements: docs/requirements-docs.txt

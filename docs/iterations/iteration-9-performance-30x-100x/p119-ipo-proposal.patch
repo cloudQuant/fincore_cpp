@@ -1,0 +1,37 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 81ebe87..8b4055d 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -23,6 +23,7 @@ option(FINCORE_BUILD_IMPLOT "Build the ImPlot adapter" OFF)
+ option(FINCORE_BUILD_IMPLOT_DEMO "Build the ImPlot demo" OFF)
+ option(FINCORE_ENABLE_ASAN "Enable AddressSanitizer for fincore targets" OFF)
+ option(FINCORE_ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer for fincore targets" OFF)
++option(FINCORE_ENABLE_IPO "Enable interprocedural optimization for fincore Release targets" OFF)
+ 
+ if(NOT FINCORE_DATAFRAME_SOURCE_DIR AND
+    EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/third_party/DataFrame/CMakeLists.txt")
+@@ -194,3 +195,24 @@ if(FINCORE_BUILD_TESTING)
+     enable_testing()
+     add_subdirectory(tests)
+ endif()
++
++# Keep IPO opt-in and local to project targets. Third-party libraries and
++# non-Release configurations retain their existing compilation settings.
++if(FINCORE_ENABLE_IPO)
++    include(CheckIPOSupported)
++    check_ipo_supported(RESULT fincore_ipo_supported
++                        OUTPUT fincore_ipo_error LANGUAGES CXX)
++    if(NOT fincore_ipo_supported)
++        message(FATAL_ERROR "Release IPO is unavailable: ${fincore_ipo_error}")
++    endif()
++    foreach(fincore_ipo_target IN ITEMS
++            fincore fincore_factor_benchmark fincore_report_render
++            fincore_i8_artifacts fincore_alpha003_research
++            fincore_research_detailed_oracle fincore_tests
++            fincore_implot fincore_implot_demo)
++        if(TARGET ${fincore_ipo_target})
++            set_property(TARGET ${fincore_ipo_target}
++                         PROPERTY INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
++        endif()
++    endforeach()
++endif()

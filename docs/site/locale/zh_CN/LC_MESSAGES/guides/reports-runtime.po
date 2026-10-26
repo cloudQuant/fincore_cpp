@@ -1,0 +1,54 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-25 22:15+0800\n"
+"PO-Revision-Date: 2026-10-25 22:20+0800\n"
+"Last-Translator: fincore_cpp documentation maintainers\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/guides/reports-runtime.md:1
+msgid "Reports, runtime and extensions"
+msgstr "报告、运行时与扩展"
+
+#: ../../site/guides/reports-runtime.md:3
+msgid ""
+"Report schema 2 is a shared typed document. Native HTML, XLSX, PDF and "
+"Plotly/Bokeh projections consume the same computed values; they are not a "
+"promise of Python/pandas byte identity. Artifact bundles write a versioned "
+"manifest and reject unsafe or preexisting destinations according to their "
+"API contract."
+msgstr ""
+"报告 schema 2 是一种共享的类型化文档。原生 HTML、XLSX、PDF 以及 Plotly/Bokeh "
+"投影使用相同的计算值；它们并不承诺与 Python/pandas 逐字节一致。产物包会写入带"
+"版本的清单，并依据其 API 契约拒绝不安全或已存在的目标位置。"
+
+#: ../../site/guides/reports-runtime.md:9
+msgid ""
+"The runtime catalog exposes typed operations with explicit inputs and "
+"deterministic serialization where documented. Sessions cache deterministic "
+"operations, own their inputs/outputs and reject calls after close."
+msgstr ""
+"运行时操作目录提供具有显式输入的类型化操作，并在文档说明之处提供确定性序列"
+"化。会话会缓存确定性操作，拥有其输入/输出，并在关闭后拒绝调用。"
+
+#: ../../site/guides/reports-runtime.md:13
+msgid ""
+"Extension discovery consumes the native snapshot/hook ABI described by the "
+"public extension headers. Optional plotting adapters are not part of the "
+"core CMake consumer contract and must be enabled explicitly."
+msgstr ""
+"扩展发现机制使用公共扩展头文件所描述的原生快照/钩子 ABI。可选的绘图适配器不属"
+"于核心 CMake 使用方契约，必须显式启用。"

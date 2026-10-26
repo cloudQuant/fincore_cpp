@@ -1,0 +1,34 @@
+{
+  "schema_version": "1",
+  "phase": "P110",
+  "ubuntu_arm64": {
+    "status": "EXTERNAL_BLOCKED",
+    "runner": "Docker Desktop ubuntu:24.04 linux/arm64",
+    "attempts": [
+      "GCC 13 Release -O3: stopped after the DataFrame template compile did not complete in the execution window",
+      "GCC 13 Release -O1: stopped after 20+ minutes with ~78/131 test objects",
+      "Clang 18 Release -O1: stopped after ~20 minutes with 15/243 objects"
+    ],
+    "missing": "a native Ubuntu arm64 runner or a dedicated longer container build budget; no CTest result was produced"
+  },
+  "ubuntu_x86_64": {
+    "status": "EXTERNAL_BLOCKED",
+    "runner": "Docker Desktop linux/amd64 under Rosetta",
+    "attempt": "apt-get toolchain installation did not complete in 15+ minutes; the build was not started",
+    "missing": "a native Ubuntu x86_64 runner or a working prebuilt amd64 toolchain image; no CTest result was produced"
+  },
+  "windows": {
+    "status": "PASS",
+    "runner": "Windows 11 10.0.26300 (AMD64), MSVC 19.42.34435.0, CMake 3.28.0-rc4, Ninja 1.11.1",
+    "evidence": [
+      "windows-build.log",
+      "windows-ctest.log",
+      "windows-consumer-configure.log",
+      "windows-consumer-build.log",
+      "windows-consumer-run.log",
+      "windows-artifact-manifest.json"
+    ],
+    "result": "clean build 246/246 steps; CTest 1044/1044; relocated consumer exit 0"
+  },
+  "note": "The macOS arm64 Release/ASan+UBSan legs, the Windows 11 Release leg and the relocated consumer are executed. Ubuntu rows are explicit blockers, not PASS. P109 performance remains INCONCLUSIVE on macOS and NOT_RUN on Windows because the C4 archive is unavailable; see windows-performance-blocker.txt."
+}

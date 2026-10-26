@@ -1,0 +1,100 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-25 22:15+0800\n"
+"PO-Revision-Date: 2026-10-25 22:20+0800\n"
+"Last-Translator: fincore_cpp documentation maintainers\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/conventions.md:1
+msgid "Data and numerical conventions"
+msgstr "数据与数值约定"
+
+#: ../../site/conventions.md:3
+msgid "Frames and time"
+msgstr "数据帧与时间"
+
+#: ../../site/conventions.md:5
+msgid ""
+"The native `fincore::dataframe` is a `hmdf::StdDataFrame` whose index is a "
+"signed 64-bit UTC nanosecond timestamp. Index order and uniqueness are "
+"validated by the individual APIs; do not assume that every function sorts or "
+"deduplicates implicitly."
+msgstr ""
+"原生 `fincore::dataframe` 是一个 `hmdf::StdDataFrame`，其索引为带符号的 64 "
+"位 UTC 纳秒时间戳。索引顺序与唯一性由各个 API 分别校验；不要假设每个函数都会"
+"隐式排序或去重。"
+
+#: ../../site/conventions.md:10
+msgid "Returns, units and annualization"
+msgstr "收益率、单位与年化"
+
+#: ../../site/conventions.md:12
+msgid ""
+"Return series are decimal simple returns unless a function states otherwise. "
+"`0.01` means one percent. Annualization factors are passed explicitly where "
+"an API exposes them; `daily_annualization` is 252. Portfolio weights, prices "
+"and amounts carry their call-site units and are not converted implicitly."
+msgstr ""
+"除非函数另有说明，收益率序列均为小数形式的简单收益率。`0.01` 表示百分之一。"
+"在 API 暴露年化因子的地方，年化因子需显式传入；`daily_annualization` 为 252。"
+"投资组合权重、价格和金额沿用调用处的单位，不会被隐式换算。"
+
+#: ../../site/conventions.md:17
+msgid "Missing values and alignment"
+msgstr "缺失值与对齐"
+
+#: ../../site/conventions.md:19
+msgid ""
+"`NaN` is the native missing numeric marker. Multi-input APIs document their "
+"alignment policy: strict equality, common index, inner join, or an explicit "
+"outer policy. A missing label is not silently replaced with zero. Windowed "
+"metrics state their warm-up and complete-window rules in the API reference."
+msgstr ""
+"`NaN` 是原生的数值缺失标记。多输入 API 会在文档中说明其对齐策略：严格相等、公"
+"共索引、内连接或显式的外连接策略。缺失的标签不会被静默替换为零。窗口类指标在 "
+"API 参考中说明了其预热期与完整窗口规则。"
+
+#: ../../site/conventions.md:24
+msgid "Randomness"
+msgstr "随机性"
+
+#: ../../site/conventions.md:26
+msgid ""
+"Simulation and bootstrap APIs accept an explicit seed where documented. A "
+"matching seed is not a cross-language RNG-identity claim unless the "
+"reference implementation is also the pinned algorithm. Read each result's "
+"failure status and diagnostics instead of assuming convergence."
+msgstr ""
+"模拟和自助法（bootstrap）API 在文档说明之处接受显式随机种子。除非参考实现也采"
+"用所固定的算法，否则相同的随机种子并不构成跨语言 RNG 一致性的声明。请查看每个"
+"结果的失败状态和诊断信息，而不是假定其已收敛。"
+
+#: ../../site/conventions.md:31
+msgid "Reports and files"
+msgstr "报告与文件"
+
+#: ../../site/conventions.md:33
+msgid ""
+"Report schema versions and artifact-bundle manifests are separate version "
+"domains from the runtime serialization envelope. Writers reject unsafe or "
+"preexisting destinations and clean up partial output where documented. CSV "
+"is an exchange format; it does not carry the full provenance of a result "
+"model."
+msgstr ""
+"报告 schema 版本和产物包清单是与运行时序列化封装相互独立的版本域。写入器会拒"
+"绝不安全或已存在的目标位置，并在文档说明的情况下清理部分输出。CSV 是一种交换"
+"格式；它不携带结果模型的完整溯源信息。"

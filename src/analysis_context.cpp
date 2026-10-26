@@ -23,6 +23,10 @@ analysis_context::analysis_context(dataframe returns,
     }
 }
 
+// Both maps are mutable members reached from const calls, so an analysis_context
+// is not safe to touch from two threads at once even though every method looks
+// read-only, and the counters record computations rather than requests: a cache
+// hit returns early and leaves its count alone.
 double analysis_context::cached(std::string_view key) const {
     const std::string key_string{key};
     if (const auto existing = scalar_cache_.find(key_string); existing != scalar_cache_.end()) {
@@ -52,6 +56,10 @@ double analysis_context::cached(std::string_view key) const {
         value = alpha(returns_, *benchmark_, 0.0, annualization_);
     } else if (key == "Beta" && benchmark_) {
         value = beta(returns_, *benchmark_);
+    // One message covers both a key that names nothing and a metric this context
+    // cannot serve, since alpha and beta are unreachable without a benchmark;
+    // summary() leaves those two out of the result for the same reason rather
+    // than reporting them as unmeasurable numbers.
     } else {
         throw input_error{"unknown or unavailable analysis summary metric"};
     }

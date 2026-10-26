@@ -1,0 +1,287 @@
+# 待审阅问题
+
+**盘点日期：** 2026-10-25。
+
+**源码基线：** `dev`，`8a1174fe5a08fd524f6728536fc0b34c55d59c27`。
+
+**处理状态：** F10-D01–D04 与 F10-G01 已在 2026-10-26 实施轮处理（见下方新增
+条目与[验收记录](../../acceptance/2026-10-26-iteration-10-comments-bilingual-docs.md)）；
+本轮新登记的 F10-D05–D09 已随注释轮修正并记录依据；F10-D10 至 F10-D15
+是注释轮发现的行为疑点、既有失败或用例强度问题，只登记不处理，等待审阅。审阅前不自动给疑点定性
+为缺陷，记录不等于修复授权。
+
+本次只读查看接口、现有文档和构建入口，没有运行业务程序或性能基准。
+已核实的问题集中于文档现状，不构成发现了运行时 bug，也不能据有限抽查
+声称项目没有 bug。下面行号对应上述基线，不作为永久定位；路径与原文内容
+共同用于后续复核。
+
+## F10-D01 当前指南中的运行时目录数量过时
+
+- **分类：** 已核实的文档不一致，建议优先级高。
+- **位置：** [native-usage.md](../../guides/native-usage.md) 第 82 行，
+  仍写 `builtin_catalog()` 含 48 个 source operation IDs。
+- **证据：** [迭代 8 注册记录](../../evidence/iteration-8/p105/operation-registration.txt)
+  记录 270 个注册、270 个唯一 ID；
+  [ID 清单](../../evidence/iteration-8/p105/registered-operation-ids.txt)有 270 个唯一条目；
+  [验收记录](../../acceptance/2026-10-24-iteration-8-native-parity-acceptance.md)
+  第 59–61 行同样记为 270。
+- **影响：** 当前迁移指南会低估已注册范围，并与现行能力介绍冲突。
+- **建议：** 审阅后按同提交的现行注册清单更新用户指南，未来生成/校验数量。
+  根 README 中 Phase 93 的 48 是历史阶段信息，保留其日期含义，不全局替换数字。
+- **待决事项：** 选择现行能力表的唯一来源；本次未执行 `builtin_catalog()`，
+  不能把文档/清单核对表述成一次新的运行时验收。
+
+## F10-D02 用户入口引用不存在的文档
+
+- **分类：** 已核实的本地链接缺失，建议优先级高。
+- **位置：** [native-usage.md](../../guides/native-usage.md) 第 4–5、121 行；
+  [根 README](../../../README.md) 第 3496、3499 行附近。
+- **缺失目标：** `2026-10-23-revised-plan-candidate-acceptance.md`、
+  `2026-10-23-revised-plan-scope-decisions.md` 和 `docs/iterations/capability-ledger.tsv`。
+  此处故意以代码文本记下失效名称，不新增指向不存在文件的链接。
+- **影响：** 读者无法通过安装/迁移入口找到文中所称的验收和能力依据。
+- **建议：** 审阅后逐项选择真实存在且语义匹配的现行记录，不机械重定向到
+  内容不同的历史文件。优先修新站和当前用户入口；缺失历史档案如无法恢复，
+  用额外说明记录缺失状态，不虚构原内容。
+
+## F10-D03 历史链接包含机器路径和可再生产物
+
+- **分类：** 已核实的发布适配问题，建议优先级中。
+- **范围证据：** 对根 README 和 `docs/` Markdown 的本地行内链接静态扫描，
+  在 417 处检查目标中发现 64 处目标缺失：44 处文档目标、18 处机器本地
+  `/tmp` 日志、2 处被忽略的 benchmark 生成物。计数按链接出现位置统计，
+  不含完整的锚点、参考式链接和外网可达性检查，不能视为全站链接审计。
+- **具体入口：** [迭代 9 README](../iteration-9-performance-30x-100x/README.md)
+  的证据起点仍链接 `results/comparison.json` 与 `results-full/comparison.json`；
+  文中也说明这些结果目录被忽略，干净克隆不保证存在。
+- **影响：** 如果直接把整个旧 `docs/` 发布，新站会包含读者不可访问的引用。
+- **建议：** 新站使用已核验的摘要和复现入口，只白名单发布产品内容。
+  历史冻结记录保持原样，必要时在档案入口补充说明；不重新提交大型生成结果
+  来“修复”链接，也不删除历史事实。P126 执行完整链接清单并逐项分派。
+
+## F10-D04 ImGui 依赖版本说明与当前 gitlink 不同
+
+- **分类：** 已核实的版本引用差异，兼容性影响待审阅，建议优先级中。
+- **位置：** [native-usage.md](../../guides/native-usage.md) 第 36–37 行。
+- **证据：** 指南写 ImGui pin 为 `46d39d56febc2a00bdd2270dc88c8a13f2a0441a`；
+  本基线 `git ls-files -s -- third_party/imgui` 的 gitlink 为
+  `4e99c0ab1a28c2b3d1f250ec0266dbf1e455ef58`。
+  [CMakeLists.txt](../../../CMakeLists.txt) 默认使用 `third_party/imgui`。
+- **影响：** 按指南单独准备依赖与递归克隆仓库会得到不同版本；本次未构建，
+  不据此判断哪个版本不兼容，也不宣称安装失败已复现。
+- **建议：** 审阅当前可选组件验收对应的版本后更新现行安装说明，明确历史
+  版本的适用范围；本轮不改子模块 gitlink，不升级或降级依赖。
+
+## F10-G01 文档与注释设施缺口
+
+这是规划需求，不是软件 bug。公共注释形式不统一；部分丰富说明使用普通
+`//`，不会自动成为 API 参考。仓库内尚未发现 Doxygen/Sphinx/RTD/Pages
+配置，当前 [.github/workflows/ci.yml](../../../.github/workflows/ci.yml)仅提供
+业务构建和测试；现有中英文材料也未形成同范围的两种语言站点。
+P126/P127 处理清单和试点，不以批量添加空注释或生成英文菜单来宣称补齐。
+
+## 后续疑似 bug 的登记与审阅
+
+新增项使用 `F10-Bxx` 标识行为疑点，`F10-Dxx` 标识文档问题；状态依次记录
+“待审阅 → 已确认/非缺陷/需更多证据 → 独立修复已安排 → 已验证关闭”。
+审阅前不自动给疑点定性为缺陷，记录不等于修复授权。
+
+每项至少包含：定位文件和符号/行号、基线提交、实际观察、预期行为的依据、
+最小复现说明、影响范围、证据等级、建议处理、审阅人/结论及后续任务。
+证据等级区分源码推断、已有测试/记录、当前实际复现；不能相互替代。
+本次不为复现疑点写测试代码或修改被审查实现，后续复现也须按单独授权范围执行。
+
+审阅确认只是文档错误时，在文档轮中更正并引用审阅结论；确认是业务缺陷时，
+创建独立修复任务，定义必要的失败复现与回归验收，再由后续负责人实现和提交。
+注释作者不得顺手改变逻辑、放宽输入验证、改变数值容差或更新输出基准来消除失败。
+在结论未定前，对外说明只写可证实行为，并明确限制；影响必需示例或核心
+契约的疑点阻止对应页面验收。
+
+## 实施轮发现的文档缺陷（2026-10-26）
+
+以下均为文档/工具缺陷，不含运行时行为改动。证据等级统一为"当前实际复现"
+（严格 Sphinx 构建告警或词法比对），处理均限定在注释与文档配置范围内。
+
+### F10-D05 C++ 注释中残留 Python 交叉引用角色
+
+- **位置：** `attribution/brinson.hpp`（`:func:brinson_results`）、
+  `attribution/fama_french.hpp`（`:func:fetch_ff_factors`）、
+  `attribution/fama_french_patch.hpp`（`:class:FamaFrenchModel`）、
+  `risk/report.hpp`（`:struct:risk_validation_report`）。
+- **观察：** 这些 Python/Sphinx 角色在 C++ API 页面上原样显示，读者看到的
+  不是链接也不是代码。
+- **处理：** 改为 Doxygen 代码跨度（双反引号），英文与中文页面同轮更新。
+
+### F10-D06 Doxygen 数字分隔符导致签名无法解析
+
+- **观察：** `portfolio/transactions.hpp` 默认参数 `1'000'000.0` 被 Doxygen
+  写成 `1 '000 '000.0`，Sphinx C++ 域报
+  `Expecting "," or ")" in parameters-and-qualifiers, got "'"`，
+  `days_to_liquidate_positions()` 与
+  `get_max_days_to_liquidate_by_ticker()` 两个接口无法出现在 API 参考中。
+- **处理：** 新增 `docs/site/tools/normalize_doxygen_xml.py`，只重写生成 XML
+  的 `<argsstring>`，接入 RTD `pre_build` 与 Pages 工作流；不改源码常量写法。
+
+### F10-D07 行首 `100.` 被 Doxygen 解析为有序列表
+
+- **位置：** `portfolio/transactions.hpp` 中
+  `get_max_days_to_liquidate_by_ticker` 的详述。
+- **观察：** 提取出的正文变成 `... multiplied bySymbols with no valid value`，
+  `100.` 被当作列表项消失，读者无法看到"乘以 100 得百分比"这一单位说明。
+- **处理：** 改为 `as a percentage (100 * fraction)` 的行内写法，语义不变。
+
+### F10-D08 printf 说明被 MyST 当作链接
+
+- **位置：** `viz/bokeh_document.hpp` 的 `printf_tick_formatter` 详述。
+- **观察：** `` `%[flags][width][.precision](f|e|g|d|i)` `` 被解析成
+  Markdown 链接，构建报
+  `'myst' cross-reference target not found: 'f|e|g|d|i'`。
+- **处理：** 改写为破折号加列举形式，避免方括号紧跟圆括号。
+
+### F10-D09 符号清单与页面生成器的两处口径缺陷
+
+- **位置：** `docs/site/tools/build_api_ledger.py`、
+  `docs/site/tools/generate_api_pages.py`（本轮新增）。
+- **观察：** 根 `fincore` 命名空间下的枚举与自由函数在清单里丢失
+  `fincore::` 前缀，重载集合被折叠成一行；因此生成的 API 页面一度完全漏掉
+  28 个枚举与全部自由函数（Sphinx 随之报 60+ 未解析标识符），
+  `doxygenfunction` 也因缺少签名而无法解析重载。
+- **处理：** 清单改为全限定名并逐签名记录重载（2408 → 2484 行），页面生成器
+  为重载输出签名、模板函数按名称解析；`__LINE__` 之外的非注释 token 未变，
+  由 comment-only 校验与 1092 项测试回归确认。
+
+### F10-D10 `min_variance` 的单纯形分支用不到负下界
+
+- **分类：** 待审阅的行为疑点，本轮只登记，不改代码。
+- **位置：** [objectives.cpp](file:///D:/source_code/fincore_cpp/src/optimization/objectives.cpp)
+  的 `optimize_portfolio` 专用分支，
+  [objectives.hpp](file:///D:/source_code/fincore_cpp/include/fincore/optimization/objectives.hpp)
+  的 `short_allowed`。
+- **观察：** 不带行业约束的 `min_variance` 走
+  `minimize_quadratic_on_simplex`，其求解域是单位单纯形（下界为 0）。
+  因此 `short_allowed = true`，或显式给出负 `min_weight` 时，该分支不可能
+  产出负权重；随后 `validate_weights` 只按外层盒式约束复核，长仓解必然通过，
+  所以调用方拿不到任何“下界被放宽”的信号。
+- **证据边界：** 现有用例
+  `OptimizationPortfolio.SectorAndMinWeightConstraints` 无法区分两种实现，
+  因为该 fixture 的无约束最小方差权重落在 0.24–0.26，界本身并不生效；
+  本轮没有构造新的对照数据，不能据此断言真实差异幅度。
+- **建议：** 若评审认定该组合应允许做空，后续单独一轮改用
+  `project_onto_simplex` 已有的 lower/upper 参数，并补一个下界真正生效的
+  对照用例；本轮仅在实现处记录不变量，并在头文件说明该组合返回长仓书。
+
+### F10-D11 归因对齐的唯一性检查隐含“索引已排序”
+
+- **分类：** 待审阅的口径不一致，本轮只登记，不改代码。
+- **位置：** [performance.cpp](file:///D:/source_code/fincore_cpp/src/attribution/performance.cpp)
+  的 `require_unique_index` 与 `align_and_warn`；同类写法也出现在
+  [report/portfolio.cpp](file:///D:/source_code/fincore_cpp/src/report/portfolio.cpp)
+  的 `align_positions`，那里重复日期会由后写入的行覆盖。
+- **观察：** 唯一性由 `std::adjacent_find` 比较相邻元素得出，因此“索引已按日期
+  升序”是未写明的前提。同一日期若出现两次但不相邻，校验会放行，随后
+  `filtered_frame` 的按位过滤会同时保留两条记录，归因存在重复计入的可能。
+- **证据边界：** 本轮未构造乱序重复日期的用例，不能断言现有用例之外的数值后果；
+  作为对照，`src/factor/costs.cpp` 等入口显式要求“sorted and unique”，两处口径
+  不同。
+- **建议：** 评审后统一为“排序且唯一”（或在校验前排序副本），并补一个乱序重复
+  日期的对照用例，确认缺失覆盖与重复日期的报错路径。
+
+### F10-D12 `tools/tests` 存在三个先于本轮的失败，CI 不运行该套件
+
+- **分类：** 既有测试与实现口径漂移，本轮只登记，不改测试也不改实现。
+- **位置：** [test_capability_inventory.py](file:///D:/source_code/fincore_cpp/tools/tests/test_capability_inventory.py)
+  的 `test_pinned_catalog_and_summary_are_deterministic`、
+  `test_explicit_route_disposition_requires_pinned_source_and_historical_evidence`、
+  `test_class_acceptance_is_rejected_when_public_methods_are_not_accepted`。
+- **证据：** 用系统解释器（Python 3.14.2 / pytest 9.0.2）运行 `tools/tests` 得到
+  `3 failed, 90 passed, 23 subtests passed`。把同一文件的 HEAD 副本另存为临时
+  文件后单独运行，得到同样的三个失败，且断言位置从第 490 行移到第 496 行，
+  正好等于本轮新增 6 行模块 docstring 的位移，因此与注释轮无关。
+  `.github/workflows` 中没有任何 pytest 引用，该套件不在 CI 覆盖范围内。
+- **观察：** 两类口径漂移。（1）第一个用例把 `native_runtime_catalog_committed_unique_id_count`
+  写成字面量 44，仓库现状为 48；（2）`tools/capability_inventory.py` 第 2182–2190 行为
+  `ACCEPTED_EXISTING` 新增了“必须存在 `role` 为 `historical_acceptance` 的证据引用”的
+  校验，该检查先于用例期望的报错触发，于是 `pytest.raises(match=...)` 拿到的是
+  `ACCEPTED_EXISTING requires a named historical acceptance cite: ...` 而不是预期的
+  文案。
+- **证据边界：** 本轮没有判断哪一侧才是期望口径——实现收紧校验可能是有意治理变更，
+  也可能是漏改用例；需要作者确认后再定性。
+- **建议：** 评审后单独一轮处理：要么补上 `historical_acceptance` 角色的 fixture 并把
+  计数改为从清单派生，要么把 44 更新为当前 pin 值并在用例里注明它是需随目录增长
+  人工确认的 pin；同时考虑把 `tools/tests` 纳入某个 CI job，避免继续静默失败。
+
+### F10-D13 对齐用例的取值无法区分“按日期对齐”与“按位置配对”
+
+- **分类：** 待审阅的用例强度问题，本轮只登记，不改动测试数据。
+- **位置：** [alpha_beta_test.cpp](file:///D:/source_code/fincore_cpp/tests/unit/alpha_beta_test.cpp)
+  的 `AlphaBeta.AlignsDataframesBeforeEstimatingBeta`。
+- **观察：** 该用例把 `returns`（日期 1、2、3）与 `benchmark`（日期 2、3、4）配对，
+  期望 0.5、容差 1e-12。按公共日期 {2,3} 对齐得到 (0.02,0.03) 与 (0.04,0.06)，
+  协方差/总体方差之比恰为 0.5；若实现对齐失败、退化成按行位置取前三行
+  (0.01,0.02,0.03) 与 (0.04,0.06,0.08)，同样的比值为
+  0.4999999999999999，与 0.5 相差约 1.1e-16，远小于 1e-12 的容差。也就是说两条
+  路径都会通过断言，用例无法把“真的做了日期对齐”与“只是比例序列凑巧一致”区分开。
+- **证据边界：** 上面两组数值是本轮用 numpy 直接复算得出（对齐 0.5，按位置
+  0.4999999999999999），依据是两帧都是严格比例序列这一事实；本轮没有改动用例
+  去验证实现到底走的是哪条路径。
+- **建议：** 评审后把其中一帧改成非比例（例如加入一个与另一帧不同斜率的点，或让
+  被丢弃日期的取值影响结果），使“未对齐”与“已对齐”给出不同的 beta；这属于测试
+  数据变更，需要单独一轮并重新跑全量回归。
+
+### F10-D14 便捷重载用例只比对了索引，无法证明参数被正确转发
+
+- **分类：** 待审阅的用例强度问题，本轮只登记，不改测试。
+- **位置：** [attribution_facades_test.cpp](file:///D:/source_code/fincore_cpp/tests/unit/attribution_facades_test.cpp)
+  里 `fetch_ff_factors` 的三参数便捷调用（其后只有一行索引比较）。
+- **观察：** 该用例提供的 provider 是一个对任意入参都返回同一个 frame 的 lambda，
+  而便捷调用唯一的断言是返回值的索引等于先前显式调用得到的索引。于是
+  默认库名写错、或两个日期参数被调换，都仍然返回同一帧并通过断言；同文件里
+  显式调用与空 provider 抛错两条路径并不能补上这个缺口。
+- **证据边界：** 结论来自阅读该 lambda 与断言本身（provider 不区分参数），本轮没有
+  构造能区分参数的对照数据，也不能据此断言实现存在转发错误。
+- **建议：** 评审后让 provider 记录它收到的三个参数（或在不同参数下返回不同索引），
+  再断言便捷重载等价于显式默认值；这属于测试改动，需要单独一轮。
+
+### F10-D15 连续周/月统计隐含“桶键相邻”这一未写明的前提
+
+- **分类：** 待审阅的行为疑点，本轮只登记，不改实现也不改测试。
+- **位置：** [consecutive.cpp](file:///D:/source_code/fincore_cpp/src/metrics/consecutive.cpp)
+  的 `max_consecutive_buckets`（第 258–269 行的遍历循环）。
+- **观察：** 数据先按 `weekly_key`/`monthly_key` 落入 `std::map`，缺失的周或月根本
+  不会产生条目；随后按 key 顺序遍历时，只按“该桶收益是否为正/为负”累加或归零，
+  并不检查相邻两个 key 是否相差一个桶。因此当索引跨越一个缺口（例如缺整周）时，
+  缺口两侧的两个在场周会被算作连续，最长连涨周数可能比真实日历连续性多出 1。
+- **证据边界：** [consecutive_test.cpp](file:///D:/source_code/fincore_cpp/tests/unit/consecutive_test.cpp)
+  的 fixture 用的是连续日期（2021 年 2 月逐日）与极小的自定义索引，桶键都是相邻的，
+  本轮未构造带缺月的周/月序列，因此差异幅度未经实测确认。
+- **建议：** 评审后明确口径——“连续”指数据中相邻的桶还是日历上相邻的桶；若为后者，
+  需要在遍历时检查 `key == previous_key + 1`，并补一个中间缺桶的对照用例。
+
+## 待复核的候选观察（由审阅助手提出，本轮未逐条证实）
+
+下面这些条目是批阅 `tests/unit` 时助手提出的“某断言可能无法失败/无法区分”的
+候选观察。本轮**没有**逐条重算或构造对照数据，因此它们既不是结论，也没有据此
+改动任何测试；列在这里是为了让评审者能按文件与用例名复查。凡本轮已核实的，都已
+单独登记为 F10-D10 至 F10-D15。
+
+- `tests/unit/factor_tears_test.cpp`：`SpreadUsesPeriodCategories…` 用例——
+  `src/factor/tears.cpp` 未见按 label/date 计数分派，且 spread 行被构造成
+  top-minus-bottom，两条重载可能给出同样的帧，用例因此无法区分调用了哪一条。
+- `tests/unit/factor_analysis_test.cpp`：`CallableMatchesTheCanonicalAnalysis`
+  用例——若 `build_factor_model` 内部就是 `analyze_factor(data, config)`，则指纹
+  相等不可能失败，属于“同义反复”的覆盖。
+- `tests/unit/metrics_helpers_test.cpp`：`AlignedFramesKeepEveryDoubleColumn`
+  用例——被修改的是 `left` 的副本，而 hmdf 按值复制列，故该“所有权”检查无法失败
+  （对照：`EnsureDatetimeIndexIsAnOwningCopy` 的写法是能失败的）。
+- `tests/unit/metrics_frequencies_test.cpp`：越界枚举的两条 `EXPECT_THROW`——
+  switch 尾部本身也会抛出，用例无法定位到底是前置守卫还是兜底分支在工作。
+- `tests/unit/monte_carlo_simulation_umbrella_test.cpp`：第一个用例把两条路径列
+  与同一向量比较，统计量随之坍缩，实际钉住的是管道而非分位数计算。
+- `tests/consumer/headless/main.cpp`：`{0,1}` 与 `{1,0}` 的均值对排列不变，
+  该检查只能证明代码可达，不能证明顺序语义。
+- `tests/unit/factor_costs_test.cpp`：`const auto empty_volume = volume_fixture();`
+  得到的是完整填充的帧，用例真正检验的“空”在 weights/gross 一侧，命名易误导。
+- `tests/unit/performance_disclosures_test.cpp` 与
+  `tests/oracle/research_detailed_probe.cpp`：`research_spec.max_loss = 1.0` 的
+  单位口径、以及 `ledger_timing` 的 `start_value` 形参实际承载 1 月 4 日流量这类
+  命名与量纲问题，值得在评审时一并确认。

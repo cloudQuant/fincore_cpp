@@ -1,0 +1,443 @@
+{
+  "round": "P123 R1",
+  "date": "2026-10-25",
+  "branch": "dev",
+  "base_commit": "4dd836c34e54215d896ed35f15dda1db6863e460",
+  "decision": "EXPERIMENT_NOT_ADOPTED_NO_MEASURABLE_FULL_PIPELINE_GAIN",
+  "candidate_scope": [
+    "src/factor/research_detailed.cpp"
+  ],
+  "candidate_source": {
+    "path": "src/factor/research_detailed.cpp",
+    "size_bytes": 56242,
+    "sha256": "3979915267c3692255847e76e885fd28ffc3953812bda4a88e2696ae4d57bccb"
+  },
+  "candidate_binary": {
+    "path": "build-win/p123-r1-experiment/fincore_alpha003_research.exe",
+    "size_bytes": 621568,
+    "sha256": "723d11a16472c96a1c32a1c37a200a50d0b60d7996926a35b5996e3b9e46212e"
+  },
+  "patch": {
+    "path": "build-win/p123-r1-experiment/change.patch",
+    "size_bytes": 2465,
+    "sha256": "6f7248ac9bc303a32089c19c89b2aa02be5d4aabfe7e9c0fdf298b043f931114"
+  },
+  "review": "Independent static GO_SOURCE; no execution by reviewer.",
+  "functional": {
+    "release_build": "PASS",
+    "related_tests": 57,
+    "python_oracle_cases": 3,
+    "native_full_output_runs": 14,
+    "files_per_run": 13,
+    "cross_language_all_warmup_and_measured_pairs_pass": true
+  },
+  "native_full": {
+    "metrics": {
+      "cpu": {
+        "candidate": {
+          "count": 5,
+          "iqr": 0.0625,
+          "iqr_over_median": 0.022598870056497175,
+          "max": 2.84375,
+          "median": 2.765625,
+          "min": 2.71875,
+          "noise_limit": 0.1,
+          "protocol": "iteration9-r1",
+          "q1": 2.75,
+          "q3": 2.8125,
+          "samples": [
+            2.75,
+            2.8125,
+            2.71875,
+            2.765625,
+            2.84375
+          ],
+          "status": "VALID"
+        },
+        "paired_reference_over_candidate": [
+          1.0,
+          0.9277777777777778,
+          0.9597701149425287,
+          1.03954802259887,
+          1.0274725274725274
+        ],
+        "ratio_of_medians_reference_over_candidate": 0.9943502824858758,
+        "reference": {
+          "count": 5,
+          "iqr": 0.265625,
+          "iqr_over_median": 0.09659090909090909,
+          "max": 2.921875,
+          "median": 2.75,
+          "min": 2.609375,
+          "noise_limit": 0.1,
+          "protocol": "iteration9-r1",
+          "q1": 2.609375,
+          "q3": 2.875,
+          "samples": [
+            2.75,
+            2.609375,
+            2.609375,
+            2.875,
+            2.921875
+          ],
+          "status": "VALID"
+        }
+      },
+      "peak_working_set_bytes": {
+        "candidate": {
+          "count": 5,
+          "iqr": 32768.0,
+          "iqr_over_median": 4.3790506218251886e-05,
+          "max": 748306432.0,
+          "median": 748290048.0,
+          "min": 748224512.0,
+          "noise_limit": 0.1,
+          "protocol": "iteration9-r1",
+          "q1": 748269568.0,
+          "q3": 748302336.0,
+          "samples": [
+            748302336.0,
+            748306432.0,
+            748224512.0,
+            748290048.0,
+            748269568.0
+          ],
+          "status": "VALID"
+        },
+        "paired_reference_over_candidate": [
+          0.9999178941491371,
+          0.9998686313576949,
+          0.9999671542436717,
+          0.999863154668068,
+          0.999989052073811
+        ],
+        "ratio_of_medians_reference_over_candidate": 0.9998905237344544,
+        "reference": {
+          "count": 5,
+          "iqr": 40960.0,
+          "iqr_over_median": 5.4744125955284996e-05,
+          "max": 748261376.0,
+          "median": 748208128.0,
+          "min": 748187648.0,
+          "noise_limit": 0.1,
+          "protocol": "iteration9-r1",
+          "q1": 748199936.0,
+          "q3": 748240896.0,
+          "samples": [
+            748240896.0,
+            748208128.0,
+            748199936.0,
+            748187648.0,
+            748261376.0
+          ],
+          "status": "VALID"
+        }
+      },
+      "wall": {
+        "candidate": {
+          "count": 5,
+          "iqr": 0.24992820003535599,
+          "iqr_over_median": 0.07345789337037494,
+          "max": 3.821621300012339,
+          "median": 3.4023328000330366,
+          "min": 3.2153976000263356,
+          "noise_limit": 0.1,
+          "protocol": "iteration9-r1",
+          "q1": 3.3045414999942295,
+          "q3": 3.5544697000295855,
+          "samples": [
+            3.2153976000263356,
+            3.3045414999942295,
+            3.821621300012339,
+            3.5544697000295855,
+            3.4023328000330366
+          ],
+          "status": "VALID"
+        },
+        "paired_reference_over_candidate": [
+          1.0267389015911867,
+          1.0783778627209124,
+          0.905462453853409,
+          0.9573035887741107,
+          0.9943088459603444
+        ],
+        "ratio_of_medians_reference_over_candidate": 1.0001098657938807,
+        "reference": {
+          "count": 5,
+          "iqr": 0.07736500003375113,
+          "iqr_over_median": 0.02273631233240434,
+          "max": 3.563544400036335,
+          "median": 3.402706600027159,
+          "min": 3.301373800029978,
+          "noise_limit": 0.1,
+          "protocol": "iteration9-r1",
+          "q1": 3.382969599973876,
+          "q3": 3.460334600007627,
+          "samples": [
+            3.301373800029978,
+            3.563544400036335,
+            3.460334600007627,
+            3.402706600027159,
+            3.382969599973876
+          ],
+          "status": "VALID"
+        }
+      }
+    },
+    "source_and_inputs_unchanged": true,
+    "candidate_faster_pairs": 2,
+    "stage_medians": {
+      "A": {
+        "load_seconds": 0.6661528,
+        "factor_seconds": 0.267115,
+        "materialization_seconds": 0.0633296,
+        "research_seconds": 1.2747647,
+        "export_seconds": 0.9983245
+      },
+      "B": {
+        "load_seconds": 0.6442699,
+        "factor_seconds": 0.2580451,
+        "materialization_seconds": 0.0624684,
+        "research_seconds": 1.1826766,
+        "export_seconds": 0.9906053
+      }
+    }
+  },
+  "development_500": {
+    "repeats": 5,
+    "sampling": {
+      "cpp": {
+        "count": 5,
+        "iqr": 0.019568700052332133,
+        "iqr_over_median": 0.056656183135175356,
+        "max": 0.3859894000343047,
+        "median": 0.34539390000281855,
+        "min": 0.32480639999266714,
+        "noise_limit": 0.1,
+        "protocol": "iteration9-r1",
+        "q1": 0.34383229998638853,
+        "q3": 0.36340100003872067,
+        "samples": [
+          0.34539390000281855,
+          0.36340100003872067,
+          0.3859894000343047,
+          0.32480639999266714,
+          0.34383229998638853
+        ],
+        "status": "VALID"
+      },
+      "paired_speedups": [
+        35.30554853435013,
+        34.14709177654261,
+        31.55228070748081,
+        38.14009237583801,
+        34.289922152425575
+      ],
+      "pairs_at_least_100x": 0,
+      "pairs_at_least_30x": 5,
+      "python": {
+        "count": 5,
+        "iqr": 0.20930019998922944,
+        "iqr_over_median": 0.017163743538696936,
+        "max": 12.40908730000956,
+        "median": 12.194321100017987,
+        "min": 11.789982800022699,
+        "noise_limit": 0.1,
+        "protocol": "iteration9-r1",
+        "q1": 12.178845899994485,
+        "q3": 12.388146099983715,
+        "samples": [
+          12.194321100017987,
+          12.40908730000956,
+          12.178845899994485,
+          12.388146099983715,
+          11.789982800022699
+        ],
+        "status": "VALID"
+      }
+    },
+    "stages": {
+      "accounted_stage_seconds": {
+        "cpp_seconds": 0.3246977,
+        "python_seconds": 11.10349089995725,
+        "speedup": 34.19639529309032
+      },
+      "cpu_seconds": {
+        "cpp_seconds": 0.265625,
+        "python_seconds": 8.96875,
+        "speedup": 33.76470588235294
+      },
+      "export_seconds": {
+        "cpp_seconds": 0.1102226,
+        "python_seconds": 3.7878281000303105,
+        "speedup": 34.36525812338223
+      },
+      "factor_seconds": {
+        "cpp_seconds": 0.0300056,
+        "python_seconds": 0.1033243999700062,
+        "speedup": 3.4435038782762617
+      },
+      "internal_process_cpu_seconds": {
+        "cpp_seconds": 0.265625,
+        "python_seconds": 8.96875,
+        "speedup": 33.76470588235294
+      },
+      "internal_wall_seconds": {
+        "cpp_seconds": 0.3246977,
+        "python_seconds": 11.10349089995725,
+        "speedup": 34.19639529309032
+      },
+      "load_seconds": {
+        "cpp_seconds": 0.0746929,
+        "python_seconds": 1.7473423999617808,
+        "speedup": 23.39368802070586
+      },
+      "materialization_seconds": {
+        "cpp_seconds": 0.0051249,
+        "python_seconds": 0.02140179998241365,
+        "speedup": 4.176042455933511
+      },
+      "other_seconds": {
+        "cpp_seconds": 1.959999999995299e-05,
+        "python_seconds": 0.00043990008998662233,
+        "speedup": 22.443882142228443
+      },
+      "preparation_seconds": {
+        "cpp_seconds": 0.0001122,
+        "python_seconds": 0.06613890000153333,
+        "speedup": 589.4732620457515
+      },
+      "research_seconds": {
+        "cpp_seconds": 0.10288,
+        "python_seconds": 5.433329000021331,
+        "speedup": 52.81229587890096
+      },
+      "total_seconds": {
+        "cpp_seconds": 0.3246977,
+        "python_seconds": 11.10349089995725,
+        "speedup": 34.19639529309032
+      }
+    },
+    "wall": {
+      "cpp_seconds": 0.34539390000281855,
+      "python_seconds": 12.194321100017987,
+      "speedup": 35.30554853435013
+    }
+  },
+  "formal_acceptance": "NOT_RUN",
+  "allocation_profile_at_base": {
+    "source_base": {
+      "head": "4dd836c34e54215d896ed35f15dda1db6863e460",
+      "branch": "dev",
+      "tracked_status": ""
+    },
+    "profile": {
+      "schema": "p122.alpha003.allocations.v1",
+      "metric": "successful_global_cpp_new_calls_and_requested_bytes",
+      "scope": "main load_panel through export_factor_research_detailed, write_factor_values, and write_workload; excludes later timing/run_info output",
+      "excludes": "malloc/calloc/realloc, CRT or allocator internals, live allocated bytes, and RSS",
+      "stages": {
+        "load": {
+          "new_calls": 18668,
+          "requested_bytes": 23751024
+        },
+        "alpha": {
+          "new_calls": 33,
+          "requested_bytes": 83018982
+        },
+        "materialization": {
+          "new_calls": 116454,
+          "requested_bytes": 46626782
+        },
+        "research": {
+          "new_calls": 1157063,
+          "requested_bytes": 798367191
+        },
+        "export": {
+          "new_calls": 9113,
+          "requested_bytes": 12828918
+        },
+        "total": {
+          "new_calls": 1301331,
+          "requested_bytes": 964592897
+        }
+      }
+    },
+    "all_13_output_bytes_equal": true,
+    "source_and_inputs_unchanged": true,
+    "native_binary": {
+      "path": "D:\\source_code\\fincore_cpp\\build-win\\p122-allocation-profile\\p122-r1\\fincore_alpha003_allocation_profile.exe",
+      "size_bytes": 630272,
+      "sha256": "392bd9ba12724f58896f2856bd48a1f05e66993838252958592fa9a7f82c093c"
+    },
+    "limitations": "Successful global C++ new calls/requested bytes only, not live bytes, RSS, malloc-family calls, or stack attribution; instrumented timing is not a performance score."
+  },
+  "next": "P124 reusable combined detailed evaluation/export, avoiding owning signal/label materialization only for file-output callers; preserve existing APIs, complete output, cleanup, numerical and CPU limits.",
+  "artifacts": [
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p123-r1-native-full-ab/results.json",
+      "size_bytes": 5961266,
+      "sha256": "0c165e29848b28409e4a9d2a777c17911906aa05ca2a140cbabe68c0b97fc1d8"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p123-r1-500/comparison.json",
+      "size_bytes": 129612,
+      "sha256": "9e40d05731fa32ec1a62dcf5c789bca2873f5230f69792346b43271a5d129403"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p123-r1-500/measurements.json",
+      "size_bytes": 71082,
+      "sha256": "25c4105ef1ff5eb7f503e151958c6b09a8e46eb52e2ffe1f065dd5219a378a7c"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p123-r1-500/environment.json",
+      "size_bytes": 3731,
+      "sha256": "b393fe359cad04601aadc884afe8dadd350724f6c8c3516329b6ce8896bc678e"
+    },
+    {
+      "path": "build-win/p123-r1-500-source-check.json",
+      "size_bytes": 701,
+      "sha256": "4a15311bf96c3302bac66a51f64d2d2ebb844201585daa57eb5acae68d019ea9"
+    },
+    {
+      "path": "build-win/p123-r1-unit.json",
+      "size_bytes": 22707,
+      "sha256": "2671cf90692e7e3f8f4852a7aad03bdeade5880479a8684f0c6def69c905c260"
+    },
+    {
+      "path": "build-win/p123-r1-oracle.log",
+      "size_bytes": 1466,
+      "sha256": "fd3db39f6af6ac016a4e623e5a01a18c6405db3520cc78a7fb3f8d9eb79e4f07"
+    },
+    {
+      "path": "build-win/p123-r1-build.log",
+      "size_bytes": 314,
+      "sha256": "f7edfb5e6252bc76fcba6d79c0c8f0d8567cf16f64086062f28c718ec70e0d69"
+    },
+    {
+      "path": "build-win/p122-allocation-profile/full-result.json",
+      "size_bytes": 7211,
+      "sha256": "869a3c1cd9068f97ef1f41aae67a2c53df28cc106deac162034b6de7702daea3"
+    },
+    {
+      "path": "build-win/p122-allocation-profile/p122-r1/manifest.json",
+      "size_bytes": 10695,
+      "sha256": "ade1b20bf23372e4adc459a6aac65c9ec41c08caa4896a0bacac25cb3b9a8862"
+    },
+    {
+      "path": "build-win/p122-allocation-profile/prepare.py",
+      "size_bytes": 30628,
+      "sha256": "1b399c193ecd460eeaab10d478e0cae23d2424fecd860987b387ddeee804797f"
+    },
+    {
+      "path": "build-win/i9-history-compression-r2.json",
+      "size_bytes": 92035,
+      "sha256": "0ebcfdecfbf71912be7bcca693714c2dea3bbdf97e0499f1ee30162336a5c537"
+    },
+    {
+      "path": "build-win/i9-history-compression-r3.json",
+      "size_bytes": 102776,
+      "sha256": "67f673c28c14e67a1c31965cede2c30f5dbd2cddb90784d97eaaeb3326523223"
+    }
+  ]
+}

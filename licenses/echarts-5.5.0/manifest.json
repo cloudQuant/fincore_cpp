@@ -1,0 +1,14 @@
+{
+  "name": "Apache ECharts",
+  "version": "5.5.0",
+  "license": "Apache-2.0",
+  "source": "https://registry.npmjs.org/echarts/-/echarts-5.5.0.tgz",
+  "upstream_dist_path": "package/dist/echarts.min.js",
+  "asset_path": "assets/report/echarts.min.js",
+  "asset_sha256": "42f8329d989b6f6539dd2b15bbdf0d82025762ac112fbb60dc57b27d7bcf3946",
+  "license_file": "LICENSE.txt",
+  "license_sha256": "634293835b43a6dd2094fa39182a3d9a6b9ca43b7fdb9ac354e8037af2a3093a",
+  "notice_file": "NOTICE.txt",
+  "notice_sha256": "fa99ac3af859d0e13166906dc53a73ad34a08898da7e8ae83407275496e9e30c",
+  "retrieved_at": "2026-10-24"
+}

@@ -1,0 +1,502 @@
+{
+  "round": "P119-R1",
+  "date": "2026-10-25",
+  "branch": "dev",
+  "source_commit": "2221f13ff2358c3a0b6aa2b5fdd662db601c5215",
+  "decision": "IPO_NOT_ADOPTED_NO_REPRODUCIBLE_WALL_TIME_GAIN",
+  "evidence_level": "DEVELOPMENT_COMPILER_AB_NOT_FORMAL_30X",
+  "compiler": "MSVC 19.42.34435.0 / toolset 14.42.34433",
+  "flags_delta": "Project Release targets /GL and /LTCG via CMake IPO; no fast-math; dependencies unchanged",
+  "oracle_cases_passed": 3,
+  "campaigns": {
+    "500": {
+      "correct_runs": 14,
+      "metrics": {
+        "cpu": {
+          "candidate": {
+            "count": 5,
+            "iqr": 0.03125,
+            "iqr_over_median": 0.1,
+            "max": 0.328125,
+            "median": 0.3125,
+            "min": 0.296875,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 0.296875,
+            "q3": 0.328125,
+            "samples": [
+              0.328125,
+              0.328125,
+              0.296875,
+              0.296875,
+              0.3125
+            ],
+            "status": "VALID"
+          },
+          "paired_reference_over_candidate": [
+            1.1904761904761905,
+            1.0,
+            1.1578947368421053,
+            1.0526315789473684,
+            1.0
+          ],
+          "ratio_of_medians_reference_over_candidate": 1.05,
+          "reference": {
+            "count": 5,
+            "iqr": 0.03125,
+            "iqr_over_median": 0.09523809523809523,
+            "max": 0.390625,
+            "median": 0.328125,
+            "min": 0.3125,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 0.3125,
+            "q3": 0.34375,
+            "samples": [
+              0.390625,
+              0.328125,
+              0.34375,
+              0.3125,
+              0.3125
+            ],
+            "status": "VALID"
+          }
+        },
+        "peak_working_set_bytes": {
+          "candidate": {
+            "count": 5,
+            "iqr": 12288.0,
+            "iqr_over_median": 0.00016533480297602646,
+            "max": 74362880.0,
+            "median": 74321920.0,
+            "min": 74092544.0,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 74317824.0,
+            "q3": 74330112.0,
+            "samples": [
+              74092544.0,
+              74317824.0,
+              74330112.0,
+              74321920.0,
+              74362880.0
+            ],
+            "status": "VALID"
+          },
+          "paired_reference_over_candidate": [
+            1.0034274973740946,
+            0.9992283950617284,
+            0.9996693668374939,
+            1.0009368972168642,
+            1.000055081244836
+          ],
+          "ratio_of_medians_reference_over_candidate": 1.000330669605952,
+          "reference": {
+            "count": 5,
+            "iqr": 61440.0,
+            "iqr_over_median": 0.0008264007492700127,
+            "max": 74391552.0,
+            "median": 74346496.0,
+            "min": 74260480.0,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 74305536.0,
+            "q3": 74366976.0,
+            "samples": [
+              74346496.0,
+              74260480.0,
+              74305536.0,
+              74391552.0,
+              74366976.0
+            ],
+            "status": "VALID"
+          }
+        },
+        "wall": {
+          "candidate": {
+            "count": 5,
+            "iqr": 0.01736439997330308,
+            "iqr_over_median": 0.05071893981560542,
+            "max": 0.3981768000521697,
+            "median": 0.3423651999910362,
+            "min": 0.3326233000261709,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 0.33957390004070476,
+            "q3": 0.35693830001400784,
+            "samples": [
+              0.35693830001400784,
+              0.3981768000521697,
+              0.33957390004070476,
+              0.3326233000261709,
+              0.3423651999910362
+            ],
+            "status": "VALID"
+          },
+          "paired_reference_over_candidate": [
+            1.0714577282222448,
+            0.9967225613309452,
+            1.097790201008423,
+            0.9461047978144513,
+            0.9409282836592794
+          ],
+          "ratio_of_medians_reference_over_candidate": 1.0888399288031014,
+          "reference": {
+            "count": 5,
+            "iqr": 0.06030320003628731,
+            "iqr_over_median": 0.16176579872802924,
+            "max": 0.3968718000105582,
+            "median": 0.3727808999828994,
+            "min": 0.314696500019636,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 0.3221411000122316,
+            "q3": 0.3824443000485189,
+            "samples": [
+              0.3824443000485189,
+              0.3968718000105582,
+              0.3727808999828994,
+              0.314696500019636,
+              0.3221411000122316
+            ],
+            "status": "INCONCLUSIVE"
+          }
+        }
+      },
+      "builds": {
+        "A": {
+          "build_type": "Release",
+          "cache": {
+            "path": "D:\\source_code\\fincore_cpp\\build-win\\CMakeCache.txt",
+            "sha256": "f0eab204181bcebe6c8f3f5ba42d5ac84303266d0969ea701615149be56a35f1",
+            "size_bytes": 23307
+          },
+          "compiler": {
+            "path": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.42.34433\\bin\\Hostx64\\x64\\cl.exe",
+            "sha256": "3e761c082f491950ed5565f198f2113a8043897ce4d8084e37de8e0fee43202a",
+            "size_bytes": 862792
+          },
+          "generator": "Ninja",
+          "ipo": "OFF"
+        },
+        "B": {
+          "build_type": "Release",
+          "cache": {
+            "path": "D:\\source_code\\fincore_cpp\\build-win-ipo\\CMakeCache.txt",
+            "sha256": "ab47626e90debea156a6817fdb6c0b1100a70190d86c4fe29d531df06bf39703",
+            "size_bytes": 23002
+          },
+          "compiler": {
+            "path": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.42.34433\\bin\\Hostx64\\x64\\cl.exe",
+            "sha256": "3e761c082f491950ed5565f198f2113a8043897ce4d8084e37de8e0fee43202a",
+            "size_bytes": 862792
+          },
+          "generator": "Ninja",
+          "ipo": "ON"
+        }
+      },
+      "binary_hashes": {
+        "A": {
+          "path": "D:\\source_code\\fincore_cpp\\build-win\\fincore_alpha003_research.exe",
+          "sha256": "6213ac3e53fef8b3541efc521272ec22e386812881e4a3a6709ba488a95f840e",
+          "size_bytes": 611328
+        },
+        "B": {
+          "path": "D:\\source_code\\fincore_cpp\\build-win-ipo\\fincore_alpha003_research.exe",
+          "sha256": "44e85208af9de02a2cf8ead42feb180b51f8f2abe16ac86aecac63cc014624ec",
+          "size_bytes": 582144
+        }
+      },
+      "sources_unchanged": true,
+      "stage_medians": {
+        "A": {
+          "load_seconds": 0.0702307,
+          "factor_seconds": 0.0253787,
+          "research_seconds": 0.1398151,
+          "export_seconds": 0.0935092
+        },
+        "B": {
+          "load_seconds": 0.0667665,
+          "factor_seconds": 0.0254163,
+          "research_seconds": 0.1300292,
+          "export_seconds": 0.0968074
+        }
+      }
+    },
+    "full": {
+      "correct_runs": 14,
+      "metrics": {
+        "cpu": {
+          "candidate": {
+            "count": 5,
+            "iqr": 0.109375,
+            "iqr_over_median": 0.03286384976525822,
+            "max": 3.609375,
+            "median": 3.328125,
+            "min": 3.203125,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 3.265625,
+            "q3": 3.375,
+            "samples": [
+              3.375,
+              3.203125,
+              3.265625,
+              3.328125,
+              3.609375
+            ],
+            "status": "VALID"
+          },
+          "paired_reference_over_candidate": [
+            1.0231481481481481,
+            1.078048780487805,
+            1.0430622009569377,
+            0.9342723004694836,
+            0.9567099567099567
+          ],
+          "ratio_of_medians_reference_over_candidate": 1.0375586854460095,
+          "reference": {
+            "count": 5,
+            "iqr": 0.046875,
+            "iqr_over_median": 0.013574660633484163,
+            "max": 3.453125,
+            "median": 3.453125,
+            "min": 3.109375,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 3.40625,
+            "q3": 3.453125,
+            "samples": [
+              3.453125,
+              3.453125,
+              3.40625,
+              3.109375,
+              3.453125
+            ],
+            "status": "VALID"
+          }
+        },
+        "peak_working_set_bytes": {
+          "candidate": {
+            "count": 5,
+            "iqr": 24576.0,
+            "iqr_over_median": 3.3246707190708655e-05,
+            "max": 739217408.0,
+            "median": 739201024.0,
+            "min": 739016704.0,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 739180544.0,
+            "q3": 739205120.0,
+            "samples": [
+              739180544.0,
+              739205120.0,
+              739217408.0,
+              739201024.0,
+              739016704.0
+            ],
+            "status": "VALID"
+          },
+          "paired_reference_over_candidate": [
+            1.0001773206844577,
+            1.0001219039175486,
+            1.0002216398020756,
+            0.999811601992586,
+            1.0005209949895801
+          ],
+          "ratio_of_medians_reference_over_candidate": 1.0001496101823582,
+          "reference": {
+            "count": 5,
+            "iqr": 86016.0,
+            "iqr_over_median": 0.00011634606861093875,
+            "max": 739401728.0,
+            "median": 739311616.0,
+            "min": 739061760.0,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 739295232.0,
+            "q3": 739381248.0,
+            "samples": [
+              739311616.0,
+              739295232.0,
+              739381248.0,
+              739061760.0,
+              739401728.0
+            ],
+            "status": "VALID"
+          }
+        },
+        "wall": {
+          "candidate": {
+            "count": 5,
+            "iqr": 0.037338699970860034,
+            "iqr_over_median": 0.009088302473044504,
+            "max": 4.560656599991489,
+            "median": 4.1084350000019185,
+            "min": 4.0210883999825455,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 4.102247400034685,
+            "q3": 4.139586100005545,
+            "samples": [
+              4.0210883999825455,
+              4.102247400034685,
+              4.1084350000019185,
+              4.139586100005545,
+              4.560656599991489
+            ],
+            "status": "VALID"
+          },
+          "paired_reference_over_candidate": [
+            1.227580771425447,
+            0.9538840343865125,
+            0.9693052707438821,
+            0.9828733843638243,
+            1.0421801544976155
+          ],
+          "ratio_of_medians_reference_over_candidate": 0.9903257566387187,
+          "reference": {
+            "count": 5,
+            "iqr": 0.7706980999791995,
+            "iqr_over_median": 0.1894217277318042,
+            "max": 4.93621080002049,
+            "median": 4.068688999977894,
+            "min": 3.9130682999966666,
+            "noise_limit": 0.1,
+            "protocol": "iteration9-r1",
+            "q1": 3.982327700010501,
+            "q3": 4.7530257999897,
+            "samples": [
+              4.93621080002049,
+              3.9130682999966666,
+              3.982327700010501,
+              4.068688999977894,
+              4.7530257999897
+            ],
+            "status": "INCONCLUSIVE"
+          }
+        }
+      },
+      "builds": {
+        "A": {
+          "build_type": "Release",
+          "cache": {
+            "path": "D:\\source_code\\fincore_cpp\\build-win\\CMakeCache.txt",
+            "sha256": "f0eab204181bcebe6c8f3f5ba42d5ac84303266d0969ea701615149be56a35f1",
+            "size_bytes": 23307
+          },
+          "compiler": {
+            "path": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.42.34433\\bin\\Hostx64\\x64\\cl.exe",
+            "sha256": "3e761c082f491950ed5565f198f2113a8043897ce4d8084e37de8e0fee43202a",
+            "size_bytes": 862792
+          },
+          "generator": "Ninja",
+          "ipo": "OFF"
+        },
+        "B": {
+          "build_type": "Release",
+          "cache": {
+            "path": "D:\\source_code\\fincore_cpp\\build-win-ipo\\CMakeCache.txt",
+            "sha256": "ab47626e90debea156a6817fdb6c0b1100a70190d86c4fe29d531df06bf39703",
+            "size_bytes": 23002
+          },
+          "compiler": {
+            "path": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.42.34433\\bin\\Hostx64\\x64\\cl.exe",
+            "sha256": "3e761c082f491950ed5565f198f2113a8043897ce4d8084e37de8e0fee43202a",
+            "size_bytes": 862792
+          },
+          "generator": "Ninja",
+          "ipo": "ON"
+        }
+      },
+      "binary_hashes": {
+        "A": {
+          "path": "D:\\source_code\\fincore_cpp\\build-win\\fincore_alpha003_research.exe",
+          "sha256": "6213ac3e53fef8b3541efc521272ec22e386812881e4a3a6709ba488a95f840e",
+          "size_bytes": 611328
+        },
+        "B": {
+          "path": "D:\\source_code\\fincore_cpp\\build-win-ipo\\fincore_alpha003_research.exe",
+          "sha256": "44e85208af9de02a2cf8ead42feb180b51f8f2abe16ac86aecac63cc014624ec",
+          "size_bytes": 582144
+        }
+      },
+      "sources_unchanged": true,
+      "stage_medians": {
+        "A": {
+          "load_seconds": 0.6568413,
+          "factor_seconds": 0.3750323,
+          "research_seconds": 1.7285539,
+          "export_seconds": 1.012479
+        },
+        "B": {
+          "load_seconds": 0.7000716,
+          "factor_seconds": 0.3811792,
+          "research_seconds": 1.7827917,
+          "export_seconds": 1.0315993
+        }
+      }
+    }
+  },
+  "evidence": [
+    {
+      "path": "CMakeLists.txt",
+      "size_bytes": 7860,
+      "sha256": "984bbc311958487c19e9cb60c8c285bfda90313b2d18a6eeb3248b58175933a4"
+    },
+    {
+      "path": "build-win/compare_alpha_builds.py",
+      "size_bytes": 11877,
+      "sha256": "cb7c1f9470bd8e7fd29512213cc1671c486a297caabc20f7d5f927cfde3f1c82"
+    },
+    {
+      "path": "build-win/p119-base-configure.log",
+      "size_bytes": 130,
+      "sha256": "7e5c33f054f15115c3cd8b978cf73d27bb048e7ace53cb7a6eeea09914d85db5"
+    },
+    {
+      "path": "build-win/p119-base-build.log",
+      "size_bytes": 329,
+      "sha256": "3fa1655d6669431810b322ec454c4bfeb699f09002c5c6cb9304a2e2d0e5413d"
+    },
+    {
+      "path": "build-win/p119-ipo-configure.log",
+      "size_bytes": 1241,
+      "sha256": "bebf2ab877090bf74989bd5f262541de891079bd1bb7c5ca3990ce428d84af37"
+    },
+    {
+      "path": "build-win/p119-ipo-build.log",
+      "size_bytes": 3603139,
+      "sha256": "f250d594257907d284bfdf8890b4c575794ebb02512056af86d3c3d168c843e5"
+    },
+    {
+      "path": "build-win/p119-ipo-oracle.log",
+      "size_bytes": 1466,
+      "sha256": "fd3db39f6af6ac016a4e623e5a01a18c6405db3520cc78a7fb3f8d9eb79e4f07"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p119-ipo-500-r1/results.json",
+      "size_bytes": 783988,
+      "sha256": "cd2c20011a378adecba0406e8d971acafd0e3f78e78b4921d58b4f1078cde9c5"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p119-ipo-full-r1/results.json",
+      "size_bytes": 5953827,
+      "sha256": "ba85006c3ee35c25c49b6dcb709b91cb69d7a3fc2fe4b47c68717d6e08957b4e"
+    },
+    {
+      "path": "docs/iterations/iteration-9-performance-30x-100x/p119-ipo-proposal.patch",
+      "size_bytes": 1706,
+      "sha256": "047b206996e789530c59ca307ef72abbbc4d82b8266a0ffe23e845c496876751"
+    }
+  ],
+  "build_tree_limitation": "Fresh IPO compilation completed but CMake saved a mojibake showIncludes prefix; freeze build-win-ipo for this experiment only, do not trust incremental header dependency tracking. Future candidate build must use a fresh tree with VSLANG=1033 and matching generated prefix. No attribution of performance to this metadata problem.",
+  "commands": [
+    "cmake -S . -B build-win -DFINCORE_ENABLE_IPO=OFF",
+    "cmake -S . -B build-win-ipo -G Ninja -DCMAKE_BUILD_TYPE=Release -DFINCORE_ENABLE_IPO=ON -DFINCORE_BUILD_TESTING=ON -DFINCORE_ENABLE_ASAN=OFF -DFINCORE_ENABLE_UBSAN=OFF -DCMAKE_CXX_COMPILER=C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/bin/Hostx64/x64/cl.exe -DCMAKE_MAKE_PROGRAM=C:/Strawberry/c/bin/ninja.exe -DFINCORE_DATAFRAME_SOURCE_DIR=D:/source_code/fincore_cpp/third_party/DataFrame -DFETCHCONTENT_SOURCE_DIR_GOOGLETEST=D:/source_code/fincore_cpp/build-win/_deps/googletest-src -DFETCHCONTENT_FULLY_DISCONNECTED=ON",
+    "cmake --build build-win-ipo --target fincore_alpha003_research fincore_factor_benchmark fincore_research_detailed_oracle -j 4",
+    "C:/Python314/python.exe tools/check_research_detailed_oracle.py --probe build-win-ipo/fincore_research_detailed_oracle.exe",
+    "C:/Python314/python.exe build-win/compare_alpha_builds.py --reference-bin build-win/fincore_alpha003_research.exe --candidate-bin build-win-ipo/fincore_alpha003_research.exe --max-symbols 500 --pairs 5 --cpu 0 --output-dir benchmarks/alpha003_a_stocks/results-i9-p119-ipo-500-r1",
+    "C:/Python314/python.exe build-win/compare_alpha_builds.py --reference-bin build-win/fincore_alpha003_research.exe --candidate-bin build-win-ipo/fincore_alpha003_research.exe --max-symbols 0 --pairs 5 --cpu 0 --output-dir benchmarks/alpha003_a_stocks/results-i9-p119-ipo-full-r1"
+  ]
+}

@@ -1,0 +1,483 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 01:10+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/api/extensions.md:1
+msgid "Extensions"
+msgstr "扩展"
+
+#: ../../site/api/extensions.md:3
+msgid "Extension discovery and snapshot contracts for optional plugins."
+msgstr "可选插件的扩展发现与快照契约。"
+
+#: ../../site/api/extensions.md:5
+msgid ""
+"See the [usage guide](../conventions.md) for task-oriented examples. "
+"Signatures below are generated from the public headers at the same commit as"
+" the rest of this site."
+msgstr "面向任务的示例参见[使用指南](../conventions.md)。以下签名由与本站点其余内容同一提交的公共头文件生成。"
+
+#: ../../site/api/extensions.md:7
+msgid "A registered hook for one event."
+msgstr "针对某一事件注册的钩子。"
+
+#: ../../site/api/extensions.md:7
+msgid ""
+"The event is trimmed when stored; the fingerprint is stored verbatim and "
+"must be non-blank. The callback must be callable. Hooks with the same event "
+"and priority are ordered by fingerprint inside extension_snapshot."
+msgstr "事件名在存储时会被裁剪空白；指纹按原样存储且必须非空白。回调必须可调用。事件与优先级相同的钩子在 extension_snapshot 内按指纹排序。"
+
+#: ../../site/api/extensions.md:7 ../../site/api/extensions.md:10
+#: ../../site/api/extensions.md:13 ../../site/api/extensions.md:16
+#: ../../site/api/extensions.md:22
+msgid "Public Functions"
+msgstr "公共函数"
+
+#: ../../site/api/extensions.md:7
+msgid "Creates a hook."
+msgstr "创建一个钩子。"
+
+#: ../../site/api/extensions.md
+msgid "Parameters"
+msgstr "参数"
+
+#: ../../site/api/extensions.md
+msgid "Throws"
+msgstr "抛出"
+
+#: ../../site/api/extensions.md:7
+msgid "Returns the normalized event name."
+msgstr "返回规范化后的事件名。"
+
+#: ../../site/api/extensions.md:7 ../../site/api/extensions.md:13
+msgid "Returns the fingerprint as supplied."
+msgstr "按传入原样返回指纹。"
+
+#: ../../site/api/extensions.md:7
+msgid "Returns the hook priority."
+msgstr "返回钩子优先级。"
+
+#: ../../site/api/extensions.md:7 ../../site/api/extensions.md:13
+msgid "Returns the provenance metadata."
+msgstr "返回来源元数据。"
+
+#: ../../site/api/extensions.md:7
+msgid "Returns the callback."
+msgstr "返回回调。"
+
+#: ../../site/api/extensions.md:10
+msgid "Immutable native snapshot of extension operations, hooks and renderers."
+msgstr "扩展操作、钩子与渲染器的不可变原生快照。"
+
+#: ../../site/api/extensions.md:10
+msgid ""
+"Ordering matches the pinned Python snapshot: operations by operation_id, "
+"hooks grouped by event then by (priority, fingerprint), renderers by name. "
+"Hooks are intentionally not duplicate-rejected (the source allows repeated "
+"registrations); operations and renderers are."
+msgstr ""
+"排序规则与固定版本的 Python 快照一致：操作按 operation_id，钩子先按事件分组再按 (priority, "
+"fingerprint)，渲染器按名称。钩子有意不做重复拒绝（源实现允许重复注册）；操作和渲染器则会拒绝重复。"
+
+#: ../../site/api/extensions.md:10
+msgid "Creates a snapshot, validates entries, orders them and computes the digest."
+msgstr "创建快照、校验条目、排序并计算摘要。"
+
+#: ../../site/api/extensions.md:10
+msgid ""
+"Operation and capability ids must start with extension. and contain at least"
+" two dots. Operations must have domain extensions and non-blank "
+"implementation fingerprints and RNG policies; operation ids must be unique, "
+"and semantic_mode and mode_approval must be supplied together. Hooks may "
+"repeat. Renderer names must be unique. Hooks are ordered by event, then "
+"priority and fingerprint; operations by operation_id; renderers by name. The"
+" digest is the SHA-256 of to_json()."
+msgstr ""
+"操作与能力 id 必须以 extension. 开头且至少包含两个点。操作的 domain 必须为 "
+"extensions，实现指纹与随机数策略必须非空白；操作 id 必须唯一，且 semantic_mode 与 mode_approval "
+"必须同时提供。钩子可以重复。渲染器名称必须唯一。钩子按事件、优先级、指纹排序；操作按 operation_id 排序；渲染器按名称排序。摘要为 "
+"to_json() 的 SHA-256。"
+
+#: ../../site/api/extensions.md:10
+msgid "Returns the operations ordered by operation_id."
+msgstr "返回按 operation_id 排序的操作。"
+
+#: ../../site/api/extensions.md:10
+msgid "Returns the hooks ordered by event, then priority and fingerprint."
+msgstr "返回按事件、优先级、指纹排序的钩子。"
+
+#: ../../site/api/extensions.md:10
+msgid "Returns the renderers ordered by name."
+msgstr "返回按名称排序的渲染器。"
+
+#: ../../site/api/extensions.md:10
+msgid "Returns the lowercase hexadecimal SHA-256 digest of to_json()."
+msgstr "返回 to_json() 的小写十六进制 SHA-256 摘要。"
+
+#: ../../site/api/extensions.md:10
+msgid "Returns compact, key-sorted, ASCII-escaped JSON used to compute digest."
+msgstr "返回用于计算摘要的紧凑、按键排序、ASCII 转义 JSON。"
+
+#: ../../site/api/extensions.md
+msgid "Returns"
+msgstr "返回"
+
+#: ../../site/api/extensions.md:10
+msgid "Returns a new snapshot with one more operation."
+msgstr "返回多加一个操作的新快照。"
+
+#: ../../site/api/extensions.md:10
+msgid ""
+"The receiver is unchanged. The operation is validated as in the constructor,"
+" so a duplicate operation id is rejected."
+msgstr "接收者保持不变。操作按构造函数相同的方式校验，因此重复的操作 id 会被拒绝。"
+
+#: ../../site/api/extensions.md:10
+msgid "Returns a new snapshot with one more hook."
+msgstr "返回多加一个钩子的新快照。"
+
+#: ../../site/api/extensions.md:10
+msgid "The receiver is unchanged. Repeated hook registrations are allowed."
+msgstr "接收者保持不变。允许重复注册钩子。"
+
+#: ../../site/api/extensions.md:10
+msgid "Returns a new snapshot with one more renderer."
+msgstr "返回多加一个渲染器的新快照。"
+
+#: ../../site/api/extensions.md:10
+msgid "The receiver is unchanged. A duplicate renderer name is rejected."
+msgstr "接收者保持不变。重复的渲染器名称会被拒绝。"
+
+#: ../../site/api/extensions.md:10
+msgid "Returns the hooks registered for event."
+msgstr "返回为 event 注册的钩子。"
+
+#: ../../site/api/extensions.md:10
+msgid ""
+"event is normalized before lookup. The returned hooks are in execution "
+"order: ascending priority, then ascending fingerprint."
+msgstr "查找前会先规范化 event。返回的钩子按执行顺序排列：优先级升序，其次指纹升序。"
+
+#: ../../site/api/extensions.md:10
+msgid "Runs the priority-ordered hooks for event."
+msgstr "按优先级顺序执行 event 的钩子。"
+
+#: ../../site/api/extensions.md:10
+msgid ""
+"When first is present the hooks transform it left-to-right and the final "
+"value is returned; when it is absent the hooks are notifications and a "
+"monostate value is returned."
+msgstr "当 first 存在时，钩子从左到右依次变换它并返回最终值；当它不存在时，钩子只是通知，返回 monostate 值。"
+
+#: ../../site/api/extensions.md:10
+msgid "Exceptions thrown by a callback propagate to the caller."
+msgstr "回调抛出的异常会传播给调用方。"
+
+#: ../../site/api/extensions.md:10
+msgid "Looks up a renderer by name."
+msgstr "按名称查找渲染器。"
+
+#: ../../site/api/extensions.md:10
+msgid "name is normalized before lookup; a blank or unknown name yields nullopt."
+msgstr "查找前会先规范化 name；空白或未知名称返回 nullopt。"
+
+#: ../../site/api/extensions.md:13
+msgid "A registered renderer callback."
+msgstr "已注册的渲染器回调。"
+
+#: ../../site/api/extensions.md:13
+msgid ""
+"The name is trimmed when stored; the fingerprint is stored verbatim and must"
+" be non-blank. Renderer names are unique within a snapshot."
+msgstr "名称在存储时会被裁剪空白；指纹按原样存储且必须非空白。同一快照内渲染器名称必须唯一。"
+
+#: ../../site/api/extensions.md:13
+msgid "Creates a renderer registration."
+msgstr "创建一条渲染器注册。"
+
+#: ../../site/api/extensions.md:13
+msgid "Returns the normalized renderer name."
+msgstr "返回规范化后的渲染器名称。"
+
+#: ../../site/api/extensions.md:13
+msgid "Returns the renderer callback."
+msgstr "返回渲染器回调。"
+
+#: ../../site/api/extensions.md:16
+msgid "One unexecuted native extension manifest."
+msgstr "一份尚未执行的原生扩展清单。"
+
+#: ../../site/api/extensions.md:16
+msgid ""
+"Field names mirror DiscoveredExtension; value uses the native "
+"component:symbol convention instead of a Python import path."
+msgstr "字段名与 DiscoveredExtension 对应；value 使用原生的 component:symbol 约定，而不是 Python 导入路径。"
+
+#: ../../site/api/extensions.md:16
+msgid "Returns the stable SHA-256 of to_json()."
+msgstr "返回 to_json() 的稳定 SHA-256。"
+
+#: ../../site/api/extensions.md:16
+msgid "Returns compact, key-sorted, ASCII-escaped JSON for the manifest fields."
+msgstr "返回清单字段的紧凑、按键排序、ASCII 转义 JSON。"
+
+#: ../../site/api/extensions.md:16 ../../site/api/extensions.md:19
+#: ../../site/api/extensions.md:22 ../../site/api/extensions.md:25
+msgid "Public Members"
+msgstr "公共成员"
+
+#: ../../site/api/extensions.md:16
+msgid "Extension name."
+msgstr "扩展名称。"
+
+#: ../../site/api/extensions.md:16
+msgid "Entry-point group label."
+msgstr "入口点分组标签。"
+
+#: ../../site/api/extensions.md:16
+msgid "Supplying distribution."
+msgstr "提供该扩展的发行包。"
+
+#: ../../site/api/extensions.md:16
+msgid "component:symbol target."
+msgstr "component:symbol 目标。"
+
+#: ../../site/api/extensions.md:19
+msgid "Payload passed to a hook callback."
+msgstr "传给钩子回调的载荷。"
+
+#: ../../site/api/extensions.md:19
+msgid "Current value; monostate for notifications."
+msgstr "当前值；通知场景为 monostate。"
+
+#: ../../site/api/extensions.md:19
+msgid "Named scalar arguments."
+msgstr "命名的标量参数。"
+
+#: ../../site/api/extensions.md:22
+msgid "Native extension operation descriptor."
+msgstr "原生扩展操作描述符。"
+
+#: ../../site/api/extensions.md:22
+msgid ""
+"It mirrors the metadata subset of fincore.runtime.specs.OperationSpec that "
+"contributes to ExtensionSnapshot.digest; the callable and schemas stay in "
+"the runtime catalog rather than in this overlay descriptor."
+msgstr ""
+"它对应 fincore.runtime.specs.OperationSpec 中参与 ExtensionSnapshot.digest "
+"的元数据子集；可调用对象与模式仍留在运行时目录中，而不是这个覆盖描述符里。"
+
+#: ../../site/api/extensions.md:22
+msgid ""
+"Returns compact, key-sorted, ASCII-escaped JSON for the fields that "
+"participate in the snapshot digest."
+msgstr "返回参与快照摘要的字段的紧凑、按键排序、ASCII 转义 JSON。"
+
+#: ../../site/api/extensions.md:22
+msgid "Stable across processes and platforms."
+msgstr "跨进程与跨平台稳定。"
+
+#: ../../site/api/extensions.md:22
+msgid "extension."
+msgstr "以 extension. 开头"
+
+#: ../../site/api/extensions.md:22
+msgid "-prefixed id with at least two dots."
+msgstr "、至少包含两个点的 id。"
+
+#: ../../site/api/extensions.md:22
+msgid "Capability id in the same namespace."
+msgstr "同一命名空间下的能力 id。"
+
+#: ../../site/api/extensions.md:22
+msgid "Domain; must be extensions."
+msgstr "领域；必须为 extensions。"
+
+#: ../../site/api/extensions.md:22
+msgid "Non-blank implementation fingerprint."
+msgstr "非空白的实现指纹。"
+
+#: ../../site/api/extensions.md:22
+msgid "Optional non-blank extra tag."
+msgstr "可选的非空白额外标签。"
+
+#: ../../site/api/extensions.md:22
+msgid "Whether the operation is deterministic."
+msgstr "该操作是否为确定性操作。"
+
+#: ../../site/api/extensions.md:22
+msgid "Non-blank RNG policy label."
+msgstr "非空白的随机数策略标签。"
+
+#: ../../site/api/extensions.md:22
+msgid "Optional semantic mode."
+msgstr "可选的语义模式。"
+
+#: ../../site/api/extensions.md:22
+msgid "Optional mode approval."
+msgstr "可选的模式批准。"
+
+#: ../../site/api/extensions.md:22
+msgid "Metadata; excluded from the digest JSON."
+msgstr "元数据；不包含在摘要 JSON 中。"
+
+#: ../../site/api/extensions.md:25
+msgid "Result of validating one discovered manifest."
+msgstr "校验一份已发现清单的结果。"
+
+#: ../../site/api/extensions.md:25
+msgid ""
+"The native ABI does not import code or call dlopen; this record is the load "
+"validation boundary."
+msgstr "原生 ABI 不会导入代码或调用 dlopen；该记录即为加载校验边界。"
+
+#: ../../site/api/extensions.md:25
+msgid "Normalized, validated manifest."
+msgstr "已规范化并校验的清单。"
+
+#: ../../site/api/extensions.md:25
+msgid "SHA-256 of the normalized manifest."
+msgstr "规范化清单的 SHA-256。"
+
+#: ../../site/api/extensions.md:28
+msgid "Discovers and deterministically orders manifests for the requested groups."
+msgstr "发现请求分组的清单并确定性地排序。"
+
+#: ../../site/api/extensions.md:28
+msgid ""
+"Each manifest is normalized by trimming its four text fields. A blank "
+"required field is rejected even when the manifest's group is not requested. "
+"Manifests whose normalized group is not in groups are ignored. Results are "
+"stably sorted by (group, name, distribution, value), so duplicates are "
+"preserved in input order."
+msgstr ""
+"每份清单通过裁剪其四个文本字段来规范化。即使清单所属分组未被请求，空白的必填字段也会被拒绝。规范化后分组不在 groups 中的清单会被忽略。结果按 "
+"(group, name, distribution, value) 稳定排序，因此重复项保持输入顺序。"
+
+#: ../../site/api/extensions.md:31
+msgid "Discovers and orders manifests from a vector."
+msgstr "从 vector 发现并排序清单。"
+
+#: ../../site/api/extensions.md:34
+msgid "Returns the source entry-point group names used by default."
+msgstr "返回默认使用的源实现入口点分组名称。"
+
+#: ../../site/api/extensions.md:37
+msgid "Validates and normalizes one manifest for explicit loading."
+msgstr "校验并规范化一份清单以供显式加载。"
+
+#: ../../site/api/extensions.md:37
+msgid ""
+"The value must use the component:symbol form with exactly one colon, non-"
+"empty parts and no ASCII whitespace. The returned manifest is trimmed and "
+"fingerprinted. No dynamic library is opened and no code is loaded."
+msgstr ""
+"value 必须采用 component:symbol 形式，恰好一个冒号、各部分非空且不含 ASCII "
+"空白字符。返回的清单已裁剪空白并计算指纹。不会打开动态库，也不会加载任何代码。"
+
+#: ../../site/api/extensions.md:40
+msgid "Trims ASCII whitespace around a registration name."
+msgstr "裁剪注册名称两侧的 ASCII 空白。"
+
+#: ../../site/api/extensions.md:40
+msgid ""
+"Case is preserved, as in the pinned source where names are case-sensitive. "
+"Returns an empty string when the input only contains whitespace."
+msgstr "保留大小写，与固定版本源实现中名称区分大小写的行为一致。当输入仅包含空白时返回空字符串。"
+
+#: ../../site/api/extensions.md:43
+msgid "Returns the builtin extension-domain operations."
+msgstr "返回内置的扩展领域操作。"
+
+#: ../../site/api/extensions.md:43
+msgid ""
+"The pinned source returns an empty tuple: third parties register namespaced "
+"operations through snapshots."
+msgstr "固定版本的源实现返回空元组：第三方通过快照注册带命名空间的操作。"
+
+#: ../../site/api/extensions.md:46
+msgid ""
+"A hook either returns a replacement for the first argument or nullopt to "
+"leave it unchanged."
+msgstr "钩子要么返回用于替换第一个参数的值，要么返回 nullopt 以保持其不变。"
+
+#: ../../site/api/extensions.md:46
+msgid ""
+"Returning a value for a notification invocation is ignored, matching the "
+"source execute_hooks contract."
+msgstr "在通知式调用中返回值会被忽略，与源实现的 execute_hooks 契约一致。"
+
+#: ../../site/api/extensions.md:49
+msgid "Named scalar arguments passed to every hook callback."
+msgstr "传给每个钩子回调的命名标量参数。"
+
+#: ../../site/api/extensions.md:52
+msgid "Native name for an input manifest supplied by a host application."
+msgstr "宿主应用提供的输入清单的原生名称。"
+
+#: ../../site/api/extensions.md:55
+msgid "Renderers are native callbacks that map a request key to a stable payload."
+msgstr "渲染器是将请求键映射为稳定载荷的原生回调。"
+
+#: ../../site/api/extensions.md:55
+msgid ""
+"The payload format is owned by the plugin; the snapshot only owns "
+"registration, ordering and fingerprinting."
+msgstr "载荷格式由插件自行决定；快照只负责注册、排序与指纹计算。"
+
+#: ../../site/api/extensions.md:58
+msgid "One native hook argument."
+msgstr "一个原生钩子参数。"
+
+#: ../../site/api/extensions.md:58
+msgid ""
+"Python hooks accept arbitrary positional and keyword arguments; the native "
+"ABI narrows this to one transformed value plus named scalar keywords."
+msgstr "Python 钩子接受任意位置参数与关键字参数；原生 ABI 将其收窄为一个被变换的值加上命名的标量关键字。"
+
+#: ../../site/api/extensions.md:61
+msgid "Source group names from the pinned fincore.extensions.discovery module."
+msgstr "来自固定版本 fincore.extensions.discovery 模块的源分组名称。"
+
+#: ../../site/api/extensions.md:61
+msgid ""
+"The native ABI replaces importlib.metadata entry points with explicitly "
+"supplied manifests while keeping the same group label."
+msgstr "原生 ABI 使用显式提供的清单取代 importlib.metadata 入口点，同时保持相同的分组标签。"
+
+#: ../../site/api/extensions.md:64
+msgid "Native equivalent of the pinned Python ExtensionHook value."
+msgstr "固定版本 Python ExtensionHook 值的原生等价实现。"
+
+#: ../../site/api/extensions.md:64
+msgid ""
+"The Python object derives a module:qualname fingerprint from the callback; "
+"the native ABI requires that fingerprint explicitly because C++ callables "
+"have no portable qualified name."
+msgstr "Python 对象从回调派生 module:qualname 指纹；由于 C++ 可调用对象没有可移植的限定名，原生 ABI 要求显式提供该指纹。"
+
+#: ../../site/api/extensions.md:64
+msgid ""
+"Hooks use priority 100 unless another value is supplied; lower priorities "
+"run first."
+msgstr "除非另行提供，钩子使用优先级 100；优先级数值越小越先执行。"
+

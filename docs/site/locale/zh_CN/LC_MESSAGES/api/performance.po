@@ -1,0 +1,253 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 01:10+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/api/performance.md:1
+msgid "Performance"
+msgstr "绩效"
+
+#: ../../site/api/performance.md:3
+msgid ""
+"Cashflow-adjusted returns, disclosure contexts, returns inference and "
+"performance statistics."
+msgstr "现金流调整后收益率、披露上下文、收益率推断与绩效统计。"
+
+#: ../../site/api/performance.md:5
+msgid ""
+"See the [usage guide](../guides/metrics.md) for task-oriented examples. "
+"Signatures below are generated from the public headers at the same commit as"
+" the rest of this site."
+msgstr "面向任务的使用示例请参阅[使用指南](../guides/metrics.md)。以下签名与本站其余内容在同一提交中由公共头文件生成。"
+
+#: ../../site/api/performance.md:7
+msgid "Display metadata rendered by render_disclosure()."
+msgstr "由 render_disclosure() 渲染的展示元数据。"
+
+#: ../../site/api/performance.md:7
+msgid ""
+"Fields are free-form text and are not interpreted or validated. Empty string"
+" fields render as unspecified, except an empty benchmark, which renders as "
+"none."
+msgstr "各字段为自由格式文本，不会被解释或校验。空字符串字段渲染为 unspecified，但空基准渲染为 none。"
+
+#: ../../site/api/performance.md:7
+msgid "Public Members"
+msgstr "公共成员"
+
+#: ../../site/api/performance.md:7
+msgid "Return convention label."
+msgstr "收益率约定标签。"
+
+#: ../../site/api/performance.md:7
+msgid "Sample-period description."
+msgstr "样本期描述。"
+
+#: ../../site/api/performance.md:7
+msgid "Data-quality description."
+msgstr "数据质量描述。"
+
+#: ../../site/api/performance.md:7
+msgid "Fee-basis label."
+msgstr "费用口径标签。"
+
+#: ../../site/api/performance.md:7
+msgid "Cashflow-treatment label."
+msgstr "现金流处理方式标签。"
+
+#: ../../site/api/performance.md:7
+msgid "Benchmark label; empty renders \"none\"."
+msgstr "基准标签；为空时渲染为 \"none\"。"
+
+#: ../../site/api/performance.md:7
+msgid "Risk-free-rate description."
+msgstr "无风险利率描述。"
+
+#: ../../site/api/performance.md:7
+msgid "Whether values are annualized."
+msgstr "数值是否年化。"
+
+#: ../../site/api/performance.md:7
+msgid "Extra notes, joined with \"; \"."
+msgstr "额外备注，以 \"; \" 连接。"
+
+#: ../../site/api/performance.md:7
+msgid "Return-type label."
+msgstr "收益率类型标签。"
+
+#: ../../site/api/performance.md:7
+msgid "Unit label."
+msgstr "单位标签。"
+
+#: ../../site/api/performance.md:7
+msgid "Observation-frequency label."
+msgstr "观测频率标签。"
+
+#: ../../site/api/performance.md:10
+msgid "Treatment of fees when computing cashflow-adjusted performance."
+msgstr "计算现金流调整后绩效时的费用处理方式。"
+
+#: ../../site/api/performance.md:10
+msgid "Values:"
+msgstr "取值："
+
+#: ../../site/api/performance.md:10
+msgid "Uses valuations as supplied; fees do not adjust returns."
+msgstr "按所提供的估值使用；费用不调整收益率。"
+
+#: ../../site/api/performance.md:10
+msgid "Adds fees back to the closing valuation of their period."
+msgstr "将费用加回到其所属期间的期末估值。"
+
+#: ../../site/api/performance.md:13
+msgid "Returns one cashflow-adjusted simple return per adjacent valuation pair."
+msgstr "为每一对相邻估值返回一个现金流调整后的简单收益率。"
+
+#: ../../site/api/performance.md:13
+msgid ""
+"The output is indexed by the later timestamp of each valuation pair and "
+"stores decimal returns under returns. A period return is (closing - "
+"end_flows) / (opening + start_flows) - 1; under fee_treatment::gross the "
+"closing capital also includes fees recorded on the closing valuation date. "
+"Cashflows and fees must fall on valuation dates; same-day entries are "
+"summed, and nonzero entries on the first valuation date are rejected."
+msgstr ""
+"输出以每对估值中较晚的时间戳为索引，并将小数收益率存储在 returns 下。期间收益率为 (closing - end_flows) / "
+"(opening + start_flows) - 1；在 fee_treatment::gross "
+"下，期末资本还包含记录在期末估值日的费用。现金流和费用必须落在估值日；同日的条目会相加，而首个估值日上的非零条目会被拒绝。"
+
+#: ../../site/api/performance.md
+msgid "Parameters"
+msgstr "参数"
+
+#: ../../site/api/performance.md
+msgid "Throws"
+msgstr "抛出"
+
+#: ../../site/api/performance.md
+msgid "Returns"
+msgstr "返回"
+
+#: ../../site/api/performance.md:16
+msgid "Returns the compounded cashflow-adjusted time-weighted return."
+msgstr "返回复合后的现金流调整时间加权收益率。"
+
+#: ../../site/api/performance.md:16
+msgid ""
+"Compounding multiplies 1 + r over the per-period returns from "
+"cashflow_adjusted_returns() and subtracts one."
+msgstr "复合过程将 cashflow_adjusted_returns() 返回的各期收益率按 1 + r 连乘后减去 1。"
+
+#: ../../site/api/performance.md:19
+msgid "Returns the money-weighted return of periodic cashflows."
+msgstr "返回周期性现金流的资金加权收益率。"
+
+#: ../../site/api/performance.md:19
+msgid ""
+"Uses row order, not timestamps, as the period axis. The first row is period "
+"zero and each subsequent row is period intervals later. Zero amounts are "
+"dropped after their positions are fixed. A rate is solved only for flows "
+"with exactly one sign change."
+msgstr "以行顺序而非时间戳作为期间轴。第一行为第零期，其后每一行都晚 period 个期间。零金额在位置确定后被丢弃。仅对恰好有一次符号变化的现金流求解利率。"
+
+#: ../../site/api/performance.md:22
+msgid "Returns a deterministic, newline-separated disclosure block."
+msgstr "返回确定性的、以换行分隔的披露块。"
+
+#: ../../site/api/performance.md:22
+msgid ""
+"Lines appear in this order: convention, return type, units, frequency, "
+"sample period, data quality, fees, cashflows, benchmark, risk-free and "
+"annualized. A non-empty notes list adds a final Notes: line whose entries "
+"are joined by ;; that final line has no trailing newline."
+msgstr ""
+"各行按以下顺序出现：convention、return type、units、frequency、sample period、data "
+"quality、fees、cashflows、benchmark、risk-free 和 annualized。非空的备注列表会追加末尾的 Notes:"
+" 行，其条目以 ; 连接；该最后一行没有尾随换行符。"
+
+#: ../../site/api/performance.md:25
+msgid ""
+"Returns a normal-approximation confidence interval for the per-period Sharpe"
+" ratio."
+msgstr "返回每期夏普比率的正态近似置信区间。"
+
+#: ../../site/api/performance.md:25
+#, python-brace-format
+msgid ""
+"The interval is S - z * SE to S + z * SE, using the Sharpe ratio and "
+"standard error described by sharpe_standard_error(). Fewer than two non-NaN "
+"observations yield {NaN, NaN}. No annualization is applied."
+msgstr ""
+"区间为 S - z * SE 到 S + z * SE，使用 sharpe_standard_error() 所描述的夏普比率和标准误。非 NaN "
+"观测少于两个时返回 {NaN, NaN}。不进行年化。"
+
+#: ../../site/api/performance.md:28
+msgid "Returns the standard error of the per-period Sharpe ratio."
+msgstr "返回每期夏普比率的标准误。"
+
+#: ../../site/api/performance.md:28
+msgid ""
+"Each non-NaN observation is shifted by risk_free. The Sharpe ratio is the "
+"shifted mean divided by the sample standard deviation (zero when that "
+"deviation is at most 1e-15), and the standard error is sqrt((1 + 0.5 * S^2) "
+"/ n). Fewer than two non-NaN observations yield NaN. No annualization is "
+"applied."
+msgstr ""
+"每个非 NaN 观测都按 risk_free 平移。夏普比率为平移后的均值除以样本标准差（当该标准差至多为 1e-15 时取零），标准误为 "
+"sqrt((1 + 0.5 * S^2) / n)。非 NaN 观测少于两个时返回 NaN。不进行年化。"
+
+#: ../../site/api/performance.md:31
+msgid "Returns the standard error of the sample mean of column."
+msgstr "返回 column 样本均值的标准误。"
+
+#: ../../site/api/performance.md:31
+msgid ""
+"NaN observations are dropped. The result is the sample standard deviation (n"
+" - 1 denominator) divided by sqrt(n). Fewer than two non-NaN observations "
+"yield NaN."
+msgstr "丢弃 NaN 观测。结果为样本标准差（分母为 n - 1）除以 sqrt(n)。非 NaN 观测少于两个时返回 NaN。"
+
+#: ../../site/api/performance.md:34
+msgid "Returns the total time-weighted return of column."
+msgstr "返回 column 的总时间加权收益率。"
+
+#: ../../site/api/performance.md:34
+msgid ""
+"Multiplies 1 + r over all non-NaN observations and subtracts one. NaN "
+"observations are skipped; infinities and returns at or below -1 are used as "
+"supplied. An empty series or a series containing only NaN yields 0.0."
+msgstr ""
+"对所有非 NaN 观测按 1 + r 连乘后减去 1。NaN 观测会被跳过；无穷值和小于等于 -1 的收益率按原样使用。空序列或仅含 NaN 的序列返回"
+" 0.0。"
+
+#: ../../site/api/performance.md:37
+msgid "Returns the annualized internal rate of return of dated cashflows."
+msgstr "返回带日期现金流的年化内部收益率。"
+
+#: ../../site/api/performance.md:37
+msgid ""
+"Cashflows are summed by UTC calendar day and sorted by date; zero daily "
+"totals are dropped. Period fractions use actual elapsed days divided byA "
+"rate is solved only for flows with exactly one sign change, and the result "
+"is rejected when no representable root meets the solver's residual budget."
+msgstr ""
+"现金流按 UTC "
+"日历日汇总并按日期排序；每日合计为零的会被丢弃。期间分数使用实际经过的天数除以；仅对恰好有一次符号变化的现金流求解利率，当没有可表示的根满足求解器的残差预算时，结果被拒绝。"
+

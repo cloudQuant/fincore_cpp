@@ -1,0 +1,54 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-25 22:15+0800\n"
+"PO-Revision-Date: 2026-10-25 22:20+0800\n"
+"Last-Translator: fincore_cpp documentation maintainers\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/guides/portfolio-risk.md:1
+msgid "Portfolio, risk, optimization and simulation"
+msgstr "投资组合、风险、优化与模拟"
+
+#: ../../site/guides/portfolio-risk.md:3
+msgid ""
+"Portfolio inputs own their typed positions, transactions, prices and "
+"weights. The returned models copy or own their data; callers should not rely "
+"on a view remaining valid after the source frame changes."
+msgstr ""
+"投资组合输入拥有其类型化的持仓、交易、价格和权重。返回的模型会复制或拥有其数"
+"据；调用方不应依赖视图在源数据帧发生变化后仍然有效。"
+
+#: ../../site/guides/portfolio-risk.md:7
+msgid ""
+"Risk and optimization APIs report infeasible, nonconvergent or unavailable "
+"fits through documented statuses/exceptions instead of silently returning a "
+"plausible-looking number. Simulation APIs take an explicit seed where "
+"documented; matching a seed does not imply cross-language RNG identity."
+msgstr ""
+"风险和优化 API 通过文档化的状态/异常报告不可行、不收敛或不可用的拟合结果，而"
+"不是静默返回一个看似合理的数值。模拟 API 在文档说明之处接受显式随机种子；相同"
+"的随机种子并不意味着跨语言 RNG 一致。"
+
+#: ../../site/guides/portfolio-risk.md:12
+msgid ""
+"The API reference lists the exact result fields, failure statuses and warm-"
+"up requirements. This guide only describes the shared ownership and failure "
+"model; it does not turn a deferred optimization experiment into a supported "
+"feature."
+msgstr ""
+"API 参考列出了确切的结果字段、失败状态和预热期要求。本指南仅描述共有的所有权"
+"与失败模型；它不会把一项暂缓的优化实验变成受支持的功能。"

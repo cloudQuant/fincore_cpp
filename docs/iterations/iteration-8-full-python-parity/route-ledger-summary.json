@@ -1,0 +1,18 @@
+{
+  "gap_count": 0,
+  "gaps": [],
+  "notes": [
+    "CASE grain uses the reviewed canonical test IDs.",
+    "MODULE grain means the module's native test file exists and exercises the API; it is not a one-case-per-route claim.",
+    "REGISTRY grain means the operation ID is present in the native runtime registration sources; the runtime operations test constructs the catalog.",
+    "EXTERNAL_OPTIONAL is not a PASS."
+  ],
+  "rows": 952,
+  "schema_version": "1",
+  "status_counts": {
+    "EXTERNAL_OPTIONAL": 24,
+    "NATIVE_PASS": 648,
+    "NATIVE_PASS_REGISTRY": 270,
+    "NATIVE_PASS_SCENARIO": 10
+  }
+}

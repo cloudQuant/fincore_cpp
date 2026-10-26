@@ -1,0 +1,24 @@
+# Windows 11 execution environment
+captured_at_utc=2026-10-24T14:01:43Z
+os=Windows-11-10.0.26300-SP0
+machine=AMD64
+processor=Intel64 Family 6 Model 183 Stepping 1, GenuineIntel
+logical_cpus=32
+git_branch=dev
+git_head=8629d79f699c142c438a9f43038ba922e32eb077
+git_dirty_paths=24
+submodules:
+  90aa4acf6437d5a34f7ab8dfb6e9250c3d53d230 third_party/DataFrame (4.1.0-13-g90aa4acf)
+   4e99c0ab1a28c2b3d1f250ec0266dbf1e455ef58 third_party/imgui (heads/master)
+   7eeb9168d2e5e6b14e266d8782ecf7e649dfc3a4 third_party/implot (7eeb916)
+cmake_version=cmake version 3.28.0-rc4
+ninja_version=1.11.1
+python_version=3.14.2 (tags/v3.14.2:df79316, Dec  5 2025, 17:18:21) [MSC v.1944 64 bit (AMD64)]
+generator=Ninja
+build_type=Release
+cxx_standard=
+cxx_compiler=C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/bin/Hostx64/x64/cl.exe
+cxx_compiler_id=
+cxx_compiler_version=
+cxx_flags_release=/O2 /Ob2 /DNDEBUG
+dataframe_source=D:/source_code/fincore_cpp/third_party/DataFrame

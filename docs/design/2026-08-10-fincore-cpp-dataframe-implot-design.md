@@ -10,16 +10,18 @@ oracle during migration. The local `cloudQuant/DataFrame` checkout is the
 tabular data implementation, and the local `cloudQuant/implot` checkout is
 the plotting implementation.
 
-The repository is starting from an empty C++ implementation. The migration is
-therefore staged for reviewable, usable releases, but the final scope remains:
-metrics, analysis context, rolling calculations, visualization, optimization,
-simulation, attribution, risk models, reports, data providers, and tearsheets.
+The repository began from an empty C++ implementation and now contains the
+accepted Phase 2A–3C slices. The migration remains staged for reviewable,
+usable releases, but the final scope remains: metrics, analysis context,
+rolling calculations, visualization, optimization, simulation, attribution,
+risk models, reports, data providers, and tearsheets.
 
 The 2026-08-10 foundation acceptance is deliberately narrower than full phase
-or product acceptance. It verifies the headless C++ core and its sanitizer
-gate; the optional ImPlot positive-build gate remains open until a valid local
-Dear ImGui checkout is supplied. The evidence and C++/Python correspondence
-inventory live in `docs/acceptance/2026-08-10-foundation-acceptance.md`.
+or product acceptance. It is a dated record of the headless C++ core and its
+sanitizer gate; its former optional-ImPlot OPEN item is superseded, not
+rewritten, by the Phase 3C positive compile acceptance in
+`docs/acceptance/2026-08-11-phase-3c-implot-activation-acceptance.md`.
+Neither record claims full fincore parity or product completion.
 
 ## Design goals
 
@@ -144,10 +146,20 @@ void plot_rolling_metric(const dataframe&, std::string_view column,
 ```
 
 The demo owns the GLFW/OpenGL event loop. Library code never creates a hidden
-window, changes ImGui global context, or assumes a graphics thread. CMake
-requires an explicit `FINCORE_IMGUI_SOURCE_DIR` to build the demo, because
-only the local ImPlot checkout was supplied. This prevents an invisible
-network dependency and gives a precise diagnostic when Dear ImGui is absent.
+window, changes ImGui global context, or assumes a graphics thread. The
+adapter requires caller-owned current Dear ImGui and ImPlot contexts. CMake's
+`FINCORE_IMGUI_SOURCE_DIR` cache default is the supplied local checkout
+`/Users/yunjinqi/Documents/new_projects/imgui`; callers may override that
+cache path with another complete checkout. The graphics options remain OFF by
+default, so this local default does not make the core a graphics dependency.
+
+Phase 3C accepts adapter and demo compilation with that default path, including
+the conditional `ImPlotAdapterCompile` CTest contract. It does not launch the
+demo or claim a GUI runtime, hidden-window test, screenshot, or interactive
+render. The accepted macOS builds emitted OpenGL deprecation warnings, which
+are warnings rather than a no-warning claim. A bad explicit ImGui override is
+still a precise negative dependency diagnostic and never justifies fetching,
+cloning, vendoring, fabricating, or substituting Dear ImGui source.
 
 ## Build, dependencies, and packaging
 
@@ -157,7 +169,7 @@ The top-level project requires CMake 3.25 and C++23. It accepts:
 | --- | --- | --- |
 | `FINCORE_DATAFRAME_SOURCE_DIR` | local supplied DataFrame path | Adds the local CMake DataFrame target. |
 | `FINCORE_IMPLOT_SOURCE_DIR` | local supplied ImPlot path | Compiles `implot.cpp` and `implot_items.cpp` only for the optional adapter. |
-| `FINCORE_IMGUI_SOURCE_DIR` | empty | Dear ImGui checkout required to build ImPlot/demo. |
+| `FINCORE_IMGUI_SOURCE_DIR` | `/Users/yunjinqi/Documents/new_projects/imgui` | Default local Dear ImGui checkout for optional ImPlot/demo builds; callers may override the cache path. |
 | `FINCORE_BUILD_TESTING` | `ON` | Enables CTest and GoogleTest. |
 | `FINCORE_BUILD_IMPLOT` | `OFF` | Enables the ImPlot adapter when a Dear ImGui source path is supplied. |
 | `FINCORE_BUILD_IMPLOT_DEMO` | `OFF` | Enables GLFW/OpenGL demo only when every GUI dependency is present. |
@@ -175,11 +187,20 @@ interface to the final executable. This supplies the ASan/UBSan runtimes where
 they are required without imposing global flags or enabling an optional
 graphics dependency.
 
-A failing configuration for a missing `FINCORE_IMGUI_SOURCE_DIR` proves only
-the dependency diagnostic. It never substitutes for the independent positive
-`fincore_implot` or demo build gate, which requires a real local Dear ImGui
-checkout and must not acquire one by fetching, cloning, vendoring, or
-fabricating source.
+A failing configuration for an invalid explicit `FINCORE_IMGUI_SOURCE_DIR`
+proves only the dependency diagnostic. It does not substitute for the
+independent positive `fincore_implot` or demo build gate, which Phase 3C
+accepts with the real supplied default checkout. `ImPlotAdapterCompile` is
+registered only when the optional adapter target exists; headless builds are
+free of that test and graphics dependencies. Neither path may acquire Dear
+ImGui by fetching, cloning, vendoring, fabricating, or substituting source.
+
+The remaining migration work includes interactive visual smoke testing on a
+user display; multi-series and tearsheet visualizations; unimplemented
+multi-column and full-index rolling APIs; positions and transactions; round
+trips; attribution; Bayesian/bootstrap and advanced risk models; optimization;
+simulation; reports; data providers; packaging and release; and full Python
+public-API parity.
 
 ## Verification strategy
 

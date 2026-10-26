@@ -1,0 +1,118 @@
+{
+  "by_module": {
+    "analysis_context": {
+      "documented": 4,
+      "missing": 0,
+      "total": 4
+    },
+    "attribution": {
+      "documented": 128,
+      "missing": 0,
+      "total": 128
+    },
+    "calendar": {
+      "documented": 2,
+      "missing": 0,
+      "total": 2
+    },
+    "data": {
+      "documented": 45,
+      "missing": 0,
+      "total": 45
+    },
+    "dataframe": {
+      "documented": 5,
+      "missing": 0,
+      "total": 5
+    },
+    "error": {
+      "documented": 2,
+      "missing": 0,
+      "total": 2
+    },
+    "errors": {
+      "documented": 44,
+      "missing": 0,
+      "total": 44
+    },
+    "extensions": {
+      "documented": 64,
+      "missing": 0,
+      "total": 64
+    },
+    "factor": {
+      "documented": 866,
+      "missing": 0,
+      "param_missing": 12,
+      "total": 866
+    },
+    "metrics": {
+      "documented": 253,
+      "missing": 0,
+      "param_missing": 171,
+      "total": 253
+    },
+    "operations": {
+      "documented": 21,
+      "missing": 0,
+      "total": 21
+    },
+    "optimization": {
+      "documented": 60,
+      "missing": 0,
+      "total": 60
+    },
+    "performance": {
+      "documented": 23,
+      "missing": 0,
+      "total": 23
+    },
+    "portfolio": {
+      "documented": 119,
+      "missing": 0,
+      "total": 119
+    },
+    "report": {
+      "documented": 99,
+      "missing": 0,
+      "total": 99
+    },
+    "risk": {
+      "documented": 230,
+      "missing": 0,
+      "total": 230
+    },
+    "rolling_engine": {
+      "documented": 4,
+      "missing": 0,
+      "total": 4
+    },
+    "runtime": {
+      "documented": 117,
+      "missing": 0,
+      "param_missing": 46,
+      "total": 117
+    },
+    "simulation": {
+      "documented": 81,
+      "missing": 0,
+      "total": 81
+    },
+    "version": {
+      "documented": 9,
+      "missing": 0,
+      "total": 9
+    },
+    "viz": {
+      "documented": 308,
+      "missing": 0,
+      "param_missing": 67,
+      "total": 308
+    }
+  },
+  "documented": 2484,
+  "missing": 0,
+  "param_missing": 296,
+  "source": "D:\\source_code\\fincore_cpp\\docs\\_build\\doxygen\\xml",
+  "total": 2484
+}

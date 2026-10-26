@@ -1,0 +1,81 @@
+{
+  "captures": [
+    {
+      "panels": [
+        "cumulative returns",
+        "monthly return heatmap",
+        "rolling Sharpe",
+        "drawdown fill",
+        "grouped bars",
+        "histogram",
+        "correlation matrix",
+        "efficient frontier"
+      ],
+      "path": "docs/evidence/iteration-8/p106/captures/general.png",
+      "sha256": "941bf96ed19ae78281525f60ea71b2f1ec1e90824d4e56c67d473e2a67aeab9d",
+      "size_bytes": 297012,
+      "view": "general"
+    },
+    {
+      "panels": [
+        "information coefficient series",
+        "mean return by quantile bars",
+        "top-minus-bottom spread bars",
+        "quantile turnover",
+        "rank autocorrelation"
+      ],
+      "path": "docs/evidence/iteration-8/p106/captures/factor.png",
+      "sha256": "2f87c8a71a4d4090a3db0d73d4b3ac35342a9e1d20c423ff55afa5e37055fb61",
+      "size_bytes": 159011,
+      "view": "factor"
+    },
+    {
+      "panels": [
+        "grouped tear sections: per-group IC, quantile returns, spread"
+      ],
+      "path": "docs/evidence/iteration-8/p106/captures/groups.png",
+      "sha256": "c2afa12e4d2022399081f30bd6cc6b3c61b99e56ff5ed2db43f77f1d089ac7bb",
+      "size_bytes": 151523,
+      "view": "groups"
+    },
+    {
+      "panels": [
+        "event mean returns",
+        "event return distribution",
+        "quantile mean returns by event offset"
+      ],
+      "path": "docs/evidence/iteration-8/p106/captures/events.png",
+      "sha256": "717c695c402da6c6eb250e1aa66dc8b90b16f4c6593fb40bd1f99d2dd52c136e",
+      "size_bytes": 117280,
+      "view": "events"
+    },
+    {
+      "panels": [
+        "quantile cumulative returns",
+        "events distribution",
+        "IC QQ (1D, 5D)",
+        "mean quantile spread time series",
+        "monthly IC heatmap (1D, 5D)",
+        "quantile return violin/KDE"
+      ],
+      "path": "docs/evidence/iteration-8/p106/captures/specialized.png",
+      "sha256": "517ce1f73be78b1f3407564af4dd2dfc4443ca7745d57ffb96836fae6fd057db",
+      "size_bytes": 272100,
+      "view": "specialized"
+    }
+  ],
+  "fixed_window": {
+    "scale": "2x Retina framebuffer",
+    "width": 1280
+  },
+  "interactive_display": "NOT_RUN (headless hidden-window capture only)",
+  "iteration": 8,
+  "notes": [
+    "PPM captures were converted to PNG for review; PNG hashes retained.",
+    "Chart values are the native chart-data values; the renderer does not recompute financial kernels."
+  ],
+  "phase": "P106",
+  "platform": "macOS arm64, OpenGL 3.2 core",
+  "renderer": "fincore_implot_demo (hidden GLFW window, glReadPixels)",
+  "schema_version": "1"
+}

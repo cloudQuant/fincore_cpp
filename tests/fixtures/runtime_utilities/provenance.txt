@@ -1,0 +1,4 @@
+Generated from source pin 4b8f31b1b59707480d5db9603704d83bbf7e6946.
+Python=3.11.8 pandas=3.0.3 numpy=1.26.4.
+Index labels are UTC nanoseconds. alignment_oracle.csv records every output cell; alignment_summary.csv records exact output index and column order. alignment_errors.csv freezes duplicate-label, strict-order, and outer_dropna zero-column selection failures. The zero-column success case has a matching index; the missing-label case reproduces pandas .loc failure after the vacuous all-notna filter.
+numeric_stddev.csv records numpy.std(float64, ddof=1) cases. Finite results use absolute tolerance 1e-14 and relative tolerance 0; non-finite result class and sign are exact. The longer 257-value case exercises NumPy's pairwise sum tree for both mean and squared deviations. The mean-overflow row intentionally records NumPy's positive infinity result.

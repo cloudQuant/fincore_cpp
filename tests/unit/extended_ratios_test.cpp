@@ -1,14 +1,152 @@
-#include <fincore/error.hpp>
 #include <fincore/metrics/ratios.hpp>
 
 #include <gtest/gtest.h>
 
+#include <array>
 #include <cmath>
 #include <limits>
+#include <string_view>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
 namespace {
 
 constexpr double nan = std::numeric_limits<double>::quiet_NaN();
+
+using common_sense_ratio_signature =
+    double (*)(const fincore::dataframe&, std::string_view);
+
+static_assert(std::is_same_v<
+              decltype(static_cast<common_sense_ratio_signature>(
+                  &fincore::common_sense_ratio)),
+              common_sense_ratio_signature>);
+
+TEST(ExtendedRatios, MatchesCommonSenseRatioPythonOracle) {
+  const auto mixed =
+      fincore::make_series({1, 2, 3, 4}, "returns", {.01, -.02, .03, -.01});
+  const auto zeros_mixed = fincore::make_series(
+      {1, 2, 3, 4, 5}, "returns", {.01, 0., -.02, .03, 0.});
+  // Half the observations are wins, so the win-rate factor is one half over
+  // one half and cancels: 19.0 is purely the 95th-over-5th percentile ratio.
+  const auto zero_tail = fincore::make_series({1, 2}, "returns", {0., .01});
+
+  EXPECT_NEAR(fincore::common_sense_ratio(mixed), 1.4594594594594592, 1e-12);
+  EXPECT_NEAR(fincore::common_sense_ratio(zeros_mixed), 1.0833333333333333,
+              1e-12);
+  EXPECT_DOUBLE_EQ(fincore::common_sense_ratio(zero_tail), 19.0);
+}
+
+TEST(ExtendedRatios, PreservesCommonSenseRatioRawLengthAndBoundaryBranches) {
+  fincore::dataframe zero_rows;
+  zero_rows.load_index(std::vector<fincore::timestamp>{});
+  zero_rows.load_column<double>("returns", std::vector<double>{},
+                                hmdf::nan_policy::dont_pad_with_nans);
+
+  const auto single = fincore::make_series({1}, "returns", {.01});
+  const auto one_finite_two_raw =
+      fincore::make_series({1, 2}, "returns", {.01, nan});
+  const auto all_nan = fincore::make_series({1, 2}, "returns", {nan, nan});
+  const auto undefined_tail_with_win =
+      fincore::make_series({1, 2, 3}, "returns", {0., 0., .01});
+  const auto no_win =
+      fincore::make_series({1, 2, 3}, "returns", {-.01, 0., -.02});
+  const auto all_win =
+      fincore::make_series({1, 2, 3}, "returns", {.01, .02, .03});
+
+  EXPECT_TRUE(std::isnan(fincore::common_sense_ratio(zero_rows)));
+  EXPECT_TRUE(std::isnan(fincore::common_sense_ratio(single)));
+  EXPECT_TRUE(std::isnan(fincore::common_sense_ratio(all_nan)));
+  EXPECT_TRUE(
+      std::isnan(fincore::common_sense_ratio(undefined_tail_with_win)));
+  EXPECT_TRUE(std::isnan(fincore::common_sense_ratio(no_win)));
+
+  const double one_finite_result =
+      fincore::common_sense_ratio(one_finite_two_raw);
+  EXPECT_TRUE(std::isinf(one_finite_result));
+  EXPECT_GT(one_finite_result, 0.0);
+
+  const double all_win_result = fincore::common_sense_ratio(all_win);
+  EXPECT_TRUE(std::isinf(all_win_result));
+  EXPECT_GT(all_win_result, 0.0);
+}
+
+TEST(ExtendedRatios, UsesAcceptedNativeFiniteFilteringForCommonSenseRatio) {
+  const auto positive_infinity = fincore::make_series(
+      {1, 2, 3, 4}, "returns",
+      {.01, std::numeric_limits<double>::infinity(), -.02, .03});
+  const auto negative_infinity = fincore::make_series(
+      {1, 2, 3, 4}, "returns",
+      {.01, -std::numeric_limits<double>::infinity(), -.02, .03});
+
+  EXPECT_NEAR(fincore::common_sense_ratio(positive_infinity),
+              3.294117647058822, 1e-12);
+  EXPECT_NEAR(fincore::common_sense_ratio(negative_infinity),
+              3.294117647058822, 1e-12);
+}
+
+TEST(ExtendedRatios, PreservesInfiniteDelegatedTailWithoutClamping) {
+  std::vector<fincore::timestamp> index;
+  std::vector<double> values(19U,
+                             -std::numeric_limits<double>::denorm_min());
+  index.reserve(20U);
+  for (fincore::timestamp value = 1; value <= 20; ++value) {
+    index.push_back(value);
+  }
+  values.push_back(std::numeric_limits<double>::max());
+  const auto returns =
+      fincore::make_series(std::move(index), "returns", std::move(values));
+
+  const double result = fincore::common_sense_ratio(returns);
+
+  EXPECT_TRUE(std::isinf(result));
+  EXPECT_GT(result, 0.0);
+}
+
+TEST(ExtendedRatios, ValidatesCommonSenseRatioSelectorBeforeRawLength) {
+  const auto strategy = fincore::make_series({1, 2, 3, 4}, "strategy",
+                                              {.01, -.02, .03, -.01});
+  // One row can never yield a ratio, only NaN, so every throw below is proof
+  // that the selector is validated ahead of the raw-length shortcut.
+  const auto single_strategy =
+      fincore::make_series({1}, "strategy", std::vector<double>{.01});
+  const std::array<char, 8> bounded_name{'s', 't', 'r', 'a',
+                                          't', 'e', 'g', 'y'};
+  const std::string_view bounded_selector{bounded_name.data(),
+                                          bounded_name.size()};
+  const std::array<char, 13> embedded_name{
+      's', 't', 'r', 'a', 't', 'e', 'g', 'y', '\0', 'e', 'v', 'i', 'l'};
+  const std::string_view embedded_selector{embedded_name.data(),
+                                           embedded_name.size()};
+
+  EXPECT_NEAR(fincore::common_sense_ratio(strategy, bounded_selector),
+              1.4594594594594592, 1e-12);
+  EXPECT_THROW(static_cast<void>(
+                   fincore::common_sense_ratio(single_strategy,
+                                               embedded_selector)),
+               fincore::input_error);
+  EXPECT_THROW(
+      static_cast<void>(fincore::common_sense_ratio(single_strategy, "")),
+      fincore::input_error);
+  EXPECT_THROW(
+      static_cast<void>(
+          fincore::common_sense_ratio(single_strategy, "missing")),
+      fincore::input_error);
+
+  fincore::dataframe wrong_type;
+  wrong_type.load_index(std::vector<fincore::timestamp>{1});
+  wrong_type.load_column<int>("returns", std::vector<int>{1},
+                              hmdf::nan_policy::dont_pad_with_nans);
+  EXPECT_THROW(static_cast<void>(fincore::common_sense_ratio(wrong_type)),
+               fincore::input_error);
+
+  fincore::dataframe short_column;
+  short_column.load_index(std::vector<fincore::timestamp>{1, 2});
+  short_column.load_column<double>("returns", std::vector<double>{.01},
+                                   hmdf::nan_policy::dont_pad_with_nans);
+  EXPECT_THROW(static_cast<void>(fincore::common_sense_ratio(short_column)),
+               fincore::input_error);
+}
 
 TEST(ExtendedRatios, MatchesPythonOracleForAlignedDailyReturns) {
   const auto returns =

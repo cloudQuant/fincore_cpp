@@ -1,0 +1,50 @@
+{
+  "data": [
+    {
+      "type": "scatter",
+      "name": "Cumulative Return",
+      "mode": "lines",
+      "x": [
+        0.0,
+        1.0,
+        2.0,
+        3.0,
+        4.0
+      ],
+      "y": [
+        1.0,
+        1.01,
+        1.03,
+        1.02,
+        1.05
+      ]
+    }
+  ],
+  "layout": {
+    "title": "Iteration 8 Native Artifact Check",
+    "template": "plotly_white",
+    "height": 500,
+    "showlegend": true,
+    "font": {
+      "color": "#424242"
+    },
+    "plot_bgcolor": "#FFFFFF",
+    "paper_bgcolor": "#FFFFFF",
+    "xaxis": {
+      "title": {
+        "text": ""
+      },
+      "gridcolor": "#E0E0E0",
+      "zerolinecolor": "#E0E0E0"
+    },
+    "yaxis": {
+      "title": {
+        "text": ""
+      },
+      "gridcolor": "#E0E0E0",
+      "zerolinecolor": "#E0E0E0"
+    },
+    "shapes": [],
+    "annotations": []
+  }
+}

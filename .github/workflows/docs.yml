@@ -1,0 +1,113 @@
+name: docs
+
+on:
+  push:
+    branches: [dev, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install Doxygen and Python docs dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y doxygen
+          python -m pip install --upgrade pip
+          python -m pip install -r docs/requirements-docs.txt
+      - name: Generate Doxygen XML
+        working-directory: docs/site
+        run: |
+          mkdir -p ../_build/doxygen
+          doxygen Doxyfile
+          python tools/normalize_doxygen_xml.py ../_build/doxygen/xml
+      - name: Build English documentation
+        working-directory: docs/site
+        env:
+          FINCORE_DOCS_LANGUAGE: en
+          FINCORE_DOCS_BASEURL: https://cloudquant.github.io/fincore_cpp/en/latest/
+        run: sphinx-build -b html -W -n --keep-going . ../_build/html/en
+      - name: Build Chinese documentation
+        working-directory: docs/site
+        env:
+          FINCORE_DOCS_LANGUAGE: zh_CN
+          FINCORE_DOCS_BASEURL: https://cloudquant.github.io/fincore_cpp/zh-cn/latest/
+        run: sphinx-build -b html -W -n --keep-going . ../_build/html/zh_CN
+      - name: Assemble GitHub Pages site
+        run: |
+          mkdir -p site/en/latest site/zh-cn/latest
+          cp -r docs/_build/html/en/. site/en/latest/
+          cp -r docs/_build/html/zh_CN/. site/zh-cn/latest/
+          cp docs/site/root.html site/index.html
+          touch site/.nojekyll
+      - name: Upload the deployable site
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-site
+          # The dotfile must be listed explicitly: upload-artifact drops
+          # hidden files, and Pages runs Jekyll without .nojekyll, which would
+          # omit Sphinx's _static assets.
+          path: |
+            site
+            site/.nojekyll
+
+  pages:
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/master')
+    needs: build
+    runs-on: ubuntu-24.04
+    outputs:
+      enabled: ${{ steps.precheck.outputs.enabled }}
+    steps:
+      - id: precheck
+        name: Check whether Pages is enabled for this repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          status=$(curl -s -o /dev/null -w '%{http_code}' \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            "https://api.github.com/repos/${{ github.repository }}/pages")
+          if [ "$status" = "200" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=GitHub Pages is not enabled (HTTP $status); docs site built but not published"
+          fi
+      - name: Download the deployable site
+        if: steps.precheck.outputs.enabled == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: docs-site
+          path: site
+      - name: Configure Pages
+        if: steps.precheck.outputs.enabled == 'true'
+        uses: actions/configure-pages@v5
+      - name: Upload Pages artifact
+        if: steps.precheck.outputs.enabled == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/master') && needs.pages.outputs.enabled == 'true'
+    needs: pages
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

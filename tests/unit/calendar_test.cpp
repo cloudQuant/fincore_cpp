@@ -22,11 +22,16 @@ TEST(Calendar, PreservesSubDayNanosecondPrecision) {
 }
 
 TEST(Calendar, ExtractsUtcYear) {
+    // One nanosecond before the epoch is still 1969, so the extraction floors
+    // toward earlier time instead of truncating the division toward zero.
     EXPECT_EQ(fincore::utc_year(-1), 1969);
     EXPECT_EQ(fincore::utc_year(fincore::utc_timestamp(2021, 1, 1)), 2021);
 }
 
 TEST(Calendar, PreservesExactSignedNanosecondLimits) {
+    // The bounds are the first and last instants a signed 64-bit nanosecond
+    // count can hold: each is asserted as accepted exactly and as rejected one
+    // nanosecond beyond, so the comparison cannot drift by a single step.
     constexpr auto minimum = std::numeric_limits<fincore::timestamp>::min();
     constexpr auto maximum = std::numeric_limits<fincore::timestamp>::max();
 

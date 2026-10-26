@@ -1,0 +1,84 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-25 22:15+0800\n"
+"PO-Revision-Date: 2026-10-25 22:20+0800\n"
+"Last-Translator: fincore_cpp documentation maintainers\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/troubleshooting.md:1
+msgid "Troubleshooting"
+msgstr "故障排查"
+
+#: ../../site/troubleshooting.md:3
+msgid "Configure or build fails"
+msgstr "配置或构建失败"
+
+#: ../../site/troubleshooting.md:5
+msgid ""
+"Confirm that the C++ toolchain supports C++23, CMake is at least 3.25, and "
+"the pinned submodules are present (`git submodule update --init --"
+"recursive`). If a consumer-provided DataFrame is used, set "
+"`FINCORE_DATAFRAME_SOURCE_DIR` or provide a discoverable `DataFrameConfig."
+"cmake`."
+msgstr ""
+"确认 C++ 工具链支持 C++23、CMake 版本至少为 3.25，并且固定版本的子模块已就位"
+"（`git submodule update --init --recursive`）。如果使用方提供了 DataFrame，请"
+"设置 `FINCORE_DATAFRAME_SOURCE_DIR`，或提供可被发现的 `DataFrameConfig."
+"cmake`。"
+
+#: ../../site/troubleshooting.md:10
+msgid "Tests fail on a platform"
+msgstr "测试在某个平台上失败"
+
+#: ../../site/troubleshooting.md:12
+msgid ""
+"Record the compiler, standard flags, CMake generator and the exact failing "
+"test. Do not weaken assertions or change numerical tolerances merely to make "
+"a local platform pass. The acceptance record distinguishes qualified passes "
+"and external blockers."
+msgstr ""
+"记录编译器、标准标志、CMake 生成器以及具体失败的测试。不要仅仅为了让本地平台"
+"通过就弱化断言或修改数值容差。验收记录会区分合格通过与外部阻塞。"
+
+#: ../../site/troubleshooting.md:17
+msgid "Data or numerical errors"
+msgstr "数据或数值错误"
+
+#: ../../site/troubleshooting.md:19
+msgid ""
+"Check units, index timezone/order/uniqueness, missing values, duplicate "
+"keys, ties and window warm-up against the specific API contract. A `NaN` "
+"result may mean an incomplete window or a genuinely undefined statistic, not "
+"zero return."
+msgstr ""
+"对照具体 API 契约，检查单位、索引时区/顺序/唯一性、缺失值、重复键、并列值以及"
+"窗口预热期。`NaN` 结果可能表示窗口不完整或统计量确实未定义，而不是零收益率。"
+
+#: ../../site/troubleshooting.md:23
+msgid "Documentation build fails"
+msgstr "文档构建失败"
+
+#: ../../site/troubleshooting.md:25
+msgid ""
+"Run Doxygen first, then Sphinx with `-W -n --keep-going`; confirm Doxygen "
+"XML was regenerated from the same commit. Missing Breathe XML, stale gettext "
+"catalogs and external link outages are separate failure classes; do not hide "
+"them with global warning suppression."
+msgstr ""
+"先运行 Doxygen，再以 `-W -n --keep-going` 运行 Sphinx；确认 Doxygen XML 是从"
+"同一提交重新生成的。缺少 Breathe XML、gettext 消息目录过期以及外部链接不可用"
+"属于不同的故障类别；不要通过全局抑制警告来掩盖它们。"

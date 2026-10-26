@@ -1,0 +1,606 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2026, fincore_cpp contributors
+# This file is distributed under the same license as the fincore_cpp
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: fincore_cpp 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 01:10+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: ../../site/api/report.md:1
+msgid "Reports"
+msgstr "报告"
+
+#: ../../site/api/report.md:3
+msgid ""
+"Report models, HTML/Plotly/Bokeh/XLSX renderers, portfolio and risk report "
+"builders."
+msgstr "报告模型、HTML/Plotly/Bokeh/XLSX 渲染器，以及组合与风险报告构建器。"
+
+#: ../../site/api/report.md:5
+msgid ""
+"See the [usage guide](../guides/reports-runtime.md) for task-oriented "
+"examples. Signatures below are generated from the public headers at the same"
+" commit as the rest of this site."
+msgstr "面向任务的示例参见[使用指南](../guides/reports-runtime.md)。以下签名由与本站点其余内容同一提交的公共头文件生成。"
+
+#: ../../site/api/report.md:7
+msgid "One executed trade used by the transaction activity projection."
+msgstr "交易活动投影使用的一笔已成交交易。"
+
+#: ../../site/api/report.md:7 ../../site/api/report.md:10
+#: ../../site/api/report.md:13 ../../site/api/report.md:16
+#: ../../site/api/report.md:19 ../../site/api/report.md:22
+#: ../../site/api/report.md:25 ../../site/api/report.md:28
+#: ../../site/api/report.md:31 ../../site/api/report.md:34
+#: ../../site/api/report.md:37 ../../site/api/report.md:40
+msgid "Public Members"
+msgstr "公共成员"
+
+#: ../../site/api/report.md:7
+msgid "UTC nanosecond timestamp; trades are grouped by calendar day."
+msgstr "UTC 纳秒时间戳；交易按日历日分组。"
+
+#: ../../site/api/report.md:7
+msgid "Traded symbol."
+msgstr "成交标的代码。"
+
+#: ../../site/api/report.md:7
+msgid "Signed quantity; notional is computed as |amount| * price."
+msgstr "带符号数量；名义金额按 |amount| * price 计算。"
+
+#: ../../site/api/report.md:7
+msgid "Execution price per unit."
+msgstr "单位成交价。"
+
+#: ../../site/api/report.md:10
+msgid "One emitted artifact (in-memory content and/or a written path)."
+msgstr "一个产出产物（内存内容和/或写入路径）。"
+
+#: ../../site/api/report.md:10
+msgid "Logical name, such as \"figure\", \"file\" or \"axis:<section>.<series>\"."
+msgstr "逻辑名称，例如 \"figure\"、\"file\" 或 \"axis:<section>.<series>\"。"
+
+#: ../../site/api/report.md:10
+msgid "Written file path; empty for artifacts that stay in memory."
+msgstr "写入的文件路径；仅驻留内存的产物为空。"
+
+#: ../../site/api/report.md:10
+msgid ""
+"True for self-owned in-memory artifacts; false for caller-supplied axes and "
+"for the file artifact returned by write_pdf."
+msgstr "自持有的内存产物为 true；调用方提供的坐标轴以及 write_pdf 返回的文件产物为 false。"
+
+#: ../../site/api/report.md:10
+msgid "Serialized figure or axis JSON, or written bytes for a file artifact."
+msgstr "序列化的图形或坐标轴 JSON；对文件产物则为写入的字节。"
+
+#: ../../site/api/report.md:13
+msgid "Owning native artifact bundle returned by report renderers."
+msgstr "报告渲染器返回的、带所有权的原生产物包。"
+
+#: ../../site/api/report.md:13
+msgid ""
+"Mirrors the pinned ArtifactBundle shape: metadata always carries backend and"
+" report_digest; artifacts carries named outputs."
+msgstr ""
+"与固定版本的 ArtifactBundle 结构一致：metadata 始终携带 backend 和 report_digest；artifacts "
+"携带命名输出。"
+
+#: ../../site/api/report.md:13 ../../site/api/report.md:19
+#: ../../site/api/report.md:28
+msgid "Public Functions"
+msgstr "公共函数"
+
+#: ../../site/api/report.md:13
+msgid "Finds an artifact by logical name."
+msgstr "按逻辑名称查找产物。"
+
+#: ../../site/api/report.md
+msgid "Parameters"
+msgstr "参数"
+
+#: ../../site/api/report.md
+msgid "Returns"
+msgstr "返回"
+
+#: ../../site/api/report.md:13
+msgid "Returns the bundle's report digest."
+msgstr "返回该产物包的报告摘要。"
+
+#: ../../site/api/report.md
+msgid "Throws"
+msgstr "抛出"
+
+#: ../../site/api/report.md:13
+msgid "Bundle metadata; renderers set \"backend\" and \"report_digest\"."
+msgstr "产物包元数据；渲染器会设置 \"backend\" 和 \"report_digest\"。"
+
+#: ../../site/api/report.md:13
+msgid "Named outputs."
+msgstr "命名输出。"
+
+#: ../../site/api/report.md:13
+msgid "Plotly figure when produced by render_plotly."
+msgstr "由 render_plotly 生成时的 Plotly 图形。"
+
+#: ../../site/api/report.md:13
+msgid "Bokeh document when produced by render_bokeh."
+msgstr "由 render_bokeh 生成时的 Bokeh 文档。"
+
+#: ../../site/api/report.md:13
+msgid "Static axes when produced by render_matplotlib."
+msgstr "由 render_matplotlib 生成时的静态坐标轴。"
+
+#: ../../site/api/report.md:16
+msgid "One typed cell in a report_table."
+msgstr "report_table 中的一个带类型单元格。"
+
+#: ../../site/api/report.md:16
+msgid "Public Types"
+msgstr "公共类型"
+
+#: ../../site/api/report.md:16
+msgid "Cell value kind."
+msgstr "单元格取值类型。"
+
+#: ../../site/api/report.md:16
+msgid ""
+"missing carries no value and serializes as null, number uses number, text "
+"uses text, and boolean uses boolean."
+msgstr "missing 不携带值并序列化为 null；number 使用 number，text 使用 text，boolean 使用 boolean。"
+
+#: ../../site/api/report.md:16 ../../site/api/report.md:43
+msgid "Values:"
+msgstr "取值："
+
+#: ../../site/api/report.md:16
+msgid "Value kind that selects the active field."
+msgstr "决定生效字段的取值类型。"
+
+#: ../../site/api/report.md:16
+msgid "Numeric value used when type is number."
+msgstr "类型为 number 时使用的数值。"
+
+#: ../../site/api/report.md:16
+msgid "Boolean value used when type is boolean."
+msgstr "类型为 boolean 时使用的布尔值。"
+
+#: ../../site/api/report.md:16
+msgid "Text value used when type is text."
+msgstr "类型为 text 时使用的文本值。"
+
+#: ../../site/api/report.md:16
+msgid "Public Static Functions"
+msgstr "公共静态函数"
+
+#: ../../site/api/report.md:16
+msgid "Constructs a missing cell."
+msgstr "构造一个缺失单元格。"
+
+#: ../../site/api/report.md:16
+msgid "Constructs a numeric cell."
+msgstr "构造一个数值单元格。"
+
+#: ../../site/api/report.md:16
+msgid "Constructs a text cell."
+msgstr "构造一个文本单元格。"
+
+#: ../../site/api/report.md:16
+msgid "Constructs a boolean cell."
+msgstr "构造一个布尔单元格。"
+
+#: ../../site/api/report.md:19
+msgid "Versioned report document shared by report builders and renderers."
+msgstr "由报告构建器和渲染器共享的带版本报告文档。"
+
+#: ../../site/api/report.md:19
+msgid "Finds a section by key."
+msgstr "按键查找节。"
+
+#: ../../site/api/report.md:19
+msgid "Finds a section by key for in-place modification."
+msgstr "按键查找节以便就地修改。"
+
+#: ../../site/api/report.md:19
+msgid "Serializes the validated document as deterministic JSON."
+msgstr "将校验后的文档序列化为确定性 JSON。"
+
+#: ../../site/api/report.md:19
+msgid ""
+"Offline asset content is embedded as JSON string values and map keys are "
+"emitted in sorted order."
+msgstr "离线资源内容以 JSON 字符串值嵌入，映射键按排序顺序输出。"
+
+#: ../../site/api/report.md:19
+msgid "Serializes the validated document with offline asset content hashed."
+msgstr "序列化校验后的文档，并对离线资源内容取哈希。"
+
+#: ../../site/api/report.md:19
+msgid ""
+"Each asset value is replaced by its SHA-256 hexadecimal digest, so the "
+"payload reflects asset identity without embedding the bytes."
+msgstr "每个资源值替换为其 SHA-256 十六进制摘要，因此载荷反映资源身份而不嵌入字节。"
+
+#: ../../site/api/report.md:19
+msgid "Computes the provenance digest of the semantic payload."
+msgstr "计算语义载荷的来源摘要。"
+
+#: ../../site/api/report.md:19
+msgid ""
+"The digest is SHA-256 over a versioned frame and semantic_payload(); report "
+"renderers expose it as the report_digest bundle metadata."
+msgstr "该摘要是对带版本的帧和 semantic_payload() 计算的 SHA-256；报告渲染器将其作为 report_digest 打包元数据公开。"
+
+#: ../../site/api/report.md:19
+msgid "Report domain, such as \"portfolio\", \"risk\" or \"factor\"."
+msgstr "报告领域，例如 \"portfolio\"、\"risk\" 或 \"factor\"。"
+
+#: ../../site/api/report.md:19
+msgid "Document title."
+msgstr "文档标题。"
+
+#: ../../site/api/report.md:19
+msgid "Ordered sections; keys must be unique."
+msgstr "有序节列表；键必须唯一。"
+
+#: ../../site/api/report.md:19
+msgid "Free-form metadata."
+msgstr "自由格式元数据。"
+
+#: ../../site/api/report.md:19
+msgid "Schema version; must equal report_document_schema_version to serialize."
+msgstr "模式版本；序列化时必须等于 report_document_schema_version。"
+
+#: ../../site/api/report.md:19
+msgid ""
+"Embedded asset name to content mapping; to_json writes the content as string"
+" values while semantic_payload writes its SHA-256 digest."
+msgstr "嵌入的资源名称到内容映射；to_json 将内容写为字符串值，而 semantic_payload 写入其 SHA-256 摘要。"
+
+#: ../../site/api/report.md:22
+msgid "HTML rendering options."
+msgstr "HTML 渲染选项。"
+
+#: ../../site/api/report.md:22
+msgid "UI language: \"en\" or \"zh\"."
+msgstr "界面语言：\"en\" 或 \"zh\"。"
+
+#: ../../site/api/report.md:22
+msgid "Chart renderer for report series."
+msgstr "报告序列的图表渲染器。"
+
+#: ../../site/api/report.md:25
+msgid "Named scalar metric with one optional typed value."
+msgstr "带一个可选类型化值的命名标量指标。"
+
+#: ../../site/api/report.md:25
+msgid "Stable identifier used by section metadata."
+msgstr "节元数据使用的稳定标识符。"
+
+#: ../../site/api/report.md:25
+msgid "Display label."
+msgstr "显示标签。"
+
+#: ../../site/api/report.md:25
+msgid "Value unit, such as \"ratio\" or \"count\"."
+msgstr "取值单位，例如 \"ratio\" 或 \"count\"。"
+
+#: ../../site/api/report.md:25
+msgid "Numeric value; takes precedence over boolean and text."
+msgstr "数值；优先于布尔值和文本值。"
+
+#: ../../site/api/report.md:25
+msgid "Boolean value used when number is unset."
+msgstr "number 未设置时使用的布尔值。"
+
+#: ../../site/api/report.md:25
+msgid "Text value used when number and boolean are unset."
+msgstr "number 与 boolean 均未设置时使用的文本值。"
+
+#: ../../site/api/report.md:28
+msgid "One titled group of metrics, tables, series and notes."
+msgstr "一组带标题的指标、表格、序列和说明。"
+
+#: ../../site/api/report.md:28
+msgid "Serializes this section as deterministic JSON."
+msgstr "将本节序列化为确定性 JSON。"
+
+#: ../../site/api/report.md:28
+msgid ""
+"Every units and legends key must match a metric, table or series key in the "
+"section, and their values must be non-empty."
+msgstr "每个 units 和 legends 键都必须匹配本节中的指标、表格或序列键，且其值不能为空。"
+
+#: ../../site/api/report.md:28
+msgid "Document-unique section key."
+msgstr "文档内唯一的节键。"
+
+#: ../../site/api/report.md:28 ../../site/api/report.md:31
+#: ../../site/api/report.md:37
+msgid "Display title."
+msgstr "显示标题。"
+
+#: ../../site/api/report.md:28
+msgid "Scalar metrics."
+msgstr "标量指标。"
+
+#: ../../site/api/report.md:28
+msgid "Tables."
+msgstr "表格。"
+
+#: ../../site/api/report.md:28
+msgid "Chart series."
+msgstr "图表序列。"
+
+#: ../../site/api/report.md:28
+msgid "Free-form notes."
+msgstr "自由格式说明。"
+
+#: ../../site/api/report.md:28
+msgid "Unit overrides keyed by a metric, table or series key in this section."
+msgstr "按本节指标、表格或序列键索引的单位覆盖。"
+
+#: ../../site/api/report.md:28
+msgid "Chart legends keyed by a series key in this section."
+msgstr "按本节序列键索引的图例。"
+
+#: ../../site/api/report.md:31
+msgid "Named numeric series for chart rendering."
+msgstr "用于图表渲染的命名数值序列。"
+
+#: ../../site/api/report.md:31
+msgid "Stable identifier used by legends and artifacts."
+msgstr "图例与产物使用的稳定标识符。"
+
+#: ../../site/api/report.md:31
+msgid "X-axis label."
+msgstr "X 轴标签。"
+
+#: ../../site/api/report.md:31
+msgid "Y-axis label."
+msgstr "Y 轴标签。"
+
+#: ../../site/api/report.md:31
+msgid "Value unit, such as \"ratio\" or \"growth_multiple\"."
+msgstr "取值单位，例如 \"ratio\" 或 \"growth_multiple\"。"
+
+#: ../../site/api/report.md:31
+msgid "X values; must have the same length as y."
+msgstr "X 值；长度必须与 y 相同。"
+
+#: ../../site/api/report.md:31
+msgid "Y values."
+msgstr "Y 值。"
+
+#: ../../site/api/report.md:34
+msgid "Static native replacement for a Matplotlib axis."
+msgstr "Matplotlib 坐标轴的静态原生替代实现。"
+
+#: ../../site/api/report.md:34
+msgid ""
+"The Python renderer returns one axis per section series, keyed "
+"axis:<section>.<series>. The native artifact carries the same prepared "
+"values; there is no Matplotlib object and no kernel recomputation."
+msgstr ""
+"Python 渲染器为每个节序列返回一个坐标轴，键为 axis:<section>.<series>。原生产物携带相同的预处理值；不存在 "
+"Matplotlib 对象，也不会重新调用内核计算。"
+
+#: ../../site/api/report.md:34
+msgid "Name in the form \"axis:<section>.<series>\"."
+msgstr "形如 \"axis:<section>.<series>\" 的名称。"
+
+#: ../../site/api/report.md:34
+msgid "Source section key."
+msgstr "来源节键。"
+
+#: ../../site/api/report.md:34
+msgid "Source series key."
+msgstr "来源序列键。"
+
+#: ../../site/api/report.md:34
+msgid "\"<section title>: <legend or series key>\"."
+msgstr "\"<section title>: <legend or series key>\"。"
+
+#: ../../site/api/report.md:34
+msgid "Section legend for the series, or the series key when none is set."
+msgstr "该序列的节图例；未设置图例时为序列键。"
+
+#: ../../site/api/report.md:34
+msgid "X-axis label copied from the series."
+msgstr "从序列复制的 X 轴标签。"
+
+#: ../../site/api/report.md:34
+msgid "Section unit for the series, or empty when none is defined."
+msgstr "该序列的节单位；未定义时为空。"
+
+#: ../../site/api/report.md:34
+msgid "Same value as y_label."
+msgstr "与 y_label 相同的值。"
+
+#: ../../site/api/report.md:34
+msgid "X values copied from the series."
+msgstr "从序列复制的 X 值。"
+
+#: ../../site/api/report.md:34
+msgid "Y values copied from the series."
+msgstr "从序列复制的 Y 值。"
+
+#: ../../site/api/report.md:34
+msgid "False when the caller supplied the matching axis key."
+msgstr "当调用方提供了匹配的坐标轴键时为 false。"
+
+#: ../../site/api/report.md:37
+msgid "Named table of typed cells."
+msgstr "由带类型单元格构成的命名表格。"
+
+#: ../../site/api/report.md:37
+msgid "Stable identifier used by section metadata and renderers."
+msgstr "节元数据与渲染器使用的稳定标识符。"
+
+#: ../../site/api/report.md:37
+msgid "Column headers."
+msgstr "列标题。"
+
+#: ../../site/api/report.md:37
+msgid "Rows; each row must have columns.size() cells when serialized."
+msgstr "数据行；序列化时每行必须包含 columns.size() 个单元格。"
+
+#: ../../site/api/report.md:40
+msgid "Worksheet naming options for render_xlsx."
+msgstr "render_xlsx 的工作表命名选项。"
+
+#: ../../site/api/report.md:40
+msgid "Prefix prepended to each section key to form worksheet names."
+msgstr "拼接在每个节键之前以构成工作表名称的前缀。"
+
+#: ../../site/api/report.md:43
+msgid "Chart renderer used by render_html."
+msgstr "render_html 使用的图表渲染器。"
+
+#: ../../site/api/report.md:43
+msgid "Draw each series as an inline SVG polyline."
+msgstr "将每个序列绘制为内联 SVG 折线。"
+
+#: ../../site/api/report.md:43
+msgid "Embed the pinned offline ECharts 5.5.0 script and chart payloads."
+msgstr "嵌入固定版本的离线 ECharts 5.5.0 脚本和图表载荷。"
+
+#: ../../site/api/report.md:46
+msgid "Builds a portfolio report document from prepared return and position data."
+msgstr "基于预处理收益率与持仓数据构建组合报告文档。"
+
+#: ../../site/api/report.md:46
+msgid ""
+"The document has domain \"portfolio\". It always contains a \"performance\" "
+"section, adds a \"benchmark\" section when benchmark is supplied, adds a "
+"\"portfolio\" section when positions is supplied, and adds a "
+"\"transactions\" section when transactions is non-empty. Metrics are "
+"computed once from the supplied inputs; renderers do not recompute them."
+msgstr ""
+"该文档的领域为 \"portfolio\"。它始终包含一个 \"performance\" 节；提供 benchmark 时追加 "
+"\"benchmark\" 节；提供 positions 时追加 \"portfolio\" 节；transactions 非空时追加 "
+"\"transactions\" 节。指标依据输入计算一次；渲染器不会重新计算。"
+
+#: ../../site/api/report.md:49
+msgid "Builds a risk validation report document from a walk-forward VaR report."
+msgstr "基于滚动前向 VaR 报告构建风险验证报告文档。"
+
+#: ../../site/api/report.md:49
+msgid ""
+"The document has domain \"risk\" and one \"risk_validation\" section with "
+"the walk-forward status, forecast and refit counts, optional diagnostics and"
+" backtest metrics, forecast-event and refit tables, and the report "
+"disclosure as a note."
+msgstr ""
+"该文档的领域为 \"risk\"，包含一个 \"risk_validation\" "
+"节，其中有滚动前向状态、预测与重新拟合计数、可选诊断与回测指标、预测事件表和重新拟合表，以及以说明形式给出的报告披露。"
+
+#: ../../site/api/report.md:52
+msgid "Projects prepared report series into one Bokeh-compatible document."
+msgstr "将预处理的报告序列投影为一个兼容 Bokeh 的文档。"
+
+#: ../../site/api/report.md:52
+msgid ""
+"One line glyph per series, with the series key as the y field and the "
+"section legend or \"<section title>: <series key>\" as the legend label. "
+"Values are copied, not recomputed."
+msgstr ""
+"每个序列一个线图元，y 字段为序列键，图例标签为节图例或 \"<section title>: <series "
+"key>\"。数值是复制而来，并非重新计算。"
+
+#: ../../site/api/report.md:55
+msgid "Renders a report document as one self-contained HTML page."
+msgstr "将报告文档渲染为一个自包含的 HTML 页面。"
+
+#: ../../site/api/report.md:55
+msgid ""
+"Text is HTML-escaped, styles are embedded, and no external asset URL is "
+"referenced; the ECharts backend embeds the pinned chart script. Output is "
+"deterministic for the same document and options."
+msgstr "文本经过 HTML 转义，样式内嵌，不引用任何外部资源 URL；ECharts 后端会嵌入固定版本的图表脚本。相同文档与选项的输出是确定性的。"
+
+#: ../../site/api/report.md:58
+msgid "Projects prepared report series into static Matplotlib-compatible axes."
+msgstr "将预处理的报告序列投影为兼容 Matplotlib 的静态坐标轴。"
+
+#: ../../site/api/report.md:58
+msgid ""
+"supplied_axes lists \"<section>.<series>\" keys the caller already owns; "
+"those artifacts are marked owned = false, matching the Python axes argument "
+"ownership rule."
+msgstr ""
+"supplied_axes 列出调用方已拥有的 \"<section>.<series>\" 键；这些产物被标记为 owned = false，与 "
+"Python 的 axes 参数所有权规则一致。"
+
+#: ../../site/api/report.md:61
+msgid "Renders deterministic native PDF 1.4 bytes for a report document."
+msgstr "为报告文档渲染确定性的原生 PDF 1.4 字节。"
+
+#: ../../site/api/report.md:61
+msgid ""
+"Includes text, headings, tables and simple line-series vector paths. Uses "
+"base-14 Helvetica fonts; characters outside WinAnsi are replaced with ? "
+"(declared format variance from the Chromium-backed Python writer)."
+msgstr ""
+"包含文本、标题、表格以及简单的折线序列矢量路径。使用 base-14 Helvetica 字体；WinAnsi 之外的字符替换为 ?（相对基于 "
+"Chromium 的 Python 写入器已声明的格式差异）。"
+
+#: ../../site/api/report.md:64
+msgid "Projects prepared report series into one Plotly-compatible document."
+msgstr "将预处理的报告序列投影为一个兼容 Plotly 的文档。"
+
+#: ../../site/api/report.md:64
+msgid ""
+"One scatter trace per report_section::series entry; the trace name is the "
+"section legend or \"<section title>: <series key>\". Values are copied, not "
+"recomputed. report_series::x is numeric in the native model, so the Python "
+"DatetimeIndex x-axis is a declared date-axis format variance."
+msgstr ""
+"每个 report_section::series 条目对应一个散点轨迹；轨迹名称为节图例或 \"<section title>: <series "
+"key>\"。数值是复制而来，并非重新计算。原生模型中 report_series::x 为数值，因此 Python 的 DatetimeIndex X"
+" 轴属于已声明的日期轴格式差异。"
+
+#: ../../site/api/report.md:67
+msgid "Renders a report document as an in-memory XLSX workbook."
+msgstr "将报告文档渲染为内存中的 XLSX 工作簿。"
+
+#: ../../site/api/report.md:67
+msgid ""
+"One worksheet is emitted per section. Worksheet names combine "
+"options.sheet_prefix with the section key, replace invalid characters with "
+"'_', and are capped at 31 characters; duplicates receive a \"_2\", \"_3\", "
+"... suffix. An empty document produces a single worksheet named \"report\" "
+"or the prefix when one is set. No file is written."
+msgstr ""
+"每个节生成一个工作表。工作表名称由 options.sheet_prefix 与节键组合而成，非法字符替换为 '_'，并截断至 31 "
+"个字符；重复名称追加 \"_2\"、\"_3\" 等后缀。空文档只生成一个名为 \"report\" 的工作表，若设置了前缀则为该前缀。不会写入文件。"
+
+#: ../../site/api/report.md:70
+msgid "Writes the native PDF to target and returns the artifact bundle."
+msgstr "将原生 PDF 写入 target 并返回产物包。"
+
+#: ../../site/api/report.md:70
+msgid ""
+"Parent directories are created like the Python writer, and an existing file "
+"at target is truncated. Byte identity with the Python PDF backend is not "
+"claimed."
+msgstr "与 Python 写入器一样创建父目录，并截断 target 处的已有文件。不声称与 Python PDF 后端字节一致。"
+
+#: ../../site/api/report.md:73
+msgid "Schema version accepted by report_document validation and serialization."
+msgstr "report_document 校验与序列化接受的模式版本。"
+

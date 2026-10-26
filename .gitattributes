@@ -1,0 +1,14 @@
+* text=auto
+
+# Pinned third-party browser asset: byte-identical to the published package.
+assets/report/echarts.min.js -text -diff
+
+# Fixtures, ledgers and acceptance evidence are hashed and compared byte-for-byte.
+tests/fixtures/** -text
+docs/evidence/** -text
+docs/iterations/**/*.tsv -text
+
+*.png binary
+*.pdf binary
+*.xlsx binary
+*.gz binary

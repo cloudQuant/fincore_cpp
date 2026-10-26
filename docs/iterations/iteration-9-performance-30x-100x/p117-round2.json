@@ -1,0 +1,381 @@
+{
+  "round": "P117-R2",
+  "date": "2026-10-25",
+  "branch": "dev",
+  "base_commit": "027688213201a57e3d98e82ba8084967ab0a0895",
+  "acceptance": "CLI_ERROR_AND_OUTPUT_PARITY_ACCEPTED_NATIVE_AB_DEVELOPMENT_ONLY",
+  "independent_review": "Static source and actual CLI checker review: no blocker; reviewer ran no executables.",
+  "source_identity": [
+    {
+      "path": "benchmarks/alpha003_a_stocks/cpp/alpha003_research.cpp",
+      "size_bytes": 46221,
+      "sha256": "6f57fa068eccdf93c3a1d92c96d57d373162aa05f2ebead8f8e476507554ccb7"
+    },
+    {
+      "path": "tools/check_alpha003_loader.py",
+      "size_bytes": 19217,
+      "sha256": "0a277b8564acae4ddaa1016f727afd52ba80f91b82bc80177330e825656183ab"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "build-win/p117-r2-build.log",
+      "size_bytes": 187,
+      "sha256": "f7e8a798025ca6e6330d17b4aac78f815ea7ca1c32202225343dae49cbd371bb"
+    },
+    {
+      "path": "build-win/p117-r2-loader-check-r1/report.json",
+      "size_bytes": 9281,
+      "sha256": "e9d025c191ef724890fb2eb3ebe8928dd3b4ddb589878b2fe50862456e0a8dcd"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p117-r2-500/comparison.json",
+      "size_bytes": 129612,
+      "sha256": "e4ade24b4da95b258c7c3397924bb1f3bd6a0343a0d6f2aee6d559957c05086a"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p117-r2-500/measurements.json",
+      "size_bytes": 71078,
+      "sha256": "284ae4872b220fedb2a65c58124376ef1f409c142b83f33f195fe077b97d976b"
+    },
+    {
+      "path": "benchmarks/alpha003_a_stocks/results-i9-p117-r2-native-full-ab/results.json",
+      "size_bytes": 5960720,
+      "sha256": "6c0e4b0d1e0b1d2bf58fc44763b9af4acbeb6b97a78f06548c1938c6136799d3"
+    },
+    {
+      "path": "build-win/compare_alpha_source_builds.py",
+      "size_bytes": 12664,
+      "sha256": "cc486fb460cdc89124e261f1aec158fdb2a0fe9568d3bcfddadd4c31ded8619d"
+    }
+  ],
+  "cli_checks": {
+    "status": "PASS_OUTPUT_AND_ERROR_PARITY",
+    "success_cases": [
+      "cross_file_dates_suffix_outside_grid",
+      "one_file_shuffled"
+    ],
+    "error_cases": [
+      "duplicate_timestamp_suffix",
+      "invalid_calendar_date",
+      "short_timestamp"
+    ]
+  },
+  "development_500": {
+    "all_pairs_pass": true,
+    "performance": {
+      "repeats": 5,
+      "sampling": {
+        "cpp": {
+          "count": 5,
+          "iqr": 0.035310700070112944,
+          "iqr_over_median": 0.1320046896892704,
+          "max": 0.3033731999457814,
+          "median": 0.2674957999843173,
+          "min": 0.23556640004971996,
+          "noise_limit": 0.1,
+          "protocol": "iteration9-r1",
+          "q1": 0.24507469998206943,
+          "q3": 0.2803854000521824,
+          "samples": [
+            0.24507469998206943,
+            0.2674957999843173,
+            0.23556640004971996,
+            0.2803854000521824,
+            0.3033731999457814
+          ],
+          "status": "INCONCLUSIVE"
+        },
+        "paired_speedups": [
+          35.67360809047704,
+          31.3182420078363,
+          38.224904307677036,
+          30.860474897555275,
+          33.27381819424308
+        ],
+        "pairs_at_least_100x": 0,
+        "pairs_at_least_30x": 5,
+        "python": {
+          "count": 5,
+          "iqr": 0.351676500053145,
+          "iqr_over_median": 0.04022516480278035,
+          "max": 10.094384700001683,
+          "median": 8.742698800051585,
+          "min": 8.377498199988622,
+          "noise_limit": 0.1,
+          "protocol": "iteration9-r1",
+          "q1": 8.652826599951368,
+          "q3": 9.004503100004513,
+          "samples": [
+            8.742698800051585,
+            8.377498199988622,
+            9.004503100004513,
+            8.652826599951368,
+            10.094384700001683
+          ],
+          "status": "VALID"
+        }
+      },
+      "stages": {
+        "accounted_stage_seconds": {
+          "cpp_seconds": 0.2451902,
+          "python_seconds": 7.9281516000046395,
+          "speedup": 32.33470016340229
+        },
+        "cpu_seconds": {
+          "cpp_seconds": 0.21875,
+          "python_seconds": 7.03125,
+          "speedup": 32.142857142857146
+        },
+        "export_seconds": {
+          "cpp_seconds": 0.0756196,
+          "python_seconds": 2.6151909999898635,
+          "speedup": 34.58350745031531
+        },
+        "factor_seconds": {
+          "cpp_seconds": 0.0220089,
+          "python_seconds": 0.08507659996394068,
+          "speedup": 3.8655543877222702
+        },
+        "internal_process_cpu_seconds": {
+          "cpp_seconds": 0.21875,
+          "python_seconds": 7.03125,
+          "speedup": 32.142857142857146
+        },
+        "internal_wall_seconds": {
+          "cpp_seconds": 0.2451902,
+          "python_seconds": 7.9281516000046395,
+          "speedup": 32.33470016340229
+        },
+        "load_seconds": {
+          "cpp_seconds": 0.0557855,
+          "python_seconds": 1.2497707000002265,
+          "speedup": 22.40314597879783
+        },
+        "materialization_seconds": {
+          "cpp_seconds": 0.0032578,
+          "python_seconds": 0.020117799984291196,
+          "speedup": 6.175271650896677
+        },
+        "other_seconds": {
+          "cpp_seconds": 1.6499999999974868e-05,
+          "python_seconds": 0.00031179998768493533,
+          "speedup": 18.896968950630924
+        },
+        "preparation_seconds": {
+          "cpp_seconds": 9.85e-05,
+          "python_seconds": 0.046217900002375245,
+          "speedup": 469.2172589073629
+        },
+        "research_seconds": {
+          "cpp_seconds": 0.081461,
+          "python_seconds": 3.958499300002586,
+          "speedup": 48.593797031740166
+        },
+        "total_seconds": {
+          "cpp_seconds": 0.2451902,
+          "python_seconds": 7.9281516000046395,
+          "speedup": 32.33470016340229
+        }
+      },
+      "wall": {
+        "cpp_seconds": 0.2674957999843173,
+        "python_seconds": 8.742698800051585,
+        "speedup": 32.68349933181811
+      }
+    }
+  },
+  "full_native_ab": {
+    "status": "NATIVE_SOURCE_AB_DEVELOPMENT_ONLY",
+    "runs": 14,
+    "all_output_bytes_equal": true,
+    "source_and_inputs_unchanged": true,
+    "metrics": {
+      "cpu": {
+        "candidate": {
+          "count": 5,
+          "iqr": 0.15625,
+          "iqr_over_median": 0.053763440860215055,
+          "max": 3.109375,
+          "median": 2.90625,
+          "min": 2.625,
+          "noise_limit": 0.1,
+          "protocol": "iteration9-r1",
+          "q1": 2.8125,
+          "q3": 2.96875,
+          "samples": [
+            2.625,
+            2.90625,
+            3.109375,
+            2.8125,
+            2.96875
+          ],
+          "status": "VALID"
+        },
+        "paired_reference_over_candidate": [
+          1.0654761904761905,
+          1.0591397849462365,
+          0.914572864321608,
+          1.0722222222222222,
+          1.0736842105263158
+        ],
+        "ratio_of_medians_reference_over_candidate": 1.0376344086021505,
+        "reference": {
+          "count": 5,
+          "iqr": 0.234375,
+          "iqr_over_median": 0.07772020725388601,
+          "max": 3.1875,
+          "median": 3.015625,
+          "min": 2.796875,
+          "noise_limit": 0.1,
+          "protocol": "iteration9-r1",
+          "q1": 2.84375,
+          "q3": 3.078125,
+          "samples": [
+            2.796875,
+            3.078125,
+            2.84375,
+            3.015625,
+            3.1875
+          ],
+          "status": "VALID"
+        }
+      },
+      "peak_working_set_bytes": {
+        "candidate": {
+          "count": 5,
+          "iqr": 24576.0,
+          "iqr_over_median": 3.284503711489194e-05,
+          "max": 748269568.0,
+          "median": 748240896.0,
+          "min": 748154880.0,
+          "noise_limit": 0.1,
+          "protocol": "iteration9-r1",
+          "q1": 748220416.0,
+          "q3": 748244992.0,
+          "samples": [
+            748240896.0,
+            748269568.0,
+            748220416.0,
+            748154880.0,
+            748244992.0
+          ],
+          "status": "VALID"
+        },
+        "paired_reference_over_candidate": [
+          1.0000273708642624,
+          0.9999343124428655,
+          0.9999781027092423,
+          1.0000875968355643,
+          0.9999452585711393
+        ],
+        "ratio_of_medians_reference_over_candidate": 0.9999726291357376,
+        "reference": {
+          "count": 5,
+          "iqr": 16384.0,
+          "iqr_over_median": 2.1897290757701004e-05,
+          "max": 748261376.0,
+          "median": 748220416.0,
+          "min": 748204032.0,
+          "noise_limit": 0.1,
+          "protocol": "iteration9-r1",
+          "q1": 748204032.0,
+          "q3": 748220416.0,
+          "samples": [
+            748261376.0,
+            748220416.0,
+            748204032.0,
+            748220416.0,
+            748204032.0
+          ],
+          "status": "VALID"
+        }
+      },
+      "wall": {
+        "candidate": {
+          "count": 5,
+          "iqr": 0.056767000001855195,
+          "iqr_over_median": 0.017665617223585135,
+          "max": 3.265538400039077,
+          "median": 3.2134173000231385,
+          "min": 3.072518899978604,
+          "noise_limit": 0.1,
+          "protocol": "iteration9-r1",
+          "q1": 3.1962942999671213,
+          "q3": 3.2530612999689765,
+          "samples": [
+            3.2134173000231385,
+            3.265538400039077,
+            3.1962942999671213,
+            3.072518899978604,
+            3.2530612999689765
+          ],
+          "status": "VALID"
+        },
+        "paired_reference_over_candidate": [
+          0.9532563044249514,
+          1.0084198366767005,
+          1.0336697093476956,
+          1.0703023828427274,
+          1.0161280084322333
+        ],
+        "ratio_of_medians_reference_over_candidate": 1.024776240547777,
+        "reference": {
+          "count": 5,
+          "iqr": 0.015388300060294569,
+          "iqr_over_median": 0.004672985903593856,
+          "max": 3.305526700045448,
+          "median": 3.2930337000289,
+          "min": 3.063210299995262,
+          "noise_limit": 0.1,
+          "protocol": "iteration9-r1",
+          "q1": 3.288524299976416,
+          "q3": 3.3039126000367105,
+          "samples": [
+            3.063210299995262,
+            3.2930337000289,
+            3.3039126000367105,
+            3.288524299976416,
+            3.305526700045448
+          ],
+          "status": "VALID"
+        }
+      }
+    },
+    "stage_medians": {
+      "A": {
+        "load_seconds": 0.6577302,
+        "factor_seconds": 0.3508894,
+        "materialization_seconds": 0.0529116,
+        "research_seconds": 1.2285479,
+        "export_seconds": 0.8831615
+      },
+      "B": {
+        "load_seconds": 0.5745454,
+        "factor_seconds": 0.3626257,
+        "materialization_seconds": 0.0522444,
+        "research_seconds": 1.211148,
+        "export_seconds": 0.8976057
+      }
+    },
+    "reference_provenance": {
+      "binary": {
+        "path": "D:\\source_code\\fincore_cpp\\build-win\\p116-r3-reference\\fincore_alpha003_research.exe",
+        "sha256": "26e3f4184a668c0d7ddef1111f6e20d5a9a346a5c1d6162b9756984db6e8ade2",
+        "size_bytes": 614912
+      },
+      "source_commit": "027688213201a57e3d98e82ba8084967ab0a0895",
+      "source_paths": {
+        "benchmarks/alpha003_a_stocks/cpp/alpha003_research.cpp": "f4f12177b48ce0e88e130052bca38a7620fdef7f78af463573168589b4a4e3f2",
+        "src/factor/research.cpp": "503b5b8cf05c3c0b03b4e964b9cd3fc2ea2d3ef0647df0cbc985f2b98a23822d",
+        "src/factor/research_detailed.cpp": "553d2e1341ecb9d7a384f0b292c96c45d55d21e59d4756f4af79afafbba56d54"
+      }
+    }
+  },
+  "commands": [
+    "cmake --build build-win --target fincore_alpha003_research -j 4",
+    "C:/Python314/python.exe tools/check_alpha003_loader.py --reference-exe build-win/p116-r3-reference/fincore_alpha003_research.exe --candidate-exe build-win/fincore_alpha003_research.exe --output-dir build-win/p117-r2-loader-check-r1",
+    "C:/Python314/python.exe benchmarks/alpha003_a_stocks/run_benchmark.py --max-symbols 500 --repeats 5 --cpu 0 --cpp-exe build-win/fincore_alpha003_research.exe --results-dir benchmarks/alpha003_a_stocks/results-i9-p117-r2-500 --fincore-root D:/source_code/fincore",
+    "C:/Python314/python.exe build-win/compare_alpha_source_builds.py --reference-bin build-win/p116-r3-reference/fincore_alpha003_research.exe --candidate-bin build-win/fincore_alpha003_research.exe --max-symbols 0 --pairs 5 --cpu 0 --output-dir benchmarks/alpha003_a_stocks/results-i9-p117-r2-native-full-ab"
+  ]
+}
