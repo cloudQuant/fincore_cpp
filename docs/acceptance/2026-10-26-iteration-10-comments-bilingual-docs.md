@@ -309,9 +309,13 @@ The repository's business `ci` workflow fails on `ubuntu-latest` with
 `/usr/include/c++/13/bits/char_traits.h` (GCC 13 constexpr budget). The same
 job failed identically on the two pushes before this iteration started
 (runs `40198219958` and older), while `windows-latest` and `macos-latest` pass.
-This is a pre-existing Linux toolchain gate, not documentation work, and no
-comment round changed a non-comment token, so it is recorded here rather than
-fixed inside iteration 10.
+Checked at the job level on run [`40250234684`](https://github.com/cloudQuant/fincore_cpp/actions/runs/40250234684):
+`windows-latest` **success**, `macos-latest` **success**, `ubuntu-latest`
+**failure**. This is a pre-existing Linux toolchain gate, not documentation work,
+and no comment round changed a non-comment token, so it is recorded here rather
+than fixed inside iteration 10. The `docs` workflow, which is the one this
+iteration owns, is green on the pushes carrying its comment rounds (runs
+`40252622142`, `40252994147` and `40253152898`).
 
 ## 7. P134 — close-out verification on the final tree
 
@@ -327,6 +331,10 @@ the site README documents:
 | Strict HTML builds `-E -W -n --keep-going` | English, `zh_CN` and `zh-cn` all succeeded |
 | `docs/site/tools/check_built_site.py` | `pages=60 broken_links=0 machine_path_pages=0 fuzzy=0`, exit code 0 |
 | CMake Release + `ctest` | `100% tests passed, 0 tests failed out of 1092` |
+
+This gate ran on `385db07`, the commit carrying the forty-fourth audited file;
+the suite was measured twice on that tree with the same result, and the docs
+artifacts are current because no public header changed after them.
 
 `check_built_site.py` is new in this round: the link, machine-path and catalog
 measures used to be ad hoc queries, and committing them makes the numbers above
