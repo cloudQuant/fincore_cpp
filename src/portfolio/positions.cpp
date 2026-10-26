@@ -63,6 +63,9 @@ std::vector<numeric_column> numeric_columns(const dataframe& positions) {
     return result;
 }
 
+// These summaries read cash as part of the book, so the column is required and
+// must be numeric, where the performance-attribution asset list treats it as
+// optional and excludes it from factor exposure by name.
 const numeric_column& required_cash_column(
     const std::vector<numeric_column>& columns,
     const std::string_view cash_column_name) {
@@ -101,6 +104,10 @@ double row_sum_skipping_nan(const std::vector<numeric_column>& columns,
     return total;
 }
 
+// A row's denominator skips missing positions, so a row that is entirely missing
+// sums to zero and its ratios come out infinite; this maps those back to the
+// unavailable marker, because an infinite percentage allocation would read as a
+// real quantity rather than as a row with nothing to divide by.
 double finite_or_nan(const double value) {
     return std::isinf(value) ? nan : value;
 }
