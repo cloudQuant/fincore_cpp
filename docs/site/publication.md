@@ -33,28 +33,34 @@ The language directories are `en/latest/` and `zh-cn/latest/` — probing `en/` 
 the version in the path segment (`latest`) and has no Read the Docs style version
 switcher.
 
-## Read the Docs — one project, English build
+## Read the Docs — live, one project
 
-The repository ships one `.readthedocs.yaml`, so Read the Docs hosts **one
-project**, `fincore_cpp`, building the English source. No translation projects
-are created: the Chinese documentation is the GitHub Pages build, and the
-language switch in the top-right corner of every page sends Chinese readers
-there while keeping the page path.
+Read the Docs hosts **one project**, `fincore_cpp` (slug `fincore-cpp`), building
+the English source from `master` with `.readthedocs.yaml`. No translation
+projects are created: the Chinese documentation is the GitHub Pages build, and
+the language switch in the top-right corner sends Chinese readers there at the
+same page.
 
-Owner steps, once an account is available:
+Verified live on 2026-10-26 (build 35413440, 84 s, commit `da90c0d`):
 
-1. Sign in at readthedocs.org with the account that can see
-   `cloudQuant/fincore_cpp`.
-2. Import the repository once, as project **`fincore_cpp`** (slug
-   `fincore-cpp`), default branch `master`, language **English**. The build uses
-   `.readthedocs.yaml` automatically: Ubuntu 24.04, Python 3.13, Doxygen from apt,
-   the pinned Sphinx requirements, and `fail_on_warning: true`.
-3. Leave translations empty. The Chinese site is already live on Pages, and the
-   switch links the two hosts, so a second RTD project would duplicate it.
-4. After the first build, check the home page, installation, one deep API page
-   and the language switch on `https://fincore-cpp.readthedocs.io/en/latest/`.
+| URL | Status | Bytes |
+|---|---|---|
+| `/en/latest/` | 200 | 51,969 |
+| `/en/latest/installation.html` | 200 | 40,013 |
+| `/en/latest/api/metrics.html` | 200 | 674,060 |
+| `/en/latest/_static/css/theme.css` | 200 | 137,285 |
+| `/en/latest/searchindex.js` | 200 | 926,324 |
 
-Until that build answers 200, RTD is **platform-pending**, not PASS.
+The canonical link on every RTD page points at the RTD URL itself. The Chinese
+entry of the switch resolves to
+`https://cloudquant.github.io/fincore_cpp/zh-cn/latest/api/metrics.html` on the
+API page — clicking it on the live RTD site lands on that page with the Chinese
+title and `lang="zh-CN"`.
+
+Owner notes: the project was imported with default branch `master`, language
+English, no translations. `build.os` and the Doxygen pre-build step live in
+`.readthedocs.yaml`, so a future configuration change is a repository change and
+shows up in the next build.
 
 ## Rule
 

@@ -41,7 +41,7 @@ PLATFORM_PENDING，P134 的本机收尾项已完成（验收记录第 7 节）�
 P131 状态（2026-10-26 收尾）：287 个条目全部完成审阅，每一行都有说明；其中 12 个
 用例因字面量本身是被钉住的参考证据而保持零改动，2 个用例的断言已自证契约、无需注释；
 两个仅支持 POSIX 的 benchmark 源文件完成审阅但无法在本机编译。至此文件级审阅不再有
-未确认项，剩余工作只有 Read the Docs 两个项目的创建与线上校验。
+未确认项；Read the Docs 采用单一项目 `fincore_cpp`（英文），已于 2026-10-26 上线。
 
 实施后的事实基线（2026-10-26）：`docs/site/api-ledger.tsv` 记录 2484 个公共
 符号（含重载逐项），全部有说明；117 个头文件中 97 个在本轮修改并通过
@@ -53,8 +53,8 @@ comment-only 校验；文档站由 Doxygen 1.9.7 + Breathe 5.1.0 + Sphinx 9.2.0
 `deploy` 被 `github-pages` 环境的分支策略拒绝，线上地址返回 404。该问题已于同日
 解决——把 Pages 源改回 `build_type: workflow`、并把工作合并到 `master` 后，
 `build`、`pages`、`deploy` 三步全绿，中英文站点均已线上验证（见文末“当前发布
-状态”）。仍缺的只有 Read the Docs 的 `en`、`zh_CN` 两个项目，因此 P133 仍是
-PARTIAL（Pages 已完成、RTD 待建），不是 PLATFORM_PENDING。
+状态”）。Read the Docs 随后以单一项目 `fincore_cpp`（仅英文，不建翻译项目）上线，
+中文由 Pages 承载并由语言按钮跨宿主切换，因此 P133、P134 均为 PASS。
 
 [迭代 8 验收记录](../../acceptance/2026-10-24-iteration-8-native-parity-acceptance.md)
 和[最新 HTML 基准记录](../../acceptance/2026-10-25-alpha003-html-benchmark.md)
@@ -73,10 +73,10 @@ PARTIAL（Pages 已完成、RTD 待建），不是 PLATFORM_PENDING。
 | P128 | 基础类型、数据、时间、metrics/performance/rolling 接口与必要实现注释 | P127 | 对照实现及测试审阅单位、缺失值、对齐和年化规则；同轮更新中文 | PASS |
 | P129 | portfolio、risk、optimization、simulation 及相关模型接口 | P127；涉及基础契约时依赖 P128 | 所有权、约束、随机性、拟合/求解失败和返回状态说明有依据 | PASS |
 | P130 | factor、研究流程、report、runtime、viz 与可选适配接口 | P127；相关基础契约已确认 | 数值边界、缓存、序列化、输出文件和可选依赖契约完整 | PASS |
-| P131 | 内部算法注释补审；examples、tests、benchmarks、tools 使用说明 | 对应模块轮次 | 解释关键不变量、测试依据和计时范围；Python docstring 单独审阅 | PARTIAL |
+| P131 | 内部算法注释补审；examples、tests、benchmarks、tools 使用说明 | 对应模块轮次 | 解释关键不变量、测试依据和计时范围；Python docstring 单独审阅 | PASS（287/287） |
 | P132 | 完成双语教程、操作指南、解释文档和迁移说明，整合 API 导航 | P128–P131；内容可提前随轮交付 | 页面清单完整、示例有效、翻译同步、现行事实和链接核验通过 | PASS |
-| P133 | 接入 Read the Docs 双语言项目与 GitHub Pages 发布；线上检查 | P132 | 同一提交的四种站点/语言组合通过发布检查，版本和地址可追溯 | PLATFORM_PENDING |
-| P134 | 独立终审、例外清单、维护规则与迭代收尾 | P133 | 所有必需项有证据；未解决项明确列出，不用本地成功替代线上成功 | PARTIAL |
+| P133 | 接入 Read the Docs 单一项目与 GitHub Pages 发布；线上检查 | P132 | 同一提交的四种站点/语言组合通过发布检查，版本和地址可追溯 | PASS |
+| P134 | 独立终审、例外清单、维护规则与迭代收尾 | P133 | 所有必需项有证据；未解决项明确列出，不用本地成功替代线上成功 | PASS |
 
 执行顺序为 P126 → P127 → 各模块小轮 → P132 → P133 → P134。
 P128–P130 可按不重叠文件并行；翻译、API 页面和检查随每轮同步推进。
@@ -99,9 +99,11 @@ HTML、Doxygen XML、翻译中间文件和站点构建缓存不进入 Git 历史
 https://cloudquant.github.io/fincore_cpp/en/latest/ 与中文站点
 https://cloudquant.github.io/fincore_cpp/zh-cn/latest/ 已逐页验证——首页、安装页、
 guides 页、metrics API 深页、语言切换与 CSS 资源均返回 200，中文页面的正文确实是
-中文。Read the Docs 的 `en`、`zh_CN` 两个项目仍需仓库所有者用 RTD 账号创建，
-因此 P133 保持 PARTIAL：Pages 的两个组合已线上验证，RTD 的两个组合属于
-“平台发布待完成”。
+中文。Read the Docs 采用单一项目 `fincore_cpp`
+（https://fincore-cpp.readthedocs.io/en/latest/，构建 35413440，提交 `da90c0d`），
+首页、安装页、metrics API 深页、CSS、searchindex 均返回 200；语言按钮在 RTD 页面上
+指向 Pages 的同一中文页面并已实测跳转成功。四个组合（Pages 中英、RTD 英文、跨宿主
+切换）全部线上验证，P133/P134 为 PASS。
 
 计划完成不等于迭代实施完成。未来只有源代码说明、双语内容、构建检查和两个
 平台的实际发布均达到[验收要求](acceptance.md)，才能宣布整个迭代完成。

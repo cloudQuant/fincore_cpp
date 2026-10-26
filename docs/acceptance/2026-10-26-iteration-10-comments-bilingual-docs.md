@@ -679,8 +679,9 @@ version in the path segment (`latest`) with no Read the Docs style version
 switcher — that switcher is an RTD feature, so on Pages the version requirement is
 met by the URL plus the landing page text.
 
-Result: **Pages × 2 languages verified live; the single Read the Docs project does
-not exist yet**, so P133 remains PARTIAL.
+Result at that point: **Pages × 2 languages verified live; the single Read the
+Docs project did not exist yet**. (Superseded later the same day — see
+"Read the Docs is live" below.)
 
 ### One end-to-end check through the published site (2026-10-26)
 
@@ -752,6 +753,34 @@ than fixed inside iteration 10. The `docs` workflow, which is the one this
 iteration owns, is green on the pushes carrying its comment rounds (runs
 `40252622142`, `40252994147` and `40253152898`).
 
+### Read the Docs is live (2026-10-26, owner created the project)
+
+The owner imported **one** Read the Docs project, `fincore_cpp` (slug
+`fincore-cpp`), default branch `master`, language English, no translations —
+exactly the configuration this iteration prepared. Its first build finished in
+84 s on commit `da90c0d` and succeeded (build 35413440).
+
+Checked against `https://fincore-cpp.readthedocs.io/`:
+
+| Check | Result |
+|---|---|
+| `/en/latest/` | 200, 51,969 bytes |
+| `/en/latest/installation.html` | 200, 40,013 bytes |
+| `/en/latest/api/metrics.html` | 200, 674,060 bytes |
+| `_static/css/theme.css` | 200, 137,285 bytes |
+| `searchindex.js` | 200, 926,324 bytes |
+| Canonical link | `https://fincore-cpp.readthedocs.io/en/latest/api/metrics.html` (self) |
+| English entry of the switch | `/en/latest/api/metrics.html` (same page) |
+| Chinese entry of the switch | `https://cloudquant.github.io/fincore_cpp/zh-cn/latest/api/metrics.html` |
+| Clicking the Chinese entry on the live RTD page | lands on that page, title 指标, `lang="zh-CN"` |
+| "Edit on GitHub" | points at `docs/site/...` on `master` |
+| `/zh-cn/` on RTD | 404 by design; Chinese is served by Pages |
+
+With Pages (English and Chinese) verified earlier and the RTD build verified now,
+all four combinations are live: **Pages-en, Pages-zh-cn, RTD-en, and the
+cross-host switch from a live RTD page to the same page in Chinese on Pages**.
+P133 and P134 therefore move to PASS.
+
 ## 7. P134 — close-out verification on the final tree
 
 The whole gate was re-run end to end after the last comment round, in the order
@@ -809,8 +838,8 @@ checks, which belong to P133 and cannot be substituted by a local build.
 | ID | Item | Status |
 |---|---|---|
 | P131 | Per-file implementation/test/tool comment audit | PASS — 287/287 rows audited; two POSIX-only benchmarks reviewed but not compilable here |
-| P133 | Pages ×2 plus one RTD (English) live checks | PARTIAL — Pages en + zh-cn live and checked; RTD project not created yet |
-| P134 | Iteration close-out | PARTIAL — local gate complete, Pages close-out verified; RTD checks owed |
+| P133 | Pages ×2 plus one RTD (English) live checks | PASS — Pages en + zh-cn verified; RTD `fincore_cpp` build 35413440 succeeded and the four combinations were checked |
+| P134 | Iteration close-out | PASS — local gate, Pages close-out and RTD checks complete |
 | E-01 | 3 `Subclassed by` identifier lists left in English | reviewed exemption |
 | E-02 | 2 multi-line string constants not rendered as declarations | reviewed exemption |
 | E-03 | 296 functions without `@param` lists | reviewed exemption, per module |
