@@ -41,6 +41,9 @@ double normal_ppf(const double probability) {
                   ((((7.784695709041462e-03 * q + 3.224671290700398e-01) * q +
                      2.445134137142996e+00) * q + 3.754408661907416e+00) * q + 1.0);
     }
+    // The rational approximation is only a starting point: one Newton step
+    // evaluated with erfc removes the residual error, which matters at the
+    // 0.99+ probabilities VaR thresholds use.
     const double error =
         0.5 * std::erfc(-result / std::sqrt(2.0)) - probability;
     const double correction =
@@ -52,6 +55,8 @@ double normal_ppf(const double probability) {
 double weibull_quantile(std::vector<double> values, const double probability) {
     std::sort(values.begin(), values.end());
     const std::size_t count = values.size();
+    // Type-6 (Nelson) plotting position, the interpolation pandas uses by
+    // default, so a native VaR threshold matches the pinned source.
     const double rank =
         (static_cast<double>(count) + 1.0) * probability;
     const auto floor_rank = static_cast<long long>(std::floor(rank));
@@ -100,8 +105,12 @@ std::string digest_of(const std::vector<double>& values,
         for (const char character : text) {
             payload.push_back(static_cast<std::uint8_t>(character));
         }
+        // NUL terminator: without it, a distribution/model-version pair such
+        // as ("a", "bc") and ("ab", "c") would hash identically.
         payload.push_back(0U);
     };
+    // Specification fields come before the series, so the digest changes when
+    // the model definition changes even if the forecasts are unchanged.
     append_double(spec.confidence_level);
     append_double(static_cast<double>(spec.window));
     append_double(static_cast<double>(spec.refit_cadence));

@@ -41,6 +41,8 @@ dataframe endpoint_output(const dataframe& returns,
                           Metric&& metric) {
     validate_window(window);
     const auto values = require_double_column(returns, column);
+    // Short inputs produce an empty series rather than NaN-padded rows, so the
+    // output only ever carries complete windows.
     if (values.size() < window) {
         return make_series({}, column, {});
     }
@@ -53,6 +55,9 @@ dataframe endpoint_output(const dataframe& returns,
     for (std::size_t start = 0U; start + window <= values.size(); ++start) {
         const auto complete =
             materialize_complete_window(returns, values, start, window, column);
+        // Right-aligned labelling: the value describes the window ending at
+        // this timestamp. Windows are rebuilt per step instead of updated
+        // incrementally, which keeps each metric free of accumulated error.
         output_index.push_back(index[start + window - 1U]);
         output_values.push_back(metric(complete));
     }

@@ -9,11 +9,11 @@ src/attribution/fama_french.cpp	cpp	2	sparse_not_audited
 src/attribution/fama_french_patch.cpp	cpp	0	no_explanatory_block_not_audited
 src/attribution/performance.cpp	cpp	0	no_explanatory_block_not_audited
 src/attribution/style.cpp	cpp	0	no_explanatory_block_not_audited
-src/calendar.cpp	cpp	0	no_explanatory_block_not_audited
+src/calendar.cpp	cpp	2	reviewed_this_round
 src/data/contracts.cpp	cpp	0	no_explanatory_block_not_audited
 src/data/providers.cpp	cpp	0	no_explanatory_block_not_audited
 src/data/snapshots.cpp	cpp	4	reviewed_this_round
-src/dataframe.cpp	cpp	0	no_explanatory_block_not_audited
+src/dataframe.cpp	cpp	2	reviewed_this_round
 src/detail/digest.cpp	cpp	0	no_explanatory_block_not_audited
 src/detail/mt19937.cpp	cpp	3	reviewed_this_round
 src/errors.cpp	cpp	0	no_explanatory_block_not_audited
@@ -41,7 +41,7 @@ src/metrics/alpha_beta.cpp	cpp	0	no_explanatory_block_not_audited
 src/metrics/basic.cpp	cpp	0	no_explanatory_block_not_audited
 src/metrics/bayesian.cpp	cpp	0	no_explanatory_block_not_audited
 src/metrics/consecutive.cpp	cpp	0	no_explanatory_block_not_audited
-src/metrics/drawdown.cpp	cpp	0	no_explanatory_block_not_audited
+src/metrics/drawdown.cpp	cpp	3	reviewed_this_round
 src/metrics/frequencies.cpp	cpp	0	no_explanatory_block_not_audited
 src/metrics/helpers.cpp	cpp	1	sparse_not_audited
 src/metrics/perf_attrib.cpp	cpp	0	no_explanatory_block_not_audited
@@ -49,13 +49,13 @@ src/metrics/perf_stats.cpp	cpp	0	no_explanatory_block_not_audited
 src/metrics/ratios.cpp	cpp	0	no_explanatory_block_not_audited
 src/metrics/returns.cpp	cpp	0	no_explanatory_block_not_audited
 src/metrics/risk.cpp	cpp	0	no_explanatory_block_not_audited
-src/metrics/rolling.cpp	cpp	0	no_explanatory_block_not_audited
+src/metrics/rolling.cpp	cpp	3	reviewed_this_round
 src/metrics/stats.cpp	cpp	0	no_explanatory_block_not_audited
 src/metrics/timing.cpp	cpp	0	no_explanatory_block_not_audited
 src/metrics/yearly.cpp	cpp	0	no_explanatory_block_not_audited
 src/operations.cpp	cpp	0	no_explanatory_block_not_audited
 src/optimization/frontier.cpp	cpp	0	no_explanatory_block_not_audited
-src/optimization/numerics.cpp	cpp	0	no_explanatory_block_not_audited
+src/optimization/numerics.cpp	cpp	4	reviewed_this_round
 src/optimization/objectives.cpp	cpp	0	no_explanatory_block_not_audited
 src/optimization/portfolio_solver.cpp	cpp	4	reviewed_this_round
 src/optimization/portfolio_solver.hpp	hpp	0	no_explanatory_block_not_audited
@@ -82,7 +82,7 @@ src/risk/garch_internal.hpp	hpp	1	sparse_not_audited
 src/risk/models.cpp	cpp	0	no_explanatory_block_not_audited
 src/risk/report.cpp	cpp	1	sparse_not_audited
 src/risk/specs.cpp	cpp	0	no_explanatory_block_not_audited
-src/risk/walk_forward.cpp	cpp	0	no_explanatory_block_not_audited
+src/risk/walk_forward.cpp	cpp	5	reviewed_this_round
 src/rolling_engine.cpp	cpp	2	sparse_not_audited
 src/runtime/operations_factor.cpp	cpp	21	multi_block_not_audited
 src/runtime/operations_metrics.cpp	cpp	33	multi_block_not_audited
@@ -93,7 +93,7 @@ src/runtime/utilities.cpp	cpp	3	multi_block_not_audited
 src/simulation/base.cpp	cpp	0	no_explanatory_block_not_audited
 src/simulation/bootstrap.cpp	cpp	5	reviewed_this_round
 src/simulation/correlation.cpp	cpp	0	no_explanatory_block_not_audited
-src/simulation/monte_carlo.cpp	cpp	0	no_explanatory_block_not_audited
+src/simulation/monte_carlo.cpp	cpp	2	reviewed_this_round
 src/simulation/parameters.cpp	cpp	0	no_explanatory_block_not_audited
 src/simulation/paths.cpp	cpp	9	multi_block_not_audited
 src/simulation/result.cpp	cpp	0	no_explanatory_block_not_audited

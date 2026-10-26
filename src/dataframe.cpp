@@ -29,6 +29,8 @@ dataframe make_series(std::vector<timestamp> index,
 
     dataframe result;
     result.load_index(std::move(index));
+    // dont_pad_with_nans: the length equality was checked above, and padding
+    // would silently grow the column past the index instead.
     result.load_column<double>(name.c_str(), std::move(values),
                                hmdf::nan_policy::dont_pad_with_nans);
     return result;
@@ -41,6 +43,8 @@ std::span<const double> require_double_column(const dataframe& frame,
         throw input_error{"required double column is absent"};
     }
 
+    // The search is restricted to double columns, so a same-named column of
+    // another type is reported as the wrong type rather than reinterpreted.
     const auto columns = frame.get_columns_info<double>();
     const auto column = std::ranges::find_if(
         columns, [&name](const auto& info) {

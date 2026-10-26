@@ -33,6 +33,8 @@ std::vector<underwater_event> scan_underwater_events(
         return events;
     }
 
+    // A NaN period freezes wealth rather than skipping the date, so the
+    // underwater episode keeps its calendar position.
     const auto adjusted_return = [](const double value) {
         return std::isnan(value) ? 0.0 : value;
     };
@@ -44,6 +46,9 @@ std::vector<underwater_event> scan_underwater_events(
 
     for (std::size_t position = 1; position < values.size(); ++position) {
         wealth *= 1.0 + adjusted_return(values[position]);
+        // ">=" on purpose: matching the previous peak both closes the running
+        // episode and moves the peak timestamp forward, so a flat recovery
+        // still reports an end date.
         if (wealth >= peak_wealth) {
             if (active.has_value()) {
                 active->recovery = index[position];

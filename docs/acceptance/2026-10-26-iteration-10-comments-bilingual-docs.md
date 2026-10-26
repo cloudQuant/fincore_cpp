@@ -105,9 +105,9 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 12 marked `reviewed_this_round`, 13 with several explanatory blocks
-but not yet audited, 21 sparse, 241 with no explanatory block). This round
-audited and extended the twelve implementation files whose behaviour is not
+(287 files: 19 marked `reviewed_this_round`, 13 with several explanatory blocks
+but not yet audited, 21 sparse, 234 with no explanatory block). This round
+audited and extended the nineteen implementation files whose behaviour is not
 inferable from their declared contract:
 
 | File | Invariant recorded |
@@ -124,9 +124,16 @@ inferable from their declared contract:
 | `src/data/snapshots.cpp` | Closed supported-type list; column order is part of the digest |
 | `src/risk/backtesting.cpp` | Log-space binomial mass with lgamma/log1p; CDF summed from the mode outward |
 | `src/factor/serialization.cpp` | Length-prefixed big-endian encoding, quiet-NaN normalization, sorted map order, versioned tag |
+| `src/metrics/drawdown.cpp` | NaN freezes wealth; matching the peak closes the episode and advances its timestamp |
+| `src/risk/walk_forward.cpp` | Newton-refined inverse normal; type-6 quantile; NUL-terminated digest fields |
+| `src/optimization/numerics.cpp` | Corner cases bypassed; fixed-iteration bisection with long-double sums |
+| `src/simulation/monte_carlo.cpp` | 252 must be shared by calibration and horizon scaling |
+| `src/calendar.cpp` | Boundary-day windows because the epoch is not a whole number of days |
+| `src/dataframe.cpp` | No NaN padding; type-restricted lookup reports a wrong-typed column as such |
+| `src/metrics/rolling.cpp` | Right-aligned labels, no short-window padding, windows rebuilt per step |
 
-All twelve were verified comment-only and are covered by the re-run below. The
-remaining 275 files are deliberately not claimed as audited, so **P131 is
+All nineteen were verified comment-only and are covered by the re-run below. The
+remaining 268 files are deliberately not claimed as audited, so **P131 is
 PARTIAL**, not passed.
 
 ## 4. P132 — bilingual site content

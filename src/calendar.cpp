@@ -33,6 +33,9 @@ timestamp checked_timestamp(std::int64_t day_count,
         throw input_error{"UTC timestamp is outside the representable range"};
     }
 
+    // The epoch is not an exact multiple of a day in nanoseconds, so the two
+    // boundary days need their own time-of-day windows. The lowest day is
+    // offset by one because C++ remainder keeps the sign of the dividend.
     if (day_count == minimum_day - 1) {
         constexpr auto minimum_time_of_day =
             nanoseconds_per_day + minimum_timestamp % nanoseconds_per_day;

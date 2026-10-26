@@ -270,6 +270,8 @@ std::vector<double> project_onto_simplex(const std::vector<double>& values,
     }
 
     std::vector<double> result(values.size(), 0.0);
+    // Exact corners are returned as-is: bisection on lambda cannot express a
+    // solution where every coordinate sits on the same bound.
     if (static_cast<long double>(target_sum) == minimum_sum) {
         std::fill(result.begin(), result.end(), lower);
         return result;
@@ -281,11 +283,16 @@ std::vector<double> project_onto_simplex(const std::vector<double>& values,
 
     const auto [minimum, maximum] =
         std::minmax_element(values.begin(), values.end());
+    // Every coordinate's feasible shift lies in this interval, so bisecting it
+    // converges on the unique lambda whose clamped sum hits the target.
     double low = lower - *maximum;
     double high = upper - *minimum;
     if (!std::isfinite(low) || !std::isfinite(high)) {
         throw input_error{"simplex projection numeric range is too large"};
     }
+    // A fixed iteration count and long-double accumulation keep the result
+    // reproducible across compilers, instead of stopping on a residual that
+    // depends on summation rounding.
     for (int iteration = 0; iteration < 200; ++iteration) {
         const double lambda = std::midpoint(low, high);
         long double total = 0.0L;

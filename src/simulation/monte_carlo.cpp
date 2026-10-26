@@ -11,6 +11,9 @@ simulation_result simulate_monte_carlo(
     const bool antithetic,
     const std::optional<std::uint64_t> seed,
     const std::string_view column) {
+    // 252 is the fixed annual period count for this surface: the drift and
+    // volatility conversion and the simulated horizon must use the same value,
+    // otherwise the paths would not be calibrated to the input returns.
     dataframe paths = gbm_from_returns(
         returns, horizon, path_count, 252U, seed, column);
     if (antithetic) {
