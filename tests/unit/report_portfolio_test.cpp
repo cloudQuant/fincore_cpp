@@ -98,6 +98,8 @@ TEST(ReportPortfolio, BuildsPerformanceAndBenchmarkSections) {
     const auto with_positions = fincore::build_portfolio_report(
         returns, &benchmark, "Portfolio", &position_frame);
     ASSERT_EQ(with_positions.sections.size(), 3U);
+    // Cash is in the frame but out of both figures: gross leverage is the sum of
+    // the traded weights (0.6 + 0.4), and the asset count is two, not three.
     EXPECT_EQ(with_positions.sections[2].key, "portfolio");
     EXPECT_EQ(with_positions.sections[2].series.front().key,
               "gross_leverage");
@@ -146,6 +148,9 @@ TEST(ReportPortfolio, ProjectsTransactionActivity) {
     EXPECT_EQ(document.sections[1].series[0].key,
               "daily_transaction_count");
     ASSERT_EQ(document.sections[1].series[0].y.size(), 2U);
+    // Daily notional adds absolute trade values, so the buy and the sell on the
+    // first date reinforce rather than cancel (10*5 + 5*20 = 150), and the
+    // trading-day count is distinct dates, not rows.
     EXPECT_DOUBLE_EQ(document.sections[1].series[0].y[0], 2.0);
     EXPECT_DOUBLE_EQ(document.sections[1].series[0].y[1], 1.0);
     ASSERT_EQ(document.sections[1].series[1].y.size(), 2U);

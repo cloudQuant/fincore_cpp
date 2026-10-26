@@ -16,6 +16,10 @@ namespace {
 constexpr double nan = std::numeric_limits<double>::quiet_NaN();
 constexpr long double irr_residual_budget = 1e-10L;
 
+// The budget below is dimensionless: each discounted term is compared in log
+// magnitude relative to the largest one, so very large or very small flows
+// cannot overflow, and the result is the signed residual over the sum of term
+// magnitudes rather than an error in the rate itself.
 long double normalized_irr_residual(const std::vector<double>& cashflows,
                                     const std::vector<double>& periods,
                                     const double rate) {
@@ -333,6 +337,9 @@ TEST(PerformanceReturns, MwrMatchesPythonOracleForConventionalFlows) {
     const auto two_flows = fincore::make_series(
         {1, 2}, "cashflow", {-1000.0, 1100.0});
     EXPECT_NEAR(fincore::mwr(two_flows), 0.10000000000000002, 1e-12);
+    // The second argument is the spacing between rows, not solver slack, so the
+    // same two flows held half that spacing compound to a larger rate: this pins
+    // the period argument rather than a second root.
     EXPECT_NEAR(fincore::mwr(two_flows, 0.5), 0.21000000000000005, 1e-12);
 
     const auto three_flows =

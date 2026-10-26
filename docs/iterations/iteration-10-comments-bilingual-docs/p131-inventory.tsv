@@ -186,63 +186,63 @@ tests/unit/perf_stats_test.cpp	cpp	0	reviewed_this_round	comments added: the Ome
 tests/unit/performance_cashflows_test.cpp	cpp	0	reviewed_this_round	comments added: the flow bucketing and sign rule, and that the net fee treatment leaves the fee column inert
 tests/unit/performance_disclosures_test.cpp	cpp	0	reviewed_this_round	comments added: the benchmark is the only field that renders as none when empty, and the notes line is appended without a terminator
 tests/unit/performance_inference_test.cpp	cpp	0	reviewed_this_round	comments added: NaN rows are dropped before the divisor, and a flat series reaches the zero-deviation branch and yields exactly one half
-tests/unit/performance_returns_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/performance_returns_test.cpp	cpp	0	reviewed_this_round	comments added: the IRR budget is dimensionless (a log-magnitude residual against the sum of term magnitudes), and the second argument of the money-weighted return is row spacing, not solver slack
 tests/unit/portfolio_models_test.cpp	cpp	0	reviewed_this_round	comments added: not supplied and supplied-but-empty are different states at materialization, and the fixture keeps a NaN return and a negative share count because ingestion copies rather than validates
-tests/unit/positions_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/positions_test.cpp	cpp	0	reviewed_this_round	comments added: a fixture that has no cash column and calls its cash reserve pins that an unmatched cash name excludes nothing, and style exposures divide by gross rather than net exposure
 tests/unit/ratios_test.cpp	cpp	0	reviewed_this_round	the static_asserts pin exported signatures through named function-pointer types; defaults and values are covered by the cases below
-tests/unit/report_html_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/report_models_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/report_portfolio_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/report_html_test.cpp	cpp	0	reviewed_this_round	comments added: markup text goes through HTML entities while the series payload is JSON-escaped, and a one-point series renders No data instead of throwing
+tests/unit/report_models_test.cpp	cpp	0	reviewed_this_round	audited with no change: the serialization case is a recorded JSON golden, so its text is evidence
+tests/unit/report_portfolio_test.cpp	cpp	0	reviewed_this_round	comments added: cash is in the frame but out of gross leverage and the asset count, and daily notional adds absolute trade values so a buy and a sell reinforce (10*5 + 5*20 = 150) while trading days count distinct dates
 tests/unit/report_renderers_test.cpp	cpp	0	reviewed_this_round	comments added: only the axis key the caller supplied loses ownership, the default CSS is bare text with no style wrapper and no blank lines because the document is byte-compared, and reading the recorded startxref offset back proves structural validity rather than a well-shaped file
-tests/unit/report_risk_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/report_risk_test.cpp	cpp	0	reviewed_this_round	comments added: seven forecast rows and four refits are the window arithmetic (12 - 5, ceil(7 / 2)), and an insufficient window drops the backtest metrics from the set entirely rather than emptying values
 tests/unit/report_xlsx_test.cpp	cpp	0	reviewed_this_round	comment added: rendering twice pins reproducibility, since a ZIP entry records a modification time and equal bytes mean that field is fixed rather than stamped from the clock
-tests/unit/returns_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/risk_backtesting_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/returns_test.cpp	cpp	0	reviewed_this_round	comment added: weekly rows are ordered by the (calendar year, ISO week) label rather than bucket start, so the January 1 bucket labelled 2021 week 53 clamps to a 2021-01-01 start and sorts after the 2021-12-27 row
+tests/unit/risk_backtesting_test.cpp	cpp	0	reviewed_this_round	comments added: zero exceptions is inconclusive at 99% but a failure at 90% because the sample is flagged small, the traffic-light bands move with both sample size and level (10 is red at 250/99% and green at 250/97.5%), and the ES backtest fixes 100 resamples and seed 42 because its z-score is seeded
 tests/unit/risk_evt_test.cpp	cpp	1	reviewed_this_round	comments added: the selector's NUL-terminated prefix is a real column so the throw proves embedded NULs are rejected rather than truncated, and GEV leaves the peak-over-threshold fields unset (NaN threshold, zero exceedances) where the GPD cases fill them
-tests/unit/risk_garch_test.cpp	cpp	4	multi_block_not_audited	
-tests/unit/risk_models_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/risk_report_serialization_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/risk_report_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/risk_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/risk_walk_forward_test.cpp	cpp	1	sparse_not_audited	
-tests/unit/rolling_engine_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/risk_garch_test.cpp	cpp	4	reviewed_this_round	comments added: the fixture seeds the unconditional variance omega/(1-alpha-beta) and divides the shock variance by the count, so no burn-in is needed and the path repeats bit for bit; EGARCH omega is a log-variance intercept, so a negative value is admissible
+tests/unit/risk_models_test.cpp	cpp	0	reviewed_this_round	comments added: the tail counts are the confidence split (300 x 0.05 = 15 and 300 x 0.01 = 3), and the forecast timestamp names the last input row, 3, rather than the last usable observation, 2
+tests/unit/risk_report_serialization_test.cpp	cpp	0	reviewed_this_round	comments added: the trailing newline plus byte-identical second file is what makes the output diff- and hash-safe, and a rejected write must not leave a file because validation precedes opening the stream
+tests/unit/risk_report_test.cpp	cpp	0	reviewed_this_round	comments added: a negative shift_from disables the fixture shift, and the 7-event cadence-2 case pins refits at cadence multiples counted from the first forecast
+tests/unit/risk_test.cpp	cpp	0	reviewed_this_round	comments added: an out-of-range cutoff is answered with NaN while only a missing column throws, and a single-observation GPD estimate returns defined zeros rather than NaN
+tests/unit/risk_walk_forward_test.cpp	cpp	1	reviewed_this_round	comments added: 250 forecasts is 300 minus the window with 50 refits from the five-day cadence, and a constant shift moves the mean and the forecast by exactly the shift while leaving the deviation untouched
+tests/unit/rolling_engine_test.cpp	cpp	0	reviewed_this_round	comments added: only the mean reference is hand-rebuilt, against finite-only volatility, and duplicate timestamps take the first benchmark row with order preserved
 tests/unit/rolling_metrics_test.cpp	cpp	0	reviewed_this_round	an over-long window must come back as an empty typed column rather than a missing one, and expected NaN asserts the marker
 tests/unit/round_trips_test.cpp	cpp	0	reviewed_this_round	an expected NaN or infinity asserts the marker exactly while only finite expectations get the tolerance
-tests/unit/runtime_lifecycle_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/runtime_lifecycle_test.cpp	cpp	0	reviewed_this_round	comments added: close() is idempotent and terminal and blocks later writes, and an extension merge happens once even with complete callables
 tests/unit/runtime_operations_factor_test.cpp	cpp	0	reviewed_this_round	audited with no change: the shapes of the tiny prepared frames are already annotated where they matter
-tests/unit/runtime_operations_metrics_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/runtime_operations_portfolio_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/runtime_serialization_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/runtime_test.cpp	cpp	1	sparse_not_audited	
-tests/unit/runtime_utilities_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/simulation_antithetic_variates_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/runtime_operations_metrics_test.cpp	cpp	0	reviewed_this_round	comments added: the helper appends two locally declared operations to the native 99 so the 101-operation digest covers the extended catalog, and the common-sense-ratio capability error is named once
+tests/unit/runtime_operations_portfolio_test.cpp	cpp	0	reviewed_this_round	comments added: aliases are related only by a shared kernel symbol, and seeded kernels stay deterministic == false so the flag and the rng policy are separate declarations
+tests/unit/runtime_serialization_test.cpp	cpp	0	reviewed_this_round	comments added: the double branch compares bit patterns because value equality accepts 0.0 for negative zero and fails NaN against itself, and the malformed-report defects are injected into the serializer's own output
+tests/unit/runtime_test.cpp	cpp	1	reviewed_this_round	audited with no change: the case pins a SHA-256 literal, a recorded Kupiec value and a 49-id list, so its text is evidence
+tests/unit/runtime_utilities_test.cpp	cpp	0	reviewed_this_round	audited with no change: four CSV oracles, exact error messages and reference standard deviations are pinned evidence
+tests/unit/simulation_antithetic_variates_umbrella_test.cpp	cpp	0	reviewed_this_round	comment added: the mirror reflects the return path (+10% becomes -10%, giving exactly 90) rather than inverting the wealth level, which would give 100/1.1
 tests/unit/simulation_base_test.cpp	cpp	0	reviewed_this_round	comment added: writing through the validated result is what proves it owns its values rather than viewing the caller's vector
-tests/unit/simulation_bootstrap_confidence_interval_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/simulation_bootstrap_summary_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/simulation_bootstrap_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/simulation_correlation_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/simulation_gbm_from_returns_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/simulation_gbm_paths_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/simulation_latin_hypercube_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/simulation_parameters_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/simulation_parameters_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/simulation_result_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/simulation_result_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/simulation_umbrella_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/simulation_bootstrap_confidence_interval_umbrella_test.cpp	cpp	0	reviewed_this_round	comment added: both observations are identical so the interval has to collapse exactly, which is why the two ends are compared without a tolerance
+tests/unit/simulation_bootstrap_summary_umbrella_test.cpp	cpp	0	reviewed_this_round	no change: the case is a signature pin plus a finiteness smoke test, and no unstated precondition or misleading number was found
+tests/unit/simulation_bootstrap_umbrella_test.cpp	cpp	0	reviewed_this_round	comment added: constant returns make every resample identical, so the value check can only catch wiring, naming or indexing faults
+tests/unit/simulation_correlation_umbrella_test.cpp	cpp	0	reviewed_this_round	comment added: the row index is positional and with two assets both off-diagonal entries coincide, so the case pins shape, column naming and the exact diagonal rather than asymmetry
+tests/unit/simulation_gbm_from_returns_umbrella_test.cpp	cpp	0	reviewed_this_round	comment added: constant returns zero the volatility so both paths collapse onto exp(0.01*t)-1, and the output index starting at 1 is the first step after the anchor
+tests/unit/simulation_gbm_paths_umbrella_test.cpp	cpp	0	reviewed_this_round	comment added: zero volatility closes the form 100*exp(0.1*t), so both paths coincide, the seed cannot matter and the tolerance only covers the exponential
+tests/unit/simulation_latin_hypercube_umbrella_test.cpp	cpp	0	reviewed_this_round	comment added: each of the four strata must be hit exactly once, and the strict upper bound keeps a value of exactly 1.0 from naming a fifth stratum
+tests/unit/simulation_parameters_test.cpp	cpp	0	reviewed_this_round	comments added: an unrecognised hourly period silently takes the daily factor, and the not-equal-one assertion is what separates the sample from the population denominator
+tests/unit/simulation_parameters_umbrella_test.cpp	cpp	0	reviewed_this_round	comment added: the repeated/unsorted index is irrelevant because values are read row-wise, the NaN is dropped before both moments, and the daily annualisation explains 1.26 and the sqrt(252)-scaled deviation
+tests/unit/simulation_result_test.cpp	cpp	0	reviewed_this_round	audited with no change: the percentile and statistics values are a pinned reference oracle
+tests/unit/simulation_result_umbrella_test.cpp	cpp	0	reviewed_this_round	comment added: every statistic is over the terminal value of each path (the last row, 80 and 110), not over all six observations, and the repeated 7 shows terminal means final row by position
+tests/unit/simulation_umbrella_test.cpp	cpp	0	reviewed_this_round	comments added: the crash scenario replaces the upper-middle observation with a fixed -0.20 rather than scaling it, and the published name of volatility_crush is vol_crush
 tests/unit/stable_double_order_test.cpp	cpp	1	reviewed_this_round	comment added: the scratch buffer is exercised across shrinking then growing lengths, because a buffer sized by a longer earlier run must not leak its old contents
 tests/unit/stats_test.cpp	cpp	0	reviewed_this_round	rejection messages are compared exactly, so the exception type alone cannot hide two different diagnoses
-tests/unit/stress_scenarios_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/style_analysis_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/style_performance_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/style_regression_attribution_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/style_tilts_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/stress_scenarios_test.cpp	cpp	0	reviewed_this_round	audited with no change: the expected values are pinned reference goldens
+tests/unit/style_analysis_test.cpp	cpp	0	reviewed_this_round	audited with no change: the 60-row index and 9x3 exposure arrays are pinned reference evidence
+tests/unit/style_performance_test.cpp	cpp	0	reviewed_this_round	audited with no change: the per-style reference vectors are pinned evidence
+tests/unit/style_regression_attribution_test.cpp	cpp	0	reviewed_this_round	comments added: result rows follow the style frame's column order with the residual last, and contributions pair only shared timestamps while the residual uses the full portfolio mean
+tests/unit/style_tilts_test.cpp	cpp	0	reviewed_this_round	audited with no change: the oracle column and value arrays are pinned evidence
 tests/unit/timing_test.cpp	cpp	0	reviewed_this_round	comments added: dropping a non-finite pair from either side must give the same numbers, which is what makes the filter pairwise; nine common dates sit one below the documented ten-pair floor and a constant benchmark is the singular design; the crisis windows overlap so their order is a contract
-tests/unit/transaction_mapping_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/transaction_mapping_test.cpp	cpp	0	reviewed_this_round	comments added: a repeated date stays two rows because the frame is row-oriented, and the drawdown window starts at the latest high-water mark before the worst trough rather than the first equal high
 tests/unit/transactions_test.cpp	cpp	0	reviewed_this_round	the shared fixture carries several distinct defects at once, so repairing one removes the matching rejection's coverage
-tests/unit/viz_documents_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/viz_html_builder_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/viz_render_model_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/yearly_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/viz_documents_test.cpp	cpp	0	reviewed_this_round	no change: the assertions already state the artifact and determinism contract the case checks
+tests/unit/viz_html_builder_test.cpp	cpp	0	reviewed_this_round	comments added: 21 rows is the header plus ten head and ten tail with the middle elided, and the two N/A sources are a text metric and an unmatched key
+tests/unit/viz_render_model_test.cpp	cpp	0	reviewed_this_round	no change: render_model.cpp already documents the name normalization and the model copy the case exercises
+tests/unit/yearly_test.cpp	cpp	0	reviewed_this_round	comment added: non-finite observations stay inside their calendar year rather than being dropped across a boundary
 tools/capability_inventory.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Build a source-pinned inventory of public Python routes and native hin...)
 tools/check_alpha003_loader.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Compare alpha003 loader outputs on deterministic synthetic CSV inputs....)
 tools/check_research_detailed_oracle.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Compare the native detailed research exporter with the pinned Python o...)
@@ -278,11 +278,11 @@ examples/implot_dashboard.cpp	cpp	1	reviewed_this_round	comments added: PPM rows
 examples/render_factor_report.cpp	cpp	0	reviewed_this_round	comments added: fixture has no random draw; the quantile label is caller-supplied and equals the asset index; periods must name prepared labels aligned by position; portfolio inputs are never read by the report; one argument yields three paths; every write is attempted before the status combines
 examples/render_iteration8_artifacts.cpp	cpp	0	reviewed_this_round	comments added: constants are hand-written so the printed digest identifies them; one document drives all six artifacts; write_pdf is the only renderer that takes a path; a missing file artifact is the failure signal
 benchmarks/alpha003_a_stocks/contract.py	py	0	reviewed_this_round	audited with no change: the module docstring already states the complete-ordered contract and that comparison is streamed outside every timed interval with no join, dropna or aggregation
-benchmarks/alpha003_a_stocks/cpp/alpha003_research.cpp	cpp	0	no_explanatory_block_not_audited	
+benchmarks/alpha003_a_stocks/cpp/alpha003_research.cpp	cpp	0	reviewed_this_round	comments added: the window normalization used before comparison, the script-context escaping in the HTML-safe JSON writer, and the residual meaning of the other/accounted stage seconds
 benchmarks/alpha003_a_stocks/html_report.py	py	0	reviewed_this_round	audited with no change: the docstring fixes the single-file offline scope, and the inline notes already cover NaN to null versus rejecting infinity
 benchmarks/alpha003_a_stocks/measurement.py	py	0	reviewed_this_round	audited with no change: the docstring already explains affinity inheritance, the narrow-before-CreateProcess order, the measured interval bounds and the deliberate non-goals
 benchmarks/alpha003_a_stocks/python/run_research.py	py	0	reviewed_this_round	audited with no change: the docstring states the alpha003 rank-and-correlation contract and the deliberate independence from the C++ runner
 benchmarks/alpha003_a_stocks/run_benchmark.py	py	0	reviewed_this_round	comment added: skip-run re-judges parity with the tolerance saved in the retained report, under the same (0, 1e-6] ceiling, and requires the recomputed parity to equal the recorded entry
 benchmarks/factor_alignment_benchmark.cpp	cpp	0	reviewed_this_round	comments added: the header sits immediately before the returned address and its magic word separates tracked blocks from foreign ones; reset_peak seeds from live so a window reports its true high-water mark; validate() moves the ledger by 1 MiB and 2 MiB and expects live to return to baseline. Not a CMake target, so nothing compiled it on this host
-benchmarks/factor_layout_comparison.cpp	cpp	3	multi_block_not_audited	
-benchmarks/factor_pipeline_benchmark.cpp	cpp	0	no_explanatory_block_not_audited	
+benchmarks/factor_layout_comparison.cpp	cpp	3	reviewed_this_round	comments added: the clock brackets only the build, child RSS is read inside the child exec'd for that pair, and the digest walks the dense grid including absent cells. Not a CMake target, so nothing compiled it on this host
+benchmarks/factor_pipeline_benchmark.cpp	cpp	0	reviewed_this_round	comments added: digests hash nine-decimal text so negative zero hashes like positive zero, and the sample interval excludes warmups and the observer except the allocation counter

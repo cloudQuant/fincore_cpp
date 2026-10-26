@@ -35,6 +35,9 @@ TEST(SimulationLatinHypercubeUmbrella, ExportsNamedStratifiedSamples) {
     EXPECT_EQ(std::get<2>(columns[0]), typeid(double));
 
     std::vector<bool> seen_strata(4U, false);
+    // Each of the four strata has to be hit exactly once, which is the defining
+    // property of the sampler; the strict upper bound is what keeps a value of
+    // exactly 1.0 from naming a fifth stratum.
     for (const double value : samples.get_column<double>("lhs_dimension_0")) {
         ASSERT_TRUE(std::isfinite(value));
         ASSERT_GE(value, 0.0);

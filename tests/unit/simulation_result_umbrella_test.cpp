@@ -26,6 +26,10 @@ TEST(SimulationResultUmbrella, ExportsValueOwningTerminalPathAnalysis) {
 
     const auto result = fincore::analyze_simulation_paths(paths);
 
+    // Every statistic below is over the terminal value of each path — the last
+    // row, so 80 and 110 — not over all six observations: the mean is 95 and the
+    // sample deviation 21.213..., and the repeated 7 shows that "terminal" means
+    // the final row by position rather than the largest timestamp.
     EXPECT_EQ(result.path_count(), 2U);
     EXPECT_EQ(result.observation_count(), 3U);
     EXPECT_EQ(result.paths().get_index(),

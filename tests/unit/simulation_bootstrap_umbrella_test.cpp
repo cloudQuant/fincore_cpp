@@ -27,6 +27,8 @@ TEST(SimulationBootstrapUmbrella, ExportsExactTypedOrdinalConstantDistribution) 
 
     const auto& values = distribution.get_column<double>("bootstrap");
     ASSERT_EQ(values.size(), 4U);
+    // Constant returns make every resample identical, so this can only catch wiring,
+    // naming or indexing faults; sampling quality is not what is being pinned here.
     for (const double value : values) {
         EXPECT_DOUBLE_EQ(value, 0.01);
     }

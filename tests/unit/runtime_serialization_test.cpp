@@ -243,6 +243,8 @@ TEST(RuntimeSerialization,
 TEST(RuntimeSerialization, PreservesSignedZeroNonFiniteAndExactIntegers) {
   for (const auto &result : all_value_fixtures()) {
     const auto decoded = fincore::from_json(fincore::to_json(result));
+    // Bit comparison is the point here: value equality would accept 0.0 for -0.0
+    // and would fail a NaN against itself.
     if (const auto *original = std::get_if<double>(&result.value.data)) {
       const auto actual = std::get<double>(decoded.value.data);
       EXPECT_EQ(std::bit_cast<std::uint64_t>(actual),
@@ -352,6 +354,8 @@ TEST(RuntimeSerialization,
 
   auto valid_json =
       fincore::to_json({fincore::runtime_value(report_fixture()), {}});
+  // Each defect is injected into the serializer's own output, so these searches
+  // rely on its key order and compact spelling rather than on a schema.
   const auto units = valid_json.find("\"units\":{\"curve\":\"fraction\"}");
   ASSERT_NE(units, std::string::npos);
   valid_json.replace(units,

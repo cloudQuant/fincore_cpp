@@ -44,6 +44,9 @@ TEST(ReportRisk, ProjectsValidationReport) {
     EXPECT_EQ(section.key, "risk_validation");
     ASSERT_EQ(section.tables.size(), 2U);
     EXPECT_EQ(section.tables[0].key, "forecast_events");
+    // Twelve observations with a five-row window leave seven forecast rows, and a
+    // refit cadence of two gives ceil(7 / 2) = 4 refits; the counts are the window
+    // arithmetic, not incidental fixture sizes.
     ASSERT_EQ(section.tables[0].rows.size(), 7U);
     EXPECT_EQ(section.tables[1].key, "refits");
     ASSERT_EQ(section.tables[1].rows.size(), 4U);
@@ -98,6 +101,8 @@ TEST(ReportRisk, ProjectsInsufficientReportWithoutBacktest) {
     EXPECT_TRUE(section.tables[0].rows.empty());
     EXPECT_TRUE(section.tables[1].rows.empty());
     bool has_reason = false;
+    // The projection drops the backtest metrics entirely when there is no
+    // backtest, so this checks the metric set rather than a value being empty.
     for (const auto& metric : section.metrics) {
         if (metric.key == "diagnostics.reason") {
             has_reason = true;

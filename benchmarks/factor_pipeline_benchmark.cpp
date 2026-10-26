@@ -260,6 +260,9 @@ std::string json_number(const double value) {
     return output.str();
 }
 
+// Digests are built from this rendered text rather than the raw binary value, so
+// negative zero hashes like positive zero and a difference below the printed
+// nine-decimal resolution cannot change an input or output digest.
 std::string canonical_number(double value) {
     if (std::isnan(value)) return "nan";
     if (std::isinf(value)) return value < 0.0 ? "-inf" : "inf";
@@ -329,6 +332,10 @@ timing_summary measure(Function&& function, const int warmups,
     }
     timing_summary result;
     result.samples.reserve(static_cast<std::size_t>(repeats));
+    // Warmups never enter the sample set, and the observer runs after the stop
+    // clock, so digest capture and kernel-counter reads stay outside the interval;
+    // the allocation counter is the exception, because its atomics fire from
+    // operator new inside the measured call whenever profiling is enabled.
     if (allocation_profile_enabled) {
         result.operator_new_calls.samples.reserve(static_cast<std::size_t>(repeats));
         result.requested_bytes.samples.reserve(static_cast<std::size_t>(repeats));

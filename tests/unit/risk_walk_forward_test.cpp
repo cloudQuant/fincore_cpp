@@ -37,6 +37,8 @@ TEST(RiskWalkForward, NormalDistributionMatchesPythonOracle) {
         fincore::walk_forward_var(walk_forward_fixture(300), spec);
 
     EXPECT_EQ(result.status, fincore::walk_forward_status::ok);
+    // 250 forecasts is 300 minus the 50-row window, 50 refits is the five-day
+    // cadence over them, and the first forecast sits on the 51st observation.
     ASSERT_EQ(result.forecast.size(), 250U);
     EXPECT_EQ(result.index.front(), fincore::utc_timestamp(2021, 2, 20));
     EXPECT_EQ(result.index.back(), fincore::utc_timestamp(2021, 10, 27));
@@ -181,6 +183,9 @@ TEST(RiskWalkForward, FutureReturnsCannotChangeEarlierNormalOrHistoricalFits) {
         EXPECT_NEAR(perturbed_shifted_fit.forecast -
                         original_shifted_fit.forecast,
                     future_shift, 1e-12);
+        // A constant shift moves the mean and the forecast by exactly the shift
+        // and leaves the deviation untouched, so this equality is as telling as
+        // the forecast difference above.
         EXPECT_NEAR(perturbed_shifted_fit.standard_deviation -
                         original_shifted_fit.standard_deviation,
                     0.0, 1e-14);

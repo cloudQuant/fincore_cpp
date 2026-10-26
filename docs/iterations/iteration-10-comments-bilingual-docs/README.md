@@ -38,29 +38,23 @@ PLATFORM_PENDING，P134 的本机收尾项已完成（验收记录第 7 节）�
 标记、39 个出现 Doxygen 可识别的特殊注释标记。这只是文件级扫描，不是 API
 文档覆盖率。
 
-P131 的范围进度：`src/` 全部 106 个文件已完成审阅并各有一条说明，`tools/` 另有
-16 个脚本因模块 docstring 已覆盖用途与调用方式而记为“审阅后无需改动”；本轮又为
-`tools/tests/` 的 7 个测试模块补上缺失的模块 docstring，`tools/` 的 31 个条目因此
-全部完成审阅。`examples/` 的 3 个条目同轮完成，其中两个可执行目标显式构建并重跑，
-输出与迭代 8 留档一致；`implot_dashboard.cpp` 依赖本机未启用的 ImPlot 选项，只有
-comment-only 校验，没有编译证据。`benchmarks/` 中 6 个条目同轮完成（5 个 Python 模块
-的 docstring 已覆盖契约与非目标，记为“审阅后无需改动”；`run_benchmark.py` 与
-`factor_alignment_benchmark.cpp` 各补了不变量说明，后者不是 CMake 目标，本机无从编译）。
-其后 71 个条目（`tests/unit`、两个 consumer 冒烟程序、point-in-time 探针与生成的
-bootstrap fixture）分三批完成，批内改动全部由 comment-only 校验复核
-（42 个改动源 `checked=42 failures=0`），每批之后重跑全量构建与 1092 项测试；其中
-算数类结论逐条重算，排序类结论保留在清单注记里等待人工复核。其后 7 个条目（EVT、timing、XLSX、renderers、稳定排序、模拟基类、组合输入）由主会话
-直接审阅完成。其余 47 个条目是 `tests/` 的 44 个与 `benchmarks/` 的 3 个，尚未逐项确认。
+P131 状态（2026-10-26 收尾）：287 个条目全部完成审阅，每一行都有说明；其中 12 个
+用例因字面量本身是被钉住的参考证据而保持零改动，2 个用例的断言已自证契约、无需注释；
+两个仅支持 POSIX 的 benchmark 源文件完成审阅但无法在本机编译。至此文件级审阅不再有
+未确认项，剩余工作只有 Read the Docs 两个项目的创建与线上校验。
 
 实施后的事实基线（2026-10-26）：`docs/site/api-ledger.tsv` 记录 2484 个公共
 符号（含重载逐项），全部有说明；117 个头文件中 97 个在本轮修改并通过
 comment-only 校验；文档站由 Doxygen 1.9.7 + Breathe 5.1.0 + Sphinx 9.2.0
 构建，中英双语严格构建均通过，1092 个 C++ 测试全部通过；收尾度量已由
-`docs/site/tools/check_built_site.py` 固化为可复跑命令。GitHub Pages 已在本日
-开启（`build_type: workflow`），`docs` 工作流的 `build`、`pages` 两步通过，但
-`deploy` 被自动创建的 `github-pages` 环境的分支策略拒绝（允许列表为空），线上
-地址仍返回 404；Read the Docs 尚无项目。因此 P133 保持 PLATFORM_PENDING，
-P134 只在本机门禁范围内完成。
+`docs/site/tools/check_built_site.py` 固化为可复跑命令。
+
+这条基线写于 Pages 尚未部署成功时：当时 `docs` 工作流的 `build`、`pages` 通过而
+`deploy` 被 `github-pages` 环境的分支策略拒绝，线上地址返回 404。该问题已于同日
+解决——把 Pages 源改回 `build_type: workflow`、并把工作合并到 `master` 后，
+`build`、`pages`、`deploy` 三步全绿，中英文站点均已线上验证（见文末“当前发布
+状态”）。仍缺的只有 Read the Docs 的 `en`、`zh_CN` 两个项目，因此 P133 仍是
+PARTIAL（Pages 已完成、RTD 待建），不是 PLATFORM_PENDING。
 
 [迭代 8 验收记录](../../acceptance/2026-10-24-iteration-8-native-parity-acceptance.md)
 和[最新 HTML 基准记录](../../acceptance/2026-10-25-alpha003-html-benchmark.md)

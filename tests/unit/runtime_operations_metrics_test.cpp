@@ -136,6 +136,9 @@ fincore::operation_spec known_spec(
               "{\"required\":{\"returns\":\"dataframe\"},\"optional\":{}}"}}};
 }
 
+// The native table holds 99 operations and this helper appends two more declared
+// locally, so the 101-operation digest below covers the extended catalog rather
+// than the shipped table on its own.
 fincore::operation_catalog full_catalog() {
     auto operations = fincore::metrics_performance_operations();
     operations.push_back(known_spec(
@@ -174,6 +177,9 @@ TEST(OperationsMetrics, DeclaresUniqueNativeOperations) {
         EXPECT_EQ(operation.domain,
                   operation.operation_id.substr(
                       0U, operation.operation_id.find('.')));
+        // One operation keeps its historical capability id under the stats
+        // module, so the exception is named once instead of relaxing the
+        // prefix rule for every operation.
         EXPECT_EQ(operation.capability_id,
                   operation.operation_id ==
                           "metrics.ratios.common_sense_ratio"

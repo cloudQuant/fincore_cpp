@@ -39,6 +39,8 @@ TEST(Risk, ValidatesCutoffAndNamedReturnColumn) {
                 0.1, 1e-12);
     EXPECT_NEAR(fincore::conditional_value_at_risk(returns, 1.0, "strategy"),
                 0.0, 1e-12);
+    // An out-of-range cutoff is answered with NaN rather than an exception; only a
+    // missing column throws, so this calls also pin that split.
     EXPECT_TRUE(std::isnan(fincore::historical_value_at_risk(returns, -0.1, "strategy")));
     EXPECT_TRUE(std::isnan(fincore::conditional_value_at_risk(returns, 1.1, "strategy")));
     EXPECT_THROW(fincore::historical_value_at_risk(returns, 0.5, "missing"),
@@ -75,6 +77,8 @@ TEST(Risk, GpdRiskEstimatesMatchPythonOracleWithinTolerance) {
 
     const auto short_frame =
         fincore::make_series({1}, "returns", {0.01});
+    // One observation cannot define a tail, yet the result is a defined all-zero
+    // estimate rather than NaN, so callers can read the fields unconditionally.
     const auto zero = fincore::gpd_risk_estimates(short_frame);
     EXPECT_DOUBLE_EQ(zero.threshold, 0.0);
     EXPECT_DOUBLE_EQ(zero.var, 0.0);

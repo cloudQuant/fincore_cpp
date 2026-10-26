@@ -16,6 +16,9 @@ TEST(SimulationGbmFromReturnsUmbrella,
     const auto returns = fincore::make_series(
         {19, -3, 19, 7}, "returns", {0.01, 0.01, 0.01, 0.01});
     const auto paths = fincore::gbm_from_returns(returns, 4U, 2U, 4U, 42U);
+    // Constant returns zero the volatility, so both paths collapse onto
+    // exp(0.01 * t) - 1 at t = 0.25 ... 1, and the output index starts at 1
+    // because the first row is the step after the anchor.
     const std::array<double, 4U> expected{0.0025031276057951857,
                                             0.005012520859401182,
                                             0.0075281954445340915,

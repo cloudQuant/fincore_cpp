@@ -73,6 +73,10 @@ fincore::dataframe zero_net_positions() {
     return positions;
 }
 
+// Deliberately has no "cash" column and calls its cash holding "reserve", so the
+// test can cover a custom cash name and a name that matches nothing: an unmatched
+// name excludes nothing rather than failing, which leaves "reserve" counted as an
+// ordinary position.
 fincore::dataframe custom_cash_positions() {
     fincore::dataframe positions;
     positions.load_index(std::vector<fincore::timestamp>{60, 70});
@@ -432,6 +436,9 @@ TEST(Positions, SectorAndStyleExposuresMatchPythonOracle) {
     const auto factors = exposure_panel({1.0, 1.1, 0.9, 1.2},
                                         {0.5, 0.6, 0.4, 0.7},
                                         {0.2, 0.3, 0.25, 0.35});
+    // Style exposures normalise the position-weighted factor sum by gross
+    // (sum of absolute) exposure rather than by net exposure, so an offsetting
+    // long/short book still yields a small finite value instead of blowing up.
     const auto style =
         fincore::compute_style_factor_exposures(positions, factors);
     const auto& exposure = style.get_column<double>("exposure");

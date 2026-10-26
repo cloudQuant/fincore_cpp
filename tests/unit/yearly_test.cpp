@@ -257,6 +257,9 @@ TEST(Yearly, IsolatesNonFinitePairsToTheirCalendarYear) {
     const auto benchmark = fincore::make_series(
         fixture.index, "benchmark", std::move(benchmark_values));
 
+    // Non-finite observations stay inside their own calendar year: 2019 and 2021
+    // keep the all-finite values, while 2020 agrees with the scalar API on a
+    // four-row slice that still holds the NaN return and the infinite benchmark.
     const auto result = fincore::information_ratio_by_year(returns, benchmark);
     EXPECT_EQ(result.get_index(), expected_year_index());
     const auto& values = result.get_column<double>("information_ratio");

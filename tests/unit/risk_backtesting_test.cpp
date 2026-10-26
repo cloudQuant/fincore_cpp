@@ -61,6 +61,8 @@ TEST(RiskBacktesting, VarBacktestMatchesPythonOracleAndStatuses) {
     EXPECT_NEAR(result.kupiec_pvalue, 0.02498150305344931, 1e-12);
     EXPECT_DOUBLE_EQ(result.christoffersen_lr, 0.0);
     EXPECT_DOUBLE_EQ(result.christoffersen_pvalue, 1.0);
+    // Zero exceptions is inconclusive here but a failure at the 90% level below:
+    // the 250-day sample is flagged small, so the verdict withholds a pass.
     EXPECT_EQ(result.status, fincore::risk_backtest_status::inconclusive);
     EXPECT_DOUBLE_EQ(result.diagnostics.at("small_sample"), 1.0);
     EXPECT_EQ(result.inputs_digest.size(), 64U);
@@ -88,6 +90,9 @@ TEST(RiskBacktesting, VarBacktestMatchesPythonOracleAndStatuses) {
 }
 
 TEST(RiskBacktesting, EsBacktestMatchesDeterministicOracleFields) {
+    // The ES backtest reports itself experimental and its z-score comes from a
+    // seeded resampler, which is why the case fixes 100 resamples and seed 42 and
+    // then compares two runs exactly rather than using a tolerance.
     const auto result = fincore::backtest_es(
         backtest_forecast(250, -0.012), backtest_realized(250), 0.975, 100U,
         42U);
@@ -114,6 +119,9 @@ TEST(RiskBacktesting, CalibrationHelpersMatchPythonOracle) {
                 50.00000000000004, 1e-13);
     EXPECT_DOUBLE_EQ(fincore::expected_exception_count(0, 0.99), 0.0);
 
+    // The bands depend on both the sample size and the level, so one count can be
+    // green in one configuration and red in another (10 is red at 250/99% and
+    // green at 250/97.5%), and a zero-observation sample always reads green.
     EXPECT_EQ(fincore::basel_traffic_light(4, 250, 0.99), "green");
     EXPECT_EQ(fincore::basel_traffic_light(5, 250, 0.99), "yellow");
     EXPECT_EQ(fincore::basel_traffic_light(9, 250, 0.99), "yellow");

@@ -147,6 +147,9 @@ fincore::dataframe invoke_explicit(
 TEST(StyleRegressionAttribution,
      MatchesExplicitSourceOracleAndStyleReturnOrder) {
   const std::array<std::string_view, 2U> selected{"value", "growth"};
+  // Selector order only decides which columns take part; the result rows follow
+  // the style frame's own column order, which is why growth precedes value here,
+  // and the residual row is always appended last.
   const auto result = invoke_explicit(make_portfolio_series(),
                                       make_style_returns(), selected);
   expect_result(result, {"growth", "value", "residual"},
@@ -211,6 +214,10 @@ TEST(StyleRegressionAttribution,
                              hmdf::nan_policy::dont_pad_with_nans);
   const std::array<std::string_view, 1U> selected{"selected"};
 
+  // The two frames share only three timestamps: the contribution pairs those
+  // rows alone, while the residual is taken against the mean of every portfolio
+  // row, so the unmatched portfolio return stays unattributed instead of being
+  // pushed into the style.
   const auto result = invoke_explicit(portfolio, styles, selected);
   expect_result(result, {"selected", "residual"}, {4.0, -1.5});
 }

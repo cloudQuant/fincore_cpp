@@ -96,6 +96,8 @@ TEST(SimulationParameters, UsesSampleRatherThanPopulationDeviation) {
 
     EXPECT_DOUBLE_EQ(parameters.drift, 1.0);
     EXPECT_NEAR(parameters.volatility, std::sqrt(2.0), tolerance);
+    // This last check is what separates the sample denominator from the population
+    // one: the excluded value is the one the population denominator would give.
     EXPECT_NE(parameters.volatility, 1.0);
 }
 
@@ -177,6 +179,8 @@ TEST(SimulationParameters, AnnualizesWithSourcePeriodFactors) {
     EXPECT_DOUBLE_EQ(fincore::annualize(0.03, "MONTHLY"),
                      0.03 * std::sqrt(12.0));
     EXPECT_DOUBLE_EQ(fincore::annualize(0.04, "yearly"), 0.04);
+    // "hourly" is not a recognised period, so it silently takes the default daily
+    // factor instead of being rejected as a typo would be.
     EXPECT_DOUBLE_EQ(fincore::annualize(0.01, "hourly"),
                      0.01 * std::sqrt(252.0));
 }

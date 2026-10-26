@@ -12,6 +12,9 @@
 
 namespace {
 
+// A negative shift_from disables the shift entirely, so the default fixture is a
+// pure deterministic sine path; the only caller that overrides it rebuilds its
+// input mid-test and checks that an already built report does not follow.
 fincore::dataframe report_fixture(int count, int shift_from = -1,
                                   double future_shift = 0.0) {
     std::vector<fincore::timestamp> index;
@@ -251,6 +254,10 @@ TEST(RiskReport, SmallReportMatchesPythonOracleAndJsonShape) {
     EXPECT_NEAR(report.forecast_events.back().forecast,
                 -0.012453071489010743, 1e-12);
     EXPECT_FALSE(report.forecast_events.back().exception);
+    // The two fixtures disagree about the trailing event: 7 events at cadence 2
+    // end on a refit boundary, while the 250-event fixture above ends mid-cadence,
+    // so the pair pins that refits sit at cadence multiples counted from the first
+    // forecast rather than at the end of the sample.
     EXPECT_TRUE(report.forecast_events.back().refit);
 
     EXPECT_NEAR(report.refits.front().forecast, 0.000513085814624476,
