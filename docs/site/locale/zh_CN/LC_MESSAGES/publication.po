@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fincore_cpp 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-26 16:59+0800\n"
+"POT-Creation-Date: 2026-10-26 18:46+0800\n"
 "PO-Revision-Date: 2026-10-26 00:24+0800\n"
 "Last-Translator: fincore_cpp documentation maintainers\n"
 "Language: zh_CN\n"
@@ -110,58 +110,65 @@ msgstr ""
 "404，但这不能说明部署有问题。Pages 构建把版本放在路径段（`latest`）里，没有 Read the Docs 那样的版本切换器。"
 
 #: ../../site/publication.md:36
-msgid "Read the Docs — platform-pending"
-msgstr "Read the Docs——平台发布待完成"
+msgid "Read the Docs — one project, English build"
+msgstr "Read the Docs——单一项目，英文构建"
 
 #: ../../site/publication.md:38
 msgid ""
-"The versioned [`.readthedocs.yaml`](../../.readthedocs.yaml) is ready. Two "
-"linked RTD projects do not exist yet, and creating them needs the owner's "
-"RTD account (the API answers 401 from this environment). Steps, once an "
-"account is available:"
+"The repository ships one `.readthedocs.yaml`, so Read the Docs hosts **one "
+"project**, `fincore_cpp`, building the English source. No translation "
+"projects are created: the Chinese documentation is the GitHub Pages build, "
+"and the language switch in the top-right corner of every page sends Chinese "
+"readers there while keeping the page path."
 msgstr ""
-"带版本号的 [`.readthedocs.yaml`](../../.readthedocs.yaml) 已就绪。两个关联的 RTD "
-"项目尚未创建，创建它们需要仓库所有者的 RTD 账号（在本环境中相关 API 返回 401）。拿到账号后按以下步骤操作："
+"仓库只有一份 `.readthedocs.yaml`，因此 Read the Docs 只承载**一个项目** "
+"`fincore_cpp`，构建英文源。不创建翻译项目：中文文档就是 GitHub Pages "
+"构建，每页右上角的语言切换会把中文读者带到那里，并保持相同的页面路径。"
 
-#: ../../site/publication.md:42
+#: ../../site/publication.md:44
+msgid "Owner steps, once an account is available:"
+msgstr "账号可用后，仓库所有者的步骤如下："
+
+#: ../../site/publication.md:46
 msgid ""
 "Sign in at readthedocs.org with the account that can see "
 "`cloudQuant/fincore_cpp`."
 msgstr "用能看到 `cloudQuant/fincore_cpp` 的账号登录 readthedocs.org。"
 
-#: ../../site/publication.md:44
-msgid ""
-"Add project `fincore_cpp-en`: repository URL "
-"`https://github.com/cloudQuant/fincore_cpp`, default branch `master`, "
-"language **English**, configuration file `.readthedocs.yaml` (the file pins "
-"Ubuntu 24.04, Python 3.13, Doxygen and the Sphinx requirements)."
-msgstr ""
-"新建项目 `fincore_cpp-en`：仓库地址 `https://github.com/cloudQuant/fincore_cpp`，默认分支 "
-"`master`，语言 **English**，配置文件 `.readthedocs.yaml`（该文件固定了 Ubuntu 24.04、Python "
-"3.13、Doxygen 与 Sphinx 依赖）。"
-
 #: ../../site/publication.md:48
 msgid ""
-"Add project `fincore_cpp-zh-cn`: same repository and branch, language "
-"**Chinese**, and set the translation relationship so it builds against the "
-"`zh_CN` catalog."
-msgstr "新建项目 `fincore_cpp-zh-cn`：相同的仓库与分支，语言 **Chinese**，并设置翻译关系，使其基于 `zh_CN` 目录构建。"
+"Import the repository once, as project **`fincore_cpp`** (slug `fincore-"
+"cpp`), default branch `master`, language **English**. The build uses "
+"`.readthedocs.yaml` automatically: Ubuntu 24.04, Python 3.13, Doxygen from "
+"apt, the pinned Sphinx requirements, and `fail_on_warning: true`."
+msgstr ""
+"只导入一次仓库，项目名 **`fincore_cpp`**（slug `fincore-cpp`），默认分支 `master`，语言 "
+"**English**。构建会自动使用 `.readthedocs.yaml`：Ubuntu 24.04、Python 3.13、来自 apt 的 "
+"Doxygen、固定的 Sphinx 依赖，以及 `fail_on_warning: true`。"
 
-#: ../../site/publication.md:51
+#: ../../site/publication.md:52
 msgid ""
-"Trigger one build per project and check home, installation, one deep API "
-"page, language switch, version label and static assets on the generated URL."
-msgstr "两个项目各触发一次构建，并在生成的地址上核对首页、安装页、一个 API 深页、语言切换、版本标签与静态资源。"
+"Leave translations empty. The Chinese site is already live on Pages, and the"
+" switch links the two hosts, so a second RTD project would duplicate it."
+msgstr "翻译留空。中文站点已经在 Pages 上线，语言切换会连接两个宿主，因此第二个 RTD 项目只会造成重复。"
 
 #: ../../site/publication.md:54
-msgid "Until those two builds answer 200, RTD is **platform-pending**, not PASS."
-msgstr "在这两个构建返回 200 之前，RTD 属于**平台发布待完成**，不能算通过。"
+msgid ""
+"After the first build, check the home page, installation, one deep API page "
+"and the language switch on `https://fincore-cpp.readthedocs.io/en/latest/`."
+msgstr ""
+"首次构建后，在 `https://fincore-cpp.readthedocs.io/en/latest/` 上检查首页、安装页、一个 API "
+"深页以及语言切换。"
 
-#: ../../site/publication.md:56
+#: ../../site/publication.md:57
+msgid "Until that build answers 200, RTD is **platform-pending**, not PASS."
+msgstr "在该构建返回 200 之前，RTD 属于**平台发布待完成**，不能算通过。"
+
+#: ../../site/publication.md:59
 msgid "Rule"
 msgstr "规则"
 
-#: ../../site/publication.md:58
+#: ../../site/publication.md:61
 msgid ""
 "A local HTML build is \"deployable artifact\"; a platform build without a "
 "live page check is \"online check pending\"; neither is a publication PASS. "
@@ -209,4 +216,35 @@ msgstr ""
 
 #~ msgid "Read the Docs"
 #~ msgstr "Read the Docs"
+
+#~ msgid "Read the Docs — platform-pending"
+#~ msgstr "Read the Docs——平台发布待完成"
+
+#~ msgid ""
+#~ "The versioned [`.readthedocs.yaml`](../../.readthedocs.yaml)"
+#~ " is ready. Two linked RTD projects "
+#~ "do not exist yet, and creating them"
+#~ " needs the owner's RTD account (the "
+#~ "API answers 401 from this environment). "
+#~ "Steps, once an account is available:"
+#~ msgstr ""
+#~ "带版本号的 [`.readthedocs.yaml`](../../.readthedocs.yaml) "
+#~ "已就绪。两个关联的 RTD 项目尚未创建，创建它们需要仓库所有者的 RTD 账号（在本环境中相关"
+#~ " API 返回 401）。拿到账号后按以下步骤操作："
+
+#~ msgid ""
+#~ "Add project `fincore_cpp-zh-cn`: same "
+#~ "repository and branch, language **Chinese**, "
+#~ "and set the translation relationship so "
+#~ "it builds against the `zh_CN` catalog."
+#~ msgstr ""
+#~ "新建项目 `fincore_cpp-zh-cn`：相同的仓库与分支，语言 "
+#~ "**Chinese**，并设置翻译关系，使其基于 `zh_CN` 目录构建。"
+
+#~ msgid ""
+#~ "Trigger one build per project and "
+#~ "check home, installation, one deep API "
+#~ "page, language switch, version label and"
+#~ " static assets on the generated URL."
+#~ msgstr "两个项目各触发一次构建，并在生成的地址上核对首页、安装页、一个 API 深页、语言切换、版本标签与静态资源。"
 

@@ -91,6 +91,13 @@ _DOCS_BASE = (os.environ.get("FINCORE_DOCS_BASEURL") or
 # Everything before the "<language>/latest/" segment, so the sidebar switcher
 # can build a sibling-language URL without JavaScript as a fallback.
 fc_docs_root = re.sub(r"(en|zh-cn|zh_CN)/.*$", "", _DOCS_BASE)
+# Read the Docs hosts this project once, in English; the Chinese build is served
+# by GitHub Pages. The template must therefore point Chinese readers at Pages
+# even though the English link stays relative to whichever host is serving.
+_FC_PAGES_HOME = "https://cloudquant.github.io/fincore_cpp/"
+fc_docs_zh_url = (_FC_PAGES_HOME + "zh-cn/latest/"
+                  if "readthedocs.io" in fc_docs_root
+                  else fc_docs_root + "zh-cn/latest/")
 html_theme_options = {
     "navigation_depth": 3,
     "collapse_navigation": False,
@@ -116,6 +123,7 @@ html_context = {
     ),
     "display_language_switch": True,
     "fc_docs_root": fc_docs_root,
+    "fc_docs_zh_url": fc_docs_zh_url,
     "languages": [("English", "/en/latest/"), ("简体中文", "/zh-cn/latest/")],
 }
 html_show_sourcelink = True

@@ -67,6 +67,7 @@ guides/metrics
 guides/portfolio-risk
 guides/factor-research
 guides/reports-runtime
+guides/cookbook
 ```
 
 ```{toctree}
