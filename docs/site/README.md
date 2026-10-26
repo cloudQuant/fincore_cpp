@@ -55,9 +55,10 @@ Doxygen 1.9.7 is the local baseline; CI installs the distribution package.
 GitHub Pages is configured by [`.github/workflows/docs.yml`](../../.github/workflows/docs.yml)
 and deploys from successful `dev`/`master` builds. Read the Docs uses
 [`.readthedocs.yaml`](../../.readthedocs.yaml); **one** RTD project
-(`fincore_cpp`, English) is linked to this repository, and the Chinese build is
-served by GitHub Pages — the language switch maps a reader to the same page on
-the other host. Platform status and
+(`fincore_cpp`, English) is linked to this repository and live at
+<https://fincore-cpp.readthedocs.io/en/latest/>; the Chinese build is served by
+GitHub Pages and the language switch maps a reader to the same page on the other
+host. Platform status and
 actual URLs are recorded in [publication.md](publication.md) and the
 iteration-10 acceptance record; do not claim an online deployment until the
 four language/platform combinations have been checked.

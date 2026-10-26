@@ -126,8 +126,9 @@ third_party/         pinned submodules
 - Supported compilers: MSVC, Clang and GCC on their C++23 settings; the CI matrix
   builds Windows and macOS, with a known GCC 13 constexpr-limit failure tracked
   in the iteration record.
-- The documentation is published to GitHub Pages; Read the Docs publication is
-  configured through `.readthedocs.yaml` but not yet live — the current state is
+- The documentation is live on GitHub Pages (English and Chinese) and on Read the
+  Docs (one project, English: <https://fincore-cpp.readthedocs.io/en/latest/>);
+  the language switch links the two hosts at the same page. The current state is
   always recorded in [the publication page](docs/site/publication.md).
 
 ## Contributing

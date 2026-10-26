@@ -115,8 +115,9 @@ third_party/         固定子模块
 - 1092 个 C++ 测试与双语严格文档构建都属于例行门禁。
 - 支持的编译器：MSVC、Clang、GCC 的 C++23 配置；CI 覆盖 Windows 与 macOS，
   GCC 13 的 constexpr 限制导致的 `ubuntu-latest` 失败已在迭代记录中登记。
-- 文档已发布到 GitHub Pages；Read the Docs 已通过 `.readthedocs.yaml` 配置但尚未
-  上线，当前状态始终记录在[发布说明](docs/site/publication.md)。
+- 文档已上线 GitHub Pages（中英文）与 Read the Docs（单一项目，英文：
+  <https://fincore-cpp.readthedocs.io/en/latest/>）；语言切换会在同一页面上连接
+  两个宿主。当前状态始终记录在[发布说明](docs/site/publication.md)。
 
 ## 参与贡献
 
