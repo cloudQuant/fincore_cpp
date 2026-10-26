@@ -16,6 +16,9 @@ namespace {
     throw fincore_error{validation_error(message, "returns")};
 }
 
+// NaN and infinity get separate messages because they are separate mistakes, and
+// both stop the simulation here: unlike the parameter estimator, which skips a
+// missing observation, a path generator refuses to invent one.
 void require_finite_returns(const std::span<const double> returns) {
     for (const double value : returns) {
         if (std::isnan(value)) {
@@ -50,6 +53,9 @@ std::vector<double> validate_returns(const dataframe& returns,
             break;
         }
     }
+    // The search runs over double columns only, so a column of another type
+    // carrying the right name is reported as missing rather than as wrongly
+    // typed.
     if (!found) {
         throw fincore_error{validation_error(
             "Returns must contain a double column named '" + name + "'",

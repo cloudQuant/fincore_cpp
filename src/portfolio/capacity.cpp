@@ -26,6 +26,10 @@ capacity_assessment assess_liquidity(
     const dataframe& prices, const dataframe& volumes,
     const capacity_config& config) {
     validate_config(config);
+    // The three views are computed independently over the same inputs, and
+    // last_n_days reaches only the per-ticker and transaction ones: the headline
+    // days-to-liquidate figure always uses the full history, so a trimmed window
+    // narrows two of the three answers and not the first.
     return {
         days_to_liquidate_positions(positions, prices, volumes,
                                     config.max_bar_consumption,

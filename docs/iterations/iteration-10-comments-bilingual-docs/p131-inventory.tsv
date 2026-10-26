@@ -64,7 +64,7 @@ src/performance/cashflows.cpp	cpp	5	reviewed_this_round	flows bucketed by valuat
 src/performance/disclosures.cpp	cpp	0	reviewed_this_round	every disclosure line is emitted, with unspecified for missing text and none for a missing benchmark
 src/performance/inference.cpp	cpp	0	reviewed_this_round	a flat series reports zero Sharpe rather than undefined, which the (1 + S^2/2)/n standard error then reads as no risk adjustment
 src/performance/returns.cpp	cpp	2	reviewed_this_round	floor day division before the epoch; bracket ends exclude rate -1; scaled NPV carries an anchor factor; sign changes read the sign bit; zero-net days dropped
-src/portfolio/capacity.cpp	cpp	0	no_explanatory_block_not_audited	
+src/portfolio/capacity.cpp	cpp	0	reviewed_this_round	the trimmed window reaches the per-ticker and transaction views only, never the headline days-to-liquidate figure
 src/portfolio/positions.cpp	cpp	0	reviewed_this_round	row denominators skip missing positions, so an all-missing row's infinite ratio is folded back to unavailable; cash is required here but optional in the attribution asset list
 src/portfolio/round_trips.cpp	cpp	2	reviewed_this_round	signed-price FIFO; block may close and reopen
 src/portfolio/transactions.cpp	cpp	1	reviewed_this_round	first-day gross book halved
@@ -90,7 +90,7 @@ src/runtime/operations_portfolio.cpp	cpp	0	no_explanatory_block_not_audited
 src/runtime/runtime.cpp	cpp	0	no_explanatory_block_not_audited	
 src/runtime/serialization.cpp	cpp	2	reviewed_this_round	floats ride as lowercase IEEE bit patterns so NaN payloads and signed zeros survive; the parser refuses any other hex spelling; integers are strings to stay beyond the 53-bit mantissa
 src/runtime/utilities.cpp	cpp	3	reviewed_this_round	the short-path accumulator starts at negative zero to keep signed-zero results; a zero shape dimension skips the overflow test because the product is already zero
-src/simulation/base.cpp	cpp	0	no_explanatory_block_not_audited	
+src/simulation/base.cpp	cpp	0	reviewed_this_round	NaN and infinity are rejected with different messages and neither is skipped as it would be in calibration; a wrongly typed column of the right name reads as missing
 src/simulation/bootstrap.cpp	cpp	5	reviewed_this_round	rejection removes modulo bias; single stream defines reproducibility
 src/simulation/correlation.cpp	cpp	0	reviewed_this_round	the target correlation is only required to be finite, so an out-of-range constant matrix is written rather than clamped
 src/simulation/monte_carlo.cpp	cpp	2	reviewed_this_round	252 shared by calibration and horizon scaling
