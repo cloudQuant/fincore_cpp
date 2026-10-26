@@ -614,7 +614,35 @@ switcher — that switcher is an RTD feature, so on Pages the version requiremen
 met by the URL plus the landing page text.
 
 Result: **Pages × 2 languages verified live; RTD × 2 still not created**, so P133
-remains PARTIAL. Creating the `en` and `zh_CN` projects from `.readthedocs.yaml`
+remains PARTIAL.
+
+### One end-to-end check through the published site (2026-10-26)
+
+The publication page was rewritten in English while fixing the stale Pages status,
+which made it a live test case for the bilingual pipeline rather than just a
+static record: new prose has to reach the Chinese site through the catalog, not
+through a local build.
+
+1. `sphinx-build -b gettext` and `sphinx-intl update -l zh_CN` added 14 new
+   message ids to `locale/zh_CN/LC_MESSAGES/publication.po` and marked three
+   existing entries fuzzy because their English source had changed.
+2. All 17 were translated here (the fuzzy flag cleared explicitly, since
+   `Message.fuzzy` is read-only in Babel and a stale fuzzy entry counts as
+   untranslated under this iteration's rule).
+3. Rebuilding `zh_CN` strictly and running `check_built_site.py` gave
+   `pages=60 broken_links=0 translated=3242 untranslated=3 fuzzy=0` — the three
+   remaining entries are still the reviewed `Subclassed by` exemption.
+4. After merging to `master`, run
+   [`40297045732`](https://github.com/cloudQuant/fincore_cpp/actions/runs/40297045732)
+   finished `build`, `pages` and `deploy` all green, and both live pages answer
+   200: `/en/latest/publication.html` (18,034 bytes) and
+   `/zh-cn/latest/publication.html` (17,906 bytes), the latter containing 落地页,
+   已上线, 线上地址, 新建项目 and 平台发布待完成.
+
+This is the strongest publication evidence in the record so far: a source edit in
+English travelled through the translation catalog, the CI build and the deployment
+to a verified Chinese page, which is exactly what the four-combination rule asks
+for on the Pages side. Creating the `en` and `zh_CN` projects from `.readthedocs.yaml`
 needs the Read the Docs account, so the published state is "GitHub Pages live,
 Read the Docs release pending".
 
