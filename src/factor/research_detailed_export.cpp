@@ -22,9 +22,15 @@ namespace fincore {
 namespace {
 
 constexpr std::size_t csv_buffer_limit = 1U << 20U;
+// The CSV count and the file count are one contract seen two ways: the manifest is
+// an exported file too, so anything that checks how many files appeared has to
+// agree with how many tables were written.
 constexpr std::size_t detailed_csv_count = 10U;
 constexpr std::size_t detailed_export_file_count = detailed_csv_count + 1U;
 
+// Only the shortest encoding of a code point is accepted and the surrogate range is
+// refused outright: these bytes are counted, digested and compared elsewhere, so two
+// encodings of the same text must not both be able to reach the writer.
 void validate_utf8(const std::string_view text) {
     for (std::size_t position = 0U; position < text.size();) {
         const auto lead = static_cast<unsigned char>(text[position]);

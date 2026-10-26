@@ -31,6 +31,10 @@ namespace {
 
 constexpr double nan = std::numeric_limits<double>::quiet_NaN();
 
+// Tied values share the midpoint of the one-based positions they occupy. The
+// caller must hand this a finite vector: NaN compares equal to nothing, so it
+// would form a singleton group and be ranked wherever the sort happened to leave
+// it rather than being recognised as missing.
 std::vector<double> ranks(std::vector<double> values) {
     std::vector<std::size_t> order(values.size());
     for (std::size_t index = 0; index < values.size(); ++index) {
@@ -89,6 +93,10 @@ double std_of(const std::vector<double>& values) {
                       : std::sqrt(total / static_cast<double>(count - 1U));
 }
 
+// Each cross-section is one calendar day holding only finite values, so a missing
+// observation is left untouched rather than ranked; ranks divide by that day's count
+// and land in the half-open interval above zero, and a day with no spread becomes a
+// day of zeros rather than a day of NaN.
 void preprocess(factor_series& factors, const std::string& method) {
     if (method == "none") {
         return;

@@ -28,9 +28,9 @@ src/factor/performance.cpp	cpp	5	reviewed_this_round	NaN-safe variance guard; ra
 src/factor/pit.cpp	cpp	4	reviewed_this_round	revision uniqueness key; effective_from>known_at>as_of tie-break
 src/factor/portfolio.cpp	cpp	2	reviewed_this_round	period validated before row filtering; floored day normalization; Sunday-first weekday test against trading_calendar's Monday-first mask; non-finite cells add no growth; first cumulative row is after one period
 src/factor/report.cpp	cpp	0	reviewed_this_round	report moments drop infinities as well as NaN and divide by the usable count; skew and kurtosis are the biased population forms to match the reference call
-src/factor/research.cpp	cpp	17	multi_block_not_audited	
+src/factor/research.cpp	cpp	17	reviewed_this_round	ranks needs a finite vector and averages ties; each cross-section is one day of finite values, ranks land in (0,1] and a spreadless day becomes zeros
 src/factor/research_detailed.cpp	cpp	25	multi_block_not_audited	
-src/factor/research_detailed_export.cpp	cpp	0	no_explanatory_block_not_audited	
+src/factor/research_detailed_export.cpp	cpp	0	reviewed_this_round	the CSV and file counts are one contract seen two ways with the manifest included; only shortest-form UTF-8 reaches the writer because the bytes are digested
 src/factor/research_detailed_internal.hpp	hpp	4	reviewed_this_round	audited with no change: the sink seam, panel row order with NaN holes and the stability path are already stated
 src/factor/research_export_internal.hpp	hpp	0	reviewed_this_round	the writer seam exists so tests capture rows without touching the filesystem; the public export is the same path with the real writer
 src/factor/serialization.cpp	cpp	6	reviewed_this_round	length-prefixed big-endian; quiet-NaN; sorted map; versioned tag
