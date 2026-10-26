@@ -22,6 +22,10 @@ namespace {
 constexpr timestamp day_ns = 86'400'000'000'000LL;
 constexpr std::string_view cash_asset = "cash";
 
+// The period is validated against the table's own labels before a single row is
+// examined, so a misspelled horizon is reported as missing rather than as an
+// empty selection, and an ungrouped row can never satisfy an explicit group
+// list.
 prepared_factor_data filter_rows(const prepared_factor_data& data,
                                  const std::vector<int>& quantiles,
                                  const std::vector<std::string>& groups,
@@ -105,6 +109,8 @@ std::size_t period_column(const prepared_factor_data& data,
     throw factor_data_error{"period label is absent"};
 }
 
+// Floored rather than truncated: a pre-epoch timestamp carrying a time of day
+// belongs to the day before the one integer division reports.
 timestamp normalize_day(const timestamp value) {
     timestamp day = value / day_ns;
     if (value % day_ns < 0) {
@@ -113,6 +119,9 @@ timestamp normalize_day(const timestamp value) {
     return day * day_ns;
 }
 
+// Sunday-first: day zero is a Thursday, so it lands on index four and indices
+// zero and six form the weekend. trading_calendar reads the same epoch position
+// as a Monday-first mask, which is why the two offsets differ.
 bool business_day(const timestamp day) {
     timestamp weekday = (day / day_ns + 4) % 7;
     if (weekday < 0) {
@@ -142,6 +151,9 @@ timestamp add_business_days(const timestamp start, const int days) {
     return day + (start - normalized);
 }
 
+// A non-finite cell adds no growth instead of breaking the chain, so the curve
+// stays continuous through a gap, and the first row is the state after one
+// period rather than the unit starting value.
 factor_series_result cumulative_from_table(const factor_return_table& table,
                                            const std::size_t label) {
     factor_series_result result;
