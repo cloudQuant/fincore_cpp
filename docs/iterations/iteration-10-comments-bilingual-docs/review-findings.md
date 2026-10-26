@@ -174,7 +174,9 @@ P126/P127 处理清单和试点，不以批量添加空注释或生成英文菜�
 
 - **分类：** 待审阅的口径不一致，本轮只登记，不改代码。
 - **位置：** [performance.cpp](file:///D:/source_code/fincore_cpp/src/attribution/performance.cpp)
-  的 `require_unique_index` 与 `align_and_warn`。
+  的 `require_unique_index` 与 `align_and_warn`；同类写法也出现在
+  [report/portfolio.cpp](file:///D:/source_code/fincore_cpp/src/report/portfolio.cpp)
+  的 `align_positions`，那里重复日期会由后写入的行覆盖。
 - **观察：** 唯一性由 `std::adjacent_find` 比较相邻元素得出，因此“索引已按日期
   升序”是未写明的前提。同一日期若出现两次但不相邻，校验会放行，随后
   `filtered_frame` 的按位过滤会同时保留两条记录，归因存在重复计入的可能。

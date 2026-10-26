@@ -53,6 +53,10 @@ report_cell numeric_cell(const double value) {
     return report_cell::number_cell(value);
 }
 
+// The two curves handle a missing return differently on purpose: this one treats
+// it as no growth and still emits the timestamp, so the reported path stays
+// continuous, while drawdown_curve below multiplies the raw value and lets a NaN
+// appear in the series for whoever renders it.
 report_series cumulative_series(std::string key, std::string title,
                                 const dataframe& frame,
                                 const std::string_view column) {
@@ -109,6 +113,10 @@ report_series drawdown_curve(const dataframe& returns) {
     return series;
 }
 
+// Uniqueness is again judged on neighbouring entries, so an out-of-order index
+// that repeats a date further along passes and the later map build keeps only the
+// last row for that date; this is the second instance of the pattern registered as
+// F10-D11.
 dataframe align_positions(const dataframe& returns,
                           const dataframe& positions) {
     if (positions.get_index().empty()) {

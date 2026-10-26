@@ -71,7 +71,7 @@ src/portfolio/transactions.cpp	cpp	1	reviewed_this_round	first-day gross book ha
 src/report/html.cpp	cpp	0	no_explanatory_block_not_audited	
 src/report/models.cpp	cpp	0	reviewed_this_round	metric kind is decided by number/boolean/text precedence rather than validated, and every branch emits the same five keys
 src/report/pdf.cpp	cpp	0	no_explanatory_block_not_audited	
-src/report/portfolio.cpp	cpp	0	no_explanatory_block_not_audited	
+src/report/portfolio.cpp	cpp	0	reviewed_this_round	the cumulative curve treats a missing return as no growth while the drawdown curve lets NaN through; align_positions judges uniqueness by adjacency (F10-D11)
 src/report/renderers.cpp	cpp	0	no_explanatory_block_not_audited	
 src/report/risk.cpp	cpp	0	reviewed_this_round	non-finite metrics and cells carry no value instead of NaN text; the refit column set follows the fitted distribution, so headers not positions are the contract
 src/report/xlsx.cpp	cpp	0	reviewed_this_round	column names are bijective base 26; malformed bytes are replaced one byte at a time while a legal but XML-1.0-disallowed code point is replaced whole
