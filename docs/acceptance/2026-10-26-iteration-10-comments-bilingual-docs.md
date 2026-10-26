@@ -105,7 +105,7 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 105 marked `reviewed_this_round` with a one-line note naming the
+(287 files: 106 marked `reviewed_this_round` with a one-line note naming the
 invariant recorded or why none was needed, 12 with several explanatory blocks
 but not yet audited, 13 sparse, 219 with no explanatory block). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
@@ -219,10 +219,13 @@ where warranted, extended the following implementation files:
 | `src/runtime/operations_factor.cpp` | Audited with no change: the banner already states that typed lookups fail rather than coerce |
 | `src/factor/research.cpp` | `ranks` requires a finite vector and averages ties; a cross-section is one day of finite values, and a spreadless day preprocesses to zeros |
 | `src/factor/research_detailed_export.cpp` | The CSV and file counts are one contract with the manifest included; only shortest-form UTF-8 reaches the writer because the bytes are digested |
+| `src/factor/research_detailed.cpp` | Ranks number only the non-NaN entries, so a value's rank depends on how many were skipped, and infinities rank as extremes |
 
 Every edit above was verified comment-only and is covered by the re-run below.
-The remaining 182 files are deliberately not claimed as audited, so **P131 is
-PARTIAL**, not passed.
+Every one of the 106 files under `src/` is now audited and carries a note naming
+the invariant recorded or why none was needed. The remaining 181 files are under
+`tests/`, `tools/`, `examples/` and `benchmarks/`, and are deliberately not
+claimed as audited, so **P131 is PARTIAL**, not passed.
 
 One audit ended in a registered question rather than a comment: the
 sector-free `min_variance` branch solves over the unit simplex, so a lowered

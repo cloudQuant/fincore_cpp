@@ -544,6 +544,11 @@ detailed_horizon_workspace prepare_detailed_horizon(
     return prepared;
 }
 
+// Missing entries are excluded from the ordering and stay NaN in the result, so the
+// ranks number only the usable values and a value ranks lower in a column carrying
+// NaN than in one whose missing rows were dropped beforehand. Infinities are
+// extremes here rather than missing, unlike the research preprocessor, which ranks
+// only over finite values.
 std::vector<double> average_ranks_including_infinities(
     const std::vector<double>& values,
     std::vector<std::size_t>& sort_scratch) {
