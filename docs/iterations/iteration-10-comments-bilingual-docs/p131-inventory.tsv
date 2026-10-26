@@ -6,7 +6,7 @@ src/attribution/factor_exposures.cpp	cpp	0	reviewed_this_round	selector rules ar
 src/attribution/factor_prediction.cpp	cpp	0	reviewed_this_round	coefficients are read positionally, so the regression frame's shape, ordering and labels are re-derived before prediction
 src/attribution/factor_regression.cpp	cpp	0	reviewed_this_round	alpha is a reserved factor name; Householder QR keeps the design's condition number unsquared against the normal-equation solvers elsewhere; an exactly constant series reports R-squared as zero
 src/attribution/fama_french.cpp	cpp	2	reviewed_this_round	pivot test reads X'X not X; the variance shift is translation-invariant and kept for cancellation; beta index one is MKT with the intercept at zero; negative idiosyncratic residual clamps to zero
-src/attribution/fama_french_patch.cpp	cpp	0	no_explanatory_block_not_audited	
+src/attribution/fama_french_patch.cpp	cpp	0	reviewed_this_round	audited with no change: the static_assert already states that the patch type is a source-compatibility alias
 src/attribution/performance.cpp	cpp	0	reviewed_this_round	uniqueness compares adjacency so a sorted index is an unstated premise (F10-D11); an asset without loadings is dropped silently while a total absence errors
 src/attribution/style.cpp	cpp	0	reviewed_this_round	exposures clamp at zero before weighting; the volatility window grows until it hits the cap; Welford update with a population divisor; a zero contribution means nothing to attribute rather than no effect
 src/calendar.cpp	cpp	2	reviewed_this_round	boundary-day windows (epoch not whole days)
@@ -58,7 +58,7 @@ src/optimization/frontier.cpp	cpp	0	reviewed_this_round	PSD test is tolerance-sc
 src/optimization/numerics.cpp	cpp	4	reviewed_this_round	corner cases bypassed; fixed-iteration bisection in long double
 src/optimization/objectives.cpp	cpp	0	reviewed_this_round	min_weight overrides short_allowed; unmapped sectors dropped; target probes drop the ceiling they test; simplex branch ignores a negative bound (F10-D10)
 src/optimization/portfolio_solver.cpp	cpp	4	reviewed_this_round	gradient scale normalization; projection restores feasibility; Armijo test
-src/optimization/portfolio_solver.hpp	hpp	0	no_explanatory_block_not_audited	
+src/optimization/portfolio_solver.hpp	hpp	0	reviewed_this_round	value and gradient are trusted to describe one function and feasibility is only what the projection could enforce, which is why validate_weights follows every search
 src/optimization/risk_parity.cpp	cpp	3	reviewed_this_round	positive weight floor keeps shares defined; degenerate portfolios get finite penalty
 src/performance/cashflows.cpp	cpp	5	reviewed_this_round	flows bucketed by valuation date; -100% artifact rejected
 src/performance/disclosures.cpp	cpp	0	reviewed_this_round	every disclosure line is emitted, with unspecified for missing text and none for a missing benchmark
@@ -78,7 +78,7 @@ src/report/xlsx.cpp	cpp	0	reviewed_this_round	column names are bijective base 26
 src/risk/backtesting.cpp	cpp	5	reviewed_this_round	log-space binomial mass; CDF summed outward from mode
 src/risk/evt.cpp	cpp	7	reviewed_this_round	threshold one representable step below percentile (strict exceedances)
 src/risk/garch.cpp	cpp	7	reviewed_this_round	parameters reparameterized before unconstrained search
-src/risk/garch_internal.hpp	hpp	1	sparse_not_audited	
+src/risk/garch_internal.hpp	hpp	1	reviewed_this_round	audited with no change: the header already marks itself as source-tree-only, outside the installed API
 src/risk/models.cpp	cpp	3	reviewed_this_round	digest pairs timestamp+value; inclusive ES tail with threshold fallback
 src/risk/report.cpp	cpp	1	reviewed_this_round	comparison is relative with an absolute floor so an expected zero still works; counts, status and digests are identity-compared while only derived statistics get tolerance
 src/risk/specs.cpp	cpp	0	reviewed_this_round	audited: the validation rules are the whole contract, no hidden invariant to add
@@ -98,7 +98,7 @@ src/simulation/parameters.cpp	cpp	0	reviewed_this_round	an unrecognized period n
 src/simulation/paths.cpp	cpp	9	reviewed_this_round	modulo-bias threshold draw; LHS resamples until the stratum survives rounding; seed price row dropped from the return frame
 src/simulation/result.cpp	cpp	0	reviewed_this_round	an unbounded simulation statistic throws rather than returning NaN, except a single path's dispersion; the seven percentile cutoffs are fixed and the median is hoisted
 src/simulation/scenarios.cpp	cpp	2	reviewed_this_round	crash/spike shock upper middle element; only NaN rejected
-src/version.cpp	cpp	0	no_explanatory_block_not_audited	
+src/version.cpp	cpp	0	reviewed_this_round	the version string is a compiled-in literal, so a binary reports what it was built from rather than resolving metadata at run time
 src/viz/bokeh_document.cpp	cpp	0	no_explanatory_block_not_audited	
 src/viz/chart_data.cpp	cpp	0	reviewed_this_round	sorted allows duplicates; one non-finite print invalidates a whole month; two-pass year rows must match; half-open histogram bins fold the maximum into the last bin
 src/viz/html_builder.cpp	cpp	1	reviewed_this_round	escaping mirrors the reference including the apostrophe form and covers every interpolating call site; non-finite numbers print as words and a short buffer degrades to the same marker; only a finite non-zero value earns a colour class

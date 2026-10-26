@@ -48,11 +48,18 @@ struct solver_constraints {
     std::vector<sector_bounds> sectors;
 };
 
+// The search treats value and gradient as one function described two ways: no
+// finite-difference check is performed, so a gradient that disagrees with its own
+// value steers the projection without ever being detected.
 struct solver_objective {
     std::function<double(const std::vector<double>&)> value;
     std::function<std::vector<double>(const std::vector<double>&)> gradient;
 };
 
+// The returned weights are feasible only as far as the projection could enforce
+// within its inner budget, which is why every caller follows this with
+// validate_weights instead of treating a completed search as a satisfied
+// constraint set.
 std::vector<double> minimize_projected(const portfolio_problem& problem,
                                        const solver_constraints& constraints,
                                        const solver_objective& objective,

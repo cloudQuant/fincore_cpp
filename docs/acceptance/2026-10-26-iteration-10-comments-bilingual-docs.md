@@ -105,7 +105,7 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 85 marked `reviewed_this_round` with a one-line note naming the
+(287 files: 89 marked `reviewed_this_round` with a one-line note naming the
 invariant recorded or why none was needed, 12 with several explanatory blocks
 but not yet audited, 13 sparse, 219 with no explanatory block). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
@@ -199,9 +199,13 @@ where warranted, extended the following implementation files:
 | `src/simulation/parameters.cpp` | An unrecognized period annualizes as daily and the scaling is the volatility square root; NaN is skipped while an infinity stops the estimation |
 | `src/simulation/base.cpp` | NaN and infinity are rejected with distinct messages rather than skipped as calibration would; a wrongly typed column of the right name reads as missing |
 | `src/portfolio/capacity.cpp` | The trimmed window narrows the per-ticker and transaction views only, never the headline days-to-liquidate figure |
+| `src/version.cpp` | The version string is a compiled-in literal, so a binary reports the version it was built from |
+| `src/optimization/portfolio_solver.hpp` | Value and gradient are trusted as one function described twice, and feasibility is only what the projection enforced, which is why validation follows |
+| `src/attribution/fama_french_patch.cpp` | Audited with no change: the static_assert already names the alias's purpose |
+| `src/risk/garch_internal.hpp` | Audited with no change: the header already declares itself source-tree-only, outside the installed API |
 
 Every edit above was verified comment-only and is covered by the re-run below.
-The remaining 202 files are deliberately not claimed as audited, so **P131 is
+The remaining 198 files are deliberately not claimed as audited, so **P131 is
 PARTIAL**, not passed.
 
 One audit ended in a registered question rather than a comment: the
