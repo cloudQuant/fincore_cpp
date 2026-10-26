@@ -201,3 +201,36 @@ button:focus-visible,
     transition: none;
   }
 }
+
+/* Printing: keep the article, drop the furniture, and show where links point. */
+@media print {
+  .wy-nav-side,
+  .wy-nav-top,
+  .wy-side-nav-search,
+  .fc-lang-toggle,
+  .fc-language-switch,
+  .fc-skip,
+  .fc-copy,
+  .rst-versions,
+  .wy-breadcrumbs-aside,
+  .rst-footer-buttons {
+    display: none !important;
+  }
+  .wy-nav-content-wrap {
+    margin-left: 0 !important;
+  }
+  .wy-nav-content {
+    max-width: none !important;
+  }
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #555;
+  }
+  pre, table, img {
+    page-break-inside: avoid;
+  }
+  h2, h3 {
+    page-break-after: avoid;
+  }
+}
