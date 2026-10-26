@@ -56,6 +56,10 @@ dataframe filtered_frame(const dataframe& frame,
     return result;
 }
 
+// Adjacency is what is compared, so uniqueness here presumes an index already in
+// date order: a shuffled frame carrying the same date twice passes while its
+// positional filtering then reads both copies. Registered as F10-D11 rather than
+// changed in this round.
 void require_unique_index(const dataframe& frame, const char* const name) {
     if (std::adjacent_find(frame.get_index().begin(), frame.get_index().end()) !=
         frame.get_index().end()) {
@@ -96,6 +100,9 @@ attribution_alignment align_and_warn(
             missing_assets.push_back(name);
         }
     }
+    // Only a complete absence of loadings stops the attribution: a held asset
+    // without loadings is dropped from the alignment quietly, so partial coverage
+    // attributes less than the whole book without reporting the difference.
     if (stock_count == 0U || missing_assets.size() == stock_count) {
         throw input_error{
             "no factor loadings were available for the algorithm's positions"};

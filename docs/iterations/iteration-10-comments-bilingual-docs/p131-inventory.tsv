@@ -7,7 +7,7 @@ src/attribution/factor_prediction.cpp	cpp	0	no_explanatory_block_not_audited
 src/attribution/factor_regression.cpp	cpp	0	reviewed_this_round	alpha is a reserved factor name; Householder QR keeps the design's condition number unsquared against the normal-equation solvers elsewhere; an exactly constant series reports R-squared as zero
 src/attribution/fama_french.cpp	cpp	2	reviewed_this_round	pivot test reads X'X not X; the variance shift is translation-invariant and kept for cancellation; beta index one is MKT with the intercept at zero; negative idiosyncratic residual clamps to zero
 src/attribution/fama_french_patch.cpp	cpp	0	no_explanatory_block_not_audited	
-src/attribution/performance.cpp	cpp	0	no_explanatory_block_not_audited	
+src/attribution/performance.cpp	cpp	0	reviewed_this_round	uniqueness compares adjacency so a sorted index is an unstated premise (F10-D11); an asset without loadings is dropped silently while a total absence errors
 src/attribution/style.cpp	cpp	0	no_explanatory_block_not_audited	
 src/calendar.cpp	cpp	2	reviewed_this_round	boundary-day windows (epoch not whole days)
 src/data/contracts.cpp	cpp	0	reviewed_this_round	validation runs in the valued constructor and on explicit calls only, because the fields are public; remaining attempts clamps at zero
@@ -17,7 +17,7 @@ src/dataframe.cpp	cpp	2	reviewed_this_round	no NaN padding; type-restricted look
 src/detail/digest.cpp	cpp	0	no_explanatory_block_not_audited	
 src/detail/mt19937.cpp	cpp	3	reviewed_this_round	NumPy seed multiplier; mask+rejection bounded draw
 src/errors.cpp	cpp	0	no_explanatory_block_not_audited	
-src/extensions/discovery.cpp	cpp	0	no_explanatory_block_not_audited	
+src/extensions/discovery.cpp	cpp	0	reviewed_this_round	manifest JSON emits keys in fixed alphabetical order so the fingerprint survives member reordering; an entry-point value must hold exactly one separator with text on both sides
 src/extensions/snapshot.cpp	cpp	0	no_explanatory_block_not_audited	
 src/factor/analysis.cpp	cpp	2	sparse_not_audited	
 src/factor/artifacts.cpp	cpp	0	no_explanatory_block_not_audited	

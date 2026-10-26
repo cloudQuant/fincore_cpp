@@ -48,6 +48,9 @@ discovered_extension normalize_manifest(const discovered_extension& source) {
   return normalized;
 }
 
+// Exactly one separator with text on both sides and no whitespace anywhere: the
+// value is a pair of identifiers rather than an expression to be interpreted, so
+// anything needing interpretation is refused at discovery time.
 void validate_entry_point_value(const std::string& value) {
   if (std::any_of(value.begin(), value.end(), is_ascii_whitespace)) {
     fail_validation("extension value must not contain whitespace", "value");
@@ -85,6 +88,10 @@ void append_string_field(std::string& output, bool& first,
   detail::append_json_string(output, value);
 }
 
+// The keys are emitted in a fixed alphabetical order rather than in struct order,
+// which is what makes the fingerprint below stable across revisions that merely
+// reorder the members; the values themselves are already normalized by
+// normalize_manifest before they reach here.
 std::string canonical_manifest_json(const discovered_extension& extension) {
   std::string output;
   output.push_back('{');
