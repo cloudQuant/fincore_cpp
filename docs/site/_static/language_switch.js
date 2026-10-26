@@ -10,6 +10,20 @@
   var languages = ["en", "zh-cn", "zh_CN", "zh"];
   var spellings = { "en": ["en"], "zh-cn": ["zh-cn", "zh_CN", "zh"] };
   var storageKey = "fincore-docs-language";
+  // One documentation project on Read the Docs serves the English source; the
+  // Chinese build lives on GitHub Pages. Both hosts mount pages at
+  // /<language>/<version>/<page>, so the suffix can be carried across hosts.
+  var pagesHome = "https://cloudquant.github.io/fincore_cpp/";
+
+  function onReadTheDocs() {
+    return /readthedocs\.io$/i.test(window.location.hostname);
+  }
+
+  function versionSuffix() {
+    var parts = document.location.pathname.split("/");
+    var index = languageIndex(parts);
+    return index === -1 ? "" : parts.slice(index + 2).join("/");
+  }
 
   function languageIndex(parts) {
     for (var i = 0; i < parts.length; i += 1) {
@@ -40,6 +54,10 @@
   }
 
   function candidates(language) {
+    if (onReadTheDocs() && language === "zh-cn") {
+      return [pagesHome + "zh-cn/latest/" + versionSuffix() +
+              document.location.search + document.location.hash];
+    }
     var names = spellings[language] || [language];
     var urls = [];
     for (var i = 0; i < names.length; i += 1) {

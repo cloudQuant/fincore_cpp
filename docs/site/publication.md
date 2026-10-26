@@ -33,25 +33,28 @@ The language directories are `en/latest/` and `zh-cn/latest/` — probing `en/` 
 the version in the path segment (`latest`) and has no Read the Docs style version
 switcher.
 
-## Read the Docs — platform-pending
+## Read the Docs — one project, English build
 
-The versioned [`.readthedocs.yaml`](../../.readthedocs.yaml) is ready. Two linked
-RTD projects do not exist yet, and creating them needs the owner's RTD account
-(the API answers 401 from this environment). Steps, once an account is available:
+The repository ships one `.readthedocs.yaml`, so Read the Docs hosts **one
+project**, `fincore_cpp`, building the English source. No translation projects
+are created: the Chinese documentation is the GitHub Pages build, and the
+language switch in the top-right corner of every page sends Chinese readers
+there while keeping the page path.
+
+Owner steps, once an account is available:
 
 1. Sign in at readthedocs.org with the account that can see
    `cloudQuant/fincore_cpp`.
-2. Add project `fincore_cpp-en`: repository URL
-   `https://github.com/cloudQuant/fincore_cpp`, default branch `master`,
-   language **English**, configuration file `.readthedocs.yaml` (the file
-   pins Ubuntu 24.04, Python 3.13, Doxygen and the Sphinx requirements).
-3. Add project `fincore_cpp-zh-cn`: same repository and branch, language
-   **Chinese**, and set the translation relationship so it builds against the
-   `zh_CN` catalog.
-4. Trigger one build per project and check home, installation, one deep API page,
-   language switch, version label and static assets on the generated URL.
+2. Import the repository once, as project **`fincore_cpp`** (slug
+   `fincore-cpp`), default branch `master`, language **English**. The build uses
+   `.readthedocs.yaml` automatically: Ubuntu 24.04, Python 3.13, Doxygen from apt,
+   the pinned Sphinx requirements, and `fail_on_warning: true`.
+3. Leave translations empty. The Chinese site is already live on Pages, and the
+   switch links the two hosts, so a second RTD project would duplicate it.
+4. After the first build, check the home page, installation, one deep API page
+   and the language switch on `https://fincore-cpp.readthedocs.io/en/latest/`.
 
-Until those two builds answer 200, RTD is **platform-pending**, not PASS.
+Until that build answers 200, RTD is **platform-pending**, not PASS.
 
 ## Rule
 
