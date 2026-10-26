@@ -27,6 +27,11 @@ struct research_fixture {
     fincore::dataframe prices;
 };
 
+// Nothing here is random: the factor and price values are fixed trigonometric
+// patterns, so a difference against an oracle cannot be blamed on a draw. The
+// shapes are chosen to disagree on purpose — sixty factor dates over seventy price
+// dates, five assets — leaving price rows past the factor window for the cases
+// that check what a truncated study does.
 research_fixture make_fixture() {
     const auto start = fincore::utc_timestamp(2021, 1, 4);
     const auto day = 86'400'000'000'000LL;

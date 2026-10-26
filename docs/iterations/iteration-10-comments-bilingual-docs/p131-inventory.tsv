@@ -160,9 +160,9 @@ tests/unit/factor_portfolio_test.cpp	cpp	0	no_explanatory_block_not_audited
 tests/unit/factor_prediction_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/factor_regression_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/factor_report_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tests/unit/factor_research_detailed_export_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/factor_research_detailed_export_test.cpp	cpp	0	reviewed_this_round	each case gets its own temporary directory because the export path creates and refuses paths, and sharing would turn ordering into a failure
 tests/unit/factor_research_detailed_test.cpp	cpp	16	multi_block_not_audited	
-tests/unit/factor_research_test.cpp	cpp	0	no_explanatory_block_not_audited	
+tests/unit/factor_research_test.cpp	cpp	0	reviewed_this_round	the fixture is deterministic trigonometric data with factor and price spans deliberately mismatched, so no result depends on a draw
 tests/unit/factor_serialization_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/factor_tears_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/factor_timedelta_test.cpp	cpp	0	no_explanatory_block_not_audited	

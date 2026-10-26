@@ -22,6 +22,9 @@
 
 namespace {
 
+// Every case gets a directory of its own: the export path creates, refuses and
+// re-runs against directories, so two cases sharing one would report an ordering
+// problem as a product failure.
 std::filesystem::path unique_temp_path(const char* prefix) {
     for (int attempt = 0; attempt < 8; ++attempt) {
         const auto stamp = std::chrono::steady_clock::now()

@@ -105,7 +105,7 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 112 marked `reviewed_this_round` with a one-line note naming the
+(287 files: 114 marked `reviewed_this_round` with a one-line note naming the
 invariant recorded or why none was needed, 12 with several explanatory blocks
 but not yet audited, 13 sparse, 219 with no explanatory block). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
@@ -226,10 +226,12 @@ where warranted, extended the following implementation files:
 | `tests/unit/stats_test.cpp` | Rejection messages are compared exactly, so two diagnoses cannot collapse into one passing assertion |
 | `tests/unit/rolling_metrics_test.cpp` | An over-long window must return an empty typed column rather than a missing one |
 | `tests/unit/metrics_umbrella_test.cpp` | Every exported signature is pinned through a named pointer type, so a parameter change stops the build |
+| `tests/unit/factor_research_test.cpp` | The fixture is deterministic and its factor and price spans are deliberately mismatched, so no outcome depends on a draw |
+| `tests/unit/factor_research_detailed_export_test.cpp` | Each case gets its own temporary directory, because sharing one would report ordering as a product failure |
 
 Every edit above was verified comment-only and is covered by the re-run below.
 Every one of the 106 files under `src/` is now audited and carries a note naming
-the invariant recorded or why none was needed. The remaining 175 files are under
+the invariant recorded or why none was needed. The remaining 173 files are under
 `tests/`, `tools/`, `examples/` and `benchmarks/`, and are deliberately not
 claimed as audited, so **P131 is PARTIAL**, not passed.
 
