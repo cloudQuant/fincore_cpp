@@ -128,6 +128,8 @@ TEST(HtmlReportBuilder, MetricCardsSelectKeysAndRenderNA) {
               std::string::npos);
     EXPECT_NE(html.find("<div class=\"label\">absent</div>"),
               std::string::npos);
+    // "state" is a text metric, so its card has no number, and "absent" matches
+    // no metric at all: both fall back to the same marker.
     EXPECT_EQ(count_occurrences(html, ">N/A<"), 2U);
     // The selected "loss" key is not rendered when explicit keys are given.
     EXPECT_EQ(html.find("loss"), std::string::npos);
@@ -147,6 +149,8 @@ TEST(HtmlReportBuilder, SeriesTablesTruncateToHeadAndTail) {
     builder.plot_returns(monthly_series(25U));
     const std::string html = builder.build();
     EXPECT_NE(html.find("<h2>Cumulative Returns</h2>"), std::string::npos);
+    // 21 is the header row plus the 20 retained data rows: ten from the head and
+    // ten from the tail, with no marker row standing in for the dropped middle.
     EXPECT_EQ(count_occurrences(html, "<tr>"), 21U);
     EXPECT_NE(html.find("2021-01-01"), std::string::npos);
     EXPECT_NE(html.find("2021-01-25"), std::string::npos);

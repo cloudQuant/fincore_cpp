@@ -105,9 +105,9 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 253 marked `reviewed_this_round` with a one-line note naming the
-invariant recorded or why none was needed, 2 with several explanatory blocks
-but not yet audited, 2 sparse, 30 with no explanatory block). Auditing may
+(all 287 files are marked `reviewed_this_round`, each with a one-line note naming
+the invariant recorded or why none was needed; no row carries an unaudited status
+any more). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
 because its validation clauses are the entire contract. This round audited and,
 where warranted, extended the following implementation files:
@@ -299,13 +299,27 @@ reuse, copy-on-validate and the omitted-versus-empty distinction.
 A third assisted batch covered 24 more entries, including the two consumer smoke
 programs, the point-in-time probe and the generated bootstrap fixture — the last
 three left untouched because their bytes are pinned or regenerated — bringing the
-assisted total to 71 files and leaving 34 (31 under `tests/`, three under
-`benchmarks/`). Among the claims re-derived in that batch: `perf_stats.cpp`
+assisted total to 71 files. Among the claims re-derived in that batch: `perf_stats.cpp`
 passes the daily constant to both the Omega row and the alpha-beta pair, so the
 weekly and daily frames must compare exactly, and the first entry of the pinned
 draw fixture really is the identity `0` through `7`, which is what makes that
-column plain statistics rather than a resample. The remaining files are not
-claimed as audited, so **P131 is PARTIAL**, not passed.
+column plain statistics rather than a resample.
+
+**P131 is PASS at file level:** all 287 rows now carry a note. Two caveats are
+recorded rather than papered over. Ten cases were audited and deliberately left
+untouched because their literals are pinned reference evidence
+(`report_models_test`, `runtime_test`, `runtime_utilities_test`,
+`simulation_result_test`, `stress_scenarios_test`, `style_analysis_test`,
+`style_performance_test`, `style_tilts_test`, together with the earlier
+`factor_performance`, `factor_prediction`, `factor_regression` and
+`factor_research_detailed` cases), two more needed no comment because the
+assertions already state the contract (`viz_documents_test`,
+`viz_render_model_test`), and the two POSIX-only benchmark sources are reviewed
+but not compilable on this host. The closing tranche of 24 changed sources passed
+the comment-only gate (`checked=24 failures=0`), and the build plus `ctest` after
+it reported `100% tests passed, 0 tests failed out of 1092`. Assistant-raised
+doubts from this tranche that were not verified here were added to the candidate
+list in `review-findings.md` rather than to the findings proper.
 
 Two further `tests/unit` batches (47 files) were audited with help from
 subordinate agents, because the comment-only gate makes that class of edit
@@ -675,7 +689,7 @@ checks, which belong to P133 and cannot be substituted by a local build.
 
 | ID | Item | Status |
 |---|---|---|
-| P131 | Per-file implementation/test/tool comment audit | PARTIAL |
+| P131 | Per-file implementation/test/tool comment audit | PASS — 287/287 rows audited; two POSIX-only benchmarks reviewed but not compilable here |
 | P133 | RTD ×2 and Pages ×2 live checks | PARTIAL — Pages en + zh-cn live and checked; RTD projects not created |
 | P134 | Iteration close-out | PARTIAL — local gate complete, Pages close-out verified; RTD checks owed |
 | E-01 | 3 `Subclassed by` identifier lists left in English | reviewed exemption |

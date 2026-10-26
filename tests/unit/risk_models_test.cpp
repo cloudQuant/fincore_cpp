@@ -58,6 +58,8 @@ TEST(RiskModels, HistoricalForecastMatchesPythonOracle) {
 
     const auto expected_shortfall = fincore::forecast_es(frame, config);
     EXPECT_NEAR(expected_shortfall.estimate, -0.02864328433487541, 1e-15);
+    // The tail counts are the confidence split of the sample rather than a fitted
+    // quantity: 300 x 0.05 = 15 here and 300 x 0.01 = 3 two blocks below.
     EXPECT_EQ(expected_shortfall.diagnostics.at("n_tail_observations"),
               15.0);
 
@@ -133,6 +135,8 @@ TEST(RiskModels, InsufficientDataAndNaNDropping) {
     const auto clean = fincore::forecast_var(with_nan, config);
     EXPECT_EQ(clean.status, fincore::risk_estimate_status::ok);
     EXPECT_EQ(clean.diagnostics.at("n_observations"), 2.0);
+    // The NaN is dropped from the estimate, but the timestamp still names the last
+    // row of the input, 3, not the last usable observation, 2.
     EXPECT_EQ(clean.forecast_timestamp, 3);
 
     const auto empty = fincore::make_series(

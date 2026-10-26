@@ -158,6 +158,10 @@ TEST(RollingEngine, LongWindowNanAndSparseBenchmarkMatchRollingOracles) {
                              fincore::rolling_metric::beta};
     const auto actual = engine.compute(metrics);
 
+    // Only the mean is rebuilt by hand: it labels each window by its last row,
+    // annualises by plain scaling, and lets NaN through, whereas the volatility
+    // oracle below must stay finite over the same windows because those kernels
+    // drop NaN instead of propagating it.
     std::vector<fincore::timestamp> mean_index;
     std::vector<double> mean_values;
     const std::size_t output_rows = rows - window + 1U;
@@ -267,6 +271,9 @@ TEST(RollingEngine,
     EXPECT_DOUBLE_EQ(aligned_benchmark_values[0], 0.04);
     EXPECT_DOUBLE_EQ(aligned_benchmark_values[1], 0.01);
     EXPECT_DOUBLE_EQ(aligned_benchmark_values[2], 0.01);
+    // Duplicate timestamps resolve to the first benchmark row carrying that
+    // timestamp, and the returns order with its repeats is preserved rather than
+    // sorted or deduplicated.
     EXPECT_DOUBLE_EQ(aligned_benchmark_values[3], 0.02);
     EXPECT_TRUE(std::isnan(aligned_benchmark_values[4]));
     EXPECT_DOUBLE_EQ(aligned_benchmark_values[5], 0.02);

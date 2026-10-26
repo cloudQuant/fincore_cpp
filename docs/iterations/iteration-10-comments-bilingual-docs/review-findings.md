@@ -285,3 +285,20 @@ P126/P127 处理清单和试点，不以批量添加空注释或生成英文菜�
   `tests/oracle/research_detailed_probe.cpp`：`research_spec.max_loss = 1.0` 的
   单位口径、以及 `ledger_timing` 的 `start_value` 形参实际承载 1 月 4 日流量这类
   命名与量纲问题，值得在评审时一并确认。
+
+来自最后一批（`tests/` 收尾与三个 benchmark 源文件）的同类候选，同样未经本轮证实：
+
+- `tests/unit/report_html_test.cpp`：`EXPECT_NE(html.find("1.5"), npos)` 扫描整篇
+  文档，图表几何里的数字也可能满足它；中文标签检查也会匹配 `data-zh` 属性里的
+  文本，因此分不清属性值与可见文本。
+- `tests/unit/simulation_parameters_test.cpp`：`EXPECT_NE(volatility, 1.0)` 紧跟在
+  `EXPECT_NEAR(..., sqrt(2.0))` 之后，不可能独立失败。
+- `tests/unit/runtime_test.cpp`：`ValidatesCatalogAndResolution` 里有一句
+  `std::make_shared<int>(0);` 没有任何作用，疑似遗留语句。
+- `benchmarks/factor_pipeline_benchmark.cpp`：`checks` 只写进 JSON，为 false 时
+  进程仍以 0 退出；`rss_megabytes()` 对查询失败与真实的 0 都返回 0.0；
+  `make_fixture` 只在 1D 视野统计 NaN 而 `snapshot_from` 统计两者（目前相等只因
+  5D 从不含 NaN）；`read_report_template` 的 `!stream.eof() && stream.fail()`
+  在 `istreambuf_iterator` 读取之后似乎不可达。
+- 中位数口径：`factor_layout_comparison.cpp` 取上中位，而
+  `factor_pipeline_benchmark.cpp` 对偶数次重复取两个中位的均值。

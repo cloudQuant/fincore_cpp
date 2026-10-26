@@ -432,6 +432,10 @@ void average_ranks(
     }
 }
 
+// Each window is normalized before comparison: shifted by its first entry and
+// scaled by its largest deviation, then shifted by its own mean and scaled again,
+// so the ratio does not depend on the price and volume levels or on their
+// different units; a window without dispersion has no correlation and yields NaN.
 bool unit_deviations(const std::array<double, window>& values,
                      std::array<double, window>& unit) {
     const auto anchor = values[0];
@@ -1046,6 +1050,9 @@ std::string report_tables_json(
     return output.str();
 }
 
+// The payload is substituted into a script element in the report template, so the
+// characters that could close that element or be read as a line terminator by a
+// JavaScript parser are escaped even though raw JSON would allow them.
 std::string html_safe_json(const std::string_view json) {
     std::string escaped;
     escaped.reserve(json.size());
@@ -1185,6 +1192,10 @@ std::string timings_json(
     if (html_write_seconds.has_value()) {
         accounted_stages += *html_write_seconds;
     }
+    // other_seconds is a residual against whichever wall reference is available,
+    // not a separate measurement; accounted_stage_seconds below reports that same
+    // reference rather than the sum of the stage fields, and the embedded copy,
+    // taken before rendering and writing, therefore books only the stages that ran.
     const auto wall_reference = total_seconds.has_value()
                                     ? total_seconds
                                     : elapsed_before_report_render_seconds;

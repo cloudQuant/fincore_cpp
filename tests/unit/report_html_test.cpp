@@ -199,6 +199,9 @@ TEST(ReportHtml, HandlesShortSeriesAndMalformedTables) {
   auto document = demo_document();
   document.sections[0].series[0].x = {0.0};
   document.sections[0].series[0].y = {1.0};
+  // A one-point series is still a consistent document, so the "No data" text is
+  // a rendering decision for series shorter than two points rather than a
+  // validation failure; the malformed and non-finite cases below throw instead.
   EXPECT_NE(fincore::render_html(document).find("No data"), std::string::npos);
   const fincore::report_html_options chinese_no_data{
       "zh", fincore::report_chart_backend::inline_svg};
@@ -240,6 +243,11 @@ TEST(ReportHtml, RendersPinnedOfflineEChartsWithSafeCompletePayload) {
   EXPECT_NE(html.find("id=\"fincore-chart-0\""), std::string::npos);
   EXPECT_NE(html.find("data:[[0.0,1.0],[1.0,1.5],[2.0,1.0]]"),
             std::string::npos);
+  // Two different escapings are pinned here: markup text goes through HTML
+  // entities (&lt;), while the series payload is JSON-escaped, so <, > and &
+  // become \u003c, \u003e and \u0026 and no code point above ASCII reaches the
+  // script source unescaped. That is what keeps the tooltip from closing the
+  // element.
   EXPECT_NE(html.find("name:\"\\u003c/script\\u003e\\u003cimg"),
             std::string::npos);
   EXPECT_NE(html.find("\\u0026\\u4f60\\u597d"), std::string::npos);

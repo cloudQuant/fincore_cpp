@@ -17,6 +17,9 @@ TEST(ArtifactBundleLifecycleTest, AddCloseAndSeal) {
   EXPECT_EQ(bundle.artifacts.at("report.html"), "<html></html>");
   EXPECT_EQ(bundle.descriptors.at("report.html").media_type, "text/html");
   EXPECT_FALSE(bundle.closed());
+  // Closing is idempotent and terminal: it freezes the bundle against further
+  // adds and against being written out, and the repeat below asserts that a
+  // second close is a no-op rather than an error.
   bundle.close();
   EXPECT_TRUE(bundle.closed());
   bundle.close();
@@ -133,6 +136,9 @@ TEST(OperationCatalogExtensionsTest, SnapshotAndMergeRequireCallables) {
 
   EXPECT_THROW(catalog.with_extensions(extension_snapshot, {}),
                fincore::input_error);
+  // A catalog accepts one extension snapshot only: this call supplies every
+  // callable yet still fails, so the rejection is about the binding the merged
+  // catalog already carries, not about missing callables.
   EXPECT_THROW(merged.with_extensions(extension_snapshot, callables),
                fincore::input_error);
 }

@@ -141,6 +141,9 @@ TEST(Returns, IgnoresNanSamplesForAnnualVolatility) {
         {1, 2, 3}, "returns",
         {0.01, std::numeric_limits<double>::quiet_NaN(), 0.03});
 
+    // The expectation encodes both conventions at once: the deviation is taken
+    // about the mean of the two usable samples with the n-1 divisor and then
+    // scaled by sqrt(252), so a population divisor would not reproduce it.
     EXPECT_NEAR(fincore::annual_volatility(returns), 0.2244994432064365,
                 1e-12);
 }
@@ -280,6 +283,10 @@ TEST(Returns, AggregatesWeeklyReturnsWithCalendarYearAndIsoWeekLabels) {
                   fincore::utc_timestamp(2021, 12, 27),
                   fincore::utc_timestamp(2021, 1, 1),
                   fincore::utc_timestamp(2022, 1, 1)}));
+    // Rows are ordered by the (year, period) label, not by bucket start: the year
+    // counts calendar years while the period is the ISO week number, so the
+    // January 1 observation lands in a "2021 week 53" bucket whose clamped start,
+    // 2021-01-01, sorts after the 2021-12-27 row above it.
     expect_aggregation_labels(actual, {2020, 2021, 2021, 2021, 2021, 2022},
                               {53, 1, 13, 52, 53, 52});
     expect_values(actual.get_column<double>("strategy"),

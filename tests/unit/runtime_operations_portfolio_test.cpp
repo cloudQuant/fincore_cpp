@@ -137,6 +137,8 @@ TEST(PortfolioRuntimeOperations, DeclaresCompleteUniqueNativeCatalog) {
     EXPECT_TRUE(annualize.deterministic);
     EXPECT_EQ(annualize.rng_policy, "none");
 
+    // A fixed seed makes these reproducible, yet they stay non-deterministic:
+    // deterministic and rng_policy are separate declarations, checked separately.
     for (const auto& id : {"simulation.bootstrap.bootstrap",
                            "simulation.bootstrap.bootstrap_ci",
                            "simulation.bootstrap.bootstrap_summary",
@@ -159,6 +161,8 @@ TEST(PortfolioRuntimeOperations, AliasesReuseCanonicalNativeKernels) {
     const auto kernel = [&specs](const std::string& id) {
         return find_spec(specs, id).provenance.at("kernel_symbol");
     };
+    // Aliases are tied together only by sharing a kernel_symbol; the catalogue has
+    // no separate alias field, so equal symbols are the whole relation.
     EXPECT_EQ(kernel("portfolio.positions.extract_pos"),
               "stack_positions");
     EXPECT_EQ(kernel("portfolio.positions.stack_positions"),

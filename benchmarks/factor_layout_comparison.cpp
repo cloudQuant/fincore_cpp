@@ -318,6 +318,9 @@ void add_record(fnv64& digest, const fixture& input,
 [[nodiscard]] std::string fixture_digest(const fixture& input) {
     fnv64 digest;
     add_metadata(digest, input);
+    // The walk is over the dense date-by-asset grid, not over the record list, so a
+    // layout that invents or loses an absent cell still changes the digest even
+    // though that cell has no record to compare against.
     std::size_t record_index = 0U;
     for (std::size_t date_id = 0U; date_id < input.dates.size(); ++date_id) {
         for (std::size_t asset_id = 0U; asset_id < input.assets.size(); ++asset_id) {
@@ -630,6 +633,10 @@ template <typename Layout, typename Builder, typename Validator,
                                            Builder&& builder,
                                            Validator&& validator,
                                            PayloadMeasurer&& payload_measurer) {
+    // The clock brackets the build alone: validation, digesting, the payload
+    // measurement and the ownership snapshot all run outside it, and the payload
+    // is read once from the last repetition. Any repetition whose digest differs
+    // aborts the run, so the samples and the reported digest describe one result.
     timing_result result;
     std::string expected_digest;
     for (std::size_t iteration = 0U; iteration < kWarmups + kRepetitions;
@@ -724,6 +731,9 @@ template <typename Layout, typename Builder, typename Validator,
         throw std::invalid_argument("unknown representation");
     }
     const std::uint64_t absent = measured.axis_cells - measured.present_records;
+    // Read inside the child exec'd for this one case/layout pair, so the high-water
+    // mark is attributable to this representation's fixture, build, validation and
+    // snapshots rather than to the other pairs.
     const std::uint64_t rss = process_peak_rss_bytes();
     std::ostringstream output;
     output << "{\"case\":" << json_string(case_name)

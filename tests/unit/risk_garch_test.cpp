@@ -35,6 +35,10 @@ std::vector<double> garch_fixture() {
 
     std::vector<double> values;
     values.reserve(count);
+    // Seeded at the unconditional variance implied by the same constants used in
+    // the loop (omega / (1 - alpha - beta)) and dividing the shock variance by the
+    // count rather than by count - 1, so the path needs no burn-in and repeats
+    // bit for bit.
     double variance =
         5e-5 + 0.1 * shock_variance + 0.8 * shock_variance;
     for (int index = 0; index < count; ++index) {
@@ -213,6 +217,9 @@ TEST(RiskGarch, EgarchFitMatchesPythonOracleWithinTolerance) {
     EXPECT_DOUBLE_EQ(result.params.gamma, repeated.params.gamma);
     EXPECT_DOUBLE_EQ(result.params.beta, repeated.params.beta);
     EXPECT_DOUBLE_EQ(result.log_likelihood, repeated.log_likelihood);
+    // EGARCH recurses on the log variance, so omega is an intercept on that scale
+    // and a negative fitted value is admissible; the GARCH and GJR omega
+    // expectations below are positive because their omega enters a variance.
     EXPECT_NEAR(result.params.omega, -0.4898979840671724, 2e-3);
     EXPECT_NEAR(result.params.alpha, 0.2513723688487509, 2e-3);
     EXPECT_NEAR(result.params.gamma, 0.29181294103945654, 2e-3);
