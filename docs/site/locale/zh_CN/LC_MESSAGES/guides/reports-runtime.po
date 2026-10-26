@@ -8,15 +8,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fincore_cpp 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-25 22:15+0800\n"
+"POT-Creation-Date: 2026-10-26 17:54+0800\n"
 "PO-Revision-Date: 2026-10-25 22:20+0800\n"
 "Last-Translator: fincore_cpp documentation maintainers\n"
-"Language-Team: zh_CN <LL@li.org>\n"
 "Language: zh_CN\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
+"Language-Team: zh_CN <LL@li.org>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
 #: ../../site/guides/reports-runtime.md:1
@@ -25,30 +25,363 @@ msgstr "报告、运行时与扩展"
 
 #: ../../site/guides/reports-runtime.md:3
 msgid ""
-"Report schema 2 is a shared typed document. Native HTML, XLSX, PDF and "
-"Plotly/Bokeh projections consume the same computed values; they are not a "
-"promise of Python/pandas byte identity. Artifact bundles write a versioned "
-"manifest and reject unsafe or preexisting destinations according to their "
-"API contract."
-msgstr ""
-"报告 schema 2 是一种共享的类型化文档。原生 HTML、XLSX、PDF 以及 Plotly/Bokeh "
-"投影使用相同的计算值；它们并不承诺与 Python/pandas 逐字节一致。产物包会写入带"
-"版本的清单，并依据其 API 契约拒绝不安全或已存在的目标位置。"
+"Two connected layers live here: a typed report model that every backend "
+"renders, and a runtime layer that turns operations into catalog entries and "
+"execution results. Both favour explicit contracts over convenience."
+msgstr "这里有两层相互衔接的东西：所有后端都会渲染的类型化报表模型，以及把操作变成目录条目与执行结果的运行时层。两者都偏好显式契约而不是便利。"
+
+#: ../../site/guides/reports-runtime.md:7
+msgid "One document, many backends"
+msgstr "一份文档，多种后端"
 
 #: ../../site/guides/reports-runtime.md:9
-msgid ""
-"The runtime catalog exposes typed operations with explicit inputs and "
-"deterministic serialization where documented. Sessions cache deterministic "
-"operations, own their inputs/outputs and reject calls after close."
-msgstr ""
-"运行时操作目录提供具有显式输入的类型化操作，并在文档说明之处提供确定性序列"
-"化。会话会缓存确定性操作，拥有其输入/输出，并在关闭后拒绝调用。"
+msgid "`report_document` is the single value a report is built from:"
+msgstr "`report_document` 是构建报表的唯一值："
 
-#: ../../site/guides/reports-runtime.md:13
+#: ../../site/guides/reports-runtime.md:11
 msgid ""
-"Extension discovery consumes the native snapshot/hook ABI described by the "
-"public extension headers. Optional plotting adapters are not part of the "
-"core CMake consumer contract and must be enabled explicitly."
+"fincore::report_document document;\n"
+"document.domain = \"portfolio\";\n"
+"document.title = \"Monthly review\";\n"
+"document.metadata = {{\"source\", \"fixture\"}};\n"
 msgstr ""
-"扩展发现机制使用公共扩展头文件所描述的原生快照/钩子 ABI。可选的绘图适配器不属"
-"于核心 CMake 使用方契约，必须显式启用。"
+"fincore::report_document document;\n"
+"document.domain = \"portfolio\";\n"
+"document.title = \"Monthly review\";\n"
+"document.metadata = {{\"source\", \"fixture\"}};\n"
+
+#: ../../site/guides/reports-runtime.md:18
+msgid ""
+"A document holds sections; a section holds `metrics`, `tables`, `series`, "
+"`notes`, `units` and `legends`. Values are typed cells — text, number, "
+"boolean or missing — so a backend never has to guess whether a column is "
+"numeric."
+msgstr ""
+"文档包含多个 section；每个 section 包含 `metrics`、`tables`、`series`、`notes`、`units` 与 "
+"`legends`。值是带类型的单元格 —— 文本、数值、布尔或缺失 —— 因此后端无需猜测某列是否为数值。"
+
+#: ../../site/guides/reports-runtime.md
+msgid "Backend"
+msgstr "后端"
+
+#: ../../site/guides/reports-runtime.md
+msgid "Function"
+msgstr "函数"
+
+#: ../../site/guides/reports-runtime.md
+msgid "Notes"
+msgstr "说明"
+
+#: ../../site/guides/reports-runtime.md
+msgid "HTML"
+msgstr "HTML"
+
+#: ../../site/guides/reports-runtime.md
+msgid "`render_html(document, options)`"
+msgstr "`render_html(document, options)`"
+
+#: ../../site/guides/reports-runtime.md
+msgid "`language` selects `en`/`zh`; `chart_backend` selects inline SVG or ECharts"
+msgstr "`language` 选择 `en`/`zh`；`chart_backend` 选择内联 SVG 或 ECharts"
+
+#: ../../site/guides/reports-runtime.md
+msgid "XLSX"
+msgstr "XLSX"
+
+#: ../../site/guides/reports-runtime.md
+msgid "`render_xlsx(document, options)`"
+msgstr "`render_xlsx(document, options)`"
+
+#: ../../site/guides/reports-runtime.md
+msgid "One sheet per section; cells use spreadsheet names and inline strings"
+msgstr "每个 section 一个工作表；单元格使用电子表格命名与内联字符串"
+
+#: ../../site/guides/reports-runtime.md
+msgid "PDF"
+msgstr "PDF"
+
+#: ../../site/guides/reports-runtime.md
+msgid "`render_pdf_bytes(document)`, `write_pdf(document, path)`"
+msgstr "`render_pdf_bytes(document)`、`write_pdf(document, path)`"
+
+#: ../../site/guides/reports-runtime.md
+msgid "`write_pdf` also creates parent directories"
+msgstr "`write_pdf` 还会创建父目录"
+
+#: ../../site/guides/reports-runtime.md
+msgid "Plotly"
+msgstr "Plotly"
+
+#: ../../site/guides/reports-runtime.md
+msgid "`render_plotly(document)`"
+msgstr "`render_plotly(document)`"
+
+#: ../../site/guides/reports-runtime.md
+msgid "Returns a bundle with a `figure` artifact"
+msgstr "返回带 `figure` artifact 的 bundle"
+
+#: ../../site/guides/reports-runtime.md
+msgid "Bokeh"
+msgstr "Bokeh"
+
+#: ../../site/guides/reports-runtime.md
+msgid "`render_bokeh(document)`"
+msgstr "`render_bokeh(document)`"
+
+#: ../../site/guides/reports-runtime.md
+msgid "Same bundle shape as Plotly"
+msgstr "bundle 形状与 Plotly 相同"
+
+#: ../../site/guides/reports-runtime.md
+msgid "Static axes"
+msgstr "静态坐标轴"
+
+#: ../../site/guides/reports-runtime.md
+msgid "`render_matplotlib(document, caller_axes)`"
+msgstr "`render_matplotlib(document, caller_axes)`"
+
+#: ../../site/guides/reports-runtime.md
+msgid "Caller-supplied axes are marked not owned"
+msgstr "调用方提供的坐标轴标记为非拥有"
+
+#: ../../site/guides/reports-runtime.md:31
+msgid ""
+"Rendering the same document twice produces byte-identical output for the "
+"deterministic backends. That is what makes reports safe to hash and diff, "
+"and it is why the workbook writer fixes the ZIP timestamps instead of "
+"stamping the clock."
+msgstr ""
+"对确定性后端而言，同一文档渲染两次会产出字节完全一致的结果。这正是报表可以安全哈希与比较的原因，也是工作簿写出器固定 ZIP "
+"时间戳而不是打上当前时间的原因。"
+
+#: ../../site/guides/reports-runtime.md:35
+msgid "Artifact bundles"
+msgstr "Artifact bundle"
+
+#: ../../site/guides/reports-runtime.md:37
+msgid "The plotting and PDF renderers return a `report_artifact_bundle`:"
+msgstr "绘图与 PDF 渲染器返回 `report_artifact_bundle`："
+
+#: ../../site/guides/reports-runtime.md:39
+msgid ""
+"`metadata` always carries `backend` and `report_digest`; `report_digest()` "
+"is the document's semantic digest, so two backends of one document agree."
+msgstr ""
+"`metadata` 始终携带 `backend` 与 `report_digest`；`report_digest()` "
+"是文档的语义摘要，因此同一文档的不同后端彼此一致。"
+
+#: ../../site/guides/reports-runtime.md:41
+msgid ""
+"`artifacts` carries named outputs (`figure`, `file`, "
+"`axis:<section>.<series>`) with `name`, `path`, `owned` and `content`."
+msgstr ""
+"`artifacts` 携带具名输出（`figure`、`file`、`axis:<section>.<series>`），并带 "
+"`name`、`path`、`owned` 与 `content`。"
+
+#: ../../site/guides/reports-runtime.md:43
+msgid ""
+"`find(name)` returns `nullptr` when the name is absent, so an unchecked "
+"dereference is a programming error rather than a silent default."
+msgstr "`find(name)` 在名称不存在时返回 `nullptr`，因此不加检查的解引用是编程错误而不是静默默认值。"
+
+#: ../../site/guides/reports-runtime.md:45
+msgid ""
+"A caller-supplied axis, and the file produced by `write_pdf`, are **not "
+"owned**: the caller keeps the lifetime."
+msgstr "调用方提供的坐标轴，以及 `write_pdf` 产出的文件，都是**非拥有**的：生命周期由调用方负责。"
+
+#: ../../site/guides/reports-runtime.md:48
+msgid "Escaping and non-finite values"
+msgstr "转义与非有限值"
+
+#: ../../site/guides/reports-runtime.md:50
+msgid ""
+"Two escaping schemes coexist because two output channels do. Markup text "
+"goes through HTML entities; the series payload embedded in a script element "
+"is JSON-escaped, so `<`, `>` and `&` become `\\u003c`, `\\u003e` and "
+"`\\u0026` and no non-ASCII code point reaches the script source unescaped."
+msgstr ""
+"两套转义共存，因为有两个输出通道。标记文本走 HTML 实体；嵌入脚本元素的序列载荷走 JSON 转义，因此 `<`、`>`、`&` 变成 "
+"`<`、`>`、`&`，且没有非 ASCII 码点以未转义形式进入脚本源。"
+
+#: ../../site/guides/reports-runtime.md:55
+msgid ""
+"Non-finite numbers are not printed as `NaN` text. Where a channel can carry "
+"a gap the value becomes a null; where the geometry cannot, the point is "
+"dropped or collapsed to zero. The renderer documents which one it does, "
+"because a chart that silently plots zero for infinity is worse than one that"
+" leaves a gap."
+msgstr ""
+"非有限数值不会打印成 `NaN` 文本。通道能承载空隙时该值变成 null；几何无法承载时该点被丢弃或折叠为 "
+"0。渲染器会说明自己用哪一种，因为把无穷静默画成 0 比留出空隙更糟。"
+
+#: ../../site/guides/reports-runtime.md:60
+msgid "Runtime catalog"
+msgstr "运行时目录"
+
+#: ../../site/guides/reports-runtime.md:62
+msgid ""
+"Operations are described rather than discovered by name at run time. Each "
+"module exposes its own descriptor list — `metrics_operations()`, "
+"`risk_operations()`, `portfolio_operations()`, and so on — and "
+"`all_operations()` concatenates them in a fixed order. The order is part of "
+"the digest, so it is not alphabetical and not incidental."
+msgstr ""
+"操作是被描述的，而不是运行时按名字发现的。每个模块暴露自己的描述符列表 —— "
+"`metrics_operations()`、`risk_operations()`、`portfolio_operations()` 等 —— "
+"`all_operations()` 按固定顺序拼接它们。该顺序是摘要的一部分，因此既不是字母序也不是偶然得到的。"
+
+#: ../../site/guides/reports-runtime.md:68
+msgid ""
+"`operation_catalog` registers specs and resolves requests; an unknown or "
+"ambiguous name raises `operation_resolution_error`. A request produces an "
+"`execution_plan`, and executing it yields a `runtime_result` whose payload "
+"is a typed `runtime_value` rather than a stringly-typed map."
+msgstr ""
+"`operation_catalog` 注册规格并解析请求；未知或歧义的名字会抛 `operation_resolution_error`。请求产生 "
+"`execution_plan`，执行后得到 `runtime_result`，其载荷是带类型的 `runtime_value` 而不是字符串映射。"
+
+#: ../../site/guides/reports-runtime.md:73
+msgid "Sessions and caching"
+msgstr "会话与缓存"
+
+#: ../../site/guides/reports-runtime.md:75
+msgid ""
+"`analysis_context` caches deterministic computations. `summary()` returns "
+"the same map on a second call and `computation_count(key)` stays at one — "
+"the count, not the equality, is what proves the cache was used. Because the "
+"cache is mutable, one context is single-threaded by construction; frames can"
+" still be shared."
+msgstr ""
+"`analysis_context` 缓存确定性计算。`summary()` 在第二次调用时返回同一个映射，而 "
+"`computation_count(key)` 保持为 1 —— "
+"证明缓存被使用的是计数，而不是相等性。由于缓存可变，一个上下文在构造上是单线程的；帧仍然可以共享。"
+
+#: ../../site/guides/reports-runtime.md:80
+msgid ""
+"`analysis_session` owns its inputs and outputs and rejects calls after "
+"`close()`. Closing twice is safe. An extension merge happens once even when "
+"every callable is complete, so a session never half-applies a registration "
+"set."
+msgstr ""
+"`analysis_session` 拥有自己的输入与输出，并在 `close()` "
+"之后拒绝调用。重复关闭是安全的。即使每个可调用对象都完整，扩展合并也只发生一次，因此会话不会半途应用一组注册。"
+
+#: ../../site/guides/reports-runtime.md:84
+msgid "Extensions"
+msgstr "扩展"
+
+#: ../../site/guides/reports-runtime.md:86
+msgid ""
+"Extension discovery uses the native snapshot and hook ABI documented in the "
+"extension headers. Two properties matter when reading a snapshot:"
+msgstr "扩展发现使用扩展头文件里写明的原生快照与 hook ABI。读快照时有两件事重要："
+
+#: ../../site/guides/reports-runtime.md:89
+msgid ""
+"Hooks carry an event name and a priority: lower priorities run first, and "
+"hooks that share both an event and a priority are ordered by fingerprint. "
+"Sorting the whole registry by priority alone would therefore reorder hooks "
+"within an event."
+msgstr ""
+"hook 携带事件名与优先级：优先级更低者先运行，事件与优先级都相同的 hook 按 fingerprint "
+"排序。因此仅按优先级排序整个注册表会打乱同一事件内的顺序。"
+
+#: ../../site/guides/reports-runtime.md:92
+msgid ""
+"The snapshot digest covers the ASCII-escaped payload, not host-encoded text,"
+" so a non-ASCII identifier has one canonical byte form."
+msgstr "快照摘要覆盖的是 ASCII 转义后的载荷，而不是宿主编码文本，因此非 ASCII 标识符只有一种规范字节形式。"
+
+#: ../../site/guides/reports-runtime.md:95
+msgid ""
+"Plotting adapters (ImPlot, GLFW-backed demos) are not part of the core CMake"
+" consumer contract; they are built only when their options are enabled."
+msgstr "绘图适配器（ImPlot、基于 GLFW 的示例）不属于核心 CMake 消费契约；只有启用相应选项时才会构建。"
+
+#: ../../site/guides/reports-runtime.md:98
+msgid "A minimal report"
+msgstr "最小报表"
+
+#: ../../site/guides/reports-runtime.md:100
+#, python-brace-format
+msgid ""
+"#include <fincore/report/html.hpp>\n"
+"#include <fincore/report/models.hpp>\n"
+"#include <fincore/report/xlsx.hpp>\n"
+"\n"
+"fincore::report_document document;\n"
+"document.domain = \"demo\";\n"
+"document.title = \"Demo\";\n"
+"fincore::report_section section;\n"
+"section.key = \"summary\";\n"
+"fincore::report_metric metric;\n"
+"metric.key = \"sharpe\";\n"
+"metric.label = \"Sharpe\";\n"
+"metric.number = 1.25;\n"
+"section.metrics.push_back(metric);\n"
+"document.sections.push_back(section);\n"
+"\n"
+"const std::string html = fincore::render_html(document, {.language = "
+"\"en\"});\n"
+"const std::string workbook = fincore::render_xlsx(document);\n"
+msgstr ""
+"#include <fincore/report/html.hpp>\n"
+"#include <fincore/report/models.hpp>\n"
+"#include <fincore/report/xlsx.hpp>\n"
+"\n"
+"fincore::report_document document;\n"
+"document.domain = \"demo\";\n"
+"document.title = \"Demo\";\n"
+"fincore::report_section section;\n"
+"section.key = \"summary\";\n"
+"fincore::report_metric metric;\n"
+"metric.key = \"sharpe\";\n"
+"metric.label = \"Sharpe\";\n"
+"metric.number = 1.25;\n"
+"section.metrics.push_back(metric);\n"
+"document.sections.push_back(section);\n"
+"\n"
+"const std::string html = fincore::render_html(document, {.language = "
+"\"en\"});\n"
+"const std::string workbook = fincore::render_xlsx(document);\n"
+
+#: ../../site/guides/reports-runtime.md:121
+msgid ""
+"Both strings are complete files; nothing else needs to be generated or "
+"templated."
+msgstr "两个字符串都是完整文件；不需要再生成或套用任何模板。"
+
+#~ msgid ""
+#~ "Report schema 2 is a shared typed "
+#~ "document. Native HTML, XLSX, PDF and "
+#~ "Plotly/Bokeh projections consume the same "
+#~ "computed values; they are not a "
+#~ "promise of Python/pandas byte identity. "
+#~ "Artifact bundles write a versioned manifest"
+#~ " and reject unsafe or preexisting "
+#~ "destinations according to their API "
+#~ "contract."
+#~ msgstr ""
+#~ "报告 schema 2 是一种共享的类型化文档。原生 HTML、XLSX、PDF 以及"
+#~ " Plotly/Bokeh 投影使用相同的计算值；它们并不承诺与 Python/pandas "
+#~ "逐字节一致。产物包会写入带版本的清单，并依据其 API 契约拒绝不安全或已存在的目标位置。"
+
+#~ msgid ""
+#~ "The runtime catalog exposes typed "
+#~ "operations with explicit inputs and "
+#~ "deterministic serialization where documented. "
+#~ "Sessions cache deterministic operations, own "
+#~ "their inputs/outputs and reject calls after"
+#~ " close."
+#~ msgstr "运行时操作目录提供具有显式输入的类型化操作，并在文档说明之处提供确定性序列化。会话会缓存确定性操作，拥有其输入/输出，并在关闭后拒绝调用。"
+
+#~ msgid ""
+#~ "Extension discovery consumes the native "
+#~ "snapshot/hook ABI described by the public"
+#~ " extension headers. Optional plotting adapters"
+#~ " are not part of the core CMake"
+#~ " consumer contract and must be enabled"
+#~ " explicitly."
+#~ msgstr "扩展发现机制使用公共扩展头文件所描述的原生快照/钩子 ABI。可选的绘图适配器不属于核心 CMake 使用方契约，必须显式启用。"
+
