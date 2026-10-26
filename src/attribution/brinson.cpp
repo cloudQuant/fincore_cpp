@@ -130,6 +130,11 @@ dataframe brinson_results(
     std::vector<double> total(index.size(), 0.0);
     std::vector<double> portfolio(index.size(), 0.0);
     std::vector<double> benchmark(index.size(), 0.0);
+    // Allocation carries the sector's own benchmark return rather than its
+    // excess over the total benchmark return, which is the BHB reading rather
+    // than the Fachler one. That is what makes the sum below exact: the three
+    // terms add to portfolio minus benchmark on every row, because the cross
+    // products cancel the doubled weight and return terms.
     for (std::size_t row = 0U; row < index.size(); ++row) {
         for (std::size_t sector = 0U; sector < sector_names.size(); ++sector) {
             const double portfolio_return = columns.portfolio_returns[sector][row];
@@ -196,6 +201,10 @@ brinson_cumulative_result brinson_cumulative(
         result.get_column<double>(brinson_benchmark_return_column.data());
 
     brinson_cumulative_result cumulative{};
+    // Effects are added across periods while the two books are compounded, so
+    // the summed total agrees with the arithmetic excess of the per-period
+    // contributions but not, beyond first order, with the compounded wealth
+    // difference computed below; both are reported instead of reconciled.
     double portfolio_wealth = 1.0;
     double benchmark_wealth = 1.0;
     for (std::size_t row = 0U; row < result.get_index().size(); ++row) {
@@ -224,6 +233,10 @@ std::vector<std::string> double_column_names(const dataframe& frame) {
     return names;
 }
 
+// The flag separates the two aggregation rules a sector needs: constituent
+// weights add up while constituent returns are averaged over the mapped list, so
+// naming an asset twice counts it twice in both. The accumulation is plain
+// addition, which carries one NaN constituent straight into the sector column.
 dataframe apply_sector_mapping(
     const dataframe& frame,
     const std::map<std::string, std::vector<std::string>>& mapping,
@@ -316,6 +329,10 @@ dataframe BrinsonAttribution::calculate(
         }
     }
 
+    // The benchmark leg is always built as an equal-weight book over the same
+    // sector columns, and an omitted benchmark copies the portfolio's returns, so
+    // the selection term vanishes and only the deviation of the supplied weights
+    // from equal weight is attributed.
     if (!benchmark.has_value()) {
         benchmark = portfolio;
     }
