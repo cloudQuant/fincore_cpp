@@ -68,7 +68,7 @@ src/portfolio/capacity.cpp	cpp	0	reviewed_this_round	the trimmed window reaches 
 src/portfolio/positions.cpp	cpp	0	reviewed_this_round	row denominators skip missing positions, so an all-missing row's infinite ratio is folded back to unavailable; cash is required here but optional in the attribution asset list
 src/portfolio/round_trips.cpp	cpp	2	reviewed_this_round	signed-price FIFO; block may close and reopen
 src/portfolio/transactions.cpp	cpp	1	reviewed_this_round	first-day gross book halved
-src/report/html.cpp	cpp	0	no_explanatory_block_not_audited	
+src/report/html.cpp	cpp	0	reviewed_this_round	three escapers use three apostrophe spellings to match their own output format; both languages ship in one document and switch through a body class
 src/report/models.cpp	cpp	0	reviewed_this_round	metric kind is decided by number/boolean/text precedence rather than validated, and every branch emits the same five keys
 src/report/pdf.cpp	cpp	0	no_explanatory_block_not_audited	
 src/report/portfolio.cpp	cpp	0	reviewed_this_round	the cumulative curve treats a missing return as no growth while the drawdown curve lets NaN through; align_positions judges uniqueness by adjacency (F10-D11)

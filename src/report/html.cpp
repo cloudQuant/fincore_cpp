@@ -23,6 +23,10 @@ std::string_view echarts_asset() noexcept;
 
 namespace {
 
+// The apostrophe becomes &#39; here, where the chart builder writes &#x27; and the
+// workbook writer uses &apos;: each form matches the escaping its own output
+// format is compared against, so the three are not interchangeable even though the
+// set of escaped characters is the same.
 std::string escape_html(const std::string_view text) {
   std::string output;
   output.reserve(text.size());
@@ -79,6 +83,9 @@ struct labels {
   text_pair subtitle;
 };
 
+// One document carries both languages and the page toggles between them, so a
+// saved report keeps its wording whatever language it was opened in; adding a
+// label means adding its pair here rather than a second build of the file.
 labels labels_for(const bool factor) {
   if (factor) {
     return {{"Notes", "说明"},
