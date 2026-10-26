@@ -105,7 +105,7 @@ Doxygen produced zero warnings (`docs/_build/doxygen/doxygen.log`).
 
 `src`, `tests`, `tools`, `examples` and `benchmarks` are inventoried per file in
 [`p131-inventory.tsv`](../iterations/iteration-10-comments-bilingual-docs/p131-inventory.tsv)
-(287 files: 118 marked `reviewed_this_round` with a one-line note naming the
+(287 files: 134 marked `reviewed_this_round` with a one-line note naming the
 invariant recorded or why none was needed, 12 with several explanatory blocks
 but not yet audited, 13 sparse, 219 with no explanatory block). Auditing may
 legitimately end in "no comment to add": `src/risk/specs.cpp` is such a case,
@@ -233,8 +233,10 @@ where warranted, extended the following implementation files:
 | `tests/unit/annual_alpha_beta_test.cpp` | An uneven three-year spread pins one row per touched year, labelled at its start, with gaps inside a year adding none |
 
 Every edit above was verified comment-only and is covered by the re-run below.
-Every one of the 106 files under `src/` is now audited and carries a note naming
-the invariant recorded or why none was needed. The remaining 169 files are under
+Sixteen `tools/` scripts were audited and left unchanged because their module
+docstring already carries the purpose, the invocation and what the tool refuses to
+conclude; no new comment was needed. Every one of the 106 files under `src/` is now audited and carries a note naming
+the invariant recorded or why none was needed. The remaining 153 files are under
 `tests/`, `tools/`, `examples/` and `benchmarks/`, and are deliberately not
 claimed as audited, so **P131 is PARTIAL**, not passed.
 

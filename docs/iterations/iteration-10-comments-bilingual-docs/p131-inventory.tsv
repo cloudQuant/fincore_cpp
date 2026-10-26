@@ -243,28 +243,28 @@ tests/unit/viz_documents_test.cpp	cpp	0	no_explanatory_block_not_audited
 tests/unit/viz_html_builder_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/viz_render_model_test.cpp	cpp	0	no_explanatory_block_not_audited	
 tests/unit/yearly_test.cpp	cpp	0	no_explanatory_block_not_audited	
-tools/capability_inventory.py	py	0	no_explanatory_block_not_audited	
-tools/check_alpha003_loader.py	py	0	no_explanatory_block_not_audited	
-tools/check_research_detailed_oracle.py	py	0	no_explanatory_block_not_audited	
-tools/investigate_native_benchmark_order.py	py	0	no_explanatory_block_not_audited	
+tools/capability_inventory.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Build a source-pinned inventory of public Python routes and native hin...)
+tools/check_alpha003_loader.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Compare alpha003 loader outputs on deterministic synthetic CSV inputs....)
+tools/check_research_detailed_oracle.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Compare the native detailed research exporter with the pinned Python o...)
+tools/investigate_native_benchmark_order.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Collect alternating native-only benchmark runs with host/process conte...)
 tools/iteration8_artifact_check.py	py	0	no_explanatory_block_not_audited	
-tools/iteration8_new_pin_survival.py	py	0	no_explanatory_block_not_audited	
-tools/iteration8_performance_check.py	py	0	no_explanatory_block_not_audited	
-tools/iteration8_route_ledger.py	py	0	no_explanatory_block_not_audited	
-tools/iteration8_route_split.py	py	0	no_explanatory_block_not_audited	
+tools/iteration8_new_pin_survival.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Recheck new-pin survival for Iteration 8 NOT_RUN route rows....)
+tools/iteration8_performance_check.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Paired C4-vs-current native performance no-regression check....)
+tools/iteration8_route_ledger.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Build the Iteration 8 native route ledger from the frozen split and te...)
+tools/iteration8_route_split.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Build and validate the Iteration 8 native/optional route split....)
 tools/iteration8_source_manifest.py	py	0	no_explanatory_block_not_audited	
-tools/iteration8_test_port_ledger.py	py	0	no_explanatory_block_not_audited	
+tools/iteration8_test_port_ledger.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Build the Iteration 8 Python test-file port ledger....)
 tools/oracles/bootstrap_fixed_indices.py	py	0	no_explanatory_block_not_audited	
-tools/oracles/garch_fixed_parameters.py	py	0	no_explanatory_block_not_audited	
-tools/oracles/irr_extremes.py	py	0	no_explanatory_block_not_audited	
-tools/oracles/iteration8_python_fixtures.py	py	0	no_explanatory_block_not_audited	
+tools/oracles/garch_fixed_parameters.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Record fixed-parameter GARCH-family references from the pinned Python ...)
+tools/oracles/irr_extremes.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Replay pinned Python MWR/XIRR fixtures and measure returned-rate resid...)
+tools/oracles/iteration8_python_fixtures.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Generate the Iteration 8 NumPy RandomState oracle fixture....)
 tools/oracles/phase38_adjusted_sharpe.py	py	0	no_explanatory_block_not_audited	
-tools/oracles/solver_spike.py	py	0	no_explanatory_block_not_audited	
+tools/oracles/solver_spike.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Compare the supported numerical solver classes with SciPy references....)
 tools/parity_ledger.py	py	0	no_explanatory_block_not_audited	
-tools/replay_historical_oracles.py	py	0	no_explanatory_block_not_audited	
+tools/replay_historical_oracles.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Prepare or run bounded paired replays of archived Python oracle script...)
 tools/replay_oracle_baseline.py	py	0	no_explanatory_block_not_audited	
-tools/run_benchmarks.py	py	0	no_explanatory_block_not_audited	
-tools/run_paired_benchmarks.py	py	0	no_explanatory_block_not_audited	
+tools/run_benchmarks.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Run isolated fincore C++ and Python performance workloads....)
+tools/run_paired_benchmarks.py	py	0	reviewed_this_round	module docstring already states purpose, scope and how it is invoked, and says what it refuses to conclude (Run a paired, single-CPU C++ reference/candidate regression campaign....)
 tools/tests/test_alpha003_benchmark.py	py	0	no_explanatory_block_not_audited	
 tools/tests/test_alpha003_html_report.py	py	0	no_explanatory_block_not_audited	
 tools/tests/test_capability_inventory.py	py	0	no_explanatory_block_not_audited	
