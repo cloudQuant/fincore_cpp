@@ -481,3 +481,16 @@ button:focus-visible,
   background: #2f6f9f !important;
   border-color: #2f6f9f !important;
 }
+.fc-doc-links {
+  margin: 0.4rem 0 1rem;
+  padding: 0 0.75rem;
+  font-size: 0.9em;
+  color: #9fb0be;
+}
+.fc-doc-links a {
+  color: #cfe3ff;
+  text-decoration: none;
+}
+.fc-doc-links a:hover {
+  text-decoration: underline;
+}
